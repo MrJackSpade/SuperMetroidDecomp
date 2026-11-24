@@ -455,13 +455,24 @@ internal sealed partial class EngineLayouts
                 var solid = new JsonArray();
                 for (int column = 0; column < SlopeShape.Columns; column++)
                 {
+                    // The old height of a column is how far its surface lies from the block's far edge, so the rest of
+                    // the column is what is solid.
                     int across = behavior.Slope.FlipsHorizontally ? SlopeShape.Columns - 1 - column : column;
-                    solid.Add(Math.Clamp(behavior.Slope.Shape.HeightAt(across), 0, Block));
+                    solid.Add(Block - Math.Clamp(behavior.Slope.Shape.HeightAt(across), 0, Block));
                 }
 
                 tile["solid"] = solid;
                 if (behavior.Slope.FlipsVertically)
                     tile["from"] = "top";
+
+                // The old sloped shapes hold Samus up by her middle column alone; the square ones are steps and walls.
+                if (behavior.Slope.IsNonSquare)
+                    tile["holds"] = "middle";
+
+                // A floor's slope lets only a share of a move across it through, counted in 256ths.
+                int share = behavior.Slope.Shape.GroundedSpeedShare.TwoHundredFiftySixths;
+                if (!behavior.Slope.FlipsVertically && behavior.Slope.IsNonSquare && share != SpeedShare.Whole.TwoHundredFiftySixths)
+                    tile["ground_share"] = share;
                 break;
             case RoomCollisionType.HorizontalExtension:
             case RoomCollisionType.VerticalExtension:

@@ -173,7 +173,7 @@ public partial class Terrain : Node2D, ITerrainShape
                     case TileKind.Solid:
                         return true;
                     case TileKind.Slope:
-                        if (slopes != SlopeTreatment.Ignore && SlopeIsSolidIn(tile, column, row, rect))
+                        if (SlopeStops(tile, column, row, rect, slopes))
                             return true;
                         break;
                     default:
@@ -204,6 +204,27 @@ public partial class Terrain : Node2D, ITerrainShape
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// The shares, in 256ths, that the sloped tiles in the pixel column <paramref name="x"/> between the rows
+    /// <paramref name="top"/> and <paramref name="bottom"/> (not included) let through of a move across them on the
+    /// ground: one for each such tile that lets less than all of it through, from the top down.
+    /// </summary>
+    public IReadOnlyList<int> GroundSharesIn(int x, int top, int bottom)
+    {
+        var shares = new List<int>();
+        if (x < 0 || x >= WidthInPixels || bottom <= top)
+            return shares;
+        int size = TileSize, column = x / size;
+        int firstRow = Math.Max(0, top / size), lastRow = Math.Min(Layout.Rows - 1, (bottom - 1) / size);
+        for (int row = firstRow; row <= lastRow; row++)
+        {
+            if (_blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { GroundShare: < SlopeShape.WholeShare } slope })
+                shares.Add(slope.GroundShare);
+        }
+
+        return shares;
     }
 
     /// <summary>The intact blocks <paramref name="rect"/> overlaps or, when <paramref name="touchingCounts"/>, lies against.</summary>
@@ -330,6 +351,29 @@ public partial class Terrain : Node2D, ITerrainShape
         Layout.Patches.TryGetValue(name, out TerrainPatch? patch)
             ? patch
             : throw new ArgumentException($"The layout {LayoutFile} has no patch named \"{name}\".", nameof(name));
+
+    /// <summary>Whether a slope tile stops a body covering <paramref name="rect"/>, by the way its mover treats slopes.</summary>
+    private bool SlopeStops(TileDefinition tile, int column, int row, PixelRect rect, SlopeTreatment slopes)
+    {
+        bool holdsMiddle = tile.Slope is { HoldsMiddle: true };
+        switch (slopes)
+        {
+            case SlopeTreatment.Ignore:
+                return false;
+            case SlopeTreatment.IgnoreMiddleHeld when holdsMiddle:
+                return false;
+            case SlopeTreatment.ClimbUnderMiddle when holdsMiddle:
+                // Only the body's middle column meets the slope.
+                return SlopeIsSolidIn(tile, column, row, new PixelRect(rect.Left + rect.Width / 2, rect.Top, 1, rect.Height));
+            case SlopeTreatment.Climb:
+            case SlopeTreatment.Wall:
+            case SlopeTreatment.ClimbUnderMiddle:
+            case SlopeTreatment.IgnoreMiddleHeld:
+                return SlopeIsSolidIn(tile, column, row, rect);
+            default:
+                throw new InvalidOperationException($"Undefined way {slopes} of treating slopes.");
+        }
+    }
 
     /// <summary>Whether a slope tile has a solid pixel inside a rectangle of the room.</summary>
     private bool SlopeIsSolidIn(TileDefinition tile, int column, int row, PixelRect rect)

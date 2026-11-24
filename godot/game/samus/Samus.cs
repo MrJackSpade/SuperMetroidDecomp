@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
@@ -35,12 +36,24 @@ public partial class Samus : Player
     [Export, DataValue("low_energy")]
     public int LowEnergy { get; set; } = 30;
 
+    /// <summary>How many updates each picture of her running stride lasts, from its first to its last.</summary>
+    [Export, DataValue("run_stride_updates")]
+    public int[] RunStrideUpdates { get; set; } = [];
+
+    /// <summary>How many updates each picture of the stride lasts while a dash carries her, with the speed booster off.</summary>
+    [Export, DataValue("dash_stride_updates")]
+    public int[] DashStrideUpdates { get; set; } = [];
+
     /// <summary>
-    /// How many updates of dashing each stage of the speed booster's boost takes, from the first to the last. Having
-    /// run through them all, she is boosting.
+    /// How many updates each picture of the stride lasts while the speed booster's dash carries her, at each stage of
+    /// its boost: a stride's worth for the first stage, then the next stage's, to the last, at which she is boosting.
     /// </summary>
-    [Export, DataValue("boost_stage_updates")]
-    public int[] BoostStageUpdates { get; set; } = [];
+    [Export, DataValue("boost_stride_updates")]
+    public int[] BoostStrideUpdates { get; set; } = [];
+
+    /// <summary>How many strides she must complete, dashing, at each stage of the boost before the stage is done.</summary>
+    [Export, DataValue("boost_stride_counts")]
+    public int[] BoostStrideCounts { get; set; } = [];
 
     /// <summary>How many updates a stored shine lasts.</summary>
     [Export, DataValue("stored_shine_updates")]
@@ -140,6 +153,18 @@ public partial class Samus : Player
     [Export, DataValue("crystal_flash_drain_every")]
     public int CrystalFlashDrainEvery { get; set; } = 8;
 
+    /// <summary>How many pixels a jump from a crouch with her arm level lifts her before it begins.</summary>
+    [Export, DataValue("crouch_jump_lift")]
+    public int CrouchJumpLift { get; set; } = 10;
+
+    /// <summary>How many updates she takes to settle after landing from a spin.</summary>
+    [Export, DataValue("spin_landing_updates")]
+    public int SpinLandingUpdates { get; set; } = 10;
+
+    /// <summary>How many updates a spin that has found a wall to jump from stays ready to jump off it.</summary>
+    [Export, DataValue("wall_jump_ready_updates")]
+    public int WallJumpReadyUpdates { get; set; } = 8;
+
     /// <summary>How many updates of the charge it takes for a spin jump to hurt what it touches.</summary>
     [Export, DataValue("charged_spin_updates")]
     public int ChargedSpinUpdates { get; set; } = 60;
@@ -175,18 +200,17 @@ public partial class Samus : Player
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _grappleOrigins = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _shotHeights = new(StringComparer.Ordinal);
     private Countdown _shine = Countdown.Over;
-    private Countdown _boostStageLeft = Countdown.Over;
     private int _boostStage = -1;
+    private int _strideAt, _strideLeft, _stridesLeft;
+    private bool _ranFromStart;
     private bool _autoCancel;
     private bool _spreadCharged;
     private int _spreadHeld;
-    private bool _wasWallJumping;
     private bool _aimedDownLastUpdate;
     private bool _woreVaria;
     private bool _woreGravity;
     private bool _warningOfLowEnergy;
     private bool _chargeSounds;
-    private int _fallingAt;
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -198,10 +222,13 @@ public partial class Samus : Player
     public TimelineSet Timelines { get; private set; } = TimelineSet.None;
 
     /// <summary>Whether the speed booster has brought her to full speed: she is boosting.</summary>
-    public bool IsBoosting => BoostStageUpdates.Length > 0 && _boostStage >= BoostStageUpdates.Length;
+    public bool IsBoosting => BoostStrideCounts.Length > 0 && _boostStage >= FullBoostStage;
 
-    /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the number of stages when boosting.</summary>
+    /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the last when boosting.</summary>
     public int BoostStage => Math.Max(0, _boostStage);
+
+    /// <summary>The last stage of the boost: the one at which she is boosting.</summary>
+    private int FullBoostStage => BoostStrideCounts.Length - 1;
 
     /// <summary>Whether she has a shine stored.</summary>
     public bool HasStoredShine => _shine.IsRunning;
@@ -259,24 +286,30 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnEnteredRoom(Room room) => GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
 
-    /// <summary>Her landing leaves its dust and makes its sound, a harder one from a fast fall.</summary>
+    /// <summary>
+    /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
+    /// landing that is not a hard one and came down at a whole number of pixels an update, none included, does neither.
+    /// </summary>
     protected override void OnLanded()
     {
+        bool hard = LandingSpeed.Whole >= HardLandingSpeed;
+        if (!hard && LandingSpeed.Fraction == 0)
+            return;
         base.OnLanded();
-        if (Form != Crawling)
-            Room.Session.Sounds.Request(_fallingAt >= HardLandingSpeed ? Sounds.HardLand : Sounds.Land, channel: "samus");
+        Room.Session.Sounds.Request(hard ? Sounds.HardLand : Sounds.Land, channel: "samus");
     }
 
     /// <summary>
     /// Throws the morph ball as a bomb of her own lies against it: straight up when the bomb was beneath her middle,
-    /// and to the side away from it otherwise. Only the ball at rest in her control is thrown.
+    /// and to the side away from it otherwise. Only the ball in her control is thrown, or one already being thrown,
+    /// which is thrown afresh.
     /// </summary>
     public void BombJump(PixelPosition bomb)
     {
-        if (State is not CrawlingState)
+        if (State is not (CrawlingState or BombJumpingState))
             return;
         int away = Position.X.Whole - bomb.X.Whole;
-        ChangeState(new BombJumpingState(away));
+        Interrupt(new BombJumpingState(away));
     }
 
     /// <summary>
@@ -327,7 +360,9 @@ public partial class Samus : Player
 
     /// <summary>
     /// Sets her aim: the angle actions aim diagonally, and both together straight up; up aims up, or diagonally up
-    /// while she steers; down aims down in the air, or diagonally down while she steers or runs.
+    /// while she steers; down aims down in the air, or diagonally down while she steers. On the ground down aims only
+    /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
+    /// or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
     /// </summary>
     public override void AimFromInput()
     {
@@ -335,7 +370,15 @@ public partial class Samus : Player
         bool angleUp = Input.IsHeld(Actions.AngleUp), angleDown = Input.IsHeld(Actions.AngleDown);
         bool steering = Intent != 0;
         bool grounded = IsOnGround;
-        if (angleUp && angleDown)
+
+        // In the air an aim straight down stays until something else is asked: a direction, another aim, or the attack.
+        bool staysDown = !grounded && Aim == Aim.Down && State is JumpingState or FallingState
+            && !up && !angleUp && !angleDown && !steering && !Input.IsHeld(GameAction.Attack);
+        if (staysDown)
+            return;
+        if (State is RunningState && steering)
+            Aim = angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
+        else if (angleUp && angleDown)
             Aim = Aim.Up;
         else if (angleUp)
             Aim = Aim.DiagonalUp;
@@ -345,10 +388,85 @@ public partial class Samus : Player
             Aim = steering ? Aim.DiagonalUp : Aim.Up;
         else if (down && !grounded)
             Aim = steering ? Aim.DiagonalDown : Aim.Down;
-        else if (down && State is RunningState)
+        else if (down && steering)
             Aim = Aim.DiagonalDown;
         else
             Aim = Aim.Forward;
+    }
+
+    /// <summary>The name of the liquid type that ends a boosted run.</summary>
+    private const string LavaName = "lava";
+
+    /// <summary>Up, down and her two angle actions aim.</summary>
+    public override bool AimIsHeld => base.AimIsHeld || Input.IsHeld(Actions.AngleUp) || Input.IsHeld(Actions.AngleDown);
+
+    /// <summary>The poses she runs in. Each is the same run; changing from one to another is what moves her a pixel on.</summary>
+    private enum RunPose
+    {
+        /// <summary>Running with her arm at her side.</summary>
+        Plain,
+
+        /// <summary>Running with her arm held out, having fired.</summary>
+        Firing,
+
+        /// <summary>Running aiming diagonally up.</summary>
+        AimedUp,
+
+        /// <summary>Running aiming diagonally down.</summary>
+        AimedDown,
+    }
+
+    /// <summary>The pose she last ran in.</summary>
+    private RunPose _runPose;
+
+    /// <summary>
+    /// The pose she runs in next: as she aims; else with her arm out once she has fired, for as long as she runs on
+    /// without aiming; a run just begun has not fired yet.
+    /// </summary>
+    private RunPose NextRunPose(bool alreadyRunning) => Aim switch
+    {
+        Aim.DiagonalUp => RunPose.AimedUp,
+        Aim.DiagonalDown => RunPose.AimedDown,
+        _ => alreadyRunning && (_runPose == RunPose.Firing || Input.IsHeld(GameAction.Attack)) ? RunPose.Firing : RunPose.Plain,
+    };
+
+    /// <summary>
+    /// As the cartridge does, a run about to be taken up in a pose she is not already running in first moves her one
+    /// pixel on, the way she was headed: as a run starts, as her running pose changes (her arm coming out or her aim
+    /// changing), and on each update she runs on with nothing asked of her. A wall in that pixel stops the run and she
+    /// stands against it.
+    /// </summary>
+    protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked)
+    {
+        // Crouching out of a run at full boost stores a shine.
+        if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
+            StoreShine();
+
+        // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
+        // over and above what the taller body of the jump takes.
+        if (from is CrouchingState && to is JumpingState && Aim == Aim.Forward)
+        {
+            int taller = HalfHeightOf(FormOr(Jumping)) - HalfHeight;
+            Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
+        }
+
+        if (to is not RunningState)
+            return to;
+        bool alreadyRunning = from is RunningState;
+
+        // A run taken up afresh starts its stride again.
+        if (!alreadyRunning && RunStrideUpdates.Length > 0)
+            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0]);
+        RunPose pose = NextRunPose(alreadyRunning);
+        bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
+        _runPose = pose;
+        if (!stepsOn)
+            return to;
+        Facing headed = from is MoonwalkingState ? Facing.Opposite() : Facing;
+        MoveResult step = Room.Mover.MoveAcross(Body, headed.Toward(Pixels.FromWhole(1)), BodyMoves);
+        if (!step.Blocked)
+            return to;
+        return from is StandingState ? from : new StandingState();
     }
 
     /// <summary>Selects one of the things she can select; given nothing, the beam alone.</summary>
@@ -379,20 +497,21 @@ public partial class Samus : Player
     public void SpendShine() => _shine = Countdown.Over;
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
-    public void BoostFully() => _boostStage = BoostStageUpdates.Length;
+    public void BoostFully() => _boostStage = FullBoostStage;
 
     /// <summary>Ends her boost.</summary>
-    public void EndBoost()
-    {
-        _boostStage = -1;
-        _boostStageLeft = Countdown.Over;
-    }
+    public void EndBoost() => _boostStage = -1;
 
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        // Each update's movement says anew which of her body's powers are at work; they stay so for what touches her
+        // afterwards. The speed booster's is at work from the update after she reaches full boost.
         foreach (BodyPower power in BodyPowers)
             power.IsActive = false;
+        if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
+            boost.IsActive = true;
+        _ranFromStart = State is RunningState;
         _shine = _shine.Stepped();
         ChooseItem();
 
@@ -408,47 +527,67 @@ public partial class Samus : Player
     protected override PlayerState? ChooseState(PlayerState current)
     {
         GameInput input = Input;
-        bool wasWallJumping = _wasWallJumping;
-        _wasWallJumping = current is WallJumpingState;
         bool aimedDown = _aimedDownLastUpdate;
         _aimedDownLastUpdate = Aim == Aim.Down;
 
         switch (current)
         {
             case StandingState or RunningState or CrouchingState:
-                if (input.WasPressed(GameAction.Jump))
+                if (JumpPressed)
                 {
                     if (HasStoredShine)
                         return new ShinesparkState();
-                    if (current is not CrouchingState && Intent != 0)
+
+                    // A jump from a run is a spin; from standing or a crouch it is a plain jump, whatever is held. A
+                    // press of down in the same update crouches her instead.
+                    if (current is RunningState && !(MayCrouch && CrouchWhileRunning && input.WasPressed(GameAction.Down)))
                         return new SpinJumpingState();
                     return null;
-                }
-
-                if (current is RunningState && IsBoosting && input.WasPressed(GameAction.Down))
-                {
-                    StoreShine();
-                    return new CrouchingState();
                 }
 
                 if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
                     return new MoonwalkingState();
-                if (current is CrouchingState && Intent != 0 && Intent > 0 == (Facing == Facing.Right) && TrySetForm(Standing))
-                    return new RunningState();
+
+                // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
+                if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                    Intent != 0 && Intent > 0 == (Facing == Facing.Right))
+                {
+                    AimFromInput();
+                    return current;
+                }
                 if (current is not RunningState && Selected == Equipment.XrayScope && input.IsHeld(Actions.Run))
                     return new XrayState();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)
                     grapple.Fire(this);
                 return null;
 
-            case JumpingState when wasWallJumping:
-                return new SpinJumpingState(keepsSpeed: true);
+            case TurningState { Crouched: false }:
+                // A turn becomes a spin jump while the jump and the way she now faces are held; a turn begun aiming
+                // needs the jump pressed afresh.
+                bool towardFacing = Intent != 0 && Intent > 0 == (Facing == Facing.Right);
+                bool jumps = Aim == Aim.Forward ? input.IsHeld(GameAction.Jump) : JumpPressed;
+                return towardFacing && jumps ? new SpinJumpingState() : null;
+
+            case WallJumpingState:
+                // A press of down curls her up; steering the other way turns the wall jump into a spin that way; an
+                // angle held or the attack makes it a jump; the jump held keeps it; anything else lets it go into a spin.
+                if (input.WasPressed(GameAction.Down) && MayCrawl)
+                    return TakeLowForm();
+                if (Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                    return new SpinJumpingState(SpinJumpingState.Start.Turning);
+                if (input.IsHeld(Actions.AngleUp) || input.IsHeld(Actions.AngleDown) || input.IsHeld(GameAction.Attack))
+                {
+                    AimFromInput();
+                    return new JumpingState(keepsSpeed: true);
+                }
+
+                return input.IsHeld(GameAction.Jump) ? current : new SpinJumpingState(SpinJumpingState.Start.AfterWallJump);
 
             case JumpingState or FallingState or SpinJumpingState:
                 // Down pressed again while already aiming down curls her into the ball in the air.
                 if (input.WasPressed(GameAction.Down) && aimedDown && MayCrawl)
-                    return new CrawlingState();
+                    return TakeLowForm();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } inAir)
                     inAir.Fire(this);
                 return null;
@@ -457,9 +596,12 @@ public partial class Samus : Player
                 return CrystalFlashState.CanStart(this) ? new CrystalFlashState() : null;
 
             case KnockedBackState:
-                // Jumping out of a knockback while steering carries her off in a damage boost.
-                if (input.WasPressed(GameAction.Jump) && Intent != 0 && Form != Crawling)
-                    return new DamageBoostState(Intent > 0 ? Facing.Right : Facing.Left);
+                // Holding the jump and the direction behind her in a knockback carries her off that way in a damage boost.
+                var knockback = (KnockedBackState)current;
+                bool behind = input.IsHeld(Facing == Facing.Right ? GameAction.Left : GameAction.Right);
+                // The knockback she leaves still has this update of its own to run.
+                if (behind && input.IsHeld(GameAction.Jump) && Form != Crawling)
+                    return new DamageBoostState(Facing.Opposite(), Math.Max(0, knockback.UpdatesLeft - 1));
                 return null;
 
             default:
@@ -694,10 +836,10 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnMomentumBegan()
     {
-        if (!Inventory.IsOn(Equipment.SpeedBooster) || BoostStageUpdates.Length == 0)
+        if (!Inventory.IsOn(Equipment.SpeedBooster) || BoostStrideCounts.Length == 0)
             return;
         _boostStage = 0;
-        _boostStageLeft = Countdown.Of(BoostStageUpdates[0]);
+        _stridesLeft = BoostStrideCounts[0];
     }
 
     /// <inheritdoc/>
@@ -731,28 +873,81 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void AfterState()
     {
-        StepBoost();
-        if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
-            boost.IsActive = true;
+        // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
+        if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
+            LoseMomentum();
+        if (_ranFromStart && State is RunningState)
+            StepStride();
         WarnOfLowEnergy();
-        _fallingAt = Velocity.Y.IsNegative ? 0 : Velocity.Y.Whole;
         Grapple?.Step(this);
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }
 
-    /// <summary>Moves the speed booster's stages on while she dashes with it switched on.</summary>
-    private void StepBoost()
+    /// <summary>
+    /// Moves her running stride on by one update. The speed booster's boost is counted in strides: each one completed
+    /// with momentum and the dash held counts one off the stage she is at, and with none left the stage is done. How
+    /// long each picture of the stride lasts depends on what carries her, so the stages come quicker as they go.
+    /// </summary>
+    private void StepStride()
     {
-        if (_boostStage < 0 || IsBoosting || State is not RunningState || !HasMomentum || !DashIsHeld)
+        if (RunStrideUpdates.Length == 0 || --_strideLeft > 0)
             return;
-        _boostStageLeft = _boostStageLeft.Stepped();
-        if (_boostStageLeft.IsRunning)
+        _strideAt++;
+        if (_strideAt < RunStrideUpdates.Length)
+        {
+            _strideLeft = StridePictureUpdates(_strideAt);
             return;
-        _boostStage++;
-        if (IsBoosting)
-            Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
-        else
-            _boostStageLeft = Countdown.Of(BoostStageUpdates[_boostStage]);
+        }
+
+        // The stride is complete, and begins again.
+        _strideAt = 0;
+        bool dashing = HasMomentum && DashIsHeld;
+        if (!dashing)
+        {
+            _strideLeft = RunStrideUpdates[0];
+            return;
+        }
+
+        if (_boostStage < 0)
+        {
+            _strideLeft = DashStrideUpdates[0];
+            return;
+        }
+
+        if (_stridesLeft > 0)
+            _stridesLeft--;
+        if (_stridesLeft > 0)
+        {
+            _strideLeft = RunStrideUpdates[0];
+            return;
+        }
+
+        // The stage is done. Reaching the last, she is boosting, and the stride starts again at the first stage's
+        // pace, as the cartridge has it when nothing else is sounding.
+        int pace = _boostStage;
+        if (!IsBoosting)
+        {
+            _boostStage++;
+            pace = _boostStage;
+            if (IsBoosting)
+            {
+                Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+                pace = 0;
+            }
+        }
+
+        _stridesLeft = BoostStrideCounts[pace];
+        _strideLeft = BoostStrideUpdates[pace * RunStrideUpdates.Length];
+    }
+
+    /// <summary>How many updates a picture of her stride lasts now: by her dash and the boost's stage while she has momentum, and otherwise its own length.</summary>
+    private int StridePictureUpdates(int picture)
+    {
+        if (!HasMomentum)
+            return RunStrideUpdates[picture];
+        return Inventory.IsOn(Equipment.SpeedBooster)
+            ? BoostStrideUpdates[BoostStage * RunStrideUpdates.Length + picture]
+            : DashStrideUpdates[picture];
     }
 
     /// <summary>Starts the warning as her energy falls low and stops it as her energy recovers. The warning goes on by itself in between.</summary>

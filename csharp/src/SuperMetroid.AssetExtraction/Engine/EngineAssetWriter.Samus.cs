@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
@@ -36,6 +37,7 @@ public sealed partial class EngineAssetWriter
         ("standing", M.Standing), ("running", M.Running), ("turning", M.TurningOnGround), ("crouching", M.Crouching), ("jumping", M.NormalJumping),
         ("falling", M.Falling), ("wall_jumping", M.WallJumping), ("crawling", M.MorphBallGround), ("crawling_in_air", M.MorphBallFalling),
         ("knocked_back", M.Knockback), ("spin_jumping", M.SpinJumping), ("moonwalking", M.Moonwalking), ("damage_boost", M.DamageBoost),
+        ("crawling_jumping", M.SpringBallInAir),
     ];
 
     /// <summary>The ways she aims, as her data names them, with the old direction of each facing right and facing left.</summary>
@@ -50,6 +52,39 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>How long one segment of a pose's animation lasts.</summary>
     private static int SamusSegmentUpdates(P pose, Seg segment) => SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Sum();
+
+    /// <summary>How long one segment of a pose's animation lasts where each of its pictures is held <paramref name="longer"/> updates more, as in a liquid.</summary>
+    private static int SamusSegmentUpdates(P pose, Seg segment, int longer) =>
+        SamusSegmentUpdates(pose, segment) + SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Count * longer;
+
+    /// <summary>The timed changes of hers that an animation times, by the name of the value that gives each one's length, with the old pose and segment.</summary>
+    private static readonly (string Value, P Pose, Seg Segment)[] SamusTimedChanges =
+    [
+        ("turn_updates", P.TurningRightToLeftPose, Seg.Main), ("crouch_updates", P.CrouchingTransitionRightPose, Seg.Main),
+        ("stand_updates", P.StandingTransitionRightPose, Seg.Main), ("crawl_enter_updates", P.MorphingTransitionRightPose, Seg.Main),
+        ("crawl_leave_updates", P.UnmorphingTransitionRightPose, Seg.Main), ("jump_start_updates", P.NeutralJumpTransitionRightPose, Seg.Main),
+        ("wall_jump_ready_updates", P.SpinJumpRightPose, Seg.WallJumpReady), ("landing_updates", P.NormalLandingRightPose, Seg.Main),
+        ("spin_landing_updates", P.SpinLandingRightPose, Seg.Main),
+    ];
+
+    /// <summary>
+    /// The most pixels the surface of any of the old game's sloped shapes (not its square ones, which are steps and
+    /// walls) rises or falls between one pixel column and the next, within the block.
+    /// </summary>
+    private static int SteepestSlopeStep()
+    {
+        int steepest = 0;
+        foreach (SlopeShape shape in SlopeShapeDefinitions.All.Where(shape => !shape.IsSquare))
+        {
+            for (int column = 1; column < SlopeShape.Columns; column++)
+            {
+                int here = Math.Min(shape.HeightAt(column), SlopeShape.Columns), before = Math.Min(shape.HeightAt(column - 1), SlopeShape.Columns);
+                steepest = Math.Max(steepest, Math.Abs(here - before));
+            }
+        }
+
+        return steepest;
+    }
 
     /// <summary>A speed the old game keeps unsigned, as a plain number of pixels.</summary>
     private static double Number(UnsignedSixteenSixteen speed) => speed.RawValue / (double)UnsignedSixteenSixteen.FromWholePixels(1).RawValue;
@@ -103,6 +138,17 @@ public sealed partial class EngineAssetWriter
             moves["bomb_jumping"] = Moves(SamusHorizontalSpeedDefinitions.DiagonalBombJump);
             bool liquid = medium != SamusLiquidMedium.Air;
             int share = liquid ? GrappleBeamDefinitions.Physics.SubmergedShare : 1;
+
+            // In a liquid every picture of her animations is held longer, so the changes they time last longer.
+            var updates = new JsonObject();
+            if (liquid)
+            {
+                int longer = medium == SamusLiquidMedium.Water
+                    ? SamusAnimationDelayDefinitions.WaterAnimationDelay
+                    : SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
+                foreach ((string value, P pose, Seg segment) in SamusTimedChanges)
+                    updates[value] = SamusSegmentUpdates(pose, segment, longer);
+            }
             mediums[name] = new JsonObject
             {
                 ["gravity"] = Number(SamusVerticalMotionDefinitions.Gravities[medium]),
@@ -113,6 +159,7 @@ public sealed partial class EngineAssetWriter
                 ["boosted_wall_jump_speed"] = Number(SamusVerticalMotionDefinitions.HighJumpLaunchSpeeds[medium][SamusLaunchKind.WallJump]),
                 ["knockback_up_speed"] = Number(SamusVerticalMotionDefinitions.KnockbackSpeeds[medium]),
                 ["moves"] = moves,
+                ["updates"] = updates,
                 ["speeds"] = new JsonObject
                 {
                     ["bomb_jump"] = Number(SamusVerticalMotionDefinitions.BombJumpSpeeds[medium]),
@@ -148,12 +195,15 @@ public sealed partial class EngineAssetWriter
         foreach (string weapon in SamusWeaponFiles)
             weapons.Add(weapon);
 
-        // Each stage of the speed booster lasts the runs of her stride the old game counts for it, at that stage's pace.
-        var boostStages = new JsonArray();
-        for (int stage = 0; stage < SamusSpeedBoostCounter.FullStage; stage++)
+        // The speed booster's boost is counted in strides of her run. Each stage has its own pace for the stride's
+        // pictures and its own count of strides.
+        var boostStrides = new List<int>();
+        var boostCounts = new List<int>();
+        for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
         {
             SamusRunningCadenceTiming timing = SamusRunningCadenceDefinitions.Timings.Values.Single(cadence => cadence.Boost?.Stage == stage);
-            boostStages.Add(timing.Delays.Sum() * timing.Boost!.CountdownAfterAdvance);
+            boostStrides.AddRange(timing.Delays);
+            boostCounts.Add(timing.Boost!.CountdownAfterAdvance);
         }
 
         var file = new EngineObjectFile(_tree, "samus/samus.json", "Samus");
@@ -170,11 +220,14 @@ public sealed partial class EngineAssetWriter
             .Value("turn_updates", SamusSegmentUpdates(P.TurningRightToLeftPose, Seg.Main))
             .Value("dying_updates", SamusDyingUpdates())
             .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))
+
+            // She climbs as steeply as the old game's sloped shapes step from one pixel column to the next.
+            .Value("climb_per_pixel", SteepestSlopeStep())
             .Value("starting_energy", SamusEnergyDefinitions.StartingEnergy)
 
             // What she can do, and the equipment each thing needs: the Godot game's own names.
             .Value("can_crouch", true)
-            .Value("crouch_while_running", false)
+            .Value("crouch_while_running", true)
             .Value("can_crawl", true)
             .Value("crawl_needs", "morph_ball")
             .Value("can_jump_while_crawling", true)
@@ -186,15 +239,33 @@ public sealed partial class EngineAssetWriter
             .Value("dash_action", "run")
             .Value("dash_boost_needs", "speed_booster")
 
-            // A wall jump: she kicks off steering as in any jump, for as long as the kick is shown, with no speed given her.
+            // A wall jump: she leaves the wall with no speed given her across and gains it by the wall jump's own
+            // values for as long as the jump is held. The spin is ready to jump off a wall it has found for as long as
+            // its ready picture is shown.
             .Value("wall_jump_reach", SamusMovementDefinitions.WallJumpReachPixels)
             .Value("wall_jump_steered", true)
             .Value("wall_jump_across_speed", 0)
-            .Value("wall_jump_lock_updates", SamusSegmentUpdates(P.WallJumpRightPose, Seg.Launch))
+            .Value("wall_jump_ready_updates", SamusSegmentUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
+
+            // Crouching, standing up, curling up and uncurling each last as long as the pose between is shown, and a
+            // jump from a plain crouch starts lifted.
+            .Value("crouch_updates", SamusSegmentUpdates(P.CrouchingTransitionRightPose, Seg.Main))
+            .Value("stand_updates", SamusSegmentUpdates(P.StandingTransitionRightPose, Seg.Main))
+            .Value("crawl_enter_updates", SamusSegmentUpdates(P.MorphingTransitionRightPose, Seg.Main))
+            .Value("crawl_leave_updates", SamusSegmentUpdates(P.UnmorphingTransitionRightPose, Seg.Main))
+            .Value("crouch_jump_lift", SamusPoseCollisionDefinitions.CrouchJumpLift)
+
+            // A jump from standing is gathered for as long as its first pose is shown. A jump held for fewer updates
+            // than the old limit as she lands or finishes a turn counts as pressed afresh.
+            .Value("jump_start_updates", SamusSegmentUpdates(P.NeutralJumpTransitionRightPose, Seg.Main))
+            .Value("jump_buffer_updates", SamusAutoJumpDefinitions.TimerComparisonLimit)
+            .Value("landing_updates", SamusSegmentUpdates(P.NormalLandingRightPose, Seg.Main))
+            .Value("spin_landing_updates", SamusSegmentUpdates(P.SpinLandingRightPose, Seg.Main))
 
             // Letting go of the jump while she rises stops her rise at once.
             .Value("jump_cut_speed", Number(SamusVerticalVelocity.FallFromRest.Speed))
             .Value("crawl_bounce_speed", Number(SamusVerticalMotionDefinitions.BallBounceSpeed))
+            .Value("crawl_second_bounce_speed", Number(SamusVerticalMotionDefinitions.SecondBallBounceSpeed))
             .Value("crawl_bounce_fall_speed", SamusMovementDefinitions.FirstBallBounceMinimumSpeed)
             .Value("dash_acceleration", Number(SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration))
             .Value("dash_cap", Number(SamusHorizontalSpeedDefinitions.UnboostedExtraRunSpeedCap))
@@ -203,7 +274,10 @@ public sealed partial class EngineAssetWriter
             .Value("varia_damage_over", SamusSuitDamageDefinitions.VariaDivisor)
             .Value("gravity_damage_over", SamusSuitDamageDefinitions.GravityDivisor)
             .Value("low_energy", SamusEnergyDefinitions.HealthyEnergy - 1)
-            .Value("boost_stage_updates", boostStages)
+            .Value("run_stride_updates", EngineNames.List(SamusPoseTraits.Of(P.MovingRightNormalPose).Animation.Segment(Seg.Run).Delays))
+            .Value("dash_stride_updates", EngineNames.List(SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays))
+            .Value("boost_stride_updates", EngineNames.List(boostStrides))
+            .Value("boost_stride_counts", EngineNames.List(boostCounts))
             .Value("stored_shine_updates", ShinesparkDefinitions.StoredShineFrames)
             .Value("shinespark_windup_updates", ShinesparkDefinitions.WindupFrames)
             .Value("shinespark_speed", Number(ShinesparkDefinitions.WindupRunSpeed))
@@ -238,6 +312,7 @@ public sealed partial class EngineAssetWriter
             ["crawling"] = SamusPoseTraits.Of(P.MorphBallGroundRightPose).VerticalRadius,
             ["jumping"] = SamusPoseTraits.Of(P.NeutralJumpRightPose).VerticalRadius,
             ["falling"] = SamusPoseTraits.Of(P.FallingRightPose).VerticalRadius,
+            ["aiming_down"] = SamusPoseTraits.Of(P.NormalJumpAimDownRightPose).VerticalRadius,
             ["spinning"] = SamusPoseTraits.Of(P.SpinJumpRightPose).VerticalRadius,
         });
         file.Group("mediums", SamusMediumsWritten());

@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Engine.Actors;
@@ -26,14 +25,14 @@ public sealed class PushedState : PlayerState
     public override bool InControl => false;
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         owner.Velocity = _velocity;
         owner.MoveAcross();
         owner.MoveDown();
         _left = _left.Stepped();
         if (_left.IsRunning)
-            return this;
+            return null;
         return owner.IsOnGround ? new StandingState() : new FallingState();
     }
 }

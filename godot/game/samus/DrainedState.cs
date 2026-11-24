@@ -130,7 +130,7 @@ public sealed class DrainedState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         if (Glows && --_glowWait <= 0)
         {
@@ -159,12 +159,12 @@ public sealed class DrainedState : PlayerState, ISamusLook
         if (IsCarried || Posed is Pose.Pinned or Pose.Frozen)
         {
             owner.Velocity = PixelVelocity.Zero;
-            return this;
+            return null;
         }
 
         owner.MoveDown();
         owner.Fall();
-        return this;
+        return null;
     }
 
     /// <summary>The name of the timeline of the passing pose she is in, as her picture chooses it.</summary>

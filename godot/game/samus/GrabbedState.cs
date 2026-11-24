@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Input;
 using Engine.Shared;
 using Game.Data;
@@ -42,7 +41,7 @@ public sealed class GrabbedState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
         GameInput input = owner.Input;
@@ -68,7 +67,7 @@ public sealed class GrabbedState : PlayerState, ISamusLook
                 return owner.StateAtRest();
         }
 
-        return this;
+        return null;
     }
 
     /// <inheritdoc/>

@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Game.Data;
 
 namespace Game;
@@ -26,7 +25,7 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
         _look = owner.Form == Player.Crawling ? "morph_ball" : owner.IsOnGround ? "standing" : "falling";
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
         Inventory inventory = owner.Inventory;
@@ -38,6 +37,6 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
         inventory.Add(Amounts.Energy, given);
         if (owner.Room.Session.Clock.IsEvery(8))
             owner.Room.Session.Sounds.Request(Sounds.EnergyRefill, channel: "samus");
-        return this;
+        return null;
     }
 }

@@ -1,34 +1,61 @@
-using Engine.Actors.Components;
 using Engine.Input;
+using Engine.Shared;
 
 namespace Engine.Actors;
 
-/// <summary>Standing upright on the ground, at rest or coming to rest.</summary>
+/// <summary>
+/// Standing upright on the ground. Standing keeps none of the player's speed across: on each update a dash's speed
+/// alone still carries them, and then everything across is at rest.
+/// </summary>
 public sealed class StandingState : PlayerState
 {
+    /// <summary>The updates left in which the player is still settling from a landing.</summary>
+    private Countdown _settling;
+
+    /// <summary>Standing.</summary>
+    /// <param name="settlingUpdates">
+    /// How many updates the player takes to settle, having just landed: when they have stood that long, a jump
+    /// already held may once more count as pressed afresh.
+    /// </param>
+    public StandingState(int settlingUpdates = 0) => _settling = Countdown.Of(settlingUpdates);
+
     /// <inheritdoc/>
     public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
-        if (!owner.IsOnGround)
-            return new FallingState();
-        if (owner.Input.WasPressed(GameAction.Jump))
+        if (owner.JumpPressed)
             return new JumpingState();
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
-            return new CrouchingState();
-        if (owner.Intent != 0)
+            return owner.Crouch();
+        if (owner.Intent == 0)
+            return owner.Aim == Shared.Aim.Forward ? null : this;
+        if ((owner.Intent > 0) == (owner.Facing == Shared.Facing.Right))
+            return new RunningState();
+        if (owner.TurnUpdates > 0)
+            return new TurningState();
+
+        // A player who turns at once is already running the other way.
+        owner.TurnAround();
+        return new RunningState();
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
+        owner.ComeToRest();
+        owner.MoveAcross();
+        bool grounded = owner.PressToGround();
+        owner.StopAcross();
+        if (_settling.IsRunning)
         {
-            bool turning = (owner.Intent > 0) != (owner.Facing == Shared.Facing.Right);
-            return turning && owner.TurnUpdates > 0 ? new TurningState() : new RunningState();
+            _settling = _settling.Stepped();
+            if (_settling.IsOver)
+                owner.ArmJumpBuffer();
         }
 
-        // Standing still ends any momentum a dash had built.
-        owner.LoseMomentum();
-        owner.Slow(owner.Moves(StandingMoves));
-        owner.MoveAcross();
-        return this;
+        return grounded ? null : new FallingState(offFloor: true);
     }
 }

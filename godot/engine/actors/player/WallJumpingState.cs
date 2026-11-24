@@ -1,16 +1,16 @@
-using Engine.Actors.Components;
 using Engine.Input;
 using Engine.Shared;
 
 namespace Engine.Actors;
 
 /// <summary>
-/// Jumping off a wall: the player leaves the wall at a set speed and cannot steer for a moment, then carries on as in
-/// any jump.
+/// Jumping off a wall. In the plain kind the player leaves the wall at a set speed and cannot steer for a moment, then
+/// carries on as in any jump. In the steered kind they leave it with no speed across, gain speed by the wall jump's
+/// own move values without having to steer, and carry on so for as long as the jump is held.
 /// </summary>
 public sealed class WallJumpingState : PlayerState
 {
-    /// <summary>The updates left before the player can steer again.</summary>
+    /// <summary>The updates left before the player can steer again, in the plain kind.</summary>
     private Countdown _locked;
 
     /// <summary>
@@ -20,13 +20,18 @@ public sealed class WallJumpingState : PlayerState
     public static bool CanStart(Player owner) => WallToJumpFrom(owner) is not null;
 
     /// <summary>The side of the wall the player can jump off right now, or null when they cannot.</summary>
-    public static Facing? WallToJumpFrom(Player owner)
+    public static Facing? WallToJumpFrom(Player owner) =>
+        owner.MayWallJump && owner.JumpPressed && !owner.IsOnGround ? WallInReach(owner) : null;
+
+    /// <summary>
+    /// The side of the wall within reach, or null when there is none: where the game asks it, only the wall on the
+    /// side away from the direction held.
+    /// </summary>
+    public static Facing? WallInReach(Player owner)
     {
-        if (!owner.MayWallJump || !owner.Input.WasPressed(GameAction.Jump) || owner.IsOnGround)
-            return null;
-        foreach (Facing side in new[] { Facing.Left, Facing.Right })
+        foreach (Facing side in new[] { Facing.Right, Facing.Left })
         {
-            if (owner.WallJumpNeedsSteeringAway && owner.Intent != (side == Facing.Left ? 1 : -1))
+            if (owner.WallJumpNeedsSteeringAway && !owner.Input.IsHeld(side == Facing.Left ? GameAction.Right : GameAction.Left))
                 continue;
             if (owner.IsWithinReachOfWall(side, owner.WallJumpReach))
                 return side;
@@ -38,30 +43,49 @@ public sealed class WallJumpingState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        Facing wall = owner.IsWithinReachOfWall(Facing.Left, owner.WallJumpReach) ? Facing.Left : Facing.Right;
-        if (owner.WallJumpNeedsSteeringAway && owner.Intent != 0)
-            wall = owner.Intent > 0 ? Facing.Left : Facing.Right;
-        Facing away = wall.Opposite();
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
-        owner.Facing = away;
-        owner.Velocity = new PixelVelocity(
-            away.Toward(Pixels.FromNumber(owner.WallJumpAcrossSpeed)), -owner.LaunchSpeed(offWall: true));
-        _locked = Countdown.Of(owner.WallJumpLockUpdates);
+        if (owner.WallJumpSteered)
+        {
+            // The player keeps the way they face and whatever dash carries them; their own speed starts from rest.
+            owner.ComeToRest();
+        }
+        else
+        {
+            Facing away = (WallInReach(owner) ?? owner.Facing).Opposite();
+            owner.Facing = away;
+            owner.Steering = Steering.Steered;
+            owner.Velocity = owner.Velocity.WithX(away.Toward(Pixels.FromNumber(owner.WallJumpAcrossSpeed)));
+            _locked = Countdown.Of(owner.WallJumpLockUpdates);
+        }
+
+        owner.Rise(owner.LaunchSpeed(offWall: true));
     }
 
+    /// <summary>The steered kind lasts while the jump is held.</summary>
+    public override PlayerState? Asked(Player owner) => !owner.WallJumpSteered || owner.Input.IsHeld(GameAction.Jump) ? this : null;
+
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Unasked(Player owner) => new JumpingState(keepsSpeed: true);
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
     {
         JumpingState.CutShort(owner);
         owner.StepDash(building: false);
         if (owner.WallJumpSteered)
-            owner.Steer(owner.Moves(WallJumpingMoves));
+        {
+            // A wall jump gains speed across whether or not a direction is held.
+            owner.SteerInAir(owner.Moves(WallJumpingMoves));
+            if (owner.Steering == Steering.Steered)
+                owner.Steering = Steering.Unsteered;
+        }
+
         owner.MoveAcross();
-        owner.MoveDown();
-        owner.Fall();
         _locked = _locked.Stepped();
-        if (_locked.IsRunning)
-            return this;
-        return owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();
+        return AirStance.FallAndLand(owner);
     }
+
+    /// <inheritdoc/>
+    public override PlayerState? Ended(Player owner) =>
+        owner.WallJumpSteered || _locked.IsRunning ? null : new JumpingState(keepsSpeed: true);
 }

@@ -181,7 +181,13 @@ public sealed class Mover
     /// </summary>
     private int ClimbFor(PixelRect here, PixelRect ahead, int step, ICollisionOwner owner, MoveOptions options, Obstacle obstacle)
     {
-        if (options.Slopes != SlopeTreatment.Climb || obstacle.Solid is not null || !_world.Terrain.HasSlopeIn(ahead))
+        bool climbs = options.Slopes is SlopeTreatment.Climb or SlopeTreatment.ClimbUnderMiddle;
+        if (!climbs || obstacle.Solid is not null || !_world.Terrain.HasSlopeIn(ahead))
+            return 0;
+
+        // A mover held up by its middle climbs only the slopes that hold it so: a wall or a step in its way stops it,
+        // though a slope lies beside it.
+        if (options.Slopes == SlopeTreatment.ClimbUnderMiddle && _world.Terrain.IsSolidIn(ahead, SlopeTreatment.IgnoreMiddleHeld))
             return 0;
         for (int rise = 1; rise <= options.ClimbPerPixel; rise++)
         {

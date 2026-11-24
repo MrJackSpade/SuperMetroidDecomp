@@ -2,7 +2,19 @@ using Engine.Actors.Components;
 
 namespace Engine.Actors;
 
-/// <summary>One of the things the player can be doing. The engine provides the standard ones; a game adds its own.</summary>
+/// <summary>
+/// One of the things the player can be doing. The engine provides the standard ones; a game adds its own.
+/// </summary>
+/// <remarks>
+/// An update of a state has a set order. First the player's input is asked what it wants of the state as the last
+/// update left it (<see cref="Asked"/>). Then the player moves as the state they are still in (<see cref="Move"/>),
+/// and settles where that leaves them. Only then does a change take effect, and by this rank: the state's own end
+/// (<see cref="Ended"/>); something that interrupts the player (<see cref="Player.Interrupt"/>), which stays waiting
+/// when the state's end comes first or the state holds it off; what the movement itself met; what the input asked for, which when it is to
+/// carry on is told to the state (<see cref="CarriedOn"/>); and last, when the input asked for nothing, what the state
+/// does unasked (<see cref="Unasked"/>). A state entered this way sets itself up as the update ends and first moves on
+/// the next.
+/// </remarks>
 public abstract class PlayerState : State<Player>
 {
     /// <summary>The name of the move values the player stands by.</summary>
@@ -32,6 +44,9 @@ public abstract class PlayerState : State<Player>
     /// <summary>The name of the move values the low form steers through the air by.</summary>
     public const string CrawlingInAirMoves = "crawling_in_air";
 
+    /// <summary>The name of the move values the low form steers a jump of its own by.</summary>
+    public const string CrawlingJumpingMoves = "crawling_jumping";
+
     /// <summary>The name of the move values the player is thrown by when knocked back.</summary>
     public const string KnockedBackMoves = "knocked_back";
 
@@ -40,4 +55,82 @@ public abstract class PlayerState : State<Player>
 
     /// <summary>Whether the player is in control of themselves in this state.</summary>
     public virtual bool InControl => true;
+
+    /// <summary>
+    /// Whether an interruption has to wait while the player is in this state: it stays waiting, growing older, until
+    /// a state that does not hold it off has moved.
+    /// </summary>
+    public virtual bool HoldsOffInterruptions => false;
+
+    /// <summary>
+    /// Asked of a state about to interrupt the player after it has waited <paramref name="waited"/> updates for
+    /// states that held it off: whether it still does. A state whose time was running while it waited shortens
+    /// itself here.
+    /// </summary>
+    public virtual bool StillInterrupts(Player owner, int waited) => true;
+
+    /// <summary>
+    /// What the player's input asks of this state, decided before the player moves: another state to change to once
+    /// this update's movement is done; this state, to carry on in it; or null when the input asks for nothing, which
+    /// leaves the state to do what it does unasked. A state the player does not control carries on.
+    /// </summary>
+    public virtual PlayerState? Asked(Player owner) => this;
+
+    /// <summary>
+    /// Moves the player for one update as this state. Returns the state the movement itself brings about, a landing or
+    /// a floor walked off, which outranks what the input asked for; or null when it brings about none.
+    /// </summary>
+    public abstract PlayerState? Move(Player owner);
+
+    /// <summary>
+    /// The state that follows this one because its own time is up, whatever was met or asked for; null while it lasts.
+    /// Called after the player has moved.
+    /// </summary>
+    public virtual PlayerState? Ended(Player owner) => null;
+
+    /// <summary>
+    /// Called when the input asked the state to carry on and nothing else changed it, after the player has moved: what
+    /// of the input's asking takes effect within the state, as a change of stance does.
+    /// </summary>
+    public virtual void CarriedOn(Player owner)
+    {
+    }
+
+    /// <summary>
+    /// Whether this state's own end gives way to <paramref name="asked"/>, another state the input asked for on the
+    /// update it ends. A state's end outranks the input unless the state says otherwise here.
+    /// </summary>
+    public virtual bool EndGivesWayTo(PlayerState asked) => false;
+
+    /// <summary>
+    /// What the state does on an update whose input asked for nothing, when nothing else changed it: the state to
+    /// change to, or null to carry on. Called after the player has moved.
+    /// </summary>
+    public virtual PlayerState? Unasked(Player owner) => null;
+
+    /// <summary>Plays one update in the order every state keeps.</summary>
+    public sealed override State<Player> Step(Player owner)
+    {
+        PlayerState? asked = owner.AskedOf(this);
+        PlayerState? met = Move(owner);
+        owner.SettleAfterMoving();
+
+        // Something that put the player into another state while they moved has already had its way.
+        if (!ReferenceEquals(owner.State, this))
+            return owner.State;
+
+        PlayerState? ended = Ended(owner);
+        bool givesWay = asked is not null && !ReferenceEquals(asked, this) && EndGivesWayTo(asked);
+        if (ended is not null && !givesWay)
+        {
+            owner.KeepInterruptionWaiting();
+            return ended;
+        }
+
+        if ((owner.TakeInterruption(this) ?? met) is { } forced)
+            return forced;
+        if (ReferenceEquals(asked, this))
+            CarriedOn(owner);
+        return owner.EnteringFrom(this, (asked is null ? Unasked(owner) : asked) ?? this, unasked: asked is null);
+    }
 }

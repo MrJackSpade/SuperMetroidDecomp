@@ -35,6 +35,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The name of the form a fall takes, for a game whose player is not upright in the air; otherwise the upright form is used.</summary>
     public const string Falling = "falling";
 
+    /// <summary>
+    /// The name of the form the body takes while the player aims straight down in the air, for a game whose player is
+    /// smaller then; otherwise the form of the jump or the fall is kept.
+    /// </summary>
+    public const string AimingDown = "aiming_down";
+
     /// <inheritdoc/>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "";
@@ -74,13 +80,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export(PropertyHint.File), DataValue("land_effect")]
     public string LandEffect { get; set; } = "";
 
-    /// <summary>The most pixels climbed for each pixel walked across a slope.</summary>
+    /// <summary>The most pixels climbed for each pixel moved across a slope.</summary>
     [Export, DataValue("climb_per_pixel")]
     public int ClimbPerPixel { get; set; } = 2;
-
-    /// <summary>The most pixels the player is brought down to stay on ground that falls away as they walk.</summary>
-    [Export, DataValue("follow_ground_down")]
-    public int FollowGroundDown { get; set; } = 3;
 
     /// <summary>The energy the player starts a new game able to hold, and with.</summary>
     [Export, DataValue("starting_energy")]
@@ -149,6 +151,40 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("wall_jump_needs_steering_away")]
     public bool WallJumpNeedsSteeringAway { get; set; }
 
+    /// <summary>How many updates crouching down takes; zero crouches at once.</summary>
+    [Export, DataValue("crouch_updates")]
+    public int CrouchUpdates { get; set; }
+
+    /// <summary>How many updates standing up from a crouch takes; zero stands at once.</summary>
+    [Export, DataValue("stand_updates")]
+    public int StandUpdates { get; set; }
+
+    /// <summary>How many updates taking the low form takes; zero takes it at once.</summary>
+    [Export, DataValue("crawl_enter_updates")]
+    public int CrawlEnterUpdates { get; set; }
+
+    /// <summary>How many updates leaving the low form takes; zero leaves it at once.</summary>
+    [Export, DataValue("crawl_leave_updates")]
+    public int CrawlLeaveUpdates { get; set; }
+
+    /// <summary>
+    /// How many updates the player takes to settle after landing on their feet. Settled, a jump already held may once
+    /// more count as pressed afresh, where the game gives the player that.
+    /// </summary>
+    [Export, DataValue("landing_updates")]
+    public int LandingUpdates { get; set; }
+
+    /// <summary>How many updates a jump from the ground gathers itself for, moving nothing, before it rises.</summary>
+    [Export, DataValue("jump_start_updates")]
+    public int JumpStartUpdates { get; set; }
+
+    /// <summary>
+    /// A jump still held as the player lands or finishes a turn counts as pressed afresh on the next update when it
+    /// has been held for fewer updates than this; zero for no such thing.
+    /// </summary>
+    [Export, DataValue("jump_buffer_updates")]
+    public int JumpBufferUpdates { get; set; }
+
     /// <summary>The upward speed a jump is cut to when the jump action is let go early, as a number of pixels.</summary>
     [Export, DataValue("jump_cut_speed")]
     public double JumpCutSpeed { get; set; } = 1;
@@ -156,6 +192,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The upward speed the low form bounces with on landing from a fast fall; zero for no bounce.</summary>
     [Export, DataValue("crawl_bounce_speed")]
     public double CrawlBounceSpeed { get; set; }
+
+    /// <summary>The upward speed of the low form's second bounce, which follows its first.</summary>
+    [Export, DataValue("crawl_second_bounce_speed")]
+    public double CrawlSecondBounceSpeed { get; set; }
 
     /// <summary>The least falling speed, in whole pixels, at which the low form bounces on landing.</summary>
     [Export, DataValue("crawl_bounce_fall_speed")]
@@ -203,6 +243,28 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether the player's jumps start with their boosted speeds now.</summary>
     public bool JumpsAreBoosted => JumpBoostNeeds.Length > 0 && Inventory.IsOn(JumpBoostNeeds);
 
+    /// <summary>The state that crouches the player down: the crouch, by way of the change into it where that takes time.</summary>
+    public PlayerState Crouch() => Changing(Crouching, new CrouchingState(), InMedium("crouch_updates", CrouchUpdates), fallsInAir: false);
+
+    /// <summary>The state that stands the player up from a crouch.</summary>
+    public PlayerState StandUp() => Changing(Standing, new StandingState(), InMedium("stand_updates", StandUpdates), fallsInAir: false);
+
+    /// <summary>The state that puts the player into the low form.</summary>
+    public PlayerState TakeLowForm() => Changing(Crawling, new CrawlingState(), InMedium("crawl_enter_updates", CrawlEnterUpdates), fallsInAir: true);
+
+    /// <summary>The state that brings the player out of the low form, into a crouch.</summary>
+    public PlayerState LeaveLowForm() => Changing(Crouching, new CrouchingState(), InMedium("crawl_leave_updates", CrawlLeaveUpdates), fallsInAir: true);
+
+    /// <summary>
+    /// How many updates a timed change lasts where the player is now: the length the medium they are in gives for the
+    /// value named <paramref name="name"/>, or failing that <paramref name="updates"/>.
+    /// </summary>
+    public int InMedium(string name, int updates) => Medium.Updates.TryGetValue(name, out int own) ? own : updates;
+
+    /// <summary>A posture's state, by way of the change into it where that takes time.</summary>
+    private static PlayerState Changing(string form, PlayerState then, int updates, bool fallsInAir) =>
+        updates > 0 ? new ChangingPostureState(form, then, updates, fallsInAir) : then;
+
     /// <summary>Whether the equipment a mechanic needs is switched on; a mechanic that needs none always has it.</summary>
     private bool HasWhatItNeeds(string equipment) => equipment.Length == 0 || Inventory.IsOn(equipment);
 
@@ -216,14 +278,86 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private int _ongoingHundredths;
     private int _addedOngoing;
     private bool _valuesLoaded;
+    private ISpeedReadings _readings = new PlainSpeedReadings();
     private readonly Dictionary<string, IReadOnlyList<string>> _ongoingCancelledBy = new(StringComparer.Ordinal);
     private readonly List<BodyPower> _bodyPowers = [];
 
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 
-    /// <summary>The player's speed, apart from any dash.</summary>
-    public PixelVelocity Velocity { get; set; }
+    /// <summary>
+    /// The player's speed, apart from any dash. Across, a state that steers keeps it as a size carried the way the
+    /// player travels (<see cref="Steer"/>); a state that throws the player about sets it outright.
+    /// </summary>
+    public PixelVelocity Velocity
+    {
+        get => _velocity;
+        set
+        {
+            // An upward speed is a rise. A speed left as it was keeps what it was: a rise that gravity has brought to
+            // rest, or past it, is still a rise until the state the player is in turns it into a fall.
+            IsRising = value.Y.IsNegative || (value.Y == _velocity.Y && IsRising);
+            _velocity = value;
+        }
+    }
+
+    private PixelVelocity _velocity;
+
+    /// <summary>
+    /// Whether the player is on the way up. Gravity slowing a rise to rest, or past it, does not end it: the state
+    /// the player is in does, at the top (<see cref="TurnAtTop"/>), and so does anything that stops them.
+    /// </summary>
+    public bool IsRising { get; private set; }
+
+    /// <summary>Whether gravity has slowed the player's rise past rest, so that it is due to become a fall.</summary>
+    public bool IsPastTop => IsRising && _velocity.Y > Pixels.Zero;
+
+    /// <summary>Starts the player rising at <paramref name="speed"/>.</summary>
+    public void Rise(Pixels speed)
+    {
+        _velocity = _velocity.WithY(-speed);
+        IsRising = true;
+    }
+
+    /// <summary>Puts the player at rest up and down, about to fall.</summary>
+    public void FallFromRest()
+    {
+        _velocity = _velocity.WithY(Pixels.Zero);
+        IsRising = false;
+    }
+
+    /// <summary>
+    /// The speed the player came down onto their feet at on this update, as gravity left it; none when they did not,
+    /// or came down in some other way.
+    /// </summary>
+    public Pixels LandingSpeed { get; private set; }
+
+    /// <summary>
+    /// Lands the player on their feet at <paramref name="speed"/>: they are at rest up and down and across, steered,
+    /// and a jump already held may count as pressed afresh on the next update. A dash is left as it is.
+    /// </summary>
+    public void Land(Pixels speed)
+    {
+        LandingSpeed = speed;
+        FallFromRest();
+        ComeToRest();
+        ArmJumpBuffer();
+    }
+
+    /// <summary>Turns a rise that gravity has slowed past rest into a fall from rest. Returns whether it did.</summary>
+    public bool TurnAtTop()
+    {
+        if (!IsPastTop)
+            return false;
+        FallFromRest();
+        return true;
+    }
+
+    /// <summary>How the player's own speed across stands to the way they face.</summary>
+    public Steering Steering { get; set; }
+
+    /// <summary>The way a steered speed carries the player: the way they face, or against it while they are reversing.</summary>
+    public Facing Travel => Steering == Steering.Reversing ? Facing.Opposite() : Facing;
 
     /// <summary>The speed a dash is adding across, in the way the player is going.</summary>
     public Pixels DashSpeed { get; private set; }
@@ -288,8 +422,15 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Which way the player is steering: -1 left, 1 right, 0 neither or both.</summary>
     public int Intent => (_input.IsHeld(GameAction.Right) ? 1 : 0) - (_input.IsHeld(GameAction.Left) ? 1 : 0);
 
+    /// <summary>
+    /// How the player's body meets terrain: stopped by terrain and solids, held up by sloped ground under its middle
+    /// column where the slope's tile says it holds things so, and climbing such ground as steeply as the player can,
+    /// on the ground and in the air alike. Every move and test of the player's body uses it.
+    /// </summary>
+    public MoveOptions BodyMoves => MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel };
+
     /// <summary>Whether the player stands on terrain or a solid.</summary>
-    public bool IsOnGround => Room.Mover.IsOnGround(Body, MoveOptions.Plain) || StandsInBlockThatHoldsUp();
+    public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
 
     /// <summary>Whether the player's feet are in a block that pulls down and yet holds up what stands in it, as quicksand does.</summary>
     private bool StandsInBlockThatHoldsUp() =>
@@ -303,6 +444,25 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// have a medium of its name, and otherwise air.
     /// </summary>
     public PlayerMedium Medium => _medium ??= FindMedium();
+
+    /// <summary>
+    /// Whether <paramref name="point"/> of the player is in <paramref name="liquid"/>: the pixel row it lies in is
+    /// below the surface's line, not on it.
+    /// </summary>
+    public static bool IsUnder(Liquid liquid, PixelPosition point)
+    {
+        ArgumentNullException.ThrowIfNull(liquid);
+        return point.Y > liquid.Surface;
+    }
+
+    /// <summary>Whether the player's feet are in the room's liquid, whatever their equipment makes of it.</summary>
+    public bool FeetAreInLiquid => Room.Liquid is { } liquid && IsUnder(liquid, Feet);
+
+    /// <summary>
+    /// The speed the player last came down onto ground at, for a landing that is not on their feet. A state that
+    /// brings the player down some other way than <see cref="Land"/> says so here.
+    /// </summary>
+    public void CameDownAt(Pixels speed) => LandingSpeed = speed;
 
     /// <summary>Whether the player's feet are in a liquid that hinders them.</summary>
     public bool IsHinderedByLiquid => HinderingLiquid(Feet) is not null;
@@ -369,6 +529,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (!_valuesLoaded)
         {
             _valuesLoaded = true;
+            _readings = room.Session.Definition.CreateSpeedReadings();
             DataValues.Fill(this, room.Content);
             if (Mediums.Count == 0)
                 Mediums.Add(PlayerMedium.Plain());
@@ -432,8 +593,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Plays one update: what the player is doing runs, weapons fire, active body powers hit what the body touches, and
-    /// the room's ongoing damage is taken.
+    /// Plays one update. The state the player is in is asked what the input wants, moves the player, and the player
+    /// settles where that left them (what they stand on, what blocks do to them, the room's ongoing damage); then
+    /// whatever change is due takes effect (<see cref="PlayerState"/> gives the rank). After that weapons fire and
+    /// active body powers hit what the body touches.
     /// </summary>
     public void Step(GameInput input)
     {
@@ -444,29 +607,36 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (IsDead)
             return;
 
+        TakeJumpBuffer();
         BeforeState();
-        PlayerState? chosen = ChooseState(State);
-        if (chosen is not null)
-            States.ChangeTo(chosen);
         States.Step();
 
         if (State.CanAttack)
             Attack(input);
         DeliverBodyPowers();
-        if (State is not DyingState)
-        {
-            bool onGround = IsOnGround;
-            if (onGround)
-                Room.Terrain.StandOn(BodyRect);
-            if (onGround && !_wasOnGround)
-                OnLanded();
-            _wasOnGround = onGround;
-            BeMovedByBlocks();
-            Splash();
-            TakeOngoingDamage();
-        }
-
         AfterState();
+        CountJumpHeld();
+    }
+
+    /// <summary>
+    /// Settles the player where this update's movement left them, before any change of state takes effect: they stand
+    /// on what is under them, land, are moved by the blocks they are in, splash, and take the room's ongoing damage.
+    /// A hurt taken here interrupts them on this same update.
+    /// </summary>
+    internal void SettleAfterMoving()
+    {
+        if (State is DyingState)
+            return;
+        bool onGround = IsOnGround;
+        if (onGround)
+            Room.Terrain.StandOn(BodyRect);
+        if (onGround && !_wasOnGround)
+            OnLanded();
+        LandingSpeed = Pixels.Zero;
+        _wasOnGround = onGround;
+        BeMovedByBlocks();
+        Splash();
+        TakeOngoingDamage();
     }
 
     /// <summary>Whether the player's feet were on the ground, and in the room's liquid, at the end of the last update.</summary>
@@ -487,7 +657,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private void Splash()
     {
         Liquid? liquid = Room.Liquid;
-        bool inLiquid = liquid is not null && liquid.IsSubmerged(Feet);
+        bool inLiquid = liquid is not null && IsUnder(liquid, Feet);
         bool crossed = _feetWereInLiquid is bool before && before != inLiquid;
         _feetWereInLiquid = inLiquid;
         if (!crossed || liquid is null)
@@ -510,22 +680,88 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Lets a game put the player into a state of its own. Called at the start of each update with the state the player
-    /// is in; returns the state to change to, or null to leave things as they are.
+    /// Lets a game's player ask for a state of its own. Called at the start of each update, before the player moves,
+    /// with the state the player is in; returns the state the input asks for, which is entered once this update's
+    /// movement is done unless something outranks it, or null to leave the asking to the state itself.
     /// </summary>
     protected virtual PlayerState? ChooseState(PlayerState current) => null;
+
+    /// <summary>
+    /// Called as the player, having moved with nothing ended, interrupting or met, is about to be in
+    /// <paramref name="to"/>: the state their input asked for, the state they do unasked, or
+    /// <paramref name="from"/> itself when they carry on. A game whose player does something of its own at that moment
+    /// does it here, and returns the state to be in.
+    /// </summary>
+    /// <param name="from">The state the player moved as.</param>
+    /// <param name="to">The state they are about to be in.</param>
+    /// <param name="unasked">Whether this update's input asked for nothing.</param>
+    protected virtual PlayerState Entering(PlayerState from, PlayerState to, bool unasked) => to;
+
+    /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
+    internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
+
+    /// <summary>What the player's input asks of <paramref name="state"/>: the game's own answer, and failing that the state's.</summary>
+    internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
+
+    /// <summary>The state waiting to interrupt the player, if any, and how many updates it has waited.</summary>
+    private PlayerState? _interruption;
+    private int _interruptionWaited;
+
+    /// <summary>
+    /// Interrupts the player with <paramref name="state"/> from outside: they are put into it when they have next
+    /// moved as the state they are in, ahead of whatever that movement met and whatever their input asked for.
+    /// </summary>
+    public void Interrupt(PlayerState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        _interruption = state;
+        _interruptionWaited = 0;
+    }
+
+    /// <summary>Whether something is waiting to interrupt the player.</summary>
+    public bool IsInterrupted => _interruption is not null;
+
+    /// <summary>
+    /// Takes the state waiting to interrupt the player, who has just moved as <paramref name="from"/>, leaving none
+    /// waiting. Null when none was, when <paramref name="from"/> holds it off for another update, or when it has
+    /// waited too long to interrupt at all.
+    /// </summary>
+    internal PlayerState? TakeInterruption(PlayerState from)
+    {
+        if (_interruption is not { } waiting)
+            return null;
+        if (from.HoldsOffInterruptions)
+        {
+            _interruptionWaited++;
+            return null;
+        }
+
+        _interruption = null;
+        return waiting.StillInterrupts(this, _interruptionWaited) ? waiting : null;
+    }
+
+    /// <summary>Leaves a waiting interruption waiting one update more.</summary>
+    internal void KeepInterruptionWaiting()
+    {
+        if (_interruption is not null)
+            _interruptionWaited++;
+    }
 
     /// <summary>Uses the player's weapons for one update. A game whose player attacks in ways of its own does so here.</summary>
     protected virtual void Attack(GameInput input) => Weapons.Step(this, input);
 
-    /// <summary>Puts the player into <paramref name="state"/> now.</summary>
-    public void ChangeState(PlayerState state) => States.ChangeTo(state);
+    /// <summary>Puts the player into <paramref name="state"/> now. Whatever was waiting to interrupt them is dropped.</summary>
+    public void ChangeState(PlayerState state)
+    {
+        _interruption = null;
+        States.ChangeTo(state);
+    }
 
-    /// <summary>Knocks the player back, away from <paramref name="from"/>.</summary>
-    public void KnockBack(Facing from) => ChangeState(new KnockedBackState(from.Opposite()));
+    /// <summary>Knocks the player back, away from <paramref name="from"/>, once they have next moved.</summary>
+    public void KnockBack(Facing from) => Interrupt(new KnockedBackState(from.Opposite()));
 
-    /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates.</summary>
-    public void KnockBack(Facing from, int updates) => ChangeState(new KnockedBackState(from.Opposite(), updates));
+    /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates, once they have next moved.</summary>
+    public void KnockBack(Facing from, int updates) => Interrupt(new KnockedBackState(from.Opposite(), updates));
 
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
@@ -647,57 +883,120 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         if (form == Form)
             return true;
+        if (PlaceInForm(form, aroundMiddle) is not { } place)
+            return false;
+        Position = place;
+        ApplyForm(form);
+        return true;
+    }
+
+    /// <summary>Whether the body could take <paramref name="form"/> where it is, as <see cref="TrySetForm"/> would place it.</summary>
+    public bool CanTakeForm(string form, bool aroundMiddle = false) => form == Form || PlaceInForm(form, aroundMiddle) is not null;
+
+    /// <summary>Where the player would be in another form: the first place the form fits, or null when it fits nowhere.</summary>
+    private PixelPosition? PlaceInForm(string form, bool aroundMiddle)
+    {
         int change = HalfHeightOf(form) - HalfHeight;
         PixelPosition keepingFeet = Position + PixelOffset.FromWhole(0, -change);
         PixelPosition keepingHead = Position + PixelOffset.FromWhole(0, change);
         PixelPosition[] candidates = IsOnGround && !aroundMiddle ? [keepingFeet] : [Position, keepingFeet, keepingHead];
         foreach (PixelPosition candidate in candidates)
         {
-            if (change > 0 && !Room.Mover.IsFree(BodyRectFor(form).At(candidate), this, MoveOptions.Plain))
-                continue;
-            Position = candidate;
-            ApplyForm(form);
-            return true;
+            if (change <= 0 || Room.Mover.IsFree(BodyRectFor(form).At(candidate), this, BodyMoves))
+                return candidate;
         }
 
-        return false;
+        return null;
     }
 
     /// <summary>
-    /// Changes the player's speed across by steering with <paramref name="moves"/>: toward the way they steer, up to
-    /// the top speed; against the way they are going, slowing; and with no steering, as the values say.
+    /// Changes the player's own speed across for one update on the ground by <paramref name="moves"/>. Steered, the
+    /// speed gains, and the top speed replaces a speed that reads as past it. Unsteered or reversing, it slows, and a
+    /// speed slowed past rest is at rest and steered again; one slowed exactly to rest keeps its condition for one
+    /// update more. The speed then carries the player the way they travel.
     /// </summary>
-    public void Steer(MoveValues moves)
+    /// <param name="moves">The move values of what the player is doing.</param>
+    /// <param name="heading">The way the player is headed when that is not the way they face, as walking backwards.</param>
+    public void Steer(MoveValues moves, Facing? heading = null)
     {
         ArgumentNullException.ThrowIfNull(moves);
-        int intent = Intent;
-        Pixels speed = Velocity.X;
-        if (intent != 0 && (speed.IsZero || speed.IsNegative == intent < 0))
-        {
-            Pixels faster = speed + moves.Gain * intent;
-            speed = faster.Abs() > moves.Top ? moves.Top * intent : faster;
-            Facing = intent > 0 ? Facing.Right : Facing.Left;
-        }
-        else if (intent != 0)
-        {
-            speed = speed.Toward(Pixels.Zero, moves.Loss);
-        }
+        Pixels speed = Velocity.X.Abs();
+        if (Steering == Steering.Steered)
+            speed = Gained(speed, moves, out _);
         else
-        {
-            speed = moves.WhenNotSteering switch
-            {
-                MoveValues.NotSteering.Slows => speed.Toward(Pixels.Zero, moves.Loss),
-                MoveValues.NotSteering.Stops => Pixels.Zero,
-                MoveValues.NotSteering.Coasts => speed,
-                _ => throw new InvalidOperationException($"Undefined answer {moves.WhenNotSteering} to not steering."),
-            };
-        }
-
-        Velocity = Velocity.WithX(speed);
+            speed = SlowedToRest(speed, moves);
+        CarryAcross(speed, heading);
     }
 
-    /// <summary>Slows the player's speed across toward rest by <paramref name="moves"/>' deceleration.</summary>
-    public void Slow(MoveValues moves) => Velocity = Velocity.WithX(Velocity.X.Toward(Pixels.Zero, moves.Loss));
+    /// <summary>
+    /// Changes the player's own speed across for one update in the air by <paramref name="moves"/>. Only a reversal
+    /// slows there: steered or unsteered, the speed gains. Returns whether the top speed replaced it.
+    /// </summary>
+    public bool SteerInAir(MoveValues moves)
+    {
+        ArgumentNullException.ThrowIfNull(moves);
+        Pixels speed = Velocity.X.Abs();
+        bool capped = false;
+        if (Steering == Steering.Reversing)
+            speed = SlowedToRest(speed, moves);
+        else
+            speed = Gained(speed, moves, out capped);
+        CarryAcross(speed, heading: null);
+        return capped;
+    }
+
+    /// <summary>A speed after one update's gain, the top speed in its place when it reads as past it.</summary>
+    private Pixels Gained(Pixels speed, MoveValues moves, out bool capped)
+    {
+        Pixels faster = speed + moves.Gain;
+        capped = _readings.IsPastTop(faster, moves.Top);
+        return capped ? moves.Top : faster;
+    }
+
+    /// <summary>A speed after one update's slowing; slowed past rest, it is at rest and the player is steered again.</summary>
+    private Pixels SlowedToRest(Pixels speed, MoveValues moves)
+    {
+        Pixels slower = speed - moves.Loss;
+        if (!slower.IsNegative)
+            return slower;
+        Steering = Steering.Steered;
+        return Pixels.Zero;
+    }
+
+    /// <summary>Sets the player's own speed across to a size, carried the way they travel.</summary>
+    private void CarryAcross(Pixels speed, Facing? heading)
+    {
+        Facing way = heading is { } headed ? (Steering == Steering.Reversing ? headed.Opposite() : headed) : Travel;
+        Velocity = Velocity.WithX(way.Toward(speed));
+    }
+
+    /// <summary>Brings the player's own speed across to rest and makes them steered. A dash is left as it is.</summary>
+    public void ComeToRest()
+    {
+        Velocity = Velocity.WithX(Pixels.Zero);
+        Steering = Steering.Steered;
+    }
+
+    /// <summary>Adds the dash's speed into the player's own speed, the way that speed already goes, and leaves no dash.</summary>
+    public void FoldDash()
+    {
+        if (DashSpeed.IsZero)
+            return;
+        Pixels speed = Velocity.X.Abs() + DashSpeed;
+        Velocity = Velocity.WithX(Velocity.X.IsZero ? Travel.Toward(speed) : Velocity.X.IsNegative ? -speed : speed);
+        DashSpeed = Pixels.Zero;
+    }
+
+    /// <summary>
+    /// Turns the player to face the other way. Their dash's speed is added into their own, which goes on carrying
+    /// them the old way, reversing, until it is slowed to rest.
+    /// </summary>
+    public void TurnAround()
+    {
+        FoldDash();
+        Facing = Facing.Opposite();
+        Steering = Steering.Reversing;
+    }
 
     /// <summary>
     /// Builds or keeps the player's dash for one update. While <paramref name="building"/>, which a state says when
@@ -720,7 +1019,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
 
         Pixels cap = Pixels.FromNumber(DashBoostNeeds.Length > 0 && Inventory.IsOn(DashBoostNeeds) ? BoostedDashCap : DashCap);
-        DashSpeed = DashSpeed >= cap ? cap : DashSpeed + Pixels.FromNumber(DashAcceleration);
+        DashSpeed = _readings.IsAtCap(DashSpeed, cap) ? cap : DashSpeed + Pixels.FromNumber(DashAcceleration);
     }
 
     /// <summary>Whether the dash action is held.</summary>
@@ -730,6 +1029,15 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void LoseMomentum()
     {
         DashSpeed = Pixels.Zero;
+        EndMomentum();
+    }
+
+    /// <summary>
+    /// Ends the player's momentum and leaves the dash's speed as it is: it still carries them until something that
+    /// keeps a dash only with momentum next looks at it.
+    /// </summary>
+    public void EndMomentum()
+    {
         if (!HasMomentum)
             return;
         HasMomentum = false;
@@ -746,27 +1054,48 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
     }
 
-    /// <summary>Stops the player's movement across, dash and momentum included.</summary>
+    /// <summary>Stops the player's movement across, dash and momentum included, and makes them steered.</summary>
     public void StopAcross()
     {
-        Velocity = Velocity.WithX(Pixels.Zero);
+        ComeToRest();
         LoseMomentum();
     }
 
-    /// <summary>How far the player moves across this update: their speed, and their dash on top of it in the way they are going.</summary>
+    /// <summary>
+    /// Brings the player's own speed across to rest, makes them steered and leaves no dash speed. Their momentum is
+    /// left as it is, for whatever ends it.
+    /// </summary>
+    public void ClearSpeedAcross()
+    {
+        ComeToRest();
+        DashSpeed = Pixels.Zero;
+    }
+
+    /// <summary>
+    /// How far the player moves across this update: their speed, and their dash on top of it in the way they are
+    /// going, which at rest is the way they travel.
+    /// </summary>
     public Pixels SpeedAcross
     {
         get
         {
             if (DashSpeed.IsZero)
                 return Velocity.X;
-            bool leftward = Velocity.X.IsZero ? Facing == Facing.Left : Velocity.X.IsNegative;
+            bool leftward = Velocity.X.IsZero ? Travel == Facing.Left : Velocity.X.IsNegative;
             return Velocity.X + (leftward ? -DashSpeed : DashSpeed);
         }
     }
 
-    /// <summary>Adds the medium's gravity to the player's speed, up to the fastest they fall.</summary>
-    public void Fall() => Velocity = Velocity.WithY(AfterGravity(Velocity.Y, Medium));
+    /// <summary>
+    /// Adds the medium's gravity to the player's speed: to a fall, up to the fastest they fall; to a rise, however far
+    /// it takes it, which leaves a rise slowed to rest or past it for the state to turn into a fall.
+    /// </summary>
+    public void Fall()
+    {
+        PlayerMedium medium = Medium;
+        Pixels down = IsRising ? _velocity.Y + Pixels.FromNumber(medium.Gravity) : AfterGravity(_velocity.Y, medium);
+        _velocity = _velocity.WithY(down);
+    }
 
     /// <summary>The player's speed downward after one update of <paramref name="medium"/>'s gravity.</summary>
     protected virtual Pixels AfterGravity(Pixels speed, PlayerMedium medium)
@@ -787,18 +1116,19 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Moves the player across by their speed and dash. On the ground they climb slopes and follow ground that falls
-    /// away. Meeting a wall stops them and ends their momentum.
+    /// Moves the player across by their speed and dash. On the ground they climb slopes, which take their share of the
+    /// move; the state they are in then presses them to the ground (<see cref="PressToGround"/>). Meeting a wall stops
+    /// them and ends their momentum.
     /// </summary>
-    public MoveResult MoveAcross()
+    /// <param name="byDashAlone">Whether only a dash's speed carries the player this update, their own speed left as it is.</param>
+    public MoveResult MoveAcross(bool byDashAlone = false)
     {
-        bool grounded = IsOnGround;
-        MoveOptions options = MoveOptions.Plain with
-        {
-            ClimbPerPixel = grounded ? ClimbPerPixel : 1,
-            FollowGroundDown = grounded ? FollowGroundDown : 0,
-        };
-        MoveResult result = Room.Mover.MoveAcross(Body, Slowed(InLiquid(SpeedAcross)), options);
+        MoveOptions options = BodyMoves;
+        Pixels distance = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
+        _reachAcross = distance.Abs();
+        distance = OverSlopes(distance);
+        ClearWay(distance, Pixels.Zero);
+        MoveResult result = Room.Mover.MoveAcross(Body, distance, options);
         if (result.Blocked)
             StopAcross();
         return result;
@@ -807,24 +1137,172 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Moves the player down by their speed, upward when it is negative.</summary>
     public MoveResult MoveDown()
     {
-        MoveResult result = Room.Mover.MoveDown(Body, InLiquid(Velocity.Y), MoveOptions.Plain);
+        Pixels distance = InLiquid(Velocity.Y);
+        ClearWay(Pixels.Zero, distance);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
     }
 
+    /// <summary>How far the player last set out to move across, before any slope took its share.</summary>
+    private Pixels _reachAcross;
+
+    /// <summary>
+    /// Presses a player on the ground down onto it once they have moved across: down by as far as they set out to move
+    /// across this update and one pixel more, stopping at ground. Returns whether ground stopped them; when it did not
+    /// they have walked off it, and are already that far down. A player standing in something that holds them up
+    /// without being solid stays as they are.
+    /// </summary>
+    public bool PressToGround()
+    {
+        if (StandsInBlockThatHoldsUp())
+            return true;
+        return Room.Mover.MoveDown(Body, _reachAcross + Pixels.FromWhole(1), BodyMoves).Blocked;
+    }
+
+    /// <summary>
+    /// A distance across after the slopes ahead have taken their share of it. A player with no speed up or down, about
+    /// to carry the leading edge of their body into sloped ground, moves only the share of the distance each such
+    /// slope lets through, counted as the slopes count it: in 256ths of a pixel, the finer part dropped.
+    /// </summary>
+    private Pixels OverSlopes(Pixels distance)
+    {
+        if (distance.IsZero || !Velocity.Y.IsZero)
+            return distance;
+        PixelRect body = BodyRect;
+        int target = (Position.X + distance).Whole;
+        int leading = distance.IsNegative ? target - HalfWidth : target + HalfWidth - 1;
+        foreach (int share in Room.Terrain.GroundSharesIn(leading, body.Top, body.Bottom))
+        {
+            long parts = ((long)distance.Whole * 256 + distance.Fraction / 256) * share;
+            long whole = Math.DivRem(parts, Pixels.FractionsPerPixel, out long fraction);
+            if (fraction < 0)
+            {
+                whole--;
+                fraction += Pixels.FractionsPerPixel;
+            }
+
+            distance = Pixels.FromParts((int)whole, (int)fraction);
+        }
+
+        return distance;
+    }
+
+    /// <summary>
+    /// Moves the player down by the speed they have, upward when it is negative, and lets gravity act on that speed
+    /// for the next update. Stopped by a floor or a ceiling, their speed up and down is at rest.
+    /// </summary>
+    /// <param name="keepsSpeedWhenStopped">Whether a floor or ceiling that stops the move leaves the speed as gravity left it.</param>
+    public MoveResult MoveDownUnderGravity(bool keepsSpeedWhenStopped = false)
+    {
+        Pixels distance = InLiquid(Velocity.Y);
+        Fall();
+        ClearWay(Pixels.Zero, distance);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
+        if (result.Blocked && !keepsSpeedWhenStopped)
+            FallFromRest();
+        return result;
+    }
+
+    /// <summary>
+    /// Steers the player for one update in the air by <paramref name="moves"/> and moves them across. Steered with
+    /// neither direction held, they stop across at once and do not move across this update; unsteered or reversing,
+    /// they carry on. Returns the move, or null when there was none.
+    /// </summary>
+    public MoveResult? SteerAndMoveInAir(MoveValues moves)
+    {
+        SteerInAir(moves);
+        bool directionHeld = _input.IsHeld(GameAction.Left) || _input.IsHeld(GameAction.Right);
+        if (Steering == Steering.Steered && !directionHeld)
+        {
+            ComeToRest();
+            return null;
+        }
+
+        return MoveAcross();
+    }
+
+    /// <summary>
+    /// Sets the player's steering afresh as they take up a stance in the air: unsteered while a dash still carries
+    /// them, and otherwise steered. Their speed is left as it is.
+    /// </summary>
+    public void SteerAfresh() => Steering = DashSpeed.IsZero ? Steering.Steered : Steering.Unsteered;
+
+    /// <summary>
+    /// Whether the jump counts as pressed this update: pressed since the update before, or still held from a little
+    /// before a landing or the end of a turn on the last update, where the game gives the player that.
+    /// </summary>
+    public bool JumpPressed => _input.WasPressed(GameAction.Jump) || _jumpBuffered;
+
+    /// <summary>
+    /// Lets a jump already held count as pressed afresh on the next update, if it has not been held too long. Called
+    /// as the player lands on their feet and as a turn on the ground ends.
+    /// </summary>
+    public void ArmJumpBuffer() => _jumpBufferArmed = true;
+
+    private bool _jumpBufferArmed, _jumpBuffered, _jumpWasHeld;
+    private int _jumpHeldFor;
+
+    /// <summary>Works out, at the start of an update, whether a held jump counts as pressed afresh; the chance is then spent.</summary>
+    private void TakeJumpBuffer()
+    {
+        _jumpBuffered = _jumpBufferArmed && _jumpHeldFor != 0 && _jumpHeldFor < JumpBufferUpdates;
+        _jumpBufferArmed = false;
+        if (_jumpBuffered)
+            _jumpHeldFor = 0;
+    }
+
+    /// <summary>Counts, at the end of an update, how many updates running the jump has been held beyond its first.</summary>
+    private void CountJumpHeld()
+    {
+        bool held = _input.IsHeld(GameAction.Jump);
+        _jumpHeldFor = held && _jumpWasHeld ? _jumpHeldFor + 1 : 0;
+        _jumpWasHeld = held;
+    }
+
+    /// <summary>
+    /// Delivers each active body power's hit to the blocks in the way of a move, before the player makes it: a body
+    /// that is a weapon breaks what it can as it meets it, and is not stopped by what it breaks.
+    /// </summary>
+    private void ClearWay(Pixels across, Pixels down)
+    {
+        if (!_bodyPowers.Any(power => power.IsActive))
+            return;
+        int stepsAcross = (Position.X + across).Whole - Position.X.Whole, stepsDown = (Position.Y + down).Whole - Position.Y.Whole;
+        if (stepsAcross == 0 && stepsDown == 0)
+            return;
+        PixelRect body = BodyRect;
+        var way = new PixelRect(
+            stepsAcross < 0 ? body.Left + stepsAcross : stepsAcross > 0 ? body.Right : body.Left,
+            stepsDown < 0 ? body.Top + stepsDown : stepsDown > 0 ? body.Bottom : body.Top,
+            stepsAcross != 0 ? Math.Abs(stepsAcross) : body.Width,
+            stepsDown != 0 ? Math.Abs(stepsDown) : body.Height);
+        foreach (BodyPower power in _bodyPowers)
+        {
+            if (power.IsActive)
+                Room.Terrain.TakeHit(power.Hit with { Source = this }, way);
+        }
+    }
+
     /// <summary>Whether the player is against a wall on the given side.</summary>
     public bool IsAgainstWall(Facing side) => IsWithinReachOfWall(side, 1);
 
-    /// <summary>Whether a wall lies within <paramref name="reach"/> pixels of the player's body on the given side.</summary>
+    /// <summary>
+    /// Whether a wall lies within <paramref name="reach"/> pixels of the player's body on the given side. Sloped ground
+    /// that holds things up by their middle is no wall.
+    /// </summary>
     public bool IsWithinReachOfWall(Facing side, int reach)
     {
         PixelRect body = BodyRect;
         var beside = side == Facing.Left
             ? new PixelRect(body.Left - reach, body.Top, reach, body.Height)
             : new PixelRect(body.Right, body.Top, reach, body.Height);
-        return !Room.Mover.IsFree(beside, this, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall });
+        return !Room.Mover.IsFree(beside, this, MoveOptions.Plain with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
     }
+
+    /// <summary>Whether the input holds anything that aims the weapon. A game with aiming actions of its own counts them here.</summary>
+    public virtual bool AimIsHeld => _input.IsHeld(GameAction.Up) || _input.IsHeld(GameAction.Down);
 
     /// <summary>Sets the player's aim from what is held: up, down while in the air, and each with steering for a diagonal.</summary>
     public virtual void AimFromInput()
@@ -866,7 +1344,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private Liquid? HinderingLiquid(PixelPosition point)
     {
         Liquid? liquid = Room.Liquid;
-        return liquid is not null && liquid.IsSubmerged(point) && !Inventory.IsAnyOn(liquid.Type.SlowingCancelledBy) ? liquid : null;
+        return liquid is not null && IsUnder(liquid, point) && !Inventory.IsAnyOn(liquid.Type.SlowingCancelledBy) ? liquid : null;
     }
 
     /// <summary>Works out the medium the player is in.</summary>
@@ -983,9 +1461,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
 
         if (across != Pixels.Zero)
-            Room.Mover.MoveAcross(Body, across, MoveOptions.Plain);
+            Room.Mover.MoveAcross(Body, across, BodyMoves);
         if (down != Pixels.Zero)
-            Room.Mover.MoveDown(Body, down, MoveOptions.Plain);
+            Room.Mover.MoveDown(Body, down, BodyMoves);
     }
 
     /// <summary>

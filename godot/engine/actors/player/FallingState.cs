@@ -1,30 +1,68 @@
-using Engine.Actors.Components;
-using Engine.Collision;
-
 namespace Engine.Actors;
 
-/// <summary>Falling through the air, until landing.</summary>
+/// <summary>
+/// Falling through the air, having walked off a floor or been let go in the air, until landing. Steering against the
+/// way the player faces turns them in the air.
+/// </summary>
 public sealed class FallingState : PlayerState
 {
-    /// <inheritdoc/>
-    public override void Enter(Player owner) => owner.TrySetForm(owner.FormOr(Player.Falling), aroundMiddle: true);
+    /// <summary>The stance the player last held in this fall, and the one this update's input asks for.</summary>
+    private int _stance = -1, _stanceAsked;
+
+    private readonly bool _offFloor;
+
+    /// <summary>A fall.</summary>
+    /// <param name="offFloor">Whether the player has walked off a floor, and so falls from rest unless they are rising.</param>
+    public FallingState(bool offFloor = false) => _offFloor = offFloor;
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override void Enter(Player owner)
+    {
+        owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
+        if (_offFloor && !owner.IsRising)
+            owner.FallFromRest();
+        owner.SteerAfresh();
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
+        if (AirTurningState.IsAskedFor(owner))
+            return new AirTurningState(fromJump: false);
+        _stanceAsked = AirStance.Of(owner, forwardCounts: false);
+        return AirStance.AsksNothing(owner, jumpCounts: false) ? null : this;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
         if (owner.WallJumpFromAnyJump && WallJumpingState.CanStart(owner))
             return new WallJumpingState();
 
         owner.StepDash(building: false);
-        owner.Steer(owner.Moves(FallingMoves));
-        owner.MoveAcross();
+        owner.SteerAndMoveInAir(owner.Moves(FallingMoves));
+
         // The fall moves by the speed it had, and gravity adds to it afterwards: a fall from rest moves nothing in its
         // first update.
-        MoveResult down = owner.MoveDown();
-        owner.Fall();
-        if (down.Blocked || owner.IsOnGround)
-            return owner.Intent != 0 ? new RunningState() : new StandingState();
-        return this;
+        owner.TurnAtTop();
+        return AirStance.FallAndLand(owner);
+    }
+
+    /// <summary>A change of stance sets the steering afresh, and the body takes the form of the stance where it fits.</summary>
+    public override void CarriedOn(Player owner)
+    {
+        if (_stanceAsked != _stance && _stance >= 0)
+            owner.SteerAfresh();
+        _stance = _stanceAsked;
+        owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
+    }
+
+    /// <summary>With nothing asked, the aim comes level, and a dash and its momentum are lost.</summary>
+    public override PlayerState? Unasked(Player owner)
+    {
+        CarriedOn(owner);
+        owner.LoseMomentum();
+        return null;
     }
 }

@@ -146,6 +146,10 @@ something that leaves the room.
 - What is there now: `CartridgeRandom`, the cartridge's own sequence of random numbers, and `FrameRandom`, a session
   service that draws one number every update of play and uses none, as the cartridge did every frame: much of this
   game reads the number last drawn (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
+  `CartridgeSpeedReadings` is how the cartridge reads Samus's speed across against its limits (`ISpeedReadings`,
+  which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
+  their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
+  under it.
 
 **Why, and extending it.** The layers exist so the game can be thrown away and the engine kept. Everything else
 here follows from that. When unsure which layer something goes in, imagine the fork: the new game has a different
@@ -422,7 +426,14 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   drawing of its tiles, including tiles that animate.
 - The tile layout is an asset. A room names its layout; `Terrain` loads it, in the editor and in the game. A room
   scene never stores its tiles.
-- A plain tile is data: empty, solid, or a slope with a height per pixel column.
+- A plain tile is data: empty, solid, or a slope with a height per pixel column: the pixels of the column that are
+  solid, counted up from the tile's bottom, or down from its top for a ceiling. A floor's slope may let only a share
+  of a move across it through (`ground_share`, in 256ths), which the player's movement takes off. A slope may say
+  that it holds things up by their middle (`"holds": "middle"`): to a mover that treats slopes so
+  (`SlopeTreatment.ClimbUnderMiddle`, which the player's body does) only the middle column of the body meets it, so
+  the body's edges pass into it and the mover stands where its surface is under their middle, and such a mover
+  climbs only slopes of that kind; a slope that does not say so is a step or a wall and meets the whole body. To
+  everything else a slope is solid along its surface, whichever kind it is.
 - A **block** is a reactive piece of terrain, one or two tiles wide and high, placed as one unit with a
   `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.
 - A `BlockType` is a combination of these rules and nothing else. The rules are the engine's; the hit kinds, powers
@@ -574,8 +585,9 @@ in `engine/actors/player/`.
   `Inventory`, the `Weapons`, health, hurt and invincibility, ongoing damage, colliders, and the `ActorVisual`.
 - **Manages:** turning input into movement and actions, moving with the shared `Mover`, firing, taking a `Hit`,
   collecting pickups and items, and applying to itself what the room reports.
-- **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, turning,
-  jumping, falling, wall jumping, knocked back, held, carried, pushed, using a station, scripted, dying.
+- **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, changing
+  posture, turning, jumping, falling, turning in the air, wall jumping, knocked back, held, carried, pushed, using
+  a station, scripted, dying.
 - **Standard mechanics are properties of the controller**, switched and tuned by the game, not code the game
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
@@ -594,9 +606,119 @@ in `engine/actors/player/`.
 | Ongoing damage | Below. | Which equipment cancels which source. |
 | Being moved | Anything that moves the player against their will asks for the matching state and passes its data. Nothing sets flags or velocities on the player. | Extra such states. |
 
-- A wall jump leaves the wall at a set speed with steering locked for a moment, or, where the game says it is
-  steered, is steered by its own move values from its start for as long as the lock lasts.
-- A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
+- **The order of an update.** A state does not change the moment a button is pressed. Each update: the state the
+  player is in is asked what the input wants of it (`Asked`: another state, itself to carry on, or nothing); the
+  player then moves as the state they are still in (`Move`) and settles where that leaves them (what they stand on,
+  what the blocks they are in do to them, the room's ongoing damage); and only then does a change take effect, by
+  this rank: the state's own end (`Ended`, a turn done); something that interrupts the player (`Player.Interrupt`:
+  a knockback, and whatever else a game throws them with), which stays waiting when the state's end comes first;
+  what the movement itself met (a landing, a floor walked off); what the input asked for; and last, when the input
+  asked for nothing, what the state does unasked (`Unasked`). The state entered sets itself up as the update ends
+  and first moves on the next, so a jump asked for while running still runs that update and rises on the next. A
+  game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. Weapons fire and
+  body powers are delivered after the change. `ChangeState` is for whatever takes the player over at once (a hold,
+  a script, a station) and drops an interruption that was waiting.
+- **Speed across.** A state that steers keeps the player's own speed across as a size, carried the way they
+  travel, with one of three conditions (`Steering`): *steered* (it gains by the state's move values, and the top
+  speed replaces a speed that reads as past it); *unsteered* (nothing drives it: on the ground it slows to rest and
+  is steered again, in the air it carries on as if steered); *reversing* (the player has turned and still moves the
+  old way, against the way they now face, slowing to rest, then steered). A speed slowed exactly to rest keeps its
+  condition one update more. `Player.Steer` and `SteerInAir` are the two rules; how a speed is read against its top
+  and a dash against its cap is the game's to say (`ISpeedReadings`, from the `GameDefinition`; the engine's own is
+  a plain comparison). A dash is a second speed on top, carried the same way, kept through the air while the player
+  has momentum; `FoldDash` adds it into the player's own speed and leaves none. Meeting a wall brings all of it to
+  rest. States that throw the player about (a knockback, a push, a script) set `Velocity` outright.
+- **Standing** keeps no speed: each update a dash's speed alone still carries the player, and then everything across
+  is at rest. **Running** builds the dash while its action is held. A runner whose input asks for nothing still moves
+  that update at full speed; then, if they had speed, they stay running, the dash is folded into their speed, their
+  momentum ends, and they slow, unsteered, each update, even if steered again, until past rest; they then gain one
+  step and stand. A runner who lets the direction go but still aims stands at once. A runner stopped by a wall
+  stands. **Turning** on the ground faces the new way from its first update and reverses by the turn's own move
+  values for as long as the turn lasts, ending the player's momentum on each of its updates; it ends standing, and
+  its end gives way to a jump asked for on its last update. Letting the new direction go during a turn makes the
+  player steered for the rest of it. With no turn time set the player turns at once and runs on, reversing.
+- As a change the input asked for (or the state's unasked carrying on) is about to take effect, the game's player
+  is told (`Entering`) and may do something of its own or name another state. A state the input asked to carry on
+  is told so (`CarriedOn`), which is where a change within a state takes effect.
+- **Up and down.** A rise is a rise until something ends it (`Player.IsRising`): gravity slowing it to rest, or past
+  rest, does not. The state the player is in turns it into a fall from rest on the update after it has passed rest
+  (`TurnAtTop`), moving nothing down that update, so a rise that gravity brings exactly to rest takes one update
+  more; letting go of the jump while rising cuts it to the game's cut speed, and where that is none it is a fall
+  from rest at once. A move down is by the speed the player had; gravity then acts on that speed for the next update
+  (`MoveDownUnderGravity`); a fall gains up to the fastest fall, and a rise past its top that no state turns gains
+  without that limit. Landing (`Player.Land`) brings the player to rest across and makes them steered; a dash is
+  left for standing to spend.
+- **In the air.** A jump keeps the jump's own move values from its start until the player lands: `JumpingState` is
+  the whole jump, and `FallingState` is for walking off a floor and for being let go in the air. A jump from the
+  ground may first gather itself for `jump_start_updates`, moving nothing of the player's own. Both steer by the air
+  rule (`SteerAndMoveInAir`): steered with neither direction held, the player stops across at once and does not move
+  across that update; unsteered or reversing they carry on. A player taking up a new stance in the air (their aim, and
+  in a jump whether they steer the way they face or hold the attack) has their steering set afresh: unsteered while a
+  dash still carries them, else steered. An update with nothing at all held makes a jumper who has speed unsteered
+  (the dash is folded into their speed and their momentum ends) and takes a faller's dash and momentum. Steering
+  against the way they face turns them in the air (`AirTurningState`): they face the new way at once and reverse by
+  the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
+  not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from. A
+  landing ends standing whatever is held.
+- **Postures.** Crouching down, standing up, taking the low form and leaving it each take the updates the game
+  gives them (`crouch_updates`, `stand_updates`, `crawl_enter_updates`, `crawl_leave_updates`; none is at once). For
+  that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is
+  not asked, they cannot attack, and they move across only as far as a dash carries them, their own speed kept; a
+  change into or out of the low form made in the air goes on rising and falling. The low form is taken as from a
+  crouch wherever the player is: the body shrinks about its middle and the middle drops by as much as a crouch is
+  taller, or as far as there is room. Leaving it leads to a crouch even in the air, which then walks off into a fall
+  from rest. **Crouching** keeps no speed across: a dash still carries the player for the update and is then spent,
+  while their momentum lasts until an update whose input asks nothing of the crouch. A press of the direction
+  behind turns them round crouched (`TurningState`, crouched, which ends in a crouch and listens only for whether
+  anything is held); the direction ahead held stands them at once, with no change between. A fall entered by
+  walking off a floor starts from rest unless the player is rising.
+- **The low form** rolls on the ground while a direction is held, by the ground rule, turning by reversal; let go,
+  it loses everything across after that update's move and sits still. Rolled off a floor it falls from rest. In the
+  air, steered with no direction held it loses everything across; where it cannot jump it otherwise keeps falling
+  unsteered once an update has asked nothing of it. Coming down at `crawl_bounce_fall_speed` or faster it bounces
+  at `crawl_bounce_speed`, and on its next landing once more at `crawl_second_bounce_speed`, and is on the ground
+  at the landing after; slower, it is on the ground at once, at rest across. Where it can jump, the jump is a rise
+  cut short like any jump and steered by its own move values (`crawling_jumping`) for the whole jump, and landing
+  with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
+  in it.
+- **On the ground.** The player's body meets terrain in one way everywhere (`Player.BodyMoves`): sloped ground
+  that holds things up by their middle holds only its middle column, and is no wall to it. A move across climbs
+  such ground by up to `climb_per_pixel` for each pixel. A player with no
+  speed up or down who is about to carry the leading edge of their body into sloped ground moves only the share of
+  the distance each such slope lets through, counted in 256ths of a pixel with the finer part dropped. Once they
+  have moved across, the state they are in presses them to the ground (`PressToGround`): down by as far as they set
+  out to move across and one pixel more, stopping at ground. When nothing stops them they have walked off the floor,
+  already that far down, and fall from rest.
+- **In a liquid.** The player is in a liquid when the pixel row tested (their feet's, or their head's) lies below
+  its surface line, not on it (`Player.IsUnder`). Their medium is found afresh each update, before they move. A
+  medium may give its own lengths for the timed changes (`"updates"`, by the name of the value that gives the length
+  elsewhere: a turn, a change of posture, a jump's gathering), which a state reads as the change begins
+  (`Player.InMedium`).
+- A player aiming straight down in a jump or a fall takes the form `aiming_down` where the game gives one, a
+  smaller body, and the form of the jump or the fall again when they aim elsewhere and it fits.
+- **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
+  updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
+  the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
+  update of the landing is not counted. A player who has stood since landing for as long as a landing takes to
+  settle (`landing_updates`) is given the same chance once more.
+- A wall jump of the plain kind leaves the wall at a set speed, facing away, with steering locked for a moment, and
+  then carries on as a jump. One of the steered kind (`wall_jump_steered`) leaves it with the player's own speed
+  across at rest (a dash and momentum kept) and the way they face unchanged, gains speed by the wall jump's own move
+  values whether or not a direction is held, and lasts for as long as the jump is held; let go, it carries on as a
+  jump.
+- **A knockback** interrupts: it takes the player when they have next moved. It throws them away from the hit,
+  facing as they were, for as long as the player's knockbacks do unless whoever knocks them back says how long. It
+  does not start from rest: whatever speed across they had goes on changing by the usual ground rule with the
+  knockback's own move values and carries them the way they are thrown, a dash still on top; each update they are
+  made steered again and their momentum ends. It rises by the medium's knockback speed under gravity with no turn
+  at its top, unless the player was holding the way they face as it began, which keeps it low: they are pressed
+  down by as far as they move across and a pixel more each update instead. A floor or ceiling stops the speed
+  across and the rise, not the knockback. When its time is up they fall from rest, and whatever the input asked
+  that update is dropped; an upright player is then set down for one update (pressed down once more) and stands if
+  that met ground or falls from rest. The low form is thrown in its own form by its own move values, always
+  upward, and goes straight back to its own movement. Some states hold an interruption off (`HoldsOffInterruptions`:
+  the turns and the changes of posture); it waits, and a knockback that waited is shorter by as long as it waited
+  (`StillInterrupts`).
 - The effect left at the player's feet on landing may come from their data.
 - Facing and aim are separate values, never part of a state's name.
 - Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
@@ -607,7 +729,9 @@ in `engine/actors/player/`.
 **The body as a weapon.** A body power, while active, makes the player's own body deliver a `Hit` of a named kind
 to whatever it touches: enemies, barriers and blocks alike. The engine knows that a power is active, what hit it
 gives, and that the player takes no contact damage from what that hit kills. The game says what makes each power
-active. Nothing else treats the player's body as an attack.
+active. Nothing else treats the player's body as an attack. An active power's hit is also delivered to the blocks in
+the way of each move before the player makes it, so the body breaks what it can as it meets it and is not stopped by
+what it breaks.
 
 **Ongoing damage.** Damage that arrives a little every update (heat, a damaging liquid, spikes held against) is
 not a stream of hits. Each source adds its amount to the player's ongoing damage for the update, naming itself;
@@ -635,12 +759,57 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
   switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her. Her scene
   says so: crawling needs `morph_ball`, jumping while crawling needs `spring_ball`.
+- **Her crouch and her ball.** Crouching out of a run at full boost stores a shine, as the crouch begins; the dash
+  then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
+  held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
+  press of down while already aiming down, or in a wall jump, curls her up.
+- **Her boost** is counted in strides of her run. The stride's ten pictures each last their own updates
+  (`run_stride_updates`), or the dash's (`dash_stride_updates`), or, with the speed booster on, those of the stage
+  of the boost she is at (`boost_stride_updates`); a run taken up afresh starts the stride again. Each stride
+  completed with momentum and the dash held counts one off the stage (`boost_stride_counts`), and with none left
+  the stage is done; at the last she is boosting. A dash begun partway through a stride reaches its first stage as
+  that stride ends.
+- **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
+  wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
+  down at other than a whole number of pixels an update.
+- **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
+  carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
+  her. It lasts while both stay held; let go, she faces as she did and is in a plain jump. When the knockback she
+  left runs out her rise ends at once, and she flies on and falls. It holds off interruptions.
+- **Her jumps.** A jump from standing or a crouch is a plain jump whatever is held, gathered for one update; a jump
+  from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. A spin
+  keeps her own speed across only while its top speed capped it this update, while she is reversing, or while the
+  way she faces is held; otherwise that speed is cleared, and a dash still carries her. Aiming, or firing,
+  straightens her out into a jump once the update is done (aiming alone does not while the jump and the way she
+  faces are both held); steering the other way turns the spin (dash folded in, momentum ended, reversing).
+- **Her wall jump** is from a spin only. A wall within `wall_jump_reach` on the side away from the direction held
+  makes the spin ready from the next update for `wall_jump_ready_updates`; ready, a fresh jump with the wall still
+  there jumps off it, and that update she moves neither up nor down. A spin held steadily from the ground does not
+  look for walls: it does once an update's input has asked nothing of it, or it has turned, or it came out of a
+  wall jump. In the wall jump, steering the other way makes it a spin that way, an angle or the attack makes it a
+  jump, the jump held keeps it, and anything else lets it go into a spin, which keeps what the wall jump gave her
+  across only as a space jump or a screw attack. The wall jump is heard as a landing.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
+- **Her run's one pixel.** As the cartridge does, a run about to be taken up in a pose she is not already running
+  in first moves her one pixel on, the way she was headed: as a run starts, each time her running pose changes (her
+  arm coming out after a shot, her aim going diagonal or level again: "arm pumping"), and on each update she runs on
+  with nothing asked of her. A wall in that pixel stops the run and she stands against it. It is hers alone, so it
+  is in `Samus.Entering`.
+- **Moonwalking** walks her backwards by its own move values while the attack and the direction behind her are
+  held. A jump turns her (the engine's turn), and the turn becomes a spin jump while the jump and the way she then
+  faces are held; with the attack let go she turns; steering the way she faces she runs; walking off a floor she
+  falls facing the way she was going.
+- **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
+  another aim or the attack is asked; her body is compact for as long (`aiming_down`).
+- **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
+  aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
+  direction the way she faces does not start a run.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
-  spin.
+  spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
+  next update; the speed boost's is at work from the update after she reaches full boost.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
@@ -652,6 +821,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
   `shot_heights` of her look (and of her look and aim where an aim has its own). In the morph ball what she lays is
   laid where she is.
+- **Her bomb jump** interrupts the ball. Its first update only sets the rise; then the ball rises out of her
+  control, taking up the speed across it had when thrown to a side; a wall stops that speed and not the rise; the
+  throw is over at the top of the rise or at a ceiling. A ball already being thrown is thrown afresh by another
+  bomb.
 - **Her bombs.** A bomb throws the morph ball lying against it when its fuse has `bomb_jump_fuse_left` updates left,
   and its burst strikes the block it lies in and the four beside that one. A power bomb's blast reaches as far on
   each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.

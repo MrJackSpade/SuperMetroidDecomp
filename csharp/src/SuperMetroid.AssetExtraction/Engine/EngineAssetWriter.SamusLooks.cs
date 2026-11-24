@@ -273,11 +273,11 @@ public sealed partial class EngineAssetWriter
         Look("running", "diagonal_up", P.RunningAimDiagonalUpRightPose, P.RunningAimDiagonalUpLeftPose);
         Look("running", "diagonal_down", P.RunningAimDiagonalDownRightPose, P.RunningAimDiagonalDownLeftPose);
 
-        // The Godot Samus still faces the way she was until a turn is done; the old turning poses face the way she turns to.
-        Look("turning", null, P.TurningRightToLeftPose, P.TurningLeftToRightPose);
-        Look("turning", "up", P.TurningRightToLeftAimUpPose, P.TurningLeftToRightAimUpPose);
-        Look("turning", "diagonal_up", P.TurningRightToLeftAimDiagonalUpPose, P.TurningLeftToRightAimDiagonalUpPose);
-        Look("turning", "diagonal_down", P.TurningRightToLeftAimDiagonalDownPose, P.TurningLeftToRightAimDiagonalDownPose);
+        // The Godot Samus, like the old turning poses, faces the way she turns to from the turn's start.
+        Look("turning", null, P.TurningLeftToRightPose, P.TurningRightToLeftPose);
+        Look("turning", "up", P.TurningLeftToRightAimUpPose, P.TurningRightToLeftAimUpPose);
+        Look("turning", "diagonal_up", P.TurningLeftToRightAimDiagonalUpPose, P.TurningRightToLeftAimDiagonalUpPose);
+        Look("turning", "diagonal_down", P.TurningLeftToRightAimDiagonalDownPose, P.TurningRightToLeftAimDiagonalDownPose);
 
         Look("crouching", null, P.CrouchingRightPose, P.CrouchingLeftPose);
         Look("crouching", null, P.CrouchingRightPose, P.CrouchingLeftPose, from: Seg.LowEnergyBreathe, suffix: "_low");

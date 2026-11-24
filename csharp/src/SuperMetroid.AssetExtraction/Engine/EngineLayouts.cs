@@ -222,12 +222,22 @@ internal sealed partial class EngineLayouts
                 {
                     // The block looks as the level has it there, and any weapon breaks it for as long as the old
                     // game shows the item.
+                    // It crumbles away and comes back over the item with the old game's own pictures.
+                    var crumbling = new List<int>();
                     var block = new ReactingBlock("hidden_item", new JsonObject
                     {
                         ["solid"] = true,
                         ["broken_by"] = AnyWeapon(),
                         ["regrows_after"] = HiddenItemBlockUpdates(),
-                    });
+                        ["breaking"] = HiddenItemBlockLooks(CollectibleSequence.ShotBlockReveal, crumbling),
+                        ["regrowing"] = HiddenItemBlockLooks(CollectibleSequence.ShotBlockConceal, crumbling),
+                    }, Pictures: crumbling);
+                    foreach (int shared in crumbling)
+                    {
+                        if (Picture(tileset, shared, BlockMirroring.None) is null)
+                            throw new InvalidDataException($"The graphics {tileset} draw nothing for the block {shared}, which the block an item hides in shows.");
+                    }
+
                     var tile = new JsonObject { ["kind"] = "block", ["block"] = BlockType(block) };
                     RoomBlockAppearance shown = level.Foreground[cell].Appearance;
                     if (shown.Shows == RoomBlockShown.Block && Picture(tileset, shown.Block, shown.Mirroring) is { } picture)

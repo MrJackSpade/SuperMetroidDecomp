@@ -157,6 +157,28 @@ internal sealed partial class EngineLayouts
             _tree.WritePicture(path, Block, Block, new RgbaPixel[Block * Block]);
     }
 
+    /// <summary>
+    /// The pictures of the block an item hides in as one part of the old game's reveal shows them, as a timeline of a
+    /// block type; the blocks whose pictures they are are added to <paramref name="shown"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The part shows something that is not a frame of the items' own, or one that draws nothing.</exception>
+    private JsonObject HiddenItemBlockLooks(CollectibleSequence part, List<int> shown)
+    {
+        string Look(CollectibleImage image)
+        {
+            CollectibleDraw draw = image.What is CollectibleImage.DrawnImage { Draw: RoomObjectFrameDraw<CollectibleDraw> framed }
+                ? framed.Frame
+                : throw new InvalidDataException("The block an item hides in shows something that is not a frame of the items' own.");
+            int block = FrameBlock(GameInstallationLayout.RoomObjectCollectibleVisualDirectoryName, EngineSheets.FileName(draw.ToString()).Replace('_', '-'), 0, 0)?.Block
+                ?? throw new InvalidDataException($"The frame {draw} of the block an item hides in draws nothing.");
+            shown.Add(block);
+            return SharedPicture(block);
+        }
+
+        JsonObject played = EngineTimelines.Of(CollectibleSequenceAnimations.Segments, part, false, Look, static (CollectiblePhase _) => null);
+        return new JsonObject { ["steps"] = played["steps"]!.DeepClone() };
+    }
+
     /// <summary>The old game's plant that a kind of air is, or null for air that is no plant.</summary>
     internal static SamusEaterObjectDefinition? PlantOf(SpecialAirReaction air) => SpecialAirReactions.InsideOf(air).Plant;
 

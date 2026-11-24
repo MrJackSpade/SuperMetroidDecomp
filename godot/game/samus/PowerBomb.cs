@@ -15,8 +15,8 @@ namespace Game;
 /// </summary>
 /// <remarks>
 /// Its data gives how far the blast reaches across on each of its updates, one after another, from the update after
-/// the fuse runs out; nought is an update on which it reaches nothing, as while it gathers. The blast is over when
-/// they are done.
+/// the fuse runs out; nought is an update on which it reaches nothing, as while it gathers. The blast ends on the
+/// update after the last of them.
 /// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
 /// </remarks>
 public partial class PowerBomb : Projectile, IHasValues, IOpeningStep

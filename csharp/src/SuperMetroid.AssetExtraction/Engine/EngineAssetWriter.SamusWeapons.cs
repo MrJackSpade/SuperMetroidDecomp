@@ -495,17 +495,19 @@ public sealed partial class EngineAssetWriter
         });
 
         // The blast: how far it reaches on each update, as the old blast's own steps give it, from the update after
-        // the fuse runs out until its glow has faded.
+        // the fuse runs out until its glow has faded. The step that ends it is its cleanup, not a reach: the bomb ends
+        // on that update, the one after its last reach.
         var blast = new PowerBombBlastTimeline();
         InstalledPowerBombGlowColors colours = _installation.LoadMaps().PowerBombGlowColors;
         blast.Start();
         var reaches = new JsonArray();
+        blast.StepFrame(colours);
         while (blast.IsRunning)
         {
-            blast.StepFrame(colours);
-            reaches.Add(blast.IsRunning ? blast.ExplosionRadius.WholePixels : 0);
+            reaches.Add(blast.ExplosionRadius.WholePixels);
             if (reaches.Count > 4096)
                 throw new InvalidDataException("The old power bomb's blast does not end.");
+            blast.StepFrame(colours);
         }
 
         new EngineObjectFile(_tree, "samus/power_bomb.json", "PowerBomb")

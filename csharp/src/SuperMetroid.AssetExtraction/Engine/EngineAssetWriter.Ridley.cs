@@ -21,25 +21,29 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// <summary>Ridley, in Norfair and aboard Ceres station, and its fire.</summary>
 public sealed partial class EngineAssetWriter
 {
-    /// <summary>The scenes of Ridley's fire: a fireball, the flare it leaves where it strikes, and a flame of the flare's.</summary>
-    private const string RidleyFireballScene = "res://game/bosses/ridley/ridley_fireball.tscn";
-    private const string RidleyFlareScene = "res://game/bosses/ridley/ridley_flare.tscn";
-    private const string RidleyFlameScene = "res://game/bosses/ridley/ridley_flame.tscn";
+    /// <summary>
+    /// The scene of a piece of one fight's fire: "fireball", "flare" or "flame". Each fight has its own, whose data
+    /// names that fight's pictures.
+    /// </summary>
+    private static string RidleyFireScene(EngineEnemy ridley, string what) =>
+        $"res://game/bosses/ridley/{ridley.Folder[(ridley.Folder.LastIndexOf('/') + 1)..]}_{what}.tscn";
+
+    /// <summary>The data file of the scene of a piece of one fight's fire.</summary>
+    private static string RidleyFireData(EngineEnemy ridley, string what) => $"{ridley.Folder}_{what}.json";
 
     /// <summary>What stands in the names of Ridley's pictures for the colours it is in.</summary>
     private const string RidleyLookPlaceholder = "{look}";
 
-    /// <summary>Writes Ridley's two fights and its fire.</summary>
+    /// <summary>Writes Ridley's two fights, each with its fire as the rooms of that fight draw it.</summary>
     private void WriteRidley()
     {
         EngineEnemy norfair = RidleyFight("bosses/ridley.json", EnemyDefinitionId.Ridley, onCeres: false);
-        string fireball = WriteRidleyFire(norfair);
-        RidleyFireballShot(norfair, fireball, AreaId.Norfair);
+        RidleyFireballShot(norfair, WriteRidleyFire(norfair), AreaId.Norfair);
         WriteNorfairRidley(norfair);
         norfair.Write();
 
         EngineEnemy ceres = RidleyFight("bosses/ceres_ridley.json", EnemyDefinitionId.RidleyCeres, onCeres: true);
-        RidleyFireballShot(ceres, fireball, AreaId.Ceres);
+        RidleyFireballShot(ceres, WriteRidleyFire(ceres), AreaId.Ceres);
         WriteCeresRidley(ceres);
         ceres.Write();
     }
@@ -220,7 +224,7 @@ public sealed partial class EngineAssetWriter
         ridley.Shot("fireball", RoomEnemyProjectileKind.RidleyFireball, (_, shot, projectile) =>
         {
             shot["damage"] = RidleyProjectileDamage.ForArea(area);
-            shot["scene"] = RidleyFireballScene;
+            shot["scene"] = RidleyFireScene(ridley, "fireball");
             shot["speed"] = EngineNames.Number(RidleyFireballDefinitions.FireballSpeed);
             projectile["timeline"] = timeline;
             projectile["picture_offset"] = EngineEnemy.NoOffset();
@@ -229,8 +233,9 @@ public sealed partial class EngineAssetWriter
         });
 
     /// <summary>
-    /// Writes Ridley's fire: the fireball's timeline, which is returned, and the flare a fireball leaves where it
-    /// strikes and the flames a flare sends along the surface, each a shot of its own with its data.
+    /// Writes one fight's fire, its pictures drawn as that fight's rooms draw them: the fireball's timeline, which is
+    /// returned, and the flare a fireball leaves where it strikes and the flames a flare sends along the surface, each
+    /// a shot of its own with its data.
     /// </summary>
     private string WriteRidleyFire(EngineEnemy ridley)
     {
@@ -279,13 +284,13 @@ public sealed partial class EngineAssetWriter
         if (right.X != down.Y || right.X != -RidleyAfterburnDefinitions.Left.X || down.Y != -RidleyAfterburnDefinitions.Up.Y)
             throw new InvalidDataException("Ridley's flames race at different speeds each way, where the Godot game has one speed for all.");
 
-        string flame = Shot("flame", RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyFlameScene, Timeline("flame", RidleyFireballSegment.DirectionalAfterburn));
-        string flareAcross = Shot("flare_across", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFlareScene, Timeline("flare_across", RidleyFireballSegment.HorizontalCenter));
-        string flareDown = Shot("flare_down", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFlareScene, Timeline("flare_down", RidleyFireballSegment.VerticalCenter));
+        string flame = Shot("flame", RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyFireScene(ridley, "flame"), Timeline("flame", RidleyFireballSegment.DirectionalAfterburn));
+        string flareAcross = Shot("flare_across", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFireScene(ridley, "flare"), Timeline("flare_across", RidleyFireballSegment.HorizontalCenter));
+        string flareDown = Shot("flare_down", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFireScene(ridley, "flare"), Timeline("flare_down", RidleyFireballSegment.VerticalCenter));
         string final = Timeline("flame_final", RidleyFireballSegment.AfterburnFinal);
-        foreach ((string file, string what) in new[] { ("bosses/ridley_fireball.json", "fireball"), ("bosses/ridley_flare.json", "flare"), ("bosses/ridley_flame.json", "flame") })
+        foreach (string what in new[] { "fireball", "flare", "flame" })
         {
-            ridley.ProjectileData(file, "RidleyFireball",
+            ridley.ProjectileData(RidleyFireData(ridley, what), "RidleyFireball",
                 ("is", what),
                 ("flare_across", flareAcross),
                 ("flare_down", flareDown),

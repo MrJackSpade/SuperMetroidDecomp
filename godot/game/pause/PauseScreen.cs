@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Content;
 using Engine.Core;
 using Engine.Input;
 using Engine.Ui;
@@ -10,22 +11,47 @@ namespace Game;
 
 /// <summary>
 /// The pause screen, laid over play. It has two pages. The map page shows the map of the area Samus is in, which
-/// the directions scroll. The equipment page lists what she owns; confirming a line switches it on or off through
-/// her inventory, and with her reserves on manual she can pour them into her energy there. The angle buttons turn
-/// the pages and pause goes back to play.
+/// the directions scroll. The equipment page shows what she owns, each thing lit when it is switched on, with a
+/// selector on one of them: up and down move it within its side of the page, left and right take it to the other
+/// side, and confirm switches the thing on or off. Her reserves are there too: whether they refill by themselves,
+/// and, when they do not, a line on which holding confirm pours them into her energy. The angle buttons turn the
+/// pages and pause goes back to play.
 /// </summary>
 /// <remarks>
-/// Its words are "pause_map", "pause_equipment", "equipment_" and a piece of equipment's name, "options_on",
-/// "options_off" and "pause_use_reserves".
+/// Its data gives its "backdrop" colour; the picture behind everything for each area ("backdrops"); the pictures
+/// of its "frame"; its three "buttons" ("map", "exit", "samus"), each "lit" or "dim"; where the map is and how many
+/// cells of it show ("map": "x", "y", "columns", "rows"), with the "area_folder" of the areas' maps; its "sounds"
+/// ("move", "switch", "page", "pour", and "pour_every", the updates from one pouring sound to the next); and its
+/// "equipment" page: the "base" picture, the "hyper" beam's picture, the "controls" (each the "equipment" it
+/// switches, the "side" of the page it is on, its picture switched "on" and "off" with where that goes, and its
+/// "selector" picture and place), the "wireframes" of her suit by whether she wears the Varia suit and the high
+/// jump boots ("plain", "hi_jump", "varia", "varia_hi_jump"), and her "reserve": the pictures shown with none
+/// ("absent", "arrow_none"), and with some the "tank", the "arrow", the mode ("auto", "manual"), three "digits"
+/// (each a place and ten pictures) and the selectors of its two lines ("mode_selector", "transfer_selector").
+/// Every picture is given with where its corner goes.
 /// </remarks>
 public partial class PauseScreen : GameMode
 {
+    /// <summary>The data file of what it shows.</summary>
+    public string DataFile { get; set; } = "pause/pause.json";
+
+    /// <summary>How much of her reserves pours into her energy each update she holds confirm on that line.</summary>
+    public int ReservePourPerUpdate { get; set; } = 1;
+
+    /// <summary>One thing the selector can rest on: a piece of equipment, or one of the two lines of her reserves.</summary>
+    private sealed record Line(string Equipment, string Side, DataNode? Data, DataNode Selector);
+
+    private const string ReserveMode = "reserve_mode", ReserveTransfer = "reserve_transfer";
+
     private readonly PlayingMode _playing;
-    private PixelText? _heading;
+    private readonly List<Line> _controls = [];
+    private DataNode? _data;
+    private CanvasLayer? _layer;
+    private Node2D? _page;
     private MapView? _map;
-    private ChoiceList? _list;
     private bool _showsMap = true;
-    private readonly List<string> _listed = [];
+    private int _chosen;
+    private int _pouring;
 
     /// <summary>The pause screen, laid over <paramref name="playing"/>.</summary>
     public PauseScreen(PlayingMode playing)
@@ -33,15 +59,6 @@ public partial class PauseScreen : GameMode
         ArgumentNullException.ThrowIfNull(playing);
         _playing = playing;
     }
-
-    /// <summary>The folder, within the assets tree, of the files of the areas' maps.</summary>
-    public string AreaFolder { get; set; } = "areas";
-
-    /// <summary>How many cells of the map show at once, across and down.</summary>
-    public Vector2I MapWindow { get; set; } = new(30, 20);
-
-    /// <summary>How much of her reserves pours into her energy each update she holds confirm on that line.</summary>
-    public int ReservePourPerUpdate { get; set; } = 1;
 
     /// <inheritdoc/>
     public override GameMode? Keeps => _playing;
@@ -51,29 +68,13 @@ public partial class PauseScreen : GameMode
     /// <inheritdoc/>
     protected override void Enter()
     {
-        var layer = new CanvasLayer { Name = "Screen", Layer = 10 };
-        AddChild(layer);
-        var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(0f, 0f, 0f, 0.9f) };
+        _data = Session.Content.ReadData(DataFile);
+        _layer = new CanvasLayer { Name = "Screen", Layer = 10 };
+        AddChild(_layer);
+        var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(_data.Text("backdrop")) };
         backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        layer.AddChild(backdrop);
-        _heading = new PixelText { Name = "Heading", Font = Session.Font };
-        _heading.SetAnchorsPreset(Control.LayoutPreset.CenterTop);
-        layer.AddChild(_heading);
-        _map = new MapView { Name = "Map", Window = MapWindow, Position = new Vector2(8, 24) };
-        layer.AddChild(_map);
-        _list = new ChoiceList { Name = "Equipment", Font = Session.Font, Mark = "", UnchosenTint = new Color(0.5f, 0.5f, 0.5f) };
-        _list.SetAnchorsPreset(Control.LayoutPreset.Center);
-        layer.AddChild(_list);
-
+        _layer.AddChild(backdrop);
         Room room = _playing.Room;
-        if (room.Area.Length > 0)
-        {
-            _map.Centre = new Vector2I(
-                room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
-                room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
-            _map.Present(Area.Read(Session.Content.ReadData($"{AreaFolder}/{room.Area}.json")), Session.Progress, Session.Content);
-        }
-
         ShowPage(map: room.Area.Length > 0);
     }
 
@@ -84,6 +85,7 @@ public partial class PauseScreen : GameMode
             return _playing;
         if (input.WasPressed(Actions.AngleUp) || input.WasPressed(Actions.AngleDown))
         {
+            Sound("page");
             ShowPage(map: !_showsMap && _playing.Room.Area.Length > 0);
             return this;
         }
@@ -94,80 +96,190 @@ public partial class PauseScreen : GameMode
             var move = new Vector2I(
                 (input.WasPressed(GameAction.Right) ? 1 : 0) - (input.WasPressed(GameAction.Left) ? 1 : 0),
                 (input.WasPressed(GameAction.Down) ? 1 : 0) - (input.WasPressed(GameAction.Up) ? 1 : 0));
-            if (move != Vector2I.Zero)
+            if (move != Vector2I.Zero && _map is not null)
             {
-                _map!.Centre += move;
+                _map.Centre += move;
                 _map.QueueRedraw();
             }
 
             return this;
         }
 
-        ChoiceList list = _list!;
-        string line = _listed[list.Chosen];
-        if (line == Amounts.ReserveEnergy)
-        {
-            if (input.IsHeld(GameAction.Confirm))
-                PourReserves();
-            list.Step(input.WasPressed(GameAction.Confirm) ? GameInput.None : input);
-            return this;
-        }
-
-        if (list.Step(input) == ChoiceList.Outcome.Confirmed)
-        {
-            Switch(line);
-            ShowEquipment(list.Chosen);
-        }
-
+        StepEquipment(input);
         return this;
     }
 
+    /// <summary>Plays one update of the equipment page: the selector moves, and confirm switches or pours.</summary>
+    private void StepEquipment(GameInput input)
+    {
+        if (_controls.Count == 0)
+            return;
+        Line chosen = _controls[_chosen];
+        int move = (input.WasPressed(GameAction.Down) ? 1 : 0) - (input.WasPressed(GameAction.Up) ? 1 : 0);
+        if (move != 0)
+        {
+            // Up and down stay on the selector's side of the page, going round at its ends.
+            List<int> side = [.. Enumerable.Range(0, _controls.Count).Where(index => _controls[index].Side == chosen.Side)];
+            _chosen = side[(side.IndexOf(_chosen) + move + side.Count) % side.Count];
+            Sound("move");
+            ShowEquipment();
+            return;
+        }
+
+        if (input.WasPressed(GameAction.Left) || input.WasPressed(GameAction.Right))
+        {
+            // Across goes to the other side, to the thing as far down it as the selector was down this one.
+            List<int> here = [.. Enumerable.Range(0, _controls.Count).Where(index => _controls[index].Side == chosen.Side)];
+            List<int> there = [.. Enumerable.Range(0, _controls.Count).Where(index => _controls[index].Side != chosen.Side)];
+            if (there.Count == 0)
+                return;
+            _chosen = there[Math.Min(here.IndexOf(_chosen), there.Count - 1)];
+            Sound("move");
+            ShowEquipment();
+            return;
+        }
+
+        if (chosen.Equipment == ReserveTransfer)
+        {
+            if (input.IsHeld(GameAction.Confirm))
+                PourReserves();
+            else
+                _pouring = 0;
+            return;
+        }
+
+        if (!input.WasPressed(GameAction.Confirm))
+            return;
+        Switch(chosen.Equipment);
+        Sound("switch");
+        ShowEquipment();
+    }
+
+    /// <summary>Shows one of the two pages.</summary>
     private void ShowPage(bool map)
     {
+        DataNode data = Data();
+        CanvasLayer layer = _layer ?? throw NotShown();
         _showsMap = map;
-        _map!.Visible = map;
-        _list!.Visible = !map;
-        _heading!.Text = Session.Text.Get(map ? "pause_map" : "pause_equipment");
+        _page?.QueueFree();
+        _map = null;
+        _page = new Node2D { Name = "Page" };
+        layer.AddChild(_page);
+        Room room = _playing.Room;
+        if (room.Area.Length > 0)
+            Show(data.Get("backdrops").Get(room.Area));
+        foreach (DataNode picture in data.List("frame"))
+            Show(picture);
+
+        // The button of the page that is not showing is lit, and the way out always is.
+        foreach ((string name, DataNode button) in data.Get("buttons").Entries())
+        {
+            bool lit = name == "exit" || name == (map ? "samus" : "map");
+            Show(button, button.Text(lit ? "lit" : "dim"));
+        }
+
         if (!map)
-            ShowEquipment(0);
+        {
+            _chosen = 0;
+            ShowEquipment();
+            return;
+        }
+
+        DataNode at = data.Get("map");
+        _map = new MapView { Name = "Map", Window = new Vector2I(at.Int("columns"), at.Int("rows")), Position = new Vector2(at.Int("x"), at.Int("y")) };
+        _page.AddChild(_map);
+        _map.Centre = new Vector2I(
+            room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
+            room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
+        _map.Present(Area.Read(Session.Content.ReadData($"{data.Text("area_folder")}/{room.Area}.json")), Session.Progress, Session.Content);
     }
 
-    /// <summary>Lists what she owns, each with whether it is on, and her reserves when she has any to pour.</summary>
-    private void ShowEquipment(int chosen)
+    /// <summary>Shows the equipment page as her inventory now stands, with the selector where it is.</summary>
+    private void ShowEquipment()
     {
+        DataNode page = Data().Get("equipment");
+        Node2D shown = _page ?? throw NotShown();
+        if (shown.GetNodeOrNull<Node2D>("Equipment") is { } old)
+        {
+            shown.RemoveChild(old);
+            old.QueueFree();
+        }
+
+        var equipment = new Node2D { Name = "Equipment" };
+        shown.AddChild(equipment);
         Inventory inventory = Samus.Inventory;
-        _listed.Clear();
-        var lines = new List<string>();
-        foreach (string equipment in Equipment.All)
+        Show(page.Get("base"), parent: equipment);
+        _controls.Clear();
+
+        // Her reserves: with none, their place says so; with some, how they refill and how much they hold.
+        DataNode reserve = page.Get("reserve");
+        int held = inventory.Amount(Amounts.ReserveEnergy);
+        if (inventory.Capacity(Amounts.ReserveEnergy) == 0)
         {
-            // The hyper beam is not hers to switch.
-            if (equipment == Equipment.HyperBeam || !inventory.Owns(equipment))
+            Show(reserve.Get("absent"), parent: equipment);
+            Show(reserve.Get("arrow_none"), parent: equipment);
+        }
+        else
+        {
+            bool auto = inventory.IsOn(Equipment.ReserveTank);
+            Show(reserve.Get(auto ? "auto" : "manual"), parent: equipment);
+            Show(reserve.Get("tank"), parent: equipment);
+            Show(reserve.Get("arrow"), parent: equipment);
+            IReadOnlyList<DataNode> digits = reserve.List("digits");
+            int divisor = 1;
+            for (int place = 1; place < digits.Count; place++)
+                divisor *= 10;
+            foreach (DataNode digit in digits)
+            {
+                Show(digit, digit.List("pictures")[held / divisor % 10].AsText(), equipment);
+                divisor /= 10;
+            }
+
+            _controls.Add(new Line(ReserveMode, "left", null, reserve.Get("mode_selector")));
+            if (!auto)
+                _controls.Add(new Line(ReserveTransfer, "left", null, reserve.Get("transfer_selector")));
+        }
+
+        // The hyper beam stands in the place of the beams, which cannot then be switched.
+        bool hyper = inventory.IsOn(Equipment.HyperBeam);
+        if (hyper)
+            Show(page.Get("hyper"), parent: equipment);
+        foreach (DataNode control in page.List("controls"))
+        {
+            string name = control.Text("equipment");
+            if (!inventory.Owns(name) || (hyper && control.Text("side") == page.Text("hyper_side") && control.Flag("beam")))
                 continue;
-            _listed.Add(equipment);
-            lines.Add($"{Session.Text.Get($"equipment_{equipment}")}  {Session.Text.Get(inventory.IsOn(equipment) ? "options_on" : "options_off")}");
+            Show(control, control.Text(inventory.IsOn(name) ? "on" : "off"), equipment);
+            _controls.Add(new Line(name, control.Text("side"), control, control.Get("selector")));
         }
 
-        if (inventory.Capacity(Amounts.ReserveEnergy) > 0 && !inventory.IsOn(Equipment.ReserveTank))
+        string wireframe = (inventory.IsOn(Equipment.VariaSuit), inventory.IsOn(Equipment.HiJumpBoots)) switch
         {
-            _listed.Add(Amounts.ReserveEnergy);
-            lines.Add($"{Session.Text.Get("pause_use_reserves")}  {inventory.Amount(Amounts.ReserveEnergy)}");
-        }
-
-        if (lines.Count == 0)
-        {
-            _listed.Add("");
-            lines.Add("");
-        }
-
-        _list!.Present(lines, Math.Min(chosen, lines.Count - 1));
+            (false, false) => "plain",
+            (false, true) => "hi_jump",
+            (true, false) => "varia",
+            (true, true) => "varia_hi_jump",
+        };
+        Show(page.Get("wireframes").Get(wireframe), parent: equipment);
+        if (_controls.Count == 0)
+            return;
+        _chosen = Math.Min(_chosen, _controls.Count - 1);
+        Show(_controls[_chosen].Selector, parent: equipment);
     }
 
-    /// <summary>Switches a piece of equipment on or off. The spazer and the plasma beam do not go together: one on turns the other off.</summary>
+    /// <summary>
+    /// Switches a piece of equipment on or off, or her reserves between refilling by themselves and not. The spazer
+    /// and the plasma beam do not go together: one on turns the other off.
+    /// </summary>
     private void Switch(string equipment)
     {
-        if (equipment.Length == 0)
-            return;
         Inventory inventory = Samus.Inventory;
+        if (equipment == ReserveMode)
+        {
+            inventory.Switch(Equipment.ReserveTank, !inventory.IsOn(Equipment.ReserveTank));
+            return;
+        }
+
         bool on = !inventory.IsOn(equipment);
         inventory.Switch(equipment, on);
         if (!on)
@@ -178,16 +290,41 @@ public partial class PauseScreen : GameMode
             inventory.Switch(Equipment.Spazer, false);
     }
 
-    /// <summary>Pours a little of her reserves into her energy.</summary>
+    /// <summary>Pours a little of her reserves into her energy, sounding every so often as it goes.</summary>
     private void PourReserves()
     {
         Inventory inventory = Samus.Inventory;
         int room = inventory.Capacity(Inventory.Energy) - inventory.Amount(Inventory.Energy);
         int pour = Math.Min(ReservePourPerUpdate, Math.Min(room, inventory.Amount(Amounts.ReserveEnergy)));
         if (pour <= 0)
+        {
+            _pouring = 0;
             return;
+        }
+
         inventory.Lose(Amounts.ReserveEnergy, pour);
         inventory.Add(Inventory.Energy, pour);
-        ShowEquipment(_list!.Chosen);
+        if (_pouring++ % Data().Get("sounds").Int("pour_every") == 0)
+            Sound("pour");
+        ShowEquipment();
     }
+
+    /// <summary>Shows a picture the data places, or another picture at that place; an empty picture shows nothing.</summary>
+    private void Show(DataNode placed, string? picture = null, Node2D? parent = null)
+    {
+        picture ??= placed.Text("picture");
+        if (picture.Length == 0)
+            return;
+        (parent ?? _page ?? throw NotShown()).AddChild(new Sprite2D
+        {
+            Texture = Session.Content.LoadTexture(picture), Centered = false, Position = new Vector2(placed.Int("x"), placed.Int("y")),
+            TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+        });
+    }
+
+    private void Sound(string name) => Session.Sounds.Request(Data().Get("sounds").Text(name), channel: "menu");
+
+    private DataNode Data() => _data ?? throw NotShown();
+
+    private static InvalidOperationException NotShown() => new("The pause screen has not been shown.");
 }

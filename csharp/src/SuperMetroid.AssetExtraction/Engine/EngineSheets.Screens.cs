@@ -36,6 +36,10 @@ internal sealed partial class EngineSheets
     /// <summary>Whether a sprite sheet's frame named <paramref name="frame"/> shows anything.</summary>
     internal bool SpriteShows(SpriteSheetId sheet, string frame) => SpriteFrame(sheet, frame).Frame.Picture is not null;
 
+    /// <summary>Whether the installation lists <paramref name="frame"/> among the pictures of a sprite sheet that show nothing.</summary>
+    internal bool SpriteIsBlank(SpriteSheetId sheet, string frame) =>
+        _documents.TryGetValue((SpriteFamily, SheetOf(sheet)), out InstalledSheetDocument? document) && document.Blank is { } blank && blank.Contains(frame);
+
     /// <summary>The names of a sprite sheet's frames, in the sheet's order.</summary>
     internal IReadOnlyList<string> SpriteNames(SpriteSheetId sheet) =>
         _documents.TryGetValue((SpriteFamily, SheetOf(sheet)), out InstalledSheetDocument? document)

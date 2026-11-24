@@ -244,41 +244,19 @@ public sealed partial class EngineAssetWriter
         data["start"] = start;
         data["lasts_updates"] = scene.Duration;
 
-        (SamusEquipmentFlags Old, string Name)[] items =
-        [
-            (SamusEquipmentFlags.VariaSuit, "varia_suit"), (SamusEquipmentFlags.SpringBall, "spring_ball"), (SamusEquipmentFlags.MorphBall, "morph_ball"),
-            (SamusEquipmentFlags.ScrewAttack, "screw_attack"), (SamusEquipmentFlags.GravitySuit, "gravity_suit"), (SamusEquipmentFlags.HiJumpBoots, "hi_jump_boots"),
-            (SamusEquipmentFlags.SpaceJump, "space_jump"), (SamusEquipmentFlags.Bombs, "bombs"), (SamusEquipmentFlags.SpeedBooster, "speed_booster"),
-            (SamusEquipmentFlags.GrappleBeam, "grapple_beam"), (SamusEquipmentFlags.XrayScope, "xray_scope"),
-        ];
-        (SamusBeamFlags Old, string Name)[] beams =
-        [
-            (SamusBeamFlags.Charge, "charge_beam"), (SamusBeamFlags.Ice, "ice_beam"), (SamusBeamFlags.Wave, "wave_beam"), (SamusBeamFlags.Spazer, "spazer"),
-            (SamusBeamFlags.Plasma, "plasma_beam"),
-        ];
         var equipment = new JsonArray();
         var off = new JsonArray();
-        SamusEquipmentFlags unnamed = scene.Items;
-        foreach ((SamusEquipmentFlags old, string name) in items)
+        foreach (SamusEquipmentFlags item in Enum.GetValues<SamusEquipmentFlags>().Where(item => item != SamusEquipmentFlags.None && scene.Items.HasFlag(item)))
+            equipment.Add(EquipmentName(item));
+        foreach (SamusBeamFlags beam in Enum.GetValues<SamusBeamFlags>().Where(beam => beam != SamusBeamFlags.None && scene.CollectedBeams.HasFlag(beam)))
         {
-            unnamed &= ~old;
-            if (scene.Items.HasFlag(old))
-                equipment.Add(name);
+            equipment.Add(BeamName(beam));
+            if (!scene.EquippedBeams.HasFlag(beam))
+                off.Add(BeamName(beam));
         }
 
-        SamusBeamFlags unnamedBeams = scene.CollectedBeams | scene.EquippedBeams;
-        foreach ((SamusBeamFlags old, string name) in beams)
-        {
-            unnamedBeams &= ~old;
-            if (!scene.CollectedBeams.HasFlag(old))
-                continue;
-            equipment.Add(name);
-            if (!scene.EquippedBeams.HasFlag(old))
-                off.Add(name);
-        }
-
-        if (unnamed != SamusEquipmentFlags.None || unnamedBeams != SamusBeamFlags.None || (scene.EquippedBeams & ~scene.CollectedBeams) != SamusBeamFlags.None)
-            throw new InvalidDataException("A demo gives Samus something the Godot game has no name for, or switches on a beam she has not got.");
+        if ((scene.EquippedBeams & ~scene.CollectedBeams) != SamusBeamFlags.None)
+            throw new InvalidDataException("A demo switches on a beam Samus has not got.");
         data["equipment"] = equipment;
         if (off.Count > 0)
             data["off"] = off;

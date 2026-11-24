@@ -622,4 +622,5 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `objects/save_station_electricity.json` | `game/objects/station/save_station.tscn` |
 | `objects/save_station_rest.json` | `game/objects/station/save_station.tscn` |
 | `objects/save_station_working.json` | `game/objects/station/save_station.tscn` |
+| `pause/pause.json` | `game/pause/PauseScreen.cs` |
 | `text/emergency.png` | `game/rooms/ceres/ceres_ridley.tscn` |

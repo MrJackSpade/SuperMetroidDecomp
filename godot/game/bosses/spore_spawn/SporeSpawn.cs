@@ -143,12 +143,14 @@ public partial class SporeSpawn : Enemy
     private bool _sporesHeldBack;
     private bool _hurtThisOpening;
     private bool _dying;
+    private bool _hardened;
     private bool _coreTakesShots;
     private string _shade = "";
     private TimelinePlayer? _stalk;
 
     /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => !Husk && !_dying && base.IsHitBy(side);
+    /// <remarks>Shots pass it from its death until it hardens; the husk turns them away.</remarks>
+    public override bool IsHitBy(HitSide side) => (Husk || _hardened || !_dying) && base.IsHitBy(side);
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -321,6 +323,7 @@ public partial class SporeSpawn : Enemy
                 break;
             case "harden":
                 Position = _centre;
+                _hardened = true;
                 if (Solid is { } shell)
                     shell.Enabled = true;
                 break;

@@ -93,7 +93,8 @@ public sealed partial class EngineAssetWriter
         }
 
         // The shell: an orb that pulses until a shot bursts it. Nothing of it is remembered: it is whole again each
-        // time its room is entered, for as long as its item has not been taken.
+        // time its room is entered, for as long as its item has not been taken. The first hit that lands bursts it, so
+        // it never shows itself hurt and has no look for that.
         string Orb(CollectibleImage image)
         {
             CollectibleDraw draw = image.What is CollectibleImage.DrawnImage { Draw: RoomObjectFrameDraw<CollectibleDraw> framed }

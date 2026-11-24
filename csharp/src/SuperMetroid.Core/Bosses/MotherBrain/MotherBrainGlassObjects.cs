@@ -91,7 +91,7 @@ internal sealed partial class MotherBrainGlassObjects
     internal void SetGlassDestroyed() => _events.Set(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>The shatter sound's request priority.</summary>
-    private static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;
+    internal static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;
 
 
     /// <summary>Finds the live glass, without accepting a later object that took its place.</summary>

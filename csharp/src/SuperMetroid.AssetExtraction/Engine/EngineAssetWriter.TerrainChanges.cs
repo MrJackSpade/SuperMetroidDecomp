@@ -38,7 +38,7 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// Gives the layouts of a room's states a patch for each frame of one of the old game's timed changes to its
     /// blocks, and returns the change as the Godot game plays it: each patch in turn, standing as long as its frame
-    /// did, with the sound its frame asked for.
+    /// did, with the sound its frame asked for, at the priority it asked with.
     /// </summary>
     /// <param name="states">The states of the room.</param>
     /// <param name="name">The name the patches are numbered under.</param>
@@ -77,7 +77,7 @@ public sealed partial class EngineAssetWriter
             if (!last)
                 step["updates"] = frame.Updates;
             if (frame.SoundBefore is { } sound)
-                step["sound"] = EngineNames.SoundOrStop(sound);
+                step["sound"] = EngineNames.Sound(sound, frame.SoundPriority);
             steps.Add(step);
         }
 

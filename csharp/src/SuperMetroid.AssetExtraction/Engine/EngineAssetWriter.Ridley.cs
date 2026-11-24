@@ -398,7 +398,8 @@ public sealed partial class EngineAssetWriter
             .Value("explosion_effect", DustFile(DustExplosionAnimation.SmallExplosion))
             .Value("piece_end_effect", DeathFile(EnemyDeathExplosion.Small))
             .Value("bounce_sound", EngineNames.Sound(EnemySound.BigExplosion))
-            .Value("explosion_sound", EngineNames.Sound(RidleySoundDefinitions.DeathExplosion))
+            // The blasts about him as he dies join only a queue holding at most two.
+            .Value("explosion_sound", EngineNames.Sound(RidleySoundDefinitions.DeathExplosion, SoundRequestPriority.Low))
             .Value("death_drops", NorfairRidleyArenaDefinitions.DeathDrops)
             .Group("health_bands", bands)
             .Group("death_explosions", EngineNames.List(DeathExplosionScatterDefinitions.Offsets.Select(at => (JsonNode)new JsonObject { ["x"] = (int)at.X, ["y"] = (int)at.Y })))

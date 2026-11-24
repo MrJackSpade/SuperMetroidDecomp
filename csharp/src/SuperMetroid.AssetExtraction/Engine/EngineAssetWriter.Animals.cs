@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Spatial;
+using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -113,7 +114,8 @@ public sealed partial class EngineAssetWriter
             .Timeline("clinging_to_left_wall", Look(EtecoonSegment.WallJumpRightEligible))
             .Timeline("wall_jump_left", Look(EtecoonSegment.WallJumpLeft))
             .Timeline("wall_jump_right", Look(EtecoonSegment.WallJumpRight))
-            .Value("wake_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.EtecoonWakeSound))
+            // Nothing turns its wake away.
+            .Value("wake_sound", EngineNames.Sound(EnemySoundEffectDefinitions.EtecoonWakeSound, SoundRequestPriority.Essential))
             .Value("jump_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.EtecoonJumpSound))
             .Value("wall_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.EtecoonWallSound))
             .Write();

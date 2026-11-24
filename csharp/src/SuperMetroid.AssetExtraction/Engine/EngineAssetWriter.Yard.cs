@@ -58,7 +58,8 @@ public sealed partial class EngineAssetWriter
             .Value("shot_launch_speed", YardMotionDefinitions.BeamLaunchWholeSpeed)
             // It is shaken off by the quake of a super missile striking a wall; the Godot game counts a shake's strength from one, the lightest.
             .Value("falls_at_shake", (int)SuperMissileDefinitions.WallImpactEarthquake.Strength - (int)EarthquakeStrength.Light + 1)
-            .Value("bounce_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YardBounceSound))
+            // Its bounce joins only a queue holding at most two.
+            .Value("bounce_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YardBounceSound, SoundRequestPriority.Low))
             // The speed down a kick gives it, by the whole pixels an update Samus was running at.
             .Group("kick_speeds", EngineNames.List(YardKickDefinitions.Kicks.Select(EngineNames.Number)));
 

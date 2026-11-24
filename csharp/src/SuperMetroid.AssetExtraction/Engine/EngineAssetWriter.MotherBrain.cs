@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
+using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodySegment;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment;
 
@@ -186,6 +187,8 @@ public sealed partial class EngineAssetWriter
         string Effect(string name, MotherBrainEffectSegment segment, Func<MotherBrainEffectCue, string?> cue, bool rests = false) =>
             mother.SpawnedTimelineFrom(mother.Spawner, name, MotherBrainEffectAnimations.Segments, effects[segment], cue, rests);
         string explosionSound = EngineNames.SoundOrStop(MotherBrainSoundDefinitions.Explosion.SoundEffect);
+        // The burst of a ring or a bomb joins only a queue holding at most two.
+        string burstSound = EngineNames.Sound(MotherBrainSoundDefinitions.Explosion);
 
         // Her rings sit at her mouth, then fly straight; one bursts on Samus and where it leaves the fighting floor.
         mother.Shot("ring", RoomEnemyProjectileKind.MotherBrainOnionRing, (_, shot, projectile) =>
@@ -199,7 +202,7 @@ public sealed partial class EngineAssetWriter
             projectile["meeting_terrain"] = "passes_through";
             projectile["meeting_target"] = "ends";
             projectile["ending_effect"] = DustFile(DustExplosionAnimation.SmallExplosion);
-            projectile["ending_sound"] = explosionSound;
+            projectile["ending_sound"] = burstSound;
         });
         mother.ProjectileData("bosses/mother_brain_ring.json", "MotherBrainRing",
             ("mouth_updates", MotherBrainOnionRingDefinitions.MouthWaitUpdates), ("top", MotherBrainOnionRingDefinitions.ArenaTopY),
@@ -238,7 +241,7 @@ public sealed partial class EngineAssetWriter
         });
         mother.ProjectileData("bosses/mother_brain_bomb.json", "MotherBrainBomb",
             ("flare", flare), ("dust_effect", DustFile(DustExplosionAnimation.SmallDustCloud)),
-            ("explosion_effect", DustFile(DustExplosionAnimation.SmallExplosion)), ("explosion_sound", explosionSound),
+            ("explosion_effect", DustFile(DustExplosionAnimation.SmallExplosion)), ("explosion_sound", burstSound),
             ("floor", MotherBrainBombBounceDefinitions.FloorY), ("right_wall", MotherBrainBombBounceDefinitions.RightWallX));
 
         // The laser from her eye is a Space Pirate's, and hurts as much as she does.
@@ -438,7 +441,8 @@ public sealed partial class EngineAssetWriter
             .Value("samus_stands_energy", MotherBrainLateFightDefinitions.SamusStandsInBeamHealth)
             .Value("finish_off_energy", MotherBrainLateFightDefinitions.FinishOffSamusHealth)
             .Value("corpse_dust_effect", DustFile(DustExplosionAnimation.CorpseDustCloud))
-            .Value("corpse_dust_sound", EngineNames.Sound(EnemySound.LiquidDamage))
+            // The dust of her rotting corpse joins only a queue holding at most two.
+            .Value("corpse_dust_sound", EngineNames.Sound(EnemySound.LiquidDamage, SoundRequestPriority.Low))
             .Value("door_fragment_effect", Effect("door_fragment", MotherBrainEffectSegment.EscapeDoorParticle, NoEffectCue))
             .Group("shapes", shapes)
             .Group("contacts", new JsonObject
@@ -503,7 +507,7 @@ public sealed partial class EngineAssetWriter
             .Value("remorse_cry_sound", EngineNames.Sound(BabyMetroidSoundDefinitions.RemorseCry))
             .Value("death_sound", EngineNames.Sound(RoomSound.BabyMetroidDeath))
             .Value("heal_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
-            .Value("explosion_sound", EngineNames.SoundOrStop(MotherBrainSoundDefinitions.Explosion.SoundEffect))
+            .Value("explosion_sound", EngineNames.Sound(MotherBrainSoundDefinitions.Explosion))
             .Value("dust_effect", DustFile(DustExplosionAnimation.SmallDustCloud))
             .Value("explosion_effect", DustFile(DustExplosionAnimation.SmallExplosion))
             .Value("shielding_health", BabyMetroidCutsceneDefinitions.ArrivalHealth)

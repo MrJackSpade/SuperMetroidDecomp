@@ -6,8 +6,9 @@ namespace Engine.Actors;
 /// </summary>
 public sealed class FallingState : PlayerState
 {
-    /// <summary>The stance the player last held in this fall, and the one this update's input asks for.</summary>
-    private int _stance = -1, _stanceAsked;
+    /// <summary>The stance the player last held in this fall, once they have held one, and the one this update's input asks for.</summary>
+    private AirStance? _stance;
+    private AirStance _stanceAsked;
 
     private readonly bool _offFloor;
 
@@ -52,7 +53,7 @@ public sealed class FallingState : PlayerState
     /// <summary>A change of stance sets the steering afresh, and the body takes the form of the stance where it fits.</summary>
     public override void CarriedOn(Player owner)
     {
-        if (_stanceAsked != _stance && _stance >= 0)
+        if (_stance is { } held && _stanceAsked != held)
             owner.SteerAfresh();
         _stance = _stanceAsked;
         owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);

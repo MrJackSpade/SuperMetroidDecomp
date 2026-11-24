@@ -668,14 +668,22 @@ in `engine/actors/player/`.
   the whole jump, and `FallingState` is for walking off a floor and for being let go in the air. A jump from the
   ground may first gather itself for `jump_start_updates`, moving nothing of the player's own. Both steer by the air
   rule (`SteerAndMoveInAir`): steered with neither direction held, the player stops across at once and does not move
-  across that update; unsteered or reversing they carry on. A player taking up a new stance in the air (their aim, and
-  in a jump whether they steer the way they face or hold the attack) has their steering set afresh: unsteered while a
-  dash still carries them, else steered. An update with nothing at all held makes a jumper who has speed unsteered
+  across that update; unsteered or reversing they carry on. A player taking up a new stance in the air (`AirStance`:
+  their aim, and aiming level in a jump whether they steer the way they face or hold the attack, `AirArm`) has their
+  steering set afresh: unsteered while a dash still carries them, else steered. A jump holds a stance from its
+  start: one from the ground starts in the stance of the aim the player has as it begins, their arm at rest, and
+  holds it while it gathers, the input asked nothing; as the gathering ends the game's player is told
+  (`JumpGathered`) and may name another state, which takes effect as a state's own end does. A jump that carries on
+  from something else starts in the stance it is given (`JumpingState(AirStance)`), or failing that the one the
+  input asks for as it begins. A change of stance within a jump takes effect only when the body can take the form
+  of the new one, and the jump says so for that update (`TookUpStance`), which the game's player can read as it is
+  told (`Entering`). An update with nothing at all held makes a jumper who has speed unsteered
   (the dash is folded into their speed and their momentum ends) and takes a faller's dash and momentum. Steering
   against the way they face turns them in the air (`AirTurningState`): they face the new way at once and reverse by
   the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
-  not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from. A
-  landing ends standing whatever is held.
+  not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from, a
+  jump aiming level then being in the stance of steering the way they now face. A landing ends standing whatever is
+  held.
 - **Postures.** Crouching down, standing up, taking the low form and leaving it each take the updates the game
   gives them (`crouch_updates`, `stand_updates`, `crawl_enter_updates`, `crawl_leave_updates`; none is at once). For
   that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is
@@ -790,21 +798,38 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   down at other than a whole number of pixels an update.
 - **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
   carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
-  her. It lasts while both stay held; let go, she faces as she did and is in a plain jump. When the knockback she
-  left runs out her rise ends at once, and she flies on and falls. It holds off interruptions.
+  her. What the input asks of it is the first of these that holds: the jump with left, then the jump with right,
+  each keeping the boost when it is the way the boost carries her and otherwise leaving it, facing as she did, for
+  a jump in the stance of steering that way; anything else leaves it for a jump with her arm at rest. When the
+  knockback she left runs out her rise ends at once, and she flies on and falls. It holds off interruptions.
 - **Her jumps.** A jump from standing or a crouch is a plain jump whatever is held, gathered for one update; a jump
-  from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. A spin
-  keeps her own speed across only while its top speed capped it this update, while she is reversing, or while the
-  way she faces is held; otherwise that speed is cleared, and a dash still carries her. Aiming, or firing,
-  straightens her out into a jump once the update is done (aiming alone does not while the jump and the way she
-  faces are both held); steering the other way turns the spin (dash folded in, momentum ended, reversing).
+  from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. The
+  first pose of a plain jump aims as the press chose (`Samus.Entering`): from standing, up with up held, else
+  diagonally up with the angle-up action, else diagonally down with the angle-down action, else level; from a
+  crouch or a turn, level. A spin keeps her own speed across only while its top speed capped it this update, while
+  she is reversing, or while the way she faces is held; otherwise that speed is cleared, and a dash still carries
+  her. What the input asks of a spin is the first of these that holds: the attack pressed afresh straightens her
+  out into a jump with her arm held out level, whatever else is held; the attack held with up, with down, with the
+  angle-up action or with the angle-down action straightens her out aiming up, down, diagonally up or diagonally
+  down; the jump and the way she faces held keep the spin; up, the angle-up action, the angle-down action or down
+  straightens her out aiming so; the way she faces keeps the spin; the other way turns it (dash folded in, momentum
+  ended, reversing). She is straightened out once the update is done.
+- **Her stored shine** is spent as a jump takes up a stance aiming level with her arm at rest, aiming up or aiming
+  diagonally up (`ShinesparkState`), and at no other time: as the first pose of a jump from the ground has gathered
+  (`Samus.JumpGathered`), so the update after the press, and not when that pose aims diagonally down; as such a
+  stance is taken up within a jump; as a spin or a wall jump is straightened out into one where the taller body
+  fits; and as a damage boost is left with her arm at rest. A jump from a run is a spin and spends nothing. Begun
+  out of a jump, its first pose included, the windup starts `shinespark_lift` pixels higher, moved there whatever
+  is above her.
 - **Her wall jump** is from a spin only. A wall within `wall_jump_reach` on the side away from the direction held
   makes the spin ready from the next update for `wall_jump_ready_updates`; ready, a fresh jump with the wall still
   there jumps off it, and that update she moves neither up nor down. A spin held steadily from the ground does not
   look for walls: it does once an update's input has asked nothing of it, or it has turned, or it came out of a
-  wall jump. In the wall jump, steering the other way makes it a spin that way, an angle or the attack makes it a
-  jump, the jump held keeps it, and anything else lets it go into a spin, which keeps what the wall jump gave her
-  across only as a space jump or a screw attack. The wall jump is heard as a landing.
+  wall jump. What the input asks of the wall jump is the first of these that holds: a press of down curls her up;
+  the direction behind her makes it a spin that way; the angle-up action makes it a jump aiming diagonally up, the
+  angle-down action one aiming diagonally down, the attack one with her arm held out level; the jump held keeps it;
+  anything else lets it go into a spin, which keeps what the wall jump gave her across only as a space jump or a
+  screw attack. The wall jump is heard as a landing.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
 - **Her run's one pixel.** As the cartridge does, a run about to be taken up in a pose she is not already running

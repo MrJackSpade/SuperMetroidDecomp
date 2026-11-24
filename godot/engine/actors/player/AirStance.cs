@@ -5,26 +5,30 @@ using Engine.Shared;
 namespace Engine.Actors;
 
 /// <summary>
-/// What the states of the air share, the engine's and a game's own: the stance the player holds there, and the fall
-/// that ends in a landing.
+/// A stance the player holds in the air: where the weapon points, and, aiming level, how the arm is held. With it
+/// goes what the states of the air share, the engine's and a game's own: the stance the input asks for, the form of
+/// the body, and the fall that ends in a landing.
 /// </summary>
-public static class AirStance
+/// <param name="Aim">Where the weapon points.</param>
+/// <param name="Arm">How the arm is held; at rest unless the aim is level.</param>
+public readonly record struct AirStance(Aim Aim, AirArm Arm)
 {
-    /// <summary>
-    /// The stance the input asks for in the air, as a number that differs between stances: where the weapon points,
-    /// and, aiming level, whether the player steers the way they face (where that makes a stance of its own) or holds
-    /// the attack.
-    /// </summary>
-    public static int Of(Player owner, bool forwardCounts)
+    /// <summary>The stance of an aim with the arm at rest.</summary>
+    public AirStance(Aim aim)
+        : this(aim, AirArm.AtRest)
     {
-        int level = 0;
-        if (owner.Aim == Aim.Forward)
-        {
-            bool forward = owner.Intent != 0 && (owner.Intent > 0) == (owner.Facing == Facing.Right);
-            level = forwardCounts && forward ? 1 : owner.Input.IsHeld(GameAction.Attack) ? 2 : 0;
-        }
+    }
 
-        return (int)owner.Aim * 3 + level;
+    /// <summary>
+    /// The stance the input asks for in the air: where the weapon points, and, aiming level, whether the player
+    /// steers the way they face (where that makes a stance of its own) or holds the attack.
+    /// </summary>
+    public static AirStance Of(Player owner, bool forwardCounts)
+    {
+        if (owner.Aim != Aim.Forward)
+            return new AirStance(owner.Aim);
+        bool forward = owner.Intent != 0 && (owner.Intent > 0) == (owner.Facing == Facing.Right);
+        return new AirStance(Aim.Forward, forwardCounts && forward ? AirArm.Forward : owner.Input.IsHeld(GameAction.Attack) ? AirArm.Out : AirArm.AtRest);
     }
 
     /// <summary>

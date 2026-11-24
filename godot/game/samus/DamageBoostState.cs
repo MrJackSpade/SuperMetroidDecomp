@@ -10,6 +10,11 @@ namespace Game;
 /// while the jump and that direction stay held; let go, she faces as she did and is in a plain jump. When the
 /// knockback's time runs out her rise ends, and she flies on level and falls.
 /// </summary>
+/// <remarks>
+/// What the input asks of a boost is the first of these that holds, as the cartridge has it: the jump with left, then
+/// the jump with right, each keeping the boost when it is the way the boost carries her and otherwise leaving it for a
+/// jump in the stance of steering the way she faced; anything else leaves it for a jump with her arm at rest.
+/// </remarks>
 public sealed class DamageBoostState : PlayerState, ISamusLook
 {
     /// <summary>The name of the move values a damage boost goes by.</summary>
@@ -43,18 +48,26 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
     }
 
-    /// <summary>The boost lasts while the jump and the way it carries her are held.</summary>
-    public override PlayerState? Asked(Player owner)
-    {
-        bool toward = owner.Input.IsHeld(_toward == Facing.Right ? GameAction.Right : GameAction.Left);
-        return toward && owner.Input.IsHeld(GameAction.Jump) ? this : null;
-    }
+    /// <summary>The boost lasts while the jump and the way it carries her are the first of its chords held.</summary>
+    public override PlayerState? Asked(Player owner) => FirstChord(owner) == _toward ? this : null;
 
-    /// <summary>Let go, she faces the way she did before the boost and jumps on plainly.</summary>
+    /// <summary>
+    /// Let go, she faces the way she did before the boost and jumps on, aiming level: steering that way where the
+    /// jump was held with it, and otherwise with her arm at rest.
+    /// </summary>
     public override PlayerState? Unasked(Player owner)
     {
-        owner.Facing = _toward.Opposite();
-        return new JumpingState(keepsSpeed: true);
+        Facing before = _toward.Opposite();
+        owner.Facing = before;
+        return new JumpingState(new AirStance(Aim.Forward, FirstChord(owner) == before ? AirArm.Forward : AirArm.AtRest));
+    }
+
+    /// <summary>The direction of the first chord held, the jump with left before the jump with right; null when neither is.</summary>
+    private static Facing? FirstChord(Player owner)
+    {
+        if (!owner.Input.IsHeld(GameAction.Jump))
+            return null;
+        return owner.Input.IsHeld(GameAction.Left) ? Facing.Left : owner.Input.IsHeld(GameAction.Right) ? Facing.Right : null;
     }
 
     /// <inheritdoc/>

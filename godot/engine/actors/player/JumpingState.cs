@@ -8,38 +8,73 @@ namespace Engine.Actors;
 /// A jump from the ground may first gather itself, moving nothing. Letting go of the jump while rising cuts the rise
 /// short; steering against the way the player faces turns them in the air.
 /// </summary>
+/// <remarks>
+/// A jump holds a stance from its start. A jump from the ground starts in the stance of the aim the player has as it
+/// begins, their arm at rest, and holds it for as long as it gathers itself, the input asked nothing; as the gathering
+/// ends the game's player is told (<see cref="Player.JumpGathered"/>). A jump that carries on from something else
+/// starts in the stance it is given, or failing that the one the input asks for as it begins. A change of stance takes
+/// effect when the body can take the form of the new one, and the jump then says so for that update
+/// (<see cref="TookUpStance"/>).
+/// </remarks>
 public sealed class JumpingState : PlayerState
 {
     /// <summary>Whether the jump keeps the upward speed the player already has, as one carried on from a wall jump does.</summary>
     private readonly bool _keepsSpeed;
 
-    /// <summary>The updates left in which a jump from the ground gathers itself.</summary>
+    /// <summary>The updates left in which a jump from the ground gathers itself, and whether the gathering ended on this update.</summary>
     private Countdown _gathering;
+    private bool _gathered;
 
     /// <summary>Whether the player had any speed of their own across as this update's input was asked.</summary>
     private bool _hadSpeed;
 
-    /// <summary>The stance the player last held in this jump, and the one this update's input asks for.</summary>
-    private int _stance = -1, _stanceAsked;
+    /// <summary>The stance the player holds in this jump, once it has one, and the one this update's input asks for.</summary>
+    private AirStance? _stance;
+    private AirStance _stanceAsked;
 
     /// <summary>A jump from the ground.</summary>
     public JumpingState()
     {
     }
 
-    /// <summary>A jump that carries on with the upward speed the player already has.</summary>
+    /// <summary>A jump that carries on with the upward speed the player already has, in the stance the input asks for as it begins.</summary>
     public JumpingState(bool keepsSpeed) => _keepsSpeed = keepsSpeed;
+
+    /// <summary>A jump that carries on with the upward speed the player already has, in <paramref name="stance"/>.</summary>
+    public JumpingState(AirStance stance)
+    {
+        _keepsSpeed = true;
+        _stance = stance;
+    }
+
+    /// <summary>Whether this is a jump from the ground.</summary>
+    public bool FromGround => !_keepsSpeed;
+
+    /// <summary>The stance the player holds in this jump.</summary>
+    /// <exception cref="InvalidOperationException">The jump was given no stance and has not begun.</exception>
+    public AirStance Stance => _stance ?? throw new InvalidOperationException("The jump has no stance before it begins.");
+
+    /// <summary>Whether the player took up another stance within the jump on this update.</summary>
+    public bool TookUpStance { get; private set; }
 
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(_keepsSpeed ? AirStance.FormFor(owner, Player.Jumping) : owner.FormOr(Player.Jumping), aroundMiddle: true);
         if (_keepsSpeed)
         {
+            if (_stance is { } given)
+                owner.Aim = given.Aim;
+            else
+                _stance = AirStance.Of(owner, forwardCounts: true);
+            _stanceAsked = Stance;
+            owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
             owner.SteerAfresh();
             return;
         }
 
+        _stance = new AirStance(owner.Aim);
+        _stanceAsked = Stance;
+        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         owner.Rise(owner.LaunchSpeed(offWall: false));
         _gathering = Countdown.Of(owner.InMedium("jump_start_updates", owner.JumpStartUpdates));
     }
@@ -47,13 +82,18 @@ public sealed class JumpingState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
-        owner.AimFromInput();
+        TookUpStance = false;
         _hadSpeed = !owner.Velocity.X.IsZero;
-        _stanceAsked = AirStance.Of(owner, forwardCounts: true);
 
-        // A jump that is gathering itself listens to nothing but the aim.
+        // A jump that is gathering itself listens to nothing: it holds the stance it began in.
         if (_gathering.IsRunning)
+        {
+            _stanceAsked = Stance;
             return this;
+        }
+
+        owner.AimFromInput();
+        _stanceAsked = AirStance.Of(owner, forwardCounts: true);
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: true);
         return AirStance.AsksNothing(owner, jumpCounts: true) ? null : this;
@@ -73,7 +113,11 @@ public sealed class JumpingState : PlayerState
             owner.MoveAcross(byDashAlone: true);
             _gathering = _gathering.Stepped();
             if (_gathering.IsOver)
+            {
                 owner.SteerAfresh();
+                _gathered = true;
+            }
+
             return null;
         }
 
@@ -82,15 +126,27 @@ public sealed class JumpingState : PlayerState
         return AirStance.FallAndLand(owner);
     }
 
-    /// <summary>A change of stance sets the steering afresh, and the body takes the form of the stance where it fits.</summary>
+    /// <summary>As the gathering ends the game's player is told, and may be in another state instead of rising.</summary>
+    public override PlayerState? Ended(Player owner)
+    {
+        if (!_gathered)
+            return null;
+        _gathered = false;
+        return owner.AfterGathering(this);
+    }
+
+    /// <summary>
+    /// The body takes the form of the stance asked for, where it fits; a new stance is taken up only when it does, and
+    /// sets the steering afresh.
+    /// </summary>
     public override void CarriedOn(Player owner)
     {
-        if (_gathering.IsRunning)
+        bool fits = owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
+        if (!fits || _stanceAsked == Stance)
             return;
-        if (_stanceAsked != _stance && _stance >= 0)
-            owner.SteerAfresh();
+        owner.SteerAfresh();
         _stance = _stanceAsked;
-        owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
+        TookUpStance = true;
     }
 
     /// <summary>

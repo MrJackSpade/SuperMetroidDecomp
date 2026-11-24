@@ -93,13 +93,38 @@ public sealed class RowCrumble
         return true;
     }
 
-    /// <summary>Slides what shows at a row down onto the row below it, leaving the row empty or still showing.</summary>
+    /// <summary>The rows of one band of the picture: rows land differently from the foot of a band than from the rest of it.</summary>
+    private const int BandRows = 8;
+
+    /// <summary>The first row of a band from which a sliding row lands in the next band.</summary>
+    private const int BandRowsLandingInNextBand = 6;
+
+    /// <summary>How far down a row slides from the last two rows of a band: into the next band's second and third rows.</summary>
+    private const int RowsFallenAcrossBand = 3;
+
+    /// <summary>The rows at the picture's foot from which a sliding row lands nowhere.</summary>
+    private const int FootRowsLandingNowhere = 2;
+
+    /// <summary>Slides what shows at a row down to where it lands, leaving the row empty or still showing.</summary>
     private void Move(int row, bool leaving)
     {
-        if (row + 1 < _rows.Length)
-            _rows[row + 1] = _rows[row];
+        if (LandingOf(row) is int landing)
+            _rows[landing] = _rows[row];
         if (leaving)
             _rows[row] = null;
+    }
+
+    /// <summary>
+    /// Where a sliding row lands, or nowhere: on the row below it, or three rows down from the last two rows of its
+    /// band of eight; nowhere from the picture's last two rows, or below the picture. Landing so, the crumbling
+    /// leaves nothing of the picture standing; landing always on the row below would leave every other row.
+    /// </summary>
+    private int? LandingOf(int row)
+    {
+        if (row >= _rows.Length - FootRowsLandingNowhere)
+            return null;
+        int landing = row + (row % BandRows < BandRowsLandingInNextBand ? 1 : RowsFallenAcrossBand);
+        return landing < _rows.Length ? landing : null;
     }
 
     private sealed class Fall

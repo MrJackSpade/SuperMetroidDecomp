@@ -53,6 +53,15 @@ public sealed partial class EngineAssetWriter
     {
         // The Alcoon: its leap out looks up, and coming down it looks ahead. Its fire is thrown up, level or down.
         Enemy("enemies/alcoon.json", "Alcoon", EnemyDefinitionId.Alcoon).BodyColliders(Ordinary)
+            .Value("emerge_across_distance", AlcoonMotionDefinitions.EmergeXDistance)
+            .Value("emerge_down_distance", AlcoonMotionDefinitions.EmergeYDistance)
+            .Value("hide_distance", AlcoonMotionDefinitions.HideXDistance)
+            .Value("emerge_jump_speed", EngineNames.Number(-AlcoonMotionDefinitions.EmergeJumpVelocity))
+            .Value("hide_jump_speed", EngineNames.Number(-AlcoonMotionDefinitions.HideJumpVelocity))
+            .Value("gravity", EngineNames.Number(AlcoonMotionDefinitions.Gravity))
+            .Value("stride", Whole(AlcoonWalkDefinitions.StrideDistance))
+            .Value("muzzle_across", AlcoonFireballLaunchDefinitions.MuzzleFacingRight.X)
+            .Value("muzzle_up", -AlcoonFireballLaunchDefinitions.MuzzleFacingRight.Y)
             .Value("emerge_sound", EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonEmergeSound))
             .Shot("fireball", RoomEnemyProjectileKind.AlcoonFireball, static (alcoon, shot, projectile) =>
             {
@@ -83,6 +92,7 @@ public sealed partial class EngineAssetWriter
 
         // The Cacatac: each spike of its attack is thrown one way.
         Enemy("enemies/cacatac.json", "Cacatac", EnemyDefinitionId.Cacatac).BodyColliders(Ordinary)
+            .Value("attack_chances", CacatacAttackDefinitions.Attacks.TakingValues)
             .Value("spike_speed", EngineNames.Number(CacatacProjectileDefinitions.CardinalSpeed))
             .Value("diagonal_spike_speed", EngineNames.Number(CacatacProjectileDefinitions.DiagonalSpeed))
             .Shot("spike", RoomEnemyProjectileKind.CacatacSpike, static (cacatac, _, projectile) =>
@@ -137,6 +147,8 @@ public sealed partial class EngineAssetWriter
 
         // The Hibashi: each step of its eruption says how high the part of the flame that burns has climbed.
         Enemy("enemies/hibashi.json", "Hibashi", EnemyDefinitionId.Hibashi)
+            .Value("first_wait", HibashiDefinitions.FirstWait)
+            .Value("half_width", HibashiDefinitions.RestoredHalfWidth)
             .Looks(HibashiAnimations.Segments, HibashiAnimations.StartingWith,
                 static (HibashiCue cue) => cue switch
                 {
@@ -150,12 +162,20 @@ public sealed partial class EngineAssetWriter
 
         // The Evir, and the spine ball it holds, which is an enemy of its own.
         Enemy("enemies/evir.json", "Evir", EnemyDefinitionId.Evir).BodyColliders(Ordinary)
+            .Value("arms_across", EvirMotionDefinitions.ArmsFacingRight.X)
+            .Value("arms_down", EvirMotionDefinitions.ArmsFacingRight.Y)
+            .Value("grip_across", EvirMotionDefinitions.IdleSpitFacingRight.X)
+            .Value("grip_down", EvirMotionDefinitions.IdleSpitFacingRight.Y)
             .Looks(EvirAnimations.Segments, EvirAnimations.StartingWith,
                 static (EvirCue cue) => cue.Kind == EvirCueKind.PlaySpitSound ? EngineNames.SoundCue(EnemySoundEffectDefinitions.EvirSpitSound) : null,
                 ("body_left", EvirSegment.BodyFacingLeft), ("body_right", EvirSegment.BodyFacingRight),
                 ("arms_left", EvirSegment.ArmsFacingLeft), ("arms_right", EvirSegment.ArmsFacingRight))
             .Write();
         Enemy("enemies/evir_spit.json", "EvirSpit", EnemyDefinitionId.EvirProjectile).BodyColliders(Ordinary)
+            .Value("throw_distance", EvirMotionDefinitions.SpitActivationDistance)
+            .Value("speed", EvirMotionDefinitions.SpitSpeed)
+            .Value("regrow_margin", EvirMotionDefinitions.SpitRegenerationMargin)
+            .Value("regrow_distance", EvirMotionDefinitions.RegenerationStartDistance)
             .Looks(EvirAnimations.Segments, EvirAnimations.StartingWith,
                 static (EvirCue cue) => cue.Kind switch
                 {
@@ -170,6 +190,10 @@ public sealed partial class EngineAssetWriter
 
         // The Kzan's top is what Samus stands on and its underside what hurts; both are sized as the old game sizes it.
         Enemy("enemies/kzan.json", "Kzan", EnemyDefinitionId.KzanTop).BodyColliders("Solid", "Hitbox")
+            .Value("rise_wait", KzanMotionDefinitions.RiseWait)
+            .Value("rise_speed", EngineNames.Number(-KzanMotionDefinitions.RisingStep))
+            .Value("fall_quickening", EngineNames.Number(KzanMotionDefinitions.FallAcceleration))
+            .Value("fastest_fall", EngineNames.Number(KzanMotionDefinitions.FastestFall))
             .Value("landing_sound", EngineNames.Sound(EnemySoundEffectDefinitions.KzanLandingSoundEffect))
             .Looks(KzanAnimations.Segments, KzanAnimations.StartingWith, ("idle", KzanSegment.Idle))
             .Write();

@@ -305,21 +305,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>A shake of the room the old game starts, as a projectile's settings say one.</summary>
     private static JsonObject Shake(EarthquakeShake shake, int updates) => new()
     {
-        ["strength"] = shake.Strength switch
-        {
-            EarthquakeStrength.Light => 1,
-            EarthquakeStrength.Medium => 2,
-            EarthquakeStrength.Strong => 3,
-            _ => throw new InvalidDataException($"A shake of the room is of a strength this does not know: {shake.Strength}."),
-        },
+        ["strength"] = ShakeStrength(shake),
         ["updates"] = updates,
-        ["way"] = shake.Direction switch
-        {
-            EarthquakeDirection.Horizontal => "across",
-            EarthquakeDirection.Vertical => "down",
-            EarthquakeDirection.Diagonal => "both",
-            _ => throw new InvalidDataException($"A shake of the room goes a way this does not know: {shake.Direction}."),
-        },
+        ["way"] = ShakeWayName(shake),
     };
 
     /// <summary>Writes the missile or the super missile.</summary>

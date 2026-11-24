@@ -53,6 +53,13 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
         Elapsed = 0;
     }
 
+    /// <summary>Plays the sequence's part of the opening of an update, if it is running and has one.</summary>
+    internal void OpenUpdate(Room room)
+    {
+        if (IsRunning && this is IOpeningStep opening)
+            opening.StepOpening(room);
+    }
+
     /// <summary>Plays one update of the sequence if it is running.</summary>
     internal void Step(Room room)
     {

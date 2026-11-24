@@ -122,10 +122,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
 
-    /// <summary>
-    /// Moves the surface one update toward where it is heading, once its wait is over, turns its tide, and plays its
-    /// pictures on, to be drawn across <paramref name="view"/>.
-    /// </summary>
+    /// <summary>Plays its pictures on one update, to be drawn across <paramref name="view"/>.</summary>
     internal void Step(PixelRect view)
     {
         _view = view;
@@ -134,7 +131,14 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         if (Drifts)
             _drifted += Type.Drift;
         QueueRedraw();
-        Pixels before = Surface;
+    }
+
+    /// <summary>
+    /// Moves the surface one update toward where it is heading, once its wait is over, and turns its tide. The room
+    /// does this as an update opens, so that everything in the update finds the surface where the update shows it.
+    /// </summary>
+    internal void Move()
+    {
         if (_waiting > 0)
         {
             _waiting--;

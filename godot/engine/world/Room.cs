@@ -225,14 +225,31 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Plays one update of the room, in a fixed order: the session services that open an update; the first part of
-    /// the player's update, in which their input is read and their weapons fire; the player's own shots; enemies; the
-    /// rest of the player's update, in which they move; triggers and exits; every other projectile, pickups and the
-    /// remains of the destroyed; room objects and the room itself; then effects. Groups named in
-    /// <paramref name="stopped"/> do not run; the services that open the update always do.
+    /// Plays one update of the room, in a fixed order: the opening, in which the liquid moves, the sequences and
+    /// projectiles with a part in it play that part, and then the session services that open an update play
+    /// theirs; the first part of the player's update, in which their input is read and their weapons fire; the
+    /// player's own shots; enemies; the rest of the player's update, in which they move; triggers and exits; every
+    /// other projectile, pickups and the remains of the destroyed; room objects and the room itself; then effects.
+    /// Groups named in <paramref name="stopped"/> do not run; the services that open the update always do.
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
+        if (!stopped.HasFlag(Stopped.Room))
+        {
+            Liquid?.Move();
+            foreach (RoomSequence sequence in _sequences)
+                sequence.OpenUpdate(this);
+        }
+
+        if (!stopped.HasFlag(Stopped.Projectiles))
+        {
+            foreach (Projectile projectile in _projectiles.ToList())
+            {
+                if (projectile is IOpeningStep opening && !_leaving.Contains(projectile))
+                    opening.StepOpening(this);
+            }
+        }
+
         foreach (IUpdateOpener opener in Session.Services.OfType<IUpdateOpener>())
             opener.OpenUpdate(Session);
 

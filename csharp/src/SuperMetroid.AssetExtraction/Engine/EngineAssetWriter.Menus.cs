@@ -162,11 +162,11 @@ public sealed partial class EngineAssetWriter
         if (TitleSequenceDefinitions.Scenes.Rotation != RotationAngle.Zero)
             throw new InvalidDataException("The title's backdrop is turned, which the Godot title does not turn it.");
 
-        JsonObject Sprite(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, string name)
+        JsonObject Sprite(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, string name, params string[] over)
         {
             (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.Title, frame);
             JsonObject at = At(origin.X - originX, origin.Y - originY);
-            at["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.Title, frame, $"{folder}/{name}.png", TitleShades.Drawn(colouring).Key);
+            at["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.Title, frame, $"{folder}/{name}.png", [TitleShades.Drawn(colouring).Key, .. over]);
             return at;
         }
 
@@ -196,6 +196,9 @@ public sealed partial class EngineAssetWriter
             ["pictures"] = new JsonArray(
                 Sprite("Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring, "logo"),
                 Sprite("Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin, TitleSequenceDefinitions.Sprites.CopyrightColouring, "copyright")),
+            // The copyright with its colours as the old game restores them once a skip has rebuilt the title.
+            ["restored_copyright"] = Sprite("Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin,
+                TitleSequenceDefinitions.Sprites.CopyrightColouring, "copyright_restored", TitleShades.RestoredCopyright.Key),
             ["opening"] = TitleOpening(folder),
             ["baby"] = TitleBaby(folder),
             ["demo_after_updates"] = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,

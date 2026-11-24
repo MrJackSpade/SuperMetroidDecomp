@@ -19,7 +19,9 @@ namespace Game.Menus;
 /// Its data names its "music" at rest; its "backdrop" colour; its "floor", the picture behind the title, with how
 /// much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
 /// ("floor_centre") and how far it is moved at rest ("floor_scroll"); the "baby" on the floor (where, and its
-/// "timeline"); its "pictures" at rest, each with where its corner goes; how many updates it is left alone before it
+/// "timeline"); its "pictures" at rest, each with where its corner goes; the copyright in the colours it is shown in at
+/// rest once the opening has been cut short or a demo has come back ("restored_copyright", with where its corner
+/// goes); how many updates it is left alone before it
 /// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos; and its "opening":
 /// its "music"; how long each letter of a card but the last shows before the next is typed ("letter_updates") and
 /// how far the letters typed move as each further one is ("letter_scroll"); its "steps" in turn, each a "card" (the
@@ -86,6 +88,7 @@ public partial class TitleMode : GameMode
     private CinematicSprite? _logo;
     private CinematicSprite? _copyright;
     private Node2D? _resting;
+    private Sprite2D? _restoredCopyright;
     private ScreenFade? _fade;
     private Doing _doing;
     private int _step;
@@ -130,11 +133,19 @@ public partial class TitleMode : GameMode
             });
         }
 
+        DataNode restored = _data.Get("restored_copyright");
+        _restoredCopyright = new Sprite2D
+        {
+            Name = "RestoredCopyright", Texture = Session.Content.LoadTexture(restored.Text("picture")), Centered = false, Position = Place(restored),
+            TextureFilter = CanvasItem.TextureFilterEnum.Nearest, Visible = false,
+        };
+        layer.AddChild(_restoredCopyright);
+
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
         if (_atRestAtOnce)
         {
-            Rest();
+            Rest(restoredCopyright: true);
             _fade.FadeIn(opening.Int("skip_fade_updates"));
             return;
         }
@@ -176,13 +187,13 @@ public partial class TitleMode : GameMode
                 (_logo ?? throw NotShown()).Step();
                 (_copyright ?? throw NotShown()).Step();
                 if (--_hold <= 0)
-                    Rest();
+                    Rest(restoredCopyright: false);
                 return this;
             case Doing.Skipping:
                 fade.Step();
                 if (!fade.IsDone)
                     return this;
-                Rest();
+                Rest(restoredCopyright: true);
                 fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
             case Doing.Resting:
@@ -340,8 +351,11 @@ public partial class TitleMode : GameMode
             0, _perPixel, Place(Data().Get("floor_centre")), new Vector2(Mathf.FloorToInt(_pan.X), Mathf.FloorToInt(_pan.Y)));
     }
 
-    /// <summary>Puts the title at its rest: the floor at its own size, the title and the copyright over it, and its music.</summary>
-    private void Rest()
+    /// <summary>
+    /// Puts the title at its rest: the floor at its own size, the title and the copyright over it, and its music. The
+    /// old game rebuilds the title after a skip, or as a demo comes back, with the copyright's colours restored.
+    /// </summary>
+    private void Rest(bool restoredCopyright)
     {
         DataNode data = Data();
         _doing = Doing.Resting;
@@ -353,6 +367,7 @@ public partial class TitleMode : GameMode
         (_logo ?? throw NotShown()).Visible = false;
         (_copyright ?? throw NotShown()).Visible = false;
         (_resting ?? throw NotShown()).Visible = true;
+        (_restoredCopyright ?? throw NotShown()).Visible = restoredCopyright;
         Session.Sounds.RequestMusic(data.Text("music"));
     }
 

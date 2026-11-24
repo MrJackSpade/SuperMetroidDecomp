@@ -159,9 +159,9 @@ public sealed partial class EngineAssetWriter
         mother.Timeline("neck", neck);
 
         // ---- What she launches ----
-        static string? RingCue(MotherBrainEffectCue cue) => cue is MotherBrainEffectCue.SetRadius
-            // A ring is as big as it gets from the start.
-            ? null
+        // A ring grows as it forms: each step gives it its size, twice the old game's reach each way.
+        static string? RingCue(MotherBrainEffectCue cue) => cue is MotherBrainEffectCue.SetRadius { Radius: var radius }
+            ? $"size:{radius.X * 2}:{radius.Y * 2}"
             : throw new InvalidDataException($"A ring of Mother Brain's raises {cue}, which this does not know.");
         static string? NoEffectCue(MotherBrainEffectCue cue) =>
             throw new InvalidDataException($"Something of Mother Brain's raises {cue}, which this does not know.");

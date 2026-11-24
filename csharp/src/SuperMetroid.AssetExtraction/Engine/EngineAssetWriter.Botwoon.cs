@@ -111,6 +111,7 @@ public sealed partial class EngineAssetWriter
         int HoleNumber(BotwoonHole hole) => holes.Select((definition, index) => (definition, index)).Single(listed => listed.definition.Hole == hole).index;
         botwoon.BodyColliders("Hurtbox")
             .Value("opening_delay", BotwoonFightDefinitions.OpeningDelay)
+            .Value("segment_damage", segmentOf.Damage)
             .Value("floor_y", BotwoonFightDefinitions.FloorY)
             .Value("pre_fall_wait", BotwoonDeathDefinitions.PreFallWaitUpdates)
             .Value("wall_updates", BotwoonDeathDefinitions.WallExplosionDuration)

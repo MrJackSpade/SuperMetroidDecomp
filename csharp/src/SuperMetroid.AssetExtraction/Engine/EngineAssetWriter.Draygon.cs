@@ -297,14 +297,15 @@ public sealed partial class EngineAssetWriter
                 ["meeting_terrain"] = "passes_through",
                 ["meeting_target"] = turret.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
                 ["met_by_shot"] = turret.Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots) ? "destroyed" : "ignored",
-                // It is taken away once out of the chamber; one a chamber's width beyond the view is surely out of it.
-                ["view_margin"] = DraygonArenaDefinitions.ArenaSize,
+                // It is taken away once out of the chamber, wherever the view is, which its own data says.
+                ["view_margin"] = -1,
                 ["timeline"] = Launched("cannon_shot", DraygonProjectileSegment.WallTurretBloom),
                 ["picture_offset"] = EngineEnemy.NoOffset(),
                 // One her shot meets bursts.
                 ["ending_effect"] = DustFile(DustExplosionAnimation.SmallExplosion),
             },
         };
+        draygon.ProjectileData("bosses/draygon_cannon_shot.json", "DraygonCannonShot", ("chamber_size", DraygonArenaDefinitions.ArenaSize));
         draygon.Write();
         WriteDraygonCannon(cannonShot);
     }

@@ -130,7 +130,12 @@ public partial class MotherBrain : ITriggerTarget
     private int _thirdTargetX;
     private Death _death;
     private int _burstWait = 1;
-    private int _nextBurst;
+
+    /// <summary>
+    /// The place the last of her ascent's dust, her death's bursts or the escape door's dust took, counted back from the
+    /// end of its list. The three share it, as the old game's one counter, so each starts where the one before left off.
+    /// </summary>
+    private int _burstPlace;
     private int _fadeStep;
     private int _fadeWait;
     private Pixels _brainFall;
@@ -345,7 +350,7 @@ public partial class MotherBrain : ITriggerTarget
                 (_lowerMove, _upperMove) = (NeckMove.None, NeckMove.None);
                 (_drools, _breathes, _showsHealth) = (false, false, false);
                 (_brainDetached, _headTint) = (true, Colors.White);
-                (_nextBurst, _burstWait) = (0, 1);
+                (_burstPlace, _burstWait) = (0, 1);
                 _death = Death.ExplodesBeforeBodyFades;
                 return true;
 
@@ -469,8 +474,8 @@ public partial class MotherBrain : ITriggerTarget
                 // She waits until she is told the warning has been written out, or until what writes it has done.
                 if (!_escapeTextDone && ToldWhenEscapeBegins.Any(path => GetNode(path) is RoomSequence { IsRunning: true }))
                     return false;
+                // The door's dust goes on from the place and the wait her last bursts left.
                 (_death, _timer) = (Death.EscapeDoorBursts, 33);
-                (_nextBurst, _burstWait) = (0, 1);
                 return false;
 
             case Death.EscapeDoorBursts:
@@ -483,6 +488,7 @@ public partial class MotherBrain : ITriggerTarget
                 Room.Session.Progress.Record(StoryEvents.EscapeStarted);
                 Room.MarkGone(Name);
                 Room.Session.Service<Escape>().Begin(Escape.ZebesTime);
+                (_burstPlace, _burstWait) = (0, 1);
                 _death = Death.BlowUpEscapeDoor;
                 return false;
 
@@ -527,8 +533,7 @@ public partial class MotherBrain : ITriggerTarget
         if (--_burstWait > 0 || _deathExplosions.Count == 0)
             return;
         _burstWait = mixed ? 9 : 17;
-        PixelOffset[] group = _deathExplosions[_nextBurst];
-        _nextBurst = (_nextBurst + 1) % _deathExplosions.Count;
+        PixelOffset[] group = NextBurstOf(_deathExplosions);
         for (int place = 0; place < (mixed ? 4 : 2); place++)
         {
             string effect = SmokeEffect;
@@ -569,14 +574,27 @@ public partial class MotherBrain : ITriggerTarget
         return !_rot.IsOver;
     }
 
+    /// <summary>
+    /// The next entry of a list of places her bursts take in turn: the shared place steps back one, round from the
+    /// first to the last, and is counted back from the list's end, so one list alone is shown first to last.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place left by another list lies past the end of this one.</exception>
+    private T NextBurstOf<T>(IReadOnlyList<T> places)
+    {
+        _burstPlace = _burstPlace - 1 < 0 ? places.Count - 1 : _burstPlace - 1;
+        int index = places.Count - 1 - _burstPlace;
+        if (index < 0)
+            throw new InvalidOperationException($"Mother Brain's bursts are at place {_burstPlace}, past the end of a list of {places.Count}.");
+        return places[index];
+    }
+
     /// <summary>Dust and blasts go off at the way out, at its places in turn.</summary>
     private void BurstAtEscapeDoor()
     {
         if (--_burstWait > 0 || _escapeDoorDust.Count == 0)
             return;
         _burstWait = 5;
-        PixelPosition at = _escapeDoorDust[_nextBurst];
-        _nextBurst = (_nextBurst + 1) % _escapeDoorDust.Count;
+        PixelPosition at = NextBurstOf(_escapeDoorDust);
         Leave((Random.Draw().Number & 0xFFFF) < 16384 ? SmokeEffect : ExplosionEffect, at);
         Sound(ExplosionSound);
     }

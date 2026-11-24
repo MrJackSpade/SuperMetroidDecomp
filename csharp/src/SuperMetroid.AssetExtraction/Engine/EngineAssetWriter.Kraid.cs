@@ -416,7 +416,8 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Where the pieces of Kraid's arm are for each of its pictures, from Kraid's place, in the order Samus's touch
-    /// meets them.
+    /// meets them: "Arm" and a number for her touch, and "ArmShield" and the same number for her shots, which every
+    /// piece stops with the arm's explosion.
     /// </summary>
     private static JsonObject KraidArmPoses()
     {
@@ -424,11 +425,18 @@ public sealed partial class EngineAssetWriter
         foreach ((EnemyFrameId frame, KraidArmComponentDefinition[] components) in KraidArmCollisionDefinitions.FrameComponents)
         {
             var colliders = new JsonObject();
+            int pieces = 0;
             foreach (KraidArmComponentDefinition component in components)
             {
                 Offset16<RoomPixels> from = KraidArenaDefinitions.ArmOffset + component.Offset;
-                foreach (EnemyHitboxRectangle piece in KraidArmCollisionDefinitions.HitboxListShapes[component.Hitboxes].Rectangles)
-                    colliders[$"Arm{colliders.Count + 1}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                foreach (EnemyCollisionHitbox piece in KraidArmCollision.HitboxesAt(component.Hitboxes))
+                {
+                    if (piece.Shot != KraidReactions.ArmShot)
+                        throw new InvalidDataException($"A piece of Kraid's arm in its frame {frame} meets shots otherwise than with the arm's explosion, which its poses do not say.");
+                    pieces++;
+                    colliders[$"Arm{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                    colliders[$"ArmShield{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                }
             }
 
             poses[EngineEnemy.PoseName(frame)] = new JsonObject { ["colliders"] = colliders };

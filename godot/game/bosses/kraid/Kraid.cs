@@ -26,7 +26,8 @@ namespace Game.Enemies;
 /// "lower_body", "walk_end", "walk_on" and "place:" with where the foot is drawn from its usual place. Any of them may
 /// give "sound:" and a sound.</para>
 /// <para>Its hurtbox "Mouth" is the only place it can be hurt; "HeadShell" and "Body1" through "Body6" are the rest of
-/// it, which turn shots away; its hitboxes "Arm1" through "Arm10" hurt to touch and knock Samus back. Its data gives
+/// it, which turn shots away; its hitboxes "Arm1" through "Arm10" hurt to touch and knock Samus back, and its hurtboxes "ArmShield1" through
+/// "ArmShield10", in the same places, stop shots, which leave their explosion there. Its data gives
 /// "head_poses", where "Mouth", "HeadShell" and the body's pieces are for each way its mouth is open, and "arm_poses",
 /// where the arm's pieces are for each of the arm's pictures, taken on the arm timelines' cue "pose:" and a name
 /// (<see cref="ColliderPoses"/>); "body_edge", the left edge of its body from its place for each height at or above
@@ -339,26 +340,41 @@ public partial class Kraid : Enemy
     }
 
     /// <inheritdoc/>
+    /// <remarks>Its body is out of reach of shots while it rises and once it sinks; its arm while it is harmless or finished.</remarks>
     public override bool IsHitBy(HitSide side) =>
-        (_stage is Stage.Fighting or Stage.Growing || (_stage == Stage.Dying && _death != Death.Sink)) && base.IsHitBy(side);
+        _stage != Stage.Sunk && !(_stage == Stage.Dying && _death == Death.Sink) && base.IsHitBy(side);
+
+    /// <summary>Whether the pieces of its arm stop shots at the moment.</summary>
+    private bool ArmTakesShots => !IsFinished && !_armHarmless;
+
+    /// <summary>Whether a part is one of the pieces of its arm that shots meet.</summary>
+    private static bool IsArmShield(Collider part) => part.Name.ToString().StartsWith(ArmShield, StringComparison.Ordinal);
+
+    /// <summary>The name of the pieces of its arm that shots meet, before their number.</summary>
+    private const string ArmShield = "ArmShield";
 
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
+        // A power bomb is not met by its arm.
+        if (IsArmShield(part) && hit.Carries(new HitKind(HitKinds.PowerBomb)))
+            return HitResult.Ignored;
         // A beam that is not charged goes through its open mouth as if the mouth were not there.
         if (part.Name == "Mouth" && !hit.Carries(new HitKind(HitKinds.Charged)) &&
             hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Ice), new HitKind(HitKinds.Wave), new HitKind(HitKinds.Spazer), new HitKind(HitKinds.Plasma)]))
             return HitResult.Ignored;
         HitResult result = base.TakeHit(hit, part);
         if (part.Name == "Mouth" && result is HitResult.Hurt or HitResult.Destroyed)
-        {
-            // A hit in the mouth sets its colours flashing.
-            (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
-            if (_mouthReopens > 0)
-                _mouthReopenMarked = true;
-        }
-
+            MarkMouthHit();
         return result;
+    }
+
+    /// <summary>A hit in the mouth, harmful or not, sets its colours flashing and marks an opening yet to come.</summary>
+    private void MarkMouthHit()
+    {
+        (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
+        if (_mouthReopens > 0)
+            _mouthReopenMarked = true;
     }
 
     /// <inheritdoc/>
@@ -372,13 +388,18 @@ public partial class Kraid : Enemy
     protected override void OnAbsorbed(Hit hit, Collider part)
     {
         if (part.Name == "Mouth")
+        {
+            MarkMouthHit();
             return;
-        // A shot at its body does no harm, but makes its eye glow and its mouth open; a charged one, three times over.
+        }
+
+        // A shot at its arm or its body does no harm and leaves its explosion; one at its body also makes its eye glow
+        // and its mouth open, and a charged one, three times over.
         string dud = hit.CarriesAny([new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.PowerBomb)]) ? BigDudEffect : DudEffect;
         if (dud.Length > 0 && hit.Source is Node2D shot)
             LeaveEffect(dud, PixelPosition.FromWhole((int)shot.Position.X, (int)shot.Position.Y));
         Sound(DudSound);
-        if (_stage != Stage.Fighting || _fight != Fight.FirstThinking)
+        if (IsArmShield(part) || _stage != Stage.Fighting || _fight != Fight.FirstThinking)
             return;
         _fight = Fight.BeginEyeGlow;
         if (hit.Carries(new HitKind(HitKinds.Charged)))
@@ -393,6 +414,7 @@ public partial class Kraid : Enemy
             _stage = Stage.Dying;
             _death = Death.Begin;
             (_mouthReopens, _mouthReopenMarked) = (0, false);
+            ShowArmShields();
         }
 
         return false;
@@ -429,6 +451,8 @@ public partial class Kraid : Enemy
         _foot = FootDoing.Resting;
         _armPoses?.TakeNone();
         ShowMouth("closed", 0);
+        // Its mouth and body let every shot through while it rises.
+        _headPoses?.TakeNone();
         Shade = BandShade().Shade;
         if (GetNodeOrNull<ActorVisual>("Arm") is { } arm)
             arm.Position = new Vector2(0, -44);
@@ -526,6 +550,7 @@ public partial class Kraid : Enemy
                     break;
                 Position = new PixelPosition(Pixels.FromWhole(RiseStart.X), Position.Y);
                 _stage = Stage.Fighting;
+                ShowMouth(_mouth, _openLeft);
                 BeginFirstThinking();
                 _foot = FootDoing.FirstThinking;
                 _footWait = LungeDelayUpdates;
@@ -665,6 +690,9 @@ public partial class Kraid : Enemy
             case Growth.BringInFront:
                 ZIndex = 1;
                 _armHarmless = false;
+                // Its arm meets shots again where its pose has it.
+                if (ArmPoses.Current.Length > 0)
+                    ArmPoses.Take(ArmPoses.Current);
                 _growth = Growth.SettleParts;
                 break;
 
@@ -977,6 +1005,7 @@ public partial class Kraid : Enemy
         _foot = FootDoing.Resting;
         PlayPart("Arm", "arm_normal", restart: true);
         _armHarmless = true;
+        ShowArmShields();
         HasBegunGrowing = true;
         return true;
     }
@@ -1041,6 +1070,18 @@ public partial class Kraid : Enemy
     {
         Pixels fall = Pixels.FromNumber(0.25 + Random.Last.Part(0, 6) / 256.0);
         Fire("ceiling_rock", PixelPosition.FromWhole(x, 312), new PixelVelocity(Pixels.Zero, fall));
+    }
+
+    /// <summary>Its arm's poses.</summary>
+    private ColliderPoses ArmPoses => _armPoses ?? throw new InvalidOperationException("Kraid's data has not been read.");
+
+    /// <summary>Switches off the pieces of its arm that shots meet while its arm lets them through.</summary>
+    private void ShowArmShields()
+    {
+        if (ArmTakesShots)
+            return;
+        foreach (Collider shield in EntityNode.CollidersOf(this).Where(IsArmShield))
+            shield.Enabled = false;
     }
 
     /// <summary>Moves it to a place across the room.</summary>
@@ -1150,7 +1191,8 @@ public partial class Kraid : Enemy
                     ShowMouth(parts[1], player.Current.Updates);
                     break;
                 case "pose":
-                    (_armPoses ?? throw new InvalidOperationException("Kraid's data has not been read.")).Take(parts[1]);
+                    ArmPoses.Take(parts[1]);
+                    ShowArmShields();
                     break;
                 case "swing_begins":
                     _swing = Swing.BeforePause;

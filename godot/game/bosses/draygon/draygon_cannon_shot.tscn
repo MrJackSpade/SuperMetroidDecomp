@@ -4,3 +4,4 @@
 
 [node name="DraygonCannonShot" type="Node2D"]
 script = ExtResource("1")
+DataFile = "bosses/draygon_cannon_shot.json"

@@ -702,9 +702,13 @@ def gunship(p, index, listed):
 
 @rule('MorphBallEye')
 def morph_ball_eye(p, index, listed):
+    # The old code places the eye and its socket as two things at one place: here they are one.
     if p.settings_type != 'MorphBallEyeMountSpawnSettings':
         return None
-    return Placed(O + 'morph_ball_eye/morph_ball_eye.tscn', 'MorphBallEye', {}, enemy=False)
+    eye = beside(listed, index, 'MorphBallEyeBodySpawnSettings')
+    side = {'Left': '0', 'Right': '1', 'Above': '2', 'Below': '3'}[legacy.last_name(p.settings['Side'])]
+    return Placed(O + 'morph_ball_eye/morph_ball_eye.tscn', 'MorphBallEye', {
+        'Faces': facing(eye.settings['Facing']), 'MountedOn': side}, enemy=False)
 
 
 # The places Rinkas form at in Mother Brain's room, in the order they are looked through.

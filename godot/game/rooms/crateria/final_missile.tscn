@@ -53,6 +53,8 @@ ArrivalOffset = Vector2i(-24, 40)
 
 [node name="MorphBallEye" parent="." instance=ExtResource("6")]
 position = Vector2(50, 120)
+Faces = 1
+MountedOn = 0
 PresentWhen = SubResource("r4")
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]

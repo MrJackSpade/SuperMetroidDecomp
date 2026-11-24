@@ -13,12 +13,38 @@ namespace Game.Objects;
 /// follow her and plays a beam of light on her, and closes again when she goes. It does nothing else.
 /// </summary>
 /// <remarks>
-/// Its data names its pictures: "closed", the steps of its "opening" and "closing", each with a "picture" and how
-/// many "updates" it shows for, and "aims", the pictures of it looking each way round from the right, clockwise. Its
-/// visual "Mount" is the socket it sits in; its "Beam" is a polygon drawn as its light.
+/// Its timelines are "closed", "opening" and "closing", each ending in "_left" or "_right" for the way it faces; the
+/// closing one plays to its end, the eye shut, however soon the eye is ready to open again. Its data also names
+/// "aims", the pictures of it looking each way round from the right, clockwise, and "mounts": for each side its
+/// socket can be on ("left", "right", "above", "below"), the socket's "picture" and how far "x" across and "y" down
+/// from the eye it sits. Its visual "Mount" shows the socket; its "Beam" is a polygon drawn as its light.
 /// </remarks>
 public partial class MorphBallEye : RoomObject
 {
+    /// <summary>The sides of the eye its socket can be on.</summary>
+    public enum Side
+    {
+        /// <summary>To its left.</summary>
+        Left,
+
+        /// <summary>To its right.</summary>
+        Right,
+
+        /// <summary>Above it.</summary>
+        Above,
+
+        /// <summary>Below it.</summary>
+        Below,
+    }
+
+    /// <summary>The way it faces.</summary>
+    [Export]
+    public Facing Faces { get; set; } = Facing.Left;
+
+    /// <summary>The side its socket is on.</summary>
+    [Export]
+    public Side MountedOn { get; set; }
+
     /// <summary>How near Samus must come for it to open, in pixels across and down.</summary>
     [Export]
     public Vector2I OpensWithin { get; set; } = new(128, 128);
@@ -61,14 +87,12 @@ public partial class MorphBallEye : RoomObject
     /// <summary>How many shades its light goes through, down and back up, and how bright the dimmest is.</summary>
     private const int LightShades = 16;
 
-    private string _closed = "";
-    private readonly List<(string Picture, int Updates)> _opening = [];
-    private readonly List<(string Picture, int Updates)> _closing = [];
+    private TimelineSet _timelines = TimelineSet.None;
+    private TimelinePlayer? _look;
+    private readonly Dictionary<string, (string Picture, Vector2I At)> _mounts = new(StringComparer.Ordinal);
     private readonly List<string> _aims = [];
     private Doing _doing;
     private int _timer;
-    private int _step;
-    private int _stepLeft;
     private int _angle;
     private Beam _beam;
     private int _halfWidth;
@@ -80,13 +104,10 @@ public partial class MorphBallEye : RoomObject
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        _closed = data.Text("closed");
-        foreach ((List<(string, int)> steps, string name) in new[] { (_opening, "opening"), (_closing, "closing") })
-        {
-            steps.Clear();
-            steps.AddRange(data.List(name).Select(step => (step.Text("picture"), step.Int("updates"))));
-        }
-
+        _timelines = TimelineSet.ReadFrom(data);
+        _mounts.Clear();
+        foreach ((string side, DataNode mount) in data.Get("mounts").Entries())
+            _mounts[side] = (mount.Text("picture"), new Vector2I(mount.Int("x"), mount.Int("y")));
         _aims.Clear();
         _aims.AddRange(data.List("aims").Select(picture => picture.AsText()));
         if (_aims.Count == 0)
@@ -97,7 +118,22 @@ public partial class MorphBallEye : RoomObject
     protected override void OnEnterRoom()
     {
         (_doing, _beam, _halfWidth, _widthGrowth, _shade, _light) = (Doing.WaitingForSamus, Beam.Off, 0, 0, 0, 0f);
-        Show(_closed);
+        Play("closed");
+        string side = MountedOn switch
+        {
+            Side.Left => "left",
+            Side.Right => "right",
+            Side.Above => "above",
+            Side.Below => "below",
+            _ => throw new InvalidOperationException($"The Morph Ball eye has no side {MountedOn}."),
+        };
+        if (!_mounts.TryGetValue(side, out (string Picture, Vector2I At) socket))
+            throw new InvalidOperationException($"The Morph Ball eye's data gives no socket for its {side} side.");
+        if (GetNodeOrNull<ActorVisual>("Mount") is { } mount)
+        {
+            mount.Position = socket.At;
+            mount.Show(socket.Picture);
+        }
         ShowBeam();
     }
 
@@ -116,14 +152,15 @@ public partial class MorphBallEye : RoomObject
         switch (_doing)
         {
             case Doing.WaitingForSamus:
+                StepLook();
                 if (Math.Abs(to.Y.Whole) >= OpensWithin.Y || Math.Abs(to.X.Whole) >= OpensWithin.X)
                     break;
                 (_doing, _timer) = (Doing.Opening, TransitionUpdates);
-                BeginSteps(_opening);
+                Play("opening");
                 break;
 
             case Doing.Opening:
-                StepSteps(_opening);
+                StepLook();
                 if (--_timer > 0)
                     break;
                 Sound(ActivationSound);
@@ -139,7 +176,7 @@ public partial class MorphBallEye : RoomObject
                     if (_beam != Beam.Off)
                         _beam = Beam.Fading;
                     (_doing, _timer) = (Doing.Closing, TransitionUpdates);
-                    BeginSteps(_closing);
+                    Play("closing");
                     break;
                 }
 
@@ -147,7 +184,7 @@ public partial class MorphBallEye : RoomObject
                 break;
 
             case Doing.Closing:
-                StepSteps(_closing);
+                StepLook();
                 if (--_timer <= 0)
                     _doing = Doing.WaitingForSamus;
                 break;
@@ -214,21 +251,20 @@ public partial class MorphBallEye : RoomObject
         beam.Color = new Color(_light, _light, 0f, 0.5f);
     }
 
-    private void BeginSteps(List<(string Picture, int Updates)> steps)
+    /// <summary>Starts the timeline of that name for the way it faces.</summary>
+    private void Play(string name)
     {
-        (_step, _stepLeft) = (0, steps.Count > 0 ? steps[0].Updates : 0);
-        if (steps.Count > 0)
-            Show(steps[0].Picture);
+        _look = new TimelinePlayer(_timelines.Get($"{name}_{(Faces == Facing.Right ? "right" : "left")}"));
+        GetNodeOrNull<ActorVisual>("Visual")?.Show(_look.Current);
     }
 
-    private void StepSteps(List<(string Picture, int Updates)> steps)
+    /// <summary>Moves the timeline it is showing on by one update.</summary>
+    private void StepLook()
     {
-        if (_step >= steps.Count || --_stepLeft > 0)
+        if (_look is null)
             return;
-        if (++_step >= steps.Count)
-            return;
-        _stepLeft = steps[_step].Updates;
-        Show(steps[_step].Picture);
+        _look.Step();
+        GetNodeOrNull<ActorVisual>("Visual")?.Show(_look.Current);
     }
 
     private void Show(string picture) => GetNodeOrNull<ActorVisual>("Visual")?.Show(picture);

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Spatial;
 
@@ -67,6 +68,51 @@ public sealed partial class EngineAssetWriter
 
         WriteCeresDoors();
         WriteCeresSteam();
+        WriteMorphBallEye();
+    }
+
+    /// <summary>The eye in the wall by the Morph Ball: shut, opening and closing for each way it faces, its looks round the turn, and its sockets.</summary>
+    private void WriteMorphBallEye()
+    {
+        EngineSheetPictures pictures = EnemyPictures("objects/morph_ball_eye", EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MorphBallEye));
+        JsonObject Look(MorphBallEyeSegment segment) => EngineTimelines.Of(
+            MorphBallEyeAnimations.Segments, MorphBallEyeAnimations.StartingWith(segment), frame => PictureOf(pictures, frame), static (NoAnimationCue _) => null);
+
+        // The old game's looks go round from straight up, clockwise; the Godot game's from the right.
+        IReadOnlyList<EnemyFrameId> looks = MorphBallEyeAnimations.AimFrames.InTurnOrder;
+        if (looks.Count % 4 != 0)
+            throw new InvalidDataException("The Morph Ball eye's looks do not divide a quarter turn evenly.");
+        var aims = new JsonArray();
+        for (int index = 0; index < looks.Count; index++)
+            aims.Add(PictureOf(pictures, looks[(index + looks.Count / 4) % looks.Count]));
+
+        var mounts = new JsonObject();
+        foreach ((string side, MorphBallEyeMountSide mounted) in new[]
+                 {
+                     ("left", MorphBallEyeMountSide.Left), ("right", MorphBallEyeMountSide.Right),
+                     ("above", MorphBallEyeMountSide.Above), ("below", MorphBallEyeMountSide.Below),
+                 })
+        {
+            MorphBallEyeMountDefinition mount = MorphBallEyeGeometry.Mount(mounted);
+            EnemyFrameId socket = MorphBallEyeAnimations.Segments.Beats(mount.Animation).Select(beat => beat.ShownFrame).FirstOrDefault(frame => frame.HasValue)
+                ?? throw new InvalidDataException($"The Morph Ball eye's socket on its {side} side shows nothing.");
+            mounts[side] = new JsonObject { ["picture"] = PictureOf(pictures, socket), ["x"] = mount.Offset.X, ["y"] = mount.Offset.Y };
+        }
+
+        new EngineObjectFile(_tree, "objects/morph_ball_eye.json", "MorphBallEye")
+            .PictureOffset(pictures)
+            .Value("transition_updates", MorphBallEyeWatchDefinitions.TransitionDuration)
+            .Value("activation_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.EyeActivationSound))
+            .Value("beam_stop_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.EyeRaySoundStop))
+            .Group("aims", aims)
+            .Group("mounts", mounts)
+            .Timeline("closed_left", Look(MorphBallEyeSegment.FacingLeftClosed))
+            .Timeline("closed_right", Look(MorphBallEyeSegment.FacingRightClosed))
+            .Timeline("opening_left", Look(MorphBallEyeSegment.FacingLeftActivating))
+            .Timeline("opening_right", Look(MorphBallEyeSegment.FacingRightActivating))
+            .Timeline("closing_left", Look(MorphBallEyeSegment.FacingLeftDeactivating))
+            .Timeline("closing_right", Look(MorphBallEyeSegment.FacingRightDeactivating))
+            .Write();
     }
 
     /// <summary>

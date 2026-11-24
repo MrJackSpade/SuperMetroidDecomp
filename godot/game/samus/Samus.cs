@@ -1014,7 +1014,7 @@ public partial class Samus : Player
     /// <summary>
     /// Handles the item actions: cancel selects the beam alone; select moves on to the next thing she can use. An item
     /// chosen while cancel is held is put away again once it has been used. The X-ray scope leaves her the choice, as
-    /// the cartridge's HUD goes on taking it while the X-ray holds time still. Either press drops the charge, even one
+    /// the cartridge's HUD goes on taking it while the X-ray holds time still. Either press forgets the charge, even one
     /// that leaves the choice as it was, unless it lands on the grapple beam while the line is out.
     /// </summary>
     private void ChooseItem()
@@ -1042,12 +1042,10 @@ public partial class Samus : Player
             return;
         }
 
+        // As the cartridge's HUD does, the charge is dropped with no sound, and with it the marks of a charge that a bomb
+        // spread and the morph ball read: its sound is not hushed now or later.
         if (Selected != Equipment.GrappleBeam || Grapple is not { IsOut: true })
-        {
-            // As the cartridge's HUD does, the charge is dropped with no sound: its sound is not hushed now or later.
-            Weapons.DropCharge();
-            _chargeSounds = false;
-        }
+            ForgetCharge();
     }
 
     /// <summary>

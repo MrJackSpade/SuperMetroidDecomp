@@ -34,6 +34,16 @@ internal sealed partial class EngineObjectFile
         return this;
     }
 
+    /// <summary>
+    /// Says where its pictures' top-left corner lies from where it stands: the offset of pictures cut from an old
+    /// enemy's sheet, which all share it.
+    /// </summary>
+    internal EngineObjectFile PictureOffset(EngineSheetPictures pictures)
+    {
+        Data["picture_offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+        return this;
+    }
+
     /// <summary>Gives a group of its data that is not one of its type's named values.</summary>
     internal EngineObjectFile Group(string name, JsonNode value)
     {

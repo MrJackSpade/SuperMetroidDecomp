@@ -45,6 +45,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteGates();
         writer.WriteStations();
         writer.WriteItems();
+        writer.WriteObjects();
     }
 
     /// <summary>

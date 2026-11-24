@@ -27,6 +27,13 @@ public partial class Hazard : RoomObject
     [Export, DataValue("hit_damage")]
     public int HitDamage { get; set; }
 
+    /// <summary>
+    /// Whether its contact is a hit even when the hit does no damage: the player is knocked back, and safe for a
+    /// moment, all the same.
+    /// </summary>
+    [Export, DataValue("hits_without_damage")]
+    public bool HitsWithoutDamage { get; set; }
+
     /// <summary>The ongoing damage it does each update of contact, in hundredths of a point; zero for none.</summary>
     [Export, DataValue("ongoing_hundredths")]
     public int OngoingHundredths { get; set; }
@@ -166,7 +173,7 @@ public partial class Hazard : RoomObject
 
         if (OngoingHundredths > 0)
             player.AddOngoingDamage(OngoingSource, OngoingHundredths);
-        if (HitDamage > 0)
+        if (HitDamage > 0 || HitsWithoutDamage)
             player.TakeHit(new Hit(HitDamage, HitSide.Neutral, HitKind.Hazard) { Source = this }, player.Hurtbox);
         bool holds = HoldUpdates > 0 || _timelines.Has("hold");
         if (holds && !_mustLeave && player.State.InControl)

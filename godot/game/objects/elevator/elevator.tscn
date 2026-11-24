@@ -9,7 +9,7 @@ DataFile = "objects/elevator.json"
 Speed = 1.5
 Size = Vector2i(32, 48)
 HoldsAt = Vector2i(16, 22)
-DepartureSound = "elevator"
+DepartureSound = "room_elevator"
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")

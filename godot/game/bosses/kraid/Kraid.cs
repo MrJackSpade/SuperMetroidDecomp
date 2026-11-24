@@ -27,10 +27,12 @@ namespace Game.Enemies;
 /// give "sound:" and a sound.</para>
 /// <para>Its hurtbox "Mouth" is the only place it can be hurt; "HeadShell" and "Body1" through "Body6" are the rest of
 /// it, which turn shots away; its hitboxes "Arm1" through "Arm10" hurt to touch and knock Samus back, and its hurtboxes "ArmShield1" through
-/// "ArmShield10", in the same places, stop shots, which leave their explosion there. Its data gives
-/// "head_poses", where "Mouth", "HeadShell" and the body's pieces are for each way its mouth is open, and "arm_poses",
+/// "ArmShield10", in the same places, stop shots, which leave their explosion there; its hurtboxes "FootShield1" and
+/// "FootShield2" stop shots and leave nothing. Its data gives
+/// "head_poses", where "Mouth", "HeadShell" and the body's pieces are for each way its mouth is open, "arm_poses",
 /// where the arm's pieces are for each of the arm's pictures, taken on the arm timelines' cue "pose:" and a name
-/// (<see cref="ColliderPoses"/>); "body_edge", the left edge of its body from its place for each height at or above
+/// (<see cref="ColliderPoses"/>), and "foot_poses", where the foot's pieces are for each of the foot's pictures, taken
+/// on the foot timelines' cue "pose:" and moved as the "place:" before it moves the foot; "body_edge", the left edge of its body from its place for each height at or above
 /// "from"; "ceiling_rocks" and "sink_crumbles", each with where a rock falls and the "crumble" of the terrain there,
 /// and "death_spikes", the crumbling of the spikes as it dies (<see cref="PatchSequence"/>); "walks", for each place
 /// it may stand the places it may walk to next, each with a "weight", a "to" and how many "updates" it then thinks;
@@ -114,6 +116,10 @@ public partial class Kraid : Enemy
     /// <summary>The effect of a super missile or a power bomb that does it no harm.</summary>
     [Export, DataValue("big_dud_effect")]
     public string BigDudEffect { get; set; } = "";
+
+    /// <summary>The effect of a shot in its mouth that does it no harm, by the data file of its timeline.</summary>
+    [Export, DataValue("mouth_dud_effect")]
+    public string MouthDudEffect { get; set; } = "";
 
     /// <summary>The sound of a shot that does it no harm, by name.</summary>
     [Export, DataValue("dud_sound")]
@@ -224,6 +230,8 @@ public partial class Kraid : Enemy
     private readonly List<Pixels> _spitSpeeds = [];
     private ColliderPoses? _headPoses;
     private ColliderPoses? _armPoses;
+    private ColliderPoses? _footPoses;
+    private Vector2I _footPlace;
     private PatchSequence? _deathSpikes;
     private PixelOffset _spitFrom;
     private Pixels _spitRise;
@@ -310,6 +318,7 @@ public partial class Kraid : Enemy
         base.ReadValues(data);
         _headPoses = ColliderPoses.Read(data.Get("head_poses"), this);
         _armPoses = ColliderPoses.Read(data.Get("arm_poses"), this);
+        _footPoses = ColliderPoses.Read(data.Get("foot_poses"), this);
         _healthShades.Clear();
         _healthShades.AddRange(data.List("health_shades").Select(band => (band.Int("health"), band.Text("shade"), band.Int("eye_glow_updates"))));
         if (_healthShades.Count == 0)
@@ -353,12 +362,21 @@ public partial class Kraid : Enemy
     /// <summary>The name of the pieces of its arm that shots meet, before their number.</summary>
     private const string ArmShield = "ArmShield";
 
+    /// <summary>Whether a part is one of the pieces of its foot, which stop shots.</summary>
+    private static bool IsFootShield(Collider part) => part.Name.ToString().StartsWith(FootShield, StringComparison.Ordinal);
+
+    /// <summary>The name of the pieces of its foot, before their number.</summary>
+    private const string FootShield = "FootShield";
+
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
-        // A power bomb is not met by its arm.
-        if (IsArmShield(part) && hit.Carries(new HitKind(HitKinds.PowerBomb)))
+        // A power bomb is not met by its arm or its foot.
+        if ((IsArmShield(part) || IsFootShield(part)) && hit.Carries(new HitKind(HitKinds.PowerBomb)))
             return HitResult.Ignored;
+        // Its foot stops every other shot, and leaves nothing.
+        if (IsFootShield(part))
+            return HitResult.Absorbed;
         // A beam that is not charged goes through its open mouth as if the mouth were not there.
         if (part.Name == "Mouth" && !hit.Carries(new HitKind(HitKinds.Charged)) &&
             hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Ice), new HitKind(HitKinds.Wave), new HitKind(HitKinds.Spazer), new HitKind(HitKinds.Plasma)]))
@@ -389,6 +407,10 @@ public partial class Kraid : Enemy
     {
         if (part.Name == "Mouth")
         {
+            // A shot in its mouth that does no harm leaves the dud's own effect, not its body's explosion.
+            if (MouthDudEffect.Length > 0 && hit.Source is Node2D dudShot)
+                LeaveEffect(MouthDudEffect, PixelPosition.FromWhole((int)dudShot.Position.X, (int)dudShot.Position.Y));
+            Sound(DudSound);
             MarkMouthHit();
             return;
         }
@@ -414,7 +436,7 @@ public partial class Kraid : Enemy
             _stage = Stage.Dying;
             _death = Death.Begin;
             (_mouthReopens, _mouthReopenMarked) = (0, false);
-            ShowArmShields();
+            ShowShields();
         }
 
         return false;
@@ -423,8 +445,8 @@ public partial class Kraid : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        // Only the pieces of its arm touch; its body pushes Samus out of itself by its own rule.
-        if (IsFinished || _armHarmless)
+        // Only the pieces of its arm touch; its body pushes Samus out of itself by its own rule, and its foot does nothing.
+        if (IsFinished || _armHarmless || IsFootShield(part))
             return;
 
         // Its arm knocks Samus back, and sets off the lowest spike.
@@ -450,6 +472,7 @@ public partial class Kraid : Enemy
         _headOver = true;
         _foot = FootDoing.Resting;
         _armPoses?.TakeNone();
+        _footPoses?.TakeNone();
         ShowMouth("closed", 0);
         // Its mouth and body let every shot through while it rises.
         _headPoses?.TakeNone();
@@ -1005,7 +1028,7 @@ public partial class Kraid : Enemy
         _foot = FootDoing.Resting;
         PlayPart("Arm", "arm_normal", restart: true);
         _armHarmless = true;
-        ShowArmShields();
+        ShowShields();
         HasBegunGrowing = true;
         return true;
     }
@@ -1075,13 +1098,20 @@ public partial class Kraid : Enemy
     /// <summary>Its arm's poses.</summary>
     private ColliderPoses ArmPoses => _armPoses ?? throw new InvalidOperationException("Kraid's data has not been read.");
 
-    /// <summary>Switches off the pieces of its arm that shots meet while its arm lets them through.</summary>
-    private void ShowArmShields()
+    /// <summary>Its foot's poses.</summary>
+    private ColliderPoses FootPoses => _footPoses ?? throw new InvalidOperationException("Kraid's data has not been read.");
+
+    /// <summary>
+    /// Switches off the pieces of its arm that shots meet while its arm lets them through, and the pieces of its foot
+    /// once it is dying.
+    /// </summary>
+    private void ShowShields()
     {
-        if (ArmTakesShots)
-            return;
-        foreach (Collider shield in EntityNode.CollidersOf(this).Where(IsArmShield))
-            shield.Enabled = false;
+        foreach (Collider shield in EntityNode.CollidersOf(this))
+        {
+            if ((IsArmShield(shield) && !ArmTakesShots) || (IsFootShield(shield) && IsFinished))
+                shield.Enabled = false;
+        }
     }
 
     /// <summary>Moves it to a place across the room.</summary>
@@ -1191,8 +1221,12 @@ public partial class Kraid : Enemy
                     ShowMouth(parts[1], player.Current.Updates);
                     break;
                 case "pose":
-                    ArmPoses.Take(parts[1]);
-                    ShowArmShields();
+                    // The pieces of its foot move with where the foot is drawn.
+                    if (part == "Foot")
+                        FootPoses.Take(parts[1], _footPlace);
+                    else
+                        ArmPoses.Take(parts[1]);
+                    ShowShields();
                     break;
                 case "swing_begins":
                     _swing = Swing.BeforePause;
@@ -1231,8 +1265,9 @@ public partial class Kraid : Enemy
                     _walkEnd = false;
                     break;
                 case "place":
+                    _footPlace = new Vector2I(int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture));
                     if (GetNodeOrNull<ActorVisual>(part) is { } placed)
-                        placed.Position = new Vector2(int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), 100 + int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture));
+                        placed.Position = new Vector2(_footPlace.X, 100 + _footPlace.Y);
                     break;
                 default:
                     throw new InvalidOperationException($"Kraid's timeline \"{_partPlaying[part]}\" gives the cue \"{cue}\", which it does not know.");

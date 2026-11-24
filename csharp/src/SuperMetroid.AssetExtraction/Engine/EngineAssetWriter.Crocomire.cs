@@ -207,9 +207,12 @@ public sealed partial class EngineAssetWriter
         crocomire.Shot("fire", RoomEnemyProjectileKind.CrocomireProjectile, static (croc, shot, projectile) =>
             {
                 shot["speed"] = CrocomireProjectileDefinitions.VolleySpeed;
+                shot["scene"] = "res://game/bosses/crocomire/crocomire_fire.tscn";
                 projectile["timeline"] = croc.SpawnedTimeline("fire", CrocomireAnimations.ProjectileSegments,
                     CrocomireAnimations.ProjectileStartingWith(CrocomireProjectileSegment.Mouth), ShotCue);
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
+                // It moves itself and meets terrain its own way, carrying on past a block on its first move.
+                projectile["meeting_terrain"] = "passes_through";
                 projectile["ending_effect"] = croc.SpawnedTimeline("fire_burst", CrocomireAnimations.ProjectileSegments,
                     CrocomireAnimations.ProjectileStartingWith(CrocomireProjectileSegment.Shot), ShotCue);
                 if (Drops(croc.Definition.Drops) is { } drops)

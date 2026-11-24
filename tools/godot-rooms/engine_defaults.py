@@ -49,8 +49,10 @@ def main() -> None:
         kind = kind.strip().rstrip('?')
         last = kind.split('.')[-1]
         if initial is None:
-            if kind in ('int', 'double', 'float'):
+            if kind == 'int':
                 return '0'
+            if kind in ('double', 'float'):
+                return '0.0'
             if kind == 'bool':
                 return 'false'
             if kind == 'string':
@@ -63,7 +65,9 @@ def main() -> None:
         initial = initial.strip()
         if kind in ('int', 'double', 'float') and re.fullmatch(r'[-0-9.+*/ ()f]+', initial):
             value = eval(initial.replace('f', ''), {'__builtins__': {}})  # noqa: S307 - digits and arithmetic only
-            return str(int(value)) if kind == 'int' or float(value).is_integer() else repr(float(value))
+            # A whole number is written whole and any other number with its fraction, so that the default itself says
+            # which of the two the type reads.
+            return str(int(value)) if kind == 'int' else repr(float(value))
         if initial in ('true', 'false'):
             return initial
         if initial.startswith('"'):

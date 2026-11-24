@@ -979,7 +979,11 @@ public partial class Samus : Player
         }
 
         if (Selected != Equipment.GrappleBeam || Grapple is not { IsOut: true })
+        {
+            // As the cartridge's HUD does, the charge is dropped with no sound: its sound is not hushed now or later.
             Weapons.DropCharge();
+            _chargeSounds = false;
+        }
     }
 
     /// <summary>

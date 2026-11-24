@@ -813,6 +813,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
   `shot_heights` of her look (and of her look and aim where an aim has its own). In the morph ball what she lays is
   laid where she is.
+- **Her bomb jump** interrupts the ball. Its first update only sets the rise; then the ball rises out of her
+  control, taking up the speed across it had when thrown to a side; a wall stops that speed and not the rise; the
+  throw is over at the top of the rise or at a ceiling. A ball already being thrown is thrown afresh by another
+  bomb.
 - **Her bombs.** A bomb throws the morph ball lying against it when its fuse has `bomb_jump_fuse_left` updates left,
   and its burst strikes the block it lies in and the four beside that one. A power bomb's blast reaches as far on
   each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.

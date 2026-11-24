@@ -301,11 +301,12 @@ public partial class Samus : Player
 
     /// <summary>
     /// Throws the morph ball as a bomb of her own lies against it: straight up when the bomb was beneath her middle,
-    /// and to the side away from it otherwise. Only the ball at rest in her control is thrown.
+    /// and to the side away from it otherwise. Only the ball in her control is thrown, or one already being thrown,
+    /// which is thrown afresh.
     /// </summary>
     public void BombJump(PixelPosition bomb)
     {
-        if (State is not CrawlingState)
+        if (State is not (CrawlingState or BombJumpingState))
             return;
         int away = Position.X.Whole - bomb.X.Whole;
         Interrupt(new BombJumpingState(away));

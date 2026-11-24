@@ -8,7 +8,8 @@ namespace Game;
 /// A damage boost: holding the jump and the direction behind her in a knockback turns her that way and carries her
 /// off, steered like a jump by the boost's own move values, with whatever speed the knockback had given her. It lasts
 /// while the jump and that direction stay held; let go, she faces as she did and is in a plain jump. When the
-/// knockback's time runs out her rise ends, and she flies on level and falls.
+/// knockback's time runs out her rise ends, and she flies on level and falls. If she has left the boost by then, for
+/// a jump or the ground, the knockback still runs out, and ends whatever rise she is then in.
 /// </summary>
 /// <remarks>
 /// What the input asks of a boost is the first of these that holds, as the cartridge has it: the jump with left, then
@@ -59,6 +60,7 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     {
         Facing before = _toward.Opposite();
         owner.Facing = before;
+        ((Samus)owner).CarryKnockbackOn(_knockbackLeft);
         return new JumpingState(new AirStance(Aim.Forward, FirstChord(owner) == before ? AirArm.Forward : AirArm.AtRest));
     }
 
@@ -78,8 +80,13 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
         owner.SteerAndMoveInAir(owner.Moves(Moves));
         PlayerState? landed = AirStance.FallAndLand(owner, this);
 
-        // The knockback she left still runs out, and as it does her rise is over.
-        if (landed is null && _knockbackLeft.IsRunning)
+        // The knockback she left still runs out, and as it does her rise is over. Landed, she takes what is left of
+        // it with her: it ends the rise of a jump she takes before it has run out.
+        if (landed is not null)
+        {
+            ((Samus)owner).CarryKnockbackOn(_knockbackLeft);
+        }
+        else if (_knockbackLeft.IsRunning)
         {
             _knockbackLeft = _knockbackLeft.Stepped();
             if (_knockbackLeft.IsOver)

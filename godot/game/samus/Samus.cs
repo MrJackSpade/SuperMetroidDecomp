@@ -336,6 +336,16 @@ public partial class Samus : Player
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
     public BodyPower? Power(string name) => _powers.GetValueOrDefault(name);
 
+    /// <summary>What is left of a knockback she left a damage boost with, which still runs out.</summary>
+    private Countdown _knockbackCarried = Countdown.Over;
+
+    /// <summary>
+    /// Takes on what is left of the knockback a damage boost was counting as she leaves the boost. It goes on
+    /// counting at the end of each of her updates, this one too, and as it runs out her rise is over, whatever she
+    /// is doing by then.
+    /// </summary>
+    public void CarryKnockbackOn(Countdown left) => _knockbackCarried = left;
+
     /// <summary>Whether the enemies' shots are being tried against her, all of which land once the trying has begun.</summary>
     private bool _shotsLand;
 
@@ -1138,6 +1148,9 @@ public partial class Samus : Player
     {
         // A hurt keeps her charge, as the cartridge's does: a knockback neither counts it on nor lets it go.
         Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
+
+        // A new hurt's knockback takes the place of whatever was left of the last.
+        _knockbackCarried = Countdown.Over;
         if (State is RefillingFromReservesState)
             return;
         if (!hit.Carries(HitKind.Hazard))
@@ -1201,6 +1214,12 @@ public partial class Samus : Player
         WarnOfLowEnergy();
         Grapple?.Step(this);
         ShowSelection();
+        if (_knockbackCarried.IsRunning)
+        {
+            _knockbackCarried = _knockbackCarried.Stepped();
+            if (_knockbackCarried.IsOver)
+                FallFromRest();
+        }
 
         // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
         if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)

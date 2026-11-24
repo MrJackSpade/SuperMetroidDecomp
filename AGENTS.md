@@ -15,7 +15,8 @@
 - The C# port is legacy reference material: it documents what the game does. It is not a
   blueprint. The Godot project lives in its own directory with no references to the old
   code, reuses none of it, and does not copy its structure. The old code is not deleted.
-- The v0.9.0 bugs are still fixed in `csharp/`; after that it is frozen as a reference.
+- 0.9.x is still in testing: new 0.9.x bugs may arrive, in new milestones of their own, and
+  they are fixed in `csharp/`. Apart from those the old code is frozen as a reference.
 - The asset extractor still reads the old code's definitions. It is to become self-contained,
   holding its own definitions, once the Godot game is at parity and the old code is deleted.
   That is v1.1.0 work (#2910); it is not part of v1.0.0 and cannot be. Isolating the

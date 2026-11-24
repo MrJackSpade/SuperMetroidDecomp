@@ -21,11 +21,29 @@ SCREEN = 256
 
 # The routines that are the escape as a room shows it, with how each room's differs.
 ESCAPES = {
-    'ShakeScreenWithRandomExplosions': {},
-    'RandomEscapeExplosions': {},
-    'ScrollingSkyLandWithEscapeExplosions': {'Outdoors': 'true'},
-    'ShakeScreenLightHorizontalAndMediumDiagonal': {'ShakeStrength': '1'},
-    'ShakeScreenMediumHorizontalAndStrongDiagonal': {'ShakeStrength': '2'},
+    'ShakeScreenWithRandomExplosions': {'Outdoors': 'true', 'TurnsHarder': 'false'},
+    'RandomEscapeExplosions': {'TurnsHarder': 'false'},
+    'ScrollingSkyLandWithEscapeExplosions': {'Outdoors': 'true', 'TurnsHarder': 'false'},
+    'ShakeScreenLightHorizontalAndMediumDiagonal': {},
+    'ShakeScreenMediumHorizontalAndStrongDiagonal': {},
+}
+
+# How hard each room of the escape shakes, by the old setup routine of its escape version. The old game starts a
+# shake in some rooms and lets it carry on into the next: the old Tourian shaft keeps the last Tourian room's, and
+# the rooms past the one the animals leave by keep that room's.
+ESCAPE_SHAKES = {
+    'SetZebesTimebombEventAndLightHorizontalShaking': 1, 'SetLightHorizontalRoomShaking': 1,
+    'SetMediumHorizontalRoomShaking': 2, 'MediumHorizontalShakingWithRisingAcid': 2, 'AutoDestroyWallDuringEscape': 2,
+    'OpenRescuedAnimalsPassageAndQuake': 3, 'TurnWallIntoShotBlocksDuringEscape': 3, 'None': 3, 'LandSkyWithLandingSiteQuake': 3,
+}
+
+# What the escape's blasts are shown and heard by: the old game's small blast, puff of smoke, smoke and two clouds of
+# dust, and the sounds of a small blast and of a big one.
+ESCAPE_BLASTS = {
+    'SmallExplosionEffect': 'effects/small_explosion.json', 'DustPuffEffect': 'effects/smoke_puff.json',
+    'SmokeEffect': 'effects/smoke.json', 'ShortDustCloudEffect': 'effects/short_big_dust_cloud.json',
+    'BigDustCloudEffect': 'effects/big_dust_cloud.json',
+    'SmallExplosionSound': 'enemy_small_explosion', 'SmokeSound': 'enemy_big_explosion',
 }
 
 # The terrain patches a room's escape version has in place, by the old setup routine that made the change.
@@ -57,6 +75,16 @@ def share(scroll: str) -> str:
     return '0' if 'Fixed' in scroll else '1'
 
 
+def floor_picture(name: str) -> str:
+    """One of the pictures shown on a turning floor, which is kept once for each set of graphics it is coloured by."""
+    return f'backdrops/{{graphics}}/ceres_{name}.png'
+
+
+def strings(values: list[str]) -> str:
+    """A list of text as a scene writes one."""
+    return 'Array[String]([' + ', '.join(quoted(value) for value in values) + '])'
+
+
 class Sequences:
     """The sequences and backdrops of one version of a room."""
 
@@ -85,7 +113,9 @@ class Sequences:
                 'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
         if state.main in ESCAPES:
-            self.placed.append(sequence('EscapeRoom.cs', 'Escape', {'StartsWhen': ctx.always(), **ESCAPES[state.main]}))
+            self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
+                'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),
+                **{name: quoted(value) for name, value in ESCAPE_BLASTS.items()}}))
         if state.setup == 'OpenRescuedAnimalsPassageAndQuake':
             # The way the animals left by stands open, and the room shakes, once they have been set free.
             relay = Placed('res://engine/world/Relay.cs', 'AnimalsPassage', {'Rules': 'rules:open:animals_passage_open'},
@@ -148,6 +178,9 @@ class Sequences:
         if state.main == 'CeresRidleyGetaway':
             floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png')}, at=(0, 0), enemy=False)
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {
+                # The capsule tumbles and his wings beat through the old game's own pictures, in its order.
+                'CapsulePictures': strings([floor_picture(name) for name in ('baby_vertical', 'baby_round', 'baby_horizontal', 'baby_round')]),
+                'WingPictures': strings([floor_picture(name) for name in ('wings_raised', 'wings_lowered')]),
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
                 'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('typing')})
             self.placed += [floor, getaway]
@@ -167,7 +200,10 @@ class Sequences:
                 self.placed.append(shaft)
                 self.links.append((shaft, 'Floor', floor))
             else:
-                self.placed.append(sequence('ceres/CeresArrival.cs', 'Arrival', {'StartsAtEntry': quoted('AtCeresElevator')},
+                self.placed.append(sequence('ceres/CeresArrival.cs', 'Arrival', {
+                    'StartsAtEntry': quoted('AtCeresElevator'),
+                    'PadPictures': strings([floor_picture('elevator_light'), floor_picture('elevator_dark')]),
+                    'PlatformPicture': quoted(floor_picture('elevator_dark'))},
                                             children=[('Pad', VISUAL, {}), ('Platform', VISUAL, {})]))
 
     def statue_hall(self, ctx, named: dict[str, Placed]) -> None:

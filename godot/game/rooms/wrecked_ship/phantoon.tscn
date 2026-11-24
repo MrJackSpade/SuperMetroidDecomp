@@ -60,6 +60,7 @@ position = Vector2(128, 96)
 FightMusic = "kraid_and_phantoon_battle"
 VictoryMusic = "elevator"
 AlwaysActive = true
+HiddenInFight = Array[NodePath]([NodePath("../GreyCap")])
 PresentWhen = SubResource("r5")
 
 [node name="Encounter" type="Node2D" parent="."]

@@ -157,3 +157,12 @@ ScrollShare = Vector2(0.75, 0.75)
 [node name="Escape" type="Node" parent="."]
 script = ExtResource("9")
 StartsWhen = SubResource("r2")
+TurnsHarder = false
+ShakeStrength = 1
+SmallExplosionEffect = "effects/small_explosion.json"
+DustPuffEffect = "effects/smoke_puff.json"
+SmokeEffect = "effects/smoke.json"
+ShortDustCloudEffect = "effects/short_big_dust_cloud.json"
+BigDustCloudEffect = "effects/big_dust_cloud.json"
+SmallExplosionSound = "enemy_small_explosion"
+SmokeSound = "enemy_big_explosion"

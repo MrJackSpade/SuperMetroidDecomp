@@ -523,9 +523,16 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `backdrops/{graphics}/brinstar_vertical_glow_patches.png` | `game/rooms/brinstar/green_brinstar_main_shaft.tscn` |
 | `backdrops/{graphics}/brinstar_vertical_tower.png` | `game/rooms/brinstar/hellway.tscn` |
 | `backdrops/{graphics}/brinstar_wide_vertical_tower_brick.png` | `game/rooms/brinstar/red_tower.tscn` |
+| `backdrops/{graphics}/ceres_baby_horizontal.png` | `game/rooms/ceres/ceres_ridley.tscn` |
+| `backdrops/{graphics}/ceres_baby_round.png` | `game/rooms/ceres/ceres_ridley.tscn` |
+| `backdrops/{graphics}/ceres_baby_vertical.png` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `backdrops/{graphics}/ceres_capsule_hall.png` | `game/rooms/ceres/ceres_ridley_hallway.tscn`, `game/rooms/ceres/falling_tile.tscn`, `game/rooms/ceres/magnet_stairs.tscn` |
+| `backdrops/{graphics}/ceres_elevator_dark.png` | `game/rooms/ceres/ceres_elevator.tscn` |
+| `backdrops/{graphics}/ceres_elevator_light.png` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `backdrops/{graphics}/ceres_elevator_shaft.png` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `backdrops/{graphics}/ceres_ridley_floor.png` | `game/rooms/ceres/ceres_ridley.tscn` |
+| `backdrops/{graphics}/ceres_wings_lowered.png` | `game/rooms/ceres/ceres_ridley.tscn` |
+| `backdrops/{graphics}/ceres_wings_raised.png` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `backdrops/{graphics}/crateria_brick_room.png` | `game/rooms/crateria/final_missile_bombway.tscn`, `game/rooms/crateria/green_pirates_shaft.tscn` |
 | `backdrops/{graphics}/crateria_brick_room_wall_art.png` | `game/rooms/crateria/pre_map_flyway.tscn` |
 | `backdrops/{graphics}/crateria_brick_room_wall_art_dark.png` | `game/rooms/crateria/flyway.tscn` |
@@ -662,12 +669,17 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `cinematics/ceres_destruction.json` | `game/cinematics/CeresDestruction.cs` |
 | `cinematics/ending.json` | `game/cinematics/Ending.cs` |
 | `cinematics/intro.json` | `game/cinematics/Intro.cs` |
+| `effects/big_dust_cloud.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
 | `effects/ceres_debris_dark.json` | `game/rooms/ceres/falling_tile.tscn` |
 | `effects/ceres_debris_light.json` | `game/rooms/ceres/falling_tile.tscn` |
 | `effects/ceres_haze.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
 | `effects/ceres_haze_escape.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
 | `effects/fog.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/pit.tscn`, `game/rooms/crateria/statues_hallway.tscn` |
 | `effects/rain.json` | `game/rooms/crateria/landing_site.tscn` |
+| `effects/short_big_dust_cloud.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
+| `effects/small_explosion.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
+| `effects/smoke.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
+| `effects/smoke_puff.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
 | `effects/spores.json` | `game/rooms/brinstar/big_pink.tscn`, `game/rooms/brinstar/dachora.tscn`, `game/rooms/brinstar/spore_spawn_farming.tscn` and 1 more |
 | `items/bombs.json` | `game/rooms/crateria/bomb_torizo.tscn` |
 | `items/charge_beam.json` | `game/rooms/brinstar/big_pink.tscn` |

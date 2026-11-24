@@ -40,6 +40,16 @@ public partial class Phantoon : Enemy
     [Export]
     public string VictoryMusic { get; set; } = "";
 
+    /// <summary>
+    /// What is put out of sight for as long as the fight lasts: the cap of the room's door, where the room's patch
+    /// "fight_door" stands as wall from the time its first flames are all lit until it is dead.
+    /// </summary>
+    [Export]
+    public Godot.Collections.Array<NodePath> HiddenInFight { get; set; } = [];
+
+    /// <summary>The patch of the room's terrain that is wall where the door is, while the fight lasts.</summary>
+    private const string FightDoorPatch = "fight_door";
+
     /// <summary>How many steps a fade in or out takes; it takes one every other update.</summary>
     [Export, DataValue("fade_steps")]
     public int FadeSteps { get; set; } = 12;
@@ -320,6 +330,7 @@ public partial class Phantoon : Enemy
                     break;
                 _roundDamage = 0;
                 _phase = Phase.WaitBeforeStartingFlames;
+                SetFightDoor(true);
                 break;
 
             case Phase.WaitBeforeStartingFlames:
@@ -645,6 +656,7 @@ public partial class Phantoon : Enemy
 
                 if (VictoryMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(VictoryMusic);
+                SetFightDoor(false);
                 Die();
                 return;
         }
@@ -661,6 +673,21 @@ public partial class Phantoon : Enemy
     }
 
     /// <summary>Shuts its eye after it has taken enough, and sends it off by the given way out.</summary>
+    /// <summary>Puts the wall where the room's door is and its cap out of sight, or takes the wall away and shows the cap again.</summary>
+    private void SetFightDoor(bool walled)
+    {
+        if (walled && !Room.Terrain.IsPatchApplied(FightDoorPatch))
+            Room.Terrain.ApplyPatch(FightDoorPatch);
+        else if (!walled && Room.Terrain.IsPatchApplied(FightDoorPatch))
+            Room.Terrain.RevertPatch(FightDoorPatch);
+        foreach (NodePath path in HiddenInFight)
+        {
+            (GetNode(path) as CanvasItem
+                ?? throw new InvalidOperationException($"Phantoon \"{Name}\" is to hide \"{path}\" while it fights, which is nothing that is drawn."))
+                .Visible = !walled;
+        }
+    }
+
     private void CloseAfterDamage(Phase wayOut)
     {
         _phase = wayOut;

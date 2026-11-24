@@ -108,6 +108,8 @@ Picture = "backdrops/{graphics}/ceres_ridley_floor.png"
 
 [node name="Getaway" type="Node" parent="."]
 script = ExtResource("13")
+CapsulePictures = Array[String](["backdrops/{graphics}/ceres_baby_vertical.png", "backdrops/{graphics}/ceres_baby_round.png", "backdrops/{graphics}/ceres_baby_horizontal.png", "backdrops/{graphics}/ceres_baby_round.png"])
+WingPictures = Array[String](["backdrops/{graphics}/ceres_wings_raised.png", "backdrops/{graphics}/ceres_wings_lowered.png"])
 HeadingPicture = "text/emergency.png"
 Message = "ceres_self_destruct_warning"
 Subtitle = "ceres_self_destruct_subtitle"

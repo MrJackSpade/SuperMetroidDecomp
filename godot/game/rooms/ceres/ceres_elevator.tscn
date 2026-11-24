@@ -98,6 +98,8 @@ script = ExtResource("12")
 [node name="Arrival" type="Node" parent="."]
 script = ExtResource("13")
 StartsAtEntry = "AtCeresElevator"
+PadPictures = Array[String](["backdrops/{graphics}/ceres_elevator_light.png", "backdrops/{graphics}/ceres_elevator_dark.png"])
+PlatformPicture = "backdrops/{graphics}/ceres_elevator_dark.png"
 PresentWhen = SubResource("r5")
 
 [node name="Pad" type="Node2D" parent="Arrival"]

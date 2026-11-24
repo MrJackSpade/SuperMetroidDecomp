@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -41,7 +42,8 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Writes the patches of the rooms' own changes: the way the rescued animals leave by, in the room they leave
-    /// through, and the wall that is gone from the old Tourian shaft during the escape.
+    /// through; the wall that is gone from the old Tourian shaft during the escape; and the wall that stands where
+    /// the door of Phantoon's room is for as long as the fight lasts.
     /// </summary>
     private void WriteRoomPatches()
     {
@@ -64,6 +66,15 @@ public sealed partial class EngineAssetWriter
                 new Position16<RoomBlocks>(OldTourianEscapeShaftWallObjectDefinitions.BlockX, OldTourianEscapeShaftWallObjectDefinitions.BlockY),
                 Layouts.PatchCells(walls, (RoomObjectRevealAndWallVisualFiles.VisualId(OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw),
                     OldTourianEscapeShaftWallObjectDefinitions.OpenedWall)));
+        }
+
+        // The old game makes the door's blocks a door that nothing opens; here they are wall, and the door's cap is put away.
+        foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => placed.Room == RoomDefinitions.Phantoon))
+        {
+            Layouts.Patch(room, state, "fight_door", PhantoonDoorChangeDefinitions.Block,
+                Layouts.PatchCells(GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName,
+                    (PhantoonDoorDrawKeys.Installed.Of(PhantoonDoorDraw.FightDoor), PhantoonDoorObjectDrawDefinitions.Shapes[PhantoonDoorDraw.FightDoor]))
+                    .Select(cell => cell with { Collision = RoomCollisionType.SolidBlock }));
         }
     }
 

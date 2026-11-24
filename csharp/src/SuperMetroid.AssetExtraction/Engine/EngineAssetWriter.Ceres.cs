@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Areas.Ceres;
@@ -16,9 +17,14 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// <summary>What the space station's rooms show of their own: the floors that turn, and the pieces of ceiling that fall.</summary>
 public sealed partial class EngineAssetWriter
 {
+    /// <summary>The path of one of the pictures shown on a turning floor, with the set of graphics it is coloured by.</summary>
+    private static string CeresFloorPicture(string graphics, CeresFloorActorPicture picture) =>
+        $"backdrops/{graphics}/ceres_{EngineSheets.FileName(picture.ToString())}.png";
+
     /// <summary>
-    /// Writes the floor of each room whose floor turns, once for each set of graphics it is coloured by, where the room
-    /// scenes look for it.
+    /// Writes the floor of each room whose floor turns, and the pictures shown on it (the elevator's pad, the capsule
+    /// Ridley carries and his wings), once for each set of graphics they are coloured by, where the room scenes look
+    /// for them.
     /// </summary>
     private void WriteCeresFloors()
     {
@@ -35,9 +41,17 @@ public sealed partial class EngineAssetWriter
             string path = $"backdrops/{GraphicsFolder(state)}/{name}.png";
             if (name is null || !written.Add(path))
                 continue;
-            (RgbaPixel[] pixels, int width, int height) =
-                _sheets.FrameShown(RoomBlockFamily, RoomFloorSheet.NameOf(RoomTilesets.Get(state.GraphicsSet)), RoomFloorSheet.FloorFrameName);
+            string sheet = RoomFloorSheet.NameOf(RoomTilesets.Get(state.GraphicsSet));
+            (RgbaPixel[] pixels, int width, int height) = _sheets.FrameShown(RoomBlockFamily, sheet, RoomFloorSheet.FloorFrameName);
             _tree.WritePicture(path, width, height, pixels);
+            foreach (CeresFloorActorPicture picture in Enum.GetValues<CeresFloorActorPicture>())
+            {
+                string shown = CeresFloorPicture(GraphicsFolder(state), picture);
+                if (!written.Add(shown))
+                    continue;
+                (RgbaPixel[] own, int ownWidth, int ownHeight) = _sheets.FrameShown(RoomBlockFamily, sheet, RoomFloorSheet.PictureNameOf(picture));
+                _tree.WritePicture(shown, ownWidth, ownHeight, own);
+            }
         }
     }
 

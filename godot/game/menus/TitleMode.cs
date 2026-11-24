@@ -113,6 +113,7 @@ public partial class TitleMode : GameMode
     private double _perPixel;
     private Vector2 _pan;
     private int _idle;
+    private bool _starting;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -165,28 +166,36 @@ public partial class TitleMode : GameMode
             return;
         }
 
-        // The cartridge starts its random numbers over as the game starts or starts again, from its power-on number,
-        // and draws one, puts its queues of sounds and music back as at power-on, and puts its demos back to the first
-        // of the first set; the title it rebuilds after a set of demos does none of these.
-        if (_beginning == Beginning.Afresh)
-        {
-            Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
-            Session.Random.Next();
-            Compatibility.CartridgeSounds.Of(Session).Reset();
-            Session.Service<DemoSchedule>().StartOver();
-        }
-        Compatibility.CartridgeSounds.Of(Session).AskMusicSet("title_sequence");
-        Session.Sounds.RequestMusic(opening.Text("music"));
+        // The title begun afresh starts on an update of its own; the one it rebuilds after a set of demos asks for its
+        // music as it is rebuilt.
+        _starting = _beginning == Beginning.Afresh;
+        if (!_starting)
+            AskForMusic(opening);
         Begin(0);
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        // Every update of the old title draws a random number before anything else of it.
-        Session.OpenUpdate();
         DataNode data = Data();
         DataNode opening = data.Get("opening");
+        if (_starting)
+        {
+            // The cartridge's start, as the game starts or starts again, is an update by itself: it starts the random
+            // numbers over from its power-on number and draws one, puts its queues of sounds and music back as at
+            // power-on, puts its demos back to the first of the first set and asks for the opening's music. The
+            // opening plays from the update after.
+            _starting = false;
+            Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
+            Session.Random.Next();
+            Compatibility.CartridgeSounds.Of(Session).Reset();
+            Session.Service<DemoSchedule>().StartOver();
+            AskForMusic(opening);
+            return this;
+        }
+
+        // Every update of the old title draws a random number before anything else of it.
+        Session.OpenUpdate();
         ScreenFade fade = _fade ?? throw NotShown();
         (_baby ?? throw NotShown()).Step();
         bool pressed = input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause) || input.WasPressed(GameAction.Cancel);
@@ -275,6 +284,13 @@ public partial class TitleMode : GameMode
         _skipping = false;
         _doing = Doing.Rebuilding;
         return this;
+    }
+
+    /// <summary>Asks for the opening's music, with the set it is in.</summary>
+    private void AskForMusic(DataNode opening)
+    {
+        Compatibility.CartridgeSounds.Of(Session).AskMusicSet("title_sequence");
+        Session.Sounds.RequestMusic(opening.Text("music"));
     }
 
     /// <summary>Begins a step of the opening; past the last of them the title fades in.</summary>

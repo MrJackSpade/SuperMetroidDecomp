@@ -236,14 +236,21 @@ reproducing a reported bug.
 - An agent is never a model above the newest Opus.
 - Whether work goes to an agent depends on which model is coordinating.
   - **The newest Fable coordinating.** Even counting an agent's start-up cost and the
-    coordination, the newest Opus doing a piece of work as an agent costs less than the
-    coordinator doing it. So open `low` tickets go to Opus agents and not to the coordinator.
-    Where they block nothing they are batched, about five tickets to an agent. Simple,
-    low-effort boilerplate that has to be done to unblock `high` work may also go to an Opus
-    agent, when it is more than a few files' worth of work and needs no decisions. The
-    coordinator keeps the `high` work for itself. Told to carry on with no ticket named, it
-    first labels any open ticket that has no label, hands out the open `low` tickets that are
-    not awaiting validation, and works `high` tickets itself.
+    coordination, the newest Opus doing a worthwhile piece of work as an agent costs less
+    than the coordinator doing it. That is not a reason to fire off an agent for every edit:
+    use discretion. An agent is given a real piece of work, never a single small change.
+    - Open `low` tickets that block nothing are batched, about five tickets to an agent, and
+      a batch goes to an Opus agent.
+    - One ticket by itself goes to an agent only when it is a longer, more mechanical task:
+      the same change made across many files, say. A lone small `low` ticket is not worth an
+      agent; it waits for a batch, or the coordinator makes the change itself.
+    - Simple, low-effort boilerplate that has to be done to unblock `high` work may go to an
+      Opus agent, when it is more than a few files' worth of work and needs no decisions.
+    - An edit the coordinator comes to in the course of its own work, it makes itself.
+      "Low" describes who may safely make a change, not that every such change needs an agent.
+    The coordinator keeps the `high` work for itself. Told to carry on with no ticket named,
+    it first labels any open ticket that has no label, hands out the open `low` tickets that
+    are not awaiting validation in batches as above, and works `high` tickets itself.
   - **The newest Opus coordinating.** An agent costs what the coordinator would cost doing the
     work itself, and its start-up cost and the coordination come on top, so for small tasks
     agents cost more. Spawn them only for work that splits intelligently into independent,

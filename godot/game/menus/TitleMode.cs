@@ -85,6 +85,9 @@ public partial class TitleMode : GameMode
         /// <summary>The opening has been cut short, and the screen is going dark.</summary>
         Skipping,
 
+        /// <summary>The skip has gone dark, and the title is put at its rest.</summary>
+        Rebuilding,
+
         /// <summary>At rest.</summary>
         Resting,
 
@@ -218,6 +221,10 @@ public partial class TitleMode : GameMode
 
                 // Only a skip asks for the music at rest; the opening's own music runs on into it otherwise.
                 Session.Sounds.RequestMusic(data.Text("music"));
+                _doing = Doing.Rebuilding;
+                return this;
+            case Doing.Rebuilding:
+                // The old game rebuilds the title at rest on the update after the skip's fade reaches black.
                 Rest(restoredCopyright: true);
                 fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
@@ -258,6 +265,9 @@ public partial class TitleMode : GameMode
         {
             _doing = Doing.Skipping;
             fade.FadeOut(opening.Int("skip_fade_updates"));
+
+            // The skip's first step darker falls on the update of the press.
+            fade.Step();
         }
 
         return this;

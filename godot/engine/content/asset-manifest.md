@@ -13,7 +13,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | --- | --- | --- |
 | `bosses/bomb_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
 | `bosses/bomb_torizo_hand.json` | `BombTorizoHand` | debris_look |
-| `bosses/botwoon.json` | `Botwoon` | contact_damage, explosion_effect, explosion_sound, floor_y, health, opening_delay, pre_fall_wait, segment_damage, smoke_effect, speed_curve, wall_drops, wall_explosion_effect, wall_updates, wall_x |
+| `bosses/botwoon.json` | `Botwoon` | contact_damage, dud_sound, explosion_effect, explosion_sound, floor_y, health, opening_delay, pre_fall_wait, segment_damage, smoke_effect, speed_curve, wall_drops, wall_explosion_effect, wall_updates, wall_x |
 | `bosses/ceres_ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, body_fade_step_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, eye_fade_step_updates, eye_hold_updates, fade_steps, health, hit_flash_updates, hits_to_drive_off, piece_end_effect, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, tail_tip_arc_start, wounded_health |
 | `bosses/ceres_ridley_fireball.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ceres_ridley_flame.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |

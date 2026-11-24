@@ -60,6 +60,10 @@ public partial class Samus : Player
     [Export, DataValue("stored_shine_updates")]
     public int StoredShineUpdates { get; set; } = 180;
 
+    /// <summary>How many updates after a shine is stored its sound is heard.</summary>
+    [Export, DataValue("stored_shine_sound_updates")]
+    public int StoredShineSoundUpdates { get; set; } = 10;
+
     /// <summary>How many pixels a shinespark begun out of a jump lifts her as its windup starts.</summary>
     [Export, DataValue("shinespark_lift")]
     public int ShinesparkLift { get; set; } = 1;
@@ -673,7 +677,6 @@ public partial class Samus : Player
     {
         _shine = Countdown.Of(StoredShineUpdates);
         _crystalFlashColouring = CrystalFlashColouring.None;
-        Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
     }
 
     /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
@@ -1147,6 +1150,10 @@ public partial class Samus : Player
         WarnOfLowEnergy();
         Grapple?.Step(this);
         ShowSelection();
+
+        // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
+        if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
+            Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,

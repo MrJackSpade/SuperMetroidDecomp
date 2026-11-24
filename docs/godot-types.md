@@ -506,6 +506,8 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 - **A boss room's locked doors** are `Barrier`s held shut by "this boss is not defeated". The `BossEncounter` does
   not touch them.
 - **A switch** is a `Barrier` with one health and no body to speak of, whose opening tells another barrier to open.
+  A gate's switch never opens itself: each hit that would open it tells its gate to "toggle", which opens a shut
+  gate and shuts an open one, and is ignored while the gate is still moving.
 
 ### RoomSequence (base)
 

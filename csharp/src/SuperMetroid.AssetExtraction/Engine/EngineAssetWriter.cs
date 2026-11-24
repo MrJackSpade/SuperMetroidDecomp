@@ -42,6 +42,7 @@ public sealed partial class EngineAssetWriter
         writer._roomObjects = new EngineRoomObjects(writer._tree, writer._sheets, installation.ContentDirectory, layouts.GraphicsSets);
         writer.WriteEnemies();
         writer.WriteDoorCaps();
+        writer.WriteGates();
     }
 
     /// <summary>

@@ -83,23 +83,40 @@ internal sealed partial class EngineRoomObjects
             : throw new InvalidDataException($"The installation keeps no room object frame {frame} under {directory}.");
     }
 
-    /// <summary>How many blocks wide and tall a frame is.</summary>
-    internal (int Columns, int Rows) Size(string directory, string frame)
+    /// <summary>
+    /// The blocks a frame covers, counted from the block its object is placed on: the leftmost and topmost, and how
+    /// many across and down. Only the cells <paramref name="wanted"/> picks out are counted, where it is given.
+    /// </summary>
+    internal (int Left, int Top, int Columns, int Rows) Bounds(string directory, string frame, Func<int, int, bool>? wanted = null)
     {
-        JsonArray cells = Cells(directory, frame);
-        return (cells.Max(cell => cell!["x"]!.GetValue<int>()) + 1, cells.Max(cell => cell!["y"]!.GetValue<int>()) + 1);
+        var at = Cells(directory, frame).Select(cell => (X: cell!["x"]!.GetValue<int>(), Y: cell["y"]!.GetValue<int>()))
+            .Where(cell => wanted is null || wanted(cell.X, cell.Y)).ToList();
+        if (at.Count == 0)
+            throw new InvalidDataException($"The room object frame {frame} has none of the cells asked for.");
+        int left = at.Min(cell => cell.X), top = at.Min(cell => cell.Y);
+        return (left, top, at.Max(cell => cell.X) - left + 1, at.Max(cell => cell.Y) - top + 1);
     }
 
     /// <summary>
     /// Writes the picture of one frame for every set of graphics, under <paramref name="folder"/>, and returns the one
-    /// path that names them all. The picture's top-left corner is the frame's first cell's; a cell with no block shows
-    /// nothing, and so does a block a set of graphics does not draw.
+    /// path that names them all. The picture's top-left corner is that of the frame's leftmost and topmost cell; a
+    /// cell with no block shows nothing, and so does a block a set of graphics does not draw.
     /// </summary>
-    internal string Picture(string directory, string frame, string folder)
+    /// <param name="directory">Where the installation keeps the frame.</param>
+    /// <param name="frame">The frame.</param>
+    /// <param name="folder">The folder of the asset tree its pictures go under.</param>
+    /// <param name="wanted">Which of its cells to draw, by how far across and down from the object's block; all of them when not given.</param>
+    /// <param name="name">The picture's name, where it is not the frame's.</param>
+    /// <param name="over">Something drawn over it: its pixels, their width and height, and where their corner lies in the picture.</param>
+    /// <param name="rows">How many blocks tall to make the picture at least, where that is more than its cells are.</param>
+    internal string Picture(
+        string directory, string frame, string folder, Func<int, int, bool>? wanted = null, string? name = null,
+        (RgbaPixel[] Pixels, int Width, int Height, int Left, int Top)? over = null, int rows = 0)
     {
         JsonArray cells = Cells(directory, frame);
-        (int columns, int rows) = Size(directory, frame);
-        string name = EngineSheets.FileName(frame);
+        (int firstColumn, int firstRow, int columns, int rowsOfCells) = Bounds(directory, frame, wanted);
+        rows = Math.Max(rows, rowsOfCells);
+        name = EngineSheets.FileName(name ?? frame);
         foreach (string graphicsSet in _graphicsSets)
         {
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
@@ -108,6 +125,8 @@ internal sealed partial class EngineRoomObjects
             var canvas = new RgbaPixel[columns * Block * rows * Block];
             foreach (JsonNode? cell in cells)
             {
+                if (wanted is not null && !wanted(cell!["x"]!.GetValue<int>(), cell["y"]!.GetValue<int>()))
+                    continue;
                 if (cell!["block"]?.GetValue<int>() is not int block)
                     continue;
                 string mirroring = cell["mirroring"]!.GetValue<string>();
@@ -116,9 +135,24 @@ internal sealed partial class EngineRoomObjects
                     throw new InvalidDataException($"The room object frame {frame} mirrors a block {mirroring}, which this does not know.");
                 if (BlockPixels(_sheets, graphicsSet, block, across, down) is not { } pixels)
                     continue;
-                int left = cell["x"]!.GetValue<int>() * Block, top = cell["y"]!.GetValue<int>() * Block;
+                int left = (cell["x"]!.GetValue<int>() - firstColumn) * Block, top = (cell["y"]!.GetValue<int>() - firstRow) * Block;
                 for (int y = 0; y < Block; y++)
                     pixels.AsSpan(y * Block, Block).CopyTo(canvas.AsSpan((top + y) * columns * Block + left, Block));
+            }
+
+            if (over is { } drawn)
+            {
+                if (drawn.Left < 0 || drawn.Top < 0 || drawn.Left + drawn.Width > columns * Block || drawn.Top + drawn.Height > rows * Block)
+                    throw new InvalidDataException($"What is drawn over the room object frame {frame} does not lie inside it.");
+                for (int y = 0; y < drawn.Height; y++)
+                {
+                    for (int x = 0; x < drawn.Width; x++)
+                    {
+                        RgbaPixel pixel = drawn.Pixels[y * drawn.Width + x];
+                        if (pixel.A != 0)
+                            canvas[(drawn.Top + y) * columns * Block + drawn.Left + x] = pixel;
+                    }
+                }
             }
 
             _tree.WritePicture(path, columns * Block, rows * Block, canvas);

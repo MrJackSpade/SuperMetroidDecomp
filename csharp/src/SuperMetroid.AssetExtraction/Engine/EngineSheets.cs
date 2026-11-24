@@ -108,24 +108,62 @@ internal sealed partial class EngineSheets
     }
 
     /// <summary>
+    /// The sheet that holds a picture of what <paramref name="spawner"/> spawns, or an empty name for one that shows
+    /// nothing. It is looked for among the spawner's own pictures; then among the shared ones as the rooms that hold
+    /// the spawner show them; then as most rooms show them; then as a room with no enemies shows them; and last in
+    /// whichever look of the shared things holds it that the most rooms show, since some shared pictures are drawn
+    /// only in the few rooms that need them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No sheet holds the picture.</exception>
+    private string SheetHolding(string spawner, string frame)
+    {
+        if ((SheetOfSpawned(SpawnedLook(spawner), frame) ?? SheetOfSpawned(SharedLookBeside(spawner), frame)
+            ?? SheetOfSpawned(SpawnedLook(SharedSpawner), frame) ?? SheetOfSpawned(StandardLook(), frame)) is { } found)
+            return found;
+        IEnumerable<string> sharedLooks = _enemyLooks["populations"]!.AsObject()
+            .Select(population => population.Value!["spawned"]![SharedSpawner]?.GetValue<string>())
+            .OfType<string>()
+            .GroupBy(look => look, StringComparer.Ordinal)
+            .OrderByDescending(group => group.Count())
+            .ThenBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group => group.Key);
+        foreach (string look in sharedLooks)
+        {
+            if (SheetOfSpawned(_enemyLooks["spawnedVariants"]![look]!.AsObject(), frame) is { } sheet)
+                return sheet;
+        }
+
+        throw new InvalidDataException($"No sheet of what {spawner} spawns holds the picture {frame}.");
+    }
+
+    /// <summary>
     /// Cuts named pictures of what an enemy spawns, or of what every room shares, into one picture each, all on one
-    /// canvas of their own, under <paramref name="folder"/>. A picture is looked for among the spawner's own, then
-    /// among the shared ones as the rooms that hold the spawner show them, then among the shared ones as most rooms
-    /// show them, then among those of a room that holds no enemies.
+    /// canvas of their own, under <paramref name="folder"/>. A picture is looked for as <see cref="SheetHolding"/> looks.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture is on no sheet.</exception>
     internal EngineSheetPictures CutSpawned(EngineAssetTree tree, string folder, string spawner, IEnumerable<string> frames)
     {
-        JsonObject own = SpawnedLook(spawner), beside = SharedLookBeside(spawner), shared = SpawnedLook(SharedSpawner), standard = StandardLook();
         var placed = new List<(string Name, string Sheet)>();
         foreach (string frame in frames.Distinct(StringComparer.Ordinal))
-        {
-            string sheet = SheetOfSpawned(own, frame) ?? SheetOfSpawned(beside, frame) ?? SheetOfSpawned(shared, frame) ?? SheetOfSpawned(standard, frame)
-                ?? throw new InvalidDataException($"No sheet of what {spawner} spawns holds the picture {frame}.");
-            placed.Add((frame, sheet));
-        }
+            placed.Add((frame, SheetHolding(spawner, frame)));
 
         return CutFrames(tree, EnemyFamily, folder, placed);
+    }
+
+    /// <summary>
+    /// The pixels of one picture of what an enemy spawns, or of what every room shares, as it is cut on its sheet,
+    /// with its width and height. It is looked for as <see cref="CutSpawned"/> looks.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The picture is on no sheet, or shows nothing.</exception>
+    internal (RgbaPixel[] Pixels, int Width, int Height) SpawnedFrame(string spawner, string frame)
+    {
+        string sheet = SheetHolding(spawner, frame);
+        if (sheet.Length == 0)
+            throw new InvalidDataException($"The picture {frame} of what {spawner} spawns shows nothing.");
+        InstalledSheetFrameDocument placed = _documents[(EnemyFamily, sheet)].Frames[frame];
+        RgbaPixel[] pixels = FramePixels(EnemyFamily, sheet, frame, placed.Size.X, placed.Size.Y)
+            ?? throw new InvalidDataException($"The picture {frame} of what {spawner} spawns shows nothing.");
+        return (pixels, placed.Size.X, placed.Size.Y);
     }
 
     /// <summary>Cuts named frames, each from the sheet given for it or showing nothing where no sheet is given, onto one canvas.</summary>

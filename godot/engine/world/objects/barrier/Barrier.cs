@@ -17,7 +17,7 @@ namespace Engine.World.Objects;
 /// (played once when a hit wears it down without opening it), "opening", "open" and "closing", and "sealing"
 /// (played once as the room is entered while it is held shut, before "sealed"). One with an "opening" timeline goes
 /// on blocking until that has played. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
-/// "sealed_sound". One that is plain, having once been opened and remembered so, shows the timeline named with
+/// "sealed_sound", and its "refused_sound" for a hit of no kind that wears it down. One that is plain, having once been opened and remembered so, shows the timeline named with
 /// "plain_" before each of those names where its data has one, and is opened by the kinds its data lists under
 /// "plain_opened_by", or by any hit where it lists none: a red door's cap comes back as a blue one.
 /// </remarks>
@@ -34,6 +34,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 
         /// <summary>It is closed again when its room is next set up.</summary>
         NextSetup,
+
+        /// <summary>It never opens: a hit that would open it only tells whom it tells, every time. A switch.</summary>
+        AtOnce,
     }
 
     /// <summary>How a barrier that was opened and remembered is set up afterwards.</summary>
@@ -97,7 +100,11 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     [Export, DataValue("hurt_sound")]
     public string HurtSound { get; set; } = "";
 
-    /// <summary>The sound of a hit on it while it is held shut, by name; empty for none.</summary>
+    /// <summary>The sound of a hit that does nothing to it, being of no kind that wears it down, by name; empty for none.</summary>
+    [Export, DataValue("refused_sound")]
+    public string RefusedSound { get; set; } = "";
+
+    /// <summary>The sound asked for when it is hit while it is held shut, by name; empty for none.</summary>
     [Export, DataValue("sealed_sound")]
     public string SealedSound { get; set; } = "";
 
@@ -179,7 +186,10 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 
         int damage = !_plain ? DamageFrom(hit) : _plainOpenedBy.Count == 0 || hit.CarriesAny(_plainOpenedBy) ? 1 : 0;
         if (damage <= 0)
+        {
+            Sound(RefusedSound);
             return HitResult.Absorbed;
+        }
         _health -= damage;
         if (_health > 0)
         {
@@ -197,6 +207,15 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         if (IsOpen)
             return;
+        if (ComesBack == ComesBackWhen.AtOnce)
+        {
+            // A switch only tells, and is ready to be hit again.
+            _health = MaxHealth;
+            Sound(OpenSound);
+            Tell();
+            return;
+        }
+
         IsOpen = true;
         _playerWasInside = false;
         Room.MarkGone(Name);
@@ -212,6 +231,12 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             Show("open");
         }
 
+        Tell();
+    }
+
+    /// <summary>Tells everything it tells when it opens.</summary>
+    private void Tell()
+    {
         foreach (NodePath path in TellsWhenOpened)
         {
             (GetNode(path) as ITriggerTarget
@@ -288,11 +313,20 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             case "open":
                 Open();
                 break;
+            case "toggle":
+                // Told while it is still opening or closing, it takes no notice.
+                if (_showingName is "opening" or "closing" && _showing is { IsOver: false })
+                    break;
+                if (IsOpen)
+                    Close();
+                else
+                    Open();
+                break;
             case "close":
                 Close();
                 break;
             default:
-                throw new ArgumentException($"A barrier can be told to \"open\" or \"close\", not \"{what}\".", nameof(what));
+                throw new ArgumentException($"A barrier can be told to \"open\", \"close\" or \"toggle\", not \"{what}\".", nameof(what));
         }
     }
 

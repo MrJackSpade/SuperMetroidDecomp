@@ -150,6 +150,8 @@ position = Vector2(272, 64)
 [node name="GateSwitch" parent="." instance=ExtResource("9")]
 position = Vector2(272, 64)
 DataFile = "objects/gate_switch_blue_right.json"
+ComesBack = 3
+TellsWhat = "toggle"
 TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
 
 [node name="GreyCap" parent="." instance=ExtResource("10")]

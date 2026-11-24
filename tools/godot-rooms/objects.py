@@ -19,6 +19,9 @@ O = 'res://game/objects/'
 B = 'res://game/bosses/'
 E = 'res://game/enemies/'
 
+# What an open barrier does, for a switch: it is shut again at once.
+COMES_BACK_AT_ONCE = '3'
+
 # How a barrier that was opened and remembered is set up afterwards: as a plain one any hit opens.
 REMEMBERED_PLAIN = '1'
 
@@ -160,8 +163,10 @@ class Objects:
     def downward_gate_shot_block_setup(self, block, setup, gates) -> None:
         colour = named(setup, 'DownwardGateTriggerColor').lower()
         way = named(setup, 'HorizontalDirection').lower()
+        # A switch never opens: each hit that would open it tells its gate to open if it is shut and shut if it is open.
         switch = Placed(O + 'gate/gate_switch.tscn', 'GateSwitch', {
-            'DataFile': quoted(f'objects/gate_switch_{colour}_{way}.json')}, at=corner(block), enemy=False)
+            'DataFile': quoted(f'objects/gate_switch_{colour}_{way}.json'),
+            'ComesBack': COMES_BACK_AT_ONCE, 'TellsWhat': quoted('toggle')}, at=corner(block), enemy=False)
         self.placed.append(switch)
         self.tells.append((switch, 'TellsWhenOpened', [gates[block]]))
 

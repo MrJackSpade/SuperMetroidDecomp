@@ -405,6 +405,9 @@ A scene. One per room of the game.
   map cell the player is in as explored, starting an earthquake when something asks, putting itself on screen
   where the camera's view has it (thrown about by an earthquake, which does not throw the player about), and
   tearing itself down when left.
+- **Steps, in this order:** the first part of the player's update; the player's own shots; the enemies; the rest
+  of the player's update; triggers and exits; every other projectile, pickups and remains; room objects, terrain,
+  liquid, room effects and the sequence; effects.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 
@@ -615,9 +618,16 @@ in `engine/actors/player/`.
   what the movement itself met (a landing, a floor walked off); what the input asked for; and last, when the input
   asked for nothing, what the state does unasked (`Unasked`). The state entered sets itself up as the update ends
   and first moves on the next, so a jump asked for while running still runs that update and rises on the next. A
-  game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. Weapons fire and
-  body powers are delivered after the change. `ChangeState` is for whatever takes the player over at once (a hold,
-  a script, a station) and drops an interruption that was waiting.
+  game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`
+  is for whatever takes the player over at once (a hold, a script, a station) and drops an interruption that was
+  waiting.
+- **The update has two parts, with the enemies between them.** In the first (`BeginUpdate`) weapons fire, from the
+  state, the place and the aim the last update left the player in, and then the input is asked. The room steps the
+  player's own shots, then the enemies. In the second (`FinishUpdate`) the player moves, the change takes effect,
+  and active body powers are delivered. So an enemy acts on where the player stood before this update's movement,
+  a touch it lands interrupts the player on this same update, and a state an enemy puts the player into moves them
+  on this update, having been asked nothing. A game says which body powers are at work as the second part begins
+  (`BeforeMoving`), so they hold for whatever touches the player until then.
 - **Speed across.** A state that steers keeps the player's own speed across as a size, carried the way they
   travel, with one of three conditions (`Steering`): *steered* (it gains by the state's move values, and the top
   speed replaces a speed that reads as past it); *unsteered* (nothing drives it: on the ground it slows to rest and

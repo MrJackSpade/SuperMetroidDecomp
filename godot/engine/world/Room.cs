@@ -225,20 +225,24 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Plays one update of the room, in a fixed order: the player, triggers and exits, enemies, projectiles,
-    /// pickups and the remains of the destroyed, room objects and the room itself, then effects. Groups named in <paramref name="stopped"/> do not run.
+    /// Plays one update of the room, in a fixed order: the first part of the player's update, in which their input is
+    /// read and their weapons fire; the player's own shots; enemies; the rest of the player's update, in which they
+    /// move; triggers and exits; every other projectile, pickups and the remains of the destroyed; room objects and
+    /// the room itself; then effects. Groups named in <paramref name="stopped"/> do not run.
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
         if (!stopped.HasFlag(Stopped.Player))
+            Player.BeginUpdate(input);
+
+        // The player's shots move, and hit, before the enemies act; a shot fired this update among them.
+        if (!stopped.HasFlag(Stopped.Projectiles))
         {
-            Player.Step(input);
-            PixelRect body = Player.BodyRect;
-            foreach (Trigger trigger in _triggers.ToList())
-                trigger.Step(this, body);
-            if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
-                _arrivedAt = null;
-            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
+            foreach (Projectile projectile in _projectiles.ToList())
+            {
+                if (projectile.Side == HitSide.Player && !_leaving.Contains(projectile))
+                    projectile.Step();
+            }
         }
 
         if (!stopped.HasFlag(Stopped.Enemies))
@@ -250,11 +254,22 @@ public partial class Room : Node2D
             }
         }
 
+        if (!stopped.HasFlag(Stopped.Player))
+        {
+            Player.FinishUpdate();
+            PixelRect body = Player.BodyRect;
+            foreach (Trigger trigger in _triggers.ToList())
+                trigger.Step(this, body);
+            if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
+                _arrivedAt = null;
+            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
+        }
+
         if (!stopped.HasFlag(Stopped.Projectiles))
         {
             foreach (Projectile projectile in _projectiles.ToList())
             {
-                if (!_leaving.Contains(projectile))
+                if (projectile.Side != HitSide.Player && !_leaving.Contains(projectile))
                     projectile.Step();
             }
 

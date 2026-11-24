@@ -503,14 +503,20 @@ public partial class Samus : Player
     public void EndBoost() => _boostStage = -1;
 
     /// <inheritdoc/>
-    protected override void BeforeState()
+    protected override void BeforeMoving()
     {
         // Each update's movement says anew which of her body's powers are at work; they stay so for what touches her
-        // afterwards. The speed booster's is at work from the update after she reaches full boost.
+        // afterwards, the enemies of the next update among it. The speed booster's is at work from the update after
+        // she reaches full boost.
         foreach (BodyPower power in BodyPowers)
             power.IsActive = false;
         if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
             boost.IsActive = true;
+    }
+
+    /// <inheritdoc/>
+    protected override void BeforeState()
+    {
         _ranFromStart = State is RunningState;
         _shine = _shine.Stepped();
         ChooseItem();

@@ -593,29 +593,66 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Plays one update. The state the player is in is asked what the input wants, moves the player, and the player
-    /// settles where that left them (what they stand on, what blocks do to them, the room's ongoing damage); then
-    /// whatever change is due takes effect (<see cref="PlayerState"/> gives the rank). After that weapons fire and
-    /// active body powers hit what the body touches.
+    /// Plays one whole update with nothing between its two parts: <see cref="BeginUpdate"/>, then
+    /// <see cref="FinishUpdate"/>. A room plays the two parts itself, with its enemies between them.
     /// </summary>
     public void Step(GameInput input)
+    {
+        BeginUpdate(input);
+        FinishUpdate();
+    }
+
+    /// <summary>
+    /// Plays the first part of an update, which comes before the room's enemies act: weapons fire from the state, the
+    /// place and the aim the last update left the player in, and then the input is asked what it wants of that state.
+    /// </summary>
+    public void BeginUpdate(GameInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
         _input = input;
         _medium = null;
         _invincible = _invincible.Stepped();
+        (_asked, _askedOf) = (null, null);
         if (IsDead)
             return;
 
         TakeJumpBuffer();
         BeforeState();
-        States.Step();
-
         if (State.CanAttack)
             Attack(input);
+        PlayerState state = State;
+        _asked = AskedOf(state);
+        _askedOf = state;
+    }
+
+    /// <summary>
+    /// Plays the rest of an update, which comes after the room's enemies have acted: the player moves as the state
+    /// they are in, settles, and whatever change is due takes effect; then active body powers hit what the body touches.
+    /// </summary>
+    public void FinishUpdate()
+    {
+        if (IsDead)
+            return;
+        BeforeMoving();
+        States.Step();
         DeliverBodyPowers();
         AfterState();
         CountJumpHeld();
+    }
+
+    /// <summary>What the input asked, in the first part of this update, of the state the player was then in; and that state.</summary>
+    private PlayerState? _asked;
+    private PlayerState? _askedOf;
+
+    /// <summary>
+    /// What this update's input asked of <paramref name="state"/>, which is about to move the player. A state the
+    /// player was put into since the input was asked was asked nothing: it carries on.
+    /// </summary>
+    internal PlayerState? TakeAsked(PlayerState state)
+    {
+        PlayerState? asked = ReferenceEquals(_askedOf, state) ? _asked : state;
+        (_asked, _askedOf) = (null, null);
+        return asked;
     }
 
     /// <summary>
@@ -669,8 +706,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             Room.Session.Sounds.Request(sound, channel: "liquid");
     }
 
-    /// <summary>Called at the start of each update, before the player's state runs.</summary>
+    /// <summary>Called at the start of each update, before weapons fire and the input is asked.</summary>
     protected virtual void BeforeState()
+    {
+    }
+
+    /// <summary>Called as the second part of each update begins, after the room's enemies have acted and before the player moves.</summary>
+    protected virtual void BeforeMoving()
     {
     }
 

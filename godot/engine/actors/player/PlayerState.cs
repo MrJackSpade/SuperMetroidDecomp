@@ -111,7 +111,7 @@ public abstract class PlayerState : State<Player>
     /// <summary>Plays one update in the order every state keeps.</summary>
     public sealed override State<Player> Step(Player owner)
     {
-        PlayerState? asked = owner.AskedOf(this);
+        PlayerState? asked = owner.TakeAsked(this);
         PlayerState? met = Move(owner);
         owner.SettleAfterMoving();
 

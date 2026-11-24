@@ -531,6 +531,11 @@ public partial class Samus : Player
             {
                 Aim = FirstJumpAim(from);
             }
+            else if (from is SpinJumpingState or WallJumpingState && !CanTakeForm(FormOr(Jumping), aroundMiddle: true))
+            {
+                // With no room to straighten out, the spin or the wall jump goes on as it was, as the cartridge has it.
+                return from;
+            }
             else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
                 CanTakeForm(FormOr(Jumping), aroundMiddle: true))
             {

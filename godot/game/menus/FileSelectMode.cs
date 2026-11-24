@@ -184,7 +184,7 @@ public partial class FileSelectMode : GameMode
                 helmet.Step();
                 // Confirming again cuts the turn short.
                 if (helmet.IsOver || input.WasPressed(GameAction.Confirm))
-                    FadeOutTo(() => new OptionsMode(this, startsGame: true));
+                    FadeOutTo(() => new OptionsMode(this));
                 break;
             case Asking.CopyFrom:
             case Asking.ClearWhich:

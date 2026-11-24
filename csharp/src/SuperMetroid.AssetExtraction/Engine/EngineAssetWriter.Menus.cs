@@ -333,18 +333,12 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
-    /// The words of the Godot game's own screens. The old game's choice of saved game and its options are pictures
-    /// of words, which hold no words to take; the Godot screens that stand for them list their lines in the game's
-    /// font, and these are those lines, in the old screens' own terms where they have them.
+    /// The words of the Godot game's own list of buttons. The old game's page of buttons is pictures of the old
+    /// controller's buttons; the Godot game binds its actions to whatever buttons there are, and lists each action
+    /// with its button in the game's font. These are those lines, in the old page's own terms where it has them.
     /// </summary>
     private void WriteMenuWords()
     {
-        Words("options_start_game", "START GAME");
-        Words("options_language", "TEXT   {language}");
-        Words("options_toggle_moonwalk", "MOON WALK   {state}");
-        Words("options_toggle_manual_item_cancel", "ICON CANCEL   {state}");
-        Words("options_on", "ON");
-        Words("options_off", "OFF");
         Words("options_press_a_button", "PRESS A BUTTON");
         Words("options_exit", "EXIT");
         (string Action, string Shown)[] actions =

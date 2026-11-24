@@ -606,6 +606,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `liquids/water_teal.json` | `game/rooms/maridia/crab_hole.tscn`, `game/rooms/maridia/crab_shaft.tscn`, `game/rooms/maridia/crab_tunnel.tscn` and 9 more |
 | `menus/file_select.json` | `game/menus/FileSelectMode.cs` |
 | `menus/game_over.json` | `game/menus/GameOverMode.cs` |
+| `menus/options.json` | `game/menus/OptionsMode.cs` |
 | `menus/title.json` | `game/menus/TitleMode.cs` |
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |

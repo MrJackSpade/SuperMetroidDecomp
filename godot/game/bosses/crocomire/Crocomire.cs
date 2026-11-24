@@ -58,7 +58,7 @@ public partial class Crocomire : Enemy
     [Export]
     public string SpikeWallPatch { get; set; } = "";
 
-    /// <summary>The music of the fight, by name.</summary>
+    /// <summary>The music of the fight, by name, which starts as Samus nears the wall its skeleton breaks through.</summary>
     [Export]
     public string FightMusic { get; set; } = "";
 
@@ -606,9 +606,8 @@ public partial class Crocomire : Enemy
             case Phase.Dormant:
                 if (Math.Abs(Position.X.Whole - Target.X.Whole) >= WakeDistance)
                     return null;
+                // It wakes with no change of music: the old game asks for none here.
                 _phase = Phase.WaitingForFirstDamage;
-                if (FightMusic.Length > 0)
-                    Room.Session.Sounds.RequestMusic(FightMusic);
                 return "awaiting_hit";
 
             case Phase.WaitingForFirstDamage:

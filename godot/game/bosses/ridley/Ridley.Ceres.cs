@@ -155,10 +155,11 @@ public partial class Ridley
         if (IsInMotion)
         {
             StepBody();
-            // Now and then its tail curls tighter or looser.
+            // Now and then its tail curls tighter or looser: when the upper half of the number last drawn is as
+            // great as it can be, by as much as its lowest digits say.
             RandomDraw chance = Random.Last;
-            if (chance.Part(0, 8) == 255)
-                Tail.LinkSpacing = 8 + chance.Part(8, 4);
+            if (chance.Part(8, 8) == 255)
+                Tail.LinkSpacing = 8 + chance.Part(0, 4);
         }
 
         StepBaby();

@@ -155,17 +155,23 @@ public partial class Terrain : Node2D, ITerrainShape
         {
             for (int column = rect.Left / size; column <= (rect.Right - 1) / size; column++)
             {
+                // A tile a block covers is as solid as the block, whatever it is itself: a block of several tiles
+                // covers tiles that are laid as open space.
+                if (_blockAt[row][column] is { } block)
+                {
+                    if (block.IsSolid)
+                        return true;
+                    continue;
+                }
+
                 TileDefinition tile = _tiles[row][column];
                 switch (tile.Kind)
                 {
                     case TileKind.Empty:
+                    case TileKind.Block:
                         break;
                     case TileKind.Solid:
                         return true;
-                    case TileKind.Block:
-                        if (_blockAt[row][column] is { IsSolid: true })
-                            return true;
-                        break;
                     case TileKind.Slope:
                         if (slopes != SlopeTreatment.Ignore && SlopeIsSolidIn(tile, column, row, rect))
                             return true;
@@ -362,11 +368,9 @@ public partial class Terrain : Node2D, ITerrainShape
                 _blocks.Add(block);
                 for (int y = 0; y < tile.BlockHeight; y++)
                 {
+                    // Each tile it covers keeps its own picture; the block only says how solid they are and what they show of it.
                     for (int x = 0; x < tile.BlockWidth; x++)
-                    {
                         _blockAt[row + y][column + x] = block;
-                        _tiles[row + y][column + x] = tile;
-                    }
                 }
             }
         }

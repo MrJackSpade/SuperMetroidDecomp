@@ -709,7 +709,9 @@ in `engine/actors/player/`.
   input asks for as it begins. A change of stance within a jump takes effect only when the body can take the form
   of the new one, and the jump says so for that update (`TookUpStance`), which the game's player can read as it is
   told (`Entering`). An update with nothing at all held makes a jumper who has speed unsteered
-  (the dash is folded into their speed and their momentum ends) and takes a faller's dash and momentum. Steering
+  (the dash is folded into their speed and their momentum ends) and takes a faller's dash and momentum. It also has a
+  jump that aims up, or diagonally either way, let its aim go for the stance of steering the way the player faces,
+  so that the same aim asked again is a stance taken up anew. Steering
   against the way they face turns them in the air (`AirTurningState`): they face the new way at once and reverse by
   the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
   not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from, a

@@ -46,6 +46,13 @@ public sealed partial class EngineAssetWriter
                 .BodyColliders(Ordinary)
                 .Value("detection_band", SpacePirateMotionDefinitions.WallDetectionBand)
                 .Value("muzzle_above", SpacePirateMotionDefinitions.WallLaserMuzzleAbove)
+                .Value("muzzle_ahead", SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead)
+                // Its two leaps: how fast each turns, and how far short of the far wall the slow one is aimed.
+                .Value("fast_jump_turn", (int)SpacePirateMotionDefinitions.FastWallJump.TurnPerUpdate.ToTrigonometryAngle().RawValue)
+                .Value("slow_jump_turn", (int)SpacePirateMotionDefinitions.SlowWallJump.TurnPerUpdate.ToTrigonometryAngle().RawValue)
+                .Value("slow_jump_short_by", SpacePirateMotionDefinitions.FastWallJump.RightTarget.ToTrigonometryAngle()
+                    .StepsFrom(SpacePirateMotionDefinitions.SlowWallJump.RightTarget.ToTrigonometryAngle()))
+                .Value("block_size", SuperMetroid.Core.Spatial.RoomGridConversions.BlockPixels)
                 .Looks(WallSpacePirateAnimations.Segments, WallSpacePirateAnimations.StartingWith,
                     static (WallSpacePirateCue cue) => cue switch
                     {
@@ -84,6 +91,7 @@ public sealed partial class EngineAssetWriter
                 .Value("return_step", SpacePirateMotionDefinitions.NinjaReturnStep)
                 .Value("landing_dust_spread", SpacePirateMotionDefinitions.NinjaLandingDustSpread)
                 .Value("landing_dust_drop", SpacePirateMotionDefinitions.NinjaLandingDustDrop)
+                .Value("claw_attack_every", NinjaSpacePirateCadenceDefinitions.ClawAttack.Period)
                 // The gold one scatters drops about itself as a shot destroys it.
                 .Value("scattered_drops", colour == "Gold" ? GoldNinjaSpacePirateDefinitions.DropScatterCount : 0)
                 .Looks(NinjaSpacePirateAnimations.Segments, NinjaSpacePirateAnimations.StartingWith,

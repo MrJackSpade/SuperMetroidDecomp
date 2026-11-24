@@ -33,6 +33,7 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
         _stance = owner.Form == Player.Crouching ? "xray_crouching" : "xray_standing";
         Look = LookAt(samus, 0);
         samus.Xray?.Open(samus);
+        samus.EndCrystalFlashColouring();
         owner.Room.Session.Sounds.Request(Sounds.Xray, channel: "samus");
     }
 

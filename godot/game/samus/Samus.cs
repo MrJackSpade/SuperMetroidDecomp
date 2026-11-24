@@ -93,6 +93,28 @@ public partial class Samus : Player
     [Export, DataValue("special_attacks", ReadByOwner = true)]
     public Godot.Collections.Dictionary<string, string> SpecialAttackShots { get; set; } = [];
 
+    /// <summary>How long holding down can go on winding a bomb spread up.</summary>
+    [Export, DataValue("bomb_spread_wind_up_updates")]
+    public int BombSpreadWindUpUpdates { get; set; } = 192;
+
+    /// <summary>How many updates of winding a bomb spread up throw it a pixel an update higher.</summary>
+    [Export, DataValue("bomb_spread_updates_per_pixel")]
+    public int BombSpreadUpdatesPerPixel { get; set; } = 64;
+
+    /// <summary>How long each bomb of a spread lies before it bursts, left to right.</summary>
+    [Export, DataValue("bomb_spread_fuses")]
+    public int[] BombSpreadFuses { get; set; } = [];
+
+    /// <summary>How each bomb of a spread is thrown, left to right, across and down, in pixels an update.</summary>
+    [Export, DataValue("bomb_spread_throws", ReadByOwner = true)]
+    public Godot.Collections.Array<Vector2> BombSpreadThrows { get; set; } = [];
+
+    /// <summary>
+    /// The special attacks whose last two lights are shots of their own, by the beam: the data file of that shot.
+    /// </summary>
+    [Export, DataValue("special_attack_trails", ReadByOwner = true)]
+    public Godot.Collections.Dictionary<string, string> SpecialAttackTrailShots { get; set; } = [];
+
     /// <summary>How many updates into a charge its sound begins.</summary>
     [Export, DataValue("charge_sound_updates")]
     public int ChargeSoundUpdates { get; set; } = 16;
@@ -215,6 +237,9 @@ public partial class Samus : Player
     private bool _woreGravity;
     private bool _warningOfLowEnergy;
     private bool _chargeSounds;
+    private string? _liquidLastEntered;
+    private string _selectedShown = "";
+    private Aim _aimAtUpdateStart;
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -236,6 +261,36 @@ public partial class Samus : Player
 
     /// <summary>Whether she has a shine stored.</summary>
     public bool HasStoredShine => _shine.IsRunning;
+
+    /// <summary>
+    /// Whether she reads as holding a shine, as a jump into a windup and her body's flicker test it: a stored shine,
+    /// or a crystal flash's colouring still running, which the cartridge keeps in the stored shine's timer.
+    /// </summary>
+    public bool ReadsAsHoldingShine => HasStoredShine || _crystalFlashColouring != CrystalFlashColouring.None;
+
+    /// <summary>Where a crystal flash's colouring of her is.</summary>
+    private enum CrystalFlashColouring
+    {
+        /// <summary>None is running.</summary>
+        None,
+
+        /// <summary>It runs, as it goes on doing when the flash is cut short.</summary>
+        Showing,
+
+        /// <summary>The flash is done: it runs until the end of the update after.</summary>
+        EndingNext,
+
+        /// <summary>It runs until the end of this update.</summary>
+        Ending,
+    }
+
+    private CrystalFlashColouring _crystalFlashColouring;
+
+    /// <summary>A crystal flash's colouring of her begins.</summary>
+    public void BeginCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.Showing;
+
+    /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
+    public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
 
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
     public BodyPower? Power(string name) => _powers.GetValueOrDefault(name);
@@ -276,6 +331,14 @@ public partial class Samus : Player
             foreach ((string beam, DataNode shot) in data.Get("special_attacks").Entries())
                 SpecialAttackShots[beam] = shot.AsText();
         }
+
+        BombSpreadThrows = [];
+        foreach (DataNode throws in data.List("bomb_spread_throws"))
+            BombSpreadThrows.Add(new Vector2((float)throws.Distance("across").ToNumber(), (float)throws.Distance("down").ToNumber()));
+
+        SpecialAttackTrailShots = [];
+        foreach ((string beam, DataNode shot) in data.Get("special_attack_trails").Entries())
+            SpecialAttackTrailShots[beam] = shot.AsText();
     }
 
     /// <inheritdoc/>
@@ -288,7 +351,25 @@ public partial class Samus : Player
     }
 
     /// <inheritdoc/>
-    protected override void OnEnteredRoom(Room room) => GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
+    protected override void OnEnteredRoom(Room room)
+    {
+        GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
+
+        // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.
+        if (!room.GetChildren().OfType<Liquid>().Any())
+            _liquidLastEntered = null;
+
+        // Unless the player has chosen to put items away themselves, a new room finds her with the beam alone
+        // selected: the old option of icon cancel, whose one effect this is.
+        if (!room.Session.Options.IsOn(Toggles.ManualItemCancel))
+            SelectBeam();
+    }
+
+    /// <summary>
+    /// The medium she was in as her last update ended: that of the liquid her feet were then in, whatever her suit
+    /// makes of it, or air. The cartridge remembers it as her animation runs, and her space jump reads it.
+    /// </summary>
+    public PlayerMedium MediumLastEntered => Mediums.First(medium => medium.MediumName == (_liquidLastEntered ?? PlayerMedium.Air));
 
     /// <summary>
     /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
@@ -367,10 +448,11 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// Sets her aim: the angle actions aim diagonally, and both together straight up; up aims up, or diagonally up
+    /// Sets her aim: the angle actions aim diagonally, and both together straight up on the ground; up aims up, or diagonally up
     /// while she steers; down aims down in the air, or diagonally down while she steers. On the ground down aims only
     /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
-    /// or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
+    /// or a fall up and down win over the angle actions, and standing still up does; elsewhere the angle actions win.
+    /// In a jump or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
     /// </summary>
     public override void AimFromInput()
     {
@@ -386,7 +468,15 @@ public partial class Samus : Player
             return;
         if (State is RunningState && steering)
             Aim = angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
+        else if (State is JumpingState or FallingState)
+            // In a jump or a fall up and down are tested before the angle actions, the angle-up action first of those.
+            Aim = up ? (steering ? Aim.DiagonalUp : Aim.Up) : down ? (steering ? Aim.DiagonalDown : Aim.Down)
+                : angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : Aim.Forward;
         else if (angleUp && angleDown)
+            // On the ground both angle actions aim straight up; in the air the angle-up action is tested first.
+            Aim = grounded ? Aim.Up : Aim.DiagonalUp;
+        else if (up && !steering && State is StandingState or RunningState)
+            // Standing, up alone is tested before either angle action.
             Aim = Aim.Up;
         else if (angleUp)
             Aim = Aim.DiagonalUp;
@@ -451,8 +541,9 @@ public partial class Samus : Player
             StoreShine();
 
         // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
-        // over and above what the taller body of the jump takes.
-        if (from is CrouchingState && to is JumpingState && Aim == Aim.Forward)
+        // over and above what the taller body of the jump takes. Her arm is as it was before this update's input, as
+        // the old pose she jumped from was.
+        if (from is CrouchingState && to is JumpingState && _aimAtUpdateStart == Aim.Forward)
         {
             int taller = HalfHeightOf(FormOr(Jumping)) - HalfHeight;
             Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
@@ -469,6 +560,11 @@ public partial class Samus : Player
             else if (jump.FromGround)
             {
                 Aim = FirstJumpAim(from);
+            }
+            else if (from is SpinJumpingState or WallJumpingState && !CanTakeForm(FormOr(Jumping), aroundMiddle: true))
+            {
+                // With no room to straighten out, the spin or the wall jump goes on as it was, as the cartridge has it.
+                return from;
             }
             else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
                 CanTakeForm(FormOr(Jumping), aroundMiddle: true))
@@ -517,7 +613,7 @@ public partial class Samus : Player
     /// her arm at rest, aiming up, or aiming diagonally up.
     /// </summary>
     private bool SpendsShine(AirStance stance) =>
-        HasStoredShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
+        ReadsAsHoldingShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
 
     /// <summary>The first pose of a jump from the ground spends a stored shine as it is taken up, and the windup starts lifted.</summary>
     protected override PlayerState? JumpGathered(JumpingState jump) =>
@@ -544,11 +640,15 @@ public partial class Samus : Player
     public void StoreShine()
     {
         _shine = Countdown.Of(StoredShineUpdates);
+        _crystalFlashColouring = CrystalFlashColouring.None;
         Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus");
     }
 
-    /// <summary>Uses up the stored shine.</summary>
-    public void SpendShine() => _shine = Countdown.Over;
+    /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
+    public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
+
+    /// <summary>Another colouring of her takes the place of a crystal flash's, as the X-ray's does.</summary>
+    public void EndCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.None;
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
@@ -572,6 +672,7 @@ public partial class Samus : Player
     protected override void BeforeState()
     {
         _ranFromStart = State is RunningState;
+        _aimAtUpdateStart = Aim;
         _shine = _shine.Stepped();
         ChooseItem();
 
@@ -604,7 +705,11 @@ public partial class Samus : Player
 
                 if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                {
+                    // The moonwalk is taken up aiming as asked, angle-down tested first whichever way she faces.
+                    Aim = MoonwalkingState.AimOf(this, angleDownFirst: true);
                     return new MoonwalkingState();
+                }
 
                 // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
                 if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
@@ -688,7 +793,7 @@ public partial class Samus : Player
             _spreadCharged = true;
 
         if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
-            Selected == Amounts.PowerBombs && SpecialAttackShot() is { } special)
+            Selected == Amounts.PowerBombs && SpecialAttackBeam() is { } special)
         {
             LetLooseSpecialAttack(special);
             return;
@@ -698,7 +803,7 @@ public partial class Samus : Player
         {
             // Holding down winds the throw up higher, for a while; otherwise the five bombs go at once.
             Weapons.StepCooldown();
-            if (input.IsHeld(GameAction.Down) && _spreadHeld < SpreadWindUpUpdates)
+            if (input.IsHeld(GameAction.Down) && _spreadHeld < BombSpreadWindUpUpdates)
             {
                 _spreadHeld++;
                 return;
@@ -739,34 +844,29 @@ public partial class Samus : Player
             SelectBeam();
     }
 
-    /// <summary>How long holding down can go on winding a bomb spread up, and how many updates of it throw a pixel higher.</summary>
-    private const int SpreadWindUpUpdates = 192, SpreadUpdatesPerPixel = 64;
-
-    /// <summary>The five bombs of a spread, left to right: how long each lies before it bursts, and how it is thrown.</summary>
-    private static readonly (int Fuse, double Across, double Down)[] SpreadBombs =
-    [
-        (120, -1, 0), (110, -0.5, -1), (100, 0, -1.5), (110, 0.5, -1), (120, 1, 0),
-    ];
-
     /// <summary>
-    /// The shot of the special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
+    /// The beam whose special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
     /// beams. Null when she carries none of them or more than one.
     /// </summary>
-    private string? SpecialAttackShot()
+    private string? SpecialAttackBeam()
     {
         string[] carried = [.. new[] { Equipment.WaveBeam, Equipment.IceBeam, Equipment.Spazer, Equipment.PlasmaBeam }.Where(Inventory.IsOn)];
-        return carried.Length == 1 && SpecialAttackShots.TryGetValue(carried[0], out string? shot) ? shot : null;
+        return carried.Length == 1 && SpecialAttackShots.ContainsKey(carried[0]) ? carried[0] : null;
     }
 
-    /// <summary>Spends a power bomb on a special attack: its four lights are let loose about her.</summary>
-    private void LetLooseSpecialAttack(string file)
+    /// <summary>
+    /// Spends a power bomb on a special attack: its four lights are let loose about her. An attack with a trailing
+    /// pair lets its last two loose as that shot.
+    /// </summary>
+    private void LetLooseSpecialAttack(string beam)
     {
         Inventory.Spend(Amounts.PowerBombs, 1);
-        ShotType shot = ShotType.Read(Room.Content.ReadData(file));
+        ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]));
+        ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail)) : shot;
         for (int part = 0; part < 4; part++)
         {
-            var light = shot.Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
-                ?? throw new InvalidOperationException($"The shot \"{file}\" is not a special attack's.");
+            var light = (part < 2 ? shot : trailing).Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
+                ?? throw new InvalidOperationException($"The special attack of \"{beam}\" has a shot that is not a special attack's.");
             light.Begin(part, Facing == Facing.Right);
             Room.Spawn(light);
         }
@@ -784,12 +884,15 @@ public partial class Samus : Player
     {
         WeaponStats bomb = Weapons.Named(Arsenal.Bomb);
         ProjectileSettings settings = bomb.ShotsFor(Inventory, charged: false)[0].Projectile;
-        int higher = _spreadHeld / SpreadUpdatesPerPixel;
-        foreach ((int fuse, double across, double down) in SpreadBombs)
+        if (BombSpreadFuses.Length != BombSpreadThrows.Count)
+            throw new InvalidOperationException($"A bomb spread has {BombSpreadFuses.Length} fuses and {BombSpreadThrows.Count} throws.");
+        int higher = _spreadHeld / BombSpreadUpdatesPerPixel;
+        for (int each = 0; each < BombSpreadFuses.Length; each++)
         {
-            var thrown = Weapons.Launch(this, bomb, Position, PixelVelocity.Zero, settings with { LastsUpdates = fuse }) as Bomb
+            var thrown = Weapons.Launch(this, bomb, Position, PixelVelocity.Zero, settings with { LastsUpdates = BombSpreadFuses[each] }) as Bomb
                 ?? throw new InvalidOperationException("Samus's bomb is not a bomb.");
-            thrown.Throw(new PixelVelocity(Pixels.FromNumber(across), Pixels.FromNumber(down - higher)), Pixels.FromNumber(Medium.Gravity));
+            Vector2 throws = BombSpreadThrows[each];
+            thrown.Throw(new PixelVelocity(Pixels.FromNumber(throws.X), Pixels.FromNumber(throws.Y - higher)), Pixels.FromNumber(Medium.Gravity));
         }
 
         Weapons.WaitAtLeast(bomb.CooldownFor(Inventory, charged: false));
@@ -835,7 +938,19 @@ public partial class Samus : Player
         while (!CanSelect(ring[at]));
         Selected = ring[at];
         _autoCancel = Selected.Length > 0 && Input.IsHeld(Actions.ItemCancel);
-        Room.Session.Sounds.Request(Sounds.ItemSelect, channel: "hud");
+    }
+
+    /// <summary>
+    /// Sounds a change of what she has selected as the HUD comes to show it, however it came about, as the cartridge's
+    /// HUD does: silently in a spin or a wall jump, with the grapple beam out, or while the X-ray holds time still.
+    /// </summary>
+    private void ShowSelection()
+    {
+        if (Selected == _selectedShown)
+            return;
+        _selectedShown = Selected;
+        if (State is not (SpinJumpingState or WallJumpingState or XrayState) && Grapple is not { IsOut: true })
+            Room.Session.Sounds.Request(Sounds.ItemSelect, channel: "hud");
     }
 
     /// <summary>Whether she can select something: ammunition she has some of, or equipment that is switched on.</summary>
@@ -935,10 +1050,18 @@ public partial class Samus : Player
         // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
         if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
             LoseMomentum();
+        _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
         if (_ranFromStart && State is RunningState)
             StepStride();
         WarnOfLowEnergy();
         Grapple?.Step(this);
+        ShowSelection();
+        _crystalFlashColouring = _crystalFlashColouring switch
+        {
+            CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,
+            CrystalFlashColouring.Ending => CrystalFlashColouring.None,
+            _ => _crystalFlashColouring,
+        };
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }
 

@@ -145,6 +145,7 @@ public partial class EyeDoorEye : Enemy
         LeaveSmoke();
         LeaveSmoke();
         LeaveSmoke();
+        // Its flashes are drawn over its cap, blue from now on, which shows between them as the old eye's own blue cap did.
         Begin(Doing.Destroyed, "destroyed");
         return HitResult.Hurt;
     }
@@ -155,7 +156,8 @@ public partial class EyeDoorEye : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        // It is part of the door; touching it does nothing.
+        // It is part of the door; touching it does nothing. Nor does the growth round it, whose old blocks are spikes
+        // with no reaction, which hurt neither her touch nor her grapple swing.
     }
 
     /// <inheritdoc/>

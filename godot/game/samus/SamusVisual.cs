@@ -130,8 +130,8 @@ public partial class SamusVisual : Node2D
         picture.Show(_shown);
 
         // After a hit she flickers, shown on one update and hidden on the next, but not while she is thrown back or
-        // has a shine stored.
-        picture.SetShown(!samus.IsInvincible || samus.InvincibleUpdatesLeft % 2 == 0 || samus.State is KnockedBackState || samus.HasStoredShine);
+        // reads as holding a shine.
+        picture.SetShown(!samus.IsInvincible || samus.InvincibleUpdatesLeft % 2 == 0 || samus.State is KnockedBackState || samus.ReadsAsHoldingShine);
         StepEchoes(samus, picture);
         picture.Tint(
             samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)

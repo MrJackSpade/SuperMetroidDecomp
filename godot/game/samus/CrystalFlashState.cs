@@ -57,6 +57,7 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         owner.StopAcross();
         owner.Velocity = PixelVelocity.Zero;
         samus.SpendShine();
+        samus.BeginCrystalFlashColouring();
         _rising = RiseUpdates;
         _wait = Countdown.Of(samus.CrystalFlashDrainEvery);
     }
@@ -91,6 +92,8 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
             return null;
         }
 
+        // Done, its colouring runs on a little; cut short, it would run on until another colouring took its place.
+        samus.FinishCrystalFlashColouring();
         return owner.StateAtRest();
     }
 }

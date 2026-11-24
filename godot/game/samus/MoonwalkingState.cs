@@ -26,8 +26,7 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
-        owner.Aim = owner.Input.IsHeld(Actions.AngleUp) ? Aim.DiagonalUp
-            : owner.Input.IsHeld(Actions.AngleDown) ? Aim.DiagonalDown : Aim.Forward;
+        owner.Aim = AimOf(owner, angleDownFirst: owner.Facing == Facing.Left);
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
             return owner.Crouch();
         if (owner.JumpPressed)
@@ -40,6 +39,19 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
         if (owner.Intent == backward)
             return new TurningState();
         return owner.Intent == 0 ? null : new RunningState();
+    }
+
+    /// <summary>
+    /// Her aim in a moonwalk: diagonally as the angle actions ask, level with neither. With both held the one tested
+    /// first wins: as the cartridge has it, angle-down as a moonwalk is taken up and while she faces left, angle-up
+    /// while she faces right.
+    /// </summary>
+    public static Aim AimOf(Player owner, bool angleDownFirst)
+    {
+        bool angleUp = owner.Input.IsHeld(Actions.AngleUp), angleDown = owner.Input.IsHeld(Actions.AngleDown);
+        if (angleUp && angleDown)
+            return angleDownFirst ? Aim.DiagonalDown : Aim.DiagonalUp;
+        return angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : Aim.Forward;
     }
 
     /// <summary>With everything let go, she stands.</summary>

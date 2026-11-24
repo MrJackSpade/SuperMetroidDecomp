@@ -66,7 +66,8 @@ public sealed partial class EngineAssetWriter
         JsonObject Resting(DownwardGateImage image) =>
             EngineTimelines.Of<DownwardGateImage, NoAnimationCue>([new AnimationBeat<DownwardGateImage, NoAnimationCue>.HeldFrame(image)], null, GatePicture, static _ => null);
 
-        // Nothing wears a gate down: only its switch moves it. It starts shut.
+        // Nothing wears a gate down: only its switch moves it. It starts shut. With no hit taking anything off it, it
+        // never shows itself hurt, so it has no look for that.
         new EngineObjectFile(_tree, "objects/gate.json", "Barrier")
             .Value("health", 1)
             .Value("any_hit", 0)
@@ -79,7 +80,8 @@ public sealed partial class EngineAssetWriter
             .Timeline("closing", Moving(DownwardGateAnimations.Closing))
             .Write();
 
-        // A switch is the one block beside the gate's housing, on its left or its right.
+        // A switch is the one block beside the gate's housing, on its left or its right. The old switch looks the same
+        // however often it is struck: it only tells its gate and is ready again, so it has no look for opening or open.
         foreach ((DownwardGateTrigger trigger, DownwardGateTriggerDefinition rules) in DownwardGateTriggerDefinitions.Triggers)
         {
             string colour = trigger.Color.ToString().ToLowerInvariant(), side = EngineNames.Side(trigger.Side);

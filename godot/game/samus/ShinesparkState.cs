@@ -107,27 +107,37 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     }
 
     /// <summary>
-    /// Waits for a direction. Steering launches her across; an angle action, or up with steering, diagonally; up
-    /// alone, or the windup running out, straight up.
+    /// Waits for a direction, which launches her only with the jump held, the first of these that holds, as the
+    /// cartridge has it: up launches her straight up, the angle-up action diagonally the way she faces, and the way she
+    /// faces across. The way behind her does nothing. The windup running out launches her straight up.
     /// </summary>
     private void WindUp(Samus samus)
     {
         GameInput input = samus.Input;
         int forward = samus.Facing == Facing.Right ? 1 : -1;
-        if (input.IsHeld(Actions.AngleUp) || (input.IsHeld(GameAction.Up) && samus.Intent != 0))
+        if (input.IsHeld(GameAction.Jump))
         {
-            Launch(samus, samus.Intent != 0 ? samus.Intent : forward, -1);
-            return;
-        }
+            if (input.IsHeld(GameAction.Up))
+            {
+                Launch(samus, 0, -1);
+                return;
+            }
 
-        if (samus.Intent != 0)
-        {
-            Launch(samus, samus.Intent, 0);
-            return;
+            if (input.IsHeld(Actions.AngleUp))
+            {
+                Launch(samus, forward, -1);
+                return;
+            }
+
+            if (input.IsHeld(forward > 0 ? GameAction.Right : GameAction.Left))
+            {
+                Launch(samus, forward, 0);
+                return;
+            }
         }
 
         _left = _left.Stepped();
-        if (input.IsHeld(GameAction.Up) || _left.IsOver)
+        if (_left.IsOver)
             Launch(samus, 0, -1);
     }
 
@@ -140,8 +150,6 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _riseSpeed = Pixels.Zero;
         _riseGain = Pixels.FromNumber(samus.ShinesparkRiseGain);
         _stage = Stage.Flying;
-        if (across != 0)
-            samus.Facing = across > 0 ? Facing.Right : Facing.Left;
         samus.Room.Session.Sounds.Request(Sounds.Shinespark, channel: "samus");
     }
 

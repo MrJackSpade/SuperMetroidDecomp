@@ -293,6 +293,12 @@ public sealed partial class EngineAssetWriter
             .Value("special_attack_updates", BeamChargeDefinitions.SpecialAttackCounter)
             .Value("charge_sound_updates", BeamChargeDefinitions.ChargeSoundStartCounter)
             .Value("bomb_jump_fuse_left", MorphBallBombDefinitions.BombJumpExplosionCount)
+
+            // A bomb spread: how long down can wind it up, how many updates of that throw it a pixel higher, and each
+            // of its five bombs' fuse, left to right.
+            .Value("bomb_spread_wind_up_updates", MorphBallBombDefinitions.DownChargeTimeoutUpdates)
+            .Value("bomb_spread_updates_per_pixel", MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel)
+            .Value("bomb_spread_fuses", EngineNames.List(SamusBombSpreadLaunchDefinitions.LeftToRight.Select(launch => launch.FuseTimer)))
             .Value("hard_landing_speed", SamusMovementDefinitions.HardLandingSpeed.Whole)
             .Value("crystal_flash_energy_below", CrystalFlashDefinitions.AdmittingEnergyBelow)
             .Value("crystal_flash_ammunition", CrystalFlashDefinitions.AmmunitionPerKind)
@@ -320,6 +326,13 @@ public sealed partial class EngineAssetWriter
         });
         file.Group("mediums", SamusMediumsWritten());
 
+        // How each bomb of a spread is thrown, left to right, in pixels an update, upward and leftward below nought.
+        file.Group("bomb_spread_throws", EngineNames.List(SamusBombSpreadLaunchDefinitions.LeftToRight.Select(launch => (JsonNode)new JsonObject
+        {
+            ["across"] = EngineNames.Number(launch.HorizontalVelocity),
+            ["down"] = EngineNames.Number(launch.VerticalVelocity),
+        })));
+
         // Heat is the one harm of a room itself her suits spare her; a liquid's type says what spares her its own.
         file.Group("ongoing_damage_cancelled_by", new JsonObject { ["heat"] = new JsonArray("varia_suit", "gravity_suit") });
         file.Group("body_powers", new JsonObject
@@ -340,18 +353,25 @@ public sealed partial class EngineAssetWriter
             ["running"] = Origins(GrappleFiringDefinitions.RunningOrigins),
         });
 
-        // The grapple beam's hit is of one point: what it destroys, it destroys by the reaction written for it.
+        // The old grapple beam takes no health: what it destroys, it destroys by the reaction written for it, which
+        // counts in its hit's damage.
         file.Group("grapple", new JsonObject
         {
             ["extend_speed"] = GrappleFiringDefinitions.CardinalSpeed.Pixels,
             ["extend_diagonal_speed"] = GrappleFiringDefinitions.DiagonalSpeed.Pixels,
             ["reach"] = GrappleBeamDefinitions.Physics.FiringCancelLength,
-            ["damage"] = 1,
+            ["damage"] = EngineReactions.GrappleHitDamage,
         });
         var specialAttacks = new JsonObject();
         foreach ((SamusBeamFlags beam, SamusComboKind kind) in SamusComboDefinitions.KindsOfSingleBeams)
             specialAttacks[SamusBeams.Single(one => one.Beam == beam).Equipment] = SpecialAttackFile(kind);
         file.Group("special_attacks", specialAttacks);
+
+        // The spazer attack's trailing pair of lights are a shot of their own.
+        file.Group("special_attack_trails", new JsonObject
+        {
+            [SamusBeams.Single(one => one.Beam == SamusBeamFlags.Spazer).Equipment] = SpazerAttackTrailFile,
+        });
 
         var timelines = new JsonObject();
         var heights = new JsonObject();

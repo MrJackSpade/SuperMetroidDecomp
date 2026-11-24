@@ -338,6 +338,14 @@ public sealed partial class EngineAssetWriter
             ["x"] = EndingResultTextLayout.PercentageHundredsCorner.X,
             ["y"] = EndingResultTextLayout.PercentageHundredsCorner.Y,
         };
+        // In Japanese a line is shown under the share of items found while it is held.
+        words["japanese_subtitle"] = new JsonObject
+        {
+            ["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.JapaneseSubtitle, folder + "/japanese_subtitle.png", after),
+            ["x"] = EndingResultTextLayout.JapaneseSubtitleCorner.X,
+            ["y"] = EndingResultTextLayout.JapaneseSubtitleCorner.Y,
+            ["languages"] = new JsonArray(Languages[1]),
+        };
         return words;
     }
 }

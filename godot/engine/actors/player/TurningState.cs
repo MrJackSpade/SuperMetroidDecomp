@@ -53,6 +53,7 @@ public sealed class TurningState : PlayerState
         owner.StepDash(building: false);
         owner.Steer(owner.Moves(TurningMoves));
         owner.MoveAcross();
+        owner.PressToGround();
         owner.LoseMomentum();
         _left = _left.Stepped();
         return null;

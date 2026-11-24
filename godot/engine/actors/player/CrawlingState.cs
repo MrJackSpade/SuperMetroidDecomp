@@ -133,7 +133,7 @@ public sealed class CrawlingState : PlayerState
             owner.MoveAcross();
         }
 
-        if (!owner.IsOnGround)
+        if (!owner.PressToGround())
         {
             // Rolled off a floor: it falls from rest.
             owner.FallFromRest();

@@ -37,8 +37,9 @@ public sealed class CrouchingState : PlayerState
         // momentum is left for the input to end.
         owner.ComeToRest();
         owner.MoveAcross();
+        bool grounded = owner.PressToGround();
         owner.ClearSpeedAcross();
-        bool falls = !owner.IsOnGround && owner.CanTakeForm(owner.FormOr(Player.Falling), aroundMiddle: true);
+        bool falls = !grounded && owner.CanTakeForm(owner.FormOr(Player.Falling), aroundMiddle: true);
         return falls ? new FallingState(offFloor: true) : null;
     }
 

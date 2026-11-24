@@ -36,7 +36,8 @@ public sealed class StandingState : PlayerState
     {
         owner.ComeToRest();
         owner.MoveAcross();
+        bool grounded = owner.PressToGround();
         owner.StopAcross();
-        return owner.IsOnGround ? null : new FallingState(offFloor: true);
+        return grounded ? null : new FallingState(offFloor: true);
     }
 }

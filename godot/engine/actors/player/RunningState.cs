@@ -41,7 +41,7 @@ public sealed class RunningState : PlayerState
         owner.StepDash(owner.DashIsHeld && !owner.IsHinderedByLiquid);
         owner.Steer(owner.Moves(RunningMoves));
         MoveResult across = owner.MoveAcross();
-        if (!owner.IsOnGround)
+        if (!owner.PressToGround())
             return new FallingState(offFloor: true);
 
         // A wall has already brought everything across to rest: the runner stands against it.

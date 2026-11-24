@@ -422,7 +422,9 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   drawing of its tiles, including tiles that animate.
 - The tile layout is an asset. A room names its layout; `Terrain` loads it, in the editor and in the game. A room
   scene never stores its tiles.
-- A plain tile is data: empty, solid, or a slope with a height per pixel column.
+- A plain tile is data: empty, solid, or a slope with a height per pixel column: the pixels of the column that are
+  solid, counted up from the tile's bottom, or down from its top for a ceiling. A floor's slope may let only a share
+  of a move across it through (`ground_share`, in 256ths), which the player's movement takes off.
 - A **block** is a reactive piece of terrain, one or two tiles wide and high, placed as one unit with a
   `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.
 - A `BlockType` is a combination of these rules and nothing else. The rules are the engine's; the hit kinds, powers
@@ -670,6 +672,12 @@ in `engine/actors/player/`.
   cut short like any jump and steered by its own move values (`crawling_jumping`) for the whole jump, and landing
   with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
   in it.
+- **On the ground.** A move across climbs sloped ground by up to `climb_per_pixel` for each pixel. A player with no
+  speed up or down who is about to carry the leading edge of their body into sloped ground moves only the share of
+  the distance each such slope lets through, counted in 256ths of a pixel with the finer part dropped. Once they
+  have moved across, the state they are in presses them to the ground (`PressToGround`): down by as far as they set
+  out to move across and one pixel more, stopping at ground. When nothing stops them they have walked off the floor,
+  already that far down, and fall from rest.
 - **In a liquid.** The player is in a liquid when the pixel row tested (their feet's, or their head's) lies below
   its surface line, not on it (`Player.IsUnder`). Their medium is found afresh each update, before they move. A
   medium may give its own lengths for the timed changes (`"updates"`, by the name of the value that gives the length

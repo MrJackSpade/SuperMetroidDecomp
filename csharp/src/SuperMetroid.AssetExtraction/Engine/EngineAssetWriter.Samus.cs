@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
@@ -64,6 +65,25 @@ public sealed partial class EngineAssetWriter
         ("crawl_leave_updates", P.UnmorphingTransitionRightPose, Seg.Main), ("jump_start_updates", P.NeutralJumpTransitionRightPose, Seg.Main),
         ("wall_jump_ready_updates", P.SpinJumpRightPose, Seg.WallJumpReady),
     ];
+
+    /// <summary>
+    /// The most pixels the surface of any of the old game's sloped shapes (not its square ones, which are steps and
+    /// walls) rises or falls between one pixel column and the next, within the block.
+    /// </summary>
+    private static int SteepestSlopeStep()
+    {
+        int steepest = 0;
+        foreach (SlopeShape shape in SlopeShapeDefinitions.All.Where(shape => !shape.IsSquare))
+        {
+            for (int column = 1; column < SlopeShape.Columns; column++)
+            {
+                int here = Math.Min(shape.HeightAt(column), SlopeShape.Columns), before = Math.Min(shape.HeightAt(column - 1), SlopeShape.Columns);
+                steepest = Math.Max(steepest, Math.Abs(here - before));
+            }
+        }
+
+        return steepest;
+    }
 
     /// <summary>A speed the old game keeps unsigned, as a plain number of pixels.</summary>
     private static double Number(UnsignedSixteenSixteen speed) => speed.RawValue / (double)UnsignedSixteenSixteen.FromWholePixels(1).RawValue;
@@ -196,6 +216,9 @@ public sealed partial class EngineAssetWriter
             .Value("turn_updates", SamusSegmentUpdates(P.TurningRightToLeftPose, Seg.Main))
             .Value("dying_updates", SamusDyingUpdates())
             .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))
+
+            // She climbs as steeply as the old game's sloped shapes step from one pixel column to the next.
+            .Value("climb_per_pixel", SteepestSlopeStep())
             .Value("starting_energy", SamusEnergyDefinitions.StartingEnergy)
 
             // What she can do, and the equipment each thing needs: the Godot game's own names.

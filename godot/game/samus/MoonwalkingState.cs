@@ -52,7 +52,7 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
         owner.StepDash(building: false);
         owner.Steer(owner.Moves(Moves), heading: owner.Facing.Opposite());
         owner.MoveAcross();
-        if (owner.IsOnGround)
+        if (owner.PressToGround())
             return null;
 
         // Walking off a floor, she falls facing the way she was going.

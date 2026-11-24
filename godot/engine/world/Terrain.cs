@@ -206,6 +206,27 @@ public partial class Terrain : Node2D, ITerrainShape
         return false;
     }
 
+    /// <summary>
+    /// The shares, in 256ths, that the sloped tiles in the pixel column <paramref name="x"/> between the rows
+    /// <paramref name="top"/> and <paramref name="bottom"/> (not included) let through of a move across them on the
+    /// ground: one for each such tile that lets less than all of it through, from the top down.
+    /// </summary>
+    public IReadOnlyList<int> GroundSharesIn(int x, int top, int bottom)
+    {
+        var shares = new List<int>();
+        if (x < 0 || x >= WidthInPixels || bottom <= top)
+            return shares;
+        int size = TileSize, column = x / size;
+        int firstRow = Math.Max(0, top / size), lastRow = Math.Min(Layout.Rows - 1, (bottom - 1) / size);
+        for (int row = firstRow; row <= lastRow; row++)
+        {
+            if (_blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { GroundShare: < SlopeShape.WholeShare } slope })
+                shares.Add(slope.GroundShare);
+        }
+
+        return shares;
+    }
+
     /// <summary>The intact blocks <paramref name="rect"/> overlaps or, when <paramref name="touchingCounts"/>, lies against.</summary>
     public IReadOnlyList<Block> BlocksIn(PixelRect rect, bool touchingCounts = false) =>
         _blocks.Where(block => !block.Broken && (touchingCounts ? rect.OverlapsOrTouches(block.Rect) : rect.Overlaps(block.Rect))).ToList();

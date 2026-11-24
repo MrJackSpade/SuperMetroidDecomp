@@ -78,10 +78,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("climb_per_pixel")]
     public int ClimbPerPixel { get; set; } = 2;
 
-    /// <summary>The most pixels the player is brought down to stay on ground that falls away as they walk.</summary>
-    [Export, DataValue("follow_ground_down")]
-    public int FollowGroundDown { get; set; } = 3;
-
     /// <summary>The energy the player starts a new game able to hold, and with.</summary>
     [Export, DataValue("starting_energy")]
     public int StartingEnergy { get; set; } = 99;
@@ -1100,19 +1096,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Moves the player across by their speed and dash. On the ground they climb slopes and follow ground that falls
-    /// away. Meeting a wall stops them and ends their momentum.
+    /// Moves the player across by their speed and dash. On the ground they climb slopes, which take their share of the
+    /// move; the state they are in then presses them to the ground (<see cref="PressToGround"/>). Meeting a wall stops
+    /// them and ends their momentum.
     /// </summary>
     /// <param name="byDashAlone">Whether only a dash's speed carries the player this update, their own speed left as it is.</param>
     public MoveResult MoveAcross(bool byDashAlone = false)
     {
         bool grounded = IsOnGround;
-        MoveOptions options = MoveOptions.Plain with
-        {
-            ClimbPerPixel = grounded ? ClimbPerPixel : 1,
-            FollowGroundDown = grounded ? FollowGroundDown : 0,
-        };
+        MoveOptions options = MoveOptions.Plain with { ClimbPerPixel = grounded ? ClimbPerPixel : 1 };
         Pixels distance = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
+        _reachAcross = distance.Abs();
+        distance = OverSlopes(distance);
         ClearWay(distance, Pixels.Zero);
         MoveResult result = Room.Mover.MoveAcross(Body, distance, options);
         if (result.Blocked)
@@ -1129,6 +1124,50 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
+    }
+
+    /// <summary>How far the player last set out to move across, before any slope took its share.</summary>
+    private Pixels _reachAcross;
+
+    /// <summary>
+    /// Presses a player on the ground down onto it once they have moved across: down by as far as they set out to move
+    /// across this update and one pixel more, stopping at ground. Returns whether ground stopped them; when it did not
+    /// they have walked off it, and are already that far down. A player standing in something that holds them up
+    /// without being solid stays as they are.
+    /// </summary>
+    public bool PressToGround()
+    {
+        if (StandsInBlockThatHoldsUp())
+            return true;
+        return Room.Mover.MoveDown(Body, _reachAcross + Pixels.FromWhole(1), MoveOptions.Plain).Blocked;
+    }
+
+    /// <summary>
+    /// A distance across after the slopes ahead have taken their share of it. A player with no speed up or down, about
+    /// to carry the leading edge of their body into sloped ground, moves only the share of the distance each such
+    /// slope lets through, counted as the slopes count it: in 256ths of a pixel, the finer part dropped.
+    /// </summary>
+    private Pixels OverSlopes(Pixels distance)
+    {
+        if (distance.IsZero || !Velocity.Y.IsZero)
+            return distance;
+        PixelRect body = BodyRect;
+        int target = (Position.X + distance).Whole;
+        int leading = distance.IsNegative ? target - HalfWidth : target + HalfWidth - 1;
+        foreach (int share in Room.Terrain.GroundSharesIn(leading, body.Top, body.Bottom))
+        {
+            long parts = ((long)distance.Whole * 256 + distance.Fraction / 256) * share;
+            long whole = Math.DivRem(parts, Pixels.FractionsPerPixel, out long fraction);
+            if (fraction < 0)
+            {
+                whole--;
+                fraction += Pixels.FractionsPerPixel;
+            }
+
+            distance = Pixels.FromParts((int)whole, (int)fraction);
+        }
+
+        return distance;
     }
 
     /// <summary>

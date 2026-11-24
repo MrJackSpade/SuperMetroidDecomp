@@ -65,6 +65,10 @@ public sealed class ChangingPostureState : PlayerState
             if (falling && down.Blocked)
                 owner.FallFromRest();
         }
+        else
+        {
+            owner.PressToGround();
+        }
 
         _left = _left.Stepped();
         return null;

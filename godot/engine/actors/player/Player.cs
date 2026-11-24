@@ -454,6 +454,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             if (onGround && !_wasOnGround)
                 OnLanded();
             _wasOnGround = onGround;
+            BeMovedByBlocks();
             Splash();
             TakeOngoingDamage();
         }
@@ -933,6 +934,35 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             Room.DeliverHit(hit, reach, from: this);
             Room.Terrain.TakeHit(hit, reach);
         }
+    }
+
+    /// <summary>
+    /// Lets the blocks the player is in move them, over and above their own movement: one that carries takes them
+    /// across, and one that pulls takes them down. Of several, the one that moves them furthest does.
+    /// </summary>
+    private void BeMovedByBlocks()
+    {
+        Pixels across = Pixels.Zero, down = Pixels.Zero;
+        foreach (Block block in Room.Terrain.BlocksIn(BodyRect))
+        {
+            Pixels speed = block.Type.ContactSpeed;
+            if (block.Type.Contact == BlockContact.Carries)
+            {
+                if (block.Type.CarriesOnlyLevel && Velocity.Y.Whole != 0)
+                    continue;
+                if ((speed.IsNegative ? -speed : speed) > (across.IsNegative ? -across : across))
+                    across = speed;
+            }
+            else if (block.Type.Contact == BlockContact.PullsDown && speed > down)
+            {
+                down = speed;
+            }
+        }
+
+        if (across != Pixels.Zero)
+            Room.Mover.MoveAcross(Body, across, MoveOptions.Plain);
+        if (down != Pixels.Zero)
+            Room.Mover.MoveDown(Body, down, MoveOptions.Plain);
     }
 
     /// <summary>

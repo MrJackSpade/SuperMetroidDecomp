@@ -638,15 +638,16 @@ internal sealed partial class EngineLayouts
                     return null;
                 JsonObject? rules = air switch
                 {
-                    SpecialAirReaction.RightwardConveyor or SpecialAirReaction.RightwardConveyorOnFoot =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "carries", ["contact_speed"] = EngineNames.Number(ConveyorBlockDefinitions.RightwardCarry) },
-                    SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.LeftwardConveyorOnFoot =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "carries", ["contact_speed"] = EngineNames.Number(ConveyorBlockDefinitions.LeftwardCarry) },
+                    SpecialAirReaction.RightwardConveyor or SpecialAirReaction.RightwardConveyorOnFoot
+                        or SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.LeftwardConveyorOnFoot => Conveyor(air),
                     SpecialAirReaction.SlowSandfall =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SlowSandfallDisplacement) },
                     SpecialAirReaction.FastSandfall =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.FastSandfallDisplacement) },
-                    SpecialAirReaction.QuicksandSurface or SpecialAirReaction.SubmergingQuicksand =>
+                    // The surface draws her down at the rate it does one who is not moving up or down and wears no Gravity Suit.
+                    SpecialAirReaction.QuicksandSurface =>
+                        new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.WithoutGravitySuit.StationaryDisplacement) },
+                    SpecialAirReaction.SubmergingQuicksand =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SubmergingSinkDisplacement) },
                     _ => null,
                 };

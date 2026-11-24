@@ -18,7 +18,7 @@ namespace Engine.World;
 ///   "regrows_after": 240,
 ///   "hidden_until": ["bomb"],
 ///   "revealed_by_sight": true,
-///   "contact": "nothing", "contact_hit": 0,
+///   "contact": "nothing", "contact_hit": 0, "contact_speed": 0, "carries_only_level": false,
 ///   "pictures": { "intact": "tiles/{graphics}/87.png" },
 ///   "hides_again": true,
 ///   "breaking": { "steps": [ { "picture": "tiles/{graphics}/83.png", "updates": 4 } ] },
@@ -81,6 +81,9 @@ public sealed class BlockType
     /// <summary>For a block that carries or pulls, how far each update; rightward or downward when positive.</summary>
     public Pixels ContactSpeed { get; private init; }
 
+    /// <summary>For a block that carries: whether it carries only what is not rising or falling by a whole pixel or more an update.</summary>
+    public bool CarriesOnlyLevel { get; private init; }
+
     /// <summary>
     /// The pictures shown while intact and revealed: one for every tile of it, or one for each of its tiles, row by
     /// row; none for the pictures of the tiles it lies on.
@@ -131,6 +134,7 @@ public sealed class BlockType
             ContactDamageHundredths = data.Has("contact_damage_hundredths") ? data.Int("contact_damage_hundredths") : 0,
             ContactHit = data.Has("contact_hit") ? data.Int("contact_hit") : 0,
             ContactSpeed = data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
+            CarriesOnlyLevel = data.Has("carries_only_level") && data.Flag("carries_only_level"),
             IntactPictures = pictures is null ? []
                 : pictures.Has("intact_parts") ? [.. pictures.List("intact_parts").Select(picture => picture.AsText())]
                 : pictures.Has("intact") ? [pictures.Text("intact")] : [],

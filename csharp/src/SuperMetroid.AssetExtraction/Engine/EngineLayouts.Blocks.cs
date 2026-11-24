@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Assets;
@@ -153,6 +155,37 @@ internal sealed partial class EngineLayouts
             _tree.WritePicture(path, width, height, canvas);
         else
             _tree.WritePicture(path, Block, Block, new RgbaPixel[Block * Block]);
+    }
+
+    /// <summary>
+    /// The rules of a conveyor's block, from the old game's own: which way and how fast it carries, and whether only
+    /// what is on foot. One that carries only where there is power is a conveyor in the rooms whose effect sets its
+    /// belt going, and plain air in the others: null.
+    /// </summary>
+    private JsonObject? Conveyor(SpecialAirReaction air)
+    {
+        ConveyorBlock conveyor = ConveyorBlockDefinitions.Conveyors[air];
+        bool rightward = conveyor.Direction == HorizontalDirection.Right;
+        var rules = new JsonObject
+        {
+            ["solid"] = false,
+            ["contact"] = "carries",
+            ["contact_speed"] = EngineNames.Number(rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry),
+        };
+        switch (conveyor.Condition)
+        {
+            case ConveyorCarryCondition.Always:
+                return rules;
+            case ConveyorCarryCondition.OnFootWithPower:
+                BlockAnimation belt = BlockAnimationLoopDefinitions.TreadmillAnimations[
+                    rightward ? WreckedShipTreadmillDirection.Rightwards : WreckedShipTreadmillDirection.Leftwards];
+                if (!_moving.Contains(belt))
+                    return null;
+                rules["carries_only_level"] = true;
+                return rules;
+            default:
+                throw new InvalidDataException($"A conveyor carries on a condition this does not know: {conveyor.Condition}.");
+        }
     }
 
     /// <summary>The hit kinds that show a hidden block for what it is without breaking it: a bomb's blast.</summary>

@@ -431,7 +431,7 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back, unless its type says it hides again. |
 | How it looks | The pictures of the tiles it lies on; a picture of its own once revealed, or one for each of its tiles; a timeline of pictures from the moment it breaks; a timeline of pictures up to the moment it comes back. |
 | Heard | Nothing; a sound as it breaks. |
-| On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways (conveyor); pulls down (sand); can be latched onto; can be latched onto once and then breaks. |
+| On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways, always or only what is not rising or falling (conveyor); pulls down (sand); the player is moved by the blocks their body is in each update, over and above their own movement; can be latched onto; can be latched onto once and then breaks. |
 
 - A block is drawn at every tile it covers, and its type's pictures are the same at each. A type's pictures may
   name the room's set of graphics by its placeholder, so one type serves every set.

@@ -22,8 +22,8 @@ public sealed class FacingForwardState : PlayerState, ISamusLook
     public override void Enter(Player owner)
     {
         owner.Velocity = PixelVelocity.Zero;
+        // Her charge is kept as it stands, as the cartridge keeps it: she cannot attack here to count it on or let it go.
         owner.LoseMomentum();
-        ((Samus)owner).ForgetCharge();
         owner.TrySetForm(Player.Standing);
     }
 

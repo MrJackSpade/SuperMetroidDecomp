@@ -96,7 +96,8 @@ public sealed class DrainedState : PlayerState, ISamusLook
     }
 
     /// <summary>
-    /// Gives her the hyper beam: her beam becomes it, with the charge, wave and plasma beams on and the others off.
+    /// Gives her the hyper beam: her beam becomes it, with the charge, wave and plasma beams on and the others off. Her
+    /// charge is kept, as the cartridge keeps it.
     /// </summary>
     public static void GiveHyperBeam(Player samus)
     {
@@ -113,16 +114,14 @@ public sealed class DrainedState : PlayerState, ISamusLook
             if (inventory.Owns(beam))
                 inventory.Switch(beam, false);
         }
-
-        ((Samus)samus).ForgetCharge();
     }
 
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.StopAcross();
+        // Her charge is kept as it stands, as the cartridge keeps it: the drain only takes her control.
         owner.LoseMomentum();
-        ((Samus)owner).ForgetCharge();
         owner.TrySetForm(Player.Standing);
         owner.Velocity = PixelVelocity.Zero;
         if (Posed == Pose.Pinned)

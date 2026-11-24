@@ -114,7 +114,7 @@ public sealed class DrainedState : PlayerState, ISamusLook
                 inventory.Switch(beam, false);
         }
 
-        samus.Weapons.DropCharge();
+        ((Samus)samus).ForgetCharge();
     }
 
     /// <inheritdoc/>
@@ -122,7 +122,7 @@ public sealed class DrainedState : PlayerState, ISamusLook
     {
         owner.StopAcross();
         owner.LoseMomentum();
-        owner.Weapons.DropCharge();
+        ((Samus)owner).ForgetCharge();
         owner.TrySetForm(Player.Standing);
         owner.Velocity = PixelVelocity.Zero;
         if (Posed == Pose.Pinned)

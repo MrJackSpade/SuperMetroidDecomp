@@ -25,7 +25,7 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     {
         owner.StopAcross();
         owner.Velocity = PixelVelocity.Zero;
-        owner.Weapons.DropCharge();
+        ((Samus)owner).ForgetCharge();
         owner.TrySetForm(Player.Standing);
         _left = Countdown.Of(((Samus)owner).SuitPickupUpdates);
     }

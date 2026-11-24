@@ -933,7 +933,7 @@ public partial class Samus : Player
 
         if (shot.Sound.Length > 0)
             Room.Session.Sounds.Request(shot.Sound, channel: "weapons");
-        Weapons.DropCharge();
+        ForgetCharge();
         Weapons.WaitAtLeast(Weapons.Named(Arsenal.Beam).CooldownFor(Inventory, charged: true));
         if (Inventory.Amount(Amounts.PowerBombs) == 0)
             SelectBeam();
@@ -987,8 +987,11 @@ public partial class Samus : Player
         ForgetCharge();
     }
 
-    /// <summary>Throws the beam's charge away, and everything that remembers it.</summary>
-    private void ForgetCharge()
+    /// <summary>
+    /// Throws the beam's charge away, and everything that remembers it: a charge dropped so is never hushed later, as
+    /// the cartridge hushes only a charge let go that fires nothing.
+    /// </summary>
+    public void ForgetCharge()
     {
         Weapons.DropCharge();
         (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
@@ -1098,8 +1101,8 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnHurt(Hit hit, Facing from)
     {
+        // A hurt keeps her charge, as the cartridge's does: a knockback neither counts it on nor lets it go.
         Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
-        Weapons.DropCharge();
         if (State is RefillingFromReservesState)
             return;
         if (!hit.Carries(HitKind.Hazard))

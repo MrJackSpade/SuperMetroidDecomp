@@ -27,7 +27,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/golden_torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/golden_torizo_orb.json` | `TorizoOrb` | bounce_drag, bounces, gravity |
 | `bosses/golden_torizo_sonic_boom.json` | `TorizoSonicBoom` | quickening |
-| `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, death_shade, dud_effect, dud_sound, health, hurt_shade, lunge_delay_updates, rise_wait_updates, rock_sound, spit_cadence_updates, thinking_step_updates |
+| `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, death_shade, dud_effect, dud_sound, health, hurt_shade, lunge_delay_updates, mouth_dud_effect, rise_wait_updates, rock_sound, spit_cadence_updates, thinking_step_updates |
 | `bosses/kraid_ceiling_rock.json` | `KraidRock` | drift, drift_limit, gravity |
 | `bosses/kraid_lint.json` | `KraidLint` | charge_updates, contact_damage, emerge_pixels, fire_sound, fire_speed, harmless_x, health, point_x, reload_updates, return_x |
 | `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
@@ -43,6 +43,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/mother_brain_glass_shard.json` | `MotherBrainGlassShard` | bottom, gravity, sparkle_centre, sparkle_effect, sparkle_spread |
 | `bosses/mother_brain_ring.json` | `MotherBrainRing` | floor, mouth_updates, top, view_right |
 | `bosses/mother_brain_turret.json` | `MotherBrainTurret` | contact_damage, health, least_fire_wait, least_turn_wait, smoke_effect, view_across, view_down, view_height, view_width |
+| `bosses/mother_brain_turret_bullet.json` | `MotherBrainTurretBullet` | smoke_timeline |
 | `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, big_explosion_sound, contact_damage, death_drops, dying_cry, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect, small_explosion_sound |
 | `bosses/phantoon_flame.json` | `PhantoonFlame` | burning_timeline, drift_speed, falling_timeline, gravity, landing_drop, landing_pause, landing_timeline, leap_speed, rain_impact_timeline, rain_sound, resting_timeline, ring_hold_updates, ring_radius |
 | `bosses/ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, body_fade_step_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, eye_fade_step_updates, eye_hold_updates, fade_steps, health, hit_flash_updates, hits_to_drive_off, piece_end_effect, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, tail_tip_arc_start, wounded_health |

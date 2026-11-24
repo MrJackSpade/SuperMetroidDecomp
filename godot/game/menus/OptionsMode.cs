@@ -29,8 +29,6 @@ namespace Game.Menus;
 /// </remarks>
 public partial class OptionsMode : GameMode
 {
-    private readonly GameMode _returnsTo;
-
     /// <summary>The rows of the first page, from the top.</summary>
     private static readonly string[] PrimaryRows = ["start_game", "english_text", "japanese_text", "controller_settings", "special_settings"];
 
@@ -61,13 +59,6 @@ public partial class OptionsMode : GameMode
     private string? _binding;
     private string? _pressed;
 
-    /// <summary>The options, laid over <paramref name="returnsTo"/>, the choice of saved game they go back to.</summary>
-    public OptionsMode(GameMode returnsTo)
-    {
-        ArgumentNullException.ThrowIfNull(returnsTo);
-        _returnsTo = returnsTo;
-    }
-
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "menus/options.json";
@@ -78,9 +69,6 @@ public partial class OptionsMode : GameMode
 
     /// <summary>The languages the game's words come in, the first being the one its first language row names.</summary>
     public string[] Languages { get; set; } = ["english", "japanese"];
-
-    /// <inheritdoc/>
-    public override GameMode? Keeps => _returnsTo;
 
     private IReadOnlyList<string> Actions => [.. GameAction.Standard.Select(action => action.Name), .. Session.Definition.Actions];
 
@@ -190,7 +178,7 @@ public partial class OptionsMode : GameMode
                 FadeOutTo(() =>
                 {
                     Session.Options.Save();
-                    return SaveMapMode.Of(Session, _returnsTo) is { } map ? map : new LoadingMode();
+                    return SaveMapMode.Of(Session) is { } map ? map : new LoadingMode();
                 });
                 break;
             case "english_text" or "japanese_text":
@@ -306,7 +294,9 @@ public partial class OptionsMode : GameMode
     private GameMode Leave()
     {
         Session.Options.Save();
-        return _returnsTo;
+
+        // The old game makes the choice of saved game anew, its cursor's roll begun again on the saved game chosen.
+        return new FileSelectMode();
     }
 
     /// <summary>Shows <paramref name="page"/> with its cursor at the top: its picture, its heading, and what is laid over it for how things are set.</summary>

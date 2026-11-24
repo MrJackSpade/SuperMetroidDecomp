@@ -306,6 +306,11 @@ public sealed partial class EngineAssetWriter
             ["backdrop"] = Colour(screens.Backdrops.Menus),
             ["page"] = _sheets.WriteSprite(_tree, SpriteSheetId.MenuPictures, GameOverPresentationDefinitions.PageFrame, folder + "/page.png"),
             ["move_sound"] = EngineNames.Sound(SamusSound.MenuCursor),
+            // Black before its set-up: the update that stops the sounds, and waiting that update out.
+            ["entry_black_updates"] = 2,
+            // After its set-up: waiting that update out, the music queue fetching the stop, and the shortest delay of
+            // the stop and then of the change of music data, the queue being clear on the last.
+            ["music_wait_updates"] = 2 + 2 * AudioQueueDefinitions.MinimumMusicDelayPasses,
             // It fades a level of brightness an update.
             ["fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
             ["answer_hold_updates"] = GameOverMenuDefinitions.AcceptedAnswerHoldDuration,

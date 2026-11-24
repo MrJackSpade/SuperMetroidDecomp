@@ -204,6 +204,9 @@ public sealed partial class EngineAssetWriter
             // Black before it fades in: blanking, waiting out that update, the black hold, setting up its fades and
             // waiting out that update.
             ["entry_black_updates"] = FileSelectLayout.BlackHoldUpdates + 4,
+            // Its fades go a level of brightness every so many updates.
+            ["fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
+            ["fade_updates_per_level"] = FileSelectLayout.FadeUpdatesPerStep,
             ["move_sound"] = EngineNames.Sound(SamusSound.MenuCursor),
             ["select_sound"] = EngineNames.Sound(SamusSound.FileSelected),
             ["confirm_sound"] = EngineNames.Sound(SamusSound.MenuConfirm),

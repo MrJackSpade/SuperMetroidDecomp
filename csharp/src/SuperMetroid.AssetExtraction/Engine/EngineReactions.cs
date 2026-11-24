@@ -26,6 +26,14 @@ internal static partial class EngineReactions
 
     private static readonly Outcome Nothing = new(0);
 
+    /// <summary>
+    /// The damage the grapple beam's hit carries. The old grapple takes no health from anything it touches: it stops
+    /// on an enemy, holds it, or destroys it outright. A reaction can only take a share or a multiple of a hit's damage,
+    /// so the hit carries the least damage there is, and the enemies it destroys take it as many times over as they have
+    /// health; every enemy's reactions answer it, none by its plain damage.
+    /// </summary>
+    internal const int GrappleHitDamage = 1;
+
     /// <summary>The reactions of the enemy the old game defines as <paramref name="definition"/>.</summary>
     internal static JsonArray Of(RoomEnemyDefinition definition)
     {
@@ -162,9 +170,9 @@ internal static partial class EngineReactions
     /// <summary>The damage of an outcome, as a reaction writes it.</summary>
     private static JsonNode Damage(Outcome outcome, RoomEnemyDefinition definition)
     {
-        // The grapple's hit is of one point: taken as many times over as the enemy has health, it destroys it.
+        // The grapple's hit, taken as many times over as it takes to reach the enemy's health, destroys it.
         if (outcome.Kills)
-            return JsonValue.Create(Math.Max(1, definition.Health));
+            return JsonValue.Create(Math.Max(1, (definition.Health + GrappleHitDamage - 1) / GrappleHitDamage));
         return outcome.Halves switch
         {
             0 => "none",

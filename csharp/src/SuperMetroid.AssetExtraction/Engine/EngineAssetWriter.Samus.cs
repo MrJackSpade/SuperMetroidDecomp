@@ -353,13 +353,14 @@ public sealed partial class EngineAssetWriter
             ["running"] = Origins(GrappleFiringDefinitions.RunningOrigins),
         });
 
-        // The grapple beam's hit is of one point: what it destroys, it destroys by the reaction written for it.
+        // The old grapple beam takes no health: what it destroys, it destroys by the reaction written for it, which
+        // counts in its hit's damage.
         file.Group("grapple", new JsonObject
         {
             ["extend_speed"] = GrappleFiringDefinitions.CardinalSpeed.Pixels,
             ["extend_diagonal_speed"] = GrappleFiringDefinitions.DiagonalSpeed.Pixels,
             ["reach"] = GrappleBeamDefinitions.Physics.FiringCancelLength,
-            ["damage"] = 1,
+            ["damage"] = EngineReactions.GrappleHitDamage,
         });
         var specialAttacks = new JsonObject();
         foreach ((SamusBeamFlags beam, SamusComboKind kind) in SamusComboDefinitions.KindsOfSingleBeams)

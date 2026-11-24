@@ -20,10 +20,17 @@ namespace Game;
 /// </summary>
 /// <remarks>
 /// Its data gives its "backdrop" colour; the picture behind everything for each area ("backdrops"); the pictures
-/// of its "frame"; its three "buttons" ("map", "exit", "samus"), each "lit" or "dim"; where the map is and how many
-/// cells of it show ("map": "x", "y", "columns", "rows", and "indicator", the timeline of the sign of where Samus
-/// is, its pictures placed from the corner of her cell), with the "area_folder" of the areas' maps; its "sounds"
-/// ("move", "switch", "page", "pour", and "pour_every", the updates from one pouring sound to the next); and its
+/// of its "frame"; its three "buttons" ("map", "exit", "samus"), each "lit" or "dim"; its "map", a plane behind the
+/// page that the directions move: the size of a "cell" and of the screen ("screen_width", "screen_height"); the edges of the part of the screen its bounds are kept
+/// to ("left_edge", "right_edge", "top_edge", "bottom_edge"); how it first lies ("centre_column", across which the
+/// middle of what shows is put; "centre_line" and "row_middle_above_centre", down; "here_leftmost",
+/// "here_rightmost" and "here_top", which the sign of where Samus is must not lie beyond; "lowest_map_top"); the
+/// cells its bounds are taken to be while none of it shows ("unrevealed"); how far a press moves it
+/// ("scroll_step"), how many updates that takes ("scroll_updates") and on which of them it moves
+/// ("scroll_moves_at"); the "arrows" that show which ways it can be moved ("left", "right", "up", "down", each a
+/// place and a "timeline"); and "indicator", the timeline of the sign of where Samus is, its pictures placed from
+/// the corner of her cell; the "area_folder" of the areas' maps; its "sounds" ("move", "switch", "page", "scroll",
+/// "pour", and "pour_every", the updates from one pouring sound to the next); and its
 /// "equipment" page: the "base" picture, the "hyper" beam's picture, the "controls" (each the "equipment" it
 /// switches, the "side" of the page it is on, the "group" it is in ("beams", "suits" or "boots", each a column the
 /// selector moves along, in the order given), its picture switched "on" and "off" with where that goes, and its
@@ -60,6 +67,18 @@ public partial class PauseScreen : GameMode
     private CinematicSprite? _indicator;
     private Vector2I _here;
     private int _mapCellSize;
+    private readonly Dictionary<string, CinematicSprite> _arrows = new(StringComparer.Ordinal);
+    private Rect2I _mapBounds;
+    private Vector2I _scroll;
+    private string? _scrolling;
+    private int _scrollAge;
+
+    /// <summary>The ways the map can be moved, in the order they are tried when several are held.</summary>
+    private static readonly (string Name, GameAction Action, Vector2I Step)[] ScrollWays =
+    [
+        ("left", GameAction.Left, new Vector2I(-1, 0)), ("right", GameAction.Right, new Vector2I(1, 0)),
+        ("up", GameAction.Up, new Vector2I(0, -1)), ("down", GameAction.Down, new Vector2I(0, 1)),
+    ];
     private bool _showsMap = true;
     private int _chosen;
     private int _pouring;
@@ -107,18 +126,7 @@ public partial class PauseScreen : GameMode
 
         if (_showsMap)
         {
-            // The directions scroll the map a cell at a time.
-            var move = new Vector2I(
-                (input.WasPressed(GameAction.Right) ? 1 : 0) - (input.WasPressed(GameAction.Left) ? 1 : 0),
-                (input.WasPressed(GameAction.Down) ? 1 : 0) - (input.WasPressed(GameAction.Up) ? 1 : 0));
-            if (move != Vector2I.Zero && _map is not null)
-            {
-                _map.Centre += move;
-                _map.QueueRedraw();
-                PlaceIndicator();
-            }
-
-            _indicator?.Step();
+            StepMap(input);
             return this;
         }
 
@@ -321,6 +329,9 @@ public partial class PauseScreen : GameMode
         Room room = _playing.Room;
         if (room.Area.Length > 0)
             Show(data.Get("backdrops").Get(room.Area));
+        _arrows.Clear();
+        if (map)
+            ShowMap(data.Get("map"), room);
         foreach (DataNode picture in data.List("frame"))
             Show(picture);
 
@@ -338,19 +349,138 @@ public partial class PauseScreen : GameMode
             return;
         }
 
-        DataNode at = data.Get("map");
-        _map = new MapView { Name = "Map", Window = new Vector2I(at.Int("columns"), at.Int("rows")), Position = new Vector2(at.Int("x"), at.Int("y")) };
-        _page.AddChild(_map);
+        // The arrows lie over the page's frame.
+        foreach ((string way, _, _) in ScrollWays)
+        {
+            DataNode arrow = data.Get("map").Get("arrows").Get(way);
+            CinematicSprite sprite = CinematicSprite.Of(
+                Session.Content, FrameTimeline.Read(arrow.Get("timeline")), PixelPosition.FromWhole(arrow.Int("x"), arrow.Int("y")));
+            sprite.Name = $"Arrow{way}";
+            sprite.Visible = false;
+            _page.AddChild(sprite);
+            _arrows[way] = sprite;
+        }
+    }
+
+    /// <summary>
+    /// Lays the map behind the page: the whole of the area's map, as much of it as shows, moved so that the middle of
+    /// what shows lies about the middle of the screen and the sign of where Samus is lies within the page.
+    /// </summary>
+    private void ShowMap(DataNode at, Room room)
+    {
+        Node2D page = _page ?? throw NotShown();
+        Area area = Area.Read(Session.Content.ReadData($"{Data().Text("area_folder")}/{room.Area}.json"));
+        int cell = at.Int("cell");
+        if (area.TileSize != cell)
+            throw new InvalidOperationException($"The pause screen's map is laid out for cells of {cell} pixels, and the map of {room.Area} has cells of {area.TileSize}.");
+        _mapCellSize = cell;
         _here = new Vector2I(
             room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
             room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
-        _map.Centre = _here;
-        Area area = Area.Read(Session.Content.ReadData($"{data.Text("area_folder")}/{room.Area}.json"));
-        _mapCellSize = area.TileSize;
+
+        // Enough cells to cover the screen wherever the map lies under it, and one more each way for a part cell.
+        _map = new MapView { Name = "Map", Window = new Vector2I(at.Int("screen_width") / cell + 1, at.Int("screen_height") / cell + 1) };
+        page.AddChild(_map);
         _map.Present(area, Session.Progress, Session.Content);
+
+        // Its bounds are those of what the area's map shows once had, or of what has been explored while it is not.
+        bool had = area.RevealedBy.Length > 0 && Session.Progress.Has(area.RevealedBy);
+        List<AreaCell> counted = [.. area.Cells.Where(found => had ? !found.Secret : _map.IsExplored(found))];
+        DataNode none = at.Get("unrevealed");
+        int left = counted.Count > 0 ? counted.Min(found => found.Place.X) : none.Int("left");
+        int right = counted.Count > 0 ? counted.Max(found => found.Place.X) : none.Int("right");
+        int top = counted.Count > 0 ? counted.Min(found => found.Place.Y) : none.Int("top");
+        int bottom = counted.Count > 0 ? counted.Max(found => found.Place.Y) : none.Int("bottom");
+        _mapBounds = new Rect2I(left * cell, top * cell, (right - left) * cell, (bottom - top) * cell);
+
+        Vector2I here = _here * cell;
+        int across = _mapBounds.Position.X + _mapBounds.Size.X / 2 - at.Int("centre_column");
+        int hereAcross = here.X - across;
+        if (hereAcross > at.Int("here_rightmost"))
+            across += hereAcross - at.Int("here_rightmost");
+        else if (hereAcross <= at.Int("here_leftmost"))
+            across -= at.Int("here_leftmost") - hereAcross;
+        int middle = _mapBounds.Position.Y + _mapBounds.Size.Y / 2 + at.Int("row_middle_above_centre");
+        int lift = Mathf.FloorToInt((float)(at.Int("centre_line") - middle) / cell) * cell;
+        int down = -lift;
+        int hereDown = here.Y + lift;
+        if (hereDown <= at.Int("here_top"))
+            down = Math.Max(down - (at.Int("here_top") - hereDown), -at.Int("lowest_map_top"));
+        _scroll = new Vector2I(across, down);
+        (_scrolling, _scrollAge) = (null, 0);
+
         _indicator = CinematicSprite.Of(Session.Content, FrameTimeline.Read(at.Get("indicator")), PixelPosition.Origin);
         _indicator.Name = "Here";
-        _page.AddChild(_indicator);
+        page.AddChild(_indicator);
+        PlaceMap();
+    }
+
+    /// <summary>Whether the map can be moved a way: what shows of it still lies past that edge of the page.</summary>
+    private bool CanScroll(string way)
+    {
+        DataNode at = Data().Get("map");
+        return way switch
+        {
+            "left" => _mapBounds.Position.X - _scroll.X < at.Int("left_edge"),
+            "right" => _mapBounds.End.X - _scroll.X >= at.Int("right_edge"),
+            "up" => _mapBounds.Position.Y - _scroll.Y < at.Int("top_edge"),
+            "down" => _mapBounds.End.Y - _scroll.Y >= at.Int("bottom_edge"),
+            _ => throw new InvalidOperationException($"The pause screen's map cannot be moved \"{way}\"."),
+        };
+    }
+
+    /// <summary>
+    /// Plays one update of the map page. Each arrow shows while the map can be moved its way. A direction held
+    /// starts a move, which takes its while and moves the map part way through; once started it runs on though the
+    /// direction is let go, and only a move down is stopped short, when the map can go no further down.
+    /// </summary>
+    private void StepMap(GameInput input)
+    {
+        DataNode at = Data().Get("map");
+        foreach ((string way, _, _) in ScrollWays)
+        {
+            CinematicSprite arrow = _arrows[way];
+            arrow.Visible = CanScroll(way);
+            arrow.Step();
+        }
+
+        _indicator?.Step();
+        if (_scrolling is null)
+        {
+            foreach ((string way, GameAction action, _) in ScrollWays)
+            {
+                if (!CanScroll(way) || !input.IsHeld(action))
+                    continue;
+                (_scrolling, _scrollAge) = (way, 0);
+                break;
+            }
+        }
+
+        if (_scrolling == "down" && !CanScroll("down"))
+            _scrolling = null;
+        if (_scrolling is not { } moving)
+            return;
+        _scrollAge++;
+        if (_scrollAge == at.Int("scroll_moves_at"))
+        {
+            _scroll += ScrollWays.First(found => found.Name == moving).Step * at.Int("scroll_step");
+            PlaceMap();
+        }
+
+        if (_scrollAge < at.Int("scroll_updates"))
+            return;
+        _scrolling = null;
+        Sound("scroll");
+    }
+
+    /// <summary>Puts the map where it has been moved to, and the sign of where Samus is over her cell of it.</summary>
+    private void PlaceMap()
+    {
+        MapView map = _map ?? throw NotShown();
+        var first = new Vector2I(Mathf.FloorToInt((float)_scroll.X / _mapCellSize), Mathf.FloorToInt((float)_scroll.Y / _mapCellSize));
+        map.Position = first * _mapCellSize - _scroll;
+        map.Centre = first + map.Window / 2;
+        map.QueueRedraw();
         PlaceIndicator();
     }
 

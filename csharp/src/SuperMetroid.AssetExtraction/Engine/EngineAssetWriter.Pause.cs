@@ -186,6 +186,32 @@ public sealed partial class EngineAssetWriter
 
         MapFraming framing = MapFramingDefinitions.Pause;
         const int cell = GameplayHudDefinitions.MinimapSquarePixels;
+
+        // The arrows that say which ways the map can be moved, their colours going round as the old highlight does.
+        var arrows = new JsonObject();
+        foreach (MapScrollDirection direction in MapScrollControls.Directions)
+        {
+            string frame = MapSpriteDefinitions.Names[MapArrowDefinitions.ArrowPictures[direction]];
+            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
+            var looks = new JsonArray();
+            foreach (MapHighlightFrame look in screens.Maps.HighlightCycle.Frames)
+            {
+                looks.Add(new JsonObject
+                {
+                    ["picture"] = _sheets.WriteSprite(
+                        _tree, SpriteSheetId.MapSprites, frame, $"pause/map_{EngineSheets.FileName(frame)}_{look.Frame}.png", MapSpriteShades.Highlight(look).Key),
+                    ["updates"] = screens.Maps.HighlightCycle.Duration(look),
+                });
+            }
+
+            var at = screens.Maps.Arrows.Get(direction).Position;
+            arrows[Named(direction)] = new JsonObject
+            {
+                ["x"] = at.X,
+                ["y"] = at.Y + framing.ArrowDrop,
+                ["timeline"] = new JsonObject { ["steps"] = looks, ["loops_to"] = 0, ["offset"] = At(-originX, -originY) },
+            };
+        }
         _tree.WriteData("pause/pause.json", new JsonObject
         {
             ["backdrop"] = Colour(screens.Backdrops.Pause),
@@ -194,14 +220,38 @@ public sealed partial class EngineAssetWriter
             ["buttons"] = buttons,
             ["map"] = new JsonObject
             {
-                ["x"] = framing.LeftEdge, ["y"] = framing.TopEdge, ["columns"] = (framing.RightEdge - framing.LeftEdge) / cell,
-                ["rows"] = (framing.BottomEdge - framing.TopEdge) / cell,
+                // The map is a plane behind the page, moved under it. These say where it first lies and how far it moves.
+                ["cell"] = cell,
+                ["screen_width"] = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels,
+                ["screen_height"] = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels,
+                ["centre_line"] = framing.CentreLine,
+                ["left_edge"] = framing.LeftEdge,
+                ["right_edge"] = framing.RightEdge,
+                ["top_edge"] = framing.TopEdge,
+                ["bottom_edge"] = framing.BottomEdge,
+                ["centre_column"] = MapFramingDefinitions.CentreColumn,
+                ["row_middle_above_centre"] = MapFramingDefinitions.RowMiddleAboveCentredLine,
+                ["here_leftmost"] = MapFramingDefinitions.MarkerLeftmostColumn,
+                ["here_rightmost"] = MapFramingDefinitions.MarkerRightmostColumn,
+                ["here_top"] = MapFramingDefinitions.MarkerTopLine,
+                ["lowest_map_top"] = MapFramingDefinitions.LowestMapTop,
+                // The cells its bounds are taken to be while none of it shows.
+                ["unrevealed"] = new JsonObject
+                {
+                    ["left"] = MapFramingDefinitions.UnrevealedLeftColumn, ["right"] = MapFramingDefinitions.UnrevealedRightColumn,
+                    ["top"] = MapFramingDefinitions.UnrevealedTopRow, ["bottom"] = MapFramingDefinitions.UnrevealedBottomRow,
+                },
+                ["scroll_step"] = MapScrollDefinitions.StepPixels,
+                ["scroll_updates"] = MapScrollDefinitions.StepTicks,
+                ["scroll_moves_at"] = MapScrollDefinitions.PulseTick,
+                ["arrows"] = arrows,
                 ["indicator"] = new JsonObject { ["steps"] = pulse, ["loops_to"] = 0 },
             },
             ["area_folder"] = "areas",
             ["sounds"] = new JsonObject
             {
                 ["move"] = EngineNames.Sound(SamusSound.MenuCursor),
+                ["scroll"] = EngineNames.Sound(SamusSound.MapScroll),
                 ["switch"] = EngineNames.Sound(SamusSound.MenuConfirm),
                 ["page"] = EngineNames.Sound(SamusSound.MenuConfirm),
                 ["pour"] = EngineNames.Sound(PauseReserveEnergyDefinitions.RefillSound),

@@ -6,9 +6,9 @@ using Game.Data;
 namespace Game;
 
 /// <summary>
-/// A crystal flash: at the edge of death, with a power bomb laid and the right actions held, her ammunition is turned
-/// into energy. She rises a little, and one piece of ammunition at a time, missiles, then super missiles, then power
-/// bombs, becomes energy. Nothing can hurt her meanwhile.
+/// A crystal flash: at the edge of death, lying where a power bomb of hers lay as its blast ends, with the right actions
+/// held, her ammunition is turned into energy. She rises a little, and one piece of ammunition at a time, missiles,
+/// then super missiles, then power bombs, becomes energy. Nothing can hurt her meanwhile.
 /// </summary>
 public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
 {
@@ -20,22 +20,24 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
 
     private static readonly string[] Ammunition = [Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs];
 
+    /// <summary>The actions that start a crystal flash: these held, and nothing else.</summary>
+    private static readonly GameInput Chord = new([Actions.AngleUp, Actions.AngleDown, GameAction.Down, GameAction.Attack], []);
+
     private int _rising;
     private int _kind;
     private int _usedOfKind;
     private Countdown _wait;
 
     /// <summary>
-    /// Whether a crystal flash can start: she is in the morph ball with a power bomb just laid, the angle actions, down
-    /// and the attack are all held, her energy is low, her reserves are empty, and she has enough of every ammunition.
+    /// Whether a crystal flash can start, as a power bomb's blast ends where she lies: the angle actions, down and the
+    /// attack are held and nothing else, she is moving neither up nor down, her energy is low, her reserves are empty,
+    /// and she has enough of every ammunition. What she is doing does not matter.
     /// </summary>
     public static bool CanStart(Samus samus)
     {
-        GameInput input = samus.Input;
         Inventory inventory = samus.Inventory;
-        return samus.Form == Player.Crawling &&
-            input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) && input.IsHeld(GameAction.Down) && input.IsHeld(GameAction.Attack) &&
-            samus.Weapons.LiveOf(Arsenal.PowerBomb).Count > 0 &&
+        return samus.Input.HoldsSameAs(Chord) &&
+            samus.Velocity.Y.IsZero &&
             inventory.Amount(Amounts.Energy) < samus.CrystalFlashEnergyBelow &&
             inventory.Amount(Amounts.ReserveEnergy) == 0 &&
             Ammunition.All(kind => inventory.Amount(kind) >= samus.CrystalFlashAmmunition);

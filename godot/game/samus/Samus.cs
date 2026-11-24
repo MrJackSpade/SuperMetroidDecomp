@@ -292,6 +292,29 @@ public partial class Samus : Player
     /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
     public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
 
+    /// <summary>Where a power bomb of hers lay whose blast ended as this update opened, and on which update; none if none.</summary>
+    private (PixelPosition At, long Update)? _blastEnded;
+
+    /// <summary>
+    /// A power bomb of hers lying at <paramref name="at"/> has ended its blast as this update opens: a crystal flash
+    /// may start this update, if she lies exactly there.
+    /// </summary>
+    public void PowerBombBlastEnded(PixelPosition at) => _blastEnded = (at, Room.Session.Clock.Updates);
+
+    /// <summary>
+    /// Starts a crystal flash if a power bomb's blast ended where she lies as this update opened, as the cartridge
+    /// offers one only then; she may be doing anything.
+    /// </summary>
+    private void StartCrystalFlashIfOffered()
+    {
+        if (_blastEnded is not { } ended)
+            return;
+        _blastEnded = null;
+        if (ended.Update == Room.Session.Clock.Updates && ended.At.X.Whole == Position.X.Whole && ended.At.Y.Whole == Position.Y.Whole &&
+            CrystalFlashState.CanStart(this))
+            ChangeState(new CrystalFlashState());
+    }
+
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
     public BodyPower? Power(string name) => _powers.GetValueOrDefault(name);
 
@@ -671,6 +694,7 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        StartCrystalFlashIfOffered();
         _ranFromStart = State is RunningState;
         _aimAtUpdateStart = Aim;
         _shine = _shine.Stepped();
@@ -755,9 +779,6 @@ public partial class Samus : Player
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } inAir)
                     inAir.Fire(this);
                 return null;
-
-            case CrawlingState:
-                return CrystalFlashState.CanStart(this) ? new CrystalFlashState() : null;
 
             case KnockedBackState:
                 // Holding the jump and the direction behind her in a knockback carries her off that way in a damage boost.

@@ -233,6 +233,7 @@ public partial class Samus : Player
     private bool _autoCancel;
     private bool _spreadCharged;
     private int _spreadHeld;
+    private bool _ballCharge;
     private bool _aimedDownLastUpdate;
     private bool _woreVaria;
     private bool _woreGravity;
@@ -821,6 +822,9 @@ public partial class Samus : Player
         else if (beamCharged)
             _spreadCharged = true;
 
+        // A beam charge carried into the morph ball stays there until the ball uses it up.
+        _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor > 0));
+
         if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
             Selected == Amounts.PowerBombs && SpecialAttackBeam() is { } special)
         {
@@ -840,6 +844,12 @@ public partial class Samus : Player
 
             ThrowBombSpread();
             return;
+        }
+
+        if (BallUsesUpCharge(held))
+        {
+            ForgetCharge();
+            Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
         }
 
         if (weapon.Length == 0 || Weapons.All.All(owned => owned.Name != weapon))
@@ -930,7 +940,42 @@ public partial class Samus : Player
         }
 
         Weapons.WaitAtLeast(bomb.CooldownFor(Inventory, charged: false));
-        (_spreadCharged, _spreadHeld) = (false, 0);
+        ForgetCharge();
+        Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
+    }
+
+    /// <summary>
+    /// Whether the morph ball uses up the beam charge carried into it this update, as the cartridge has it: letting the
+    /// attack go does; with it held, a bomb refused for want of a fresh press does, unless she has no bombs to lay or a
+    /// power bomb of hers is still out.
+    /// </summary>
+    private bool BallUsesUpCharge(bool held)
+    {
+        if (!_ballCharge)
+            return false;
+        if (!held)
+            return true;
+        if (Selected == Amounts.PowerBombs)
+            return !Weapons.LiveOf(Arsenal.PowerBomb).Any(bomb => !bomb.HasEnded);
+        return Inventory.IsOn(Equipment.Bombs);
+    }
+
+    /// <summary>
+    /// A shinespark's windup uses up her charge; one that had begun to sound stops her sounds, at a priority that
+    /// gives way late, as the cartridge does.
+    /// </summary>
+    public void SpendChargeOnShinespark()
+    {
+        if (ChargeIsSounding)
+            Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
+        ForgetCharge();
+    }
+
+    /// <summary>Throws the beam's charge away, and everything that remembers it.</summary>
+    private void ForgetCharge()
+    {
+        Weapons.DropCharge();
+        (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
     }
 
     /// <summary>The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected.</summary>

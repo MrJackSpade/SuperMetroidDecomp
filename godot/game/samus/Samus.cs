@@ -884,12 +884,17 @@ public partial class Samus : Player
         Inventory.Spend(Amounts.PowerBombs, 1);
         ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]));
         ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail)) : shot;
-        for (int part = 0; part < 4; part++)
+        var lights = new SpecialAttack[4];
+        for (int part = 0; part < lights.Length; part++)
         {
-            var light = (part < 2 ? shot : trailing).Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
+            lights[part] = (part < 2 ? shot : trailing).Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
                 ?? throw new InvalidOperationException($"The special attack of \"{beam}\" has a shot that is not a special attack's.");
-            light.Begin(part, Facing == Facing.Right);
-            Room.Spawn(light);
+        }
+
+        for (int part = 0; part < lights.Length; part++)
+        {
+            lights[part].Begin(part, Facing == Facing.Right, lights);
+            Room.Spawn(lights[part]);
         }
 
         if (shot.Sound.Length > 0)

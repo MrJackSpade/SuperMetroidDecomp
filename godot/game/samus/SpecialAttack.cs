@@ -66,15 +66,22 @@ public partial class SpecialAttack : Projectile
     private int _age;
     private Stage _stage;
     private PixelVelocity _swing;
+    private SpecialAttack? _partner;
+    private long? _partnerSpentOn;
 
     /// <summary>
-    /// Sets the light going as the <paramref name="part"/>th of its four, turning the way Samus faces.
+    /// Sets the light going as the <paramref name="part"/>th of its four, turning the way Samus faces. A spazer light
+    /// is paired with the other of <paramref name="lights"/> that wheels its way.
     /// </summary>
-    public void Begin(int part, bool facingRight)
+    public void Begin(int part, bool facingRight, IReadOnlyList<SpecialAttack> lights)
     {
+        ArgumentNullException.ThrowIfNull(lights);
         if (part is < 0 or > 3)
             throw new ArgumentOutOfRangeException(nameof(part), part, "A special attack has four lights.");
+        if (lights.Count != 4)
+            throw new ArgumentException("A special attack has four lights.", nameof(lights));
         (_part, _age, _stage, _swing) = (part, 0, Stage.First, PixelVelocity.Zero);
+        _partner = Kind == Kinds.Spazer ? lights[part ^ 2] : null;
         switch (Kind)
         {
             case Kinds.Ice:
@@ -99,6 +106,14 @@ public partial class SpecialAttack : Projectile
     {
         if (Launcher is not Player samus)
             throw new InvalidOperationException("A special attack belongs to the player who let it loose.");
+
+        // A spazer light goes on the update after its partner was spent before it fell, as the cartridge has it.
+        if (_partnerSpentOn is { } spentOn && room.Session.Clock.Updates > spentOn)
+        {
+            Leave(room);
+            return;
+        }
+
         Velocity = PixelVelocity.Zero;
         if (_age == 0 && Kind == Kinds.Wave)
             Position = samus.Position + PixelOffset.FromWhole(WaveStarts[_part].X, WaveStarts[_part].Y);
@@ -224,6 +239,13 @@ public partial class SpecialAttack : Projectile
                     Leave(room);
                 break;
         }
+    }
+
+    /// <summary>A spazer light spent before it falls takes its partner with it.</summary>
+    protected override void OnEnded(Room room)
+    {
+        if (_partner is { HasEnded: false } partner && _stage != Stage.Last)
+            partner._partnerSpentOn = room.Session.Clock.Updates;
     }
 
     private void BeginFall()

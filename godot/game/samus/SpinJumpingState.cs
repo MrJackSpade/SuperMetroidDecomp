@@ -64,6 +64,17 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// <summary>The look of the spin she is in: the screw attack's, the space jump's or the plain one.</summary>
     public string Look { get; private set; } = "spin_jumping";
 
+    /// <summary>
+    /// The sound of the spin she shows, asked for again as a door's passage ends: chosen by her look alone, never the
+    /// underwater one, as the cartridge picks it from her pose.
+    /// </summary>
+    public string ShownSound => Look switch
+    {
+        "screw_attacking" => Sounds.ScrewAttack,
+        "space_jumping" => Sounds.SpaceJump,
+        _ => Sounds.SpinJump,
+    };
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

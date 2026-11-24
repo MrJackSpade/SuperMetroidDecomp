@@ -4,6 +4,8 @@ using Engine.Actors.Movement;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -88,6 +90,10 @@ public partial class Botwoon : Enemy
     [Export, DataValue("speed_curve")]
     public string SpeedCurveFile { get; set; } = "";
 
+    /// <summary>The sound of a shot a segment of its body stops, by name.</summary>
+    [Export, DataValue("dud_sound")]
+    public string DudSound { get; set; } = "";
+
     private const int Segments = 13;
     private const int Trail = 256;
     private const int FallStep = 192;
@@ -168,6 +174,7 @@ public partial class Botwoon : Enemy
     private int _wallAge;
     private int _largeIn = 1;
     private int _smallIn = 1;
+    private int? _dudSoundAt;
 
     /// <summary>
     /// Whether its head meets shots and Samus: not inside the wall, and not once it is dead. The segments of its body
@@ -207,11 +214,25 @@ public partial class Botwoon : Enemy
     private string Shaded(string picture) => picture.Replace("{shade}", _shade, StringComparison.Ordinal);
 
     /// <inheritdoc/>
-    protected override Reaction ReactionTo(Hit hit, Collider part)
+    public override HitResult TakeHit(Hit hit, Collider part)
     {
-        // Only its head is hurt; a segment of its body stops a shot and takes nothing from it.
-        Reaction reaction = base.ReactionTo(hit, part);
-        return part.Name == "Hurtbox" ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
+        if (part.Name == "Hurtbox")
+            return base.TakeHit(hit, part);
+
+        // A segment of its body is met only by her beams and missiles: never by a bomb, nor by what she strikes with
+        // her body.
+        if (!hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]))
+            return HitResult.Ignored;
+
+        // It stops the shot with the dud's sound and takes nothing from it; a plasma shot is not stopped, and sounds
+        // the dud each update it is there.
+        if (_dudSoundAt != Updates)
+        {
+            _dudSoundAt = Updates;
+            Sound(DudSound);
+        }
+
+        return hit.Carries(new HitKind(HitKinds.Plasma)) ? HitResult.Ignored : HitResult.Absorbed;
     }
 
     /// <inheritdoc/>

@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -121,6 +122,7 @@ public sealed partial class EngineAssetWriter
             .Value("wall_explosion_effect", botwoon.SpawnedEffect("wall_explosion", RoomEffectActorKind.BigExplosion))
             .Value("smoke_effect", EffectFile(RoomEffectActorKind.SmokePuff))
             .Value("explosion_sound", EngineNames.Sound(BotwoonSoundDefinitions.Explosion))
+            .Value("dud_sound", EngineNames.Sound(SamusSound.DudShot))
             .Group("holes", EngineNames.List(holes.Select(hole => (JsonNode)new JsonObject { ["x"] = hole.Target.X, ["y"] = hole.Target.Y })))
             .Group("paths", EngineNames.List(BotwoonPathDefinitions.Paths.Select(path => (JsonNode)new JsonObject
             {

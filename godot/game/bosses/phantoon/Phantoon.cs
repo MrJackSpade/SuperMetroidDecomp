@@ -87,6 +87,15 @@ public partial class Phantoon : Enemy
     private const int Screen = 256;
 
     private static readonly string[] Ways = ["up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"];
+    /// <summary>How many steps it takes to come back into view over its rain of flames.</summary>
+    private const int RainFadeSteps = 1;
+
+    /// <summary>
+    /// How long it wavers as it first appears, in updates, and how long the wavering then takes to die away: twelve
+    /// pixels of it, a quarter of a pixel an update, and the update that finds it gone.
+    /// </summary>
+    private const int WaverUpdates = 120, WaverSettlingUpdates = 12 * 4 + 1;
+
     private static readonly int[] VulnerableWindows = [60, 30, 15, 30, 60, 30, 15, 60];
     private static readonly int[] EyeClosedWaits = [720, 60, 360, 720, 360, 60, 360, 720];
     private static readonly int[] RainHidingWaits = [60, 120, 30, 60, 30, 60, 30, 30];
@@ -160,6 +169,7 @@ public partial class Phantoon : Enemy
     private int _burstWait;
 
     private int _fade;
+    private bool _fadeDone;
     private float _alpha;
     private int _startingFlame;
     private int _rageWaves;
@@ -297,7 +307,7 @@ public partial class Phantoon : Enemy
         _dying = true;
         _phase = _phase is Phase.Swooping or Phase.FadeOutWhileSwooping ? Phase.FatalSwoop : Phase.DyingFades;
         _pathBackward = false;
-        _fade = 0;
+        BeginFade();
         SetHurtAreas(eye: false, body: false, touch: false);
         return false;
     }
@@ -335,17 +345,15 @@ public partial class Phantoon : Enemy
                 if (!Ends())
                     break;
                 _phase = Phase.FadeInAtStart;
-                _wait = 120;
-                _fade = 0;
+                _wait = WaverUpdates + WaverSettlingUpdates;
+                BeginFade();
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
                 break;
 
             case Phase.FadeInAtStart:
-                FadeIn(clock);
-                if (_wait > 0)
-                    _wait--;
-                if (_wait == 0 && _fade >= FadeSteps)
+                FadeIn(clock, FadeSteps);
+                if (Ends())
                 {
                     _phase = Phase.PickFirstPattern;
                     _wait = 30;
@@ -422,7 +430,7 @@ public partial class Phantoon : Enemy
                 _phase = Phase.FadeOutWhileSwooping;
                 SetHurtAreas(eye: false, body: false, touch: false);
                 PlayPart("Eye", "eye_close");
-                _fade = 0;
+                BeginFade();
                 _roundDamage = 0;
                 break;
 
@@ -450,23 +458,23 @@ public partial class Phantoon : Enemy
                 _nextIsRain = false;
                 SecondRoundSettings(clock);
                 _phase = Phase.FadeInBeforeFigureEight;
-                _fade = 0;
+                BeginFade();
                 break;
 
             case Phase.FadeInBeforeFigureEight:
-                if (FadeIn(clock))
+                if (FadeIn(clock, FadeSteps))
                     _phase = Phase.FigureEight;
                 break;
 
             case Phase.BecomeSolidAfterRain:
-                _fade = 0;
+                BeginFade();
                 SetHurtAreas(eye: true, body: true, touch: false);
                 PlayPart("Eye", "eyeball_centred");
                 _phase = Phase.FadeInDuringRain;
                 break;
 
             case Phase.FadeInDuringRain:
-                if (!FadeIn(clock))
+                if (!FadeIn(clock, RainFadeSteps))
                     break;
                 SetHurtAreas(eye: true, body: true, touch: true);
                 _phase = Phase.TrackDuringRain;
@@ -486,7 +494,7 @@ public partial class Phantoon : Enemy
                 }
 
                 _phase = Phase.FadeOutDuringRain;
-                _fade = 0;
+                BeginFade();
                 SetHurtAreas(eye: false, body: false, touch: false);
                 PlayPart("Eye", "eye_close");
                 break;
@@ -508,7 +516,7 @@ public partial class Phantoon : Enemy
                 Position = PixelPosition.FromWhole(x, y);
                 _pathBackward = false;
                 _phase = Phase.BecomeSolidAfterRain;
-                Rain();
+                Rain(x);
                 break;
 
             case Phase.FadeOutBeforeFirstRain:
@@ -519,10 +527,10 @@ public partial class Phantoon : Enemy
                     break;
                 _swoopAfterWindow = false;
                 _phase = Phase.BecomeSolidAfterRain;
-                // The first rain falls from the middle if it is in the left half of the room, and from the right otherwise.
-                (_, int rainX, int rainY) = _rainPatterns[Position.X.Whole < Screen / 2 ? 0 : 2];
-                Position = PixelPosition.FromWhole(rainX, rainY);
-                Rain();
+                // The first rain hangs as if it were in the middle when it is in the left half of the room, and as if at
+                // the right otherwise; it stays where its drifting has brought it.
+                (_, int rainX, _) = _rainPatterns[Position.X.Whole < Screen / 2 ? 0 : 2];
+                Rain(rainX);
                 break;
 
             case Phase.FadeOutBeforeRage:
@@ -539,15 +547,15 @@ public partial class Phantoon : Enemy
                     break;
                 _phase = Phase.FadeInForRage;
                 Position = PixelPosition.FromWhole(Screen / 2, 32);
-                _fade = 0;
+                BeginFade();
                 break;
 
             case Phase.FadeInForRage:
-                if (FadeIn(clock))
+                if (FadeIn(clock, FadeSteps))
                 {
                     _phase = Phase.Enraged;
                     _wait = 4;
-                    _fade = 0;
+                    BeginFade();
                 }
 
                 break;
@@ -592,10 +600,10 @@ public partial class Phantoon : Enemy
                 break;
 
             case Phase.DyingFades:
-                bool done = _fadeCycles % 2 == 1 ? FadeIn(clock) : FadeOut(clock);
+                bool done = _fadeCycles % 2 == 1 ? FadeIn(clock, FadeSteps) : FadeOut(clock);
                 if (!done)
                     break;
-                _fade = 0;
+                BeginFade();
                 if (++_fadeCycles < 10)
                     break;
                 SetVisible(1);
@@ -618,7 +626,7 @@ public partial class Phantoon : Enemy
                 if (++_explosionPasses < 3)
                     break;
                 _phase = Phase.DyingFadeOut;
-                _fade = 0;
+                BeginFade();
                 foreach (string part in new[] { "Eye", "Mouth", "Tentacles" })
                     GetNodeOrNull<ActorVisual>(part)?.SetShown(false);
                 Sound(DyingCry);
@@ -668,7 +676,7 @@ public partial class Phantoon : Enemy
         _roundDamage = 0;
         SetHurtAreas(eye: false, body: false, touch: false);
         PlayPart("Eye", "eye_close");
-        _fade = 0;
+        BeginFade();
     }
 
     /// <summary>Opens its eye to harm, for a time picked by chance.</summary>
@@ -771,11 +779,11 @@ public partial class Phantoon : Enemy
         _burstWait = _burst[0];
     }
 
-    /// <summary>Lets eight flames hang in a row across the room, to fall one after another.</summary>
-    private void Rain()
+    /// <summary>Lets eight flames hang in a row across the room, to fall one after another, for it at <paramref name="across"/>.</summary>
+    private void Rain(int across)
     {
         // The row starts one column on from the column it is over, and wraps round.
-        int column = (Position.X.Whole - 48) / 20 + 1;
+        int column = (across - 48) / 20 + 1;
         for (int flame = 0; flame < 8; flame++)
         {
             int x = 48 + 20 * ((column + flame) % 9);
@@ -848,20 +856,40 @@ public partial class Phantoon : Enemy
         PlayPart("Eye", $"eye_looking_{way}");
     }
 
-    /// <summary>Takes a step of fading in on the updates it fades on, and returns whether it is fully there.</summary>
-    private bool FadeIn(long clock)
+    /// <summary>Starts a fade over.</summary>
+    private void BeginFade()
     {
-        if (clock % 2 == 0 && _fade < FadeSteps)
-            SetVisible((float)++_fade / FadeSteps);
-        return _fade >= FadeSteps;
+        _fade = 0;
+        _fadeDone = false;
     }
 
-    /// <summary>Takes a step of fading out on the updates it fades on, and returns whether it is fully gone.</summary>
-    private bool FadeOut(long clock)
+    /// <summary>Takes a step of fading in over <paramref name="steps"/> on the updates it fades on, and returns whether the fade is over.</summary>
+    private bool FadeIn(long clock, int steps) => Fade(clock, steps, appearing: true);
+
+    /// <summary>Takes a step of fading out on the updates it fades on, and returns whether the fade is over.</summary>
+    private bool FadeOut(long clock) => Fade(clock, FadeSteps, appearing: false);
+
+    /// <summary>
+    /// Takes a step of a fade. A fade shows each of its steps from none of the way to all of it, shows the last once
+    /// more, and is over on the step after: two steps and a moment longer than its length.
+    /// </summary>
+    private bool Fade(long clock, int steps, bool appearing)
     {
-        if (clock % 2 == 0 && _fade < FadeSteps)
-            SetVisible(1f - (float)++_fade / FadeSteps);
-        return _fade >= FadeSteps;
+        if (_fadeDone)
+            return true;
+        if (clock % 2 != 0)
+            return false;
+        if (_fade > steps + 1)
+        {
+            _fade = 0;
+            _fadeDone = true;
+            return true;
+        }
+
+        float there = Math.Min(1f, (float)_fade / steps);
+        SetVisible(appearing ? there : 1f - there);
+        _fade++;
+        return false;
     }
 
     /// <inheritdoc/>
@@ -909,7 +937,7 @@ public partial class Phantoon : Enemy
                     case "pick_pattern":
                         SecondRoundSettings(Room.Session.Clock.Updates);
                         _phase = _nextIsRain ? Phase.FadeOutBeforeFirstRain : Phase.FigureEight;
-                        _fade = 0;
+                        BeginFade();
                         break;
                     case "flame":
                         ((PhantoonFlame)Fire("flame", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole + 32), PixelVelocity.Zero)).Fall();

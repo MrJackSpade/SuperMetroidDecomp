@@ -55,8 +55,35 @@ public sealed partial class EngineAssetWriter
             return shared!;
         }
 
-        // The eye's own frames. The blue cap it flashes to as it goes is the cap behind it, which draws itself.
-        string EyePicture(EyeDoorObjectFrame frame) => frame == EyeDoorObjectFrame.BlueCap ? "" : BothSides(side => EyeDoorDraws.Of(side, frame));
+        // The closed blue cap it flashes to as it goes. The eye draws it itself, over the door behind it, as the old
+        // eye draws it over the door's own blocks: a cap opened meanwhile does not show between the flashes.
+        string BlueCapPicture()
+        {
+            string? shared = null;
+            foreach (EyeDoorOrientation each in sides)
+            {
+                string side = SideName(each);
+                if (EyeDoorDraws.BlueCapFacing(each).ToString().ToLowerInvariant() != side)
+                    throw new InvalidDataException($"The eye door facing {side} flashes to a blue cap that faces another way.");
+                string frame = $"{side}-closed";
+                (int capLeft, int capTop, _, _) = RoomObjects.Bounds(GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName, frame);
+                (int eyeLeft, int eyeTop, _, _) = RoomObjects.Bounds(directory, RoomObjectEyeDoorVisualFiles.VisualId(EyeDoorDraws.Of(each, EyeDoorObjectFrame.ClosedEye)));
+                if ((capLeft, capTop) != (eyeLeft, eyeTop))
+                    throw new InvalidDataException($"The blue cap the eye door facing {side} flashes to does not start where the eye's pictures do.");
+                string named = RoomObjects.Picture(GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName, frame, DoorCapFolder)
+                    .Replace($"/{side}_", "/{side}_", StringComparison.Ordinal);
+                if (shared is not null && shared != named)
+                    throw new InvalidDataException($"The blue cap pictures {shared} and {named} are not one picture named for each side.");
+                shared = named;
+            }
+
+            return shared!.Contains("{side}", StringComparison.Ordinal)
+                ? shared
+                : throw new InvalidDataException($"The blue cap picture {shared} is not named for its side.");
+        }
+
+        // The eye's own frames, and the blue cap it flashes to.
+        string EyePicture(EyeDoorObjectFrame frame) => frame == EyeDoorObjectFrame.BlueCap ? BlueCapPicture() : BothSides(side => EyeDoorDraws.Of(side, frame));
 
         // Whether a shot can land on the eye while it shows a frame: only where the old game makes its block one that shots trigger.
         static bool LidUp(EyeDoorObjectFrame frame)

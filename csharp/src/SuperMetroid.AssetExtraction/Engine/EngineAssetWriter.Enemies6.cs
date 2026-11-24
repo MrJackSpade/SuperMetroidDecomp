@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.FaceBlocks;
@@ -84,5 +86,68 @@ public sealed partial class EngineAssetWriter
         for (int level = 0; level < FaceBlockGlowAnimations.Levels.Count; level++)
             face.ShadedSet($"_glow_{level}", $"face-block-glow-{FaceBlockGlowAnimations.Levels[level]}/0");
         face.Write();
+    }
+
+    /// <summary>Writes the Zebetites of Mother Brain's room and the fake Kraid.</summary>
+    private void WriteBarriersAndFakeKraid()
+    {
+        // The Zebetites: one enemy that stands as each barrier in turn, a single column or a pair, and shows how drained it is.
+        static JsonArray HealthPictures(EngineEnemy zebetite, ZebetiteBarrierForm form) =>
+            EngineNames.List(ZebetiteHealthPictureDefinitions.ByForm[form].Select(shown => (JsonNode)new JsonObject
+            {
+                ["health"] = shown.MinimumHealth,
+                ["picture"] = zebetite.Picture(shown.Picture),
+            }));
+        EngineEnemy zebetite = Enemy("enemies/zebetite.json", "Zebetite", EnemyDefinitionId.Zebetite).BodyColliders("Hurtbox", "Hurtbox2", "Solid", "Solid2")
+            .Value("pair_offset", ZebetiteDefinitions.SplitHalfOffset)
+            .Value("shot_sound", EngineNames.Sound(ZebetiteDefinitions.ShotSound))
+            // Each column goes with the small explosion of an enemy's death.
+            .Value("fall_effect", DeathFile(EnemyDeathExplosion.Small))
+            .Group("barriers", EngineNames.List(ZebetiteDefinitions.Generations.Select(barrier => (JsonNode)new JsonObject
+            {
+                ["x"] = barrier.X,
+                ["y"] = barrier.CentreY,
+                ["half_height"] = barrier.HalfHeight,
+                ["pair"] = barrier.Form == ZebetiteBarrierForm.SplitPair,
+            })));
+        zebetite.Group("health_pictures", HealthPictures(zebetite, ZebetiteBarrierForm.Single))
+            .Group("pair_health_pictures", HealthPictures(zebetite, ZebetiteBarrierForm.SplitPair))
+            .Write();
+
+        // The fake Kraid: its gobs of spit are thrown up and fall, and its spikes fly level; both end on what they meet.
+        Enemy("enemies/fake_kraid.json", "FakeKraid", EnemyDefinitionId.FakeKraid).BodyColliders(Ordinary)
+            .Value("step_pixels", FakeKraidProjectileDefinitions.StepPixels)
+            .Value("death_drops", FakeKraidProjectileDefinitions.DeathDropCount)
+            .Value("cry_sound", EngineNames.Sound(KraidSoundDefinitions.FakeKraidCry))
+            .Value("spike_sound", EngineNames.Sound(KraidSoundDefinitions.FakeKraidSpikeLaunch))
+            .Looks(FakeKraidAnimations.Segments, FakeKraidAnimations.StartingWith,
+                static (FakeKraidCue cue) => cue switch
+                {
+                    FakeKraidCue.Move => "move",
+                    FakeKraidCue.ChooseAction => "choose",
+                    FakeKraidCue.Spit => "spit",
+                    FakeKraidCue.PlayCrySound => "cry",
+                    _ => throw new InvalidDataException($"The fake Kraid's animation raises {cue}, which this does not know."),
+                },
+                ("step_forwards_left", FakeKraidSegment.StepForwardsFacingLeft), ("step_forwards_right", FakeKraidSegment.StepForwardsFacingRight),
+                ("step_backwards_left", FakeKraidSegment.StepBackwardsFacingLeft), ("step_backwards_right", FakeKraidSegment.StepBackwardsFacingRight),
+                ("fire_spit_left", FakeKraidSegment.FireSpitFacingLeft), ("fire_spit_right", FakeKraidSegment.FireSpitFacingRight))
+            .Shot("spit", RoomEnemyProjectileKind.FakeKraidSpit, static (kraid, _, projectile) =>
+            {
+                projectile["timeline"] = kraid.SpawnedPicture("spit", FakeKraidProjectileAnimation.ShownProjectileFrames[FakeKraidProjectilePose.Spit]);
+                projectile["picture_offset"] = EngineEnemy.NoOffset();
+                projectile["motion"] = "falling";
+                projectile["acceleration"] = EngineNames.Number(FakeKraidProjectileDefinitions.SpitGravity);
+                projectile["speed_limit"] = EngineNames.Number(FakeKraidProjectileDefinitions.SpitMaximumFallSpeed);
+            })
+            .Shot("spike", RoomEnemyProjectileKind.FakeKraidSpike, static (kraid, shot, projectile) =>
+            {
+                shot["speed"] = EngineNames.Number(FakeKraidProjectileDefinitions.SpikeSpeed);
+                kraid.SpawnedPicture("spike_left", FakeKraidProjectileAnimation.ShownProjectileFrames[FakeKraidProjectilePose.SpikeLeft]);
+                kraid.SpawnedPicture("spike_right", FakeKraidProjectileAnimation.ShownProjectileFrames[FakeKraidProjectilePose.SpikeRight]);
+                projectile["timeline"] = $"{kraid.Folder}/spike_{{side}}.json";
+                projectile["picture_offset"] = EngineEnemy.NoOffset();
+            })
+            .Write();
     }
 }

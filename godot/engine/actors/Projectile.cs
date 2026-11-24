@@ -319,7 +319,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 break;
             case ProjectileSettings.Moves.Falling:
                 bool wasRising = Velocity.Y.IsNegative;
-                Velocity = Velocity.WithY(Limit(Velocity.Y + _settings.Acceleration));
+                // The limit is on how fast it falls; however fast it was thrown up, it rises as it was thrown.
+                Pixels falling = Velocity.Y + _settings.Acceleration;
+                if (!_settings.SpeedLimit.IsZero && falling > _settings.SpeedLimit)
+                    falling = _settings.SpeedLimit;
+                Velocity = Velocity.WithY(falling);
                 if (wasRising && !Velocity.Y.IsNegative && _settings.FallingTimeline.Length > 0 && _visual is not null)
                     PlayTimeline(_settings.FallingTimeline);
                 break;

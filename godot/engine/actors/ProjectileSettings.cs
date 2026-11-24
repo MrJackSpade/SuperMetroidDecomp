@@ -104,7 +104,10 @@ public sealed record ProjectileSettings
     /// <summary>For one that accelerates, falls or homes: the speed it gains each update.</summary>
     public Pixels Acceleration { get; init; }
 
-    /// <summary>For one that accelerates, falls or homes: the most speed it reaches along either axis; zero for no limit.</summary>
+    /// <summary>
+    /// For one that accelerates or homes: the most speed it reaches along either axis. For one that falls: the fastest
+    /// it falls, which does not slow a throw upward. Zero for no limit.
+    /// </summary>
     public Pixels SpeedLimit { get; init; }
 
     /// <summary>For one that moves in a wave: how far it swings to each side.</summary>

@@ -173,6 +173,13 @@ internal sealed partial class EngineEnemy
         projectile["view_margin_below"] = EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth - ViewHeight;
     }
 
+    /// <summary>
+    /// Writes the timeline of something it launches that is one picture and never changes, under its own folder, and
+    /// returns the timeline's data file.
+    /// </summary>
+    internal string SpawnedPicture(string name, EnemyProjectileFrameId frame) =>
+        SpawnedTimeline<NoAnimationCue>(name, [new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.HeldFrame(frame)], null, static _ => null);
+
     /// <summary>The cue of something launched that only ever takes itself away, which a timeline does by ending.</summary>
     internal static string? EndsOnly(EnemyProjectileCommonCue cue) => cue is EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }
         ? null

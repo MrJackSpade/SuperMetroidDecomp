@@ -196,15 +196,15 @@ public partial class Ending : Cinematic
         {
             if (--_wait > 0)
                 return false;
+
+            // The update that sets the clouds up goes on, as the old ending's does, and counts as one of its updates.
             SetUpSideClouds();
             Session.Sounds.RequestMusic("");
             Compatibility.CartridgeSounds.Of(Session).AskMusicSet("zebes_explosion");
             Session.Sounds.RequestMusic(Music.ZebesExplosion, MusicWait);
             _phase = Phase.WaitingForEscapeMusic;
-            return false;
         }
-
-        if (_phase < Phase.Credits)
+        else if (_phase < Phase.Credits)
             StepEscape();
         else if (_phase < Phase.Gesture)
             StepCreditsAndWaiting();

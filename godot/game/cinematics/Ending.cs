@@ -99,8 +99,8 @@ public partial class Ending : Cinematic
         public Pixels Speed { get; set; }
     }
 
-    /// <summary>How many updates pass before anything shows.</summary>
-    private const int SetupUpdates = 9;
+    /// <summary>How many updates the set-up waits out before the update that sets the clouds up.</summary>
+    private const int SetupWaits = 9;
 
     /// <summary>How many turns of the music's queue each of its pieces of music waits once at its front.</summary>
     private const int MusicWait = 14;
@@ -120,6 +120,8 @@ public partial class Ending : Cinematic
     private TimelineSet _timelines = TimelineSet.None;
     private Phase _phase;
     private int _wait;
+    private int _setupWaited;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
     private int _frame;
 
     private ScreenFade? _fade;
@@ -148,6 +150,18 @@ public partial class Ending : Cinematic
 
     /// <inheritdoc/>
     protected override bool CanBeSkipped => false;
+
+    /// <inheritdoc/>
+    public override bool GivesMusicItsTurn => !WaitsOutDisplayFrame;
+
+    /// <inheritdoc/>
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
+
+    /// <summary>
+    /// Whether the update finishes a wait of the set-up for a frame of the display, as every update of the old set-up
+    /// after its first does, the one that sets the clouds up included: such an update gives the music and the sounds no turn.
+    /// </summary>
+    private bool WaitsOutDisplayFrame => _phase == Phase.Setup && _setupWaited > 0;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -186,16 +200,21 @@ public partial class Ending : Cinematic
         AddChild(_fade);
         _fade.FadeOut(1);
         _fade.Step();
-        (_phase, _wait) = (Phase.Setup, SetupUpdates);
+        (_phase, _setupWaited) = (Phase.Setup, 0);
     }
 
     /// <inheritdoc/>
     protected override bool Play(int elapsed)
     {
+        _closing = WaitsOutDisplayFrame ? ClosingSoundWork.None : ClosingSoundWork.Usual;
         if (_phase == Phase.Setup)
         {
-            if (--_wait > 0)
+            // The old set-up waits out nine updates and sets the clouds up on the tenth.
+            if (_setupWaited < SetupWaits)
+            {
+                _setupWaited++;
                 return false;
+            }
 
             // The update that sets the clouds up goes on, as the old ending's does, and counts as one of its updates.
             SetUpSideClouds();

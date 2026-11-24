@@ -3,6 +3,7 @@ using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Engine.Ui;
+using Game.Data;
 using Godot;
 
 namespace Game.Menus;
@@ -10,7 +11,7 @@ namespace Game.Menus;
 /// <summary>
 /// The game over screen. It stays black while every sound stops, it is set up (the larva starting and the music
 /// stopping) and the music is changed, and then it comes up out of black with its own music: its page, with the
-/// larva crying over its egg, and a cursor beside yes or no. Up and down move the cursor; confirming fades the
+/// larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
 /// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
 /// no to the title. Its fades go a level of brightness an update.
 /// </summary>
@@ -125,7 +126,7 @@ public partial class GameOverMode : GameMode
             return this;
         }
 
-        if (input.WasPressed(GameAction.Up) || input.WasPressed(GameAction.Down))
+        if (input.WasPressed(Actions.ItemSelect) || input.WasPressed(GameAction.Up) || input.WasPressed(GameAction.Down))
         {
             _yes = !_yes;
             CinematicSprite cursor = _cursor ?? throw NotShown();

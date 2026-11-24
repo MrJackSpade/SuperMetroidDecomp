@@ -167,9 +167,9 @@ internal sealed partial class EngineLayouts
                 }
 
                 RoomBlockAppearance appearance = cell.Block is int block ? RoomBlockAppearance.Of(block).WithMirroring(cell.Mirroring) : RoomBlockAppearance.Nothing;
-                RoomBlockBehavior behavior = cell.Collision is RoomCollisionType.SolidBlock or RoomCollisionType.Air
-                    ? RoomBlockBehavior.None
-                    : throw new InvalidDataException($"The patch {name} of the layout {path} makes a block {cell.Collision}, which a patch does not yet know how to write.");
+                // As in the old game, a change gives a block its kind and its picture and leaves what the level says
+                // the block there does: its slope, its reaction.
+                RoomBlockBehavior behavior = layout.Level.Behaviors[y * layout.Level.Size.X + x].In(room.Area);
                 row.Append(Letter(layout, Tile(new RoomTerrainBlock(appearance, cell.Collision), behavior, underElevator: false, layout.Tileset), path));
             }
 

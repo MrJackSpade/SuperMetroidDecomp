@@ -94,6 +94,9 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
 
         if (_blastUpdate >= BlastReaches.Length)
         {
+            // The blast's end offers a crystal flash to the Samus who laid it, should she lie exactly where it lay.
+            if (Launcher is Samus samus)
+                samus.PowerBombBlastEnded(Position);
             Leave(room);
             return;
         }

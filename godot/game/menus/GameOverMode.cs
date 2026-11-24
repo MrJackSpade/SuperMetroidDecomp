@@ -103,7 +103,9 @@ public partial class GameOverMode : GameMode
     /// <summary>Plays one update of the larva, its egg and the cursor; the larva's cries are heard as its timeline reaches them.</summary>
     private void StepSprites()
     {
-        foreach (string cue in (_baby ?? throw NotShown()).Step())
+        // Once an answer is given the larva holds the look it has while the screen fades.
+        IReadOnlyList<string> cues = _continues is null ? (_baby ?? throw NotShown()).Step() : [];
+        foreach (string cue in cues)
         {
             if (!cue.StartsWith(SoundCue, StringComparison.Ordinal))
                 throw new InvalidOperationException($"The larva's timeline gives the cue \"{cue}\", which the game over screen does not know.");

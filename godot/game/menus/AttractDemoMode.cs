@@ -15,7 +15,8 @@ namespace Game.Menus;
 /// <remarks>
 /// A demo's file is a recording, with the room it plays in; it gives where in the room Samus starts ("start": "x",
 /// "y" and the way she is "facing"), how long it lasts ("lasts_updates"), and may list the "equipment" she has, which
-/// of it is switched "off", how much of each thing she can carry ("capacities") and how much she has ("amounts").
+/// of it is switched "off", how much of each thing she can carry ("capacities") and how much she has ("amounts"),
+/// and the "facts" that are so before its room is entered.
 /// </remarks>
 public partial class AttractDemoMode : PlayingMode
 {
@@ -28,6 +29,19 @@ public partial class AttractDemoMode : PlayingMode
     {
         _data = data;
         _recording = new RecordedInputSource(recording);
+    }
+
+    /// <inheritdoc/>
+    protected override void Enter()
+    {
+        // What the demo says has already happened is so before its room is entered.
+        if (_data.Has("facts"))
+        {
+            foreach (DataNode fact in _data.List("facts"))
+                Session.Progress.Record(fact.AsText());
+        }
+
+        base.Enter();
     }
 
     /// <summary>The demo in the file at <paramref name="file"/>, a path within the assets tree.</summary>

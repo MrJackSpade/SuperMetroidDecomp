@@ -244,6 +244,10 @@ public sealed partial class EngineAssetWriter
         data["start"] = start;
         data["lasts_updates"] = scene.Duration;
 
+        // One demo plays in Kraid's room with Kraid already beaten.
+        if (scene.RoomSetup == AttractDemoRoomSetup.DefeatedKraid)
+            data["facts"] = new JsonArray(EngineSheets.FileName(nameof(SuperMetroid.Core.Progression.AreaBoss.Kraid)) + "_defeated");
+
         var equipment = new JsonArray();
         var off = new JsonArray();
         foreach (SamusEquipmentFlags item in Enum.GetValues<SamusEquipmentFlags>().Where(item => item != SamusEquipmentFlags.None && scene.Items.HasFlag(item)))

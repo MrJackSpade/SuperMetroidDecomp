@@ -134,9 +134,11 @@ public partial class Room : Node2D
 
     /// <summary>
     /// Sets the room up for the player's arrival: chooses its version, loads its terrain, keeps the placed things whose
-    /// conditions hold, puts each in its starting state, and places the player.
+    /// conditions hold, puts each in its starting state, and places the player. A room set up to be played asks for
+    /// its version's music once the version is chosen, before anything of the room enters, so that music its things
+    /// ask for as they enter comes after the room's own.
     /// </summary>
-    public void Setup(GameSession session, Player player, RoomEntry entry)
+    public void Setup(GameSession session, Player player, RoomEntry entry, bool asksForMusic = false)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(player);
@@ -173,6 +175,8 @@ public partial class Room : Node2D
         _content = Session.Content.DrawnWith(_terrain.Graphics);
         foreach (string patch in Version?.Patches ?? [])
             _terrain.ApplyPatch(patch);
+        if (asksForMusic)
+            Session.Sounds.EnterRoom(this);
 
         foreach (Node child in GetChildren())
         {

@@ -60,7 +60,7 @@ public sealed class SoundRequests
         Flow.AskMusic(music, wait);
     }
 
-    /// <summary>Asks for the music of a room that has been set up for the player's arrival.</summary>
+    /// <summary>Asks for the music of a room being set up to be played. The room asks, once its version is chosen.</summary>
     public void EnterRoom(Room room)
     {
         ArgumentNullException.ThrowIfNull(room);

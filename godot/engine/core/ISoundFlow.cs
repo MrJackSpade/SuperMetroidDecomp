@@ -35,8 +35,8 @@ public interface ISoundFlow
     void AskMusic(string music, int wait);
 
     /// <summary>
-    /// A room has been set up for the player's arrival: its version's music is asked for, in whatever way the flow
-    /// asks for a room's music.
+    /// A room is being set up to be played: its version is chosen and nothing of the room has entered yet. Its
+    /// version's music is asked for, in whatever way the flow asks for a room's music.
     /// </summary>
     void EnterRoom(Room room);
 

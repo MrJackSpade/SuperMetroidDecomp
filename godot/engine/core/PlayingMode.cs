@@ -83,8 +83,7 @@ public partial class PlayingMode : GameMode
         _room = Session.Definition.CreateRoom(scene);
         _roomScene = scene;
         AddChild(_room);
-        _room.Setup(Session, Session.Player, entry);
-        Session.Sounds.EnterRoom(_room);
+        _room.Setup(Session, Session.Player, entry, asksForMusic: true);
         _hud?.Refresh(Session, _room);
     }
 

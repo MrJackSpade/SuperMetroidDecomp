@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -37,9 +39,17 @@ internal static class CrocomireSpikeWallColoursVerification
         {
             var shades = piece.Graphics.Shading.Shades;
             AssertTrue(!shades.Contains(EnemyShades.HurtFlash), "a wall piece does not draw in the skeleton's hurt flash");
-            AssertTrue(shades.Contains(CrocomireShades.Wall), "a wall piece draws in the wall's colours");
             AssertTrue(shades.Contains(CrocomireShades.WallSpikes), "a wall piece draws in the wall spikes' colours his death loaded");
+            // The piece draws from the sheet its graphics name in Crocomire's room, which must hold every shade it is drawn
+            // in (#2660): drawing it reads each one, and a shade the sheet lacks threw as the pieces fell.
+            SpriteSheetFrame picture = InstalledFixtures.EnemySheets.Spawned(RoomEnemyGraphicsSetDefinitions.Crocomire, piece.Graphics.Owner)
+                .Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.CrocomireSpikeWallPiece));
+            foreach (PictureShade shade in shades)
+                _ = picture.Sheet.Shade(shade);
         }
+        // Its sheet shows it in the wall's colours: the frame family is pre-coloured in them (#1513).
+        AssertTrue(FrameColouringDefinitions.Projectiles[EnemyProjectileFrameId.CrocomireSpikeWallPiece].Shades.Contains(CrocomireShades.Wall),
+            "the wall pieces' pictures are pre-coloured in the wall's colours");
         Console.WriteLine("  Crocomire spike wall: the falling pieces draw in the wall's colours, not the skeleton's hurt flash.");
     }
 

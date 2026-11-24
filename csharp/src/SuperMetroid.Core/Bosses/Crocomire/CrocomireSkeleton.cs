@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -269,11 +270,12 @@ internal sealed partial class CrocomireSkeleton
     /// <remarks>
     /// The pieces draw in the wall's colours with the colours his death has loaded laid over them (#2657): the game clears
     /// his palette before it spawns them ($A4:9995), so its pieces show the wall's and the wall spikes' rows as those
-    /// colours leave them, never the skeleton's hurt flash.
+    /// colours leave them, never the skeleton's hurt flash. His sheet is pre-coloured in the wall's colours for them, so they
+    /// draw in its standard colours under his death's (#2660).
     /// </remarks>
     internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Colours.OverSprites(CrocomireColours.WallShading));
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Colours.OverSprites(PictureShading.Standard));
 
         foreach (CrocomireSpikeWallPiece piece in CrocomireSpikeMotionDefinitions.Pieces.Reverse())
         {

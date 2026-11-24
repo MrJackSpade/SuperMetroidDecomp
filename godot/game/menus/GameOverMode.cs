@@ -9,7 +9,7 @@ using Godot;
 namespace Game.Menus;
 
 /// <summary>
-/// The game over screen. It stays black while every sound stops, it is set up (the larva starting and the music
+/// The game over screen. It stays black while the room's sounds stop, it is set up (the larva starting and the music
 /// stopping) and the music is changed, and then it comes up out of black with its own music: its page, with the
 /// larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
 /// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
@@ -83,9 +83,9 @@ public partial class GameOverMode : GameMode
         ScreenFade fade = _fade ?? throw NotShown();
         if (_blackUpdates < Data().Int("entry_black_updates"))
         {
-            // Every sound stops on its first update: the old game stops the room's, the others having stopped as Samus died.
+            // The room's sounds stop on its first update; the old game asks only the room's library here.
             if (_blackUpdates++ == 0)
-                Session.Sounds.StopAll();
+                Session.Sounds.Request(Sounds.RoomStop, channel: "room");
             return this;
         }
 

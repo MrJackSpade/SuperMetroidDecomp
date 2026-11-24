@@ -844,7 +844,6 @@ public partial class Samus : Player
             SelectBeam();
     }
 
-
     /// <summary>
     /// The beam whose special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
     /// beams. Null when she carries none of them or more than one.

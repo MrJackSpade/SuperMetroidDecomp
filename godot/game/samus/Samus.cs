@@ -36,12 +36,24 @@ public partial class Samus : Player
     [Export, DataValue("low_energy")]
     public int LowEnergy { get; set; } = 30;
 
+    /// <summary>How many updates each picture of her running stride lasts, from its first to its last.</summary>
+    [Export, DataValue("run_stride_updates")]
+    public int[] RunStrideUpdates { get; set; } = [];
+
+    /// <summary>How many updates each picture of the stride lasts while a dash carries her, with the speed booster off.</summary>
+    [Export, DataValue("dash_stride_updates")]
+    public int[] DashStrideUpdates { get; set; } = [];
+
     /// <summary>
-    /// How many updates of dashing each stage of the speed booster's boost takes, from the first to the last. Having
-    /// run through them all, she is boosting.
+    /// How many updates each picture of the stride lasts while the speed booster's dash carries her, at each stage of
+    /// its boost: a stride's worth for the first stage, then the next stage's, to the last, at which she is boosting.
     /// </summary>
-    [Export, DataValue("boost_stage_updates")]
-    public int[] BoostStageUpdates { get; set; } = [];
+    [Export, DataValue("boost_stride_updates")]
+    public int[] BoostStrideUpdates { get; set; } = [];
+
+    /// <summary>How many strides she must complete, dashing, at each stage of the boost before the stage is done.</summary>
+    [Export, DataValue("boost_stride_counts")]
+    public int[] BoostStrideCounts { get; set; } = [];
 
     /// <summary>How many updates a stored shine lasts.</summary>
     [Export, DataValue("stored_shine_updates")]
@@ -188,8 +200,9 @@ public partial class Samus : Player
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _grappleOrigins = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _shotHeights = new(StringComparer.Ordinal);
     private Countdown _shine = Countdown.Over;
-    private Countdown _boostStageLeft = Countdown.Over;
     private int _boostStage = -1;
+    private int _strideAt, _strideLeft, _stridesLeft;
+    private bool _ranFromStart;
     private bool _autoCancel;
     private bool _spreadCharged;
     private int _spreadHeld;
@@ -209,10 +222,13 @@ public partial class Samus : Player
     public TimelineSet Timelines { get; private set; } = TimelineSet.None;
 
     /// <summary>Whether the speed booster has brought her to full speed: she is boosting.</summary>
-    public bool IsBoosting => BoostStageUpdates.Length > 0 && _boostStage >= BoostStageUpdates.Length;
+    public bool IsBoosting => BoostStrideCounts.Length > 0 && _boostStage >= FullBoostStage;
 
-    /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the number of stages when boosting.</summary>
+    /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the last when boosting.</summary>
     public int BoostStage => Math.Max(0, _boostStage);
+
+    /// <summary>The last stage of the boost: the one at which she is boosting.</summary>
+    private int FullBoostStage => BoostStrideCounts.Length - 1;
 
     /// <summary>Whether she has a shine stored.</summary>
     public bool HasStoredShine => _shine.IsRunning;
@@ -426,6 +442,10 @@ public partial class Samus : Player
         if (to is not RunningState)
             return to;
         bool alreadyRunning = from is RunningState;
+
+        // A run taken up afresh starts its stride again.
+        if (!alreadyRunning && RunStrideUpdates.Length > 0)
+            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0]);
         RunPose pose = NextRunPose(alreadyRunning);
         bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
         _runPose = pose;
@@ -466,14 +486,10 @@ public partial class Samus : Player
     public void SpendShine() => _shine = Countdown.Over;
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
-    public void BoostFully() => _boostStage = BoostStageUpdates.Length;
+    public void BoostFully() => _boostStage = FullBoostStage;
 
     /// <summary>Ends her boost.</summary>
-    public void EndBoost()
-    {
-        _boostStage = -1;
-        _boostStageLeft = Countdown.Over;
-    }
+    public void EndBoost() => _boostStage = -1;
 
     /// <inheritdoc/>
     protected override void BeforeState()
@@ -484,6 +500,7 @@ public partial class Samus : Player
             power.IsActive = false;
         if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
             boost.IsActive = true;
+        _ranFromStart = State is RunningState;
         _shine = _shine.Stepped();
         ChooseItem();
 
@@ -808,10 +825,10 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnMomentumBegan()
     {
-        if (!Inventory.IsOn(Equipment.SpeedBooster) || BoostStageUpdates.Length == 0)
+        if (!Inventory.IsOn(Equipment.SpeedBooster) || BoostStrideCounts.Length == 0)
             return;
         _boostStage = 0;
-        _boostStageLeft = Countdown.Of(BoostStageUpdates[0]);
+        _stridesLeft = BoostStrideCounts[0];
     }
 
     /// <inheritdoc/>
@@ -848,25 +865,78 @@ public partial class Samus : Player
         // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
         if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
             LoseMomentum();
-        StepBoost();
+        if (_ranFromStart && State is RunningState)
+            StepStride();
         WarnOfLowEnergy();
         Grapple?.Step(this);
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }
 
-    /// <summary>Moves the speed booster's stages on while she dashes with it switched on.</summary>
-    private void StepBoost()
+    /// <summary>
+    /// Moves her running stride on by one update. The speed booster's boost is counted in strides: each one completed
+    /// with momentum and the dash held counts one off the stage she is at, and with none left the stage is done. How
+    /// long each picture of the stride lasts depends on what carries her, so the stages come quicker as they go.
+    /// </summary>
+    private void StepStride()
     {
-        if (_boostStage < 0 || IsBoosting || State is not RunningState || !HasMomentum || !DashIsHeld)
+        if (RunStrideUpdates.Length == 0 || --_strideLeft > 0)
             return;
-        _boostStageLeft = _boostStageLeft.Stepped();
-        if (_boostStageLeft.IsRunning)
+        _strideAt++;
+        if (_strideAt < RunStrideUpdates.Length)
+        {
+            _strideLeft = StridePictureUpdates(_strideAt);
             return;
-        _boostStage++;
-        if (IsBoosting)
-            Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
-        else
-            _boostStageLeft = Countdown.Of(BoostStageUpdates[_boostStage]);
+        }
+
+        // The stride is complete, and begins again.
+        _strideAt = 0;
+        bool dashing = HasMomentum && DashIsHeld;
+        if (!dashing)
+        {
+            _strideLeft = RunStrideUpdates[0];
+            return;
+        }
+
+        if (_boostStage < 0)
+        {
+            _strideLeft = DashStrideUpdates[0];
+            return;
+        }
+
+        if (_stridesLeft > 0)
+            _stridesLeft--;
+        if (_stridesLeft > 0)
+        {
+            _strideLeft = RunStrideUpdates[0];
+            return;
+        }
+
+        // The stage is done. Reaching the last, she is boosting, and the stride starts again at the first stage's
+        // pace, as the cartridge has it when nothing else is sounding.
+        int pace = _boostStage;
+        if (!IsBoosting)
+        {
+            _boostStage++;
+            pace = _boostStage;
+            if (IsBoosting)
+            {
+                Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+                pace = 0;
+            }
+        }
+
+        _stridesLeft = BoostStrideCounts[pace];
+        _strideLeft = BoostStrideUpdates[pace * RunStrideUpdates.Length];
+    }
+
+    /// <summary>How many updates a picture of her stride lasts now: by her dash and the boost's stage while she has momentum, and otherwise its own length.</summary>
+    private int StridePictureUpdates(int picture)
+    {
+        if (!HasMomentum)
+            return RunStrideUpdates[picture];
+        return Inventory.IsOn(Equipment.SpeedBooster)
+            ? BoostStrideUpdates[BoostStage * RunStrideUpdates.Length + picture]
+            : DashStrideUpdates[picture];
     }
 
     /// <summary>Starts the warning as her energy falls low and stops it as her energy recovers. The warning goes on by itself in between.</summary>

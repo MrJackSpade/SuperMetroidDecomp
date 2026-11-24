@@ -195,12 +195,15 @@ public sealed partial class EngineAssetWriter
         foreach (string weapon in SamusWeaponFiles)
             weapons.Add(weapon);
 
-        // Each stage of the speed booster lasts the runs of her stride the old game counts for it, at that stage's pace.
-        var boostStages = new JsonArray();
-        for (int stage = 0; stage < SamusSpeedBoostCounter.FullStage; stage++)
+        // The speed booster's boost is counted in strides of her run. Each stage has its own pace for the stride's
+        // pictures and its own count of strides.
+        var boostStrides = new List<int>();
+        var boostCounts = new List<int>();
+        for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
         {
             SamusRunningCadenceTiming timing = SamusRunningCadenceDefinitions.Timings.Values.Single(cadence => cadence.Boost?.Stage == stage);
-            boostStages.Add(timing.Delays.Sum() * timing.Boost!.CountdownAfterAdvance);
+            boostStrides.AddRange(timing.Delays);
+            boostCounts.Add(timing.Boost!.CountdownAfterAdvance);
         }
 
         var file = new EngineObjectFile(_tree, "samus/samus.json", "Samus");
@@ -271,7 +274,10 @@ public sealed partial class EngineAssetWriter
             .Value("varia_damage_over", SamusSuitDamageDefinitions.VariaDivisor)
             .Value("gravity_damage_over", SamusSuitDamageDefinitions.GravityDivisor)
             .Value("low_energy", SamusEnergyDefinitions.HealthyEnergy - 1)
-            .Value("boost_stage_updates", boostStages)
+            .Value("run_stride_updates", EngineNames.List(SamusPoseTraits.Of(P.MovingRightNormalPose).Animation.Segment(Seg.Run).Delays))
+            .Value("dash_stride_updates", EngineNames.List(SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays))
+            .Value("boost_stride_updates", EngineNames.List(boostStrides))
+            .Value("boost_stride_counts", EngineNames.List(boostCounts))
             .Value("stored_shine_updates", ShinesparkDefinitions.StoredShineFrames)
             .Value("shinespark_windup_updates", ShinesparkDefinitions.WindupFrames)
             .Value("shinespark_speed", Number(ShinesparkDefinitions.WindupRunSpeed))

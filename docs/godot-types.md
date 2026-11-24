@@ -757,6 +757,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
   held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
   press of down while already aiming down, or in a wall jump, curls her up.
+- **Her boost** is counted in strides of her run. The stride's ten pictures each last their own updates
+  (`run_stride_updates`), or the dash's (`dash_stride_updates`), or, with the speed booster on, those of the stage
+  of the boost she is at (`boost_stride_updates`); a run taken up afresh starts the stride again. Each stride
+  completed with momentum and the dash held counts one off the stage (`boost_stride_counts`), and with none left
+  the stage is done; at the last she is boosting. A dash begun partway through a stride reaches its first stage as
+  that stride ends.
 - **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
   wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
   down at other than a whole number of pixels an update.

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -49,9 +50,10 @@ internal sealed partial class EngineEnemy
         if (EngineAssetWriter.Drops(Definition.Drops) is { } drops)
             Data["drops"] = drops;
         Data["death"] = EngineAssetWriter.Death(Definition.DeathExplosion);
-        if (Definition.HurtSoundEffect is { } cry && EngineNames.Sound(cry) is { } cryName)
-            Data["hurt_sound"] = cryName;
-        Data["status_sounds"] = new JsonObject { ["frozen"] = EngineNames.Sound(RoomSound.EnemyFrozen) };
+        // A shot's hurt cry and the sound of being frozen each join only a queue holding at most two.
+        if (Definition.HurtSoundEffect is { } cry && EngineNames.Sound(cry) is not null)
+            Data["hurt_sound"] = EngineNames.Sound(cry, SoundRequestPriority.Low);
+        Data["status_sounds"] = new JsonObject { ["frozen"] = EngineNames.Sound(RoomSound.EnemyFrozen, SoundRequestPriority.Low) };
     }
 
     /// <summary>What the old game's list of enemies says of it.</summary>

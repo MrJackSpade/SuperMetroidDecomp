@@ -202,7 +202,7 @@ public sealed partial class EngineAssetWriter
         glass.Collider("Hurtbox", 0, 0, RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels)
             .Collider("Solid", 0, 0, RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels)
             .Value("shard_drop", MotherBrainGlassShardDefinitions.EmitterY)
-            .Value("shatter_sound", EngineNames.Sound(RoomSound.MotherBrainGlassShatter))
+            .Value("shatter_sound", EngineNames.Sound(RoomSound.MotherBrainGlassShatter, MotherBrainGlassObjects.ShatterSoundPriority))
             .Value("burst_updates", MotherBrainGlassStageDefinitions.BurstFrameDuration)
             .Value("shatter_updates", MotherBrainGlassStageDefinitions.FinalShatterDuration)
             .Value("shattered_patch", GlassPatch(MotherBrainGlassStageDefinitions.ShatteredImage))

@@ -82,14 +82,17 @@ public sealed partial class EngineAssetWriter
         WritePickup(EnemyPickupKind.PowerBomb, "power bomb", "power_bombs", null, EnemyPickupDefinitions.PowerBombAmount, EnemySound.AmmoPickup);
     }
 
-    /// <summary>What an event of a death becomes in the timeline its remains play.</summary>
+    /// <summary>What an event of a death becomes in the timeline its remains play. A death's sound joins only an empty queue.</summary>
     private static string? DeathCue(EnemyDeathAndDropCue cue) => cue switch
     {
         EnemyDeathAndDropCue.SpawnEffectActor spawn => Scatter(spawn),
         EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.BecomePickup } => "drop",
-        EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.PlayEnemyKilledSound } => EngineNames.SoundCue(EnemyDeathsAndDrops.EnemyKilledSound),
-        EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.PlaySmallExplosionSound } => EngineNames.SoundCue(EnemySoundEffectDefinitions.DeathSmallExplosionSound),
-        EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.PlayContactKilledSound } => EngineNames.SoundCue(EnemySoundEffectDefinitions.DeathContactKilledSound),
+        EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.PlayEnemyKilledSound } =>
+            EngineNames.SoundCue(EnemyDeathsAndDrops.EnemyKilledSound, SoundRequestPriority.WhenIdle),
+        EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.PlaySmallExplosionSound } =>
+            EngineNames.SoundCue(EnemySoundEffectDefinitions.DeathSmallExplosionSound, SoundRequestPriority.WhenIdle),
+        EnemyDeathAndDropCue.Signal { Kind: EnemyDeathAndDropCueKind.PlayContactKilledSound } =>
+            EngineNames.SoundCue(EnemySoundEffectDefinitions.DeathContactKilledSound, SoundRequestPriority.WhenIdle),
         _ => throw new InvalidDataException($"A death raises {cue}, which this does not know."),
     };
 
@@ -145,7 +148,8 @@ public sealed partial class EngineAssetWriter
             ["lasts_updates"] = EnemyPickupDefinitions.Lifetime,
             ["size"] = drop.Radius.X * 2,
             ["timeline"] = timelineFile,
-            ["sound"] = EngineNames.Sound(sound),
+            // A pickup's sound joins only an empty queue.
+            ["sound"] = EngineNames.Sound(sound, SoundRequestPriority.WhenIdle),
         };
         if (thenTo is not null)
             data["then_to"] = thenTo;

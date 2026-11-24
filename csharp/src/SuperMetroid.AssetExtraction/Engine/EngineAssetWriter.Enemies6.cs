@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.WreckedShip;
+using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -20,7 +21,8 @@ public sealed partial class EngineAssetWriter
             ? "end_hop"
             : throw new InvalidDataException($"A corpse's animation raises {cue.Kind}, which this does not know.");
 
-        // Each corpse lies in one look, and has so many rows to crumble.
+        // Each corpse lies in one look, and has so many rows to crumble. The dust of a row joins only a queue holding
+        // at most two.
         foreach ((string file, EnemyDefinitionId id, DeadTourianCorpseDefinition corpse) in new[]
                  {
                      ("zoomer_on_its_back", EnemyDefinitionId.CorpseZoomer, DeadTourianCorpseDefinitions.ZoomerOnItsBack),
@@ -35,7 +37,7 @@ public sealed partial class EngineAssetWriter
                 .Value("rows", corpse.RowCount)
                 .Value("disturbed_updates", CorpseRotScheduleDefinitions.PreRotDelayUpdates)
                 .Value("dust_effect", DustFile(DustExplosionAnimation.CorpseDustCloud))
-                .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage))
+                .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage, SoundRequestPriority.Low))
                 .Timeline("corpse", DeadTourianAnimations.Segments, DeadTourianAnimations.StartingWith(corpse.InitialAnimation), CorpseCue)
                 .Write();
         }
@@ -46,7 +48,7 @@ public sealed partial class EngineAssetWriter
             .Value("rows", DeadSidehopperCorpseDefinitions.RowCount)
             .Value("disturbed_updates", CorpseRotScheduleDefinitions.PreRotDelayUpdates)
             .Value("dust_effect", DustFile(DustExplosionAnimation.CorpseDustCloud))
-            .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage))
+            .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage, SoundRequestPriority.Low))
             .Looks(DeadTourianAnimations.Segments, DeadTourianAnimations.StartingWith, CorpseCue,
                 ("idle", DeadTourianSegment.SidehopperIdle), ("hopping", DeadTourianSegment.SidehopperHopping),
                 ("corpse", DeadTourianSegment.SidehopperCorpse), ("initially_dead", DeadTourianSegment.SidehopperInitiallyDead))

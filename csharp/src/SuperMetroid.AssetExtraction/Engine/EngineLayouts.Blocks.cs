@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -278,7 +279,7 @@ internal sealed partial class EngineLayouts
     /// pictures those are, which every set of graphics that shows the block must have.
     /// </summary>
     /// <exception cref="InvalidDataException">The change shows something other than a block breaking up and coming back.</exception>
-    private static List<int> AddBreakup(JsonObject rules, IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> frames)
+    private static List<int> AddBreakup(JsonObject rules, IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> frames)
     {
         var breaking = new JsonArray();
         var regrowing = new JsonArray();
@@ -286,10 +287,11 @@ internal sealed partial class EngineLayouts
         int updatesInAll = 0;
         bool gone = false, back = false;
         string? sound = null;
-        foreach ((BreakupFrame shown, int updates, SoundEffectId? heard) in frames)
+        foreach ((BreakupFrame shown, int updates, SoundEffectId? heard, SoundRequestPriority priority) in frames)
         {
-            if (heard is { } effect)
-                sound ??= EngineNames.Sound(effect);
+            // The sound is named with the priority the change asks for it with.
+            if (heard is { } effect && EngineNames.Sound(effect) is not null)
+                sound ??= EngineNames.Sound(effect, priority);
             if (shown.Whole)
             {
                 back = true;
@@ -436,19 +438,19 @@ internal sealed partial class EngineLayouts
     }
 
     /// <summary>The frames of a change to a block that undoes itself.</summary>
-    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> Frames(BlockReactionChange change) =>
-        change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore));
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> Frames(BlockReactionChange change) =>
+        change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore, frame.SoundPriority));
 
     /// <summary>The frames of a change to a block that lasts.</summary>
-    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> Frames(LastingBlockReactionChange change) =>
-        change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore));
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> Frames(LastingBlockReactionChange change) =>
+        change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore, frame.SoundPriority));
 
     /// <summary>
     /// The frames of a block the grapple beam breaks, from when it starts to break: before that the old game shows it
     /// whole for as long as it holds, which is not part of its breaking.
     /// </summary>
     /// <exception cref="InvalidDataException">The change shows something that is not a picture of a grapple block.</exception>
-    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> GrappleFrames(BlockReactionChange change) =>
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> GrappleFrames(BlockReactionChange change) =>
         GrappleFrames(change, held => { });
 
     /// <summary>How many updates the old game shows a block the grapple beam breaks whole, once the beam has it, before it breaks.</summary>
@@ -456,14 +458,14 @@ internal sealed partial class EngineLayouts
     private int GrappleHeldUpdates(BlockReactionChange change)
     {
         int held = 0;
-        foreach ((BreakupFrame _, int _, SoundEffectId? _) in GrappleFrames(change, updates => held += updates))
+        foreach ((BreakupFrame _, int _, SoundEffectId? _, SoundRequestPriority _) in GrappleFrames(change, updates => held += updates))
         {
         }
 
         return held > 0 ? held : throw new InvalidDataException("A grapple block that breaks is never shown whole before it does.");
     }
 
-    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> GrappleFrames(BlockReactionChange change, Action<int> heldFor)
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> GrappleFrames(BlockReactionChange change, Action<int> heldFor)
     {
         const string directory = GameInstallationLayout.RoomObjectGrappleBlockVisualDirectoryName;
         bool breaking = false;
@@ -471,7 +473,7 @@ internal sealed partial class EngineLayouts
         {
             if (frame.Image is not BlockReactionImage.Drawn { Draw: RoomObjectFrameDraw<GrappleBlockDraw> draw })
             {
-                yield return (new BreakupFrame(true, null), frame.Updates, frame.SoundBefore);
+                yield return (new BreakupFrame(true, null), frame.Updates, frame.SoundBefore, frame.SoundPriority);
                 continue;
             }
 
@@ -485,7 +487,7 @@ internal sealed partial class EngineLayouts
 
             breaking = true;
             int? block = FrameBlock(directory, RoomObjectGrappleBlockVisualFiles.VisualId(draw.Frame), 0, 0)?.Block;
-            yield return (new BreakupFrame(false, block), frame.Updates, frame.SoundBefore);
+            yield return (new BreakupFrame(false, block), frame.Updates, frame.SoundBefore, frame.SoundPriority);
         }
     }
 

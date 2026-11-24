@@ -210,7 +210,10 @@ public sealed partial class EngineAssetWriter
         }
 
         JsonArray Shots(JsonObject projectile) => [new JsonObject { ["side"] = 0, ["projectile"] = projectile }];
-        string? Sound(SamusBeamCombination beams, bool charged) => SamusProjectileSoundRouting.Resolve(charged, beams) is { } sound ? EngineNames.Sound(sound) : null;
+        // Nothing turns a beam's shot away.
+        string? Sound(SamusBeamCombination beams, bool charged) => SamusProjectileSoundRouting.Resolve(charged, beams) is { } sound
+            ? EngineNames.Sound(sound, SoundRequestPriority.Essential)
+            : null;
         string SoundOf(SamusBeamCombination beams, bool charged) =>
             Sound(beams, charged) ?? throw new InvalidDataException($"The {beams} beam makes no sound as it is fired, which this expects it to.");
 

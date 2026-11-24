@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
+using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -141,7 +142,8 @@ public sealed partial class EngineAssetWriter
         static string? Burst(SporeSpawnSporeCue cue) => cue switch
         {
             SporeSpawnSporeCue.SetImpactProperties => "harmless",
-            SporeSpawnSporeCue.QueueKilledSound => EngineNames.SoundCue(EnemyDeathsAndDrops.EnemyKilledSound),
+            // The cry of a death, which joins only an empty queue.
+            SporeSpawnSporeCue.QueueKilledSound => EngineNames.SoundCue(EnemyDeathsAndDrops.EnemyKilledSound, SoundRequestPriority.WhenIdle),
             SporeSpawnSporeCue.RequestDrop => "drop",
             // It takes itself away, which a timeline does by ending.
             SporeSpawnSporeCue.Delete => null,

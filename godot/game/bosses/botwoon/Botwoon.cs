@@ -169,8 +169,14 @@ public partial class Botwoon : Enemy
     private int _largeIn = 1;
     private int _smallIn = 1;
 
-    /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => _death == Death.Alive && !_insideHole && base.IsHitBy(side);
+    /// <summary>
+    /// Whether its head meets shots and Samus: not inside the wall, and not once it is dead. The segments of its body
+    /// out of the wall meet shots all the same, the old game's segments being things of their own.
+    /// </summary>
+    private bool HeadIsTangible => _death == Death.Alive && !_insideHole;
+
+    /// <summary>Switches its head's hurtbox on or off as its head meets shots or not.</summary>
+    private void ShowHeadTangible() => GetNode<Collider>("Hurtbox").Enabled = HeadIsTangible;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -247,6 +253,7 @@ public partial class Botwoon : Enemy
         // Dead, it carries on until the last of it is out of the wall, and only then falls.
         if (_death == Death.Alive)
             _death = Death.AwaitingTailExit;
+        ShowHeadTangible();
         return false;
     }
 
@@ -259,7 +266,7 @@ public partial class Botwoon : Enemy
             return;
         }
 
-        if (_death == Death.Alive && !_insideHole)
+        if (HeadIsTangible)
             base.Touch(part);
     }
 
@@ -665,6 +672,7 @@ public partial class Botwoon : Enemy
     /// <summary>Puts each segment of its body where it is, pointing at the one ahead of it.</summary>
     private void ShowBody()
     {
+        ShowHeadTangible();
         _ripple?.Step();
         for (int segment = 0; segment < Segments; segment++)
         {

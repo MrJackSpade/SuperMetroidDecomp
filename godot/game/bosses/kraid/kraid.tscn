@@ -52,6 +52,46 @@ Role = 1
 script = ExtResource("2")
 Role = 1
 
+[node name="ArmShield1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield4" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield5" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield6" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield7" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield8" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield9" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="ArmShield10" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
 [node name="Arm1" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 2

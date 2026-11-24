@@ -399,6 +399,7 @@ internal sealed partial class EngineLayouts
             }
         }
 
+        var plants = new List<(int X, int Y, SpecialAirReaction Kind)>();
         var row = new StringBuilder(level.Size.X);
         for (int y = 0; y < level.Size.Y; y++)
         {
@@ -408,6 +409,8 @@ internal sealed partial class EngineLayouts
                 int cell = y * level.Size.X + x;
                 RoomTerrainBlock terrain = level.Foreground[cell];
                 RoomBlockBehavior behavior = level.Behaviors[cell].In(room.Area);
+                if (terrain.Collision == RoomCollisionType.SpecialAir && behavior.SpecialAir is { } air && PlantOf(air) is not null)
+                    plants.Add((x, y, air));
                 JsonObject tile = capCells.Contains(cell)
                     ? new JsonObject { ["kind"] = "empty" }
                     : placed.TryGetValue(cell, out JsonObject? put)
@@ -420,6 +423,8 @@ internal sealed partial class EngineLayouts
         }
 
         _graphicsSets.Add(tileset);
+        foreach ((int x, int y, SpecialAirReaction kind) in plants)
+            PatchPlant(room, state, x, y, kind);
     }
 
     /// <summary>What one block of a level is as a tile of a layout.</summary>
@@ -651,6 +656,9 @@ internal sealed partial class EngineLayouts
                     SpecialAirReaction.FastSandfall =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.FastSandfallDisplacement) },
                     SpecialAirReaction.QuicksandSurface => QuicksandSurface(),
+
+                    // A plant that seizes Samus: a block that does nothing of itself, which the room's plants are found by.
+                    SpecialAirReaction.FloorPlant or SpecialAirReaction.CeilingPlant => new JsonObject { ["solid"] = false },
 
                     // Sand she sinks through: it stops her fall, and takes her down at its own pace.
                     SpecialAirReaction.SubmergingQuicksand => new JsonObject

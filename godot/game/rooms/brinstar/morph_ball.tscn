@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -13,8 +13,9 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
-[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="14"]
-[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="15"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="14"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="15"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="16"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -34,13 +35,13 @@ Music = "blue_brinstar_arrival"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
-Kind = 8
-About = "3"
+Kind = 4
+Parts = Array[ExtResource("1")]([])
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("1")
-Kind = 4
-Parts = Array[ExtResource("1")]([])
+Kind = 8
+About = "3"
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")
@@ -438,19 +439,24 @@ position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_varied_small_pattern.png"
 ScrollShare = Vector2(0.75, 0.75)
 
-[node name="SidehopperLarge" parent="." instance=ExtResource("14")]
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("14")
+StartsWhen = SubResource("r4")
+DataFile = "objects/samus_eater.json"
+
+[node name="SidehopperLarge" parent="." instance=ExtResource("15")]
 position = Vector2(152, 678)
 DataFile = "enemies/sidehopper_large.json"
 OnCeiling = false
 PresentWhen = SubResource("r1")
 
-[node name="SidehopperLarge2" parent="." instance=ExtResource("14")]
+[node name="SidehopperLarge2" parent="." instance=ExtResource("15")]
 position = Vector2(380, 678)
 DataFile = "enemies/sidehopper_large.json"
 OnCeiling = false
 PresentWhen = SubResource("r1")
 
-[node name="SidehopperLarge3" parent="." instance=ExtResource("14")]
+[node name="SidehopperLarge3" parent="." instance=ExtResource("15")]
 position = Vector2(263, 620)
 DataFile = "enemies/sidehopper_large.json"
 OnCeiling = true
@@ -489,15 +495,15 @@ PresentWhen = SubResource("r1")
 [node name="GreyCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r4")
+HeldShutBy = SubResource("r5")
 RememberedAs = "morph_ball_grey_door_facing_right"
 Remembered = 1
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes" type="Node" parent="."]
-script = ExtResource("15")
-StartsWhen = SubResource("r5")
-Until = SubResource("r4")
+script = ExtResource("16")
+StartsWhen = SubResource("r4")
+Until = SubResource("r5")
 Records = PackedStringArray("zebes_awake")
 PresentWhen = SubResource("r1")
 

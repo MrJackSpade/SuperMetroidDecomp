@@ -157,6 +157,34 @@ internal sealed partial class EngineLayouts
             _tree.WritePicture(path, Block, Block, new RgbaPixel[Block * Block]);
     }
 
+    /// <summary>The old game's plant that a kind of air is, or null for air that is no plant.</summary>
+    internal static SamusEaterObjectDefinition? PlantOf(SpecialAirReaction air) => SpecialAirReactions.InsideOf(air).Plant;
+
+    /// <summary>The name a plant's look goes by in the names of its patches and in its data.</summary>
+    internal static string PlantLook(SamusEaterDraw look) => EngineSheets.FileName(look.ToString());
+
+    /// <summary>The data file of the block a plant of one kind is, as the layouts name it.</summary>
+    internal static string PlantBlockFile(SpecialAirReaction air) => $"blocks/air_{EngineSheets.FileName(air.ToString())}.json";
+
+    /// <summary>The looks of a plant other than the one the level has it in: those it chews with, and the one it is let go with.</summary>
+    internal static IEnumerable<SamusEaterDraw> PlantLooks(SamusEaterObjectDefinition plant) =>
+        plant.Chew.Select(frame => frame.Image).Append(plant.Released).Where(look => look != plant.Idle).Distinct();
+
+    /// <summary>
+    /// Gives a layout the patches of one plant: for each of its looks but the one the level has it in, the blocks the
+    /// old game draws over it, with what kind of block each then is. They are named for where the plant's block is.
+    /// </summary>
+    private void PatchPlant(RoomDefinition room, RoomStateSettings state, int x, int y, SpecialAirReaction kind)
+    {
+        SamusEaterObjectDefinition plant = PlantOf(kind) ?? throw new InvalidDataException($"The air {kind} is no plant.");
+        foreach (SamusEaterDraw look in PlantLooks(plant))
+        {
+            Patch(room, state, $"plant_{x}_{y}_{PlantLook(look)}", new Position16<RoomBlocks>(x, y),
+                PatchCells(GameInstallationLayout.RoomObjectSamusEaterVisualDirectoryName,
+                    (RoomObjectSamusEaterVisualFiles.VisualId(look), SamusEaterObjectDraws.Family.Shape(look))));
+        }
+    }
+
     /// <summary>
     /// The rules of the surface of quicksand, from the old game's own: one whose feet are in it stands there and is
     /// drawn down, faster while rising or falling; it lets her rise only so fast and takes her momentum; and the

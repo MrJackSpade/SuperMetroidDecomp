@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -27,6 +28,11 @@ About = "alpha_power_bomb_chozo_power_bomb_tank"
 script = ExtResource("5")
 Kind = 6
 Parts = Array[ExtResource("5")]([SubResource("r2")])
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="AlphaPowerBomb" type="Node2D"]
 script = ExtResource("2")
@@ -133,3 +139,8 @@ script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_blue_grid_blocks.png"
 ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r4")
+DataFile = "objects/samus_eater.json"

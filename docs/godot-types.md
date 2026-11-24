@@ -1040,7 +1040,7 @@ guardian's eyes and for each turned grey, and its floor crumbles away as a chang
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:
-explosions and shaking in each escape room (`EscapeRoom`).
+explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinstar that seize Samus (`SamusEaters`, in `game/rooms/brinstar/`): one in each Brinstar room finds the blocks of the terrain that are plants, by their block type, and plays each: it holds her, shows its chewing as patches of the terrain named for where the plant is, hurts her at each bite, lets her go and stays shut a while.
 
 ### Projectiles and effects
 

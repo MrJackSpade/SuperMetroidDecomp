@@ -119,6 +119,10 @@ class Sequences:
                 'Picture': quoted(f'backdrops/{{graphics}}/level_{snake(state.level)}.png'),
                 'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
+        if room.area == 'Brinstar':
+            # The plants that seize Samus are blocks of the layout: one watcher finds and plays whichever the room has.
+            self.placed.append(sequence('brinstar/SamusEaters.cs', 'Plants', {
+                'StartsWhen': ctx.always(), 'DataFile': quoted('objects/samus_eater.json')}))
         if state.main in ESCAPES:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
                 'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),

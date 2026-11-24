@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -12,9 +12,10 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="13"]
-[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="14"]
-[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="15"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="16"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -33,6 +34,11 @@ LayoutFile = "rooms/brinstar/blue_brinstar_energy_tank_in_green_blue_brinstar.js
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r5"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
@@ -69,7 +75,7 @@ ArrivalOffset = Vector2i(40, 40)
 position = Vector2(552, 616)
 Faces = 1
 MountedOn = 1
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="FaceBlock" parent="." instance=ExtResource("7")]
 position = Vector2(56, 552)
@@ -254,7 +260,12 @@ position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_varied_small_pattern.png"
 ScrollShare = Vector2(0.75, 0.75)
 
-[node name="Zoomer" parent="." instance=ExtResource("13")]
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r4")
+DataFile = "objects/samus_eater.json"
+
+[node name="Zoomer" parent="." instance=ExtResource("14")]
 position = Vector2(168, 712)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
@@ -264,7 +275,7 @@ CrawlSpeed = 0.75
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Zoomer2" parent="." instance=ExtResource("13")]
+[node name="Zoomer2" parent="." instance=ExtResource("14")]
 position = Vector2(216, 712)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
@@ -273,16 +284,16 @@ PressesUp = false
 CrawlSpeed = 0.75
 PresentWhen = SubResource("r1")
 
-[node name="Skree" parent="." instance=ExtResource("14")]
+[node name="Skree" parent="." instance=ExtResource("15")]
 position = Vector2(222, 587)
 DataFile = "enemies/skree.json"
 PresentWhen = SubResource("r1")
 
-[node name="Skree2" parent="." instance=ExtResource("14")]
+[node name="Skree2" parent="." instance=ExtResource("15")]
 position = Vector2(254, 571)
 DataFile = "enemies/skree.json"
 PresentWhen = SubResource("r1")
 
-[node name="Rio" parent="." instance=ExtResource("15")]
+[node name="Rio" parent="." instance=ExtResource("16")]
 position = Vector2(496, 576)
 PresentWhen = SubResource("r1")

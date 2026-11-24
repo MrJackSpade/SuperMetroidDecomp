@@ -1,23 +1,30 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/shutter/growing_shutter.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="12"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/growing_shutter.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/early_supers_in_green_blue_brinstar.json"
 Music = "green_brinstar"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="EarlySupers" type="Node2D"]
 script = ExtResource("2")
@@ -47,17 +54,17 @@ LeadsToExit = "ToEarlySupers"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Sidehopper" parent="." instance=ExtResource("5")]
+[node name="Sidehopper" parent="." instance=ExtResource("6")]
 position = Vector2(442, 424)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = false
 
-[node name="Sidehopper2" parent="." instance=ExtResource("5")]
+[node name="Sidehopper2" parent="." instance=ExtResource("6")]
 position = Vector2(512, 424)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = false
 
-[node name="GrowingShutter" parent="." instance=ExtResource("6")]
+[node name="GrowingShutter" parent="." instance=ExtResource("7")]
 position = Vector2(408, 296)
 WaitUpdates = 0
 WaitsForSamusWithin = 144
@@ -65,7 +72,7 @@ GrowsUp = false
 GrowthSpeed = 1.0625
 AlwaysActive = true
 
-[node name="GrowingShutter2" parent="." instance=ExtResource("6")]
+[node name="GrowingShutter2" parent="." instance=ExtResource("7")]
 position = Vector2(552, 296)
 WaitUpdates = 0
 WaitsForSamusWithin = 144
@@ -73,7 +80,7 @@ GrowsUp = false
 GrowthSpeed = 1.0625
 AlwaysActive = true
 
-[node name="GrowingShutter3" parent="." instance=ExtResource("6")]
+[node name="GrowingShutter3" parent="." instance=ExtResource("7")]
 position = Vector2(648, 296)
 WaitUpdates = 0
 WaitsForSamusWithin = 144
@@ -81,118 +88,118 @@ GrowsUp = false
 GrowthSpeed = 1.0625
 AlwaysActive = true
 
-[node name="Waver" parent="." instance=ExtResource("7")]
+[node name="Waver" parent="." instance=ExtResource("8")]
 position = Vector2(171, 75)
 StartsFacing = 0
 
-[node name="Waver2" parent="." instance=ExtResource("7")]
+[node name="Waver2" parent="." instance=ExtResource("8")]
 position = Vector2(264, 107)
 StartsFacing = 1
 AlwaysActive = true
 
-[node name="Waver3" parent="." instance=ExtResource("7")]
+[node name="Waver3" parent="." instance=ExtResource("8")]
 position = Vector2(529, 101)
 StartsFacing = 1
 
-[node name="Waver4" parent="." instance=ExtResource("7")]
+[node name="Waver4" parent="." instance=ExtResource("8")]
 position = Vector2(321, 86)
 StartsFacing = 1
 AlwaysActive = true
 
-[node name="Zeb" parent="." instance=ExtResource("8")]
+[node name="Zeb" parent="." instance=ExtResource("9")]
 position = Vector2(144, 440)
 DataFile = "enemies/zeb.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Sidehopper3" parent="." instance=ExtResource("5")]
+[node name="Sidehopper3" parent="." instance=ExtResource("6")]
 position = Vector2(322, 133)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = false
 
-[node name="Sidehopper4" parent="." instance=ExtResource("5")]
+[node name="Sidehopper4" parent="." instance=ExtResource("6")]
 position = Vector2(451, 132)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = false
 
-[node name="Sidehopper5" parent="." instance=ExtResource("5")]
+[node name="Sidehopper5" parent="." instance=ExtResource("6")]
 position = Vector2(387, 61)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = true
 
-[node name="MissileTank" parent="." instance=ExtResource("9")]
+[node name="MissileTank" parent="." instance=ExtResource("10")]
 position = Vector2(312, 440)
 TypeFile = "items/missile_tank.json"
 RememberedAs = "early_supers_exposed_missile_tank"
 
-[node name="SuperMissileTank" parent="." instance=ExtResource("9")]
+[node name="SuperMissileTank" parent="." instance=ExtResource("10")]
 position = Vector2(72, 104)
 TypeFile = "items/super_missile_tank.json"
 RememberedAs = "early_supers_exposed_super_missile_tank"
 
-[node name="BlueCap" parent="." instance=ExtResource("10")]
+[node name="BlueCap" parent="." instance=ExtResource("11")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="RedCap" parent="." instance=ExtResource("10")]
+[node name="RedCap" parent="." instance=ExtResource("11")]
 position = Vector2(736, 352)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "early_supers_red_door_facing_left"
 Remembered = 1
 
 [node name="Screen0x0" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 StartsOpen = false
 
 [node name="Screen1x0" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(256, 0)
 StartsOpen = false
 
 [node name="Screen2x0" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(512, 0)
 StartsOpen = false
 
 [node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(256, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen1x1Foot" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(256, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(512, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen2x1Foot" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(512, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Scroll" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(656, 224)
 Size = Vector2i(48, 16)
 What = "open"
@@ -200,7 +207,7 @@ Once = false
 Target = NodePath("../Screen0x0")
 
 [node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(656, 224)
 Size = Vector2i(48, 16)
 What = "open"
@@ -208,7 +215,7 @@ Once = false
 Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(656, 224)
 Size = Vector2i(48, 16)
 What = "open"
@@ -216,7 +223,7 @@ Once = false
 Target = NodePath("../Screen1x0")
 
 [node name="Scroll4" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(656, 224)
 Size = Vector2i(48, 16)
 What = "open"
@@ -224,7 +231,7 @@ Once = false
 Target = NodePath("../Screen1x0Foot")
 
 [node name="Scroll5" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(656, 224)
 Size = Vector2i(48, 16)
 What = "open"
@@ -232,7 +239,7 @@ Once = false
 Target = NodePath("../Screen2x0")
 
 [node name="Scroll6" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(656, 224)
 Size = Vector2i(48, 16)
 What = "open"
@@ -240,7 +247,7 @@ Once = false
 Target = NodePath("../Screen2x0Foot")
 
 [node name="Scroll7" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 304)
 Size = Vector2i(16, 16)
 What = "close"
@@ -248,7 +255,7 @@ Once = false
 Target = NodePath("../Screen0x0")
 
 [node name="Scroll8" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 304)
 Size = Vector2i(16, 16)
 What = "close"
@@ -256,7 +263,7 @@ Once = false
 Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll9" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 304)
 Size = Vector2i(16, 16)
 What = "close"
@@ -264,7 +271,7 @@ Once = false
 Target = NodePath("../Screen1x0")
 
 [node name="Scroll10" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 304)
 Size = Vector2i(16, 16)
 What = "close"
@@ -272,7 +279,7 @@ Once = false
 Target = NodePath("../Screen1x0Foot")
 
 [node name="Scroll11" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 304)
 Size = Vector2i(16, 16)
 What = "close"
@@ -280,7 +287,7 @@ Once = false
 Target = NodePath("../Screen2x0")
 
 [node name="Scroll12" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 304)
 Size = Vector2i(16, 16)
 What = "close"
@@ -288,7 +295,7 @@ Once = false
 Target = NodePath("../Screen2x0Foot")
 
 [node name="Scroll13" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
@@ -296,7 +303,7 @@ Once = false
 Target = NodePath("../Screen0x0")
 
 [node name="Scroll14" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
@@ -304,7 +311,7 @@ Once = false
 Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll15" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
@@ -312,7 +319,7 @@ Once = false
 Target = NodePath("../Screen1x0")
 
 [node name="Scroll16" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
@@ -320,7 +327,7 @@ Once = false
 Target = NodePath("../Screen1x0Foot")
 
 [node name="Scroll17" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
@@ -328,7 +335,7 @@ Once = false
 Target = NodePath("../Screen2x0")
 
 [node name="Scroll18" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
@@ -336,7 +343,12 @@ Once = false
 Target = NodePath("../Screen2x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_thin_horizontal_pattern.png"
 ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("15")
+StartsWhen = SubResource("r2")
+DataFile = "objects/samus_eater.json"

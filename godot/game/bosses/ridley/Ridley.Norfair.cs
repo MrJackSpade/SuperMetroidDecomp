@@ -19,11 +19,16 @@ namespace Game.Enemies;
 /// <remarks>
 /// As well as what both fights share it plays "death_roar_left" and "death_roar_right". Its data lists
 /// "health_bands", lowest first, each for health "below" a number, with how hard it flies when it hovers
-/// ("hover_divisor") and lunges ("grab_divisor"), a "tint", and its four "pogo" launches, each with its speed
-/// "across" and "up" and the speed it gains each update rising ("rise_gain") and falling ("fall_gain"); the last
-/// band, with no "below", is for when it is unhurt. It also lists "death_explosions", the places from its middle its
-/// death's blasts go off in turn, and "breakup", the pieces it breaks into: each an "effect", where it starts ("x",
-/// "y", for when it faces left) or the link of its "tail" it was, and how many "updates" it lasts.
+/// ("hover_divisor") and lunges ("grab_divisor"), the "look" its pictures have, and its four "pogo" launches, each
+/// with its speed "across" and "up" and the speed it gains each update rising ("rise_gain") and falling
+/// ("fall_gain"); the last band, with no "below", is for when it is unhurt. It also lists "death_explosions", the
+/// places from its middle its death's blasts go off in turn, and "breakup", the pieces it breaks into: each an
+/// "effect", where it starts ("x", "y", for when it faces left) or the link of its "tail" it was, and how many
+/// "updates" it lasts; in an effect's name "{side}" stands for the way it faces and "{tip}" for which of its tail
+/// tip's pictures shows. A piece that has lasted its time goes off as "piece_end_effect" and may leave one of
+/// "piece_drops". "scattered_drops" is the table of what it scatters when it is gone, and "drop_scatter" where: a
+/// corner of the room ("x", "y") and, across and down, how many binary digits of a number drawn are added and from
+/// which digit up.
 /// </remarks>
 public partial class Ridley
 {
@@ -50,6 +55,10 @@ public partial class Ridley
     /// <summary>The effect of one of the blasts of its death.</summary>
     [Export, DataValue("explosion_effect")]
     public string ExplosionEffect { get; set; } = "";
+
+    /// <summary>What a piece of it goes off as when it has lasted its time, by the data file of its timeline.</summary>
+    [Export, DataValue("piece_end_effect")]
+    public string PieceEndEffect { get; set; } = "";
 
     /// <summary>The sound of its tail striking the floor, by name.</summary>
     [Export, DataValue("bounce_sound")]
@@ -108,7 +117,7 @@ public partial class Ridley
 
     private sealed record Pogo(Pixels Across, Pixels Up, Pixels RiseGain, Pixels FallGain);
 
-    private sealed record Band(int Below, int HoverDivisor, int GrabDivisor, Color Tint, IReadOnlyList<Pogo> Pogos);
+    private sealed record Band(int Below, int HoverDivisor, int GrabDivisor, string Look, IReadOnlyList<Pogo> Pogos);
 
     private sealed record Piece(string Effect, int X, int Y, int TailLink, int Updates);
 
@@ -136,9 +145,10 @@ public partial class Ridley
     private int _deathLungesMade;
     private int _explosionWait;
     private int _nextExplosion;
-
-    /// <inheritdoc/>
-    protected override Color RestingTint => OnCeres ? Colors.White : _band?.Tint ?? Colors.White;
+    private DropTable _scatteredDrops = DropTable.Nothing;
+    private DropTable _pieceDrops = DropTable.Nothing;
+    private Vector2I _dropCorner;
+    private (int From, int Digits) _dropAcross, _dropDown;
 
     /// <summary>Reads what only its fight in Norfair needs.</summary>
     private void ReadNorfairValues(DataNode data)
@@ -149,7 +159,7 @@ public partial class Ridley
             List<Pogo> pogos = [.. band.List("pogo").Select(pogo => new Pogo(pogo.Distance("across"), pogo.Distance("up"), pogo.Distance("rise_gain"), pogo.Distance("fall_gain")))];
             if (pogos.Count != 4)
                 throw band.Problem("must list four pogo launches");
-            _bands.Add(new Band(band.Has("below") ? band.Int("below") : int.MaxValue, band.Int("hover_divisor"), band.Int("grab_divisor"), new Color(band.Text("tint")), pogos));
+            _bands.Add(new Band(band.Has("below") ? band.Int("below") : int.MaxValue, band.Int("hover_divisor"), band.Int("grab_divisor"), band.Text("look"), pogos));
         }
 
         if (_bands.Count == 0 || _bands[^1].Below != int.MaxValue)
@@ -159,6 +169,13 @@ public partial class Ridley
         _breakup.Clear();
         _breakup.AddRange(data.List("breakup").Select(piece => new Piece(
             piece.Text("effect"), piece.Has("x") ? piece.Int("x") : 0, piece.Has("y") ? piece.Int("y") : 0, piece.Has("tail") ? piece.Int("tail") : -1, piece.Int("updates"))));
+        static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
+        _scatteredDrops = DropTable.Read(data.Get("scattered_drops"));
+        _pieceDrops = data.Has("piece_drops") ? DropTable.Read(data.Get("piece_drops")) : DropTable.Nothing;
+        DataNode scatter = data.Get("drop_scatter");
+        _dropCorner = new Vector2I(scatter.Int("x"), scatter.Int("y"));
+        _dropAcross = Field(scatter.Get("across"));
+        _dropDown = Field(scatter.Get("down"));
     }
 
     /// <summary>Sets it up for its fight in Norfair.</summary>
@@ -374,7 +391,7 @@ public partial class Ridley
                 if (DustEffect.Length > 0)
                     LeaveEffect(DustEffect, Tail.Tip.Position + PixelOffset.FromWhole(0, 12));
                 Sound(BounceSound);
-                Room.Shake(2, 4);
+                Room.Shake(2, 4, ShakeWay.Down);
                 ChoosePogoWay(samus);
                 LaunchPogo();
                 foreach (RidleyTail.Link link in Tail.Links)
@@ -518,7 +535,8 @@ public partial class Ridley
                 for (int drop = 0; drop < DeathDrops; drop++)
                 {
                     RandomDraw draw = Random.Draw();
-                    Drop(Drops, PixelPosition.FromWhole(64 + draw.Part(0, 7), 320 + draw.Part(8, 6)));
+                    Drop(_scatteredDrops, PixelPosition.FromWhole(
+                        _dropCorner.X + draw.Part(_dropAcross.From, _dropAcross.Digits), _dropCorner.Y + draw.Part(_dropDown.From, _dropDown.Digits)));
                 }
 
                 if (VictoryMusic.Length > 0)
@@ -841,7 +859,10 @@ public partial class Ridley
             PixelPosition at = piece.TailLink >= 0
                 ? Tail.Links[piece.TailLink].Position
                 : Position + PixelOffset.FromWhole(Facing == Facing.Right ? -piece.X : piece.X, piece.Y);
-            Effect sprite = LeaveEffect(piece.Effect.Replace("{side}", Side, StringComparison.Ordinal), at);
+            Effect sprite = LeaveEffect(
+                piece.Effect.Replace("{side}", Side, StringComparison.Ordinal)
+                    .Replace("{tip}", TailTipPicture.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal),
+                at);
             _pieces.Add((sprite, new PixelVelocity(draw.Part(15, 1) == 1 ? -across : across, Pixels.Zero), piece.Updates));
         }
     }
@@ -863,8 +884,8 @@ public partial class Ridley
                 continue;
             }
 
-            if (ExplosionEffect.Length > 0)
-                LeaveEffect(ExplosionEffect, sprite.Position);
+            // It goes off as a small enemy does, and may leave something.
+            Room.Spawn(Remains.Of(FrameTimeline.Read(Room.Content.ReadData(PieceEndEffect)), sprite.Position, _pieceDrops));
             Room.Remove(sprite);
             _pieces.RemoveAt(index);
         }

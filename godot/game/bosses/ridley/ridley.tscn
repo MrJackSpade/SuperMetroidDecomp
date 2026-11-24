@@ -42,13 +42,45 @@ script = ExtResource("3")
 script = ExtResource("2")
 Role = 0
 
-[node name="Hitbox" type="Node2D" parent="."]
+[node name="Part1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Part1Touch" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 2
 
-[node name="Hurtbox" type="Node2D" parent="."]
+[node name="Part2" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
+
+[node name="Part2Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Part3Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part4" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Part4Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part5" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Part5Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
 
 [node name="TailTip" type="Node2D" parent="."]
 script = ExtResource("2")

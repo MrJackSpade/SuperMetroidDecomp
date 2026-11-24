@@ -66,9 +66,18 @@ public sealed class ShotType
     /// Makes the shot's projectile at <paramref name="at"/>, moving at <paramref name="velocity"/>, on
     /// <paramref name="side"/>, never hitting <paramref name="launcher"/>.
     /// </summary>
-    public Projectile Launch(PixelPosition at, PixelVelocity velocity, HitSide side, ICollisionOwner? launcher, object? source)
+    public Projectile Launch(PixelPosition at, PixelVelocity velocity, HitSide side, ICollisionOwner? launcher, object? source) =>
+        LaunchDoing(Damage, at, velocity, side, launcher, source);
+
+    /// <summary>
+    /// Makes the shot's projectile as <see cref="Launch"/> does, with a hit of <paramref name="damage"/> in place of
+    /// the shot's own: for fire that does the harm of what it came of.
+    /// </summary>
+    public Projectile LaunchDoing(int damage, PixelPosition at, PixelVelocity velocity, HitSide side, ICollisionOwner? launcher, object? source)
     {
-        var hit = new Hit(Damage, side, [.. Kinds]) { Source = source, Direction = velocity.OverOneUpdate };
+        if (damage < 0)
+            throw new ArgumentOutOfRangeException(nameof(damage), damage, "A hit does no less than no damage.");
+        var hit = new Hit(damage, side, [.. Kinds]) { Source = source, Direction = velocity.OverOneUpdate };
         Projectile projectile = Make();
         projectile.Launch(hit, at, velocity, Settings, launcher);
         return projectile;

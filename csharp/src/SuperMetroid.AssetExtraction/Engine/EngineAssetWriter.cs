@@ -37,8 +37,9 @@ public sealed partial class EngineAssetWriter
         var installation = new GameInstallation(installationRoot);
         var writer = new EngineAssetWriter(installation, assets);
         writer.WriteShared();
-        var layouts = new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams());
-        layouts.WriteAll();
+        var layouts = new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams(), installation.ContentDirectory);
+        layouts.BuildAll();
+        writer._layouts = layouts;
         writer._roomObjects = new EngineRoomObjects(writer._tree, writer._sheets, installation.ContentDirectory, layouts.GraphicsSets);
         writer.WriteEnemies();
         writer.WriteDoorCaps();
@@ -47,6 +48,9 @@ public sealed partial class EngineAssetWriter
         writer.WriteItems();
         writer.WriteObjects();
         writer.WriteAnimals();
+        writer.WriteGlassTube();
+        // The layouts last: what was written above gave them their patches.
+        layouts.WriteAll();
     }
 
     /// <summary>

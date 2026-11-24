@@ -7,7 +7,9 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -19,6 +21,10 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// old game's levels is written once for each area that uses it and each set of graphics it is drawn with, since a
 /// block's reaction depends on the area and its picture on the graphics.
 /// </summary>
+/// <remarks>
+/// The layouts are built first and written last, so that whatever writes a thing that changes its room's blocks
+/// during play can give the room's layouts the patch that is that change.
+/// </remarks>
 internal sealed partial class EngineLayouts
 {
     /// <summary>The width and height of a block, in pixels.</summary>
@@ -32,25 +38,308 @@ internal sealed partial class EngineLayouts
     private readonly InstalledRoomLevelStreams _levels;
     private readonly HashSet<string> _blockTypes = new(StringComparer.Ordinal);
     private readonly SortedSet<string> _graphicsSets = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Layout> _layouts = new(StringComparer.Ordinal);
+
+    /// <summary>A layout as it is being built.</summary>
+    private sealed partial class Layout(string tileset, InstalledRoomLevel level, string placed)
+    {
+        internal string Tileset { get; } = tileset;
+        internal InstalledRoomLevel Level { get; } = level;
+
+        /// <summary>What the room's own things put into it, as text: every use of the layout must put the same.</summary>
+        internal string Placed { get; } = placed;
+        internal JsonObject Legend { get; } = [];
+        internal Dictionary<string, char> Letters { get; } = new(StringComparer.Ordinal);
+        internal List<string> Rows { get; } = [];
+        internal JsonObject Patches { get; } = [];
+    }
 
     /// <summary>Every set of graphics a layout written so far is drawn with, by the old game's name for it.</summary>
     internal IReadOnlyList<string> GraphicsSets => [.. _graphicsSets];
 
-    internal EngineLayouts(EngineAssetTree tree, EngineSheets sheets, InstalledRoomLevelStreams levels)
+    private readonly string _content;
+
+    /// <summary>The layouts of the installation whose levels are <paramref name="levels"/> and whose files lie under <paramref name="content"/>.</summary>
+    internal EngineLayouts(EngineAssetTree tree, EngineSheets sheets, InstalledRoomLevelStreams levels, string content)
     {
         _tree = tree;
         _sheets = sheets;
         _levels = levels;
+        _content = content;
     }
 
-    /// <summary>Writes the layout of every state of every room.</summary>
-    internal void WriteAll()
+    /// <summary>Every state of every room, with its room.</summary>
+    internal static IEnumerable<(RoomDefinition Room, RoomStateSettings State)> States()
     {
         foreach ((RoomDefinition room, RoomStateChoice choice) in RoomStateSelectionDefinitions.Choices)
         {
             foreach (RoomStateSettings state in choice.Branches.Select(branch => branch.State).Append(choice.Default))
-                Write(room, state);
+                yield return (room, state);
         }
+    }
+
+    /// <summary>Builds the layout of every state of every room.</summary>
+    internal void BuildAll()
+    {
+        foreach ((RoomDefinition room, RoomStateSettings state) in States())
+            Build(room, state);
+    }
+
+    /// <summary>Writes every layout built, with the patches it has been given.</summary>
+    internal void WriteAll()
+    {
+        foreach ((string path, Layout layout) in _layouts)
+        {
+            var rows = new JsonArray();
+            foreach (string row in layout.Rows)
+                rows.Add(row);
+            var data = new JsonObject
+            {
+                ["tile_size"] = Block,
+                // What stands in the room and looks as its graphics do is drawn with this set.
+                ["graphics"] = EngineRoomObjects.GraphicsName(layout.Tileset),
+                ["tiles"] = layout.Legend,
+                ["rows"] = rows,
+            };
+            if (layout.Patches.Count > 0)
+                data["patches"] = layout.Patches;
+            _tree.WriteData(path, data);
+        }
+    }
+
+    /// <summary>The letter of a tile in a layout, given the first time the layout has that tile.</summary>
+    private static char Letter(Layout layout, JsonObject tile, string path)
+    {
+        string key = tile.ToJsonString();
+        if (!layout.Letters.TryGetValue(key, out char letter))
+        {
+            letter = (char)(FirstLetter + layout.Letters.Count);
+            if (char.IsSurrogate(letter))
+                throw new InvalidDataException($"The layout {path} has more different tiles than there are letters for.");
+            layout.Letters[key] = letter;
+            layout.Legend[letter.ToString()] = tile;
+        }
+
+        return letter;
+    }
+
+    /// <summary>One block of a patch: where it lies from the patch's origin, and what the block there becomes.</summary>
+    /// <param name="Across">How many blocks right of the origin.</param>
+    /// <param name="Down">How many blocks below it.</param>
+    /// <param name="Collision">What kind of block it becomes.</param>
+    /// <param name="Block">The block of the room's graphics it shows; none for one that shows nothing.</param>
+    /// <param name="Mirroring">How that block is mirrored.</param>
+    internal readonly partial record struct PatchCell(int Across, int Down, RoomCollisionType Collision, int? Block, BlockMirroring Mirroring);
+
+    /// <summary>
+    /// Gives the layout of one state of a room a named patch: the blocks a change to the room leaves, over the
+    /// rectangle they span. A block of that rectangle the change does not touch stays as the layout has it. The same
+    /// patch given again to a layout several states share is the one patch.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The patch has no blocks, lies outside the level, or is given twice with different blocks.</exception>
+    internal void Patch(RoomDefinition room, RoomStateSettings state, string name, Position16<RoomBlocks> origin, IEnumerable<PatchCell> cells)
+    {
+        string path = PathOf(room, state);
+        Layout layout = _layouts.TryGetValue(path, out Layout? built)
+            ? built
+            : throw new InvalidDataException($"The layout {path} has not been built, and is given the patch {name}.");
+        // Later blocks of a change lie over earlier ones.
+        var last = new Dictionary<(int Across, int Down), PatchCell>();
+        foreach (PatchCell cell in cells)
+            last[(cell.Across, cell.Down)] = cell;
+        if (last.Count == 0)
+            throw new InvalidDataException($"The patch {name} of the layout {path} has no blocks.");
+        int left = origin.X + last.Keys.Min(at => at.Across), top = origin.Y + last.Keys.Min(at => at.Down);
+        int right = origin.X + last.Keys.Max(at => at.Across), bottom = origin.Y + last.Keys.Max(at => at.Down);
+        if (left < 0 || top < 0 || right >= layout.Level.Size.X || bottom >= layout.Level.Size.Y)
+            throw new InvalidDataException($"The patch {name} of the layout {path} does not lie inside its level.");
+        var rows = new JsonArray();
+        var row = new StringBuilder(right - left + 1);
+        for (int y = top; y <= bottom; y++)
+        {
+            row.Clear();
+            for (int x = left; x <= right; x++)
+            {
+                if (!last.TryGetValue((x - origin.X, y - origin.Y), out PatchCell cell))
+                {
+                    row.Append(layout.Rows[y][x]);
+                    continue;
+                }
+
+                RoomBlockAppearance appearance = cell.Block is int block ? RoomBlockAppearance.Of(block).WithMirroring(cell.Mirroring) : RoomBlockAppearance.Nothing;
+                RoomBlockBehavior behavior = cell.Collision is RoomCollisionType.SolidBlock or RoomCollisionType.Air
+                    ? RoomBlockBehavior.None
+                    : throw new InvalidDataException($"The patch {name} of the layout {path} makes a block {cell.Collision}, which a patch does not yet know how to write.");
+                row.Append(Letter(layout, Tile(new RoomTerrainBlock(appearance, cell.Collision), behavior, underElevator: false, layout.Tileset), path));
+            }
+
+            rows.Add(row.ToString());
+        }
+
+        var patch = new JsonObject { ["column"] = left, ["row"] = top, ["rows"] = rows };
+        if (layout.Patches[name] is { } given)
+        {
+            if (given.ToJsonString() != patch.ToJsonString())
+                throw new InvalidDataException($"The layout {path} is given the patch {name} twice, with different blocks.");
+            return;
+        }
+
+        layout.Patches[name] = patch;
+    }
+
+    /// <summary>
+    /// How many updates the block an item is hidden in stays gone once shot: the old game's block crumbling away, the
+    /// item showing, and the block coming back over it.
+    /// </summary>
+    private static int HiddenItemBlockUpdates()
+    {
+        int Updates(Animation<CollectibleSequence> animation)
+        {
+            (List<IAnimationBeat<CollectibleImage, CollectiblePhase>> lead, List<IAnimationBeat<CollectibleImage, CollectiblePhase>>? cycle) =
+                EngineTimelines.Played(CollectibleSequenceAnimations.Segments, animation);
+            if (cycle is not null)
+                throw new InvalidDataException("An item's reveal goes round and round, so it has no length.");
+            return lead.OfType<AnimationBeat<CollectibleImage, CollectiblePhase>.Frame>().Sum(frame => frame.Duration);
+        }
+
+        return Updates(CollectibleSequenceAnimations.ShotBlockReveal) + Updates(CollectibleSequenceAnimations.Revealed);
+    }
+
+    /// <summary>
+    /// The tiles the things placed in one state of a room put over its level's own, by the cell each lies on: the
+    /// block an item is hidden in, and an elevator's platform.
+    /// </summary>
+    private Dictionary<int, JsonObject> PlacedTiles(RoomStateSettings state, InstalledRoomLevel level, string tileset, string path)
+    {
+        var tiles = new Dictionary<int, JsonObject>();
+        foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.ToArray())
+        {
+            int cell = placement.Block.Y * level.Size.X + placement.Block.X;
+            switch (placement.Setup)
+            {
+                case CollectibleSetup { Item.Presentation: CollectiblePresentation.ShotBlock }:
+                {
+                    // The block looks as the level has it there, and any weapon breaks it for as long as the old
+                    // game shows the item.
+                    var block = new ReactingBlock("hidden_item", new JsonObject
+                    {
+                        ["solid"] = true,
+                        ["broken_by"] = AnyWeapon(),
+                        ["regrows_after"] = HiddenItemBlockUpdates(),
+                    });
+                    var tile = new JsonObject { ["kind"] = "block", ["block"] = BlockType(block) };
+                    RoomBlockAppearance shown = level.Foreground[cell].Appearance;
+                    if (shown.Shows == RoomBlockShown.Block && Picture(tileset, shown.Block, shown.Mirroring) is { } picture)
+                        tile["picture"] = picture;
+                    tiles[cell] = tile;
+                    break;
+                }
+
+                case ElevatorPlatformSetup:
+                {
+                    // The platform an elevator comes to rest on: solid blocks that glow by turns.
+                    const string directory = GameInstallationLayout.RoomObjectElevatorPlatformVisualDirectoryName;
+                    IReadOnlyList<ElevatorPlatformFrame> cycle = ElevatorPlatformObjectDefinitions.Cycle;
+                    int updates = cycle[0].Updates;
+                    if (cycle.Any(frame => frame.Updates != updates))
+                        throw new InvalidDataException("An elevator platform's pictures do not all show for as long as one another.");
+                    var draws = cycle.Select(frame => frame.Draw is RoomObjectFrameDraw<ElevatorPlatformDraw> drawn
+                        ? drawn.Frame
+                        : throw new InvalidDataException("An elevator platform shows something that is not a frame of its own.")).ToList();
+                    foreach (RoomBlockShapeCell part in ElevatorPlatformDraws.Family.Shape(draws[0]).Cells)
+                    {
+                        if (part.Collision != RoomCollisionType.SolidBlock)
+                            throw new InvalidDataException($"An elevator platform has a block that is {part.Collision}, not solid.");
+                        var pictures = new JsonArray();
+                        foreach (ElevatorPlatformDraw draw in draws)
+                        {
+                            (int block, BlockMirroring mirroring) = FrameBlock(directory, EngineSheets.FileName(draw.ToString()).Replace('_', '-'), part.Cell.X, part.Cell.Y)
+                                ?? throw new InvalidDataException($"The elevator platform's frame {draw} draws nothing at one of its blocks.");
+                            pictures.Add(Picture(tileset, block, mirroring)
+                                ?? throw new InvalidDataException($"The graphics {tileset} draw nothing for a block of an elevator platform."));
+                        }
+
+                        int at = (placement.Block.Y + part.Cell.Y) * level.Size.X + placement.Block.X + part.Cell.X;
+                        if (placement.Block.X + part.Cell.X >= level.Size.X || placement.Block.Y + part.Cell.Y >= level.Size.Y)
+                            throw new InvalidDataException($"An elevator platform of the layout {path} does not lie inside its level.");
+                        tiles[at] = new JsonObject { ["kind"] = "solid", ["pictures"] = pictures, ["updates"] = updates };
+                    }
+
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+
+        return tiles;
+    }
+
+    private readonly Dictionary<string, Dictionary<string, JsonArray>> _frames = new(StringComparer.Ordinal);
+
+    /// <summary>The cells of a frame the installation keeps under <paramref name="directory"/>.</summary>
+    internal JsonArray FrameCells(string directory, string frame)
+    {
+        if (!_frames.TryGetValue(directory, out Dictionary<string, JsonArray>? frames))
+        {
+            frames = new Dictionary<string, JsonArray>(StringComparer.Ordinal);
+            foreach (string file in Directory.EnumerateFiles(Path.Combine(_content, directory), "*.json").Order(StringComparer.Ordinal))
+            {
+                if (JsonNode.Parse(File.ReadAllText(file))?["frames"] is not JsonArray listed)
+                    continue;
+                foreach (JsonNode? one in listed)
+                    frames[one!["id"]!.GetValue<string>()] = one["cells"]!.AsArray();
+            }
+
+            _frames[directory] = frames;
+        }
+
+        return frames.TryGetValue(frame, out JsonArray? cells)
+            ? cells
+            : throw new InvalidDataException($"The installation keeps no room object frame {frame} under {directory}.");
+    }
+
+    /// <summary>The block a frame draws at one of its cells and how it is mirrored; none where it draws nothing there.</summary>
+    /// <exception cref="InvalidDataException">The frame has no such cell.</exception>
+    internal (int Block, BlockMirroring Mirroring)? FrameBlock(string directory, string frame, int across, int down)
+    {
+        foreach (JsonNode? cell in FrameCells(directory, frame))
+        {
+            if (cell!["x"]!.GetValue<int>() != across || cell["y"]!.GetValue<int>() != down)
+                continue;
+            if (cell["block"]?.GetValue<int>() is not int block)
+                return null;
+            return (block, cell["mirroring"]!.GetValue<string>() switch
+            {
+                "None" => BlockMirroring.None,
+                "Horizontal" => BlockMirroring.Horizontal,
+                "Vertical" => BlockMirroring.Vertical,
+                "Both" => BlockMirroring.Horizontal | BlockMirroring.Vertical,
+                var other => throw new InvalidDataException($"The room object frame {frame} mirrors a block {other}, which this does not know."),
+            });
+        }
+
+        throw new InvalidDataException($"The room object frame {frame} has no cell {across} across and {down} down.");
+    }
+
+    /// <summary>
+    /// The blocks a patch is, from frames the old game draws one after another, each with the kinds of block it makes.
+    /// A later frame's blocks lie over an earlier one's.
+    /// </summary>
+    internal IEnumerable<PatchCell> PatchCells(string directory, params ReadOnlySpan<(string Frame, RoomBlockShape Shape)> frames)
+    {
+        var cells = new List<PatchCell>();
+        foreach ((string frame, RoomBlockShape shape) in frames)
+        {
+            foreach (RoomBlockShapeCell cell in shape.Cells)
+            {
+                (int Block, BlockMirroring Mirroring)? drawn = FrameBlock(directory, frame, cell.Cell.X, cell.Cell.Y);
+                cells.Add(new PatchCell(cell.Cell.X, cell.Cell.Y, cell.Collision, drawn?.Block, drawn?.Mirroring ?? BlockMirroring.None));
+            }
+        }
+
+        return cells;
     }
 
     /// <summary>The path of the layout of one state of a room, as the Godot project's room scenes name it.</summary>
@@ -60,14 +349,24 @@ internal sealed partial class EngineLayouts
     /// <summary>How many blocks a door's cap is.</summary>
     internal const int DoorCapBlocks = 4;
 
-    /// <summary>Writes the layout of one state of a room, unless another state has already written the same one.</summary>
-    private void Write(RoomDefinition room, RoomStateSettings state)
+    /// <summary>Builds the layout of one state of a room, unless another state has already built the same one.</summary>
+    /// <exception cref="InvalidDataException">Another state built the same layout with other things placed in it.</exception>
+    private void Build(RoomDefinition room, RoomStateSettings state)
     {
         string path = PathOf(room, state);
-        if (_tree.Holds(path))
-            return;
         InstalledRoomLevel level = _levels.Get(state.Level);
         string tileset = state.GraphicsSet.ToString();
+        Dictionary<int, JsonObject> placed = PlacedTiles(state, level, tileset, path);
+        string placedAs = string.Join('|', placed.OrderBy(tile => tile.Key).Select(tile => $"{tile.Key}:{tile.Value.ToJsonString()}"));
+        if (_layouts.TryGetValue(path, out Layout? built))
+        {
+            if (built.Placed != placedAs)
+                throw new InvalidDataException($"Two states share the layout {path} and place different things in it.");
+            return;
+        }
+
+        var layout = new Layout(tileset, level, placedAs);
+        _layouts[path] = layout;
         var elevatorBlocks = new HashSet<Position16<RoomBlocks>>(
             _levels.DoorBlocks(room, state.Level).Where(door => door.Exit.IsElevatorRide).Select(door => door.Block));
 
@@ -97,9 +396,6 @@ internal sealed partial class EngineLayouts
             }
         }
 
-        var legend = new JsonObject();
-        var letters = new Dictionary<string, char>(StringComparer.Ordinal);
-        var rows = new JsonArray();
         var row = new StringBuilder(level.Size.X);
         for (int y = 0; y < level.Size.Y; y++)
         {
@@ -111,32 +407,16 @@ internal sealed partial class EngineLayouts
                 RoomBlockBehavior behavior = level.Behaviors[cell].In(room.Area);
                 JsonObject tile = capCells.Contains(cell)
                     ? new JsonObject { ["kind"] = "empty" }
-                    : Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
-                string key = tile.ToJsonString();
-                if (!letters.TryGetValue(key, out char letter))
-                {
-                    letter = (char)(FirstLetter + letters.Count);
-                    if (char.IsSurrogate(letter))
-                        throw new InvalidDataException($"The layout {path} has more different tiles than there are letters for.");
-                    letters[key] = letter;
-                    legend[letter.ToString()] = tile;
-                }
-
-                row.Append(letter);
+                    : placed.TryGetValue(cell, out JsonObject? put)
+                        ? put
+                        : Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
+                row.Append(Letter(layout, tile, path));
             }
 
-            rows.Add(row.ToString());
+            layout.Rows.Add(row.ToString());
         }
 
         _graphicsSets.Add(tileset);
-        _tree.WriteData(path, new JsonObject
-        {
-            ["tile_size"] = Block,
-            // What stands in the room and looks as its graphics do is drawn with this set.
-            ["graphics"] = EngineRoomObjects.GraphicsName(tileset),
-            ["tiles"] = legend,
-            ["rows"] = rows,
-        });
     }
 
     /// <summary>What one block of a level is as a tile of a layout.</summary>

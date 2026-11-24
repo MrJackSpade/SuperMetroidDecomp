@@ -706,7 +706,7 @@ turned on and off, stopped, shifted, scattered, ended, each by a cue) and that m
 - A `Pickup` is a temporary drop of a `PickupType`. It owns its position, what it gives and how long it lasts; it
   gives itself to the player on contact and expires. It records nothing in `Progress`.
 - An `Effect` is a short-lived visual. It owns its position and animation. It does not collide, deal damage, change
-  gameplay state or use `GameRandom`. Its timeline's cues may ask for sounds.
+  gameplay state or use `GameRandom`. Its timeline's cues may ask for sounds, and may change how it drifts.
 - `Remains` are what a destroyed enemy leaves where it died, when its data names a death to play: the timeline of
   that death, which may differ by the kind of hit that destroyed it. The enemy itself is gone at once. The remains
   play the death, asking for the sounds its cues name and scattering the effects they name, placed by `GameRandom`;

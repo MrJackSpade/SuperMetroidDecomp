@@ -150,7 +150,8 @@ public partial class GlassTube : RoomObject, IHittable
                 if (!acted)
                     break;
                 samus.Hold();
-                Leave(CrackEffect, CrackAt, new PixelVelocity(Pixels.Zero, Pixels.FromNumber(0.75)));
+                // The crack stays where it is until its own timeline has it fall.
+                Leave(CrackEffect, CrackAt, PixelVelocity.Zero);
                 Show(CrackingPicture);
                 (_phase, _timer) = (Phase.Cracking, 50);
                 break;

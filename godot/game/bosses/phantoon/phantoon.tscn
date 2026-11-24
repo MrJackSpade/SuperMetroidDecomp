@@ -20,14 +20,42 @@ script = ExtResource("3")
 [node name="Eye" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Hitbox" type="Node2D" parent="."]
-script = ExtResource("2")
-Role = 2
-
 [node name="Body" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
 
-[node name="Eye" type="Node2D" parent="."]
+[node name="BodyTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="LeftTentacle" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
+
+[node name="LeftTentacleTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="RightTentacle" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="RightTentacleTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="CentreTentacle" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="CentreTentacleTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="EyeHurt" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="EyeTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2

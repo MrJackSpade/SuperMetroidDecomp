@@ -36,8 +36,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/mother_brain_glass.json` | `MotherBrainGlass` | contact_damage, health, shard_drop, shatter_sound |
 | `bosses/mother_brain_ring.json` | `MotherBrainRing` | floor, mouth_updates, top, view_right |
 | `bosses/mother_brain_turret.json` | `MotherBrainTurret` | contact_damage, health, least_fire_wait, least_turn_wait, smoke_effect |
-| `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, contact_damage, death_drops, dying_cry, explosion_sound, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect |
-| `bosses/phantoon_flame.json` | `PhantoonFlame` | burning_timeline, drift_speed, gravity, landing_drop, landing_pause, landing_timeline, leap_speed, rain_impact_timeline, rain_sound, resting_timeline, ring_hold_updates, ring_radius |
+| `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, big_explosion_sound, contact_damage, death_drops, dying_cry, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect, small_explosion_sound |
+| `bosses/phantoon_flame.json` | `PhantoonFlame` | burning_timeline, drift_speed, falling_timeline, gravity, landing_drop, landing_pause, landing_timeline, leap_speed, rain_impact_timeline, rain_sound, resting_timeline, ring_hold_updates, ring_radius |
 | `bosses/ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, fade_updates, health, hit_flash_updates, hits_to_drive_off, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, wounded_health |
 | `bosses/ridley_fireball.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flame.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |

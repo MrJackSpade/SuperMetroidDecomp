@@ -19,10 +19,15 @@ namespace Game.Enemies;
 /// Its body plays "body". The visual "Eye" plays "eye_open", whose cue "begin_tracking" opens it to harm;
 /// "eye_close"; "eye_close_and_pick", whose cue "pick_pattern" chooses what it does next; "eyeball_centred"; and
 /// "eye_looking_" with one of the eight ways. The visual "Mouth" plays "mouth_idle" and "mouth_spawn_flame", whose
-/// cue "flame" drops a flame; "Tentacles" plays "tentacles". Its hurtbox "Eye" is its eye and "Body" the rest of it.
-/// Its data gives its figure of eight under "path", a digit a step as on a number pad, and the places its rains fall
-/// from under "rain_patterns". Its shots are "flame" and "starting_flame". All its places are in the room's own
-/// pixels: its room is a single screen.
+/// cue "flame" drops a flame; "Tentacles" plays "tentacles". The cue "appear_sound" asks for the next of its
+/// "appear_sounds" in turn. Its colliders whose names begin "Eye" are its eye; the rest are its body and its three
+/// tentacles, each a hurtbox for shots and a hitbox for its touch. Its data gives its figure of eight under "path",
+/// a digit a step as on a number pad; the places its rains fall from under "rain_patterns"; under "health_tints" how
+/// much of the red, green and blue of its pictures shows ("r", "g", "b") at each least "health", highest first;
+/// "scattered_drops", the table of what it scatters when it is gone, and "drop_scatter", where: a corner of the room
+/// ("x", "y") and, across and down, how many binary digits of a number drawn are added and from which digit up. Its
+/// shots are "flame" and "starting_flame". All its places are in the room's own pixels: its room is a single
+/// screen.
 /// </remarks>
 public partial class Phantoon : Enemy
 {
@@ -70,9 +75,13 @@ public partial class Phantoon : Enemy
     [Export, DataValue("rage_sound")]
     public string RageSound { get; set; } = "";
 
-    /// <summary>The sound of an explosion on it as it dies.</summary>
-    [Export, DataValue("explosion_sound")]
-    public string ExplosionSound { get; set; } = "";
+    /// <summary>The sound of a big explosion on it as it dies.</summary>
+    [Export, DataValue("big_explosion_sound")]
+    public string BigExplosionSound { get; set; } = "";
+
+    /// <summary>The sound of a small explosion on it as it dies.</summary>
+    [Export, DataValue("small_explosion_sound")]
+    public string SmallExplosionSound { get; set; } = "";
 
     private const int Screen = 256;
 
@@ -126,6 +135,12 @@ public partial class Phantoon : Enemy
     private readonly List<(int X, int Y)> _path = [];
     private readonly List<(int Place, int X, int Y)> _rainPatterns = [];
     private readonly Dictionary<string, TimelinePlayer> _parts = new(StringComparer.Ordinal);
+    private readonly List<string> _appearSounds = [];
+    private readonly List<(int Health, Color Tint)> _healthTints = [];
+    private DropTable _scatteredDrops = DropTable.Nothing;
+    private Vector2I _dropCorner;
+    private (int From, int Digits) _dropAcross, _dropDown;
+    private int _appearances;
     private Phase _phase = Phase.SpawnStartingFlames;
     private int _wait;
     private int _eyeClosedWait;
@@ -181,6 +196,34 @@ public partial class Phantoon : Enemy
         _rainPatterns.AddRange(data.List("rain_patterns").Select(pattern => (pattern.Int("path_place"), pattern.Int("x"), pattern.Int("y"))));
         if (_path.Count == 0 || _rainPatterns.Count != 8)
             throw data.Problem("must give a path and eight rain patterns");
+        static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
+        _appearSounds.Clear();
+        _appearSounds.AddRange(data.List("appear_sounds").Select(sound => sound.AsText()));
+        _healthTints.Clear();
+        _healthTints.AddRange(data.List("health_tints").Select(band => (band.Int("health"), new Color(
+            (float)band.Get("tint").Distance("r").ToNumber(), (float)band.Get("tint").Distance("g").ToNumber(), (float)band.Get("tint").Distance("b").ToNumber()))));
+        if (_appearSounds.Count == 0 || _healthTints.Count == 0)
+            throw data.Problem("must give at least one sound of its appearing and one tint");
+        _scatteredDrops = DropTable.Read(data.Get("scattered_drops"));
+        DataNode scatter = data.Get("drop_scatter");
+        _dropCorner = new Vector2I(scatter.Int("x"), scatter.Int("y"));
+        _dropAcross = Field(scatter.Get("across"));
+        _dropDown = Field(scatter.Get("down"));
+    }
+
+    /// <summary>The colours it shows for the health it has left: it changes as it is worn down.</summary>
+    private Color HealthTint
+    {
+        get
+        {
+            foreach ((int health, Color tint) in _healthTints)
+            {
+                if (Health.Current >= health)
+                    return tint;
+            }
+
+            return _healthTints[^1].Tint;
+        }
     }
 
     /// <inheritdoc/>
@@ -561,7 +604,7 @@ public partial class Phantoon : Enemy
                 string effect = big ? BigExplosionEffect : SmallExplosionEffect;
                 if (effect.Length > 0)
                     LeaveEffect(effect, PixelPosition.FromWhole(Position.X.Whole + offsetX, Position.Y.Whole + offsetY));
-                Sound(ExplosionSound);
+                Sound(big ? BigExplosionSound : SmallExplosionSound);
                 if (++_explosion < DeathExplosions.Length)
                     break;
                 _explosion = 5;
@@ -589,7 +632,8 @@ public partial class Phantoon : Enemy
                 for (int drop = 0; drop < DeathDrops; drop++)
                 {
                     RandomDraw draw = Random.Draw();
-                    Drop(Drops, PixelPosition.FromWhole(64 + draw.Part(0, 7), 96 + draw.Part(8, 6)));
+                    Drop(_scatteredDrops, PixelPosition.FromWhole(
+                        _dropCorner.X + draw.Part(_dropAcross.From, _dropAcross.Digits), _dropCorner.Y + draw.Part(_dropDown.From, _dropDown.Digits)));
                 }
 
                 if (VictoryMusic.Length > 0)
@@ -814,14 +858,14 @@ public partial class Phantoon : Enemy
     }
 
     /// <inheritdoc/>
-    protected override Color RestingTint => new(1, 1, 1, _alpha);
+    protected override Color RestingTint => HealthTint with { A = _alpha };
 
     /// <summary>Shows it as solid as <paramref name="alpha"/>, parts and all.</summary>
     private void SetVisible(float alpha)
     {
         _alpha = Math.Clamp(alpha, 0f, 1f);
         foreach (string part in _parts.Keys)
-            GetNodeOrNull<ActorVisual>(part)?.Tint(new Color(1, 1, 1, _alpha));
+            GetNodeOrNull<ActorVisual>(part)?.Tint(HealthTint with { A = _alpha });
     }
 
     /// <summary>Says which of it shots can land on, and whether its touch hurts.</summary>
@@ -829,9 +873,9 @@ public partial class Phantoon : Enemy
     {
         foreach (Collider collider in Engine.World.EntityNode.CollidersOf(this))
         {
-            collider.Enabled = collider.Role == ColliderRole.Hitbox ? touch && !_dying
-                : collider.Name == "Eye" ? eye && !_dying
-                : body && !_dying;
+            // Each part of it is there to be shot when that part is, and hurts by touch only when its touch does.
+            bool there = collider.Name.ToString().StartsWith("Eye", StringComparison.Ordinal) ? eye : body;
+            collider.Enabled = there && !_dying && (collider.Role != ColliderRole.Hitbox || touch);
         }
     }
 
@@ -864,6 +908,11 @@ public partial class Phantoon : Enemy
                         ((PhantoonFlame)Fire("flame", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole + 32), PixelVelocity.Zero)).Fall();
                         Sound(FlameSound);
                         break;
+                    case "appear_sound":
+                        Sound(_appearSounds[_appearances++ % _appearSounds.Count]);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Phantoon's part \"{part}\" gives the cue \"{cue}\", which it does not know.");
                 }
             }
 

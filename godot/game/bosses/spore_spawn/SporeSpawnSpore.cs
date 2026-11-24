@@ -98,6 +98,24 @@ public partial class SporeSpawnSpore : Projectile, IHasValues
         Position += _driftsLeft ? new PixelOffset(-step.X, step.Y) : step;
         _step = (_step + 1) % _drift.Count;
         if (Position.Y.Whole >= _startY + FallDistance)
+        {
+            Leave(room);
+            return;
+        }
+
+        if (_harmless)
+            MeetWhileHarmless(room);
+    }
+
+    /// <summary>
+    /// A bursting spore that has turned harmless still meets Samus: it knocks her back for no damage and is gone, as the
+    /// old game's spore did.
+    /// </summary>
+    private void MeetWhileHarmless(Room room)
+    {
+        var away = PixelOffset.FromWhole(room.Player.Position.X >= Position.X ? 1 : -1, 0);
+        Hit touch = Hit with { Damage = 0, Direction = away };
+        if (room.DeliverHit(touch, Area, from: Launcher).Any(met => met.Target == room.Player && met.Result != HitResult.Ignored))
             Leave(room);
     }
 }

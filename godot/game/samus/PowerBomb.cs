@@ -15,8 +15,8 @@ namespace Game;
 /// </summary>
 /// <remarks>
 /// Its data gives how far the blast reaches across on each of its updates, one after another, from the update after
-/// the fuse runs out; nought is an update on which it reaches nothing, as while it gathers. The blast ends on the
-/// update after the last of them.
+/// the fuse runs out; nought is an update on which it reaches nothing but the terrain where it lies, as while it
+/// gathers. The blast ends on the update after the last of them.
 /// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
 /// </remarks>
 public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
@@ -105,10 +105,19 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
         _reach = BlastReaches[_blastUpdate];
         _blastUpdate++;
         QueueRedraw();
-        if (_reach <= 0)
-            return;
         int parts = Math.Max(1, WidthParts);
-        var blast = PixelRect.Around(Position.X.Whole, Position.Y.Whole, _reach, (_reach * HeightParts + (parts - 1) / 2) / parts);
+        int across = Math.Max(0, _reach), down = (across * HeightParts + (parts - 1) / 2) / parts;
+
+        // As the cartridge's does, the blast strikes the terrain on every update it runs, out to its far edges, so a
+        // reach of nought still strikes the block it lies in.
+        var struck = new PixelRect(Position.X.Whole - across, Position.Y.Whole - down, across * 2 + 1, down * 2 + 1);
+        if (_reach <= 0)
+        {
+            room.Terrain.TakeHit(Hit, struck);
+            return;
+        }
+
+        var blast = PixelRect.Around(Position.X.Whole, Position.Y.Whole, _reach, down);
         var lately = new HashSet<IHittable> { this };
         foreach ((IHittable reached, int at) in _reachedAt)
         {
@@ -122,7 +131,7 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
                 _reachedAt[target] = _blastUpdate;
         }
 
-        room.Terrain.TakeHit(Hit, blast);
+        room.Terrain.TakeHit(Hit, struck);
     }
 
     /// <inheritdoc/>

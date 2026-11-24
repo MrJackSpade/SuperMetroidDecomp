@@ -15,9 +15,13 @@ namespace Game.Cinematics;
 /// </summary>
 /// <remarks>
 /// It is written across several files: this one is its order of events and its pages; the others are the scenes
-/// between pages and the flight to the colony. Its data names its pictures ("first_card", "final_line"), the
-/// timelines of what it shows, where those start ("places"), its "pages" (each the name of its words, and of the
-/// second wordings shown with them in the "subtitled_languages"), and what each scene needs.
+/// between pages and the flight to the colony. Its data names its pictures ("first_card", "portrait", "final_line"),
+/// the "font" its pages are typed in and their "typing_sound", the timelines of what it shows ("eye", "eye_closing",
+/// "caret", "caret_blinking", "next_page_arrow", "next_page_arrow_delayed"), where things are ("places", among them
+/// "words", the corner of a page's first letter), its "pages", and what each scene needs. A page gives the name of
+/// its words ("text"), the "scene" it turns to if it turns to one, and whether, in the "subtitled_languages", a
+/// second press is waited for before it may be turned ("awaits_second_press"). The words of a page are its lines,
+/// with a line feed for every row down from one line to the next.
 /// </remarks>
 public partial class Intro : Cinematic
 {
@@ -46,9 +50,6 @@ public partial class Intro : Cinematic
         Finished,
     }
 
-    /// <summary>The scenes shown between pages, in the order of the pages that lead to them; the last two pages lead to none.</summary>
-    private static readonly string[] SceneAfterPage = ["mother_brain", "discovery", "delivery", "examination", "", ""];
-
     /// <summary>How many updates a fade of the whole screen takes, and how many steps it goes in.</summary>
     private const int FadeUpdates = 30, FadeLevels = 15;
 
@@ -64,8 +65,8 @@ public partial class Intro : Cinematic
     /// <summary>How many updates pass between one letter and the next, and how long the last page is held.</summary>
     private const int LetterUpdates = 5, FinalPageUpdates = 128;
 
-    /// <summary>The size of a letter's cell, and where the first row of a page's words is.</summary>
-    private const int Cell = 8, FirstRowY = 24;
+    /// <summary>How long the page must wait, once the second press has come, before it may be turned.</summary>
+    private const int SecondPressHoldUpdates = 60;
 
     private DataNode? _data;
     private TimelineSet _timelines = TimelineSet.None;
@@ -79,8 +80,9 @@ public partial class Intro : Cinematic
     private Node2D? _sceneRoot;
     private Node2D? _narration;
     private Sprite2D? _card;
-    private Label? _words;
-    private Label? _subtitle;
+    private PixelText? _words;
+    private PixelPosition _wordsAt;
+    private int _cell;
     private CinematicSprite? _eye;
     private CinematicSprite? _caret;
     private CinematicSprite? _arrow;
@@ -105,7 +107,7 @@ public partial class Intro : Cinematic
 
         var scenes = new CanvasLayer { Name = "Scenes", Layer = 1 };
         AddChild(scenes);
-        var black = new ColorRect { Name = "Black", Color = Colors.Black };
+        var black = new ColorRect { Name = "Black", Color = new Color(_data.Text("backdrop")) };
         black.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         scenes.AddChild(black);
         _sceneRoot = new Node2D { Name = "Scene", Modulate = new Color(1, 1, 1, 0) };
@@ -117,20 +119,18 @@ public partial class Intro : Cinematic
         pages.AddChild(_card);
         _narration = new Node2D { Name = "Narration", Visible = false };
         pages.AddChild(_narration);
-        _narration.AddChild(new Sprite2D
-        {
-            Name = "FinalLine", Centered = false, Position = new Vector2(0, 23 * Cell),
-            Texture = Session.Content.LoadTexture(_data.Text("final_line")),
-        });
+
+        // Her portrait lies under everything else of a page, her eye over it.
+        _narration.AddChild(Picture("Portrait", "portrait", "portrait"));
         _eye = Sprite("eye", "eye");
         _narration.AddChild(_eye);
-        _words = new Label { Name = "Words", Position = new Vector2(0, FirstRowY), VisibleCharacters = 0 };
+        _narration.AddChild(Picture("FinalLine", "final_line", "final_line"));
+        PixelFont font = PixelFont.Read(Session.Content, _data.Text("font"));
+        DataNode wordsAt = _data.Get("places").Get("words");
+        (_wordsAt, _cell) = (PixelPosition.FromWhole(wordsAt.Int("x"), wordsAt.Int("y")), font.Cell.X);
+        _words = new PixelText { Name = "Words", Font = font, Position = new Vector2(wordsAt.Int("x"), wordsAt.Int("y")), VisibleCharacters = 0 };
         _narration.AddChild(_words);
-        _subtitle = new Label { Name = "Subtitle", Visible = false };
-        DataNode subtitleAt = _data.Get("places").Get("subtitle");
-        _subtitle.Position = new Vector2(subtitleAt.Int("x"), subtitleAt.Int("y"));
-        _narration.AddChild(_subtitle);
-        _caret = CinematicSprite.Of(Session.Content, _timelines.Get("caret"), PixelPosition.FromWhole(Cell, FirstRowY));
+        _caret = CinematicSprite.Of(Session.Content, _timelines.Get("caret"), _wordsAt);
         _caret.Name = "Caret";
         _narration.AddChild(_caret);
 
@@ -302,20 +302,16 @@ public partial class Intro : Cinematic
         _page = page;
         _text = Session.Text.Get(entry.Text("text"));
         (_typed, _letterWait, _pageFinished, _finalHold, _awaitingSecondSubtitle, _subtitleHold) = (0, 2, false, 0, false, 0);
-        Label words = _words ?? throw NotEntered();
+        PixelText words = _words ?? throw NotEntered();
         words.Text = _text;
         words.VisibleCharacters = 0;
         _arrow?.QueueFree();
         _arrow = null;
-        Label subtitle = _subtitle ?? throw NotEntered();
-        subtitle.Visible = IsSubtitled && entry.Has("subtitle");
-        if (subtitle.Visible)
-            subtitle.Text = Session.Text.Get(entry.Text("subtitle"));
         CinematicSprite caret = _caret ?? throw NotEntered();
         if (restoresCaret || page == LastPage)
         {
             caret.Visible = true;
-            caret.Place = PixelPosition.FromWhole(Cell, FirstRowY);
+            caret.Place = _wordsAt;
             caret.Play(_timelines.Get("caret"));
         }
 
@@ -333,10 +329,10 @@ public partial class Intro : Cinematic
         _arrow?.Step();
         if (_awaitingSecondSubtitle && Input.AnyPressed)
         {
-            // The second wording comes up, and is held a moment before the page may be turned.
+            // The second press has come: the page is held a moment before it may be turned, its arrow gone meanwhile.
             _awaitingSecondSubtitle = false;
-            (_subtitle ?? throw NotEntered()).Text = Session.Text.Get(Data().List("pages")[_page].Text("second_subtitle"));
-            _subtitleHold = 60;
+            _subtitleHold = SecondPressHoldUpdates;
+            _arrow?.Play(_timelines.Get("next_page_arrow_delayed"));
             return;
         }
 
@@ -358,11 +354,11 @@ public partial class Intro : Cinematic
         while (_typed < _text.Length && char.IsControl(_text[_typed]))
             _typed++;
         (_words ?? throw NotEntered()).VisibleCharacters = _typed;
-        caret.Place = _typed < _text.Length ? CellOf(_typed) : PixelPosition.FromWhole(Cell, CellOf(_typed - 1).Y.Whole + 2 * Cell);
+        caret.Place = _typed < _text.Length ? CellOf(_typed) : PixelPosition.FromWhole(_wordsAt.X.Whole, CellOf(_typed - 1).Y.Whole + 2 * _cell);
         caret.ShowPlace();
         _click = !_click;
         if (!char.IsWhiteSpace(letter) && _click)
-            Session.Sounds.Request(Sounds.Typing, channel: "text");
+            Session.Sounds.Request(Data().Text("typing_sound"), channel: "text");
     }
 
     /// <summary>What follows the last letter of a page: the last page is held a while; any other shows it may be turned.</summary>
@@ -385,7 +381,8 @@ public partial class Intro : Cinematic
             DataNode at = Data().Get("places").Get("next_page_arrow");
             _arrow = CinematicSprite.Of(Session.Content, _timelines.Get("next_page_arrow"), PixelPosition.FromWhole(at.Int("x"), at.Int("y")));
             (_narration ?? throw NotEntered()).AddChild(_arrow);
-            _awaitingSecondSubtitle = Data().List("pages")[_page].Has("second_subtitle");
+            DataNode page = Data().List("pages")[_page];
+            _awaitingSecondSubtitle = page.Has("awaits_second_press") && page.Flag("awaits_second_press");
         }
     }
 
@@ -394,7 +391,8 @@ public partial class Intro : Cinematic
     {
         _arrow?.QueueFree();
         _arrow = null;
-        string scene = SceneAfterPage[_page];
+        DataNode page = Data().List("pages")[_page];
+        string scene = page.Has("scene") ? page.Text("scene") : "";
         if (scene.Length == 0)
         {
             ClearWords();
@@ -425,9 +423,8 @@ public partial class Intro : Cinematic
 
     private void ClearWords()
     {
-        Label words = _words ?? throw NotEntered();
+        PixelText words = _words ?? throw NotEntered();
         (_text, _typed, words.Text, words.VisibleCharacters) = ("", 0, "", 0);
-        (_subtitle ?? throw NotEntered()).Visible = false;
     }
 
     /// <summary>Where the cell of the letter at an index of the page's words is on the screen.</summary>
@@ -442,7 +439,7 @@ public partial class Intro : Cinematic
                 column++;
         }
 
-        return PixelPosition.FromWhole(column * Cell, FirstRowY + row * Cell);
+        return PixelPosition.FromWhole(_wordsAt.X.Whole + column * _cell, _wordsAt.Y.Whole + row * _cell);
     }
 
     private int LastPage => Data().List("pages").Count - 1;
@@ -457,6 +454,16 @@ public partial class Intro : Cinematic
         CinematicSprite sprite = CinematicSprite.Of(Session.Content, _timelines.Get(timeline), PixelPosition.FromWhole(at.Int("x"), at.Int("y")));
         sprite.Name = place;
         return sprite;
+    }
+
+    /// <summary>One of the opening's still pictures, with its corner at the place the data gives a name.</summary>
+    private Sprite2D Picture(string name, string picture, string place)
+    {
+        DataNode at = Data().Get("places").Get(place);
+        return new Sprite2D
+        {
+            Name = name, Centered = false, Position = new Vector2(at.Int("x"), at.Int("y")), Texture = Session.Content.LoadTexture(Data().Text(picture)),
+        };
     }
 
     private DataNode Data() => _data ?? throw NotEntered();

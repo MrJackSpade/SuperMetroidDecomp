@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Ui;
 using Godot;
 
@@ -10,7 +11,7 @@ namespace Game.Cinematics;
 /// <remarks>
 /// The data names the credits' picture ("credits_roll") and how far it scrolls before it is done ("credits_scroll"),
 /// the pictures "waiting_backdrop", "wavy_samus", "result_panel" and "copyright_panel", and the four pictures of a
-/// "shooting_star" from faintest to fullest.
+/// "shooting_star" from faintest to fullest, with where those lie from the star's place ("shooting_star_offset").
 /// </remarks>
 public partial class Ending
 {
@@ -72,8 +73,8 @@ public partial class Ending
     {
         ClearActors();
         (_floor ?? throw NotEntered()).Visible = false;
-        (_completionText ?? throw NotEntered()).Visible = false;
-        (_clearTimeText ?? throw NotEntered()).Visible = false;
+        foreach (PixelText line in _resultTexts.Values)
+            line.Visible = false;
         (_backdrop ?? throw NotEntered()).Color = Colors.Black;
         CanvasLayer picture = _picture ?? throw NotEntered();
         _credits = new Sprite2D { Name = "Credits", Centered = false, Position = new Vector2(0, 256), Texture = Session.Content.LoadTexture(Data().Text("credits_roll")) };
@@ -175,7 +176,8 @@ public partial class Ending
         foreach ((_, _, _, int delay) in ShootingStars)
         {
             _stars.Add((128 * 256, 128 * 256, 0, 0, 0, delay));
-            var sprite = new Sprite2D { Name = "ShootingStar", Visible = false, ZIndex = -2 };
+            DataNode offset = Data().Get("shooting_star_offset");
+            var sprite = new Sprite2D { Name = "ShootingStar", Centered = false, Offset = new Vector2(offset.Int("x"), offset.Int("y")), Visible = false, ZIndex = -2 };
             (_sprites ?? throw NotEntered()).AddChild(sprite);
             _starSprites.Add(sprite);
         }

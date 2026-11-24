@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/cinematics/intro_egg.tscn" id="3"]
 
 [node name="IntroDiscoveryRoom" type="Node2D"]
@@ -16,3 +17,18 @@ position = Vector2(376, 147)
 
 [node name="Egg" parent="." instance=ExtResource("3")]
 position = Vector2(112, 155)
+
+[node name="RightOfView" type="Node2D" parent="."]
+position = Vector2(256, -512)
+script = ExtResource("4")
+Size = Vector2i(768, 1280)
+
+[node name="AboveView" type="Node2D" parent="."]
+position = Vector2(-512, -512)
+script = ExtResource("4")
+Size = Vector2i(2048, 520)
+
+[node name="BelowView" type="Node2D" parent="."]
+position = Vector2(-512, 232)
+script = ExtResource("4")
+Size = Vector2i(2048, 512)

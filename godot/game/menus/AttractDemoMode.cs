@@ -18,14 +18,12 @@ public partial class AttractDemoMode : PlayingMode
 {
     private readonly DataNode _data;
     private readonly RecordedInputSource _recording;
-    private readonly InputSampler _sampler;
     private bool _equipped;
 
     private AttractDemoMode(DataNode data, DemoRecording recording) : base(recording.Room, recording.EntryPoint)
     {
         _data = data;
         _recording = new RecordedInputSource(recording);
-        _sampler = new InputSampler(_recording);
     }
 
     /// <summary>The demo in the file at <paramref name="file"/>, a path within the assets tree.</summary>
@@ -47,7 +45,7 @@ public partial class AttractDemoMode : PlayingMode
 
         if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause) || _recording.IsOver)
             return BackToTitle();
-        GameMode next = base.Step(_sampler.Sample());
+        GameMode next = base.Step(_recording.Next());
 
         // Nothing a demo leads to is followed but the change from one room to the next.
         if (ReferenceEquals(next, this) || next is RoomTransitionMode)

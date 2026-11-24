@@ -25,8 +25,11 @@ public partial class ChoiceList : VBoxContainer
         Cancelled,
     }
 
-    private readonly List<Label> _labels = [];
+    private readonly List<PixelText> _labels = [];
     private IReadOnlyList<string> _lines = [];
+
+    /// <summary>The font its lines are drawn in.</summary>
+    public PixelFont? Font { get; set; }
 
     /// <summary>What marks the chosen line, written before it.</summary>
     [Export]
@@ -48,12 +51,12 @@ public partial class ChoiceList : VBoxContainer
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(chosen, lines.Count);
         _lines = lines;
         Chosen = chosen;
-        foreach (Label label in _labels)
+        foreach (PixelText label in _labels)
             label.QueueFree();
         _labels.Clear();
         foreach (string _ in lines)
         {
-            var label = new Label();
+            var label = new PixelText { Font = Font };
             _labels.Add(label);
             AddChild(label);
         }

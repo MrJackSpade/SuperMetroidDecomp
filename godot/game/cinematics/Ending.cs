@@ -127,8 +127,7 @@ public partial class Ending : Cinematic
     private Node2D? _sprites;
     private Sprite2D? _explosionPicture;
     private Sprite2D? _explosionGlow;
-    private Label? _completionText;
-    private Label? _clearTimeText;
+    private readonly Dictionary<string, PixelText> _resultTexts = [];
 
     private double _floorX, _floorY;
     private int _floorSize = 256;
@@ -168,10 +167,16 @@ public partial class Ending : Cinematic
             Name = "Glow", Centered = false, Visible = false, Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add },
         };
         _picture.AddChild(_explosionGlow);
-        _completionText = new Label { Name = "Completion", Position = new Vector2(0, 88), Size = new Vector2(256, 16), HorizontalAlignment = HorizontalAlignment.Center, Visible = false };
-        _picture.AddChild(_completionText);
-        _clearTimeText = new Label { Name = "ClearTime", Position = new Vector2(64, 152), Visible = false };
-        _picture.AddChild(_clearTimeText);
+        foreach ((string words, DataNode line) in _data.Get("result_texts").Entries())
+        {
+            var text = new PixelText
+            {
+                Name = words, Font = PixelFont.Read(Session.Content, line.Text("font")), Position = new Vector2(line.Int("x"), line.Int("y")),
+                Text = Session.Text.Get(words), VisibleCharacters = 0, Visible = false,
+            };
+            _picture.AddChild(text);
+            _resultTexts[words] = text;
+        }
         _white = new ScreenFade { Name = "White", Layer = 3, Colour = Colors.White };
         AddChild(_white);
         _fade = new ScreenFade { Name = "Fade", Layer = 5, Levels = FadeLevels };

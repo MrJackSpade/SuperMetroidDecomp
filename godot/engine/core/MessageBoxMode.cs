@@ -53,7 +53,7 @@ public partial class MessageBoxMode : GameMode
     /// <inheritdoc/>
     protected override void Enter()
     {
-        _box = new MessageBox { Name = "MessageBox" };
+        _box = new MessageBox { Name = "MessageBox", Font = Session.Font };
         AddChild(_box);
         _box.Present(Session.Text.Get(_message), asksYesOrNo: _answered is not null);
         if (Fanfare.Length > 0)

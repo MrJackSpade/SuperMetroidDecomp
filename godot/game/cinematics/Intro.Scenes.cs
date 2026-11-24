@@ -25,7 +25,6 @@ public partial class Intro
     private const int DiscoveryStopX = 178;
 
     private Room? _room;
-    private InputSampler? _sampler;
     private RecordedInputSource? _recording;
     private bool _looking;
     private Sprite2D? _laboratory;
@@ -129,7 +128,7 @@ public partial class Intro
 
         _laboratory?.QueueFree();
         _larva?.QueueFree();
-        (_room, _sampler, _recording, _laboratory, _larva, _scene) = (null, null, null, null, null, "");
+        (_room, _recording, _laboratory, _larva, _scene) = (null, null, null, null, "");
     }
 
     /// <summary>Sets up the room a recording is played in, with Samus carrying what the recording says.</summary>
@@ -164,14 +163,13 @@ public partial class Intro
     private void Record(DemoRecording recording)
     {
         _recording = new RecordedInputSource(recording);
-        _sampler = new InputSampler(_recording);
     }
 
     /// <summary>Plays one update of the flashback's room; once the recording is over Samus is left to stand.</summary>
     private void StepFlashback()
     {
         RecordedInputSource recording = _recording ?? throw NotEntered();
-        GameInput input = recording.IsOver ? GameInput.None : (_sampler ?? throw NotEntered()).Sample();
+        GameInput input = recording.IsOver ? GameInput.None : recording.Next();
         RoomNow().Step(input);
     }
 

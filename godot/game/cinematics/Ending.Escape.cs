@@ -10,12 +10,14 @@ namespace Game.Cinematics;
 /// mission's result typed over it.
 /// </summary>
 /// <remarks>
-/// The data names the floor's pictures ("cloud_floor", "planet_floor", "gunship_floor"), the blast's ("planet_explosion",
+/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"), the blast's ("planet_explosion",
 /// "burst_glow", "finale_explosion", "finale_glow"), and the timelines "right_side_cloud", "left_side_cloud",
 /// "top_cloud_pattern", "top_cloud_edge", "bottom_cloud_edge", "bottom_cloud_pattern", "exploding_planet" (which gives
 /// the cue "silhouette"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
 /// "explosion_stars" (cues "finale" and "end"), "explosion_afterglow", "animal_escape", and "digit_0" to "digit_9"
-/// and "colon". Its words are "ending_operation_was", "ending_completed_successfully" and "ending_clear_time".
+/// and "colon". The result's lines are its "result_texts": each by the name of its words ("ending_operation_was",
+/// "ending_completed_successfully", "ending_clear_time"), with the font it is typed in and where its first
+/// character's cell lies.
 /// </remarks>
 public partial class Ending
 {
@@ -256,6 +258,7 @@ public partial class Ending
         Spawn("cloud", "top_cloud_edge", 128, -32, Motion.CloudDown);
         Spawn("cloud", "bottom_cloud_edge", 128, 288, Motion.CloudUp);
         Spawn("cloud", "bottom_cloud_pattern", 128, 352, Motion.CloudUp);
+        ShowFloorPicture("top_and_bottom_cloud_floor", AtmosphereCentre);
         SetFloor(0, 0, 64, 32);
     }
 
@@ -345,15 +348,11 @@ public partial class Ending
     /// <summary>Starts typing one of the result's lines.</summary>
     private void BeginTyping(string words)
     {
-        bool clearTime = words == "ending_clear_time";
-        Label label = (clearTime ? _clearTimeText : _completionText) ?? throw NotEntered();
-
-        // The second line of the result is typed under the first, which stays.
-        string before = words == "ending_completed_successfully" ? label.Text + (char)10 : "";
-        label.Text = before + Session.Text.Get(words);
-        label.VisibleCharacters = before.Length;
+        // Each line of the result is typed in its own place, the ones before it staying.
+        PixelText label = _resultTexts[words];
+        label.VisibleCharacters = 0;
         label.Visible = true;
-        (_typing, _typed, _typeWait, _digitsShown) = (words, before.Length, 1, 0);
+        (_typing, _typed, _typeWait, _digitsShown) = (words, 0, 1, 0);
     }
 
     /// <summary>
@@ -364,8 +363,7 @@ public partial class Ending
     {
         if (--_typeWait > 0)
             return;
-        bool clearTime = _typing == "ending_clear_time";
-        Label label = (clearTime ? _clearTimeText : _completionText) ?? throw NotEntered();
+        PixelText label = _resultTexts[_typing];
         string words = label.Text;
         if (_typed < words.Length)
         {

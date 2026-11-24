@@ -7,7 +7,7 @@ namespace Engine.Ui;
 /// Text shown one character at a time, with a sound for each: narration, captions, warnings, credits. It holds no
 /// words of its own; it is given them.
 /// </summary>
-public partial class TypedText : Label
+public partial class TypedText : PixelText
 {
     /// <summary>How many updates pass between one character and the next.</summary>
     [Export]

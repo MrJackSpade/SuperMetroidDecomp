@@ -85,7 +85,7 @@ godot/
     world/         Room, Terrain, Liquid, RoomEffect, Backdrop, Camera, CameraZone, Trigger, RoomExit,
                    RoomObject, RoomSequence
       objects/<name>/    the general-purpose room object kinds
-    ui/            ScreenFade, TypedText, MessageBox, MapView, Cinematic
+    ui/            ScreenFade, PixelFont, PixelText, TypedText, MessageBox, MapView, Cinematic
     tests/         checks of the engine, using only the engine's own stand-in content
   game/
     game_definition      this game's GameDefinition, the one thing the engine is pointed at
@@ -304,7 +304,8 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, how it looks. |
 | `Area` | An area of the world as its map shows it | Its name, the fact that reveals its map, the cells of the map and the small picture each shows, which cells are secret, its markers, and the sheet the pictures come from. A room says which area it is in and which cell its top-left corner is. |
 | `FrameTimeline` | A timed sequence gameplay follows | Ordered steps, each with a picture to show, how many updates it lasts, and optional named cues; and where it loops or ends. |
-| `DemoRecording` | One title-screen demo | The room it plays in, the entry point the player starts at, and the actions held for each stretch of updates. `RecordedInputSource` plays it to the `InputSampler`. |
+| `DemoRecording` | One title-screen demo | The room it plays in, the entry point the player starts at, and the actions held for each stretch of updates. An action is newly pressed when it is first held; a stretch may say otherwise ("pressed": one pressed again without being let go, or held and never pressed). A recording may end "holding" its last stretch for good. `RecordedInputSource` plays it, giving each update's input. |
+| `PixelFont` | One font | A picture of its characters, each one cell of the same size, in the order the font lists them. The game definition names the font the game's words are drawn in (`FontFile`); anything with a font of its own names it in its data. |
 | `GameText` | The game's words | Every message, menu label, narration line and credit, by name, per language. |
 | `GameDefinition` | The game the engine is running | The one thing the engine is pointed at: the first screen, the player's scene, the HUD, this game's lists (equipment and ammunition kinds, hit kinds, item types, bosses and story events, areas, music and sounds, input actions, options, extra game modes and session services) and its compatibility answers. Everything the engine knows about a particular game, it learns from this. |
 
@@ -788,7 +789,8 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `MessageBox` | `engine/ui/` | Showing a message, waiting for it to be dismissed, and returning the answer when it asks yes or no. | Grant the item it announces or perform the save it asks about. |
 | `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. | Decide what is explored. |
 | `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, smoothly or in a set number of even steps, and reporting when it is done. | Know why it was asked. |
-| `TypedText` | `engine/ui/` | Showing text one character at a time with its sound, for every letter or every so many; going on to the next line takes no time. | Hold the words; they come from `GameText`. |
+| `PixelText` | `engine/ui/` | Drawing words in a `PixelFont`, a character to a cell and line under line; showing only the first so many characters; laying each line at the left, middle or right of its width. Every word the game shows is drawn by one. | Hold the words, or draw in anything but its font: with none, words given it cannot be drawn. |
+| `TypedText` | `engine/ui/` | A `PixelText` showing its words one character at a time with its sound, for every letter or every so many; going on to the next line takes no time. | Hold the words; they come from `GameText`. |
 | `Cinematic` | base in `engine/ui/`, each one in `game/cinematics/` | A scripted sequence with no gameplay. Each is a `GameMode`. One that waits on the player reads what they are doing this update; one that shows remembered play steps a room of its own from recorded input. | Run gameplay rules of its own. |
 | `CinematicSprite` | `engine/ui/` | One thing shown in a cinematic: a picture at a place on the screen that plays a timeline, drifts at a speed (round a loop, if it has one), and is over when its timeline has played out. Its cinematic steps it and acts on the cues it reports. | Decide what its cues mean. |
 | `MosaicPicture` | `engine/ui/` | A picture that can be shown in coarse blocks, each taking the colour of its top-left pixel. | Anything else. |

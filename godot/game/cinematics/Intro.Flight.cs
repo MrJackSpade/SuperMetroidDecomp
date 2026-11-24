@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
@@ -12,9 +13,11 @@ namespace Game.Cinematics;
 /// among drifting asteroids; and then the colony's name is typed out and the screen goes dark.
 /// </summary>
 /// <remarks>
-/// The data names the gunship's pictures ("front_floor", "rear_floor"), the "flight_backdrop" colour, the timelines
-/// and places of what is seen with it ("stars"; "large_asteroids", "station", "small_asteroids", "vortex",
-/// "rear_stars"), and the name of the caption's words ("caption") and of its second wording ("caption_second").
+/// The data names the gunship's pictures ("front_floor", "rear_floor"), the "flight_backdrop" colour, the timeline
+/// and place of the "stars" it rushes through, what is seen from behind it ("rear_view": each thing's name, which
+/// is the name of its timeline and place, how far it drifts each update, and whether it drifts round a loop), the
+/// name of the caption's words ("caption"), the font they are typed in ("caption_font"), and the picture of the
+/// caption's second wording ("caption_second_picture"), with the places "caption" and "caption_second".
 /// </remarks>
 public partial class Intro
 {
@@ -34,12 +37,8 @@ public partial class Intro
     /// <summary>The point of the gunship's picture that stays put as it turns.</summary>
     private static readonly Vector2 FlightCentre = new(56, 24);
 
-    /// <summary>What is seen from behind, in the order it is put up: its name, how far it drifts each update, and whether it drifts round a loop.</summary>
-    private static readonly (string Name, double Drift, bool Loops)[] RearView =
-    [
-        ("large_asteroids", 0.25, true), ("station", 0.0625, true), ("small_asteroids", 0.03125, true),
-        ("vortex", -0.125, false), ("rear_stars", -0.125, false),
-    ];
+    /// <summary>How wide the loop is that what drifts round one drifts round.</summary>
+    private const int DriftLoopWidth = 512;
 
     private readonly List<CinematicSprite> _rearView = [];
     private Flight _flight;
@@ -47,8 +46,8 @@ public partial class Intro
     private CinematicSprite? _stars;
     private Node2D? _flightSprites;
     private ScreenFade? _flash;
-    private Label? _caption;
-    private Label? _captionSecond;
+    private PixelText? _caption;
+    private Sprite2D? _captionSecond;
     private double _flightScrollX, _flightScrollY;
     private double _starsSpeed;
     private int _flightSize;
@@ -71,9 +70,15 @@ public partial class Intro
         _gunship = new TurningFloor { Name = "Gunship", Repeats = false, Picture = Data().Text("front_floor") };
         layer.AddChild(_gunship);
         _gunship.Setup(Session.Content, new Vector2I(256, 224));
-        _caption = new Label { Name = "Caption", Position = new Vector2(80, 192), Text = Session.Text.Get(Data().Text("caption")), VisibleCharacters = 0, Visible = false };
+        DataNode captionAt = Data().Get("places").Get("caption");
+        _caption = new PixelText
+        {
+            Name = "Caption", Font = PixelFont.Read(Session.Content, Data().Text("caption_font")), Position = new Vector2(captionAt.Int("x"), captionAt.Int("y")),
+            Text = Session.Text.Get(Data().Text("caption")), VisibleCharacters = 0, Visible = false,
+        };
         layer.AddChild(_caption);
-        _captionSecond = new Label { Name = "CaptionSecond", Position = new Vector2(96, 208), Visible = false };
+        _captionSecond = Picture("CaptionSecond", "caption_second_picture", "caption_second");
+        _captionSecond.Visible = false;
         layer.AddChild(_captionSecond);
         _flash = new ScreenFade { Name = "Flash", Layer = 4, Colour = Colors.White, Levels = FadeLevels };
         AddChild(_flash);
@@ -168,11 +173,12 @@ public partial class Intro
         gunship.Picture = Data().Text("rear_floor");
         gunship.Setup(Session.Content, new Vector2I(256, 224));
         Node2D sprites = _flightSprites ?? throw NotEntered();
-        foreach ((string name, double drift, bool loops) in RearView)
+        foreach (DataNode thing in Data().List("rear_view"))
         {
+            string name = thing.Text("name");
             CinematicSprite seen = Sprite(name, name);
-            seen.Velocity = new PixelVelocity(Pixels.FromNumber(drift), Pixels.Zero);
-            seen.LoopWidth = loops ? 512 : 0;
+            seen.Velocity = new PixelVelocity(thing.Distance("drift"), Pixels.Zero);
+            seen.LoopWidth = thing.Flag("loops") ? DriftLoopWidth : 0;
             sprites.AddChild(seen);
             _rearView.Add(seen);
         }
@@ -196,7 +202,7 @@ public partial class Intro
     {
         if (--_captionWait > 0)
             return;
-        Label caption = _caption ?? throw NotEntered();
+        PixelText caption = _caption ?? throw NotEntered();
         string words = caption.Text;
         if (_captionShown < words.Length)
         {
@@ -208,12 +214,7 @@ public partial class Intro
             _captionWait = CaptionLetterUpdates;
             if (_captionShown < words.Length)
                 return;
-            Label second = _captionSecond ?? throw NotEntered();
-            if (IsSubtitled && Data().Has("caption_second"))
-            {
-                second.Text = Session.Text.Get(Data().Text("caption_second"));
-                second.Visible = true;
-            }
+            (_captionSecond ?? throw NotEntered()).Visible = IsSubtitled;
 
             _captionWait += CaptionHoldUpdates;
             return;

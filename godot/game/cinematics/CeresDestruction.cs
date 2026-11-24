@@ -18,8 +18,9 @@ namespace Game.Cinematics;
 /// Its data names the timelines of what it shows ("large_asteroids", "small_asteroids", "vortex", "small_explosion",
 /// "repeating_small_explosion", "large_explosion", "station_blast", "planet", "stars_upper_left", "stars_upper_right",
 /// "stars_lower_left", "stars_lower_right", "title", "second_title"), where each starts ("places"), its pictures
-/// ("station_floor", "explosion_floor", "approach_floor", "zebes") and its "backdrop" colour. The title's timeline
-/// gives the cues "fade_in", "second_title", "fade_out" and "fly".
+/// ("station_floor", "explosion_floor", "approach_floor", "zebes"), its "backdrop" colour, the "blast_sound" of the
+/// station going up, and the languages its second title is shown in ("second_title_languages"). The title's
+/// timeline gives the cues "fade_in", "second_title", "fade_out" and "fly".
 /// </remarks>
 public partial class CeresDestruction : Cinematic
 {
@@ -376,7 +377,7 @@ public partial class CeresDestruction : Cinematic
         Polygon2D glow = Glow();
         glow.Position = new Vector2(CeresCentre.X - (float)Math.Floor(_scrollX), CeresCentre.Y - (float)Math.Floor(_scrollY));
         glow.Visible = true;
-        Session.Sounds.Request(Sounds.BigExplosion, channel: "explosions");
+        Session.Sounds.Request(Data().Text("blast_sound"), channel: "explosions");
         if (SamusAboard)
             Floor().Visible = false;
         else
@@ -511,7 +512,7 @@ public partial class CeresDestruction : Cinematic
                 (_titleFade, _titleFadeUpdates, _titleFadesIn) = (0, 32, true);
                 break;
             case "second_title":
-                if (Session.Options.Language != "japanese")
+                if (!Data().List("second_title_languages").Any(language => language.AsText() == Session.Options.Language))
                     break;
                 _secondTitle = Spawn(null, "second_title", Pixels.Zero, loops: false);
                 _secondTitle.Step();
@@ -563,6 +564,8 @@ public partial class CeresDestruction : Cinematic
             _angle * Math.Tau / 256, Math.Max(_size, 1) / 256.0, _floorOverSprites ? ZebesCentre : CeresCentre,
             new Vector2((float)Math.Floor(_scrollX), (float)Math.Floor(_scrollY)));
     }
+
+    private DataNode Data() => _data ?? throw NotEntered();
 
     private ScreenFade Fade() => _fade ?? throw NotEntered();
 

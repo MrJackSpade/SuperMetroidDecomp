@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
@@ -89,6 +90,15 @@ public sealed class GameSession
             return _text;
         }
     }
+
+    /// <summary>The font the game's words are drawn in, once it has been asked for.</summary>
+    private PixelFont? _font;
+
+    /// <summary>
+    /// The font the game's words are drawn in where nothing says otherwise: the one the game definition names, or
+    /// none for a game that names none, whose words cannot be drawn.
+    /// </summary>
+    public PixelFont? Font => Definition.FontFile.Length == 0 ? null : _font ??= PixelFont.Read(Content, Definition.FontFile);
 
     /// <summary>
     /// Starts the session's game afresh, as after a death or on loading a save: what has happened is forgotten and the

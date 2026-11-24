@@ -89,6 +89,10 @@ public partial class GameDefinition : Resource
     [Export]
     public string TextFolder { get; set; } = "text";
 
+    /// <summary>The data file, within the assets tree, of the font the game's words are drawn in; empty for a game that draws no words.</summary>
+    [Export]
+    public string FontFile { get; set; } = "";
+
     /// <summary>The folder, within the assets tree, of the game's sounds: one file per sound, named for it.</summary>
     [Export]
     public string SoundFolder { get; set; } = "sounds";

@@ -14,7 +14,8 @@ namespace Game.Cinematics;
 /// </summary>
 /// <remarks>
 /// Its data names the timelines of its two visuals, "Egg" and "Baby": "intact", "hatching" (which gives the cues
-/// "burst" and "next_page") and "baby"; the six pictures of its "shell" pieces; its effects "slime" (which loops)
+/// "burst" and "next_page") and "baby"; the six pictures of its "shell" pieces and where a piece's picture lies from
+/// the piece's place ("shell_offset"); its effects "slime" (which loops)
 /// and "slime_splash" by the data files of their timelines; and its "hatch_sound" and "cry_sound".
 /// </remarks>
 public partial class IntroEgg : RoomObject
@@ -68,6 +69,7 @@ public partial class IntroEgg : RoomObject
     private static readonly (double Drift, bool High)[] SlimeDrops = [(-1, true), (-0.5, false), (1, true), (0.5, false)];
 
     private readonly List<string> _shellPictures = [];
+    private (int X, int Y) _shellOffset;
     private readonly List<(Effect Thing, double Drift, bool High, int Age, bool IsSlime)> _thrown = [];
     private TimelineSet _timelines = TimelineSet.None;
     private TimelinePlayer? _egg;
@@ -96,6 +98,7 @@ public partial class IntroEgg : RoomObject
         _shellPictures.AddRange(data.List("shell").Select(piece => piece.AsText()));
         if (_shellPictures.Count != ShellPieces.Length)
             throw data.Problem($"must name {ShellPieces.Length} pieces of shell");
+        _shellOffset = (data.Get("shell_offset").Int("x"), data.Get("shell_offset").Int("y"));
     }
 
     /// <inheritdoc/>
@@ -157,7 +160,7 @@ public partial class IntroEgg : RoomObject
         for (int piece = 0; piece < ShellPieces.Length; piece++)
         {
             (int x, int y, double drift) = ShellPieces[piece];
-            var still = new FrameTimeline([new TimelineStep(_shellPictures[piece], 1, [])], 0);
+            var still = new FrameTimeline([new TimelineStep(_shellPictures[piece], 1, []) { Offset = _shellOffset }], 0);
             Effect shell = Effect.Of(still, PixelPosition.FromWhole(x, y));
             Room.Spawn(shell);
             _thrown.Add((shell, drift, false, 0, false));

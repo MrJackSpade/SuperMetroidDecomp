@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
 using Godot;
@@ -15,8 +16,10 @@ namespace Game.Cinematics;
 /// ones that lead give the cue "jump"; "suitless_jump", "suited_jump", "helmet_jump", "head_jump", "falling" and
 /// "landing", with the cues "ready_head", "launch_head", "launch", "fly", "head_fly" and "shoot"), the picture of her
 /// shot ("shot_floor") and its sound ("shot_sound"), the emblem's timelines ("logo_upper_s", "logo_lower_s", "logo_upper_circle", which gives the
-/// cue "grey_out", and "logo_lower_circle") and picture ("logo"), and the names of her last words
-/// ("ending_item_percentage", "ending_final_message").
+/// cue "grey_out", and "logo_lower_circle") and picture ("logo"), and her "last_words": by the name of each
+/// ("ending_item_percentage", "ending_final_message") the font it is typed in and how far down the screen its first
+/// line is, each line lying in the middle of the screen; and under "percentage" the font and place of the figures
+/// of the share of items found, which end in a per cent sign three cells along.
 /// </remarks>
 public partial class Ending
 {
@@ -51,8 +54,8 @@ public partial class Ending
     private readonly List<CinematicSprite> _logoCircles = [];
     private Sprite2D? _logoPicture;
     private int _logoFade = -1;
-    private Label? _lastWords;
-    private Label? _percentage;
+    private PixelText? _lastWords;
+    private PixelText? _percentage;
     private bool _percentageShown;
 
     /// <summary>Which reward the clear time has earned.</summary>
@@ -158,8 +161,8 @@ public partial class Ending
                 if (!_percentageShown)
                 {
                     // The share of items found is put up beside its words and held.
-                    Label percentage = _percentage ?? throw NotEntered();
-                    percentage.Text = $"{ItemsFound}%";
+                    PixelText percentage = _percentage ?? throw NotEntered();
+                    percentage.Text = $"{ItemsFound,3}%";
                     percentage.Visible = true;
                     (_percentageShown, _wait) = (true, PercentageUpdates);
                     break;
@@ -403,9 +406,17 @@ public partial class Ending
         CanvasLayer picture = _picture ?? throw NotEntered();
         _lastWords?.QueueFree();
         _percentage?.QueueFree();
-        _lastWords = new Label { Name = "LastWords", Text = Session.Text.Get(words), VisibleCharacters = 0 };
+        DataNode lastWords = Data().Get("last_words"), line = lastWords.Get(words), figures = lastWords.Get("percentage");
+        _lastWords = new PixelText
+        {
+            Name = "LastWords", Font = PixelFont.Read(Session.Content, line.Text("font")), Position = new Vector2(0, line.Int("y")), Size = new Vector2(256, 0),
+            HorizontalAlignment = HorizontalAlignment.Center, Text = Session.Text.Get(words), VisibleCharacters = 0,
+        };
         picture.AddChild(_lastWords);
-        _percentage = new Label { Name = "Percentage", Position = new Vector2(112, 112), Visible = false };
+        _percentage = new PixelText
+        {
+            Name = "Percentage", Font = PixelFont.Read(Session.Content, figures.Text("font")), Position = new Vector2(figures.Int("x"), figures.Int("y")), Visible = false,
+        };
         picture.AddChild(_percentage);
         (_typed, _typeWait, _percentageShown, _phase) = (0, TypingDelay, false, phase);
     }
@@ -413,7 +424,7 @@ public partial class Ending
     /// <summary>Types the next letter when it is due, and returns whether the text is all there.</summary>
     private bool StepLastWords()
     {
-        Label words = _lastWords ?? throw NotEntered();
+        PixelText words = _lastWords ?? throw NotEntered();
         if (_typed >= words.Text.Length)
             return true;
         if (--_typeWait > 0)

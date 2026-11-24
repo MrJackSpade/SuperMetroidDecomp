@@ -176,6 +176,7 @@ internal static partial class EngineDefaults
         ["TourianStatueHall"] = "RoomSequence",
         ["Tripper"] = "Enemy",
         ["TurningFloor"] = "Backdrop",
+        ["TypedText"] = "PixelText",
         ["TypedWarning"] = "RoomSequence",
         ["WalkingPirate"] = "Enemy",
         ["WallPirate"] = "Enemy",

@@ -8,8 +8,11 @@ namespace Engine.Ui;
 /// </summary>
 public partial class MessageBox : CanvasLayer
 {
-    private Label? _words;
-    private Label? _choice;
+    private PixelText? _words;
+    private PixelText? _choice;
+
+    /// <summary>The font its words are drawn in.</summary>
+    public PixelFont? Font { get; set; }
 
     /// <summary>The message being shown.</summary>
     public string Message { get; private set; } = "";
@@ -31,8 +34,8 @@ public partial class MessageBox : CanvasLayer
             var panel = new PanelContainer { Name = "Panel" };
             panel.SetAnchorsPreset(Control.LayoutPreset.Center);
             var column = new VBoxContainer { Name = "Column" };
-            _words = new Label { Name = "Words", HorizontalAlignment = HorizontalAlignment.Center };
-            _choice = new Label { Name = "Choice", HorizontalAlignment = HorizontalAlignment.Center };
+            _words = new PixelText { Name = "Words", Font = Font, HorizontalAlignment = HorizontalAlignment.Center };
+            _choice = new PixelText { Name = "Choice", Font = Font, HorizontalAlignment = HorizontalAlignment.Center };
             column.AddChild(_words);
             column.AddChild(_choice);
             panel.AddChild(column);

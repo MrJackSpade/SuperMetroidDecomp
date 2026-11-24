@@ -153,9 +153,43 @@ internal sealed partial class EngineEnemy
         return this;
     }
 
+    private string? _pictureSets;
+
+    /// <summary>
+    /// Makes every picture its timelines name one of several sets of its pictures, which the Godot enemy picks between
+    /// by what it puts for <paramref name="placeholder"/>: the pictures' folder is named with the placeholder after
+    /// it, and each set is the folder of that name with something put for it.
+    /// </summary>
+    internal EngineEnemy PictureSets(string placeholder)
+    {
+        _pictureSets = placeholder;
+        return this;
+    }
+
+    /// <summary>Cuts another set of its pictures, in one of its sheet's shades, into the folder named as its own with <paramref name="after"/> added.</summary>
+    internal EngineEnemy ShadedSet(string after, string shade)
+    {
+        const string family = Installation.GameInstallationLayout.EnemySheetDirectoryName;
+        _sheets.CutShade(_tree, family, Folder + after, _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(_id)), shade);
+        return this;
+    }
+
     /// <summary>Writes the file.</summary>
     internal void Write()
     {
+        if (_pictureSets is { } placeholder)
+        {
+            foreach ((string _, JsonNode? timeline) in _timelines)
+            {
+                foreach (JsonNode? step in timeline!["steps"]!.AsArray())
+                {
+                    string picture = step!["picture"]!.GetValue<string>();
+                    if (picture.StartsWith(Folder + "/", StringComparison.Ordinal))
+                        step["picture"] = Folder + placeholder + picture[Folder.Length..];
+                }
+            }
+        }
+
         if (_colliders.Count > 0)
             Data["colliders"] = _colliders;
         if (_timelines.Count > 0)

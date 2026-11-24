@@ -129,7 +129,8 @@ internal sealed partial class EngineSheets
     }
 
     /// <summary>Cuts named frames, each from the sheet given for it or showing nothing where no sheet is given, onto one canvas.</summary>
-    private EngineSheetPictures CutFrames(EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames)
+    private EngineSheetPictures CutFrames(
+        EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames, string? shade = null)
     {
         InstalledSheetFrameDocument FrameOf((string Name, string Sheet) frame) =>
             _documents[(family, frame.Sheet)].Frames.TryGetValue(frame.Name, out InstalledSheetFrameDocument? found)
@@ -162,10 +163,21 @@ internal sealed partial class EngineSheets
                 _images[(family, frame.Sheet)] = image = _store.Assemble(frame.Sheet, document);
             Array.Clear(canvas);
             int across = -placed.Origin.X - left, down = -placed.Origin.Y - top;
+            Dictionary<(int Colour, int Region), RgbaPixel>? shown = shade is null ? null : ShadeOf(frame.Sheet, document, shade);
             for (int y = 0; y < placed.Size.Y; y++)
             {
-                image.Pixels.AsSpan((placed.Corner.Y + y) * document.Size.X + placed.Corner.X, placed.Size.X)
-                    .CopyTo(canvas.AsSpan((down + y) * width + across, placed.Size.X));
+                int from = (placed.Corner.Y + y) * document.Size.X + placed.Corner.X, to = (down + y) * width + across;
+                image.Pixels.AsSpan(from, placed.Size.X).CopyTo(canvas.AsSpan(to, placed.Size.X));
+                if (shown is null)
+                    continue;
+                // A shade shows some of the picture's colours as others, some of them only in one region of it.
+                for (int x = 0; x < placed.Size.X; x++)
+                {
+                    RgbaPixel pixel = canvas[to + x];
+                    int region = image.RecolourRegions is { } regions ? regions[from + x] : 0;
+                    if (pixel.A != 0 && shown.TryGetValue(((pixel.R << 16) | (pixel.G << 8) | pixel.B, region), out RgbaPixel recoloured))
+                        canvas[to + x] = recoloured with { A = pixel.A };
+                }
             }
 
             string path = $"{folder}/{FileName(frame.Name)}.png";
@@ -174,6 +186,37 @@ internal sealed partial class EngineSheets
         }
 
         return new EngineSheetPictures(left, top, width, height, paths);
+    }
+
+    /// <summary>
+    /// Cuts every frame of one sheet as one of the sheet's shades shows it: the old game's change of colours for a
+    /// glow or a flash, kept as pictures of their own. The pictures are of the size, and lie where, the sheet's own do.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet has no such shade.</exception>
+    internal EngineSheetPictures CutShade(EngineAssetTree tree, string family, string folder, string sheet, string shade)
+    {
+        InstalledSheetDocument document = _documents.TryGetValue((family, sheet), out InstalledSheetDocument? found)
+            ? found
+            : throw new InvalidDataException($"The installation has no sheet {sheet} in {family}.");
+        return CutFrames(tree, family, folder, [.. document.Frames.Keys.Select(name => (name, sheet))], shade);
+    }
+
+    /// <summary>What each colour of a sheet shows as in one of its shades, by the colour and the region of the picture it is in.</summary>
+    private static Dictionary<(int Colour, int Region), RgbaPixel> ShadeOf(string sheet, InstalledSheetDocument document, string shade)
+    {
+        if (document.Shades is null || !document.Shades.TryGetValue(shade, out InstalledSheetShadeDocument? listed) || listed?.Substitutions is not { } substitutions)
+            throw new InvalidDataException($"The sheet {sheet} has no shade {shade}.");
+        static int Colour(string text) => text.Length == 7 && text[0] == '#'
+            ? Convert.ToInt32(text[1..], 16)
+            : throw new InvalidDataException($"A shade names the colour {text}, which is not written as #rrggbb.");
+        var shown = new Dictionary<(int Colour, int Region), RgbaPixel>();
+        foreach (InstalledColourSubstitutionDocument substitution in substitutions)
+        {
+            int to = Colour(substitution.Shows);
+            shown[(Colour(substitution.Colour), substitution.Region)] = new RgbaPixel((byte)(to >> 16), (byte)(to >> 8), (byte)to);
+        }
+
+        return shown;
     }
 
     /// <summary>The names of a family's sheets that begin with <paramref name="prefix"/>, in order.</summary>

@@ -45,8 +45,8 @@ public interface ISoundFlow
     void OpenUpdate(bool musicTurn);
 
     /// <summary>Closes an update, after the mode in control has played it.</summary>
-    /// <param name="soundTurns">How many turns the sounds waiting get.</param>
-    void CloseUpdate(int soundTurns);
+    /// <param name="work">Whether the music waiting gets a turn here, before the sounds', and how many turns the sounds get.</param>
+    void CloseUpdate(ClosingSoundWork work);
 
     /// <summary>The sounds that started since they were last taken, in order. The audio director takes them once an update.</summary>
     IReadOnlyList<AcceptedSound> TakeStarted();

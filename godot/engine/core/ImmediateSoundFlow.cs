@@ -75,10 +75,8 @@ public sealed class ImmediateSoundFlow : ISoundFlow
         }
     }
 
-    /// <inheritdoc/>
-    public void CloseUpdate(int soundTurns)
-    {
-    }
+    /// <summary>The music waiting takes its turn here when the update's mode says so; no sound ever waits.</summary>
+    public void CloseUpdate(ClosingSoundWork work) => OpenUpdate(work.MusicTurn);
 
     /// <inheritdoc/>
     public IReadOnlyList<AcceptedSound> TakeStarted()

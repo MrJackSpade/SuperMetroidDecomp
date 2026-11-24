@@ -42,10 +42,26 @@ public abstract partial class GameMode : Node
     public virtual bool GivesMusicItsTurn => true;
 
     /// <summary>
-    /// How many turns the sounds waiting to be heard get as this mode's next update closes. One, unless the mode says
-    /// otherwise for that update. Asked before the update is played.
+    /// What of the sounds' own work closes the update this mode has just played: one turn of the sounds, unless the
+    /// mode says otherwise for that update. Asked once the mode has played it.
     /// </summary>
-    public virtual int SoundTurns => 1;
+    public virtual ClosingSoundWork SoundWorkAtClose => ClosingSoundWork.Usual;
+
+    /// <summary>
+    /// Takes control back from a mode that was laid over this one, within the update that ends that mode: whatever
+    /// of this mode's own update was left undone when it handed over is done now, and the mode in control next is
+    /// returned. Itself, with nothing to do, unless the mode says otherwise.
+    /// </summary>
+    /// <param name="input">The input of the update control comes back on.</param>
+    public virtual GameMode TakeBack(GameInput input) => this;
+
+    /// <summary>
+    /// Plays what of this mode goes on beneath a mode laid over it, on an update that mode says so. Nothing, unless
+    /// the mode says otherwise.
+    /// </summary>
+    public virtual void StepBeneath()
+    {
+    }
 
     /// <summary>Called once as this mode takes control, before its first update.</summary>
     protected virtual void Enter()

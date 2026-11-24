@@ -261,6 +261,8 @@ public partial class Room : Node2D
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
+        if (_suspended is not null)
+            throw new InvalidOperationException($"The room \"{Name}\" was given a new update while one was still suspended for a message.");
         _playerAtUpdateStart = Player.Position;
         OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
 
@@ -346,6 +348,41 @@ public partial class Room : Node2D
             Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
             foreach (string sound in Terrain.TakeBreakSounds())
                 Session.Sounds.Request(sound, channel: "room");
+        }
+
+        // A message asked for by now is shown before the update goes on: the rest of the update waits for it.
+        if (Session.HasMessageWaiting)
+        {
+            _suspended = stopped;
+            return;
+        }
+
+        Finish(stopped);
+    }
+
+    /// <summary>What was stopped in the update that is suspended for a message; null when none is.</summary>
+    private Stopped? _suspended;
+
+    /// <summary>
+    /// Whether the update last begun stopped after the room's objects because a message had been asked for: the rest
+    /// of it, the shaking, the room's sequences, the effects, what leaves and arrives, and the view, has yet to be
+    /// played.
+    /// </summary>
+    public bool UpdateIsSuspended => _suspended is not null;
+
+    /// <summary>Plays the rest of the update that was suspended for a message.</summary>
+    public void FinishSuspendedUpdate()
+    {
+        Stopped stopped = _suspended ?? throw new InvalidOperationException($"The room \"{Name}\" has no suspended update to finish.");
+        _suspended = null;
+        Finish(stopped);
+    }
+
+    /// <summary>The end of an update, after the room's objects and its terrain.</summary>
+    private void Finish(Stopped stopped)
+    {
+        if (!stopped.HasFlag(Stopped.Room))
+        {
             foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())
                 quake.Step(this);
             foreach (RoomSequence sequence in _sequences)
@@ -368,10 +405,10 @@ public partial class Room : Node2D
     /// <summary>
     /// Opens an update of the room without playing it: the liquid moves and the sequences and projectiles with a part
     /// in the opening play that part, unless told not to, and then the session's services that open an update play
-    /// theirs. <see cref="Step"/> opens its own update; this is for a mode that plays only some of a room's update,
-    /// as a passage between rooms does.
+    /// theirs, unless told that the session's update is not opening. <see cref="Step"/> opens its own update; this
+    /// is for a mode that plays only some of a room's update, as a passage between rooms does.
     /// </summary>
-    public void OpenUpdate(bool movesLiquid = true, bool opensProjectiles = true)
+    public void OpenUpdate(bool movesLiquid = true, bool opensProjectiles = true, bool opensSession = true)
     {
         if (movesLiquid)
         {
@@ -389,7 +426,8 @@ public partial class Room : Node2D
             }
         }
 
-        Session.OpenUpdate();
+        if (opensSession)
+            Session.OpenUpdate();
     }
 
     /// <summary>

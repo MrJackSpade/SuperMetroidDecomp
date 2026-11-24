@@ -147,8 +147,13 @@ public sealed class CartridgeSounds : ISoundFlow
     /// <inheritdoc/>
     public void OpenUpdate(bool musicTurn)
     {
-        if (!musicTurn)
-            return;
+        if (musicTurn)
+            TakeMusicTurn();
+    }
+
+    /// <summary>One turn of the music's queue, with what a change of music or a set's load does to the sounds.</summary>
+    private void TakeMusicTurn()
+    {
         switch (_music.TakeTurn())
         {
             case MusicQueue.Turn.MusicChanged:
@@ -163,13 +168,15 @@ public sealed class CartridgeSounds : ISoundFlow
     }
 
     /// <inheritdoc/>
-    public void CloseUpdate(int soundTurns)
+    public void CloseUpdate(ClosingSoundWork work)
     {
-        for (int turn = 0; turn < soundTurns; turn++)
+        if (work.MusicTurn)
+            TakeMusicTurn();
+        for (int turn = 0; turn < work.SoundTurns; turn++)
             TakeSoundTurn();
 
         // The program acts on what this update asked during the update's own samples; what it reports is read by
-        // the next update's turns. A set's load came first, as the update opened.
+        // the next update's turns. A set's load came first, on the music's turn.
         if (_programDropsAsked)
             _clock.DropAsked();
         _programDropsAsked = false;

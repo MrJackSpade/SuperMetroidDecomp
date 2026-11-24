@@ -77,5 +77,5 @@ public sealed class SoundRequests
     internal void OpenUpdate(bool musicTurn) => Flow.OpenUpdate(musicTurn);
 
     /// <summary>Closes an update, after the mode in control has played it.</summary>
-    internal void CloseUpdate(int soundTurns) => Flow.CloseUpdate(soundTurns);
+    internal void CloseUpdate(ClosingSoundWork work) => Flow.CloseUpdate(work);
 }

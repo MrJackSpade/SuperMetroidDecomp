@@ -93,6 +93,12 @@ public partial class MessageBoxMode : GameMode
     /// </summary>
     public GameInput HeldBefore { get; init; } = GameInput.None;
 
+    /// <summary>
+    /// Whether this message opens as another hands back, with play still covered: it then asks for no silence of
+    /// its own, whatever its style says.
+    /// </summary>
+    public bool FollowsAnother { get; init; }
+
     private string _musicBefore = "";
     private int _shownFor;
     private Phase _phase;
@@ -102,6 +108,24 @@ public partial class MessageBoxMode : GameMode
     private bool _choiceMoved;
     private bool _answer;
     private HashSet<GameAction> _heldAtLastLook = [];
+
+    /// <summary>The pause running while nothing shows, an entry for each of its updates, and how many of them have been played.</summary>
+    private IReadOnlyList<MessagePauseUpdate> _pause = [];
+    private int _pauseAt;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
+
+    /// <summary>
+    /// A message shown through a window does the sounds' work itself while it covers play: the music gets no turn
+    /// as its updates open.
+    /// </summary>
+    public override bool GivesMusicItsTurn => _style is null;
+
+    /// <summary>
+    /// What closes the update just played. Shown through a window, an update gives the music a turn and the sounds
+    /// one, unless it is one of the pauses' updates, which do as the style says, or the update that shows a
+    /// question's choice moved, which gives neither.
+    /// </summary>
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
 
     /// <inheritdoc/>
     public override GameMode? Keeps => _returnsTo;
@@ -123,7 +147,11 @@ public partial class MessageBoxMode : GameMode
         {
             _style = MessageBoxStyle.Read(Session.Content.ReadData(file));
             _heldAtLastLook = HeldOf(HeldBefore, _style);
-            BeginOpening(_style.BeforeOpeningUpdates);
+            BeginOpening(_style.BeforeOpening);
+
+            // What play asked to hear on the update that asked for the message was asked for first.
+            if (_style.SilencesSounds && !FollowsAnother)
+                Session.Sounds.StopAll();
         }
 
         ShowMessage();
@@ -185,7 +213,7 @@ public partial class MessageBoxMode : GameMode
         if (!_asks || !_yes || AfterYes is not { } after)
         {
             RestoreMusic();
-            return Finish();
+            return Finish(input);
         }
 
         Follow(after);
@@ -207,9 +235,11 @@ public partial class MessageBoxMode : GameMode
     /// <summary>One update of a message shown through a window.</summary>
     private GameMode StepWindow(GameInput input, MessageBoxStyle style)
     {
+        _closing = new ClosingSoundWork(MusicTurn: true, SoundTurns: 1);
         switch (_phase)
         {
             case Phase.BeforeOpening:
+                PlayPauseUpdate();
                 if (--_wait == 0)
                     _phase = Phase.Opening;
                 return this;
@@ -235,9 +265,11 @@ public partial class MessageBoxMode : GameMode
                     return input.AnyHeld ? BeginClosing(style) : this;
                 if (_choiceMoved)
                 {
+                    // The update that shows the moved choice asks for its sound and gives neither music nor sounds a turn.
                     _choiceMoved = false;
                     if (style.MoveSound.Length > 0)
                         Session.Sounds.Request(style.MoveSound, channel: "menu");
+                    _closing = ClosingSoundWork.None;
                     return this;
                 }
 
@@ -281,7 +313,8 @@ public partial class MessageBoxMode : GameMode
                 return this;
 
             case Phase.AfterClosing:
-                return --_wait > 0 ? this : Finish();
+                PlayPauseUpdate();
+                return --_wait > 0 ? this : Finish(input);
 
             default:
                 throw new InvalidOperationException($"A message is doing {_phase}, which is nothing it can do.");
@@ -292,11 +325,36 @@ public partial class MessageBoxMode : GameMode
     private static HashSet<GameAction> HeldOf(GameInput input, MessageBoxStyle style) =>
         [.. style.MoveActions.Append(GameAction.Confirm).Append(GameAction.Cancel).Where(input.IsHeld)];
 
-    /// <summary>Begins a message from a shut window, with so many updates of nothing before it begins to open.</summary>
+    /// <summary>Begins a message from a shut window, with a pause of nothing, an entry an update, before it begins to open.</summary>
+    private void BeginOpening(IReadOnlyList<MessagePauseUpdate> pause)
+    {
+        BeginOpening(pause.Count);
+        (_pause, _pauseAt) = (pause, 0);
+    }
+
+    /// <summary>
+    /// Begins a message from a shut window, with so many updates of nothing before it begins to open, each giving
+    /// the music a turn and the sounds one.
+    /// </summary>
     private void BeginOpening(int updatesBefore)
     {
         (_radius, _nextRadius) = (0, 0);
         (_phase, _wait) = updatesBefore > 0 ? (Phase.BeforeOpening, updatesBefore) : (Phase.Opening, 0);
+        (_pause, _pauseAt) = ([], 0);
+    }
+
+    /// <summary>
+    /// One update of a pause of nothing does what its entry says of the sounds' work, and opens the update of what
+    /// lies beneath if it says so. A pause with no entries gives the music a turn and the sounds one on each update.
+    /// </summary>
+    private void PlayPauseUpdate()
+    {
+        if (_pauseAt >= _pause.Count)
+            return;
+        MessagePauseUpdate update = _pause[_pauseAt++];
+        _closing = new ClosingSoundWork(update.MusicTurn, update.SoundTurns);
+        if (update.OpensRoom)
+            _returnsTo.StepBeneath();
     }
 
     /// <summary>Begins closing the window; its first closing update is this one.</summary>
@@ -326,7 +384,8 @@ public partial class MessageBoxMode : GameMode
             return this;
         }
 
-        (_phase, _wait) = (Phase.AfterClosing, style.AfterClosingUpdates);
+        (_phase, _wait) = (Phase.AfterClosing, style.AfterClosing.Count);
+        (_pause, _pauseAt) = (style.AfterClosing, 0);
         return this;
     }
 
@@ -337,10 +396,13 @@ public partial class MessageBoxMode : GameMode
             Session.Sounds.RequestMusic(_musicBefore);
     }
 
-    /// <summary>Gives the answer to whoever asked, and control back to the mode beneath.</summary>
-    private GameMode Finish()
+    /// <summary>
+    /// Gives the answer to whoever asked, and control back to the mode beneath, which does within this update
+    /// whatever of its own it had left undone and says what is in control next.
+    /// </summary>
+    private GameMode Finish(GameInput input)
     {
         _answered?.Invoke(_answer);
-        return _returnsTo;
+        return _returnsTo.TakeBack(input);
     }
 }

@@ -87,13 +87,74 @@ public partial class PlayingMode : GameMode
         _hud?.Refresh(Session, _room);
     }
 
+    /// <summary>The input of the update that was suspended for a message, which the rest of it is played with.</summary>
+    private GameInput _suspendedInput = GameInput.None;
+
+    /// <summary>Whether the update just played handed over to a message.</summary>
+    private bool _handedToMessage;
+
+    /// <summary>
+    /// An update that hands over to a message gives the sounds no turn: the message gives that turn on the update
+    /// it hands back.
+    /// </summary>
+    public override ClosingSoundWork SoundWorkAtClose => _handedToMessage ? ClosingSoundWork.None : ClosingSoundWork.Usual;
+
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        _handedToMessage = false;
+
         // A pause that play asked for comes once the messages asked for with it have been shown, before play goes on.
         if (Session.TakePauseRequest())
             return Session.Definition.CreatePauseMode(this);
         Room.Step(input, WhatIsStopped());
+
+        // A message asked for by the time the room's objects have played is shown at once: the rest of the update,
+        // the room's and play's own, is played on the update the message hands back.
+        if (Room.UpdateIsSuspended)
+        {
+            _suspendedInput = input;
+            return NextMessage(input, followsAnother: false)
+                ?? throw new InvalidOperationException("The room suspended its update for a message, and none is waiting.");
+        }
+
+        return AfterRoom(input);
+    }
+
+    /// <summary>
+    /// A message hands control back. The next message waiting opens as the one before it hands back, and what is
+    /// left of the suspended update waits for it too; with none waiting, the rest of the suspended update is played
+    /// now, with the input it began with.
+    /// </summary>
+    public override GameMode TakeBack(GameInput input)
+    {
+        if (NextMessage(input, followsAnother: true) is { } next)
+            return next;
+        if (!Room.UpdateIsSuspended)
+            return this;
+        Room.FinishSuspendedUpdate();
+        return AfterRoom(_suspendedInput);
+    }
+
+    /// <summary>While a message covers play, the room's update opens when the message says so: its liquid, its sequences' and its projectiles' openings, and nothing of the session's.</summary>
+    public override void StepBeneath() => Room.OpenUpdate(movesLiquid: true, opensProjectiles: true, opensSession: false);
+
+    /// <summary>The message box for the next question or message waiting, or null when none is.</summary>
+    private MessageBoxMode? NextMessage(GameInput input, bool followsAnother)
+    {
+        MessageBoxMode? box = null;
+        if (Session.TakeQuestion() is { } question)
+            box = new MessageBoxMode(this, question.Message, question.Answered) { AfterYes = question.AfterYes, Pictures = Room.Content, HeldBefore = input, FollowsAnother = followsAnother };
+        else if (Session.TakeMessage() is { } message)
+            box = new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates, Pictures = Room.Content, HeldBefore = input, FollowsAnother = followsAnother };
+        if (box is not null)
+            _handedToMessage = true;
+        return box;
+    }
+
+    /// <summary>What play does of an update once the room has played all of its own.</summary>
+    private GameMode AfterRoom(GameInput input)
+    {
         Session.Progress.CountPlayUpdate();
 
         if (Session.TakeSaveRequest() is { } save)
@@ -113,10 +174,9 @@ public partial class PlayingMode : GameMode
                 return mode;
         }
 
-        if (Session.TakeQuestion() is { } question)
-            return new MessageBoxMode(this, question.Message, question.Answered) { AfterYes = question.AfterYes, Pictures = Room.Content, HeldBefore = input };
-        if (Session.TakeMessage() is { } message)
-            return new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates, Pictures = Room.Content, HeldBefore = input };
+        // A message asked for after the room's objects had played is shown with nothing of the update left to play.
+        if (NextMessage(input, followsAnother: false) is { } box)
+            return box;
         if (Room.ExitEntered is { } exit)
             return Session.Definition.CreateRoomTransition(this, exit);
         if (input.WasPressed(GameAction.Pause) && Session.Player.State.InControl)

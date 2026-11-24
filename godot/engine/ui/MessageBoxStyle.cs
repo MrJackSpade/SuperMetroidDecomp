@@ -18,8 +18,12 @@ namespace Engine.Ui;
 /// on.</item>
 /// <item><c>full_radius</c>, <c>radius_step</c>: how many lines above and below its middle the open window shows,
 /// and by how many it grows or shrinks an update.</item>
-/// <item><c>before_opening_updates</c>, <c>after_closing_updates</c>: how long nothing shows before the window
-/// begins to open and after it has closed; play goes on after the last of the second.</item>
+/// <item><c>before_opening</c>, <c>after_closing</c>: the updates on which nothing shows before the window begins
+/// to open and after it has closed, one entry for each; play goes on after the last of the second. Each entry is
+/// a group saying what that update does while the message covers play: <c>music</c>, whether the music waiting
+/// gets a turn; <c>sound_turns</c>, how many turns the sounds waiting get; and <c>opens_room</c>, whether the room
+/// beneath opens an update of its own (its liquid, its sequences' and its projectiles' openings).</item>
+/// <item><c>silences_sounds</c>: whether every sound is asked to stop as a message is shown.</item>
 /// <item><c>first_read_updates</c>, <c>updates_between_reads</c>: for a question, how many updates pass between the
 /// window being open and the first look at what the player presses, and between one look and the next.</item>
 /// <item><c>move_actions</c>: the actions that move a question's choice to the other answer.</item>
@@ -53,11 +57,14 @@ public sealed class MessageBoxStyle
     /// <summary>By how many lines the window grows or shrinks an update.</summary>
     public int RadiusStep { get; private init; }
 
-    /// <summary>How many updates nothing shows before the window begins to open.</summary>
-    public int BeforeOpeningUpdates { get; private init; }
+    /// <summary>What each update does on which nothing shows before the window begins to open, in order.</summary>
+    public IReadOnlyList<MessagePauseUpdate> BeforeOpening { get; private init; } = [];
 
-    /// <summary>How many updates nothing shows after the window has closed; play goes on after the last.</summary>
-    public int AfterClosingUpdates { get; private init; }
+    /// <summary>What each update does on which nothing shows after the window has closed, in order; play goes on after the last.</summary>
+    public IReadOnlyList<MessagePauseUpdate> AfterClosing { get; private init; } = [];
+
+    /// <summary>Whether every sound is asked to stop as a message is shown.</summary>
+    public bool SilencesSounds { get; private init; }
 
     /// <summary>How many updates pass between a question's window being open and the first look at the player's presses.</summary>
     public int FirstReadUpdates { get; private init; }
@@ -85,8 +92,9 @@ public sealed class MessageBoxStyle
             CentreY = data.Int("centre_y"),
             FullRadius = data.Int("full_radius"),
             RadiusStep = data.Int("radius_step"),
-            BeforeOpeningUpdates = data.Int("before_opening_updates"),
-            AfterClosingUpdates = data.Int("after_closing_updates"),
+            BeforeOpening = [.. data.List("before_opening").Select(MessagePauseUpdate.Read)],
+            AfterClosing = [.. data.List("after_closing").Select(MessagePauseUpdate.Read)],
+            SilencesSounds = data.Flag("silences_sounds"),
             FirstReadUpdates = data.Int("first_read_updates"),
             UpdatesBetweenReads = data.Int("updates_between_reads"),
             MoveActions = [.. data.List("move_actions").Select(action => new GameAction(action.AsText()))],
@@ -95,7 +103,7 @@ public sealed class MessageBoxStyle
         };
         if (style.FullRadius <= 0 || style.RadiusStep <= 0 || style.FullRadius % style.RadiusStep != 0)
             throw data.Problem("has a window that does not open to its full height in whole steps");
-        if (style.AfterClosingUpdates <= 0)
+        if (style.AfterClosing.Count == 0)
             throw data.Problem("has no update after its window has closed for play to go on after");
         foreach (DataNode button in data.List("buttons"))
             style._buttons.Add((button.Text("button"), button.Text("picture")));

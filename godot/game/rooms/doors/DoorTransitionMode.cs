@@ -73,6 +73,7 @@ public partial class DoorTransitionMode : GameMode
     private Vector2I _view;
     private int _stoodAtX;
     private int _stoodAtY;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     /// <summary>The passage that follows Samus entering <paramref name="door"/> during <paramref name="playing"/>.</summary>
     public DoorTransitionMode(PlayingMode playing, Door door)
@@ -105,6 +106,7 @@ public partial class DoorTransitionMode : GameMode
         Room room = _playing.Room;
         Samus samus = Session.Player as Samus ?? throw new InvalidOperationException("The player passing through a door is not Samus.");
         ScreenFade fade = _fade ?? throw new InvalidOperationException("The door's passage has not taken control.");
+        _closing = _stage is Stage.Loading or Stage.Scrolling ? ClosingSoundWork.None : ClosingSoundWork.Usual;
         switch (_stage)
         {
             case Stage.Entering:
@@ -396,7 +398,7 @@ public partial class DoorTransitionMode : GameMode
     public override bool GivesMusicItsTurn => _stage is not (Stage.Scrolling or Stage.AligningSamus);
 
     /// <summary>The sounds waiting get no turn on an update that leaves the next room's load running: the load's own, and the scroll's.</summary>
-    public override int SoundTurns => _stage is Stage.Loading or Stage.Scrolling ? 0 : 1;
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
 
     /// <summary>
     /// Tells Samus's sounds and the enemies' to stop as the door is entered: her spin's alone while she spins, and

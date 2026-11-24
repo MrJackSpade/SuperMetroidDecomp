@@ -162,6 +162,9 @@ public sealed class GameSession
         _messages.Enqueue((message, fanfare, holdUpdates));
     }
 
+    /// <summary>Whether a message or a question has been asked for and not yet shown.</summary>
+    public bool HasMessageWaiting => _messages.Count > 0 || _question is not null;
+
     /// <summary>Takes the next message waiting to be shown, with its fanfare and how long it is held, or null when none is.</summary>
     public (string Message, string Fanfare, int HoldUpdates)? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
 
@@ -236,11 +239,12 @@ public sealed class GameSession
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        // What of the sounds' own work the update does is the mode's to say, as the update begins.
-        int soundTurns = Mode.SoundTurns;
+        // What of the sounds' own work the update does is the mode's to say: the music's turn as it begins, and
+        // what closes it once the mode has played it.
         Sounds.OpenUpdate(Mode.GivesMusicItsTurn);
         GameMode next = Mode.Step(input)
             ?? throw new InvalidOperationException($"{Mode.GetType().Name} named no mode to be in control next.");
+        ClosingSoundWork closing = Mode.SoundWorkAtClose;
         if (!ReferenceEquals(next, Mode))
         {
             // A mode the next one is laid over is kept, on screen, to be handed back to. The mode that finished, and
@@ -268,7 +272,7 @@ public sealed class GameSession
                 Show(next);
         }
 
-        Sounds.CloseUpdate(soundTurns);
+        Sounds.CloseUpdate(closing);
         Clock.Advance();
     }
 

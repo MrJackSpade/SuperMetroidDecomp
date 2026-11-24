@@ -70,6 +70,32 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
+    /// What each update of one of the old message box's pauses does while the box covers play: whether the music's
+    /// queue gets its turn, how many turns the sounds' queues get, and whether the room's liquid, statues and a power
+    /// bomb's blast move.
+    /// </summary>
+    private static JsonArray PauseOf(Action<MessageBoxPauses> begin)
+    {
+        var pauses = new MessageBoxPauses();
+        begin(pauses);
+        var updates = new JsonArray();
+        while (!pauses.IsOver)
+        {
+            MessageBoxFrameAudio update = pauses.Advance();
+            if (update.MusicQueuePasses > 1)
+                throw new InvalidDataException("An update of a message box's pause gives the music more than one turn.");
+            updates.Add(new JsonObject
+            {
+                ["music"] = update.MusicQueuePasses != 0,
+                ["sound_turns"] = update.SoundQueuePasses,
+                ["opens_room"] = update.AdvancesLiquidWaveAndStatueDescent,
+            });
+        }
+
+        return updates;
+    }
+
+    /// <summary>
     /// When the old save question looks at the controller: how many updates it waits after its window has opened
     /// before its first look, and how many between one look and the next, counted on the old cadence itself.
     /// </summary>
@@ -157,9 +183,12 @@ public sealed partial class EngineAssetWriter
             ["full_radius"] = GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels,
             ["radius_step"] = GameplayMessageBoxDefinitions.Timing.RadiusStepPixels,
             // The old box's first update of nothing is the update of play that asked for it, which the Godot game
-            // has already played whole; and play goes on after the last update of nothing once the box has closed.
-            ["before_opening_updates"] = UpdatesOf(pauses => pauses.BeginBeforeOpening()),
-            ["after_closing_updates"] = UpdatesOf(pauses => pauses.BeginAfterClosing()),
+            // stops part way through; and the rest of that update is played on the last update of nothing once
+            // the box has closed.
+            ["before_opening"] = PauseOf(pauses => pauses.BeginBeforeOpening()),
+            ["after_closing"] = PauseOf(pauses => pauses.BeginAfterClosing()),
+            // The old game asks every library of sounds to stop as a box opens over play.
+            ["silences_sounds"] = true,
             ["first_read_updates"] = firstRead,
             ["updates_between_reads"] = betweenReads,
             // The old question's choice is moved by left, right and select: select is the button the old game gives

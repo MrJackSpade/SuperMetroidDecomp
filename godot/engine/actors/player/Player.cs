@@ -662,8 +662,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>What the player's input asks of <paramref name="state"/>: the game's own answer, and failing that the state's.</summary>
     internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
 
-    /// <summary>The state waiting to interrupt the player, if any.</summary>
+    /// <summary>The state waiting to interrupt the player, if any, and how many updates it has waited.</summary>
     private PlayerState? _interruption;
+    private int _interruptionWaited;
 
     /// <summary>
     /// Interrupts the player with <paramref name="state"/> from outside: they are put into it when they have next
@@ -673,17 +674,36 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         ArgumentNullException.ThrowIfNull(state);
         _interruption = state;
+        _interruptionWaited = 0;
     }
 
     /// <summary>Whether something is waiting to interrupt the player.</summary>
     public bool IsInterrupted => _interruption is not null;
 
-    /// <summary>Takes the state waiting to interrupt the player, leaving none waiting; null when none was.</summary>
-    internal PlayerState? TakeInterruption()
+    /// <summary>
+    /// Takes the state waiting to interrupt the player, who has just moved as <paramref name="from"/>, leaving none
+    /// waiting. Null when none was, when <paramref name="from"/> holds it off for another update, or when it has
+    /// waited too long to interrupt at all.
+    /// </summary>
+    internal PlayerState? TakeInterruption(PlayerState from)
     {
-        PlayerState? waiting = _interruption;
+        if (_interruption is not { } waiting)
+            return null;
+        if (from.HoldsOffInterruptions)
+        {
+            _interruptionWaited++;
+            return null;
+        }
+
         _interruption = null;
-        return waiting;
+        return waiting.StillInterrupts(this, _interruptionWaited) ? waiting : null;
+    }
+
+    /// <summary>Leaves a waiting interruption waiting one update more.</summary>
+    internal void KeepInterruptionWaiting()
+    {
+        if (_interruption is not null)
+            _interruptionWaited++;
     }
 
     /// <summary>Uses the player's weapons for one update. A game whose player attacks in ways of its own does so here.</summary>

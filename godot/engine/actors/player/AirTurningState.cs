@@ -25,6 +25,9 @@ public sealed class AirTurningState : PlayerState
     public override bool CanAttack => false;
 
     /// <inheritdoc/>
+    public override bool HoldsOffInterruptions => true;
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.TurnAround();

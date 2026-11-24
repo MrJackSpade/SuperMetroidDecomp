@@ -556,9 +556,12 @@ public partial class Samus : Player
                 return CrystalFlashState.CanStart(this) ? new CrystalFlashState() : null;
 
             case KnockedBackState:
-                // Jumping out of a knockback while steering carries her off in a damage boost.
-                if (JumpPressed && Intent != 0 && Form != Crawling)
-                    return new DamageBoostState(Intent > 0 ? Facing.Right : Facing.Left);
+                // Holding the jump and the direction behind her in a knockback carries her off that way in a damage boost.
+                var knockback = (KnockedBackState)current;
+                bool behind = input.IsHeld(Facing == Facing.Right ? GameAction.Left : GameAction.Right);
+                // The knockback she leaves still has this update of its own to run.
+                if (behind && input.IsHeld(GameAction.Jump) && Form != Crawling)
+                    return new DamageBoostState(Facing.Opposite(), Math.Max(0, knockback.UpdatesLeft - 1));
                 return null;
 
             default:

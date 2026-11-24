@@ -10,7 +10,7 @@ namespace Engine.Actors;
 /// update left it (<see cref="Asked"/>). Then the player moves as the state they are still in (<see cref="Move"/>),
 /// and settles where that leaves them. Only then does a change take effect, and by this rank: the state's own end
 /// (<see cref="Ended"/>); something that interrupts the player (<see cref="Player.Interrupt"/>), which stays waiting
-/// when the state's end comes first; what the movement itself met; what the input asked for, which when it is to
+/// when the state's end comes first or the state holds it off; what the movement itself met; what the input asked for, which when it is to
 /// carry on is told to the state (<see cref="CarriedOn"/>); and last, when the input asked for nothing, what the state
 /// does unasked (<see cref="Unasked"/>). A state entered this way sets itself up as the update ends and first moves on
 /// the next.
@@ -55,6 +55,19 @@ public abstract class PlayerState : State<Player>
 
     /// <summary>Whether the player is in control of themselves in this state.</summary>
     public virtual bool InControl => true;
+
+    /// <summary>
+    /// Whether an interruption has to wait while the player is in this state: it stays waiting, growing older, until
+    /// a state that does not hold it off has moved.
+    /// </summary>
+    public virtual bool HoldsOffInterruptions => false;
+
+    /// <summary>
+    /// Asked of a state about to interrupt the player after it has waited <paramref name="waited"/> updates for
+    /// states that held it off: whether it still does. A state whose time was running while it waited shortens
+    /// itself here.
+    /// </summary>
+    public virtual bool StillInterrupts(Player owner, int waited) => true;
 
     /// <summary>
     /// What the player's input asks of this state, decided before the player moves: another state to change to once
@@ -109,8 +122,12 @@ public abstract class PlayerState : State<Player>
         PlayerState? ended = Ended(owner);
         bool givesWay = asked is not null && !ReferenceEquals(asked, this) && EndGivesWayTo(asked);
         if (ended is not null && !givesWay)
+        {
+            owner.KeepInterruptionWaiting();
             return ended;
-        if ((owner.TakeInterruption() ?? met) is { } forced)
+        }
+
+        if ((owner.TakeInterruption(this) ?? met) is { } forced)
             return forced;
         if (ReferenceEquals(asked, this))
             CarriedOn(owner);

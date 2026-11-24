@@ -679,7 +679,19 @@ in `engine/actors/player/`.
   across at rest (a dash and momentum kept) and the way they face unchanged, gains speed by the wall jump's own move
   values whether or not a direction is held, and lasts for as long as the jump is held; let go, it carries on as a
   jump.
-- A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
+- **A knockback** interrupts: it takes the player when they have next moved. It throws them away from the hit,
+  facing as they were, for as long as the player's knockbacks do unless whoever knocks them back says how long. It
+  does not start from rest: whatever speed across they had goes on changing by the usual ground rule with the
+  knockback's own move values and carries them the way they are thrown, a dash still on top; each update they are
+  made steered again and their momentum ends. It rises by the medium's knockback speed under gravity with no turn
+  at its top, unless the player was holding the way they face as it began, which keeps it low: they are pressed
+  down by as far as they move across and a pixel more each update instead. A floor or ceiling stops the speed
+  across and the rise, not the knockback. When its time is up they fall from rest, and whatever the input asked
+  that update is dropped; an upright player is then set down for one update (pressed down once more) and stands if
+  that met ground or falls from rest. The low form is thrown in its own form by its own move values, always
+  upward, and goes straight back to its own movement. Some states hold an interruption off (`HoldsOffInterruptions`:
+  the turns and the changes of posture); it waits, and a knockback that waited is shorter by as long as it waited
+  (`StillInterrupts`).
 - The effect left at the player's feet on landing may come from their data.
 - Facing and aim are separate values, never part of a state's name.
 - Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
@@ -724,6 +736,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
   held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
   press of down while already aiming down, or in a wall jump, curls her up.
+- **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
+  carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
+  her. It lasts while both stay held; let go, she faces as she did and is in a plain jump. When the knockback she
+  left runs out her rise ends at once, and she flies on and falls. It holds off interruptions.
 - **Her jumps.** A jump from standing or a crouch is a plain jump whatever is held, gathered for one update; a jump
   from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. A spin
   keeps her own speed across only while its top speed capped it this update, while she is reversing, or while the

@@ -34,6 +34,9 @@ public sealed class ChangingPostureState : PlayerState
     public override bool CanAttack => false;
 
     /// <inheritdoc/>
+    public override bool HoldsOffInterruptions => true;
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         if (_form != Player.Crawling)

@@ -165,18 +165,32 @@ public sealed partial class EngineAssetWriter
                     MotherBrainGlassAnimations.Segments, MotherBrainGlassAnimations.StartingAt[spin], ShardCue);
             }
 
-            glass.Shot($"shard_{arc}", RoomEnemyProjectileKind.MotherBrainGlassShard, (_, _, projectile) =>
+            glass.Shot($"shard_{arc}", RoomEnemyProjectileKind.MotherBrainGlassShard, (_, shot, projectile) =>
             {
+                // It moves and falls itself, is gone once it has fallen out of the room's top screen, wherever the view
+                // is, and sheds sparkles as it goes.
+                shot["scene"] = "res://game/bosses/mother_brain/mother_brain_glass_shard.tscn";
                 projectile["timeline"] = timeline;
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
-                projectile["motion"] = "falling";
-                projectile["acceleration"] = EngineNames.Number(MotherBrainGlassShardDefinitions.ShardGravity);
                 projectile["meeting_terrain"] = "passes_through";
-                // It is gone once it has fallen out of the room's top screen, wherever the view is.
                 projectile["view_margin"] = -1;
-                projectile["view_margin_below"] = MotherBrainGlassShardDefinitions.TopScreenBottomY - ScreenGeometry.ScreenHeightPixels;
             });
         }
+
+        // The sparkles a shard sheds, which play out where they appear.
+        static string? SparkleCue(MotherBrainGlassCue cue) => cue == MotherBrainGlassCue.Delete
+            ? null
+            : throw new InvalidDataException($"A sparkle of Mother Brain's glass raises {cue}, which this does not know.");
+        string sparkle = glass.SpawnedTimelineFrom(TankGlassSpawner, "sparkle", MotherBrainGlassAnimations.Segments,
+            MotherBrainGlassAnimations.StartingAt[MotherBrainGlassSegment.Sparkle], SparkleCue);
+        if (MotherBrainGlassShardDefinitions.SparkleOffset.Shift != 0)
+            throw new InvalidDataException("A sparkle's place is read from digits of the number that do not start at its lowest, which its data cannot say.");
+        glass.ProjectileData("bosses/mother_brain_glass_shard.json", "MotherBrainGlassShard",
+            ("gravity", EngineNames.Number(MotherBrainGlassShardDefinitions.ShardGravity)),
+            ("bottom", MotherBrainGlassShardDefinitions.TopScreenBottomY),
+            ("sparkle_effect", sparkle),
+            ("sparkle_spread", MotherBrainGlassShardDefinitions.SparkleOffset.Outcomes),
+            ("sparkle_centre", MotherBrainGlassShardDefinitions.SparkleOffsetCentre));
 
         glass.Collider("Hurtbox", 0, 0, RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels)
             .Collider("Solid", 0, 0, RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels)

@@ -80,7 +80,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/evir.json` | `Evir` | arms_across, arms_down, contact_damage, grip_across, grip_down, health |
 | `enemies/evir_spit.json` | `EvirSpit` | contact_damage, health, regrow_distance, regrow_margin, speed, throw_distance |
 | `enemies/eye_door_eye.json` | `EyeDoorEye` | contact_damage, dud_sound, health, hit_sound, hits_to_destroy, puff_effect, smoke_effect, spit_sound |
-| `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline |
+| `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline, shot_effect |
 | `enemies/face_block.json` | `FaceBlock` | contact_damage, glow_levels, glow_updates, health, wakes_with |
 | `enemies/fake_kraid.json` | `FakeKraid` | contact_damage, cry_sound, death_drops, health, spike_sound, step_pixels |
 | `enemies/falling_spark.json` | `FallingSpark` | fall_speed_limit, gravity, skip_lift, skip_speed, skitter_timeline, skitter_times, trail_effect, trail_every |

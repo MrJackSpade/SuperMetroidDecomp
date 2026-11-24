@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Game.Data;
@@ -72,6 +73,10 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         {
             _rising--;
             owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(-RiseStep), owner.BodyMoves);
+
+            // The rise done, everything the room's library sounds is stopped, at the priority nothing turns away.
+            if (_rising == 0)
+                owner.Room.Session.Sounds.Request(Sounds.RoomStop, channel: "room", priority: SoundPriority.Essential);
             return null;
         }
 

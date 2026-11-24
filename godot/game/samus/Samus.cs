@@ -691,11 +691,11 @@ public partial class Samus : Player
         _crystalFlashColouring = CrystalFlashColouring.None;
     }
 
-    /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
+    /// <summary>
+    /// Ends the stored shine, and with it any crystal flash's colouring that read as one: used up by a shinespark or a
+    /// crystal flash, or ended as the X-ray's colouring of her takes their place.
+    /// </summary>
     public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
-
-    /// <summary>Another colouring of her takes the place of a crystal flash's, as the X-ray's does.</summary>
-    public void EndCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.None;
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;

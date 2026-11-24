@@ -506,8 +506,6 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 
 | File | Named in |
 | --- | --- |
-| `backdrops/ceres_elevator_shaft.png` | `game/rooms/ceres/ceres_elevator.tscn` |
-| `backdrops/ceres_ridley_floor.png` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `backdrops/{graphics}/brinstar_blue_grid_blocks.png` | `game/rooms/brinstar/alpha_power_bomb.tscn`, `game/rooms/brinstar/spazer.tscn` |
 | `backdrops/{graphics}/brinstar_dark_pattern.png` | `game/rooms/brinstar/big_pink.tscn` |
 | `backdrops/{graphics}/brinstar_horizontal_glow_patches.png` | `game/rooms/brinstar/etecoon_energy_tank.tscn`, `game/rooms/brinstar/etecoon_super.tscn`, `game/rooms/brinstar/green_brinstar_beetoms.tscn` and 2 more |
@@ -526,6 +524,8 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `backdrops/{graphics}/brinstar_vertical_tower.png` | `game/rooms/brinstar/hellway.tscn` |
 | `backdrops/{graphics}/brinstar_wide_vertical_tower_brick.png` | `game/rooms/brinstar/red_tower.tscn` |
 | `backdrops/{graphics}/ceres_capsule_hall.png` | `game/rooms/ceres/ceres_ridley_hallway.tscn`, `game/rooms/ceres/falling_tile.tscn`, `game/rooms/ceres/magnet_stairs.tscn` |
+| `backdrops/{graphics}/ceres_elevator_shaft.png` | `game/rooms/ceres/ceres_elevator.tscn` |
+| `backdrops/{graphics}/ceres_ridley_floor.png` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `backdrops/{graphics}/crateria_brick_room.png` | `game/rooms/crateria/final_missile_bombway.tscn`, `game/rooms/crateria/green_pirates_shaft.tscn` |
 | `backdrops/{graphics}/crateria_brick_room_wall_art.png` | `game/rooms/crateria/pre_map_flyway.tscn` |
 | `backdrops/{graphics}/crateria_brick_room_wall_art_dark.png` | `game/rooms/crateria/flyway.tscn` |
@@ -572,10 +572,11 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `cinematics/intro.json` | `game/cinematics/Intro.cs` |
 | `effects/ceres_debris_dark.json` | `game/rooms/ceres/falling_tile.tscn` |
 | `effects/ceres_debris_light.json` | `game/rooms/ceres/falling_tile.tscn` |
-| `effects/ceres_haze.png` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
-| `effects/fog.png` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/pit.tscn`, `game/rooms/crateria/statues_hallway.tscn` |
-| `effects/rain.png` | `game/rooms/crateria/landing_site.tscn` |
-| `effects/spores.png` | `game/rooms/brinstar/big_pink.tscn`, `game/rooms/brinstar/dachora.tscn`, `game/rooms/brinstar/spore_spawn_farming.tscn` and 1 more |
+| `effects/ceres_haze.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
+| `effects/ceres_haze_escape.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
+| `effects/fog.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/pit.tscn`, `game/rooms/crateria/statues_hallway.tscn` |
+| `effects/rain.json` | `game/rooms/crateria/landing_site.tscn` |
+| `effects/spores.json` | `game/rooms/brinstar/big_pink.tscn`, `game/rooms/brinstar/dachora.tscn`, `game/rooms/brinstar/spore_spawn_farming.tscn` and 1 more |
 | `items/bombs.json` | `game/rooms/crateria/bomb_torizo.tscn` |
 | `items/charge_beam.json` | `game/rooms/brinstar/big_pink.tscn` |
 | `items/energy_tank.json` | `game/rooms/brinstar/blue_brinstar_energy_tank.tscn`, `game/rooms/brinstar/etecoon_energy_tank.tscn`, `game/rooms/brinstar/hopper_energy_tank.tscn` and 11 more |
@@ -597,9 +598,11 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `items/varia_suit.json` | `game/rooms/brinstar/varia_suit.tscn` |
 | `items/wave_beam.json` | `game/rooms/norfair/wave_beam.tscn` |
 | `items/xray_scope.json` | `game/rooms/brinstar/xray_scope.tscn` |
-| `liquids/acid.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/crateria_power_bombs.tscn` and 25 more |
+| `liquids/acid.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/gauntlet_energy_tank.tscn` and 18 more |
+| `liquids/acid_lava.json` | `game/rooms/norfair/crocomire.tscn`, `game/rooms/tourian/metroids1.tscn`, `game/rooms/tourian/metroids3.tscn` and 2 more |
+| `liquids/acid_water.json` | `game/rooms/crateria/crateria_power_bombs.tscn`, `game/rooms/crateria/crateria_super.tscn` |
 | `liquids/lava.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/bat_cave.tscn` and 18 more |
-| `liquids/water.json` | `game/rooms/brinstar/below_spazer.tscn`, `game/rooms/brinstar/blue_brinstar_boulders.tscn`, `game/rooms/brinstar/skree_boost.tscn` and 12 more |
+| `liquids/water.json` | `game/rooms/brinstar/below_spazer.tscn`, `game/rooms/brinstar/blue_brinstar_boulders.tscn`, `game/rooms/brinstar/skree_boost.tscn` and 13 more |
 | `liquids/water_green.json` | `game/rooms/maridia/east_pants.tscn`, `game/rooms/maridia/east_sand_hall.tscn`, `game/rooms/maridia/oasis.tscn` and 5 more |
 | `liquids/water_indigo.json` | `game/rooms/maridia/aqueduct_save.tscn`, `game/rooms/maridia/bug_sand_hole.tscn`, `game/rooms/maridia/butterfly.tscn` and 7 more |
 | `liquids/water_purple.json` | `game/rooms/maridia/aqueduct.tscn`, `game/rooms/maridia/below_botwoon_energy_tank.tscn`, `game/rooms/maridia/botwoon.tscn` and 11 more |

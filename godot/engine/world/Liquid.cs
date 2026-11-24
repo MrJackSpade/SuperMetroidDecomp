@@ -1,3 +1,4 @@
+using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
 using Godot;
@@ -7,7 +8,8 @@ namespace Engine.World;
 /// <summary>
 /// A room's body of liquid: its surface level, its rise and fall, and the answer to "is this point under it". It
 /// applies no physics and no damage; the player and enemies ask it and act on the answer. It can be told to "rise"
-/// and "fall" between its two levels.
+/// and "fall" between its two levels. It draws itself as its type says: a strip along its surface and a picture tiled
+/// under it, across the view.
 /// </summary>
 [Tool]
 public partial class Liquid : Node2D, IPlaced, ITriggerTarget
@@ -52,6 +54,10 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     [Export]
     public double TideTurnBelow { get; set; } = 1.125;
 
+    /// <summary>Whether its pictures move across as its type says they may.</summary>
+    [Export]
+    public bool Drifts { get; set; }
+
     /// <summary>The liquid's type, once set up.</summary>
     private LiquidType? _type;
 
@@ -67,6 +73,16 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
 
     /// <summary>Where the surface is heading.</summary>
     private Pixels _target;
+
+    /// <summary>What it is drawn from, the pictures it shows now, how far they have moved across, and the view they cover.</summary>
+    private ContentLibrary? _content;
+    private TimelinePlayer? _surface;
+    private TimelinePlayer? _body;
+    private Pixels _drifted;
+    private PixelRect _view;
+
+    /// <summary>Where it is drawn among the room's things: over them, under the overlays.</summary>
+    private const int OverTheRoom = 90;
 
     /// <summary>The liquid's type.</summary>
     public LiquidType Type => _type ?? throw new InvalidOperationException($"The liquid \"{Name}\" has not been set up.");
@@ -84,6 +100,12 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _target = _level;
         (_waiting, _tidePhase, _tide) = (0, 0, Pixels.Zero);
         Surface = _level;
+        _content = content;
+        _surface = _type.Surface is { } surface ? new TimelinePlayer(surface) : null;
+        _body = _type.Body is { } body ? new TimelinePlayer(body) : null;
+        _drifted = Pixels.Zero;
+        Material = new CanvasItemMaterial { BlendMode = _type.Blend };
+        ZIndex = OverTheRoom;
     }
 
     /// <summary>Puts where the surface lies at a height at once, in pixels down from the room's top; it goes on from there to where it was heading.</summary>
@@ -100,9 +122,18 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
 
-    /// <summary>Moves the surface one update toward where it is heading, once its wait is over, and turns its tide.</summary>
-    internal void Step()
+    /// <summary>
+    /// Moves the surface one update toward where it is heading, once its wait is over, turns its tide, and plays its
+    /// pictures on, to be drawn across <paramref name="view"/>.
+    /// </summary>
+    internal void Step(PixelRect view)
     {
+        _view = view;
+        _surface?.Step();
+        _body?.Step();
+        if (Drifts)
+            _drifted += Type.Drift;
+        QueueRedraw();
         Pixels before = Surface;
         if (_waiting > 0)
         {
@@ -124,8 +155,39 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         }
 
         Surface = _level + _tide;
-        if (Surface != before)
-            QueueRedraw();
+    }
+
+    /// <summary>Draws the strip along the surface and the body under it, across the view.</summary>
+    public override void _Draw()
+    {
+        if (_surface is null || _body is null || _content is null)
+            return;
+        Texture2D strip = _content.LoadTexture(_surface.Current.Picture);
+        Texture2D body = _content.LoadTexture(_body.Current.Picture);
+        int top = Surface.Whole;
+        int bottom = _view.Top + _view.Height;
+        int right = _view.Left + _view.Width;
+        if (top >= bottom)
+            return;
+
+        // Each is tiled from the room's left edge, moved by its drift, starting with the tile that reaches into the view.
+        int stripWidth = strip.GetWidth(), stripHeight = strip.GetHeight();
+        for (int x = FirstTile(_view.Left, stripWidth); x < right; x += stripWidth)
+            DrawTexture(strip, ToLocal(new Vector2(x, top)));
+        int bodyWidth = body.GetWidth(), bodyHeight = body.GetHeight();
+        int under = top + stripHeight;
+        int firstRow = under >= _view.Top ? under : under + (_view.Top - under) / bodyHeight * bodyHeight;
+        for (int y = firstRow; y < bottom; y += bodyHeight)
+        {
+            for (int x = FirstTile(_view.Left, bodyWidth); x < right; x += bodyWidth)
+                DrawTexture(body, ToLocal(new Vector2(x, y)));
+        }
+
+        int FirstTile(int left, int width)
+        {
+            int moved = _drifted.Whole;
+            return left - ((((left - moved) % width) + width) % width);
+        }
     }
 
     /// <inheritdoc/>

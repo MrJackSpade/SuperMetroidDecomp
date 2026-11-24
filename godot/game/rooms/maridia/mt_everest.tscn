@@ -213,6 +213,7 @@ StartsOpen = false
 script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_teal.json"
+Drifts = true
 LowSurface = 16
 HighSurface = 16
 TideReach = 8

@@ -486,8 +486,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             return;
         if (liquid.Type.SplashEffect.Length > 0)
             Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(liquid.Type.SplashEffect)), new PixelPosition(Position.X, liquid.Surface)));
-        if (liquid.Type.SplashSound.Length > 0)
-            Room.Session.Sounds.Request(liquid.Type.SplashSound, channel: "liquid");
+        string sound = inLiquid ? liquid.Type.SplashSound : liquid.Type.SplashOutSound;
+        if (sound.Length > 0)
+            Room.Session.Sounds.Request(sound, channel: "liquid");
     }
 
     /// <summary>Called at the start of each update, before the player's state runs.</summary>

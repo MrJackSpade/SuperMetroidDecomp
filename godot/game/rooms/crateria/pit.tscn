@@ -332,7 +332,7 @@ Target = NodePath("../Screen0x0Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "fog"
-Picture = "effects/fog.png"
+LookFile = "effects/fog.json"
 PresentWhen = SubResource("r9")
 
 [node name="Backdrop" type="Node2D" parent="."]

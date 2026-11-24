@@ -219,6 +219,7 @@ Target = NodePath("../Screen1x1Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_indigo.json"
+Drifts = true
 LowSurface = 437
 HighSurface = 437
 TideReach = 8

@@ -392,6 +392,7 @@ Target = NodePath("../Screen1x0Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 TypeFile = "liquids/water.json"
+Drifts = true
 LowSurface = 446
 HighSurface = 446
 

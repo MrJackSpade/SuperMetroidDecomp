@@ -130,14 +130,16 @@ class Sequences:
         shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {'StartsWhen': ctx.always()})
         self.placed.append(shaking)
         if 'Haze' in state.setup:
+            # The haze is one colour while Ridley is on the station and another once he is gone.
+            look = 'effects/ceres_haze_escape.json' if ridley_gone else 'effects/ceres_haze.json'
             self.placed.append(Placed(OVERLAY, 'Haze', {
-                'EffectName': quoted('ceres_haze'), 'Picture': quoted('effects/ceres_haze.png')}, at=(0, 0), enemy=False))
+                'EffectName': quoted('ceres_haze'), 'LookFile': quoted(look)}, at=(0, 0), enemy=False))
         if state.main == 'SpawnCeresPreElevatorHallFallingDebris':
             self.placed.append(sequence('ceres/CeresDebris.cs', 'Debris', {
                 'StartsWhen': ctx.fact('ceres_self_destruct_started'),
                 'LightPiece': quoted('effects/ceres_debris_light.json'), 'DarkPiece': quoted('effects/ceres_debris_dark.json')}))
         if state.main == 'CeresRidleyGetaway':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/ceres_ridley_floor.png')}, at=(0, 0), enemy=False)
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png')}, at=(0, 0), enemy=False)
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
                 'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('typing')})
@@ -147,7 +149,7 @@ class Sequences:
             if 'Ridley' in named:
                 self.links.append((named['Ridley'], 'ToldWhenGone', [getaway]))
         if state.main == 'CeresElevatorShaft':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/ceres_elevator_shaft.png')}, at=(0, 0), enemy=False,
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png')}, at=(0, 0), enemy=False,
                            children=[('Platform', VISUAL, {})])
             self.placed.append(floor)
             if 'ElevatorDoor' in named:

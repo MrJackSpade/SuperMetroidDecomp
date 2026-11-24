@@ -85,7 +85,10 @@ public static class Sounds
     public const string EnergyRefill = "room_incremental_energy";
 
     /// <summary>Plunging into a liquid, or leaving one.</summary>
-    public const string Splash = "splash";
+    public const string Splash = "enemy_splash_in";
+
+    /// <summary>Something coming out of a liquid.</summary>
+    public const string SplashOut = "enemy_splash_out";
 
     /// <summary>Being burnt by lava or acid.</summary>
     public const string LiquidDamage = "liquid_damage";
@@ -158,7 +161,7 @@ public static class Sounds
     [
         Jump, SpinJump, SpaceJump, ScrewAttack, UnderwaterSpinJump, WallJump, Land, HardLand, SamusHurt, LowEnergy, SpeedBooster,
         StoredShine, Shinespark, ShinesparkEnd, Morph, Charging, ItemSelect, GrappleFire, GrappleLatch, GrappleRelease, Xray, XrayEnd,
-        CrystalFlash, EnergyRefill, Splash, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, BigEnemyKilled, EnemyFrozen,
+        CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, BigEnemyKilled, EnemyFrozen,
         PickupCollected, BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
         Silence, PowerBombExplosion,
         BigExplosion, MenuMove, MenuAccept, MenuCancel, Typing, Siren,

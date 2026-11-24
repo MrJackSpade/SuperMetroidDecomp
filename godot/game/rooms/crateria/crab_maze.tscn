@@ -120,6 +120,7 @@ DataFile = "objects/door_cap_blue_right.json"
 script = ExtResource("7")
 position = Vector2(0, 0)
 TypeFile = "liquids/water.json"
+Drifts = true
 LowSurface = 432
 HighSurface = 432
 

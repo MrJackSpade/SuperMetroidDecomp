@@ -773,7 +773,7 @@ Target = NodePath("../Screen4x0Foot")
 script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "spores"
-Picture = "effects/spores.png"
+LookFile = "effects/spores.json"
 
 [node name="ShaftCamera" type="Node" parent="."]
 script = ExtResource("14")

@@ -71,7 +71,7 @@ StartsOpen = false
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-TypeFile = "liquids/acid.json"
+TypeFile = "liquids/acid_water.json"
 LowSurface = 192
 HighSurface = 192
 TideReach = 32

@@ -81,7 +81,7 @@ StartsOpen = false
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-TypeFile = "liquids/acid.json"
+TypeFile = "liquids/acid_lava.json"
 LowSurface = 956
 HighSurface = 956
 

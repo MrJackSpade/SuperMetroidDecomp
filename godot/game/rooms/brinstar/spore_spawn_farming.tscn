@@ -109,4 +109,4 @@ StartsOpen = false
 script = ExtResource("9")
 position = Vector2(0, 0)
 EffectName = "spores"
-Picture = "effects/spores.png"
+LookFile = "effects/spores.json"

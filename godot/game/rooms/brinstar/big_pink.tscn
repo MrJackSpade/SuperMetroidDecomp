@@ -855,7 +855,7 @@ Target = NodePath("../Screen1x0Foot")
 script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "spores"
-Picture = "effects/spores.png"
+LookFile = "effects/spores.json"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("15")

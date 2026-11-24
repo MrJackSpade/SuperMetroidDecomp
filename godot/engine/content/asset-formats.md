@@ -20,6 +20,7 @@ with comments allowed.
 | A block type | `blocks/` | `BlockType` | The rules of one kind of reactive block. |
 | An item type | `items/` | `ItemType` | What an item grants, its message and how it looks. |
 | A liquid type | `liquids/` | `LiquidType` | How a liquid slows, what it takes and how it looks. |
+| An overlay's look | `effects/` | `OverlayEffect` | The pictures laid over the whole view, how they move and how they are laid over the room. |
 | A speed curve | wherever it is named | `SpeedCurve` | The marks of a curve of speeds. |
 | Drops and pickups | wherever they are named | `DropTable`, `PickupType` | What an enemy leaves and what each pickup gives. |
 | An area | `areas/` | `Area` | An area's name and map. |

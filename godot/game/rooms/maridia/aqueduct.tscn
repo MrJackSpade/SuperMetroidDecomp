@@ -144,6 +144,7 @@ Remembered = 1
 script = ExtResource("8")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_purple.json"
+Drifts = true
 LowSurface = 16
 HighSurface = 16
 TideReach = 8

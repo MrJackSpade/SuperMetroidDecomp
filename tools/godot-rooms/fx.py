@@ -26,8 +26,17 @@ TIDES = {'Small': (8, 0.75, 1.125), 'Large': (32, 0.5, 0.875)}
 # The overlays the old code's kinds of effect are, by the name each is known by.
 OVERLAYS = {'Rain': 'rain', 'Fog': 'fog', 'Spores': 'spores'}
 
-# The waters of Maridia, which differ in colour.
-WATERS = {'GreenMaridiaWater': 'green', 'IndigoMaridiaWater': 'indigo', 'PurpleMaridiaWater': 'purple', 'TealMaridiaWater': 'teal'}
+# The liquid each of the old code's kinds of effect fills a room with. The water of the statues' hall is water.
+LIQUIDS = {'Water': 'water', 'TourianEntranceStatue': 'water', 'Lava': 'lava', 'Acid': 'acid'}
+
+# What follows a liquid's name in the name of its type, by how the old code colours it: liquids of one kind that
+# differ in colour are types of their own.
+COLOURED = {
+    ('water', 'WaterAndAcid'): '', ('water', 'GreenMaridiaWater'): '_green', ('water', 'IndigoMaridiaWater'): '_indigo',
+    ('water', 'PurpleMaridiaWater'): '_purple', ('water', 'TealMaridiaWater'): '_teal',
+    ('lava', 'Lava'): '',
+    ('acid', 'None'): '', ('acid', 'Lava'): '_lava', ('acid', 'WaterAndAcid'): '_water',
+}
 
 
 def effect_things(effect: dict, room: legacy.Room) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
@@ -35,14 +44,20 @@ def effect_things(effect: dict, room: legacy.Room) -> tuple[list[Placed], list[t
     placed: list[Placed] = []
     links: list[tuple[Placed, Placed]] = []
     kind = effect['type']
-    if kind in ('Water', 'Lava', 'Acid') and effect['start'] is not None:
+    if kind in LIQUIDS and effect['start'] is not None:
         start, target = effect['start'], effect['target']
-        name = kind.lower()
-        if kind == 'Water' and effect['tint'] in WATERS:
-            name += '_' + WATERS[effect['tint']]
+        coloured = (LIQUIDS[kind], effect['tint'])
+        if coloured not in COLOURED:
+            raise ValueError(f'No liquid is known for the effect {kind} coloured {effect["tint"]}.')
+        name = LIQUIDS[kind] + COLOURED[coloured]
         properties = {'TypeFile': quoted(f'liquids/{name}.json')}
-        rises = target is not None and target < start
-        falls = target is not None and target > start
+        if effect['drifts']:
+            properties['Drifts'] = 'true'
+
+        # A liquid given a level to go to and no speed stays where it is.
+        moves = target is not None and number(effect['speed']).lstrip('-') not in ('0', '0.0')
+        rises = moves and target < start
+        falls = moves and target > start
         properties['LowSurface'] = str(target if falls else start)
         properties['HighSurface'] = str(target if rises else start)
         if falls:
@@ -66,7 +81,7 @@ def effect_things(effect: dict, room: legacy.Room) -> tuple[list[Placed], list[t
         placed.append(Placed(OVERLAY, 'Heat', {'EffectName': quoted('heat'), 'DamageHundredths': str(HEAT_DAMAGE)}, at=(0, 0), enemy=False))
     if kind in OVERLAYS:
         placed.append(Placed(OVERLAY, kind, {
-            'EffectName': quoted(OVERLAYS[kind]), 'Picture': quoted(f'effects/{OVERLAYS[kind]}.png')}, at=(0, 0), enemy=False))
+            'EffectName': quoted(OVERLAYS[kind]), 'LookFile': quoted(f'effects/{OVERLAYS[kind]}.json')}, at=(0, 0), enemy=False))
     if kind == 'Fireflea':
         placed.append(Placed(DARKNESS, 'Darkness', {'EffectName': quoted('darkness')}, at=(0, 0), enemy=False))
     return placed, links

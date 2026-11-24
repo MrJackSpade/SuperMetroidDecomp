@@ -1,4 +1,5 @@
 using Engine.Content;
+using Engine.Shared;
 
 namespace Engine.World;
 
@@ -9,8 +10,15 @@ namespace Engine.World;
 /// <remarks>
 /// <code>
 /// { "name": "lava", "speed_times": 1, "speed_over": 2, "slowing_cancelled_by": ["gravity suit"],
-///   "damage_hundredths": 50, "damage_cancelled_by": ["gravity suit"], "picture": "liquids/lava.png" }
+///   "damage_hundredths": 50, "damage_cancelled_by": ["gravity suit"],
+///   "surface": { "steps": [ { "picture": "liquids/{graphics}/lava_surface_0.png", "updates": 13 } ], "loops_to": 0 },
+///   "body": { "steps": [ { "picture": "liquids/{graphics}/lava_body_0.png", "updates": 13 } ], "loops_to": 0 },
+///   "blend": "add", "drift": 0 }
 /// </code>
+/// "surface" is the timeline of the strip drawn along its surface, and "body" that of the picture tiled under the
+/// strip to the bottom of the view; both are needed to draw it, and a liquid with neither is not drawn. "blend" says
+/// how they are drawn over the room, as an overlay's does. "drift" is how far they move across each update in a
+/// room whose liquid drifts.
 /// </remarks>
 public sealed class LiquidType
 {
@@ -32,14 +40,26 @@ public sealed class LiquidType
     /// <summary>The equipment that protects its owner from that damage.</summary>
     public IReadOnlyList<string> DamageCancelledBy { get; private init; } = [];
 
-    /// <summary>The picture its surface is drawn with; empty for none.</summary>
-    public string Picture { get; private init; } = "";
+    /// <summary>The timeline of the strip drawn along its surface; null for a liquid that is not drawn.</summary>
+    public FrameTimeline? Surface { get; private init; }
+
+    /// <summary>The timeline of the picture tiled under the strip; null for a liquid that is not drawn.</summary>
+    public FrameTimeline? Body { get; private init; }
+
+    /// <summary>How its pictures are drawn over the room.</summary>
+    public Godot.CanvasItemMaterial.BlendModeEnum Blend { get; private init; } = Godot.CanvasItemMaterial.BlendModeEnum.Mix;
+
+    /// <summary>How far its pictures move across each update, where the room's liquid drifts.</summary>
+    public Pixels Drift { get; private init; }
 
     /// <summary>The effect left where something crosses its surface, by the data file of its timeline; empty for none.</summary>
     public string SplashEffect { get; private init; } = "";
 
-    /// <summary>The sound of something crossing its surface, by name; empty for none.</summary>
+    /// <summary>The sound of something going under its surface, by name; empty for none.</summary>
     public string SplashSound { get; private init; } = "";
+
+    /// <summary>The sound of something coming out through its surface, by name; empty for none.</summary>
+    public string SplashOutSound { get; private init; } = "";
 
     /// <summary>Reads a liquid type from its data file.</summary>
     public static LiquidType Read(DataNode data)
@@ -53,10 +73,16 @@ public sealed class LiquidType
             SlowingCancelledBy = Names("slowing_cancelled_by"),
             DamageHundredths = data.Has("damage_hundredths") ? data.Int("damage_hundredths") : 0,
             DamageCancelledBy = Names("damage_cancelled_by"),
-            Picture = data.Has("picture") ? data.Text("picture") : "",
+            Surface = data.Has("surface") ? FrameTimeline.Read(data.Get("surface")) : null,
+            Body = data.Has("body") ? FrameTimeline.Read(data.Get("body")) : null,
+            Blend = data.Has("blend") ? OverlayEffect.BlendOf(data, data.Text("blend")) : Godot.CanvasItemMaterial.BlendModeEnum.Mix,
+            Drift = data.Has("drift") ? data.Distance("drift") : Pixels.Zero,
             SplashEffect = data.Has("splash") ? data.Text("splash") : "",
             SplashSound = data.Has("splash_sound") ? data.Text("splash_sound") : "",
+            SplashOutSound = data.Has("splash_out_sound") ? data.Text("splash_out_sound") : "",
         };
+        if ((type.Surface is null) != (type.Body is null))
+            throw data.Problem("gives one of a surface and a body, and a liquid is drawn with both or neither");
         if (type.SpeedOver <= 0 || type.SpeedTimes < 0 || type.DamageHundredths < 0)
             throw data.Problem("gives a speed share or a damage that is not a sensible number");
         return type;

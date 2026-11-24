@@ -73,6 +73,7 @@ RememberedAs = "east_sand_hole_exposed_power_bomb_tank"
 script = ExtResource("7")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_purple.json"
+Drifts = true
 LowSurface = 214
 HighSurface = 214
 

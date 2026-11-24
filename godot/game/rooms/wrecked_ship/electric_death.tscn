@@ -183,6 +183,7 @@ PresentWhen = SubResource("r1")
 script = ExtResource("11")
 position = Vector2(0, 0)
 TypeFile = "liquids/water.json"
+Drifts = true
 LowSurface = 680
 HighSurface = 680
 PresentWhen = SubResource("r1")

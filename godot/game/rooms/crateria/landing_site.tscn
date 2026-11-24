@@ -345,7 +345,7 @@ Target = NodePath("../Screen1x2Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "rain"
-Picture = "effects/rain.png"
+LookFile = "effects/rain.json"
 PresentWhen = SubResource("r16")
 
 [node name="Backdrop" type="Node2D" parent="."]

@@ -168,13 +168,14 @@ public partial class TitleMode : GameMode
         }
 
         // The cartridge starts its random numbers over as the game starts or starts again, from its power-on number,
-        // and draws one, and puts its queues of sounds and music back as at power-on; the title it rebuilds after a
-        // set of demos does neither.
+        // and draws one, puts its queues of sounds and music back as at power-on, and puts its demos back to the first
+        // of the first set; the title it rebuilds after a set of demos does none of these.
         if (_beginning == Beginning.Afresh)
         {
             Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
             Session.Random.Next();
             Compatibility.CartridgeSounds.Of(Session).Reset();
+            Session.Service<DemoSchedule>().StartOver();
         }
         Compatibility.CartridgeSounds.Of(Session).AskMusicSet("title_sequence");
         Session.Sounds.RequestMusic(opening.Text("music"));

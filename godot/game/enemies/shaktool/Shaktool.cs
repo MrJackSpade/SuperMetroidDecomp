@@ -197,10 +197,13 @@ public partial class Shaktool : Enemy
         PixelPosition before = PixelPosition.FromWhole(_at[tail].X.Whole, _at[tail].Y.Whole);
         Orbit(tail);
         PixelPosition wanted = PixelPosition.FromWhole(_at[tail].X.Whole, _at[tail].Y.Whole);
-        var across = PixelPosition.FromWhole(wanted.X.Whole, before.Y.Whole);
-        if (Room.Terrain.IsSolidIn(PartRect(across), SlopeTreatment.Ignore) || Room.Terrain.IsSolidIn(PartRect(wanted), SlopeTreatment.Wall))
+        // As the old game does, it moves across and then down through the terrain, each stopping against a wall.
+        PixelPosition stopped = before;
+        if (MovePart(ref stopped, wanted.X.Whole - before.X.Whole, 0, SlopeTreatment.Ignore)
+            || MovePart(ref stopped, 0, wanted.Y.Whole - before.Y.Whole, SlopeTreatment.Wall))
         {
-            _at[tail] = before;
+            // Turning end for end puts it back where it was; turning its orbit about leaves it where the wall stopped it.
+            _at[tail] = _turnsEndForEndNext ? before : stopped;
             MeetWall();
             return;
         }
@@ -224,6 +227,23 @@ public partial class Shaktool : Enemy
         _curled += _turn[tail];
         if (_curled >= StraightenAt * StepParts)
             _straightening = true;
+    }
+
+    /// <summary>
+    /// Moves a part at <paramref name="at"/> a pixel at a time, stopping short of terrain. Returns whether terrain
+    /// stopped it.
+    /// </summary>
+    private bool MovePart(ref PixelPosition at, int across, int down, SlopeTreatment slopes)
+    {
+        for (int moved = 0; moved < Math.Abs(across) + Math.Abs(down); moved++)
+        {
+            PixelPosition next = at + PixelOffset.FromWhole(Math.Sign(across), Math.Sign(down));
+            if (Room.Terrain.IsSolidIn(PartRect(next), slopes))
+                return true;
+            at = next;
+        }
+
+        return false;
     }
 
     /// <summary>Answers the far saw meeting a wall: the chain turns end for end, or the next time curls back the other way.</summary>

@@ -59,41 +59,6 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
-    /// Writes the pictures of the game's messages, once for every set of graphics a room is drawn with: a message is
-    /// drawn with the room's own colours. One that asks yes or no has a picture of each answer chosen. One that names
-    /// the button that uses what was found is written as the old game shows it with no button bound: the Godot game's
-    /// buttons are the player's own, which the old game's pictures of buttons cannot name.
-    /// </summary>
-    private void WriteMessages()
-    {
-        const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
-        foreach (string graphicsSet in Layouts.GraphicsSets)
-        {
-            string sheet = "Messages." + graphicsSet;
-            string folder = $"messages/{EngineRoomObjects.GraphicsName(graphicsSet)}";
-            void Write(ShownMessage form, string name)
-            {
-                (RgbaPixel[] pixels, int width, int height) = _sheets.PictureOf(family, sheet, form.FrameName);
-                _tree.WritePicture($"{folder}/{name}.png", width, height, pixels);
-            }
-
-            foreach (GameplayMessageId id in Enum.GetValues<GameplayMessageId>())
-            {
-                GameplayMessageDefinition message = GameplayMessageBoxDefinitions.Message(id);
-                ControllerButton? button = message.PanelBinding is null ? null : ControllerButton.None;
-                if (message.Confirmation == GameplayMessageConfirmation.None)
-                {
-                    Write(new ShownMessage(id, button, null), MessageName(id));
-                    continue;
-                }
-
-                Write(new ShownMessage(id, button, SaveChoice.Yes), MessageName(id) + "_yes");
-                Write(new ShownMessage(id, button, SaveChoice.No), MessageName(id) + "_no");
-            }
-        }
-    }
-
-    /// <summary>
     /// Writes the two warnings typed across the screen as an escape begins: each one's words, the font they are typed
     /// in and where they begin; and for the one aboard the station its heading and the pictures of its second wording.
     /// </summary>

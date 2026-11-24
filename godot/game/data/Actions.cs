@@ -26,7 +26,7 @@ public static class Actions
     /// <summary>The buttons each is bound to until the player chooses otherwise.</summary>
     public static Dictionary<string, List<string>> StandardBindings => new()
     {
-        [Run.Name] = ["key:C", "pad:2"],
+        [Run.Name] = ["key:C", "pad:1"],
         [ItemSelect.Name] = ["key:A", "pad:4"],
         [ItemCancel.Name] = ["key:S", "pad:3"],
         [AngleUp.Name] = ["key:D", "pad:10"],

@@ -257,7 +257,7 @@ it settled, and new code follows them.
 | `Countdown` | A timer in updates | Counts down, reports when it ends. |
 | `WrappingCounter` | A counter that wraps | Wraps by itself at its own limit. Used only where the wrap is something the player can observe. |
 | `GameRandom` | The gameplay random generator | One per session. Cosmetics never use it. It draws from an `IRandomSequence`: the engine's plain one by default, or one the `GameDefinition` supplies when a game's outcomes must follow a particular sequence. |
-| `GameAction`, `GameInput` | An action by name; one update's input | The engine names its standard actions; a game adds its own by name. A `GameInput` says which actions are held and which were newly pressed. |
+| `GameAction`, `GameInput` | An action by name; one update's input | The engine names its standard actions; a game adds its own by name. A `GameInput` says which actions are held and which were newly pressed, and whether anything at all is held or was pressed. |
 | `GameClock` | The count of updates played | One per session. Anything that acts "every N updates" reads it. Nothing keeps its own global counter. |
 | `HitKind` | A named kind of damage | The engine provides contact and hazard. The game names the rest (here: each beam property, missile, super missile, bomb, power bomb, each special attack, each body power). |
 | `Hit` | One hit being delivered | A damage amount, the set of `HitKind`s it carries, its direction, and who caused it. |
@@ -343,7 +343,7 @@ select, options, game over, time up, and one per cinematic.
 | `PlayingMode` | Owns the room being played and steps it. Writes a save when one was asked for. A game says what is stopped while the rest runs by overriding one method. It can be started in a room at a given `RoomEntry`. | The mode after death when the player has died; a `MessageBoxMode` when a message was asked for; a `RoomTransitionMode` when the player entered an exit; the pause mode when pause is pressed while the player is in control.  |
 | `RoomTransitionMode` | Fades out, takes the old room down and sets the next up with the player arriving at the exit the old one led to, fades in. Neither room is stepped meanwhile. | The same `PlayingMode`. |
 | `PausedMode` | Nothing; play is still beneath it. A game's pause screen is its own mode doing the same. | The same `PlayingMode`, on pause. |
-| `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. A message may come with a fanfare, after which the music there was comes back, and may be held up a set time before it can be dismissed. | The mode it was laid over, on confirm. |
+| `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. A message may come with a fanfare, after which the music there was comes back, and may be held up a set time before it can be dismissed. A game that names how its messages are shown (`GameDefinition.MessageBoxFile`, read as a `MessageBoxStyle`) has each shown as a picture through a window that opens and closes about a line of the screen: nothing shows for a set time, the window opens a step an update, the message is held, a plain message then goes at any action held and a question looks at the player's presses every so many updates (confirm answers with the choice showing, cancel answers no, the style's move actions show the other choice, with a sound the update after), the window closes a step an update, and after a set time more the mode beneath comes back. A question may name what follows a yes (`MessageAfterYes`: a sound, a wait and a second message), after which the answer is given. | The mode it was laid over: on confirm for a game whose messages are their words, once its window has closed for a game with a style. |
 | `LoadingMode` | Begins the session's game again and puts the session's save slot into it, if the slot holds one. | A new `PlayingMode` in the saved room, or the first room. |
 | `Cinematic` (base, `engine/ui/`) | Plays update by update; confirm skips it unless it says otherwise. | The mode it names. |
 
@@ -351,7 +351,8 @@ select, options, game over, time up, and one per cinematic.
   stepped, and is told when control comes back (`Resume`). Any other hand-over ends the mode that finished, and
   everything it was laid over.
 - **Asking, not reaching.** A room object does not start a mode. It asks the session: `RequestMessage` for a
-  message, `RequestQuestion` for one answered yes or no (the answer comes back to whoever asked), `RequestSave`
+  message, `RequestQuestion` for one answered yes or no (the answer comes back to whoever asked, after the sound, wait and
+  second message the asker may name to follow a yes), `RequestSave`
   for a save, `RequestPause` for the pause screen once the messages asked for with it have been shown. The mode in
   control takes the request and acts on it.
 - **Death.** There is no death mode in the engine: the player plays its own dying, and when it is over
@@ -481,7 +482,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `BossEncounter` | Changing the music, starting the boss, and recording the defeat in `Progress`. | Which boss; remembered as. |
 | `Creature` | A harmless animal that moves by its own behaviour and cannot be hurt. The base shows the timelines its data names, passes it their cues, and moves it through terrain. | — |
 | `Scenery` | A fixture that reacts visibly to the player or events, with no effect on play beyond an optional solid body. | — |
-| `Gunship` (this game's) | Landing, taking off, saving and refilling. | — |
+| `Gunship` (this game's) | Landing, taking off, saving and refilling. Its question of saving, answered yes, is followed by the sound of saving, a wait and its message of having saved before its hatch opens again. | — |
 
 Every kind here is the engine's except `Gunship`.
 
@@ -818,7 +819,7 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 
 | Type | Lives in | Job | Does not |
 | --- | --- | --- | --- |
-| `MessageBox` | `engine/ui/` | Showing a message, waiting for it to be dismissed, and returning the answer when it asks yes or no. A game that keeps its messages as pictures (`GameDefinition.MessagePictureFolder`) has each shown as its picture, drawn for the room's set of graphics, across the middle of the screen; a question has a picture of each answer chosen. | Grant the item it announces or perform the save it asks about.  |
+| `MessageBox` | `engine/ui/` | Showing a message, waiting for it to be dismissed, and returning the answer when it asks yes or no. A game that keeps its messages as pictures (`GameDefinition.MessageBoxFile`) has each shown as its picture, drawn for the room's set of graphics, across the screen with its middle on the style's line, as much of it as the window about that line shows; a question has a picture of each answer chosen, and a message that names the button of an action has one for each button the style lists and one for none of them, the first listed button the player has bound to the action being the one shown. | Grant the item it announces or perform the save it asks about.  |
 | `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. An unexplored cell and the cell the player is in (`Here`) are drawn from the area's own sheets for them where it has them. | Decide what is explored.  |
 | `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, smoothly or in a set number of even steps, and reporting when it is done. | Know why it was asked. |
 | `PixelText` | `engine/ui/` | Drawing words in a `PixelFont`, a character to a cell and line under line; showing only the first so many characters; laying each line at the left, middle or right of its width. Every word the game shows is drawn by one. | Hold the words, or draw in anything but its font: with none, words given it cannot be drawn. |

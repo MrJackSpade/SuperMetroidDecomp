@@ -161,25 +161,25 @@ public sealed class GameSession
     }
 
     /// <summary>The question asked and not yet shown, with who is to be given its answer.</summary>
-    private (string Message, Action<bool> Answered)? _question;
+    private (string Message, Action<bool> Answered, MessageAfterYes? AfterYes)? _question;
 
     /// <summary>
     /// Asks for a message that is answered yes or no to be shown. The mode in control shows it and gives the answer to
-    /// <paramref name="answered"/>.
+    /// <paramref name="answered"/>, after what <paramref name="afterYes"/> says follows a yes, if anything does.
     /// </summary>
-    public void RequestQuestion(string message, Action<bool> answered)
+    public void RequestQuestion(string message, Action<bool> answered, MessageAfterYes? afterYes = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
         ArgumentNullException.ThrowIfNull(answered);
         if (_question is not null)
             throw new InvalidOperationException($"The question \"{message}\" was asked while \"{_question.Value.Message}\" was still waiting to be shown.");
-        _question = (message, answered);
+        _question = (message, answered, afterYes);
     }
 
-    /// <summary>Takes the question waiting to be shown, or null when none is.</summary>
-    public (string Message, Action<bool> Answered)? TakeQuestion()
+    /// <summary>Takes the question waiting to be shown, with what follows a yes to it, or null when none is.</summary>
+    public (string Message, Action<bool> Answered, MessageAfterYes? AfterYes)? TakeQuestion()
     {
-        (string, Action<bool>)? question = _question;
+        (string, Action<bool>, MessageAfterYes?)? question = _question;
         _question = null;
         return question;
     }

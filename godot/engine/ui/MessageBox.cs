@@ -5,7 +5,8 @@ namespace Engine.Ui;
 /// <summary>
 /// A box showing a message, with a yes and a no to choose between when the message asks. It shows; the mode that
 /// presents it decides when it is dismissed, and it grants nothing and saves nothing itself. A message is its words,
-/// or, for a game that keeps its messages as pictures, a picture shown across the middle of the screen.
+/// or, for a game that keeps its messages as pictures, a picture shown across the middle of the screen through a
+/// window of so many lines about its middle.
 /// </summary>
 public partial class MessageBox : CanvasLayer
 {
@@ -48,19 +49,30 @@ public partial class MessageBox : CanvasLayer
         Choose(true);
     }
 
-    /// <summary>Shows a message that is a picture, the middle of it <paramref name="centreY"/> pixels down the screen.</summary>
-    public void Present(Texture2D picture, int centreY)
+    /// <summary>
+    /// Shows a message that is a picture, the middle of it <paramref name="centreY"/> pixels down the screen, as much
+    /// of it as lies within <paramref name="radius"/> lines above that line and below it: none of it while that is
+    /// nothing.
+    /// </summary>
+    public void Present(Texture2D picture, int centreY, int radius)
     {
         ArgumentNullException.ThrowIfNull(picture);
+        ArgumentOutOfRangeException.ThrowIfNegative(radius);
         if (_picture is null)
         {
-            _picture = new Sprite2D { Name = "Picture", Centered = false, TextureFilter = CanvasItem.TextureFilterEnum.Nearest };
+            _picture = new Sprite2D { Name = "Picture", Centered = false, RegionEnabled = true, TextureFilter = CanvasItem.TextureFilterEnum.Nearest };
             AddChild(_picture);
         }
 
+        int top = centreY - picture.GetHeight() / 2;
+        int first = Math.Max(top, centreY - radius), end = Math.Min(top + picture.GetHeight(), centreY + radius);
+        _picture.Visible = end > first;
+        if (end <= first)
+            return;
         _picture.Texture = picture;
+        _picture.RegionRect = new Rect2(0, first - top, picture.GetWidth(), end - first);
         Vector2 screen = GetViewport()?.GetVisibleRect().Size ?? new Vector2(picture.GetWidth(), 0);
-        _picture.Position = new Vector2(Mathf.Floor((screen.X - picture.GetWidth()) / 2), centreY - picture.GetHeight() / 2);
+        _picture.Position = new Vector2(Mathf.Floor((screen.X - picture.GetWidth()) / 2), first);
     }
 
     /// <summary>Shows yes, or no, as the choice.</summary>

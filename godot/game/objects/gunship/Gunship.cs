@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Content;
+using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
@@ -79,6 +80,22 @@ public partial class Gunship : RoomObject, ITriggerTarget
     /// <summary>The sound of its hatch closing.</summary>
     [Export, DataValue("pad_closing_sound")]
     public string PadClosingSound { get; set; } = "";
+
+    /// <summary>The sound of the game being saved, heard as its question goes away answered yes.</summary>
+    [Export, DataValue("saving_sound")]
+    public string SavingSound { get; set; } = "";
+
+    /// <summary>How many updates pass between its question going away answered yes and its message of having saved.</summary>
+    [Export, DataValue("saving_updates")]
+    public int SavingUpdates { get; set; }
+
+    /// <summary>How many updates its message of having saved stays up before it can be dismissed.</summary>
+    [Export, DataValue("saved_message_hold_updates")]
+    public int SavedMessageHoldUpdates { get; set; }
+
+    /// <summary>How many updates nothing shows before its message of having saved begins to open.</summary>
+    [Export, DataValue("saved_message_before_opening_updates")]
+    public int SavedMessageBeforeOpeningUpdates { get; set; }
 
     private enum Phase
     {
@@ -264,8 +281,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
             case Phase.AskToSave:
                 _answer = null;
                 _phase = Phase.AwaitAnswer;
+                // The saving is heard and told of before the answer comes back: play stays stopped through both.
                 if (SaveQuestion.Length > 0)
-                    Room.Session.RequestQuestion(SaveQuestion, answer => _answer = answer);
+                    Room.Session.RequestQuestion(SaveQuestion, answer => _answer = answer, SavedMessage.Length == 0 ? null
+                        : new MessageAfterYes(SavingSound, SavingUpdates, SavedMessage, SavedMessageHoldUpdates, SavedMessageBeforeOpeningUpdates));
                 else
                     _answer = false;
                 break;
@@ -274,13 +293,8 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 if (_answer is not { } yes)
                     break;
                 if (yes)
-                {
                     Room.Session.RequestSave(Room.SceneFilePath, Name);
-                    if (SavedMessage.Length > 0)
-                        Room.Session.RequestMessage(SavedMessage);
-                }
-
-                OpenHatch(sounding: false);
+                OpenHatch(sounding: true);
                 _phase = Phase.WaitForExitHatch;
                 break;
 

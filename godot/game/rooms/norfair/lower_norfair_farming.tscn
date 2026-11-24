@@ -18,6 +18,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/norfair/lower_norfair_farming_in_heated_norfair.json"
 Screens = PackedInt32Array(2, 2, 2)
 Music = "lower_norfair"
+MusicSet = "lower_norfair"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

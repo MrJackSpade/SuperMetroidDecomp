@@ -1,4 +1,6 @@
+using Engine.Content;
 using Engine.Core;
+using Engine.World;
 
 namespace Game.Compatibility;
 
@@ -12,8 +14,16 @@ namespace Game.Compatibility;
 /// channel of its library.
 /// </summary>
 /// <remarks>
+/// <para>
 /// An update opens with the music's turn, the mode plays it, asking as it goes, and it closes with the sounds' turns
 /// and the program's clock. What the program reports back is read by the next update's turns.
+/// </para>
+/// <para>
+/// Music comes in sets, one loaded at a time. A room whose version names another set than the one loaded has the
+/// music stopped and that set loaded; its own music is then asked for unless it keeps what is playing or that is
+/// playing already. Through a door only the set is asked for as the room is set up, and the room's music when the
+/// door's passage says so (<see cref="AskRoomMusic(Room)"/>).
+/// </para>
 /// </remarks>
 public sealed class CartridgeSounds : ISoundFlow
 {
@@ -23,6 +33,9 @@ public sealed class CartridgeSounds : ISoundFlow
     /// <summary>What ends the name of the sound that stops everything its library is sounding.</summary>
     private const string StopsAll = "_stop";
 
+    /// <summary>The data file of the sets of music: the set loaded at power-on, and each set's theme.</summary>
+    private const string SetsFile = "audio/music_sets.json";
+
     /// <summary>The libraries, in the order their turns are taken and the program serves them.</summary>
     private static readonly string[] Libraries = ["samus", "enemy", "room"];
 
@@ -30,10 +43,22 @@ public sealed class CartridgeSounds : ISoundFlow
         Libraries.ToDictionary(library => library, _ => new SoundLibraryQueue(), StringComparer.Ordinal);
 
     private readonly SoundProgramClock _clock = new(Libraries);
-    private readonly MusicQueue _music = new();
+    private readonly DataNode _themes;
+    private readonly MusicQueue _music;
     private readonly List<(string Library, string? Sound)> _askedOfProgram = [];
     private readonly List<AcceptedSound> _started = [];
+    private string _lastRoomAsked = "";
+    private bool _programDropsAsked;
     private int _downtime;
+
+    /// <summary>The cartridge's flow at power-on, with the sets of music read from the game's data.</summary>
+    public CartridgeSounds(ContentLibrary content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        DataNode sets = content.ReadData(SetsFile);
+        _themes = sets.Get("themes");
+        _music = new MusicQueue(sets.Text("loaded_at_start"));
+    }
 
     /// <summary>The flow of <paramref name="session"/>, which is this game's.</summary>
     public static CartridgeSounds Of(GameSession session) => (CartridgeSounds)session.Sounds.Flow;
@@ -75,13 +100,66 @@ public sealed class CartridgeSounds : ISoundFlow
     }
 
     /// <summary>Music is never turned away.</summary>
-    public void AskMusic(string music, int wait) => _music.Ask(music, wait);
+    public void AskMusic(string music, int wait) => _music.AskMusic(music, wait);
+
+    /// <summary>
+    /// Asks for the set of music <paramref name="set"/> to be loaded, behind the music waiting. Loading it stops
+    /// the music.
+    /// </summary>
+    public void AskMusicSet(string set)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(set);
+        ThemeOf(set);
+        _music.AskSet(set);
+    }
+
+    /// <summary>
+    /// A room's version changes the music only when it is another room's or another version than the last one asked
+    /// about, and never during a demonstration, whose music is the title's. Through a door only its set is asked for
+    /// here; otherwise its set and then its music.
+    /// </summary>
+    public void EnterRoom(Room room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        if (DemoPlaying || room.Version is not { } version)
+            return;
+        string asked = $"{room.SceneFilePath}#{room.Versions.IndexOf(version)}";
+        if (asked == _lastRoomAsked)
+            return;
+        _lastRoomAsked = asked;
+        bool setChanges = AskRoomSet(version);
+        if (!DoorTurnsSoundsAway && RoomMusicIsAsked(version, setChanges))
+            AskRoomMusic(version);
+    }
+
+    /// <summary>
+    /// Asks for the music of the room a door has led to, as the door's passage finishes its wait for the music:
+    /// unless the room keeps what is playing, or its music is playing already in the set it names. A room that
+    /// names no set is taken to differ from the one loaded, as the cartridge takes it.
+    /// </summary>
+    public void AskRoomMusic(Room room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        if (room.Version is { } version && RoomMusicIsAsked(version, version.MusicSet != _music.LoadedSet))
+            AskRoomMusic(version);
+    }
 
     /// <inheritdoc/>
     public void OpenUpdate(bool musicTurn)
     {
-        if (musicTurn && _music.TakeTurn())
-            _downtime = MusicChangeDowntime;
+        if (!musicTurn)
+            return;
+        switch (_music.TakeTurn())
+        {
+            case MusicQueue.Turn.MusicChanged:
+                _downtime = MusicChangeDowntime;
+                break;
+            case MusicQueue.Turn.SetLoaded:
+                // Loading a set stops the sound program: what it was asked for is dropped.
+                _programDropsAsked = true;
+                _downtime = MusicChangeDowntime;
+                break;
+        }
     }
 
     /// <inheritdoc/>
@@ -91,7 +169,10 @@ public sealed class CartridgeSounds : ISoundFlow
             TakeSoundTurn();
 
         // The program acts on what this update asked during the update's own samples; what it reports is read by
-        // the next update's turns.
+        // the next update's turns. A set's load came first, as the update opened.
+        if (_programDropsAsked)
+            _clock.DropAsked();
+        _programDropsAsked = false;
         foreach ((string library, string? sound) in _askedOfProgram)
             _clock.Ask(library, sound);
         _askedOfProgram.Clear();
@@ -130,6 +211,43 @@ public sealed class CartridgeSounds : ISoundFlow
                 _askedOfProgram.Add((library, asked));
         }
     }
+
+    /// <summary>
+    /// Asks for a room's set where it names one that is not loaded: the music is stopped and the set loaded, each
+    /// in its turn. True when it was asked for.
+    /// </summary>
+    private bool AskRoomSet(RoomVersion version)
+    {
+        if (version.MusicSet.Length == 0 || version.MusicSet == _music.LoadedSet)
+            return false;
+        _music.AskMusic("", 0);
+        AskMusicSet(version.MusicSet);
+        return true;
+    }
+
+    /// <summary>
+    /// Whether a room's music is asked for: never where it keeps what is playing, always where it is silent, and
+    /// otherwise when its set differs or its music, or the loaded set's theme where it asks for the theme, is not
+    /// what is playing.
+    /// </summary>
+    private bool RoomMusicIsAsked(RoomVersion version, bool setDiffers)
+    {
+        if (version.KeepsMusic)
+            return false;
+        if (version.MusicIsTheme)
+            return setDiffers || ThemeOf(_music.LoadedSet) != _music.Playing;
+        return version.Music.Length == 0 || setDiffers || version.Music != _music.Playing;
+    }
+
+    /// <summary>
+    /// Asks for a room's music with the shortest wait: its piece, or silence, or where it asks for the theme, the
+    /// theme of the set that will be loaded when its turn comes.
+    /// </summary>
+    private void AskRoomMusic(RoomVersion version) =>
+        _music.AskMusic(version.MusicIsTheme ? ThemeOf(_music.SetLoadedAfterWaiting) : version.Music, 0);
+
+    /// <summary>The theme of a set of music, by the set's name.</summary>
+    private string ThemeOf(string set) => _themes.Text(set);
 
     /// <summary>The library a sound belongs to: the part of its name before the first underscore.</summary>
     /// <exception cref="InvalidOperationException">The name begins with none of the three libraries'.</exception>

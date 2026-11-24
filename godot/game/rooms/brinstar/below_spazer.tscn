@@ -20,6 +20,7 @@ LayoutFile = "rooms/brinstar/below_spazer_in_red_brinstar_kraid.json"
 Screens = PackedInt32Array(0, 0, 2, 2)
 ScrollLayout = "BelowSpazer"
 Music = "red_brinstar"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

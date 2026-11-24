@@ -23,12 +23,14 @@ When = SubResource("r1")
 LayoutFile = "rooms/brinstar/mini_kraid_in_red_brinstar_kraid.json"
 Screens = PackedInt32Array(2, 2, 2, 2, 2, 2)
 Music = "elevator"
+MusicSet = "kraid_and_phantoon_battles"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/brinstar/mini_kraid_in_red_brinstar_kraid.json"
 Screens = PackedInt32Array(2, 2, 2, 2, 2, 2)
 Music = "boss_room_tension"
+MusicSet = "kraid_and_phantoon_battles"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

@@ -1,5 +1,6 @@
 using Engine.Ui;
 using Engine.Actors;
+using Engine.Content;
 using Engine.Shared;
 using Engine.World;
 using Godot;
@@ -156,9 +157,10 @@ public partial class GameDefinition : Resource
 
     /// <summary>
     /// Makes what decides how the sounds and music asked for come to be heard. The engine's plain flow, where
-    /// everything starts at once, unless the game's sounds wait their turn in a way of its own.
+    /// everything starts at once, unless the game's sounds wait their turn in a way of its own, which may read the
+    /// game's data from <paramref name="content"/>.
     /// </summary>
-    public virtual ISoundFlow CreateSoundFlow() => new ImmediateSoundFlow();
+    public virtual ISoundFlow CreateSoundFlow(ContentLibrary content) => new ImmediateSoundFlow();
 
     /// <summary>
     /// Makes the mode that takes the player from the room being played through <paramref name="exit"/> to the room it

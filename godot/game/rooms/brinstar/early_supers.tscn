@@ -22,6 +22,7 @@ LayoutFile = "rooms/brinstar/early_supers_in_green_blue_brinstar.json"
 Screens = PackedInt32Array(0, 0, 0, 2, 2, 2)
 ScrollLayout = "EarlySupers"
 Music = "green_brinstar"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

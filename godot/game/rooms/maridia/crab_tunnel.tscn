@@ -17,6 +17,7 @@ LayoutFile = "rooms/maridia/crab_tunnel_in_sandless_maridia.json"
 Screens = PackedInt32Array(2, 2, 2, 2)
 ScrollLayout = "CrabTunnel"
 Music = "west_maridia"
+MusicSet = "maridia"
 
 [node name="CrabTunnel" type="Node2D"]
 script = ExtResource("2")

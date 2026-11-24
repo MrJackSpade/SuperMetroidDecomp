@@ -23,6 +23,7 @@ LayoutFile = "rooms/brinstar/big_pink_in_green_blue_brinstar.json"
 Screens = PackedInt32Array(0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 2, 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0)
 ScrollLayout = "BigPink"
 Music = "green_brinstar"
+MusicSet = "green_brinstar"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

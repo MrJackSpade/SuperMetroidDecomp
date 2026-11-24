@@ -26,6 +26,22 @@ public partial class RoomVersion : Resource
     public bool KeepsMusic { get; set; }
 
     /// <summary>
+    /// The set of music this version's music is of, by name, for a game whose music comes in sets of which one is
+    /// loaded at a time; empty when it names none, and the set already loaded stays. The engine's own flow of sound
+    /// has no sets and does not read it.
+    /// </summary>
+    [Export]
+    public string MusicSet { get; set; } = "";
+
+    /// <summary>
+    /// Whether this version asks for the theme of whatever set of music is loaded, not for a piece of its own.
+    /// <see cref="Music"/> then names the theme of the set the rooms about it load, which is what plays where music
+    /// has no sets.
+    /// </summary>
+    [Export]
+    public bool MusicIsTheme { get; set; }
+
+    /// <summary>
     /// How each screen of the room lets the view in, in this version: a <see cref="ScreenScroll"/> for each, row by row
     /// and each row from the left. Empty for a room every screen of which is open.
     /// </summary>

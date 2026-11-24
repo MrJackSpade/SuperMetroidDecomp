@@ -38,6 +38,7 @@ LayoutFile = "rooms/crateria/pit_in_lower_crateria.json"
 Screens = PackedInt32Array(2, 2, 2, 0, 0, 0)
 ScrollLayout = "Pit"
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
@@ -45,6 +46,7 @@ LayoutFile = "rooms/crateria/pit_in_old_tourian.json"
 Screens = PackedInt32Array(2, 2, 2, 0, 0, 0)
 ScrollLayout = "Pit"
 Music = "crateria_arrival"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")

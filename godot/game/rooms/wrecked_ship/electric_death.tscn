@@ -24,6 +24,7 @@ LayoutFile = "rooms/wrecked_ship/electric_death_in_wrecked_ship_power_on.json"
 Screens = PackedInt32Array(0, 1, 1)
 ScrollLayout = "ElectricDeath"
 Music = "wrecked_ship_powered_up"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -31,6 +32,7 @@ LayoutFile = "rooms/wrecked_ship/electric_death_in_wrecked_ship_power_off.json"
 Screens = PackedInt32Array(0, 1, 1)
 ScrollLayout = "ElectricDeath"
 Music = "wrecked_ship_powered_down"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

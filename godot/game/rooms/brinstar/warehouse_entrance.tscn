@@ -18,6 +18,7 @@ LayoutFile = "rooms/brinstar/warehouse_entrance_in_red_brinstar_kraid.json"
 Screens = PackedInt32Array(2, 0, 1, 0, 2, 2)
 ScrollLayout = "WarehouseEntrance"
 Music = "elevator"
+MusicSet = "red_brinstar"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

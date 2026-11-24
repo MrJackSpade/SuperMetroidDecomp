@@ -16,6 +16,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/brinstar/spore_spawn_kihunters_in_green_blue_brinstar.json"
 Screens = PackedInt32Array(2, 2, 2, 2)
 Music = "green_brinstar"
+MusicSet = "green_brinstar"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

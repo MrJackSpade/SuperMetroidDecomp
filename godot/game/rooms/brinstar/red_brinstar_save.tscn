@@ -15,6 +15,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/brinstar/save_room_door_on_left_in_save_station.json"
 Screens = PackedInt32Array(2)
 Music = "red_brinstar"
+MusicSet = "red_brinstar"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

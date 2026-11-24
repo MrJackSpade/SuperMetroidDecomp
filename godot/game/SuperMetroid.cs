@@ -38,7 +38,7 @@ public partial class SuperMetroid : GameDefinition
     public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
 
     /// <summary>Sounds and music wait their turn as the cartridge's do.</summary>
-    public override ISoundFlow CreateSoundFlow() => new CartridgeSounds();
+    public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) => new CartridgeSounds(content);
 
     /// <summary>A door that scrolls is passed through as the cartridge passes Samus through it; any other way out is the engine's plain change of rooms.</summary>
     public override GameMode CreateRoomTransition(PlayingMode playing, Engine.World.RoomExit exit) =>

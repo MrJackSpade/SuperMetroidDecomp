@@ -84,8 +84,7 @@ public partial class PlayingMode : GameMode
         _roomScene = scene;
         AddChild(_room);
         _room.Setup(Session, Session.Player, entry);
-        if (_room.Version is not { KeepsMusic: true })
-            Session.Sounds.RequestMusic(_room.Version?.Music ?? "");
+        Session.Sounds.EnterRoom(_room);
         _hud?.Refresh(Session, _room);
     }
 

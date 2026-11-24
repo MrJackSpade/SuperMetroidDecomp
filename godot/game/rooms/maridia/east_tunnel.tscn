@@ -19,6 +19,7 @@ LayoutFile = "rooms/maridia/east_tunnel_in_sandless_maridia.json"
 Screens = PackedInt32Array(2, 2, 2, 2, 0, 0, 0, 0)
 ScrollLayout = "EastTunnel"
 Music = "red_brinstar"
+MusicSet = "red_brinstar"
 
 [node name="EastTunnel" type="Node2D"]
 script = ExtResource("2")

@@ -233,20 +233,21 @@ AREA_THEMES = {
 
 def music_of(state: legacy.State, nearby_set: str) -> dict[str, str]:
     """
-    What a version says about music: a name, silence, or that whatever is playing goes on. One that asks for "the
-    theme" without saying of what means the theme of the music set already loaded, which is the set the rooms about
-    it use: `nearby_set`.
+    What a version says about music: a name, silence, or that whatever is playing goes on; the set of music it
+    names, if it names one; and whether it asks for "the theme" of whatever set is loaded. The name written for a
+    theme is that of the set it names or, where it names none, of the set the rooms about it use: `nearby_set`.
     """
+    named = re.search(r'MusicDataSet\.(\w+)', state.music)
+    of_set = {'MusicSet': quoted(snake(named.group(1)))} if named else {}
     track = re.search(r'(?<![A-Za-z])MusicTrack\.(\w+)', state.music)
     if track:
-        return {'Music': quoted(snake(track.group(1)))}
+        return {'Music': quoted(snake(track.group(1))), **of_set}
     if 'PlaysAreaTheme' in state.music:
-        named = re.search(r'MusicDataSet\.(\w+)', state.music)
-        return {'Music': quoted(snake(AREA_THEMES[named.group(1) if named else nearby_set]))}
+        return {'Music': quoted(snake(AREA_THEMES[named.group(1) if named else nearby_set])), **of_set, 'MusicIsTheme': 'true'}
     if 'Silenced' in state.music:
-        return {'Music': quoted('')}
+        return {'Music': quoted(''), **of_set}
     if 'Inherited' in state.music:
-        return {'KeepsMusic': 'true'}
+        return {'KeepsMusic': 'true', **of_set}
     raise ValueError(f'The state {state.name} asks for music this does not know: {state.music}')
 
 

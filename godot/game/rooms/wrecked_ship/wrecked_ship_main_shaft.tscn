@@ -28,6 +28,7 @@ LayoutFile = "rooms/wrecked_ship/wrecked_ship_main_shaft_when_area_boss_dead_in_
 Screens = PackedInt32Array(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 2, 2, 2, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0)
 ScrollLayout = "WreckedShipMainShaft"
 Music = "wrecked_ship_powered_up"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -35,6 +36,7 @@ LayoutFile = "rooms/wrecked_ship/wrecked_ship_main_shaft_default_in_wrecked_ship
 Screens = PackedInt32Array(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 2, 2, 2, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0)
 ScrollLayout = "WreckedShipMainShaft"
 Music = "wrecked_ship_powered_down"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

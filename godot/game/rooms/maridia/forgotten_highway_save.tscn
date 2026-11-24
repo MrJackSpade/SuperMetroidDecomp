@@ -13,6 +13,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/maridia/save_room_door_on_left_in_save_station.json"
 Screens = PackedInt32Array(2)
 Music = "east_maridia"
+MusicSet = "maridia"
 
 [node name="ForgottenHighwaySave" type="Node2D"]
 script = ExtResource("2")

@@ -22,6 +22,7 @@ LayoutFile = "rooms/tourian/dust_torizo_in_tourian.json"
 Screens = PackedInt32Array(2, 2)
 ScrollLayout = "DustTorizo"
 Music = "tourian"
+MusicSet = "tourian"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -29,6 +30,7 @@ LayoutFile = "rooms/tourian/dust_torizo_in_tourian.json"
 Screens = PackedInt32Array(2, 2)
 ScrollLayout = "DustTorizo"
 Music = "baby_metroid_theme"
+MusicSet = "baby_metroid_encounter"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

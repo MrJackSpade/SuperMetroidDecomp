@@ -16,6 +16,7 @@ LayoutFile = "rooms/crateria/forgotten_highway_elevator_in_lower_crateria.json"
 Screens = PackedInt32Array(2)
 ScrollLayout = "ForgottenHighwayElevator"
 Music = "elevator"
+MusicSet = "lower_crateria"
 
 [node name="ForgottenHighwayElevator" type="Node2D"]
 script = ExtResource("2")

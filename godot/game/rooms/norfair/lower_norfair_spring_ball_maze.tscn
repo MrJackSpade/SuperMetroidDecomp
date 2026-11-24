@@ -18,6 +18,7 @@ LayoutFile = "rooms/norfair/lower_norfair_spring_ball_maze_in_heated_norfair.jso
 Screens = PackedInt32Array(1, 0, 0, 0, 0, 2, 2, 0, 0, 0)
 ScrollLayout = "LowerNorfairSpringBallMaze"
 Music = "lower_norfair"
+MusicIsTheme = true
 
 [node name="LowerNorfairSpringBallMaze" type="Node2D"]
 script = ExtResource("2")

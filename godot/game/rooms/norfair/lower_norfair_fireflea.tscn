@@ -20,6 +20,7 @@ LayoutFile = "rooms/norfair/lower_norfair_fireflea_in_unheated_norfair.json"
 Screens = PackedInt32Array(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 2, 2)
 ScrollLayout = "LowerNorfairFireflea"
 Music = "lower_norfair"
+MusicSet = "lower_norfair"
 
 [node name="LowerNorfairFireflea" type="Node2D"]
 script = ExtResource("2")

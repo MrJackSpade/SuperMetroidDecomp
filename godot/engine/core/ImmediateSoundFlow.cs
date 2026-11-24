@@ -1,3 +1,5 @@
+using Engine.World;
+
 namespace Engine.Core;
 
 /// <summary>
@@ -48,6 +50,14 @@ public sealed class ImmediateSoundFlow : ISoundFlow
         if (_music.Count == 0)
             _musicWait = wait;
         _music.Enqueue((music, wait));
+    }
+
+    /// <summary>The room's music is asked for at once, unless its version keeps whatever is playing.</summary>
+    public void EnterRoom(Room room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        if (room.Version is not { KeepsMusic: true })
+            AskMusic(room.Version?.Music ?? "", 0);
     }
 
     /// <inheritdoc/>

@@ -43,6 +43,7 @@ LayoutFile = "rooms/crateria/parlor_in_upper_crateria.json"
 Screens = PackedInt32Array(0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
 ScrollLayout = "Parlor"
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")

@@ -13,6 +13,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/norfair/grapple_tutorial1_in_unheated_norfair.json"
 Screens = PackedInt32Array(2, 2)
 Music = "upper_norfair"
+MusicIsTheme = true
 
 [node name="GrappleTutorial1" type="Node2D"]
 script = ExtResource("2")

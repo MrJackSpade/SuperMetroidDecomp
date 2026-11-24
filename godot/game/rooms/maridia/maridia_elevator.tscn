@@ -17,6 +17,7 @@ LayoutFile = "rooms/maridia/maridia_elevator_in_sandless_maridia.json"
 Screens = PackedInt32Array(1, 1, 1, 1, 1, 2)
 ScrollLayout = "MaridiaElevator"
 Music = "east_maridia"
+MusicSet = "maridia"
 
 [node name="MaridiaElevator" type="Node2D"]
 script = ExtResource("2")

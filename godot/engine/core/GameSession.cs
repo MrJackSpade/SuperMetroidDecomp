@@ -39,7 +39,7 @@ public sealed class GameSession
         Random = new GameRandom(definition.CreateRandomSequence());
         Services = definition.CreateServices();
         ScrollCells = definition.CreateScrollCells();
-        Sounds = new SoundRequests(definition.CreateSoundFlow());
+        Sounds = new SoundRequests(definition.CreateSoundFlow(content));
         int viewHeight = ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32();
         Camera = new Camera(ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(), viewHeight)
         {

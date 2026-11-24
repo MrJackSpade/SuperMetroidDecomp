@@ -19,6 +19,7 @@ LayoutFile = "rooms/maridia/plasma_spark_in_sandless_maridia.json"
 Screens = PackedInt32Array(0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2)
 ScrollLayout = "PlasmaSpark"
 Music = "east_maridia"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

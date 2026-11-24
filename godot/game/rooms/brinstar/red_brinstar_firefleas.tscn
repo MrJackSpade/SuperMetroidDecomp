@@ -20,6 +20,7 @@ LayoutFile = "rooms/brinstar/red_brinstar_firefleas_in_red_brinstar_kraid.json"
 Screens = PackedInt32Array(1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 0, 0, 2, 2, 0, 0)
 ScrollLayout = "RedBrinstarFirefleas"
 Music = "red_brinstar"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

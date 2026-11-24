@@ -19,6 +19,7 @@ LayoutFile = "rooms/maridia/main_street_in_sandless_maridia.json"
 Screens = PackedInt32Array(1, 1, 0, 1, 1, 0, 1, 1, 2, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0)
 ScrollLayout = "MainStreet"
 Music = "west_maridia"
+MusicSet = "maridia"
 
 [node name="MainStreet" type="Node2D"]
 script = ExtResource("2")

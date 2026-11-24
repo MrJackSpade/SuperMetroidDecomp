@@ -29,6 +29,7 @@ LayoutFile = "rooms/brinstar/morph_ball_in_green_blue_brinstar.json"
 Screens = PackedInt32Array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "MorphBall"
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -36,6 +37,7 @@ LayoutFile = "rooms/brinstar/morph_ball_in_green_blue_brinstar.json"
 Screens = PackedInt32Array(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "MorphBall"
 Music = "blue_brinstar_arrival"
+MusicSet = "empty_crateria"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

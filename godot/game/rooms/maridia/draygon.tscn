@@ -30,6 +30,7 @@ LayoutFile = "rooms/maridia/draygon_in_draygon.json"
 Screens = PackedInt32Array(1, 1, 2, 2)
 ScrollLayout = "Draygon"
 Music = "ridley_and_draygon_battle"
+MusicSet = "ridley_and_draygon_battles"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

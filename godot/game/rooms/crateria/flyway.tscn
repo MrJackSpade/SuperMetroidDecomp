@@ -21,6 +21,7 @@ When = SubResource("r1")
 LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
 Screens = PackedInt32Array(2, 2, 2)
 Music = "escape"
+MusicSet = "ridley_and_draygon_battles"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("1")
@@ -33,12 +34,14 @@ When = SubResource("r3")
 LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
 Screens = PackedInt32Array(2, 2, 2)
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
 LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
 Screens = PackedInt32Array(2, 2, 2)
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")

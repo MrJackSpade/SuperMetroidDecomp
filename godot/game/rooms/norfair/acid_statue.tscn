@@ -21,6 +21,7 @@ LayoutFile = "rooms/norfair/acid_statue_in_heated_norfair.json"
 Screens = PackedInt32Array(1, 1, 0, 2, 2, 0, 0, 0, 0)
 ScrollLayout = "AcidStatue"
 Music = "lower_norfair"
+MusicSet = "lower_norfair"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

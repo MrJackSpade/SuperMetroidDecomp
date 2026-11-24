@@ -168,6 +168,15 @@ something that leaves the room.
   sound is heard when the program starts it, on the channel of its library. Music waits in a queue of its own, each
   piece at least eight turns once at the front (`MusicQueue`), and a change of music withdraws what every library
   asks for eight turns.
+  The cartridge's music comes in sets, one loaded at a time (`audio/music_sets.json`: the set loaded at power-on
+  and each set's theme). Loading a set waits its turn in the music's queue like a piece, stops the music, and makes
+  the sound program drop what it was asked. A room whose version names a set that is not loaded has a silence and
+  that set's load asked for; its music is then asked for unless it keeps what plays, or its piece (or the loaded
+  set's theme, where it asks for the theme) is playing already and the set does not change. A version changes the
+  music only when it is not the one last asked about, and never during a demonstration. Through a door only the set
+  is asked for as the room is set up; the door's passage asks for the room's music when its wait for the music
+  ends, and there a room that names no set is taken to differ from the one loaded, as the cartridge takes it. The
+  game's own code asks for a set with `CartridgeSounds.AskMusicSet`.
 
 **Why, and extending it.** The layers exist so the game can be thrown away and the engine kept. Everything else
 here follows from that. When unsure which layer something goes in, imagine the fork: the new game has a different
@@ -351,7 +360,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `SaveFile` | The save slots; in each, the saved form of `Progress`, the player's `Inventory`, and where the player resumes | Reading, writing, copying and clearing slots. | Exist as live state during play. |
 | `Options` | Button bindings, language, and the toggles the `GameDefinition` lists | Reading and writing them outside any save slot. | Change during an update. |
 | `SoundRequests` | The session's `ISoundFlow` | Being where gameplay asks to hear something: a sound by name, on a named channel, with a `SoundPriority` (how readily it gives way when sounds are waiting), answered with a `SoundAdmission` (whether it was let in, and how many were waiting); every sound to stop (the music plays on), as when the game is paused; music by name, with a wait. Answering whether sounds or music asked for are still waiting. | Play anything, or decide by itself what is let in or when it starts. |
-| `ISoundFlow` | Whatever a game's way with sound keeps: what waits, and what is playing as gameplay sees it | Deciding how what is asked for comes to be heard: whether each sound is let in, how long it and the music wait, and on which update each starts. The session opens every update with it before the mode in control plays (the music's turn) and closes every update with it after (the sounds' turns); the mode says, as its update begins, whether the music gets its turn and how many turns the sounds get (`GameMode.GivesMusicItsTurn`, `SoundTurns`). The engine's own, `ImmediateSoundFlow`, lets everything in and starts it at once on the channel asked, and nothing waits; a game supplies another through `GameDefinition.CreateSoundFlow`. It is game state, moved on once an update. | Depend on a sound device, or play anything. |
+| `ISoundFlow` | Whatever a game's way with sound keeps: what waits, and what is playing as gameplay sees it | Deciding how what is asked for comes to be heard: whether each sound is let in, how long it and the music wait, and on which update each starts. The session asks it for a room's music as the room is set up for the player's arrival (`EnterRoom`; the engine's own asks for the version's music at once unless the version keeps what plays). The session opens every update with it before the mode in control plays (the music's turn) and closes every update with it after (the sounds' turns); the mode says, as its update begins, whether the music gets its turn and how many turns the sounds get (`GameMode.GivesMusicItsTurn`, `SoundTurns`). The engine's own, `ImmediateSoundFlow`, lets everything in and starts it at once on the channel asked, and nothing waits; a game supplies another through `GameDefinition.CreateSoundFlow`, which is handed the game's content to read its data from. It is game state, moved on once an update. | Depend on a sound device, or play anything. |
 | `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play after the room has been stepped, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. One with something to do before the room acts is an `IUpdateOpener` as well: the room calls it as each of its updates opens, before the player's input is read, whatever is stopped. | Belong to a room. |
 | `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. A session service; when time is up it hands over to its time-up mode. | Know which room the player is in. |
 
@@ -359,7 +368,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 can give what it remembers as `Progress` of its own, for showing a saved game without loading it. A game saved to
 resume at an entry point records the fact that it has been saved there (`SaveData.SavedAtFact`), which is in the
 save.
-`RoomVersion` is one set of a room's settings (its layout file, which of the layout's patches are in place, its music) with the `Condition` it applies under.
+`RoomVersion` is one set of a room's settings (its layout file, which of the layout's patches are in place, its music) with the `Condition` it applies under. Its music is a piece by name, silence, or keeping whatever plays; for a game whose music comes in sets it also names the set its music is of (`MusicSet`, empty for none) and says whether it asks for the theme of whatever set is loaded (`MusicIsTheme`), which the engine's own flow of sound does not read.
 
 **The engine's modes.** The engine provides the modes any game has. This game adds title, attract demo, file
 select, options, game over, time up, and one per cinematic.

@@ -16,6 +16,7 @@ LayoutFile = "rooms/tourian/tourian_escape1_in_tourian.json"
 Screens = PackedInt32Array(1, 1)
 ScrollLayout = "TourianEscape1"
 Music = "escape"
+MusicSet = "ridley_and_draygon_battles"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

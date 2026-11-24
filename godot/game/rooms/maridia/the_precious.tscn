@@ -25,6 +25,7 @@ LayoutFile = "rooms/maridia/the_precious_in_sandy_maridia.json"
 Screens = PackedInt32Array(2, 2, 0, 0, 2, 0)
 ScrollLayout = "ThePrecious"
 Music = "east_maridia"
+MusicSet = "maridia"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")

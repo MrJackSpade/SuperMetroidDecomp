@@ -14,6 +14,7 @@ LayoutFile = "rooms/tourian/save_room_door_on_right_in_save_station.json"
 Screens = PackedInt32Array(2)
 ScrollLayout = "MotherBrainSave"
 Music = "tourian"
+MusicSet = "tourian"
 
 [node name="MotherBrainSave" type="Node2D"]
 script = ExtResource("2")

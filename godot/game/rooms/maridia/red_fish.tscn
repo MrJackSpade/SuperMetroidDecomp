@@ -18,6 +18,7 @@ LayoutFile = "rooms/maridia/red_fish_in_sandless_maridia.json"
 Screens = PackedInt32Array(2, 0, 1, 0, 0, 1)
 ScrollLayout = "RedFish"
 Music = "west_maridia"
+MusicSet = "maridia"
 
 [node name="RedFish" type="Node2D"]
 script = ExtResource("2")

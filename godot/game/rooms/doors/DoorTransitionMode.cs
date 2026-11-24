@@ -217,9 +217,16 @@ public partial class DoorTransitionMode : GameMode
                 break;
 
             case Stage.WaitingForMusic:
+                // Once no music waits, the room's own is asked for: its set was asked for as it was set up.
                 room.OpenUpdate(movesLiquid: true);
                 if (!Session.Sounds.HasQueuedMusic)
+                {
+                    CartridgeSounds sounds = CartridgeSounds.Of(Session);
+                    if (!sounds.DemoPlaying)
+                        sounds.AskRoomMusic(room);
                     _stage = Stage.Finishing;
+                }
+
                 break;
 
             case Stage.Finishing:

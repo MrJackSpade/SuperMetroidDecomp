@@ -1,3 +1,5 @@
+using Engine.World;
+
 namespace Engine.Core;
 
 /// <summary>
@@ -31,6 +33,12 @@ public interface ISoundFlow
     /// <param name="music">The music, by name.</param>
     /// <param name="wait">How many updates it waits before it plays, once its turn has come; none for the shortest wait there is.</param>
     void AskMusic(string music, int wait);
+
+    /// <summary>
+    /// A room has been set up for the player's arrival: its version's music is asked for, in whatever way the flow
+    /// asks for a room's music.
+    /// </summary>
+    void EnterRoom(Room room);
 
     /// <summary>Opens an update, before the mode in control plays it.</summary>
     /// <param name="musicTurn">Whether the music waiting gets its turn.</param>

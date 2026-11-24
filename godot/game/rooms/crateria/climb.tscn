@@ -28,6 +28,7 @@ LayoutFile = "rooms/crateria/climb_in_lower_crateria.json"
 Screens = PackedInt32Array(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 2, 0)
 ScrollLayout = "Climb"
 Music = "escape"
+MusicSet = "ridley_and_draygon_battles"
 Patches = PackedStringArray("escape_wall_destroyed")
 
 [sub_resource type="Resource" id="r3"]
@@ -42,6 +43,7 @@ LayoutFile = "rooms/crateria/climb_in_lower_crateria.json"
 Screens = PackedInt32Array(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 2, 0)
 ScrollLayout = "Climb"
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")

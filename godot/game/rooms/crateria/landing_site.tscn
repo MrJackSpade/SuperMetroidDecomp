@@ -41,6 +41,7 @@ LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 Screens = PackedInt32Array(0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "LandingSite"
 Music = "samus_theme"
+MusicSet = "upper_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("1")
@@ -54,6 +55,7 @@ LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 Screens = PackedInt32Array(0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "LandingSite"
 Music = "crateria_arrival_zebes_awake"
+MusicSet = "empty_crateria"
 
 [sub_resource type="Resource" id="r7"]
 script = ExtResource("2")
@@ -61,6 +63,7 @@ LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 Screens = PackedInt32Array(0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "LandingSite"
 Music = "crateria_arrival"
+MusicSet = "empty_crateria"
 
 [sub_resource type="Resource" id="r8"]
 script = ExtResource("1")

@@ -21,6 +21,7 @@ LayoutFile = "rooms/crateria/west_ocean_in_upper_crateria.json"
 Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "WestOcean"
 Music = "samus_theme"
+MusicSet = "upper_crateria"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

@@ -22,12 +22,14 @@ When = SubResource("r1")
 LayoutFile = "rooms/wrecked_ship/save_room_door_on_left_in_map_statues.json"
 Screens = PackedInt32Array(2)
 Music = "wrecked_ship_powered_up"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/wrecked_ship/save_room_door_on_left_in_wrecked_ship_map_power_off.json"
 Screens = PackedInt32Array(2)
 Music = "wrecked_ship_powered_down"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

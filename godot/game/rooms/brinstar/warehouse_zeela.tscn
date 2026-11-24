@@ -18,6 +18,7 @@ LayoutFile = "rooms/brinstar/warehouse_zeela_in_red_brinstar_kraid.json"
 Screens = PackedInt32Array(2, 0, 0, 2)
 ScrollLayout = "WarehouseZeela"
 Music = "red_brinstar"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

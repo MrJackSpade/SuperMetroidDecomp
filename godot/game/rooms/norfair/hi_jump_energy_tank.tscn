@@ -19,6 +19,7 @@ LayoutFile = "rooms/norfair/hi_jump_energy_tank_in_unheated_norfair.json"
 Screens = PackedInt32Array(0, 2, 0, 0)
 ScrollLayout = "HiJumpEnergyTank"
 Music = "upper_norfair"
+MusicIsTheme = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

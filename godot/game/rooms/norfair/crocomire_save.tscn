@@ -13,6 +13,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/norfair/save_room_door_on_left_in_save_station.json"
 Screens = PackedInt32Array(2)
 Music = "upper_norfair"
+MusicSet = "upper_norfair"
 
 [node name="CrocomireSave" type="Node2D"]
 script = ExtResource("2")

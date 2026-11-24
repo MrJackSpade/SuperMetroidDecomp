@@ -13,6 +13,7 @@ script = ExtResource("1")
 LayoutFile = "rooms/crateria/save_room_door_on_right_in_save_station.json"
 Screens = PackedInt32Array(2)
 Music = "lower_crateria"
+MusicSet = "lower_crateria"
 
 [node name="CrateriaSave" type="Node2D"]
 script = ExtResource("2")

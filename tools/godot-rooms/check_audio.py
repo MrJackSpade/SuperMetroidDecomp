@@ -2,7 +2,8 @@
 
 The audio writer writes one sound file for each of the old game's sounds, named for the library it is in and its
 name there ("samus_", "enemy_" or "room_" and the old name in lower case with underscores), one file of nothing for each of its requests that only stop sounds ("stop" after the library), and
-one music file for each of the old game's tracks, named likewise. This reads the sources as text: the Godot game's
+one music file for each of the old game's tracks, named likewise. A set of music a room's version or the game's code
+names must be one of the old game's sets, named likewise. This reads the sources as text: the Godot game's
 code and scenes, the room generator's rules and the extractor's writers, and lists every name asked for that is
 none of those.
 
@@ -43,9 +44,11 @@ for library, prefix in (('SamusSound', 'samus_'), ('EnemySound', 'enemy_'), ('Ro
     # A request that only stops sounds: "stop" after its library, and what it stops unless it stops everything.
     SOUNDS.update(prefix + ('stop' if member == 'Any' else 'stop_' + snake(member)) for member in members(library + 'Stop'))
 MUSIC = {snake(member) for member in members('MusicTrack')}
+SETS = {snake(member) for member in members('MusicDataSet')}
 
 asked_sounds: dict[str, str] = {}
 asked_music: dict[str, str] = {}
+asked_sets: dict[str, str] = {}
 problems: list[str] = []
 
 NAME = r'"([a-z0-9_]*)"'
@@ -68,9 +71,11 @@ for path in glob.glob(os.path.join(GODOT, '**', '*.cs'), recursive=True):
         asked_sounds[name] = where
     for name in re.findall(r'\bRequestMusic\(\s*' + NAME, text):
         asked_music[name] = where
+    for name in re.findall(r'\bAskMusicSet\(\s*' + NAME, text):
+        asked_sets[name] = where
     for name in re.findall(r'public string \w*Sound(?!Folder)\w* \{ get; (?:set|init); \} = ' + NAME, text):
         asked_sounds[name] = where
-    for name in re.findall(r'public string \w*(?:Music(?!Folder)|Fanfare)\w* \{ get; (?:set|init); \} = ' + NAME, text):
+    for name in re.findall(r'public string (?!MusicSet\b)\w*(?:Music(?!Folder)|Fanfare)\w* \{ get; (?:set|init); \} = ' + NAME, text):
         asked_music[name] = where
 
 # Scenes, and the rules that generate the rooms' scenes: any property of a sound or of music.
@@ -79,8 +84,10 @@ for path in glob.glob(os.path.join(GODOT, 'game', '**', '*.tscn'), recursive=Tru
     text = read(path)
     for name in re.findall(r'^\w*Sound\w* = ' + NAME, text, re.M):
         asked_sounds[name] = where
-    for name in re.findall(r'^\w*(?:Music|Fanfare)\w* = ' + NAME, text, re.M):
+    for name in re.findall(r'^(?!MusicSet\b)\w*(?:Music|Fanfare)\w* = ' + NAME, text, re.M):
         asked_music[name] = where
+    for name in re.findall(r'^MusicSet = ' + NAME, text, re.M):
+        asked_sets[name] = where
     for listed in re.findall(r'^\w*Sounds\w* = \w*\((.*)\)\s*$', text, re.M):
         for name in re.findall(NAME, listed):
             asked_sounds[name] = where
@@ -91,7 +98,7 @@ for path in glob.glob(os.path.join(ROOT, 'tools', 'godot-rooms', '*.py')):
     text = read(path)
     for name in re.findall(r"'\w*Sound\w*': quoted\('([a-z0-9_]*)'\)", text):
         asked_sounds[name] = where
-    for name in re.findall(r"'\w*(?:Music|Fanfare)\w*': quoted\('([a-z0-9_]*)'\)", text):
+    for name in re.findall(r"'(?!MusicSet\b)\w*(?:Music|Fanfare)\w*': quoted\('([a-z0-9_]*)'\)", text):
         asked_music[name] = where
 
 # The extractor's writers name sounds through EngineNames.Sound, which names them rightly by its making; a name
@@ -112,6 +119,9 @@ for name, where in sorted(asked_sounds.items()):
 for name, where in sorted(asked_music.items()):
     if name and name not in MUSIC:
         problems.append(f'{where} asks for the music "{name}", which is none of the old game\'s tracks')
+for name, where in sorted(asked_sets.items()):
+    if name and name not in SETS:
+        problems.append(f'{where} names the set of music "{name}", which is none of the old game\'s sets')
 
 for problem in problems:
     print(problem)

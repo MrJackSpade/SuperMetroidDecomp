@@ -26,6 +26,7 @@ LayoutFile = "rooms/wrecked_ship/attic_when_area_boss_dead_in_wrecked_ship_power
 Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1)
 ScrollLayout = "Attic"
 Music = "wrecked_ship_powered_up"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -33,6 +34,7 @@ LayoutFile = "rooms/wrecked_ship/attic_default_in_wrecked_ship_power_off.json"
 Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1)
 ScrollLayout = "Attic"
 Music = "wrecked_ship_powered_down"
+MusicSet = "wrecked_ship"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

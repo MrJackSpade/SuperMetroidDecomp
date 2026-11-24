@@ -17,6 +17,7 @@ LayoutFile = "rooms/tourian/tourian_first_in_tourian.json"
 Screens = PackedInt32Array(1, 1, 1, 2)
 ScrollLayout = "TourianFirst"
 Music = "tourian"
+MusicSet = "tourian"
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

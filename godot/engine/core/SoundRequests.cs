@@ -1,3 +1,5 @@
+using Engine.World;
+
 namespace Engine.Core;
 
 /// <summary>
@@ -56,6 +58,13 @@ public sealed class SoundRequests
     {
         ArgumentNullException.ThrowIfNull(music);
         Flow.AskMusic(music, wait);
+    }
+
+    /// <summary>Asks for the music of a room that has been set up for the player's arrival.</summary>
+    public void EnterRoom(Room room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        Flow.EnterRoom(room);
     }
 
     /// <summary>Whether everything sounding is to fall silent at once; asking takes the request. The audio director asks.</summary>

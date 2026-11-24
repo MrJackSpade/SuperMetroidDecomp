@@ -17,6 +17,7 @@ LayoutFile = "rooms/crateria/crateria_kihunter_in_upper_crateria.json"
 Screens = PackedInt32Array(2, 2, 2, 0, 0, 0, 0, 1, 0)
 ScrollLayout = "CrateriaKihunter"
 Music = "crateria_arrival"
+MusicIsTheme = true
 
 [node name="CrateriaKihunter" type="Node2D"]
 script = ExtResource("2")

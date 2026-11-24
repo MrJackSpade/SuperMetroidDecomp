@@ -28,6 +28,7 @@ LayoutFile = "rooms/tourian/blue_hopper_in_tourian.json"
 Screens = PackedInt32Array(2, 2)
 ScrollLayout = "BlueHopper"
 Music = "baby_metroid_theme"
+MusicSet = "baby_metroid_encounter"
 
 [node name="BlueHopper" type="Node2D"]
 script = ExtResource("3")

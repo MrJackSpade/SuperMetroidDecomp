@@ -93,7 +93,7 @@ public sealed class JumpingState : PlayerState
         }
 
         owner.AimFromInput();
-        _stanceAsked = AirStance.Of(owner, forwardCounts: true);
+        _stanceAsked = Stance.Kept(AirStance.Of(owner, forwardCounts: true));
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: true);
         return AirStance.AsksNothing(owner, jumpCounts: true) ? null : this;

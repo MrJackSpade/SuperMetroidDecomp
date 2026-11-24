@@ -31,7 +31,8 @@ public sealed class FallingState : PlayerState
         owner.AimFromInput();
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: false);
-        _stanceAsked = AirStance.Of(owner, forwardCounts: false);
+        AirStance asked = AirStance.Of(owner, forwardCounts: false);
+        _stanceAsked = _stance is { } held ? held.Kept(asked) : asked;
         return AirStance.AsksNothing(owner, jumpCounts: false) ? null : this;
     }
 

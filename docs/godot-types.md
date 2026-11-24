@@ -700,7 +700,8 @@ in `engine/actors/player/`.
   ground may first gather itself for `jump_start_updates`, moving nothing of the player's own. Both steer by the air
   rule (`SteerAndMoveInAir`): steered with neither direction held, the player stops across at once and does not move
   across that update; unsteered or reversing they carry on. A player taking up a new stance in the air (`AirStance`:
-  their aim, and aiming level in a jump whether they steer the way they face or hold the attack, `AirArm`) has their
+  their aim, and aiming level in a jump whether they steer the way they face or hold the attack, `AirArm`; a stance
+  with the arm held out keeps itself until some other stance than the arm at rest is asked for) has their
   steering set afresh: unsteered while a dash still carries them, else steered. A jump holds a stance from its
   start: one from the ground starts in the stance of the aim the player has as it begins, their arm at rest, and
   holds it while it gathers, the input asked nothing; as the gathering ends the game's player is told

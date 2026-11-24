@@ -32,6 +32,14 @@ public readonly record struct AirStance(Aim Aim, AirArm Arm)
     }
 
     /// <summary>
+    /// The stance held next when <paramref name="asked"/> is what the input asks for: a stance with the arm held out
+    /// keeps itself where the input asks only for the arm at rest, so that letting the attack go does not lower the
+    /// arm; any other stance asked for is taken.
+    /// </summary>
+    public AirStance Kept(AirStance asked) =>
+        this is { Aim: Aim.Forward, Arm: AirArm.Out } && asked is { Aim: Aim.Forward, Arm: AirArm.AtRest } ? this : asked;
+
+    /// <summary>
     /// The form of a player in the air: the form for aiming straight down while they do, where the game gives one,
     /// and otherwise the form named <paramref name="airForm"/>, or the upright form where the game gives none of that
     /// name.

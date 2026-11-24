@@ -64,9 +64,9 @@ ArrivalOffset = Vector2i(40, 40)
 
 [node name="Botwoon" parent="." instance=ExtResource("6")]
 position = Vector2(128, 128)
-WallPatch = "wall_down"
 VictoryMusic = "elevator"
 AlwaysActive = true
+ToldWhenWallFalls = Array[NodePath]([NodePath("../Screen1x0")])
 PresentWhen = SubResource("r4")
 
 [node name="Encounter" type="Node2D" parent="."]
@@ -91,6 +91,7 @@ DataFile = "objects/door_cap_blue_left.json"
 script = ExtResource("9")
 position = Vector2(256, 0)
 StartsOpen = false
+PresentWhen = SubResource("r4")
 
 [node name="Screen0x0Foot" type="Node2D" parent="."]
 script = ExtResource("9")

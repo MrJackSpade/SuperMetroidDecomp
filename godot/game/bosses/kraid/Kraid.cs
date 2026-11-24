@@ -221,7 +221,6 @@ public partial class Kraid : Enemy
     private readonly List<(int Health, string Shade, int EyeGlowUpdates)> _healthShades = [];
     private readonly List<(bool Hurt, int Updates)> _hurtFlash = [];
     private readonly List<Pixels> _spitSpeeds = [];
-    private readonly List<PatchSequence> _changes = [];
     private ColliderPoses? _headPoses;
     private ColliderPoses? _armPoses;
     private PatchSequence? _deathSpikes;
@@ -441,9 +440,6 @@ public partial class Kraid : Enemy
     protected override void Behave()
     {
         Player samus = Room.Player;
-        foreach (PatchSequence change in _changes)
-            change.Step(Room);
-        _changes.RemoveAll(change => change.IsOver);
         StepColours();
         if (_stage is Stage.Fighting or Stage.Growing)
             PushSamusOut(samus);
@@ -659,7 +655,7 @@ public partial class Kraid : Enemy
                 {
                     Crumble rock = _ceilingRocks[_nextCeilingRock++];
                     DropCeilingRock(rock.RockX);
-                    _changes.Add(rock.Change.FromStart());
+                    Room.Play(rock.Change.FromStart());
                 }
 
                 if (Position.Y.Whole < GrownY)
@@ -712,7 +708,7 @@ public partial class Kraid : Enemy
                 PlayPart("Head", "head_death", restart: true);
                 _fade = 0;
                 if (_deathSpikes is { } spikes)
-                    _changes.Add(spikes.FromStart());
+                    Room.Play(spikes.FromStart());
                 _death = Death.FadeOut;
                 break;
 
@@ -749,7 +745,7 @@ public partial class Kraid : Enemy
                 if (_sinkCrumbles.FirstOrDefault(step => step.At == Position.Y.Whole) is { } crumble)
                 {
                     DropCeilingRock(crumble.RockX);
-                    _changes.Add(crumble.Change.FromStart());
+                    Room.Play(crumble.Change.FromStart());
                 }
 
                 Position += PixelOffset.FromWhole(0, 1);

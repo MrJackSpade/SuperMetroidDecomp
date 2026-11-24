@@ -16,17 +16,25 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// Its head plays "hidden", and "moving_" and "spitting_" followed by one of the eight ways it can point; the cue
-/// "spit_frame" of a spitting timeline lets the volley go. The visuals "Body1" through "Body13", tail first, play
-/// "body_" or "tail_" and a way, and the hitboxes "BodyHit1" through "BodyHit13" are those segments. Its data gives
-/// its four holes under "holes", in the room's own pixels, and its paths under "paths": where each runs from and to,
-/// whether through the open or inside the wall, and its steps as one digit each, 0 for up and on round clockwise.
-/// Its shot is "spit". Its falls follow the speed curve its data names.
+/// "spit_frame" of a spitting timeline lets the volley go, and "radius:" with a half-width and a half-height sizes
+/// its head for the way it points. The visuals "Body1" through "Body13", tail first, play "body_" or "tail_" and a
+/// way, and the hurtboxes "BodyHit1" through "BodyHit13" are those segments, which stop shots and are not hurt. Its
+/// data gives its four holes under "holes", in the room's own pixels, and its paths under "paths": where each runs
+/// from and to, whether through the open or inside the wall, and its steps as one digit each, 0 for up and on round
+/// clockwise; "health_shades", in the order it shows them, the set of its pictures it shows once its health is
+/// "below" each, a picture's path holding "{shade}" where the set's name goes; and "wall_crumble", the change to the
+/// terrain that brings its wall down (<see cref="Engine.World.PatchSequence"/>). Its shot is "spit". Its falls follow
+/// the speed curve its data names.
 /// </remarks>
 public partial class Botwoon : Enemy
 {
-    /// <summary>The terrain patch that brings its wall down when it dies.</summary>
+    /// <summary>The things told as its wall begins to fall, so that the view may go on past it.</summary>
     [Export]
-    public string WallPatch { get; set; } = "";
+    public Godot.Collections.Array<NodePath> ToldWhenWallFalls { get; set; } = [];
+
+    /// <summary>What they are told.</summary>
+    [Export]
+    public string WallFallsMessage { get; set; } = "open";
 
     /// <summary>The music that plays once it is dead, by name.</summary>
     [Export]
@@ -59,6 +67,10 @@ public partial class Botwoon : Enemy
     /// <summary>The effect of an explosion, by the data file of its timeline.</summary>
     [Export, DataValue("explosion_effect")]
     public string ExplosionEffect { get; set; } = "";
+
+    /// <summary>The effect of an explosion on its wall as it falls.</summary>
+    [Export, DataValue("wall_explosion_effect")]
+    public string WallExplosionEffect { get; set; } = "";
 
     /// <summary>The effect of a puff of smoke.</summary>
     [Export, DataValue("smoke_effect")]
@@ -121,6 +133,10 @@ public partial class Botwoon : Enemy
     private readonly int[] _segmentFallWait = new int[Segments];
     private readonly int[] _segmentFallPlace = new int[Segments];
     private readonly bool[] _segmentLanded = new bool[Segments];
+    private readonly List<(int Below, string Shade)> _healthShades = [];
+    private Engine.World.PatchSequence? _wallCrumble;
+    private int _shown = -1;
+    private string _shade = "";
     private SpeedCurve? _curve;
     private TimelinePlayer? _ripple;
     private Phase _phase;
@@ -168,6 +184,24 @@ public partial class Botwoon : Enemy
                 throw path.Problem("has a step that is not one of the eight ways, 0 through 7");
             _paths.Add(new Path(path.Int("from"), path.Int("to"), path.Flag("inside_wall"), steps));
         }
+
+        _healthShades.Clear();
+        _healthShades.AddRange(data.List("health_shades").Select(band => (band.Int("below"), band.Text("shade"))));
+        _wallCrumble = Engine.World.PatchSequence.Read(data.Get("wall_crumble"));
+    }
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => Shaded(step.Picture);
+
+    /// <summary>A picture's path with the set of its pictures it shows put where the path leaves room for one.</summary>
+    private string Shaded(string picture) => picture.Replace("{shade}", _shade, StringComparison.Ordinal);
+
+    /// <inheritdoc/>
+    protected override Reaction ReactionTo(Hit hit, Collider part)
+    {
+        // Only its head is hurt; a segment of its body stops a shot and takes nothing from it.
+        Reaction reaction = base.ReactionTo(hit, part);
+        return part.Name == "Hurtbox" ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
     }
 
     /// <inheritdoc/>
@@ -191,7 +225,16 @@ public partial class Botwoon : Enemy
     protected override void OnCue(string cue)
     {
         if (cue == "spit_frame")
+        {
             _head = HeadDoing.SpitAimed;
+            return;
+        }
+
+        string[] parts = cue.Split(':');
+        if (parts[0] != "radius")
+            throw new InvalidOperationException($"Botwoon's timeline \"{Playing}\" gives the cue \"{cue}\", which it does not know.");
+        int across = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), down = int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture);
+        GetNode<Collider>("Hurtbox").Rect = new PixelRect(-across, -down, across * 2, down * 2);
     }
 
     /// <inheritdoc/>
@@ -206,13 +249,17 @@ public partial class Botwoon : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (_death == Death.Alive && !(part.Role == ColliderRole.Hurtbox && _insideHole))
+        if (_death == Death.Alive && !(part.Name == "Hurtbox" && _insideHole))
             base.Touch(part);
     }
 
     /// <inheritdoc/>
     protected override void Behave()
     {
+        // Its colours move on one set an update for as long as its health is below what the next one waits for.
+        if (_shown + 1 < _healthShades.Count && Health.Current < _healthShades[_shown + 1].Below)
+            _shade = _healthShades[++_shown].Shade;
+
         if (_death == Death.AwaitingTailExit && _tailExited)
         {
             _death = Death.Dying;
@@ -310,9 +357,12 @@ public partial class Botwoon : Enemy
         return wait.IsOver;
     }
 
-    /// <summary>The name of the way an offset points, of eight.</summary>
-    private static string WayOf(int across, int down) =>
-        Ways[Turns.Wrap(Turns.AngleOf(across, down) + Turns.PerTurn / 4 + Turns.PerTurn / 16) * Ways.Length / Turns.PerTurn];
+    /// <summary>
+    /// The name of the way an offset points, of eight: the nearest of them where that is asked for, as its aim takes
+    /// it, and otherwise the one it has last turned past going clockwise, as its head and body take theirs as they move.
+    /// </summary>
+    private static string WayOf(int across, int down, bool nearest = false) =>
+        Ways[Turns.Wrap(Turns.AngleOf(across, down) + Turns.PerTurn / 4 + (nearest ? Turns.PerTurn / 16 : 0)) * Ways.Length / Turns.PerTurn];
 
     /// <summary>The speed curve its falls follow.</summary>
     private SpeedCurve Curve => _curve ?? throw new InvalidOperationException("Botwoon is not in a room.");
@@ -472,7 +522,7 @@ public partial class Botwoon : Enemy
                 ZIndex = 1;
                 PixelOffset toSamus = Target - Position;
                 _spitAngle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
-                Play($"spitting_{WayOf(toSamus.X.Whole, toSamus.Y.Whole)}");
+                Play($"spitting_{WayOf(toSamus.X.Whole, toSamus.Y.Whole, nearest: true)}");
                 _head = HeadDoing.WaitingForSpitFrame;
                 break;
 
@@ -536,8 +586,10 @@ public partial class Botwoon : Enemy
     private void BeginWallFall()
     {
         _phase = Phase.WallFalling;
-        if (WallPatch.Length > 0)
-            Room.Terrain.ApplyPatch(WallPatch);
+        if (_wallCrumble is { } crumble)
+            Room.Play(crumble.FromStart());
+        foreach (NodePath path in ToldWhenWallFalls)
+            (GetNode(path) as Engine.World.ITriggerTarget ?? throw new InvalidOperationException($"Botwoon is to tell \"{path}\" that its wall falls, but that is nothing that can be told.")).Triggered(WallFallsMessage);
         for (int drop = 0; drop < WallDrops; drop++)
         {
             RandomDraw draw = Random.Draw();
@@ -562,7 +614,10 @@ public partial class Botwoon : Enemy
             if (--_largeIn <= 0)
             {
                 _largeIn = 13;
-                Explode(PixelPosition.FromWhole(WallX + Random.Draw().Part(0, 5), top + Random.Draw().Part(0, 5)));
+                PixelPosition burst = PixelPosition.FromWhole(WallX + Random.Draw().Part(0, 5), top + Random.Draw().Part(0, 5));
+                if (WallExplosionEffect.Length > 0)
+                    LeaveEffect(WallExplosionEffect, burst);
+                Sound(ExplosionSound);
             }
 
             if (--_smallIn <= 0)
@@ -593,8 +648,10 @@ public partial class Botwoon : Enemy
                 if (!hidden)
                 {
                     FrameTimeline look = Timelines.Get($"{(segment == 0 ? "tail" : "body")}_{WayOf(ahead.X - x, ahead.Y - y)}");
-                    int frame = _ripple is null ? 0 : _ripple.StepIndex % look.Steps.Count;
-                    visual.Show(look.Steps[frame]);
+                    TimelineStep step = look.Steps[_ripple is null ? 0 : _ripple.StepIndex % look.Steps.Count];
+                    visual.Show(step with { Picture = Shaded(step.Picture) });
+                    // Its body flashes with its head.
+                    visual.Tint(IsFlashing && Updates % 2 == 0 ? new Color(2f, 2f, 2f) : Colors.White);
                 }
             }
 

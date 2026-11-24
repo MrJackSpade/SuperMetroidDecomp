@@ -49,7 +49,16 @@ public sealed partial class EngineAssetWriter
     /// <param name="leaves">The name of the patch its last frame is, where the Godot project asks for it by a name of its own.</param>
     private JsonObject TerrainChangeAt(
         IReadOnlyList<(RoomDefinition Room, RoomStateSettings State)> states, string name, Position16<RoomBlocks> block, TerrainChange change,
-        string directory, Func<RoomObjectDraw, (string Frame, RoomBlockShape Shape)> drawn, string? leaves = null)
+        string directory, Func<RoomObjectDraw, (string Frame, RoomBlockShape Shape)> drawn, string? leaves = null) =>
+        TerrainChangeAt(states, name, block, change, draw => (directory, drawn(draw).Frame, drawn(draw).Shape), leaves);
+
+    /// <summary>
+    /// As the other <c>TerrainChangeAt</c>, for a change whose frames are not all kept in one installed directory:
+    /// <paramref name="drawn"/> says, for what a frame draws, the directory as well.
+    /// </summary>
+    private JsonObject TerrainChangeAt(
+        IReadOnlyList<(RoomDefinition Room, RoomStateSettings State)> states, string name, Position16<RoomBlocks> block, TerrainChange change,
+        Func<RoomObjectDraw, (string Directory, string Frame, RoomBlockShape Shape)> drawn, string? leaves = null)
     {
         if (change.Frames.Count == 0)
             throw new InvalidDataException($"The change {name} to a room's blocks draws nothing.");
@@ -61,8 +70,9 @@ public sealed partial class EngineAssetWriter
             at += frame.MoveBefore;
             bool last = index == change.Frames.Count - 1;
             string patch = last && leaves is not null ? leaves : $"{name}_{index + 1}";
+            (string directory, string picture, RoomBlockShape shape) = drawn(frame.Draw);
             foreach ((RoomDefinition room, RoomStateSettings state) in states)
-                Layouts.Patch(room, state, patch, at, Layouts.PatchCells(directory, drawn(frame.Draw)));
+                Layouts.Patch(room, state, patch, at, Layouts.PatchCells(directory, (picture, shape)));
             var step = new JsonObject { ["patch"] = patch };
             if (!last)
                 step["updates"] = frame.Updates;

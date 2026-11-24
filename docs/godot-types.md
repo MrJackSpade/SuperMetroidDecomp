@@ -448,8 +448,9 @@ tile data. A patch applied for good is remembered like anything else.
 
 **Terrain that changes over some updates.** A change that plays out, such as a wall crumbling through several
 pictures before it is gone, is a `PatchSequence`: named patches applied one after another, each standing its own
-number of updates, with a sound a step may ask for. It is data of whoever plays it, who steps it once an update for
-as long as it runs; the patch that is left is the one a room that begins after the change is given.
+number of updates, with a sound a step may ask for. It is data of whatever sets it off, which hands it to the room
+to play; the room steps it once an update until it is over, so it outlasts a boss that is gone before its wall has
+finished falling. The patch that is left is the one a room that begins after the change is given.
 
 ### RoomObject (base)
 
@@ -749,7 +750,7 @@ drawn where the timeline's offset puts it; one shown by a lone picture has it ce
 | `ActorVisual` | Showing the frame gameplay selects, hurt flashes, glows, colour changes and dissolves. It can show its picture row by row, each row naming the row of the picture drawn there. Never advances gameplay. |
 | `RowCrumble` | Working out which rows of a picture show where as it crumbles away from the bottom up, after an optional wait. An `ActorVisual` shows them. |
 | `ColliderPoses` | Where a thing's collider nodes are in each of its named poses, from its data. Taking a pose moves the colliders it names and switches off the others any pose names. A timeline's cue takes the pose that goes with the picture it shows; the owner decides what else a pose means. |
-| `PatchSequence` | Playing a change to the room's terrain that takes some updates: each of its named patches in turn (section 5, "Terrain that changes over some updates"). |
+| `PatchSequence` | A change to the room's terrain that takes some updates: each of its named patches in turn, played by the room (section 5, "Terrain that changes over some updates"). |
 
 **Why, and extending it.** The base classes are the engine's answer to "what is one of these?", written so the
 fork gets a working player, enemy and projectile by supplying only what is its own. So the pressure is always
@@ -905,7 +906,11 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   each picture, each pose saying what every piece does and how far its mouth is open; what it does in the acid is a
   script in its data; the bridge's blocks, the walls that hold Samus in while it dies and the opened spike wall are
   patches; the pieces of the spike wall are a `Projectile` of their own class, the bridge's pieces and its fire
-  plain ones; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
+  plain ones; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts); Botwoon
+  (its head is the enemy, sized by a cue for the way it points, and the thirteen segments of its body are visuals
+  with hurtboxes that stop shots and are not hurt; how hurt it is is a set of its pictures; its wall falls as a
+  `PatchSequence` the room goes on playing after it is gone, and the `CameraZone` its wall kept shut is opened as
+  the wall begins to fall); Draygon (eye, tail, arms are parts);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
   a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s); Mother Brain (her brain, the joints of her neck
   and her beam are parts of one enemy written across several files, one per part of her fight; her glass and her

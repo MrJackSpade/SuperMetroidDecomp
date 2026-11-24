@@ -474,6 +474,16 @@ class Generator:
             by_name: dict[str, enemies.Placed] = {}
             for placed in things:
                 by_name.setdefault(placed.name, placed)
+            for placed in things:
+                if placed.boss == 'botwoon':
+                    # The old wall, as it begins to fall, opens the screens it kept the view from; a room where
+                    # Botwoon has been beaten never shuts them.
+                    walls = legacy.read('Bosses', 'Botwoon', 'BotwoonWallMutationDefinitions.cs')
+                    opened = re.search(r'OpenedScrollCells \{ get; \} = \[(.*?)\];', walls).group(1)
+                    zones = [by_name[f'Screen{x}x{y}'] for x, y in re.findall(r'new\((\d+), (\d+)\)', opened) if f'Screen{x}x{y}' in by_name]
+                    for zone in zones:
+                        zone.only_when = ctx.none_of([ctx.fact('botwoon_defeated')])
+                    links[id(placed)]['ToldWhenWallFalls'] = zones
             chosen_on = conditional[version][0] if version < len(conditional) else ''
             played = sequences.Sequences(room, state, chosen_on, ctx, by_name, (room_scene(self.rooms['LandingSite']), 'AtZebesArrival'))
             things.extend(played.placed)

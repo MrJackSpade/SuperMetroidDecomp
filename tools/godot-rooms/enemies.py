@@ -682,7 +682,7 @@ BOSSES = {
     'DraygonBody': ('draygon/draygon.tscn', 'draygon', {'VictoryMusic': '"elevator"'}),
     'Ridley': ('ridley/ridley.tscn', 'ridley', {'FightMusic': '"ridley_and_draygon_battle"'}),
     'SporeSpawn': ('spore_spawn/spore_spawn.tscn', 'spore_spawn', {}),
-    'Botwoon': ('botwoon/botwoon.tscn', 'botwoon', {'WallPatch': '"wall_down"', 'VictoryMusic': '"elevator"'}),
+    'Botwoon': ('botwoon/botwoon.tscn', 'botwoon', {'VictoryMusic': '"elevator"'}),
     'BombTorizo': ('torizo/torizo.tscn', 'bomb_torizo', {
         'AwakeningMusic': '"torizo_awakening"', 'FightMusic': '"ridley_and_draygon_battle"', 'VictoryMusic': '"elevator"'}),
     'GoldenTorizo': ('torizo/torizo.tscn', 'golden_torizo', {

@@ -133,7 +133,6 @@ public partial class SporeSpawn : Enemy
     private readonly Dictionary<string, bool> _coreTakesShotsIn = new(StringComparer.Ordinal);
     private ColliderPoses? _poses;
     private PatchSequence? _ceilingCrumble;
-    private PatchSequence? _ceiling;
     private readonly List<(int Health, string Shade)> _healthShades = [];
     private Moving _moving;
     private PixelPosition _centre;
@@ -259,7 +258,8 @@ public partial class SporeSpawn : Enemy
         Room.MarkGone(Name);
         if (!ArenaView.IsEmpty)
             GetNode<CameraZone>(ArenaView).Triggered("open");
-        _ceiling = _ceilingCrumble?.FromStart();
+        if (_ceilingCrumble is { } crumble)
+            Room.Play(crumble.FromStart());
         return false;
     }
 
@@ -380,7 +380,6 @@ public partial class SporeSpawn : Enemy
                 break;
         }
 
-        _ceiling?.Step(Room);
         if (!Husk && !_dying)
             ReleaseSpores();
         ShowParts();

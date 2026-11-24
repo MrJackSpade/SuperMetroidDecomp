@@ -67,6 +67,7 @@ public partial class Room : Node2D
     private readonly List<RoomSequence> _sequences = [];
     private readonly List<Backdrop> _backdrops = [];
     private readonly List<IRoomEntity> _leaving = [];
+    private readonly List<PatchSequence> _terrainChanges = [];
 
     /// <summary>
     /// The exit the player arrived at, until they have been in control and clear of it once. It takes no one until
@@ -279,6 +280,9 @@ public partial class Room : Node2D
                     roomObject.Step();
             }
 
+            foreach (PatchSequence change in _terrainChanges.ToList())
+                change.Step(this);
+            _terrainChanges.RemoveAll(change => change.IsOver);
             Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
             Liquid?.Step();
             foreach (RoomEffect effect in _roomEffects)
@@ -395,6 +399,16 @@ public partial class Room : Node2D
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Plays a change to the terrain that takes some updates. The room steps it once an update until it is over,
+    /// whatever becomes of whoever set it off.
+    /// </summary>
+    public void Play(PatchSequence change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        _terrainChanges.Add(change);
     }
 
     /// <summary>The ongoing damage the room does at <paramref name="point"/> this update, each amount with its source's name.</summary>

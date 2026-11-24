@@ -5,7 +5,8 @@ namespace Engine.World;
 /// <summary>
 /// A change to a room's terrain that plays out: named patches of the room's layout applied one after another, each
 /// standing for its own number of updates before the next, the last one staying. A wall that crumbles through several
-/// pictures before it is gone is one of these. Whoever plays it steps it once an update for as long as it runs.
+/// pictures before it is gone is one of these. A room plays it (<see cref="Room.Play"/>), stepping it once an update
+/// until it is over.
 /// </summary>
 /// <remarks>
 /// <code>
@@ -59,7 +60,7 @@ public sealed class PatchSequence
     }
 
     /// <summary>Plays one update: applies the next patch when the one before it has stood its time.</summary>
-    public void Step(Room room)
+    internal void Step(Room room)
     {
         ArgumentNullException.ThrowIfNull(room);
         if (IsOver)

@@ -56,52 +56,52 @@ Role = 1
 
 [node name="BodyHit1" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit2" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit3" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit4" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit5" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit6" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit7" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit8" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit9" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit10" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit11" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit12" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
 [node name="BodyHit13" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1

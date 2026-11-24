@@ -98,12 +98,15 @@ public partial class Intro
         switch (_flight)
         {
             case Flight.WaitingForMusic:
-                // The flight is shown once the music asked for has all been carried out.
+                // The flight is shown once the music asked for has all been carried out; the stars play on while it waits.
                 if (Session.Sounds.HasQueuedMusic)
                     break;
                 fade.FadeIn(1);
                 fade.Step();
                 _flight = Flight.FlyingIntoCamera;
+
+                // The old flight's rush already runs on the update it finds the music ready, before the gunship draws back.
+                Rush(stars);
                 break;
 
             case Flight.FlyingIntoCamera:
@@ -117,11 +120,7 @@ public partial class Intro
                     break;
                 }
 
-                // The stars rush past, faster and faster, and the gunship with them.
-                _starsSpeed += 0.5;
-                stars.Place += new PixelOffset(Pixels.FromNumber(_starsSpeed), Pixels.FromNumber(_starsSpeed));
-                _flightScrollX += _starsSpeed;
-                _flightScrollY += _starsSpeed;
+                Rush(stars);
                 break;
 
             case Flight.FlyingTowardCeres:
@@ -164,6 +163,15 @@ public partial class Intro
 
         ShowGunship();
         return false;
+    }
+
+    /// <summary>The stars rush past, faster and faster, and the gunship with them.</summary>
+    private void Rush(CinematicSprite stars)
+    {
+        _starsSpeed += 0.5;
+        stars.Place += new PixelOffset(Pixels.FromNumber(_starsSpeed), Pixels.FromNumber(_starsSpeed));
+        _flightScrollX += _starsSpeed;
+        _flightScrollY += _starsSpeed;
     }
 
     /// <summary>The view cuts, in a flash of white, to behind the gunship as it makes for the station.</summary>

@@ -30,6 +30,8 @@ public sealed class AirTurningState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        // A turn is made in the full form of the jump or the fall, where it fits.
+        owner.TrySetForm(owner.FormOr(FromJump ? Player.Jumping : Player.Falling), aroundMiddle: true);
         owner.TurnAround();
         _left = Countdown.Of(owner.InMedium("turn_updates", owner.TurnUpdates));
     }

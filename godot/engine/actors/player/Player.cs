@@ -35,6 +35,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The name of the form a fall takes, for a game whose player is not upright in the air; otherwise the upright form is used.</summary>
     public const string Falling = "falling";
 
+    /// <summary>
+    /// The name of the form the body takes while the player aims straight down in the air, for a game whose player is
+    /// smaller then; otherwise the form of the jump or the fall is kept.
+    /// </summary>
+    public const string AimingDown = "aiming_down";
+
     /// <inheritdoc/>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "";
@@ -1294,6 +1300,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             : new PixelRect(body.Right, body.Top, reach, body.Height);
         return !Room.Mover.IsFree(beside, this, MoveOptions.Plain with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
     }
+
+    /// <summary>Whether the input holds anything that aims the weapon. A game with aiming actions of its own counts them here.</summary>
+    public virtual bool AimIsHeld => _input.IsHeld(GameAction.Up) || _input.IsHeld(GameAction.Down);
 
     /// <summary>Sets the player's aim from what is held: up, down while in the air, and each with steering for a diagonal.</summary>
     public virtual void AimFromInput()

@@ -28,14 +28,22 @@ public static class AirStance
     }
 
     /// <summary>
+    /// The form of a player in the air: the form for aiming straight down while they do, where the game gives one,
+    /// and otherwise the form named <paramref name="airForm"/>, or the upright form where the game gives none of that
+    /// name.
+    /// </summary>
+    public static string FormFor(Player owner, string airForm) =>
+        owner.Aim == Aim.Down && owner.Forms.ContainsKey(Player.AimingDown) ? Player.AimingDown : owner.FormOr(airForm);
+
+    /// <summary>
     /// Whether the input asks nothing of a player in the air: no direction, no aim, no attack, and, where it counts,
     /// no jump.
     /// </summary>
     public static bool AsksNothing(Player owner, bool jumpCounts)
     {
         GameInput input = owner.Input;
-        bool direction = input.IsHeld(GameAction.Left) || input.IsHeld(GameAction.Right) || input.IsHeld(GameAction.Up) || input.IsHeld(GameAction.Down);
-        return !direction && owner.Aim == Aim.Forward && !input.IsHeld(GameAction.Attack) && !(jumpCounts && input.IsHeld(GameAction.Jump));
+        bool direction = input.IsHeld(GameAction.Left) || input.IsHeld(GameAction.Right);
+        return !direction && !owner.AimIsHeld && !input.IsHeld(GameAction.Attack) && !(jumpCounts && input.IsHeld(GameAction.Jump));
     }
 
     /// <summary>

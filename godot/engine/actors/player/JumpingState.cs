@@ -33,7 +33,7 @@ public sealed class JumpingState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
+        owner.TrySetForm(_keepsSpeed ? AirStance.FormFor(owner, Player.Jumping) : owner.FormOr(Player.Jumping), aroundMiddle: true);
         if (_keepsSpeed)
         {
             owner.SteerAfresh();
@@ -82,12 +82,15 @@ public sealed class JumpingState : PlayerState
         return AirStance.FallAndLand(owner);
     }
 
-    /// <summary>A change of stance sets the steering afresh.</summary>
+    /// <summary>A change of stance sets the steering afresh, and the body takes the form of the stance where it fits.</summary>
     public override void CarriedOn(Player owner)
     {
+        if (_gathering.IsRunning)
+            return;
         if (_stanceAsked != _stance && _stance >= 0)
             owner.SteerAfresh();
         _stance = _stanceAsked;
+        owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
     }
 
     /// <summary>

@@ -690,6 +690,8 @@ in `engine/actors/player/`.
   medium may give its own lengths for the timed changes (`"updates"`, by the name of the value that gives the length
   elsewhere: a turn, a change of posture, a jump's gathering), which a state reads as the change begins
   (`Player.InMedium`).
+- A player aiming straight down in a jump or a fall takes the form `aiming_down` where the game gives one, a
+  smaller body, and the form of the jump or the fall again when they aim elsewhere and it fits.
 - **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
   updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
   the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
@@ -794,6 +796,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   held. A jump turns her (the engine's turn), and the turn becomes a spin jump while the jump and the way she then
   faces are held; with the attack let go she turns; steering the way she faces she runs; walking off a floor she
   falls facing the way she was going.
+- **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
+  another aim or the attack is asked; her body is compact for as long (`aiming_down`).
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
   aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
   direction the way she faces does not start a run.

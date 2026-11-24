@@ -312,6 +312,7 @@ public sealed partial class EngineAssetWriter
             ["crawling"] = SamusPoseTraits.Of(P.MorphBallGroundRightPose).VerticalRadius,
             ["jumping"] = SamusPoseTraits.Of(P.NeutralJumpRightPose).VerticalRadius,
             ["falling"] = SamusPoseTraits.Of(P.FallingRightPose).VerticalRadius,
+            ["aiming_down"] = SamusPoseTraits.Of(P.NormalJumpAimDownRightPose).VerticalRadius,
             ["spinning"] = SamusPoseTraits.Of(P.SpinJumpRightPose).VerticalRadius,
         });
         file.Group("mediums", SamusMediumsWritten());

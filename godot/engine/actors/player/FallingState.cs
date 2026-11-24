@@ -18,7 +18,7 @@ public sealed class FallingState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(owner.FormOr(Player.Falling), aroundMiddle: true);
+        owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
         if (_offFloor && !owner.IsRising)
             owner.FallFromRest();
         owner.SteerAfresh();
@@ -49,12 +49,13 @@ public sealed class FallingState : PlayerState
         return AirStance.FallAndLand(owner);
     }
 
-    /// <summary>A change of stance sets the steering afresh.</summary>
+    /// <summary>A change of stance sets the steering afresh, and the body takes the form of the stance where it fits.</summary>
     public override void CarriedOn(Player owner)
     {
         if (_stanceAsked != _stance && _stance >= 0)
             owner.SteerAfresh();
         _stance = _stanceAsked;
+        owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
     }
 
     /// <summary>With nothing asked, the aim comes level, and a dash and its momentum are lost.</summary>

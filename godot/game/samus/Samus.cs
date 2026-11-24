@@ -361,7 +361,8 @@ public partial class Samus : Player
     /// <summary>
     /// Sets her aim: the angle actions aim diagonally, and both together straight up; up aims up, or diagonally up
     /// while she steers; down aims down in the air, or diagonally down while she steers. On the ground down aims only
-    /// with a direction. Running with a direction held, she aims level or diagonally and never straight up.
+    /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
+    /// or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
     /// </summary>
     public override void AimFromInput()
     {
@@ -369,6 +370,12 @@ public partial class Samus : Player
         bool angleUp = Input.IsHeld(Actions.AngleUp), angleDown = Input.IsHeld(Actions.AngleDown);
         bool steering = Intent != 0;
         bool grounded = IsOnGround;
+
+        // In the air an aim straight down stays until something else is asked: a direction, another aim, or the attack.
+        bool staysDown = !grounded && Aim == Aim.Down && State is JumpingState or FallingState
+            && !up && !angleUp && !angleDown && !steering && !Input.IsHeld(GameAction.Attack);
+        if (staysDown)
+            return;
         if (State is RunningState && steering)
             Aim = angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
         else if (angleUp && angleDown)
@@ -389,6 +396,9 @@ public partial class Samus : Player
 
     /// <summary>The name of the liquid type that ends a boosted run.</summary>
     private const string LavaName = "lava";
+
+    /// <summary>Up, down and her two angle actions aim.</summary>
+    public override bool AimIsHeld => base.AimIsHeld || Input.IsHeld(Actions.AngleUp) || Input.IsHeld(Actions.AngleDown);
 
     /// <summary>The poses she runs in. Each is the same run; changing from one to another is what moves her a pixel on.</summary>
     private enum RunPose

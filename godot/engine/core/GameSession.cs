@@ -232,6 +232,12 @@ public sealed class GameSession
     public GameMode Mode { get; private set; }
 
     /// <summary>
+    /// The number of the update being played, counted from the session's start whatever the clock counts: for telling
+    /// one update from another, not for timing anything.
+    /// </summary>
+    public long UpdateNumber { get; private set; }
+
+    /// <summary>
     /// Plays one update: the mode in control runs, the mode it names takes over if it is a different one, and the clock
     /// moves on.
     /// </summary>
@@ -245,6 +251,7 @@ public sealed class GameSession
         GameMode next = Mode.Step(input)
             ?? throw new InvalidOperationException($"{Mode.GetType().Name} named no mode to be in control next.");
         ClosingSoundWork closing = Mode.SoundWorkAtClose;
+        bool counts = Mode.CountsOnClock;
         if (!ReferenceEquals(next, Mode))
         {
             // A mode the next one is laid over is kept, on screen, to be handed back to. The mode that finished, and
@@ -273,7 +280,9 @@ public sealed class GameSession
         }
 
         Sounds.CloseUpdate(closing);
-        Clock.Advance();
+        if (counts)
+            Clock.Advance();
+        UpdateNumber++;
     }
 
     /// <summary>Puts a mode on screen and gives it control.</summary>

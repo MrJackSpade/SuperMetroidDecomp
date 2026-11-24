@@ -48,6 +48,12 @@ public abstract partial class GameMode : Node
     public virtual ClosingSoundWork SoundWorkAtClose => ClosingSoundWork.Usual;
 
     /// <summary>
+    /// Whether an update this mode has played counts on the session's clock. It does, unless the mode says
+    /// otherwise: a mode that holds play still for a message does not.
+    /// </summary>
+    public virtual bool CountsOnClock => true;
+
+    /// <summary>
     /// Takes control back from a mode that was laid over this one, within the update that ends that mode: whatever
     /// of this mode's own update was left undone when it handed over is done now, and the mode in control next is
     /// returned. Itself, with nothing to do, unless the mode says otherwise.

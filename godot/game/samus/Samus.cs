@@ -309,7 +309,7 @@ public partial class Samus : Player
     /// </summary>
     public void PowerBombBlastEnded(PixelPosition at)
     {
-        _blastEnded = (at, Room.Session.Clock.Updates);
+        _blastEnded = (at, Room.Session.UpdateNumber);
 
         // The blast turned every sound away, so as it ends her spin's sound is asked for again, or else a charge's
         // that had begun to sound. A wall jump asks for neither here: which of the spin's sounds is its own is not kept.
@@ -328,7 +328,7 @@ public partial class Samus : Player
         if (_blastEnded is not { } ended)
             return;
         _blastEnded = null;
-        if (ended.Update == Room.Session.Clock.Updates && ended.At.X.Whole == Position.X.Whole && ended.At.Y.Whole == Position.Y.Whole &&
+        if (ended.Update == Room.Session.UpdateNumber && ended.At.X.Whole == Position.X.Whole && ended.At.Y.Whole == Position.Y.Whole &&
             CrystalFlashState.CanStart(this))
             ChangeState(new CrystalFlashState());
     }

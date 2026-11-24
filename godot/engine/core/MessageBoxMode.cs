@@ -115,6 +115,12 @@ public partial class MessageBoxMode : GameMode
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     /// <summary>
+    /// A message holds what it covers still, and the clock with it: its updates are not counted, the one that hands
+    /// back among them.
+    /// </summary>
+    public override bool CountsOnClock => false;
+
+    /// <summary>
     /// A message shown through a window does the sounds' work itself while it covers play: the music gets no turn
     /// as its updates open.
     /// </summary>

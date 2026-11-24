@@ -262,6 +262,36 @@ public partial class Samus : Player
     /// <summary>Whether she has a shine stored.</summary>
     public bool HasStoredShine => _shine.IsRunning;
 
+    /// <summary>
+    /// Whether she reads as holding a shine, as a jump into a windup and her body's flicker test it: a stored shine,
+    /// or a crystal flash's colouring still running, which the cartridge keeps in the stored shine's timer.
+    /// </summary>
+    public bool ReadsAsHoldingShine => HasStoredShine || _crystalFlashColouring != CrystalFlashColouring.None;
+
+    /// <summary>Where a crystal flash's colouring of her is.</summary>
+    private enum CrystalFlashColouring
+    {
+        /// <summary>None is running.</summary>
+        None,
+
+        /// <summary>It runs, as it goes on doing when the flash is cut short.</summary>
+        Showing,
+
+        /// <summary>The flash is done: it runs until the end of the update after.</summary>
+        EndingNext,
+
+        /// <summary>It runs until the end of this update.</summary>
+        Ending,
+    }
+
+    private CrystalFlashColouring _crystalFlashColouring;
+
+    /// <summary>A crystal flash's colouring of her begins.</summary>
+    public void BeginCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.Showing;
+
+    /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
+    public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
+
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
     public BodyPower? Power(string name) => _powers.GetValueOrDefault(name);
 
@@ -583,7 +613,7 @@ public partial class Samus : Player
     /// her arm at rest, aiming up, or aiming diagonally up.
     /// </summary>
     private bool SpendsShine(AirStance stance) =>
-        HasStoredShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
+        ReadsAsHoldingShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
 
     /// <summary>The first pose of a jump from the ground spends a stored shine as it is taken up, and the windup starts lifted.</summary>
     protected override PlayerState? JumpGathered(JumpingState jump) =>
@@ -610,11 +640,15 @@ public partial class Samus : Player
     public void StoreShine()
     {
         _shine = Countdown.Of(StoredShineUpdates);
+        _crystalFlashColouring = CrystalFlashColouring.None;
         Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus");
     }
 
-    /// <summary>Uses up the stored shine.</summary>
-    public void SpendShine() => _shine = Countdown.Over;
+    /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
+    public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
+
+    /// <summary>Another colouring of her takes the place of a crystal flash's, as the X-ray's does.</summary>
+    public void EndCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.None;
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
@@ -1023,6 +1057,12 @@ public partial class Samus : Player
         WarnOfLowEnergy();
         Grapple?.Step(this);
         ShowSelection();
+        _crystalFlashColouring = _crystalFlashColouring switch
+        {
+            CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,
+            CrystalFlashColouring.Ending => CrystalFlashColouring.None,
+            _ => _crystalFlashColouring,
+        };
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }
 

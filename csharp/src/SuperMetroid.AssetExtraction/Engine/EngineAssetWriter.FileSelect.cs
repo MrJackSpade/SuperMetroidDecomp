@@ -142,7 +142,8 @@ public sealed partial class EngineAssetWriter
         foreach (string frame in helmetFrames)
             turn.Add(new JsonObject { ["picture"] = helmetPictures.Of(frame), ["updates"] = placed.HelmetFrameDuration });
         JsonObject helmetOffset = At(helmetPictures.OffsetX, helmetPictures.OffsetY);
-        timelines["helmet_turn"] = new JsonObject { ["steps"] = turn, ["offset"] = helmetOffset };
+        // The turn stays on its last picture: the Godot screen counts the turn's length itself.
+        timelines["helmet_turn"] = new JsonObject { ["steps"] = turn, ["loops_to"] = helmetFrames.Length - 1, ["offset"] = helmetOffset };
         timelines["helmet_away"] = new JsonObject
         {
             ["steps"] = new JsonArray(new JsonObject

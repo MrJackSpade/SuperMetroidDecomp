@@ -31,7 +31,8 @@ namespace Game.Menus;
 /// shows ("largest_time_part"), the energy a tank holds ("energy_per_tank"), a tank's "tank_size", the column and
 /// row of the first from the word energy ("tank_column", "tank_row") and how many make a row ("tanks_per_row");
 /// the sounds of the cursor moving, of a saved game chosen and of an answer given ("move_sound", "select_sound",
-/// "confirm_sound"); and the timelines "cursor", "helmet_away", "helmet_turn" and the arrows'.
+/// "confirm_sound"); and the timelines "cursor", "helmet_away", "helmet_turn" (which ends by staying on its last
+/// picture) and the arrows'.
 /// </remarks>
 public partial class FileSelectMode : GameMode
 {
@@ -100,6 +101,7 @@ public partial class FileSelectMode : GameMode
     private int _from;
     private int _to;
     private bool _yes = true;
+    private int _turnLeft;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -156,6 +158,8 @@ public partial class FileSelectMode : GameMode
     {
         ScreenFade fade = _fade ?? throw NotShown();
         (_cursor ?? throw NotShown()).Step();
+        foreach (CinematicSprite shown in _helmets)
+            shown.Step();
         if (_afterFade is { } then)
         {
             fade.Step();
@@ -180,10 +184,9 @@ public partial class FileSelectMode : GameMode
                 StepMain(input);
                 break;
             case Asking.HelmetTurns:
-                CinematicSprite helmet = _helmets[_row];
-                helmet.Step();
-                // Confirming again cuts the turn short.
-                if (helmet.IsOver || input.WasPressed(GameAction.Confirm))
+                // The turn ends once its last picture has shown its while; confirming again cuts it short. The helmet
+                // keeps the picture it has through the fade.
+                if (--_turnLeft <= 0 || input.WasPressed(GameAction.Confirm))
                     FadeOutTo(() => new OptionsMode(this));
                 break;
             case Asking.CopyFrom:
@@ -245,7 +248,9 @@ public partial class FileSelectMode : GameMode
         {
             Session.Slot = _row + 1;
             Sound("select_sound");
-            _helmets[_row].Play(Timelines().Get("helmet_turn"));
+            FrameTimeline turn = Timelines().Get("helmet_turn");
+            _helmets[_row].Play(turn);
+            _turnLeft = turn.Steps.Sum(step => step.Updates);
             _asking = Asking.HelmetTurns;
             return;
         }
@@ -483,7 +488,7 @@ public partial class FileSelectMode : GameMode
             string route = $"{_from + 1}_{_to + 1}";
             arrow.Play(Timelines().Get(data.Get("arrows").Text(route)));
             arrow.Place = Place("arrow_" + route);
-            arrow.ShowPlace();
+            arrow.Step();
         }
 
         (_cursor ?? throw NotShown()).Visible = asking is not (Asking.CopyDone or Asking.ClearDone);

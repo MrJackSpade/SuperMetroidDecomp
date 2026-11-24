@@ -13,7 +13,7 @@ namespace Game.Menus;
 /// stopping) and the music is changed, and then it comes up out of black with its own music: its page, with the
 /// larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
 /// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
-/// no to the title. Its fades go a level of brightness an update.
+/// no to the title. A yes for a game saved where the map marks nothing starts it at once, with no fade. Its fades go a level of brightness an update.
 /// </summary>
 /// <remarks>
 /// Its data names its "music", its "backdrop" colour, its "page" picture, the sound of the cursor moving
@@ -39,6 +39,7 @@ public partial class GameOverMode : GameMode
     private ScreenFade? _fade;
     private bool _yes = true;
     private bool? _continues;
+    private SaveMapMode? _map;
     private int _levels;
     private int _lit;
     private int _holdLeft;
@@ -116,7 +117,7 @@ public partial class GameOverMode : GameMode
                 return new TitleMode();
 
             // A saved game shows where it was saved before it starts again, as from the options.
-            return SaveMapMode.Of(Session) is { } map ? map : new LoadingMode();
+            return _map ?? throw new InvalidOperationException("The game over screen continues with no map to show.");
         }
 
         if (_lit < _levels)
@@ -136,6 +137,14 @@ public partial class GameOverMode : GameMode
         }
         else if (input.WasPressed(GameAction.Confirm))
         {
+            if (_yes)
+            {
+                _map = SaveMapMode.Of(Session);
+                // A game saved where the map marks nothing (at Ceres) starts on this update, with no hold and no fade.
+                if (_map is null)
+                    return new LoadingMode();
+            }
+
             _continues = _yes;
             _holdLeft = Data().Int("answer_hold_updates");
         }

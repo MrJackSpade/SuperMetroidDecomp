@@ -8,13 +8,17 @@ using Godot;
 namespace Game.Menus;
 
 /// <summary>
-/// The game over screen. It comes up out of black: its page, with the larva crying over its egg, and a cursor
-/// beside yes or no. Up and down move the cursor; confirming fades the screen out, the larva holding its look, and
-/// yes goes back to the saved game by the map of where it was saved, no to the title. Its fades go a level of brightness an update.
+/// The game over screen. It stays black while every sound stops, it is set up (the larva starting and the music
+/// stopping) and the music is changed, and then it comes up out of black with its own music: its page, with the
+/// larva crying over its egg, and a cursor beside yes or no. Up and down move the cursor; confirming fades the
+/// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
+/// no to the title. Its fades go a level of brightness an update.
 /// </summary>
 /// <remarks>
 /// Its data names its "music", its "backdrop" colour, its "page" picture, the sound of the cursor moving
-/// ("move_sound"), the levels of brightness its fades go through ("fade_levels"), the updates the larva holds its
+/// ("move_sound"), the updates it stays black before it is set up ("entry_black_updates"), the updates after that
+/// it waits for the music to be changed ("music_wait_updates"), the levels of brightness its fades go through
+/// ("fade_levels"), the updates the larva holds its
 /// look once an answer is given ("answer_hold_updates"), its timelines "baby" (which gives the cues "sound:" and a
 /// sound's name), "egg" and "cursor", and the "places" of the "baby" (the egg lies there too) and of the cursor
 /// beside each answer ("cursor_yes", "cursor_no").
@@ -37,6 +41,9 @@ public partial class GameOverMode : GameMode
     private int _levels;
     private int _lit;
     private int _holdLeft;
+    private int _blackUpdates;
+    private bool _setUp;
+    private int _musicLeft;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -63,13 +70,40 @@ public partial class GameOverMode : GameMode
         _levels = _data.Int("fade_levels");
         _lit = 0;
         _fade.Cover(_levels, _levels);
-        Session.Sounds.RequestMusic(_data.Text("music"));
+        _musicLeft = _data.Int("music_wait_updates");
+        if (_musicLeft <= 0)
+            throw _data.Problem("waits no updates for the music to be changed");
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
         ScreenFade fade = _fade ?? throw NotShown();
+        if (_blackUpdates < Data().Int("entry_black_updates"))
+        {
+            // Every sound stops on its first update: the old game stops the room's, the others having stopped as Samus died.
+            if (_blackUpdates++ == 0)
+                Session.Sounds.StopAll();
+            return this;
+        }
+
+        if (!_setUp)
+        {
+            // Its set-up stops the music and starts the larva, this update counting as the first of its first look.
+            _setUp = true;
+            Session.Sounds.RequestMusic("");
+            StepBaby();
+            return this;
+        }
+
+        if (_musicLeft > 0)
+        {
+            // Nothing moves while the music is changed; once it has been, the screen asks for its own and fades in.
+            if (--_musicLeft == 0)
+                Session.Sounds.RequestMusic(Data().Text("music"));
+            return this;
+        }
+
         StepSprites();
         if (_continues is { } continues)
         {
@@ -108,8 +142,16 @@ public partial class GameOverMode : GameMode
         return this;
     }
 
-    /// <summary>Plays one update of the larva, its egg and the cursor; the larva's cries are heard as its timeline reaches them.</summary>
+    /// <summary>Plays one update of the larva, its egg and the cursor.</summary>
     private void StepSprites()
+    {
+        StepBaby();
+        (_egg ?? throw NotShown()).Step();
+        (_cursor ?? throw NotShown()).Step();
+    }
+
+    /// <summary>Plays one update of the larva; its cries are heard as its timeline reaches them.</summary>
+    private void StepBaby()
     {
         // Once an answer is given the larva holds the look it has for the old game's hold, through the fade.
         bool holds = _continues is not null && _holdLeft-- > 0;
@@ -120,9 +162,6 @@ public partial class GameOverMode : GameMode
                 throw new InvalidOperationException($"The larva's timeline gives the cue \"{cue}\", which the game over screen does not know.");
             Session.Sounds.Request(cue[SoundCue.Length..], channel: "menu");
         }
-
-        (_egg ?? throw NotShown()).Step();
-        (_cursor ?? throw NotShown()).Step();
     }
 
     private PixelPosition Place(string name)

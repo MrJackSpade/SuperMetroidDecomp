@@ -178,7 +178,8 @@ public sealed partial class EngineAssetWriter
                 ("tilted_left", PuyoSegment.TiltedLeft), ("tilted_right", PuyoSegment.TiltedRight),
                 ("tilted_far_left", PuyoSegment.TiltedFarLeft), ("tilted_far_right", PuyoSegment.TiltedFarRight))
             .Write();
-        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+            .Value("rows", DeadTorizoCorpseDefinitions.RowCount)
             .Value("sand_rows", DeadTorizoCorpseDefinitions.SandRowCount)
             .Value("sand_lines", DeadTorizoCorpseDefinitions.SandLines)
             .Value("sand_line_updates", DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine)

@@ -713,8 +713,8 @@ in `engine/actors/player/`.
   against the way they face turns them in the air (`AirTurningState`): they face the new way at once and reverse by
   the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
   not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from, a
-  jump aiming level then being in the stance of steering the way they now face. A landing ends standing whatever is
-  held.
+  jump aiming level then being in the stance of steering the way they now face, and a turn made aiming diagonally
+  down coming out aiming straight down. A landing ends standing whatever is held.
 - **Postures.** Crouching down, standing up, taking the low form and leaving it each take the updates the game
   gives them (`crouch_updates`, `stand_updates`, `crawl_enter_updates`, `crawl_leave_updates`; none is at once). For
   that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is

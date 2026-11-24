@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Game;
@@ -29,9 +28,9 @@ public sealed class FacingForwardState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         owner.Velocity = PixelVelocity.Zero;
-        return this;
+        return null;
     }
 }

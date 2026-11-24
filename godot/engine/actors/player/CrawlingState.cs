@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
@@ -15,36 +14,43 @@ public sealed class CrawlingState : PlayerState
     /// <summary>Whether the bounce of this fall has been spent.</summary>
     private bool _bounced;
 
+    /// <summary>Whether this update's input asked for a jump from the ground.</summary>
+    private bool _jumpAsked;
+
     /// <inheritdoc/>
     public override bool CanAttack => true;
 
     /// <inheritdoc/>
     public override void Enter(Player owner) => owner.TrySetForm(Player.Crawling);
 
+    /// <summary>Whether the low form is on the ground and not leaving it.</summary>
+    private static bool IsGrounded(Player owner) => owner.IsOnGround && !owner.Velocity.Y.IsNegative;
+
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Asked(Player owner)
     {
         owner.Aim = Aim.Forward;
-        bool grounded = owner.IsOnGround;
+        bool grounded = IsGrounded(owner);
+        _jumpAsked = false;
         if (owner.Input.WasPressed(GameAction.Up))
         {
-            if (grounded && owner.TrySetForm(Player.Crouching))
+            if (grounded && owner.CanTakeForm(Player.Crouching))
                 return new CrouchingState();
-            if (!grounded && owner.TrySetForm(Player.Standing))
+            if (!grounded && owner.CanTakeForm(owner.FormOr(Player.Falling), aroundMiddle: true))
                 return new FallingState();
         }
 
-        if (grounded && owner.MayJumpWhileCrawling && owner.Input.WasPressed(GameAction.Jump))
-        {
-            owner.Velocity = owner.Velocity.WithY(-owner.LaunchSpeed(offWall: false));
-            grounded = false;
-        }
-        else if (grounded && !owner.Velocity.Y.IsNegative)
-        {
-            owner.Velocity = owner.Velocity.WithY(Pixels.Zero);
-        }
+        _jumpAsked = grounded && owner.MayJumpWhileCrawling && owner.Input.WasPressed(GameAction.Jump);
+        return this;
+    }
 
-        if (!grounded && owner.MayJumpWhileCrawling)
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
+        bool grounded = IsGrounded(owner);
+        if (grounded)
+            owner.Velocity = owner.Velocity.WithY(Pixels.Zero);
+        else if (owner.MayJumpWhileCrawling)
             JumpingState.CutShort(owner);
 
         owner.StepDash(building: false);
@@ -53,7 +59,11 @@ public sealed class CrawlingState : PlayerState
         if (grounded)
         {
             _bounced = false;
-            return this;
+
+            // A jump asked for leaves the ground on the next update, if the ground is still there.
+            if (_jumpAsked && owner.IsOnGround)
+                owner.Velocity = owner.Velocity.WithY(-owner.LaunchSpeed(offWall: false));
+            return null;
         }
 
         Pixels fallingAt = owner.Velocity.Y;
@@ -61,7 +71,7 @@ public sealed class CrawlingState : PlayerState
         owner.Fall();
         if (down.Blocked && !fallingAt.IsNegative)
             Land(owner, fallingAt);
-        return this;
+        return null;
     }
 
     /// <summary>Lands the low form: it bounces once if it fell fast enough and the game gives it a bounce.</summary>

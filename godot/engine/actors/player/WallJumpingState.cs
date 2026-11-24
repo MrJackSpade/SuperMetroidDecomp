@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Input;
 using Engine.Shared;
 
@@ -50,7 +49,7 @@ public sealed class WallJumpingState : PlayerState
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         JumpingState.CutShort(owner);
         owner.StepDash(building: false);
@@ -60,8 +59,14 @@ public sealed class WallJumpingState : PlayerState
         owner.MoveDown();
         owner.Fall();
         _locked = _locked.Stepped();
+        return null;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Ended(Player owner)
+    {
         if (_locked.IsRunning)
-            return this;
+            return null;
         return owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();
     }
 }

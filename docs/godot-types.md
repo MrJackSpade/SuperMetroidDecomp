@@ -590,6 +590,18 @@ in `engine/actors/player/`.
 | Ongoing damage | Below. | Which equipment cancels which source. |
 | Being moved | Anything that moves the player against their will asks for the matching state and passes its data. Nothing sets flags or velocities on the player. | Extra such states. |
 
+- **The order of an update.** A state does not change the moment a button is pressed. Each update: the state the
+  player is in is asked what the input wants of it (`Asked`: another state, itself to carry on, or nothing); the
+  player then moves as the state they are still in (`Move`) and settles where that leaves them (what they stand on,
+  what the blocks they are in do to them, the room's ongoing damage); and only then does a change take effect, by
+  this rank: the state's own end (`Ended`, a turn done); something that interrupts the player (`Player.Interrupt`:
+  a knockback, and whatever else a game throws them with), which stays waiting when the state's end comes first;
+  what the movement itself met (a landing, a floor walked off); what the input asked for; and last, when the input
+  asked for nothing, what the state does unasked (`Unasked`). The state entered sets itself up as the update ends
+  and first moves on the next, so a jump asked for while running still runs that update and rises on the next. A
+  game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. Weapons fire and
+  body powers are delivered after the change. `ChangeState` is for whatever takes the player over at once (a hold,
+  a script, a station) and drops an interruption that was waiting.
 - A wall jump leaves the wall at a set speed with steering locked for a moment, or, where the game says it is
   steered, is steered by its own move values from its start for as long as the lock lasts.
 - A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
@@ -603,7 +615,9 @@ in `engine/actors/player/`.
 **The body as a weapon.** A body power, while active, makes the player's own body deliver a `Hit` of a named kind
 to whatever it touches: enemies, barriers and blocks alike. The engine knows that a power is active, what hit it
 gives, and that the player takes no contact damage from what that hit kills. The game says what makes each power
-active. Nothing else treats the player's body as an attack.
+active. Nothing else treats the player's body as an attack. An active power's hit is also delivered to the blocks in
+the way of each move before the player makes it, so the body breaks what it can as it meets it and is not stopped by
+what it breaks.
 
 **Ongoing damage.** Damage that arrives a little every update (heat, a damaging liquid, spikes held against) is
 not a stream of hits. Each source adds its amount to the player's ongoing damage for the update, naming itself;
@@ -636,7 +650,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
-  spin.
+  spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
+  next update; the speed boost's is at work from the update after she reaches full boost.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her

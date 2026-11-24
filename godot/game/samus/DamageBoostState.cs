@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Shared;
 
@@ -33,7 +32,7 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         JumpingState.CutShort(owner);
         owner.StepDash(building: false);
@@ -44,6 +43,6 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
         owner.Fall();
         if ((down.Blocked && falling) || owner.IsOnGround)
             return owner.Intent != 0 ? new RunningState() : new StandingState();
-        return this;
+        return null;
     }
 }

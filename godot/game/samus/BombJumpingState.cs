@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Shared;
 
@@ -34,7 +33,7 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         if (_across != 0)
         {
@@ -50,6 +49,6 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
         // The throw is over at the top of its rise, or as soon as anything stops it.
         if (!rising || down.Blocked || stoppedAcross)
             return new CrawlingState();
-        return this;
+        return null;
     }
 }

@@ -276,7 +276,7 @@ public partial class Samus : Player
         if (State is not CrawlingState)
             return;
         int away = Position.X.Whole - bomb.X.Whole;
-        ChangeState(new BombJumpingState(away));
+        Interrupt(new BombJumpingState(away));
     }
 
     /// <summary>
@@ -391,8 +391,12 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        // Each update's movement says anew which of her body's powers are at work; they stay so for what touches her
+        // afterwards. The speed booster's is at work from the update after she reaches full boost.
         foreach (BodyPower power in BodyPowers)
             power.IsActive = false;
+        if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
+            boost.IsActive = true;
         _shine = _shine.Stepped();
         ChooseItem();
 
@@ -732,8 +736,6 @@ public partial class Samus : Player
     protected override void AfterState()
     {
         StepBoost();
-        if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
-            boost.IsActive = true;
         WarnOfLowEnergy();
         _fallingAt = Velocity.Y.IsNegative ? 0 : Velocity.Y.Whole;
         Grapple?.Step(this);

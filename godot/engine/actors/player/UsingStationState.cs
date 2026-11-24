@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Engine.Actors;
@@ -19,5 +18,5 @@ public sealed class UsingStationState : PlayerState
     public override void Enter(Player owner) => owner.Velocity = PixelVelocity.Zero;
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner) => this;
+    public override PlayerState? Move(Player owner) => null;
 }

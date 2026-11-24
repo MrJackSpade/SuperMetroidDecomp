@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Input;
 using Engine.Shared;
 using Game.Data;
@@ -63,19 +62,19 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
         if (_rising > 0)
         {
             _rising--;
             owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(-RiseStep), Engine.Collision.MoveOptions.Plain);
-            return this;
+            return null;
         }
 
         _wait = _wait.Stepped();
         if (_wait.IsRunning)
-            return this;
+            return null;
         _wait = Countdown.Of(samus.CrystalFlashDrainEvery);
 
         if (_kind < Ammunition.Length)
@@ -89,7 +88,7 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
                 _usedOfKind = 0;
             }
 
-            return this;
+            return null;
         }
 
         return owner.StateAtRest();

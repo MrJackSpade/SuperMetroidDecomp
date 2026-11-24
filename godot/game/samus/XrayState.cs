@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Input;
 using Game.Data;
 
@@ -38,7 +37,7 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
         if (!owner.Input.IsHeld(Actions.Run) || samus.Selected != Equipment.XrayScope || !owner.IsOnGround)
@@ -46,7 +45,7 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
         int swing = (owner.Input.IsHeld(GameAction.Down) ? 1 : 0) - (owner.Input.IsHeld(GameAction.Up) ? 1 : 0);
         samus.Xray?.Look(samus, swing);
         Look = LookAt(samus, samus.Xray?.Swing ?? 0);
-        return this;
+        return null;
     }
 
     /// <summary>

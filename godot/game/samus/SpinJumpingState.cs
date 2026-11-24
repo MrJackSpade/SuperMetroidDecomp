@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
@@ -24,11 +23,15 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     public const string SpaceJumpMostFall = "space_jump_most_fall";
 
     private readonly bool _keepsSpeed;
+    private readonly Facing? _toward;
 
     /// <summary>A spin jump from the ground.</summary>
     public SpinJumpingState()
     {
     }
+
+    /// <summary>A spin jump from the ground that turns her to face <paramref name="toward"/> as it starts.</summary>
+    public SpinJumpingState(Facing toward) => _toward = toward;
 
     /// <summary>A spin jump that carries on with the upward speed she already has, as after a wall jump.</summary>
     public SpinJumpingState(bool keepsSpeed) => _keepsSpeed = keepsSpeed;
@@ -39,6 +42,8 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        if (_toward is { } toward)
+            owner.Facing = toward;
         owner.TrySetForm(owner.FormOr(Samus.Spinning), aroundMiddle: true);
         Look = owner.Inventory.IsOn(Equipment.ScrewAttack) ? "screw_attacking" : owner.Inventory.IsOn(Equipment.SpaceJump) ? "space_jumping" : "spin_jumping";
         if (_keepsSpeed)
@@ -48,12 +53,19 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Asked(Player owner)
     {
-        var samus = (Samus)owner;
+        // Aiming or firing straightens her out of the spin once this update's movement is done.
         owner.AimFromInput();
         if (owner.Aim != Aim.Forward || owner.Input.WasPressed(GameAction.Attack))
             return owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
+        var samus = (Samus)owner;
         if (WallJumpingState.CanStart(owner))
         {
             owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
@@ -81,7 +93,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         if ((down.Blocked && falling) || (falling && owner.IsOnGround))
             return owner.Intent != 0 ? new RunningState() : new StandingState();
 
-        return this;
+        return null;
     }
 
     /// <summary>

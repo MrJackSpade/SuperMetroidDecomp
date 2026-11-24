@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Collision;
 
 namespace Engine.Actors;
@@ -10,9 +9,15 @@ public sealed class FallingState : PlayerState
     public override void Enter(Player owner) => owner.TrySetForm(owner.FormOr(Player.Falling), aroundMiddle: true);
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
         if (owner.WallJumpFromAnyJump && WallJumpingState.CanStart(owner))
             return new WallJumpingState();
 
@@ -25,6 +30,6 @@ public sealed class FallingState : PlayerState
         owner.Fall();
         if (down.Blocked || owner.IsOnGround)
             return owner.Intent != 0 ? new RunningState() : new StandingState();
-        return this;
+        return null;
     }
 }

@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
@@ -74,20 +73,20 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
         switch (_stage)
         {
             case Stage.WindingUp:
                 WindUp(samus);
-                return this;
+                return null;
             case Stage.Flying:
                 Fly(samus);
-                return this;
+                return null;
             case Stage.Crashed:
                 if (!StepCrash(samus))
-                    return this;
+                    return null;
                 samus.EndBoost();
                 return owner.StateAtRest();
             default:

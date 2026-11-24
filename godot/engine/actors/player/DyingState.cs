@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Engine.Actors;
@@ -23,11 +22,11 @@ public sealed class DyingState : PlayerState
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         _left = _left.Stepped();
         if (_left.IsOver)
             owner.FinishDying();
-        return this;
+        return null;
     }
 }

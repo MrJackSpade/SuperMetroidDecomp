@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Input;
 
 namespace Engine.Actors;
@@ -10,28 +9,35 @@ public sealed class RunningState : PlayerState
     public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
-        if (!owner.IsOnGround)
-            return new FallingState();
         if (owner.Input.WasPressed(GameAction.Jump))
             return new JumpingState();
         if (owner.MayCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();
-        bool turning = owner.Intent != 0 && (owner.Intent > 0) != (owner.Facing == Shared.Facing.Right);
-        if (turning && owner.TurnUpdates > 0)
-            return new TurningState();
+        if (owner.Intent == 0)
+            return null;
+        bool turning = (owner.Intent > 0) != (owner.Facing == Shared.Facing.Right);
+        return turning && owner.TurnUpdates > 0 ? new TurningState() : this;
+    }
 
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
         // A dash builds only while running freely: not while a liquid hinders the player.
         owner.StepDash(owner.Intent != 0 && owner.DashIsHeld && !owner.IsHinderedByLiquid);
         owner.Steer(owner.Moves(RunningMoves));
-        bool stopped = owner.Intent == 0 && owner.Velocity.X.IsZero;
-        if (stopped)
-            owner.LoseMomentum();
         owner.MoveAcross();
-        if (!owner.IsOnGround)
-            return new FallingState();
-        return stopped ? new StandingState() : this;
+        return owner.IsOnGround ? null : new FallingState();
+    }
+
+    /// <summary>With nothing asked of them, a runner who has come to rest stands.</summary>
+    public override PlayerState? Unasked(Player owner)
+    {
+        if (!owner.Velocity.X.IsZero)
+            return null;
+        owner.LoseMomentum();
+        return new StandingState();
     }
 }

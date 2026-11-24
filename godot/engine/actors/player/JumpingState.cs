@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Input;
 using Engine.Shared;
 
@@ -27,9 +26,15 @@ public sealed class JumpingState : PlayerState
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
         if (owner.WallJumpFromAnyJump && WallJumpingState.CanStart(owner))
             return new WallJumpingState();
 
@@ -39,7 +44,7 @@ public sealed class JumpingState : PlayerState
         owner.MoveAcross();
         owner.MoveDown();
         owner.Fall();
-        return owner.Velocity.Y.IsNegative ? this : new FallingState();
+        return owner.Velocity.Y.IsNegative ? null : new FallingState();
     }
 
     /// <summary>Cuts a rising jump to the cut speed once the jump action is no longer held.</summary>

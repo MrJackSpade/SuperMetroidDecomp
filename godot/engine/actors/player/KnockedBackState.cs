@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Engine.Actors;
@@ -40,7 +39,7 @@ public sealed class KnockedBackState : PlayerState
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         // The throw gains speed away from the hit, up to its top speed, whatever the player holds.
         MoveValues moves = owner.Moves(KnockedBackMoves);
@@ -51,7 +50,7 @@ public sealed class KnockedBackState : PlayerState
         owner.Fall();
         _left = _left.Stepped();
         if (_left.IsRunning)
-            return this;
+            return null;
         owner.Velocity = owner.Velocity.WithX(Pixels.Zero);
         return owner.StateAtRest();
     }

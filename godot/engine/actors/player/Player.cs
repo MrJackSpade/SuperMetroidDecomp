@@ -432,8 +432,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Plays one update: what the player is doing runs, weapons fire, active body powers hit what the body touches, and
-    /// the room's ongoing damage is taken.
+    /// Plays one update. The state the player is in is asked what the input wants, moves the player, and the player
+    /// settles where that left them (what they stand on, what blocks do to them, the room's ongoing damage); then
+    /// whatever change is due takes effect (<see cref="PlayerState"/> gives the rank). After that weapons fire and
+    /// active body powers hit what the body touches.
     /// </summary>
     public void Step(GameInput input)
     {
@@ -445,28 +447,32 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             return;
 
         BeforeState();
-        PlayerState? chosen = ChooseState(State);
-        if (chosen is not null)
-            States.ChangeTo(chosen);
         States.Step();
 
         if (State.CanAttack)
             Attack(input);
         DeliverBodyPowers();
-        if (State is not DyingState)
-        {
-            bool onGround = IsOnGround;
-            if (onGround)
-                Room.Terrain.StandOn(BodyRect);
-            if (onGround && !_wasOnGround)
-                OnLanded();
-            _wasOnGround = onGround;
-            BeMovedByBlocks();
-            Splash();
-            TakeOngoingDamage();
-        }
-
         AfterState();
+    }
+
+    /// <summary>
+    /// Settles the player where this update's movement left them, before any change of state takes effect: they stand
+    /// on what is under them, land, are moved by the blocks they are in, splash, and take the room's ongoing damage.
+    /// A hurt taken here interrupts them on this same update.
+    /// </summary>
+    internal void SettleAfterMoving()
+    {
+        if (State is DyingState)
+            return;
+        bool onGround = IsOnGround;
+        if (onGround)
+            Room.Terrain.StandOn(BodyRect);
+        if (onGround && !_wasOnGround)
+            OnLanded();
+        _wasOnGround = onGround;
+        BeMovedByBlocks();
+        Splash();
+        TakeOngoingDamage();
     }
 
     /// <summary>Whether the player's feet were on the ground, and in the room's liquid, at the end of the last update.</summary>
@@ -510,22 +516,54 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Lets a game put the player into a state of its own. Called at the start of each update with the state the player
-    /// is in; returns the state to change to, or null to leave things as they are.
+    /// Lets a game's player ask for a state of its own. Called at the start of each update, before the player moves,
+    /// with the state the player is in; returns the state the input asks for, which is entered once this update's
+    /// movement is done unless something outranks it, or null to leave the asking to the state itself.
     /// </summary>
     protected virtual PlayerState? ChooseState(PlayerState current) => null;
+
+    /// <summary>What the player's input asks of <paramref name="state"/>: the game's own answer, and failing that the state's.</summary>
+    internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
+
+    /// <summary>The state waiting to interrupt the player, if any.</summary>
+    private PlayerState? _interruption;
+
+    /// <summary>
+    /// Interrupts the player with <paramref name="state"/> from outside: they are put into it when they have next
+    /// moved as the state they are in, ahead of whatever that movement met and whatever their input asked for.
+    /// </summary>
+    public void Interrupt(PlayerState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        _interruption = state;
+    }
+
+    /// <summary>Whether something is waiting to interrupt the player.</summary>
+    public bool IsInterrupted => _interruption is not null;
+
+    /// <summary>Takes the state waiting to interrupt the player, leaving none waiting; null when none was.</summary>
+    internal PlayerState? TakeInterruption()
+    {
+        PlayerState? waiting = _interruption;
+        _interruption = null;
+        return waiting;
+    }
 
     /// <summary>Uses the player's weapons for one update. A game whose player attacks in ways of its own does so here.</summary>
     protected virtual void Attack(GameInput input) => Weapons.Step(this, input);
 
-    /// <summary>Puts the player into <paramref name="state"/> now.</summary>
-    public void ChangeState(PlayerState state) => States.ChangeTo(state);
+    /// <summary>Puts the player into <paramref name="state"/> now. Whatever was waiting to interrupt them is dropped.</summary>
+    public void ChangeState(PlayerState state)
+    {
+        _interruption = null;
+        States.ChangeTo(state);
+    }
 
-    /// <summary>Knocks the player back, away from <paramref name="from"/>.</summary>
-    public void KnockBack(Facing from) => ChangeState(new KnockedBackState(from.Opposite()));
+    /// <summary>Knocks the player back, away from <paramref name="from"/>, once they have next moved.</summary>
+    public void KnockBack(Facing from) => Interrupt(new KnockedBackState(from.Opposite()));
 
-    /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates.</summary>
-    public void KnockBack(Facing from, int updates) => ChangeState(new KnockedBackState(from.Opposite(), updates));
+    /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates, once they have next moved.</summary>
+    public void KnockBack(Facing from, int updates) => Interrupt(new KnockedBackState(from.Opposite(), updates));
 
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
@@ -647,20 +685,30 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         if (form == Form)
             return true;
+        if (PlaceInForm(form, aroundMiddle) is not { } place)
+            return false;
+        Position = place;
+        ApplyForm(form);
+        return true;
+    }
+
+    /// <summary>Whether the body could take <paramref name="form"/> where it is, as <see cref="TrySetForm"/> would place it.</summary>
+    public bool CanTakeForm(string form, bool aroundMiddle = false) => form == Form || PlaceInForm(form, aroundMiddle) is not null;
+
+    /// <summary>Where the player would be in another form: the first place the form fits, or null when it fits nowhere.</summary>
+    private PixelPosition? PlaceInForm(string form, bool aroundMiddle)
+    {
         int change = HalfHeightOf(form) - HalfHeight;
         PixelPosition keepingFeet = Position + PixelOffset.FromWhole(0, -change);
         PixelPosition keepingHead = Position + PixelOffset.FromWhole(0, change);
         PixelPosition[] candidates = IsOnGround && !aroundMiddle ? [keepingFeet] : [Position, keepingFeet, keepingHead];
         foreach (PixelPosition candidate in candidates)
         {
-            if (change > 0 && !Room.Mover.IsFree(BodyRectFor(form).At(candidate), this, MoveOptions.Plain))
-                continue;
-            Position = candidate;
-            ApplyForm(form);
-            return true;
+            if (change <= 0 || Room.Mover.IsFree(BodyRectFor(form).At(candidate), this, MoveOptions.Plain))
+                return candidate;
         }
 
-        return false;
+        return null;
     }
 
     /// <summary>
@@ -798,7 +846,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             ClimbPerPixel = grounded ? ClimbPerPixel : 1,
             FollowGroundDown = grounded ? FollowGroundDown : 0,
         };
-        MoveResult result = Room.Mover.MoveAcross(Body, Slowed(InLiquid(SpeedAcross)), options);
+        Pixels distance = Slowed(InLiquid(SpeedAcross));
+        ClearWay(distance, Pixels.Zero);
+        MoveResult result = Room.Mover.MoveAcross(Body, distance, options);
         if (result.Blocked)
             StopAcross();
         return result;
@@ -807,10 +857,36 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Moves the player down by their speed, upward when it is negative.</summary>
     public MoveResult MoveDown()
     {
-        MoveResult result = Room.Mover.MoveDown(Body, InLiquid(Velocity.Y), MoveOptions.Plain);
+        Pixels distance = InLiquid(Velocity.Y);
+        ClearWay(Pixels.Zero, distance);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, MoveOptions.Plain);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
+    }
+
+    /// <summary>
+    /// Delivers each active body power's hit to the blocks in the way of a move, before the player makes it: a body
+    /// that is a weapon breaks what it can as it meets it, and is not stopped by what it breaks.
+    /// </summary>
+    private void ClearWay(Pixels across, Pixels down)
+    {
+        if (!_bodyPowers.Any(power => power.IsActive))
+            return;
+        int stepsAcross = (Position.X + across).Whole - Position.X.Whole, stepsDown = (Position.Y + down).Whole - Position.Y.Whole;
+        if (stepsAcross == 0 && stepsDown == 0)
+            return;
+        PixelRect body = BodyRect;
+        var way = new PixelRect(
+            stepsAcross < 0 ? body.Left + stepsAcross : stepsAcross > 0 ? body.Right : body.Left,
+            stepsDown < 0 ? body.Top + stepsDown : stepsDown > 0 ? body.Bottom : body.Top,
+            stepsAcross != 0 ? Math.Abs(stepsAcross) : body.Width,
+            stepsDown != 0 ? Math.Abs(stepsDown) : body.Height);
+        foreach (BodyPower power in _bodyPowers)
+        {
+            if (power.IsActive)
+                Room.Terrain.TakeHit(power.Hit with { Source = this }, way);
+        }
     }
 
     /// <summary>Whether the player is against a wall on the given side.</summary>

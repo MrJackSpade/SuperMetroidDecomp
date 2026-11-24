@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Engine.Actors;
@@ -18,21 +17,22 @@ public sealed class TurningState : PlayerState
     public override void Enter(Player owner) => _left = Countdown.Of(owner.TurnUpdates);
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
-        if (!owner.IsOnGround)
-        {
-            owner.Facing = owner.Facing.Opposite();
-            return new FallingState();
-        }
-
-        // The update's movement still carries the dash; the turn ends it afterwards.
+        // The update's movement still carries the dash; the turn ends it afterwards. A turn that leaves the ground is
+        // finished all the same, and what follows it finds the ground gone.
         owner.Slow(owner.Moves(TurningMoves));
         owner.MoveAcross();
         owner.LoseMomentum();
         _left = _left.Stepped();
+        return null;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Ended(Player owner)
+    {
         if (_left.IsRunning)
-            return this;
+            return null;
         owner.Facing = owner.Facing.Opposite();
         return owner.Intent != 0 ? new RunningState() : new StandingState();
     }

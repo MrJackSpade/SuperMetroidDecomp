@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
@@ -74,7 +73,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
         SamusGrapple? grapple = samus.Grapple;
@@ -115,11 +114,11 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         if (!move.X.IsZero)
             owner.Facing = move.X.IsNegative ? Facing.Left : Facing.Right;
         owner.Velocity = new PixelVelocity(move.X, move.Y);
-        return this;
+        return null;
     }
 
     /// <summary>Lets go of the line: she flies off with the speed the swing had.</summary>
-    private static State<Player> LetGo(Player owner, SamusGrapple? grapple)
+    private static PlayerState LetGo(Player owner, SamusGrapple? grapple)
     {
         grapple?.Release();
         return owner.IsOnGround ? new StandingState() : owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();

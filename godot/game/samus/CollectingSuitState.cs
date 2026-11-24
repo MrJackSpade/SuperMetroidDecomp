@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Actors.Components;
 using Engine.Shared;
 
 namespace Game;
@@ -32,9 +31,9 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     }
 
     /// <inheritdoc/>
-    public override State<Player> Step(Player owner)
+    public override PlayerState? Move(Player owner)
     {
         _left = _left.Stepped();
-        return _left.IsRunning ? this : owner.StateAtRest();
+        return _left.IsRunning ? null : owner.StateAtRest();
     }
 }

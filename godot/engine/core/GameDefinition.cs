@@ -155,6 +155,12 @@ public partial class GameDefinition : Resource
     public virtual IScrollCells CreateScrollCells() => new RoomScrollCells();
 
     /// <summary>
+    /// Makes what decides how the sounds and music asked for come to be heard. The engine's plain flow, where
+    /// everything starts at once, unless the game's sounds wait their turn in a way of its own.
+    /// </summary>
+    public virtual ISoundFlow CreateSoundFlow() => new ImmediateSoundFlow();
+
+    /// <summary>
     /// Makes the mode that takes the player from the room being played through <paramref name="exit"/> to the room it
     /// leads to. The engine's plain change of rooms, a fade, unless the game has a passage of its own.
     /// </summary>

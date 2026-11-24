@@ -22,16 +22,27 @@ internal static partial class EngineNames
     };
 
     /// <summary>
-    /// The sound that is no sound. A channel of the Godot game sounds one thing at a time, so asking for this on the
-    /// channel of a sound that goes on and on is how that sound is stopped.
+    /// The name of one of the old game's requests that only stops sounds, or none for a sound. Such a request is asked
+    /// for like a sound and waits its turn in its library like one: "stop" after its library for the one that stops
+    /// everything the library is sounding, and what it stops after that for the others.
     /// </summary>
-    internal const string Silence = "silence";
+    internal static string? Stop(SoundEffectId sound) => sound switch
+    {
+        SoundEffectId.OfSamusStop samus => StopName("samus", samus.Stop == SamusSoundStop.Any, samus.Stop.ToString()),
+        SoundEffectId.OfEnemiesStop enemies => StopName("enemy", enemies.Stop == EnemySoundStop.Any, enemies.Stop.ToString()),
+        SoundEffectId.OfRoomStop room => StopName("room", room.Stop == RoomSoundStop.Any, room.Stop.ToString()),
+        _ => null,
+    };
 
-    /// <summary>The name of one of the old game's sounds, or <see cref="Silence"/> for a request that only stops one.</summary>
-    internal static string SoundOrSilence(SoundEffectId sound) => Sound(sound) ?? Silence;
+    private static string StopName(string library, bool any, string what) =>
+        any ? library + "_stop" : library + "_stop_" + EngineSheets.FileName(what);
 
-    /// <summary>The cue that asks for one of the old game's sounds, or none for a request that only stops one.</summary>
-    internal static string? SoundCue(SoundEffectId sound) => Sound(sound) is { } name ? "sound:" + name : null;
+    /// <summary>The name of whatever the old game can ask its sound queues for: a sound, or a request that only stops sounds.</summary>
+    internal static string SoundOrStop(SoundEffectId sound) => Sound(sound) ?? Stop(sound)
+        ?? throw new InvalidDataException($"The request {sound} is neither a sound nor a stop of sounds.");
+
+    /// <summary>The cue that asks for one of the old game's sounds, or for one of its stops of sounds.</summary>
+    internal static string SoundCue(SoundEffectId sound) => "sound:" + SoundOrStop(sound);
 
     /// <summary>The cue that makes an enemy go on behaving however far from the view it is.</summary>
     internal const string AlwaysActive = "always_active";

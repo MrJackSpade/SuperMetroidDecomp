@@ -10,7 +10,7 @@ Speed = 1.5
 Size = Vector2i(32, 48)
 HoldsAt = Vector2i(16, 22)
 DepartureSound = "room_elevator"
-ArrivalSound = "silence"
+ArrivalSound = "room_stop_speed_booster_or_elevator"
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")

@@ -185,7 +185,7 @@ public sealed partial class EngineAssetWriter
         IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> effects = MotherBrainEffectAnimations.StartingAt;
         string Effect(string name, MotherBrainEffectSegment segment, Func<MotherBrainEffectCue, string?> cue, bool rests = false) =>
             mother.SpawnedTimelineFrom(mother.Spawner, name, MotherBrainEffectAnimations.Segments, effects[segment], cue, rests);
-        string explosionSound = EngineNames.SoundOrSilence(MotherBrainSoundDefinitions.Explosion.SoundEffect);
+        string explosionSound = EngineNames.SoundOrStop(MotherBrainSoundDefinitions.Explosion.SoundEffect);
 
         // Her rings sit at her mouth, then fly straight; one bursts on Samus and where it leaves the fighting floor.
         mother.Shot("ring", RoomEnemyProjectileKind.MotherBrainOnionRing, (_, shot, projectile) =>
@@ -429,9 +429,9 @@ public sealed partial class EngineAssetWriter
             .Value("hand_beam_sound", EngineNames.Sound(MotherBrainSoundDefinitions.HandBeam))
             .Value("laser_sound", EngineNames.Sound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound))
             .Value("charge_sound", EngineNames.Sound(MotherBrainSoundDefinitions.RainbowBeamCharge))
-            .Value("charge_stop_sound", EngineNames.Silence)
+            .Value("charge_stop_sound", EngineNames.SoundOrStop(EnemySoundStop.Any))
             .Value("rainbow_beam_sound", EngineNames.Sound(MotherBrainSoundDefinitions.StartRainbowDrain))
-            .Value("rainbow_beam_stop_sound", EngineNames.SoundOrSilence(MotherBrainSoundDefinitions.StopRainbowDrain))
+            .Value("rainbow_beam_stop_sound", EngineNames.SoundOrStop(MotherBrainSoundDefinitions.StopRainbowDrain))
             .Value("attack_cry_sound", EngineNames.Sound(MotherBrainSoundDefinitions.AttackCry))
             .Value("small_breath_effect", Effect("breath_small", MotherBrainEffectSegment.PurpleBreathSmall, BreathCue))
             .Value("big_breath_effect", Effect("breath_big", MotherBrainEffectSegment.PurpleBreathBig, BreathCue))
@@ -503,7 +503,7 @@ public sealed partial class EngineAssetWriter
             .Value("remorse_cry_sound", EngineNames.Sound(BabyMetroidSoundDefinitions.RemorseCry))
             .Value("death_sound", EngineNames.Sound(RoomSound.BabyMetroidDeath))
             .Value("heal_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
-            .Value("explosion_sound", EngineNames.SoundOrSilence(MotherBrainSoundDefinitions.Explosion.SoundEffect))
+            .Value("explosion_sound", EngineNames.SoundOrStop(MotherBrainSoundDefinitions.Explosion.SoundEffect))
             .Value("dust_effect", DustFile(DustExplosionAnimation.SmallDustCloud))
             .Value("explosion_effect", DustFile(DustExplosionAnimation.SmallExplosion))
             .Value("shielding_health", BabyMetroidCutsceneDefinitions.ArrivalHealth)

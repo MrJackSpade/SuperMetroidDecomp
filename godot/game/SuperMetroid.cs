@@ -1,6 +1,7 @@
 using Engine.Core;
 using Engine.Shared;
 using Game.Cinematics;
+using Game.Compatibility;
 using Godot;
 
 namespace Game;
@@ -35,6 +36,9 @@ public partial class SuperMetroid : GameDefinition
 
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
     public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
+
+    /// <summary>Sounds and music wait their turn as the cartridge's do.</summary>
+    public override ISoundFlow CreateSoundFlow() => new CartridgeSounds();
 
     /// <summary>A door that scrolls is passed through as the cartridge passes Samus through it; any other way out is the engine's plain change of rooms.</summary>
     public override GameMode CreateRoomTransition(PlayingMode playing, Engine.World.RoomExit exit) =>

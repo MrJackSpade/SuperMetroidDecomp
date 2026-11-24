@@ -7,8 +7,17 @@ namespace Game.Data;
 /// </summary>
 public static class Sounds
 {
-    /// <summary>The sound that is no sound: asked for on a channel, it stops what the channel was sounding.</summary>
-    public const string Silence = "silence";
+    /// <summary>Stops everything Samus's library is sounding. A stop is asked for like a sound and waits its turn like one.</summary>
+    public const string SamusStop = "samus_stop";
+
+    /// <summary>Stops a spin jump's sound.</summary>
+    public const string SpinJumpStop = "samus_stop_spin_jump";
+
+    /// <summary>Stops everything the enemies' library is sounding.</summary>
+    public const string EnemyStop = "enemy_stop";
+
+    /// <summary>Stops everything the room's library is sounding.</summary>
+    public const string RoomStop = "room_stop";
 
     /// <summary>A power bomb's blast.</summary>
     public const string PowerBombExplosion = "samus_power_bomb_explosion";
@@ -71,7 +80,7 @@ public static class Sounds
     public const string Xray = "samus_xray_start";
 
     /// <summary>The X-ray scope switching off.</summary>
-    public const string XrayEnd = "silence";
+    public const string XrayEnd = "samus_stop_xray";
 
     /// <summary>A crystal flash.</summary>
     public const string CrystalFlash = "samus_power_bomb_explosion";
@@ -146,6 +155,6 @@ public static class Sounds
         StoredShine, Shinespark, ShinesparkEnd, Charging, ItemSelect, GrappleFire, GrappleLatch, GrappleRelease, Xray, XrayEnd,
         CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
         BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
-        BigExplosion, MenuMove, MenuAccept, Typing, Silence, PowerBombExplosion,
+        BigExplosion, MenuMove, MenuAccept, Typing, SamusStop, SpinJumpStop, EnemyStop, RoomStop, PowerBombExplosion,
     ];
 }

@@ -209,8 +209,8 @@ public sealed partial class EngineAssetWriter
             .Value("crack", crack)
             .Value("bubble", bubble)
             .Value("open_patch", TubeOpenPatch)
-            .Value("break_sound", EngineNames.SoundOrSilence(NoobTubeObjectDefinitions.BreakSound))
-            .Value("dud_sound", EngineNames.SoundOrSilence(NoobTubeObjectDefinitions.IneffectiveShotSound))
+            .Value("break_sound", EngineNames.SoundOrStop(NoobTubeObjectDefinitions.BreakSound))
+            .Value("dud_sound", EngineNames.SoundOrStop(NoobTubeObjectDefinitions.IneffectiveShotSound))
             .Group("shards", shards)
             // The one block a power bomb's blast must reach.
             .Collider("Hurtbox", 0, 0, block, block)

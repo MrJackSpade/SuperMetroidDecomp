@@ -5,15 +5,15 @@ namespace SuperMetroid.AssetExtraction.Engine;
 
 /// <summary>
 /// The game's sounds and music. The Godot game plays one file for each name it asks for: a sound's is the old
-/// sound's name after the library it is in, a piece of music's the old track's name, and "silence" is the sound that
-/// stops what its channel was sounding.
+/// sound's name after the library it is in, and a piece of music's the old track's name. A request that only stops
+/// sounds has a name too, and its file is of nothing: played where its library sounds, it ends what was sounding.
 /// </summary>
 public sealed partial class EngineAssetWriter
 {
     /// <summary>The folders of the asset tree the Godot game's definition names for its sounds and its music.</summary>
     private const string SoundFolder = "sounds", MusicFolder = "music";
 
-    /// <summary>Writes every sound, the silence, and every piece of music.</summary>
+    /// <summary>Writes every sound, every stop of sounds, and every piece of music.</summary>
     private void WriteAudio()
     {
         InstalledClipAudioLibrary audio = _installation.LoadAudioClips();
@@ -35,7 +35,7 @@ public sealed partial class EngineAssetWriter
         var written = new HashSet<string>(StringComparer.Ordinal);
         foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
         {
-            // A request that only stops a sound is no sound: the Godot game asks for the silence in its place.
+            // A request that only stops sounds has its own file of nothing, below.
             if (EngineNames.Sound(entry.Sound) is not { } name)
                 continue;
             if (!written.Add(name))
@@ -66,7 +66,8 @@ public sealed partial class EngineAssetWriter
                 throw new InvalidDataException($"The installation keeps no clip for the sound {sound}.");
         }
 
-        _tree.WriteSound($"{SoundFolder}/{EngineNames.Silence}.wav", manifest.SampleRate, new short[PcmSampleFormat.StereoChannelCount], null);
+        foreach (SoundEffectId stop in EveryStop())
+            _tree.WriteSound($"{SoundFolder}/{EngineNames.Stop(stop)}.wav", manifest.SampleRate, new short[PcmSampleFormat.StereoChannelCount], null);
 
         // One file for each track. Where sets of music keep the same track differently, it is the first listed.
         foreach (MusicTrack track in Enum.GetValues<MusicTrack>())
@@ -86,6 +87,17 @@ public sealed partial class EngineAssetWriter
             yield return sound;
         foreach (RoomSound sound in Enum.GetValues<RoomSound>())
             yield return sound;
+    }
+
+    /// <summary>Every request of the old game's three libraries that only stops sounds.</summary>
+    private static IEnumerable<SoundEffectId> EveryStop()
+    {
+        foreach (SamusSoundStop stop in Enum.GetValues<SamusSoundStop>())
+            yield return stop;
+        foreach (EnemySoundStop stop in Enum.GetValues<EnemySoundStop>())
+            yield return stop;
+        foreach (RoomSoundStop stop in Enum.GetValues<RoomSoundStop>())
+            yield return stop;
     }
 
     /// <summary>

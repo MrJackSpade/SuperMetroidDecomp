@@ -70,12 +70,12 @@ public sealed partial class EngineAssetWriter
 
         dachora
             .Value("echo_effect", echo)
-            .Value("activation_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.DachoraActivationSound))
-            .Value("speed_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.DachoraSpeedBoosterSound))
-            .Value("speed_stop_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.DachoraSpeedBoosterSoundStop))
-            .Value("charge_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.DachoraChargeSound))
-            .Value("launch_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.DachoraLaunchSound))
-            .Value("ceiling_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.DachoraCeilingImpactSound))
+            .Value("activation_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraActivationSound))
+            .Value("speed_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraSpeedBoosterSound))
+            .Value("speed_stop_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraSpeedBoosterSoundStop))
+            .Value("charge_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraChargeSound))
+            .Value("launch_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraLaunchSound))
+            .Value("ceiling_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraCeilingImpactSound))
             .Write();
     }
 
@@ -113,9 +113,9 @@ public sealed partial class EngineAssetWriter
             .Timeline("clinging_to_left_wall", Look(EtecoonSegment.WallJumpRightEligible))
             .Timeline("wall_jump_left", Look(EtecoonSegment.WallJumpLeft))
             .Timeline("wall_jump_right", Look(EtecoonSegment.WallJumpRight))
-            .Value("wake_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.EtecoonWakeSound))
-            .Value("jump_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.EtecoonJumpSound))
-            .Value("wall_sound", EngineNames.SoundOrSilence(EnemySoundEffectDefinitions.EtecoonWallSound))
+            .Value("wake_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.EtecoonWakeSound))
+            .Value("jump_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.EtecoonJumpSound))
+            .Value("wall_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.EtecoonWallSound))
             .Write();
     }
 

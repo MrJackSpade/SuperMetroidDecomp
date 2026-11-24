@@ -1,7 +1,7 @@
 """Checks that every sound and piece of music the Godot project asks for by name is one the asset extractor writes.
 
 The audio writer writes one sound file for each of the old game's sounds, named for the library it is in and its
-name there ("samus_", "enemy_" or "room_" and the old name in lower case with underscores), the sound "silence", and
+name there ("samus_", "enemy_" or "room_" and the old name in lower case with underscores), one file of nothing for each of its requests that only stop sounds ("stop" after the library), and
 one music file for each of the old game's tracks, named likewise. This reads the sources as text: the Godot game's
 code and scenes, the room generator's rules and the extractor's writers, and lists every name asked for that is
 none of those.
@@ -17,7 +17,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 GODOT = os.path.join(ROOT, 'godot')
 ENGINE = os.path.join(ROOT, 'csharp', 'src', 'SuperMetroid.AssetExtraction', 'Engine')
 AUDIO = os.path.join(ROOT, 'csharp', 'src', 'SuperMetroid.Core', 'Audio')
-SILENCE = 'silence'
 
 
 def read(path: str) -> str:
@@ -38,9 +37,11 @@ def members(enum: str) -> list[str]:
     return re.findall(r'^\s*(\w+)\s*(?:=[^,]*)?,?\s*$', code, re.M)
 
 
-SOUNDS = {SILENCE}
+SOUNDS = set()
 for library, prefix in (('SamusSound', 'samus_'), ('EnemySound', 'enemy_'), ('RoomSound', 'room_')):
     SOUNDS.update(prefix + snake(member) for member in members(library))
+    # A request that only stops sounds: "stop" after its library, and what it stops unless it stops everything.
+    SOUNDS.update(prefix + ('stop' if member == 'Any' else 'stop_' + snake(member)) for member in members(library + 'Stop'))
 MUSIC = {snake(member) for member in members('MusicTrack')}
 
 asked_sounds: dict[str, str] = {}

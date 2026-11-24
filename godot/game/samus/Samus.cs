@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
@@ -863,7 +864,7 @@ public partial class Samus : Player
         else if (_chargeSounds && Weapons.ChargedFor < ChargeSoundUpdates)
         {
             if (!fired)
-                Room.Session.Sounds.Request(Sounds.Silence, channel: "weapons");
+                Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.Essential);
             _chargeSounds = false;
         }
         if (fired && _autoCancel && weapon != Arsenal.Beam)
@@ -1180,7 +1181,7 @@ public partial class Samus : Player
         if (low == _warningOfLowEnergy)
             return;
         _warningOfLowEnergy = low;
-        Room.Session.Sounds.Request(low ? Sounds.LowEnergy : Sounds.Silence, channel: "warning");
+        Room.Session.Sounds.Request(low ? Sounds.LowEnergy : Sounds.RoomStop, channel: "warning");
     }
 
     /// <summary>The name an aim has in her data file.</summary>

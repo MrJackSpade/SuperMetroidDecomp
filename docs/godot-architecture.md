@@ -314,9 +314,13 @@ it is remembered.
 - What the game asks to be played, and when, is decided inside the update. Device latency, mute and device failure
   never change gameplay.
 - A buffer the game reuses is copied or handed over before it is queued for playback.
-- Gameplay asks `SoundRequests` by name; the `AudioDirector`, a child of the game loop that runs after it, takes
-  what was accepted each update and plays `<sound folder>/<name>.wav`, and follows the music asked for. A name
-  with no file is an error, not silence.
+- Gameplay asks `SoundRequests` by name; the session's `ISoundFlow` decides whether each request is let in and on
+  which update it starts; the `AudioDirector`, a child of the game loop that runs after it, takes what started
+  each update and plays `<sound folder>/<name>.wav`, and follows the music playing. A name with no file is an
+  error, not silence.
+- What waits to be heard is game state where the game reads it. This game's flow is the cartridge's
+  (`CartridgeSounds`, in the compatibility layer): an update opens with the music's turn, the mode plays it, and it
+  closes with the sounds' turns and the sound program's clock. The engine's plain flow starts everything at once.
 
 ## Presentation
 

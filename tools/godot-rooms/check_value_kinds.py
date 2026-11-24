@@ -71,7 +71,7 @@ def kind_given(expression: str) -> str | None:
         return 'flag'
     if re.match(r'\$?@?"', text) and not re.search(r'"\s*\)?\s*[?:]', text):
         return 'text'
-    if re.match(r'EngineNames\.(Sound|SoundOrSilence|SoundCue|Side)\(', text) or re.match(r'(MusicName|MessageName|EffectFile|DustFile|DeathFile|PickupFile)\(', text):
+    if re.match(r'EngineNames\.(Sound|SoundOrStop|SoundCue|Side)\(', text) or re.match(r'(MusicName|MessageName|EffectFile|DustFile|DeathFile|PickupFile)\(', text):
         return 'text'
     if re.match(r'EngineNames\.Number\(', text) or re.search(r'\.Pixels\)*$', text):
         return 'fraction'

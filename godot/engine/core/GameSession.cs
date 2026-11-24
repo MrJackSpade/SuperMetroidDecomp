@@ -39,6 +39,7 @@ public sealed class GameSession
         Random = new GameRandom(definition.CreateRandomSequence());
         Services = definition.CreateServices();
         ScrollCells = definition.CreateScrollCells();
+        Sounds = new SoundRequests(definition.CreateSoundFlow());
         int viewHeight = ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32();
         Camera = new Camera(ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(), viewHeight)
         {
@@ -138,7 +139,7 @@ public sealed class GameSession
     public IScrollCells ScrollCells { get; }
 
     /// <summary>What gameplay has asked to hear.</summary>
-    public SoundRequests Sounds { get; } = new();
+    public SoundRequests Sounds { get; }
 
     /// <summary>The player. One lasts the whole session, going from room to room.</summary>
     public Player Player => _player ??= Definition.CreatePlayer();
@@ -234,6 +235,10 @@ public sealed class GameSession
     public void Step(GameInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
+
+        // What of the sounds' own work the update does is the mode's to say, as the update begins.
+        int soundTurns = Mode.SoundTurns;
+        Sounds.OpenUpdate(Mode.GivesMusicItsTurn);
         GameMode next = Mode.Step(input)
             ?? throw new InvalidOperationException($"{Mode.GetType().Name} named no mode to be in control next.");
         if (!ReferenceEquals(next, Mode))
@@ -263,7 +268,7 @@ public sealed class GameSession
                 Show(next);
         }
 
-        Sounds.Step();
+        Sounds.CloseUpdate(soundTurns);
         Clock.Advance();
     }
 

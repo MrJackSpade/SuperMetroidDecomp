@@ -3,6 +3,7 @@ using Engine.Input;
 using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -108,10 +109,12 @@ public partial class DoorTransitionMode : GameMode
         {
             case Stage.Entering:
                 // The door's first update: the room's enemies run once more with sounds still let in, and then
-                // Samus's sounds and the enemies' are told to stop.
+                // Samus's sounds and the enemies' are told to stop. From here until the next room has faded in
+                // every sound asked for is turned away.
                 room.OpenUpdate(movesLiquid: true);
                 room.StepForTransition(enemies: true);
                 StopSounds(samus, input);
+                CartridgeSounds.Of(Session).DoorTurnsSoundsAway = true;
                 _stage = Stage.WaitingForSounds;
                 break;
 
@@ -242,9 +245,10 @@ public partial class DoorTransitionMode : GameMode
                     Session.Camera.TakePlayerToHaveStoodAtX(_stoodAtX);
                     Session.Camera.TakePlayerToHaveStoodAtY(_stoodAtY);
 
-                    // The spin's sound, stopped as the door was entered, is asked for again as play resumes.
+                    // Sounds are let in again, and the spin's, stopped as the door was entered, is asked for anew.
+                    CartridgeSounds.Of(Session).DoorTurnsSoundsAway = false;
                     if (samus.State is SpinJumpingState spin)
-                        Session.Sounds.Request(spin.ShownSound, channel: "samus");
+                        Session.Sounds.Request(spin.ShownSound, channel: "samus", priority: SoundPriority.High);
                     return _playing;
                 }
 
@@ -379,21 +383,25 @@ public partial class DoorTransitionMode : GameMode
         WithinScreen(pixel) / Block == 14 ? pixel - pixel % Block - HalfBlock : pixel;
 
     /// <summary>
+    /// The music waiting gets no turn on the updates that carry the next room's load on: the scroll's, and the one
+    /// that aligns Samus.
+    /// </summary>
+    public override bool GivesMusicItsTurn => _stage is not (Stage.Scrolling or Stage.AligningSamus);
+
+    /// <summary>The sounds waiting get no turn on an update that leaves the next room's load running: the load's own, and the scroll's.</summary>
+    public override int SoundTurns => _stage is Stage.Loading or Stage.Scrolling ? 0 : 1;
+
+    /// <summary>
     /// Tells Samus's sounds and the enemies' to stop as the door is entered: her spin's alone while she spins, and
-    /// otherwise all of hers unless she holds the attack or a charge has begun to sound.
+    /// otherwise all of hers unless she holds the attack or a charge has begun to sound. No number of sounds waiting
+    /// turns these away.
     /// </summary>
     private void StopSounds(Samus samus, GameInput input)
     {
         if (samus.State is SpinJumpingState or Engine.Actors.WallJumpingState)
-        {
-            Session.Sounds.Request(Sounds.Silence, channel: "samus");
-        }
+            Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
         else if (!input.IsHeld(GameAction.Attack) && !samus.ChargeIsSounding)
-        {
-            Session.Sounds.Request(Sounds.Silence, channel: "samus");
-            Session.Sounds.Request(Sounds.Silence, channel: "weapons");
-        }
-
-        Session.Sounds.Request(Sounds.Silence, channel: "enemies");
+            Session.Sounds.Request(Sounds.SamusStop, channel: "samus", priority: SoundPriority.Essential);
+        Session.Sounds.Request(Sounds.EnemyStop, channel: "enemies", priority: SoundPriority.Essential);
     }
 }

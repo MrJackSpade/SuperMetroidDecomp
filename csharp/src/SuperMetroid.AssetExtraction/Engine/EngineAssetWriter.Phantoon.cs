@@ -106,7 +106,7 @@ public sealed partial class EngineAssetWriter
                 ["x"] = (int)rain.BodyPosition.X,
                 ["y"] = (int)rain.BodyPosition.Y,
             })))
-            .Group("appear_sounds", new JsonArray([.. PhantoonSoundDefinitions.MaterializationSounds.Select(sound => (JsonNode)EngineNames.SoundOrSilence(sound))]))
+            .Group("appear_sounds", new JsonArray([.. PhantoonSoundDefinitions.MaterializationSounds.Select(sound => (JsonNode)EngineNames.SoundOrStop(sound))]))
             // Its colours change as it is worn down: its pictures are kept once for each band of its health.
             .Group("health_bands", EngineNames.List(bands.Select(band => band.MinimumHealth)))
             .PictureSets("{health}")

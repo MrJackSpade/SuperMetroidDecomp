@@ -1,96 +1,72 @@
 namespace Engine.Core;
 
 /// <summary>
-/// What gameplay has asked to hear and, as gameplay sees it, what is still sounding. Sounds are asked for on named
-/// channels; a channel sounds one thing at a time, and a request of lower priority than what is sounding on its
-/// channel is refused. It plays nothing itself: the audio director plays what it accepted. Because it is advanced
-/// once per update by the game, the few behaviours that wait on a sound never depend on a sound device's timing.
+/// Where gameplay asks to hear something. A sound is asked for by name, on a named channel, with a priority; music
+/// by name. It plays nothing itself and decides nothing itself: the session's <see cref="ISoundFlow"/> says whether
+/// each request is let in and when it starts, and the audio director plays what has started. Because the flow is
+/// moved on once an update by the game, the few behaviours that wait on sound never depend on a sound device's timing.
 /// </summary>
 public sealed class SoundRequests
 {
-    /// <summary>What is sounding on each channel, as gameplay sees it.</summary>
-    private readonly Dictionary<string, Sounding> _channels = new(StringComparer.Ordinal);
+    /// <summary>Requests that go by the engine's plain flow, where everything starts at once.</summary>
+    public SoundRequests()
+        : this(new ImmediateSoundFlow())
+    {
+    }
 
-    /// <summary>The requests accepted since the audio director last took them, in the order they were accepted.</summary>
-    private readonly List<AcceptedSound> _accepted = [];
+    /// <summary>Requests that go by <paramref name="flow"/>.</summary>
+    public SoundRequests(ISoundFlow flow)
+    {
+        ArgumentNullException.ThrowIfNull(flow);
+        Flow = flow;
+    }
 
-    /// <summary>The music asked for, by name; empty for silence.</summary>
-    public string Music { get; private set; } = "";
+    /// <summary>How what is asked for comes to be heard.</summary>
+    public ISoundFlow Flow { get; }
 
-    /// <summary>
-    /// Asks for a sound. Returns whether it was accepted: refused when its channel is sounding something of higher
-    /// priority.
-    /// </summary>
+    /// <summary>The music playing, by name, as gameplay sees it; empty for silence.</summary>
+    public string Music => Flow.Music;
+
+    /// <summary>Whether a sound that was asked for is still waiting to be handed on to be heard.</summary>
+    public bool HasQueuedSounds => Flow.HasWaitingSounds;
+
+    /// <summary>Whether music that was asked for is still waiting to play.</summary>
+    public bool HasQueuedMusic => Flow.HasWaitingMusic;
+
+    /// <summary>Asks for a sound, and says what became of the request.</summary>
     /// <param name="sound">The sound, by name.</param>
     /// <param name="channel">The channel it sounds on.</param>
-    /// <param name="priority">Its priority; a higher number wins.</param>
-    /// <param name="updates">How many updates gameplay treats it as sounding for.</param>
-    public bool Request(string sound, string channel = "", int priority = 0, int updates = 1)
+    /// <param name="priority">How readily it gives way when sounds are waiting.</param>
+    public SoundAdmission Request(string sound, string channel = "", SoundPriority priority = SoundPriority.Normal)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sound);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updates);
-        if (_channels.TryGetValue(channel, out Sounding current) && current.UpdatesLeft > 0 && current.Priority > priority)
-            return false;
-        _channels[channel] = new Sounding(sound, priority, updates);
-        _accepted.Add(new AcceptedSound(sound, channel));
-        return true;
+        return Flow.Ask(sound, channel, priority);
     }
 
     /// <summary>
-    /// Asks for every channel to fall silent at once, whatever it is sounding, as when the game is paused. What was
-    /// asked for earlier in the update is not heard; what is asked for after is. The music plays on.
+    /// Asks for every sound to stop, as when the game is paused, with the priority of a sound asked for. The music
+    /// plays on.
     /// </summary>
-    public void StopAll()
-    {
-        _channels.Clear();
-        _accepted.Clear();
-        _stopAsked = true;
-    }
-
-    /// <summary>Whether every channel was asked to fall silent since this was last asked; asking takes the request.</summary>
-    public bool TakeStop()
-    {
-        bool asked = _stopAsked;
-        _stopAsked = false;
-        return asked;
-    }
-
-    private bool _stopAsked;
+    public void StopAll(SoundPriority priority = SoundPriority.Normal) => Flow.AskSilence(priority);
 
     /// <summary>Asks for the music to be <paramref name="music"/>, by name; empty for silence.</summary>
-    public void RequestMusic(string music) => Music = music;
-
-    /// <summary>Whether a sound that was asked for is still waiting to be played. Nothing waits here: what is accepted is played at once.</summary>
-    public bool HasQueuedSounds => false;
-
-    /// <summary>Whether music that was asked for is still waiting to be played. Nothing waits here: the music asked for is the music.</summary>
-    public bool HasQueuedMusic => false;
-
-    /// <summary>Whether <paramref name="sound"/> is still sounding, as gameplay sees it.</summary>
-    public bool IsSounding(string sound) => _channels.Values.Any(sounding => sounding.Sound == sound && sounding.UpdatesLeft > 0);
-
-    /// <summary>Whether anything is sounding on <paramref name="channel"/>, as gameplay sees it.</summary>
-    public bool IsChannelBusy(string channel) => _channels.TryGetValue(channel, out Sounding sounding) && sounding.UpdatesLeft > 0;
-
-    /// <summary>The requests accepted since they were last taken. The audio director takes them once per update.</summary>
-    public IReadOnlyList<AcceptedSound> TakeAccepted()
+    /// <param name="music">The music.</param>
+    /// <param name="wait">How many updates it waits before it plays, once its turn has come; none for the shortest wait there is.</param>
+    public void RequestMusic(string music, int wait = 0)
     {
-        var taken = _accepted.ToList();
-        _accepted.Clear();
-        return taken;
+        ArgumentNullException.ThrowIfNull(music);
+        Flow.AskMusic(music, wait);
     }
 
-    /// <summary>Moves every channel on by one update.</summary>
-    internal void Step()
-    {
-        foreach (string channel in _channels.Keys.ToList())
-        {
-            Sounding sounding = _channels[channel];
-            if (sounding.UpdatesLeft > 0)
-                _channels[channel] = sounding with { UpdatesLeft = sounding.UpdatesLeft - 1 };
-        }
-    }
+    /// <summary>Whether everything sounding is to fall silent at once; asking takes the request. The audio director asks.</summary>
+    public bool TakeStop() => Flow.TakeSilence();
 
-    /// <summary>What a channel is sounding.</summary>
-    private readonly record struct Sounding(string Sound, int Priority, int UpdatesLeft);
+    /// <summary>The sounds that started since they were last taken. The audio director takes them once per update.</summary>
+    public IReadOnlyList<AcceptedSound> TakeAccepted() => Flow.TakeStarted();
+
+    /// <summary>Opens an update, before the mode in control plays it.</summary>
+    internal void OpenUpdate(bool musicTurn) => Flow.OpenUpdate(musicTurn);
+
+    /// <summary>Closes an update, after the mode in control has played it.</summary>
+    internal void CloseUpdate(int soundTurns) => Flow.CloseUpdate(soundTurns);
 }

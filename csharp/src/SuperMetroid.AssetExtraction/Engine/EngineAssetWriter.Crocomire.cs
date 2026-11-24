@@ -174,7 +174,7 @@ public sealed partial class EngineAssetWriter
                     waited += CrocomireMelting.BandRound(pass) + 1;
                     break;
                 case CrocomireDeathStage.StartDissolve dissolve:
-                    Does("sound:" + EngineNames.SoundOrSilence(dissolve.Cry));
+                    Does("sound:" + EngineNames.SoundOrStop(dissolve.Cry));
                     waited++;
                     break;
                 case CrocomireDeathStage.Dissolve:
@@ -344,7 +344,7 @@ public sealed partial class EngineAssetWriter
                     ["growth"] = EngineNames.Number(piece.AccelerationGrowth),
                     ["most"] = EngineNames.Number(piece.MaximumAcceleration),
                     ["fastest"] = piece.FastestSpeed,
-                    ["sound"] = piece.CrumbleSound is { } sound ? EngineNames.SoundOrSilence(sound) : "",
+                    ["sound"] = piece.CrumbleSound is { } sound ? EngineNames.SoundOrStop(sound) : "",
                 })),
             })
             .Write();

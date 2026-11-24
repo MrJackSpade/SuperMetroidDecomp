@@ -77,7 +77,7 @@ public sealed partial class EngineAssetWriter
             if (!last)
                 step["updates"] = frame.Updates;
             if (frame.SoundBefore is { } sound)
-                step["sound"] = EngineNames.SoundOrSilence(sound);
+                step["sound"] = EngineNames.SoundOrStop(sound);
             steps.Add(step);
         }
 

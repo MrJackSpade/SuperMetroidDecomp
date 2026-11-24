@@ -35,6 +35,18 @@ public abstract partial class GameMode : Node
     /// </summary>
     public virtual GameMode? Keeps => null;
 
+    /// <summary>
+    /// Whether the music waiting to play gets its turn as this mode's next update opens. It does, unless the mode
+    /// says otherwise for that update.
+    /// </summary>
+    public virtual bool GivesMusicItsTurn => true;
+
+    /// <summary>
+    /// How many turns the sounds waiting to be heard get as this mode's next update closes. One, unless the mode says
+    /// otherwise for that update. Asked before the update is played.
+    /// </summary>
+    public virtual int SoundTurns => 1;
+
     /// <summary>Called once as this mode takes control, before its first update.</summary>
     protected virtual void Enter()
     {

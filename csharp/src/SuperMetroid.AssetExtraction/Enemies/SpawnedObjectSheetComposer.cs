@@ -160,13 +160,16 @@ internal static partial class SpawnedObjectSheetComposer
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Room effect-actor frame {frame} has no installed composition."), objectBase, EffectActorRow(frame)),
                 Drawn(FrameDrawings.Of(frame)))))
+            // An encounter drawing a frame in its own row ORs that row into the parts as it draws them, and draws them with no
+            // palette bits as it flashes, as Ridley's tail and wings show his hurt flash, so they show each part's own row then
+            // (#2658). A frame drawn in another enemy's row, which no draw of it selects away, has that row folded into its parts.
             .Concat(EncounterFrames(plan.Spawners, plan.Owner == SpawnedObjectOwner.Shared).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), objectBase,
-                    EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
-                        : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
-                Drawn(FrameDrawings.Of(frame)), RottingCorpseCells.ShowsInEncounter(frame))))
+                    EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner) : 0),
+                Drawn(FrameDrawings.Of(frame)), RottingCorpseCells.ShowsInEncounter(frame),
+                EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0)))
             .Concat(ElevatorArrivalPoses(plan).Select(pose => characters.Pictures(
                 CeresElevatorArrivalPictures.SheetName(pose), EnemySpriteFrames.Frame(projectiles.GetElevatorArrival(pose), projectileBase, 0),
                 Drawn(FrameDrawings.None))))];

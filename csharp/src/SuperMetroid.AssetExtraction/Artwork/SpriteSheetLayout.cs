@@ -45,8 +45,11 @@ internal sealed partial class SpriteSheetLayout
     /// </summary>
     private readonly ShadedRowInks[] rowShadeInks;
 
-    /// <summary>Whether each ink's row shading is recorded: it follows from the ink alone, so it is recorded once.</summary>
-    private readonly bool[] rowShadedInks = new bool[8 * RowColours];
+    /// <summary>
+    /// The own row each ink's row shading was recorded from, or none: it follows from the ink and the own row of the parts
+    /// inking it, which a frame's draw row can fold into the ink (#2658), so it is recorded once and must agree.
+    /// </summary>
+    private readonly int?[] rowShadedOwnRows = new int?[8 * RowColours];
 
     /// <summary>Lays out a sheet's distinct frame images in order.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
@@ -76,7 +79,7 @@ internal sealed partial class SpriteSheetLayout
                 if (part.Size != sources.ObjectSizes.Small && part.Size != sources.ObjectSizes.Large)
                     throw new InvalidDataException($"Sheet frame {frame.Name} has a {part.Size.X}x{part.Size.Y} part, not an object size of its screen.");
             }
-            string content = FrameContent(frame.Frame, frame.Palette ?? palette, frame.Characters);
+            string content = FrameContent(frame.Frame, frame.Palette ?? palette, frame.DrawRow, frame.Characters);
             if (!frameImageOf.TryGetValue(content, out SheetFrameSource? laidFrame))
             {
                 laidFrame = frame;
@@ -206,15 +209,22 @@ internal sealed partial class SpriteSheetLayout
             row.Inks.Where(ink => ink.Value.Moves).Select(ink => KeyValuePair.Create(ink.Key, ink.Value.Colour))));
 
     /// <summary>
-    /// Records that ink <paramref name="ink"/>, a part's own row and colour, shows each row shade's colour, and whether the
-    /// shade's draw takes it from another row than the family's draw does. Both follow from the ink alone.
+    /// Records that ink <paramref name="ink"/>, its part's row and colour, shows each row shade's colour, and whether the
+    /// shade's draw takes it from another row than the family's draw does. A shade's draw selects its row in place of the
+    /// bits the frame's draw ORs in, so it shows the colour in <paramref name="ownRow"/>, the part's own row, combined with
+    /// the shade's (#2658); the ink is its own row unless the frame's draw folds a row into it.
     /// </summary>
-    private void ShadeRows(int ink)
+    /// <exception cref="InvalidDataException">Parts of two own rows ink the ink, so a row shade would show it in two colours.</exception>
+    private void ShadeRows(int ink, int ownRow)
     {
-        if (rowShadedInks[ink])
+        if (rowShadedOwnRows[ink] is { } recorded)
+        {
+            if (recorded != ownRow && rowShadeInks.Any(row => (recorded | row.Shade.Row) != (ownRow | row.Shade.Row)))
+                throw new InvalidDataException(
+                    $"Sheet {sources.Frames[0].Name}'s sprite colour {ink} is inked by parts of rows {recorded} and {ownRow}, which a row shade shows in two colours.");
             return;
-        rowShadedInks[ink] = true;
-        int ownRow = ink / RowColours;
+        }
+        rowShadedOwnRows[ink] = ownRow;
         int colour = ink % RowColours;
         foreach (ShadedRowInks row in rowShadeInks)
         {
@@ -245,9 +255,10 @@ internal sealed partial class SpriteSheetLayout
         {
             SpriteFramePart part = source.Frame.Parts[partIndex];
             // A part taking its draw's palette is coloured in the frame's, with the family's palette bits ORed in; its
-            // pixels are inked in its own row (#1512).
+            // pixels are inked in its own row (#1512), with the bits the frame's draw ORs in folded into it (#2658).
             int ownRow = part.Palette ?? framePalette;
-            groups = groups.With(ImageColourGroup.Numbered(ownRow | sources.PaletteBits));
+            int inkRow = ownRow | source.DrawRow;
+            groups = groups.With(ImageColourGroup.Numbered(inkRow | sources.PaletteBits));
             for (int row = 0; row < part.Size.Y; row++)
             {
                 for (int column = 0; column < part.Size.X; column++)
@@ -257,13 +268,13 @@ internal sealed partial class SpriteSheetLayout
                     if (colour == 0)
                         continue;
                     int at = (part.Offset.Y - bound.TopLeft.Y + row) * bound.Size.X + part.Offset.X - bound.TopLeft.X + column;
-                    int ink = ownRow * RowColours + colour;
-                    inks[at] = new ComposedInk(ownRow, colour);
+                    int ink = inkRow * RowColours + colour;
+                    inks[at] = new ComposedInk(inkRow, colour);
                     // Parts are laid back to front, so each pixel ends with the depth of the part in front.
                     shownDepths[at] = part.Depth ?? depth;
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
-                        ShadeRows(ink);
+                        ShadeRows(ink, ownRow);
                 }
             }
         }
@@ -410,6 +421,7 @@ internal sealed partial class SpriteSheetLayout
                 SheetFrameSource source = laid[index];
                 writer.Write(source.Name);
                 writer.Write(source.Palette ?? palette);
+                writer.Write(source.DrawRow);
                 writer.Write(source.Frame.Parts.Length);
                 foreach (SpriteFramePart part in source.Frame.Parts)
                     WritePart(writer, part, source.Characters);
@@ -441,12 +453,13 @@ internal sealed partial class SpriteSheetLayout
     /// What a frame paints, spelled for telling frame images apart: its row and each part's place, size, flip, row, priority
     /// and the characters it reads, wherever they lie in <paramref name="characters"/>.
     /// </summary>
-    private static string FrameContent(SpriteFrame frame, int framePalette, SpriteArtwork characters)
+    private static string FrameContent(SpriteFrame frame, int framePalette, int drawRow, SpriteArtwork characters)
     {
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
             writer.Write(framePalette);
+            writer.Write(drawRow);
             writer.Write(frame.Parts.Length);
             foreach (SpriteFramePart part in frame.Parts)
                 WritePart(writer, part, characters);

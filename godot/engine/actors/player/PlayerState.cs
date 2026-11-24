@@ -10,9 +10,10 @@ namespace Engine.Actors;
 /// update left it (<see cref="Asked"/>). Then the player moves as the state they are still in (<see cref="Move"/>),
 /// and settles where that leaves them. Only then does a change take effect, and by this rank: the state's own end
 /// (<see cref="Ended"/>); something that interrupts the player (<see cref="Player.Interrupt"/>), which stays waiting
-/// when the state's end comes first; what the movement itself met; what the input asked for; and last, when the
-/// input asked for nothing, what the state does unasked (<see cref="Unasked"/>). A state entered this way sets itself
-/// up as the update ends and first moves on the next.
+/// when the state's end comes first; what the movement itself met; what the input asked for, which when it is to
+/// carry on is told to the state (<see cref="CarriedOn"/>); and last, when the input asked for nothing, what the state
+/// does unasked (<see cref="Unasked"/>). A state entered this way sets itself up as the update ends and first moves on
+/// the next.
 /// </remarks>
 public abstract class PlayerState : State<Player>
 {
@@ -72,6 +73,14 @@ public abstract class PlayerState : State<Player>
     public virtual PlayerState? Ended(Player owner) => null;
 
     /// <summary>
+    /// Called when the input asked the state to carry on and nothing else changed it, after the player has moved: what
+    /// of the input's asking takes effect within the state, as a change of stance does.
+    /// </summary>
+    public virtual void CarriedOn(Player owner)
+    {
+    }
+
+    /// <summary>
     /// Whether this state's own end gives way to <paramref name="asked"/>, another state the input asked for on the
     /// update it ends. A state's end outranks the input unless the state says otherwise here.
     /// </summary>
@@ -100,6 +109,8 @@ public abstract class PlayerState : State<Player>
             return ended;
         if ((owner.TakeInterruption() ?? met) is { } forced)
             return forced;
+        if (ReferenceEquals(asked, this))
+            CarriedOn(owner);
         return owner.EnteringFrom(this, (asked is null ? Unasked(owner) : asked) ?? this, unasked: asked is null);
     }
 }

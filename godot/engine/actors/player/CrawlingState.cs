@@ -40,7 +40,7 @@ public sealed class CrawlingState : PlayerState
                 return new FallingState();
         }
 
-        _jumpAsked = grounded && owner.MayJumpWhileCrawling && owner.Input.WasPressed(GameAction.Jump);
+        _jumpAsked = grounded && owner.MayJumpWhileCrawling && owner.JumpPressed;
         return this;
     }
 
@@ -52,6 +52,8 @@ public sealed class CrawlingState : PlayerState
             owner.Velocity = owner.Velocity.WithY(Pixels.Zero);
         else if (owner.MayJumpWhileCrawling)
             JumpingState.CutShort(owner);
+        else
+            owner.TurnAtTop();
 
         owner.StepDash(building: false);
         owner.SteerPlainly(owner.Moves(grounded ? CrawlingMoves : CrawlingInAirMoves));

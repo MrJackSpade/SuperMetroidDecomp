@@ -15,7 +15,7 @@ public sealed class StandingState : PlayerState
     public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
-        if (owner.Input.WasPressed(GameAction.Jump))
+        if (owner.JumpPressed)
             return new JumpingState();
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();

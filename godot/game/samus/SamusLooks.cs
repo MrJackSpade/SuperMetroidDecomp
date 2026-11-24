@@ -18,6 +18,7 @@ public static class SamusLooks
         TurningState => "turning",
         CrouchingState => "crouching",
         JumpingState => "jumping",
+        AirTurningState turning => turning.FromJump ? "jumping" : "falling",
         FallingState => "falling",
         WallJumpingState => "wall_jumping",
         CrawlingState => "morph_ball",

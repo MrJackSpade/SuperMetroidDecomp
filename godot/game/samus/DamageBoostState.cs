@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Collision;
 using Engine.Shared;
 
 namespace Game;
@@ -34,15 +33,9 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
-        JumpingState.CutShort(owner);
         owner.StepDash(building: false);
-        owner.SteerPlainly(owner.Moves(Moves));
-        owner.MoveAcross();
-        bool falling = !owner.Velocity.Y.IsNegative;
-        MoveResult down = owner.MoveDown();
-        owner.Fall();
-        if ((down.Blocked && falling) || owner.IsOnGround)
-            return owner.Intent != 0 ? new RunningState() : new StandingState();
-        return null;
+        JumpingState.CutShort(owner);
+        owner.SteerAndMoveInAir(owner.Moves(Moves));
+        return AirStance.FallAndLand(owner);
     }
 }

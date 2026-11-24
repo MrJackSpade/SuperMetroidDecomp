@@ -30,7 +30,7 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
             : owner.Input.IsHeld(Actions.AngleDown) ? Aim.DiagonalDown : Aim.Forward;
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();
-        if (owner.Input.WasPressed(GameAction.Jump))
+        if (owner.JumpPressed)
             return new TurningState();
         int backward = Backward(owner);
         if (owner.Input.IsHeld(GameAction.Attack) && owner.Intent == backward)

@@ -26,7 +26,7 @@ public sealed class TurningState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
-        if (owner.Input.WasPressed(GameAction.Jump))
+        if (owner.JumpPressed)
             return new JumpingState();
         return owner.Intent != 0 && (owner.Intent > 0) == (owner.Facing == Facing.Right) ? this : null;
     }
@@ -45,7 +45,13 @@ public sealed class TurningState : PlayerState
     }
 
     /// <inheritdoc/>
-    public override PlayerState? Ended(Player owner) => _left.IsRunning ? null : new StandingState();
+    public override PlayerState? Ended(Player owner)
+    {
+        if (_left.IsRunning)
+            return null;
+        owner.ArmJumpBuffer();
+        return new StandingState();
+    }
 
     /// <summary>A jump asked for on the turn's last update is not lost to the turn's end.</summary>
     public override bool EndGivesWayTo(PlayerState asked) => true;

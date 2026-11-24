@@ -1,0 +1,65 @@
+using Engine.Shared;
+
+namespace Engine.Actors;
+
+/// <summary>
+/// Turning around in the air. The player faces the new way from the start and goes on moving the old way, reversing,
+/// by the turn's move values; each update of the turn ends their momentum. The turn does not land, is not cut short,
+/// and does not lose its upward speed against a ceiling; when its time is up the jump or the fall it came from goes on.
+/// </summary>
+public sealed class AirTurningState : PlayerState
+{
+    /// <summary>The updates left before the turn is done.</summary>
+    private Countdown _left;
+
+    /// <summary>A turn in the air out of a jump or out of a fall.</summary>
+    public AirTurningState(bool fromJump) => FromJump = fromJump;
+
+    /// <summary>Whether the turn came from a jump, and gives way to one; otherwise from a fall.</summary>
+    public bool FromJump { get; }
+
+    /// <summary>Whether the input asks a player in the air to turn: it steers against the way they face.</summary>
+    public static bool IsAskedFor(Player owner) => owner.Intent != 0 && (owner.Intent > 0) != (owner.Facing == Facing.Right);
+
+    /// <inheritdoc/>
+    public override bool CanAttack => false;
+
+    /// <inheritdoc/>
+    public override void Enter(Player owner)
+    {
+        owner.TurnAround();
+        _left = Countdown.Of(owner.TurnUpdates);
+    }
+
+    /// <summary>Anything held keeps the turn as it is; with nothing held at all the player stops reversing.</summary>
+    public override PlayerState? Asked(Player owner) => owner.Input.AnyHeld ? this : null;
+
+    /// <inheritdoc/>
+    public override PlayerState? Move(Player owner)
+    {
+        owner.StepDash(building: false);
+        owner.Steer(owner.Moves(TurningMoves));
+        owner.MoveAcross();
+        owner.TurnAtTop();
+        owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
+        owner.LoseMomentum();
+        _left = _left.Stepped();
+        return null;
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Ended(Player owner)
+    {
+        if (_left.IsRunning)
+            return null;
+        return FromJump ? new JumpingState(keepsSpeed: true) : new FallingState();
+    }
+
+    /// <inheritdoc/>
+    public override PlayerState? Unasked(Player owner)
+    {
+        owner.Steering = Steering.Steered;
+        owner.EndMomentum();
+        return null;
+    }
+}

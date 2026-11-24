@@ -186,11 +186,18 @@ public sealed partial class EngineAssetWriter
             .Value("dash_action", "run")
             .Value("dash_boost_needs", "speed_booster")
 
-            // A wall jump: she kicks off steering as in any jump, for as long as the kick is shown, with no speed given her.
+            // A wall jump: she leaves the wall with no speed given her across and gains it by the wall jump's own
+            // values for as long as the jump is held. The spin is ready to jump off a wall it has found for as long as
+            // its ready picture is shown.
             .Value("wall_jump_reach", SamusMovementDefinitions.WallJumpReachPixels)
             .Value("wall_jump_steered", true)
             .Value("wall_jump_across_speed", 0)
-            .Value("wall_jump_lock_updates", SamusSegmentUpdates(P.WallJumpRightPose, Seg.Launch))
+            .Value("wall_jump_ready_updates", SamusSegmentUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
+
+            // A jump from standing is gathered for as long as its first pose is shown. A jump held for fewer updates
+            // than the old limit as she lands or finishes a turn counts as pressed afresh.
+            .Value("jump_start_updates", SamusSegmentUpdates(P.NeutralJumpTransitionRightPose, Seg.Main))
+            .Value("jump_buffer_updates", SamusAutoJumpDefinitions.TimerComparisonLimit)
 
             // Letting go of the jump while she rises stops her rise at once.
             .Value("jump_cut_speed", Number(SamusVerticalVelocity.FallFromRest.Speed))

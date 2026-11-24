@@ -141,6 +141,10 @@ public partial class Samus : Player
     [Export, DataValue("crystal_flash_drain_every")]
     public int CrystalFlashDrainEvery { get; set; } = 8;
 
+    /// <summary>How many updates a spin that has found a wall to jump from stays ready to jump off it.</summary>
+    [Export, DataValue("wall_jump_ready_updates")]
+    public int WallJumpReadyUpdates { get; set; } = 8;
+
     /// <summary>How many updates of the charge it takes for a spin jump to hurt what it touches.</summary>
     [Export, DataValue("charged_spin_updates")]
     public int ChargedSpinUpdates { get; set; } = 60;
@@ -181,13 +185,11 @@ public partial class Samus : Player
     private bool _autoCancel;
     private bool _spreadCharged;
     private int _spreadHeld;
-    private bool _wasWallJumping;
     private bool _aimedDownLastUpdate;
     private bool _woreVaria;
     private bool _woreGravity;
     private bool _warningOfLowEnergy;
     private bool _chargeSounds;
-    private int _fallingAt;
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -265,7 +267,7 @@ public partial class Samus : Player
     {
         base.OnLanded();
         if (Form != Crawling)
-            Room.Session.Sounds.Request(_fallingAt >= HardLandingSpeed ? Sounds.HardLand : Sounds.Land, channel: "samus");
+            Room.Session.Sounds.Request(LandingSpeed.Whole >= HardLandingSpeed ? Sounds.HardLand : Sounds.Land, channel: "samus");
     }
 
     /// <summary>
@@ -469,19 +471,20 @@ public partial class Samus : Player
     protected override PlayerState? ChooseState(PlayerState current)
     {
         GameInput input = Input;
-        bool wasWallJumping = _wasWallJumping;
-        _wasWallJumping = current is WallJumpingState;
         bool aimedDown = _aimedDownLastUpdate;
         _aimedDownLastUpdate = Aim == Aim.Down;
 
         switch (current)
         {
             case StandingState or RunningState or CrouchingState:
-                if (input.WasPressed(GameAction.Jump))
+                if (JumpPressed)
                 {
                     if (HasStoredShine)
                         return new ShinesparkState();
-                    if (current is not CrouchingState && Intent != 0)
+
+                    // A jump from a run is a spin; from standing or a crouch it is a plain jump, whatever is held. A
+                    // press of down in the same update crouches her instead.
+                    if (current is RunningState && !(MayCrouch && CrouchWhileRunning && input.WasPressed(GameAction.Down)))
                         return new SpinJumpingState();
                     return null;
                 }
@@ -515,11 +518,21 @@ public partial class Samus : Player
                 // A turn becomes a spin jump while the jump and the way she now faces are held; a turn begun aiming
                 // needs the jump pressed afresh.
                 bool towardFacing = Intent != 0 && Intent > 0 == (Facing == Facing.Right);
-                bool jumps = Aim == Aim.Forward ? input.IsHeld(GameAction.Jump) : input.WasPressed(GameAction.Jump);
+                bool jumps = Aim == Aim.Forward ? input.IsHeld(GameAction.Jump) : JumpPressed;
                 return towardFacing && jumps ? new SpinJumpingState() : null;
 
-            case JumpingState when wasWallJumping:
-                return new SpinJumpingState(keepsSpeed: true);
+            case WallJumpingState:
+                // Steering the other way turns the wall jump into a spin that way; an angle held or the attack makes
+                // it a jump; the jump held keeps it; anything else lets it go into a spin.
+                if (Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                    return new SpinJumpingState(SpinJumpingState.Start.Turning);
+                if (input.IsHeld(Actions.AngleUp) || input.IsHeld(Actions.AngleDown) || input.IsHeld(GameAction.Attack))
+                {
+                    AimFromInput();
+                    return new JumpingState(keepsSpeed: true);
+                }
+
+                return input.IsHeld(GameAction.Jump) ? current : new SpinJumpingState(SpinJumpingState.Start.AfterWallJump);
 
             case JumpingState or FallingState or SpinJumpingState:
                 // Down pressed again while already aiming down curls her into the ball in the air.
@@ -534,7 +547,7 @@ public partial class Samus : Player
 
             case KnockedBackState:
                 // Jumping out of a knockback while steering carries her off in a damage boost.
-                if (input.WasPressed(GameAction.Jump) && Intent != 0 && Form != Crawling)
+                if (JumpPressed && Intent != 0 && Form != Crawling)
                     return new DamageBoostState(Intent > 0 ? Facing.Right : Facing.Left);
                 return null;
 
@@ -809,7 +822,6 @@ public partial class Samus : Player
     {
         StepBoost();
         WarnOfLowEnergy();
-        _fallingAt = Velocity.Y.IsNegative ? 0 : Velocity.Y.Whole;
         Grapple?.Step(this);
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }

@@ -149,6 +149,17 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("wall_jump_needs_steering_away")]
     public bool WallJumpNeedsSteeringAway { get; set; }
 
+    /// <summary>How many updates a jump from the ground gathers itself for, moving nothing, before it rises.</summary>
+    [Export, DataValue("jump_start_updates")]
+    public int JumpStartUpdates { get; set; }
+
+    /// <summary>
+    /// A jump still held as the player lands or finishes a turn counts as pressed afresh on the next update when it
+    /// has been held for fewer updates than this; zero for no such thing.
+    /// </summary>
+    [Export, DataValue("jump_buffer_updates")]
+    public int JumpBufferUpdates { get; set; }
+
     /// <summary>The upward speed a jump is cut to when the jump action is let go early, as a number of pixels.</summary>
     [Export, DataValue("jump_cut_speed")]
     public double JumpCutSpeed { get; set; } = 1;
@@ -227,7 +238,69 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// The player's speed, apart from any dash. Across, a state that steers keeps it as a size carried the way the
     /// player travels (<see cref="Steer"/>); a state that throws the player about sets it outright.
     /// </summary>
-    public PixelVelocity Velocity { get; set; }
+    public PixelVelocity Velocity
+    {
+        get => _velocity;
+        set
+        {
+            // An upward speed is a rise. A speed left as it was keeps what it was: a rise that gravity has brought to
+            // rest, or past it, is still a rise until the state the player is in turns it into a fall.
+            IsRising = value.Y.IsNegative || (value.Y == _velocity.Y && IsRising);
+            _velocity = value;
+        }
+    }
+
+    private PixelVelocity _velocity;
+
+    /// <summary>
+    /// Whether the player is on the way up. Gravity slowing a rise to rest, or past it, does not end it: the state
+    /// the player is in does, at the top (<see cref="TurnAtTop"/>), and so does anything that stops them.
+    /// </summary>
+    public bool IsRising { get; private set; }
+
+    /// <summary>Whether gravity has slowed the player's rise past rest, so that it is due to become a fall.</summary>
+    public bool IsPastTop => IsRising && _velocity.Y > Pixels.Zero;
+
+    /// <summary>Starts the player rising at <paramref name="speed"/>.</summary>
+    public void Rise(Pixels speed)
+    {
+        _velocity = _velocity.WithY(-speed);
+        IsRising = true;
+    }
+
+    /// <summary>Puts the player at rest up and down, about to fall.</summary>
+    public void FallFromRest()
+    {
+        _velocity = _velocity.WithY(Pixels.Zero);
+        IsRising = false;
+    }
+
+    /// <summary>
+    /// The speed the player came down onto their feet at on this update, as gravity left it; none when they did not,
+    /// or came down in some other way.
+    /// </summary>
+    public Pixels LandingSpeed { get; private set; }
+
+    /// <summary>
+    /// Lands the player on their feet at <paramref name="speed"/>: they are at rest up and down and across, steered,
+    /// and a jump already held may count as pressed afresh on the next update. A dash is left as it is.
+    /// </summary>
+    public void Land(Pixels speed)
+    {
+        LandingSpeed = speed;
+        FallFromRest();
+        ComeToRest();
+        ArmJumpBuffer();
+    }
+
+    /// <summary>Turns a rise that gravity has slowed past rest into a fall from rest. Returns whether it did.</summary>
+    public bool TurnAtTop()
+    {
+        if (!IsPastTop)
+            return false;
+        FallFromRest();
+        return true;
+    }
 
     /// <summary>How the player's own speed across stands to the way they face.</summary>
     public Steering Steering { get; set; }
@@ -457,6 +530,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (IsDead)
             return;
 
+        TakeJumpBuffer();
         BeforeState();
         States.Step();
 
@@ -464,6 +538,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             Attack(input);
         DeliverBodyPowers();
         AfterState();
+        CountJumpHeld();
     }
 
     /// <summary>
@@ -480,6 +555,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             Room.Terrain.StandOn(BodyRect);
         if (onGround && !_wasOnGround)
             OnLanded();
+        LandingSpeed = Pixels.Zero;
         _wasOnGround = onGround;
         BeMovedByBlocks();
         Splash();
@@ -936,8 +1012,16 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
     }
 
-    /// <summary>Adds the medium's gravity to the player's speed, up to the fastest they fall.</summary>
-    public void Fall() => Velocity = Velocity.WithY(AfterGravity(Velocity.Y, Medium));
+    /// <summary>
+    /// Adds the medium's gravity to the player's speed: to a fall, up to the fastest they fall; to a rise, however far
+    /// it takes it, which leaves a rise slowed to rest or past it for the state to turn into a fall.
+    /// </summary>
+    public void Fall()
+    {
+        PlayerMedium medium = Medium;
+        Pixels down = IsRising ? _velocity.Y + Pixels.FromNumber(medium.Gravity) : AfterGravity(_velocity.Y, medium);
+        _velocity = _velocity.WithY(down);
+    }
 
     /// <summary>The player's speed downward after one update of <paramref name="medium"/>'s gravity.</summary>
     protected virtual Pixels AfterGravity(Pixels speed, PlayerMedium medium)
@@ -961,7 +1045,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// Moves the player across by their speed and dash. On the ground they climb slopes and follow ground that falls
     /// away. Meeting a wall stops them and ends their momentum.
     /// </summary>
-    public MoveResult MoveAcross()
+    /// <param name="byDashAlone">Whether only a dash's speed carries the player this update, their own speed left as it is.</param>
+    public MoveResult MoveAcross(bool byDashAlone = false)
     {
         bool grounded = IsOnGround;
         MoveOptions options = MoveOptions.Plain with
@@ -969,7 +1054,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             ClimbPerPixel = grounded ? ClimbPerPixel : 1,
             FollowGroundDown = grounded ? FollowGroundDown : 0,
         };
-        Pixels distance = Slowed(InLiquid(SpeedAcross));
+        Pixels distance = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
         ClearWay(distance, Pixels.Zero);
         MoveResult result = Room.Mover.MoveAcross(Body, distance, options);
         if (result.Blocked)
@@ -986,6 +1071,78 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
+    }
+
+    /// <summary>
+    /// Moves the player down by the speed they have, upward when it is negative, and lets gravity act on that speed
+    /// for the next update. Stopped by a floor or a ceiling, their speed up and down is at rest.
+    /// </summary>
+    /// <param name="keepsSpeedWhenStopped">Whether a floor or ceiling that stops the move leaves the speed as gravity left it.</param>
+    public MoveResult MoveDownUnderGravity(bool keepsSpeedWhenStopped = false)
+    {
+        Pixels distance = InLiquid(Velocity.Y);
+        Fall();
+        ClearWay(Pixels.Zero, distance);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, MoveOptions.Plain);
+        if (result.Blocked && !keepsSpeedWhenStopped)
+            FallFromRest();
+        return result;
+    }
+
+    /// <summary>
+    /// Steers the player for one update in the air by <paramref name="moves"/> and moves them across. Steered with
+    /// neither direction held, they stop across at once and do not move across this update; unsteered or reversing,
+    /// they carry on. Returns the move, or null when there was none.
+    /// </summary>
+    public MoveResult? SteerAndMoveInAir(MoveValues moves)
+    {
+        SteerInAir(moves);
+        bool directionHeld = _input.IsHeld(GameAction.Left) || _input.IsHeld(GameAction.Right);
+        if (Steering == Steering.Steered && !directionHeld)
+        {
+            ComeToRest();
+            return null;
+        }
+
+        return MoveAcross();
+    }
+
+    /// <summary>
+    /// Sets the player's steering afresh as they take up a stance in the air: unsteered while a dash still carries
+    /// them, and otherwise steered. Their speed is left as it is.
+    /// </summary>
+    public void SteerAfresh() => Steering = DashSpeed.IsZero ? Steering.Steered : Steering.Unsteered;
+
+    /// <summary>
+    /// Whether the jump counts as pressed this update: pressed since the update before, or still held from a little
+    /// before a landing or the end of a turn on the last update, where the game gives the player that.
+    /// </summary>
+    public bool JumpPressed => _input.WasPressed(GameAction.Jump) || _jumpBuffered;
+
+    /// <summary>
+    /// Lets a jump already held count as pressed afresh on the next update, if it has not been held too long. Called
+    /// as the player lands on their feet and as a turn on the ground ends.
+    /// </summary>
+    public void ArmJumpBuffer() => _jumpBufferArmed = true;
+
+    private bool _jumpBufferArmed, _jumpBuffered, _jumpWasHeld;
+    private int _jumpHeldFor;
+
+    /// <summary>Works out, at the start of an update, whether a held jump counts as pressed afresh; the chance is then spent.</summary>
+    private void TakeJumpBuffer()
+    {
+        _jumpBuffered = _jumpBufferArmed && _jumpHeldFor != 0 && _jumpHeldFor < JumpBufferUpdates;
+        _jumpBufferArmed = false;
+        if (_jumpBuffered)
+            _jumpHeldFor = 0;
+    }
+
+    /// <summary>Counts, at the end of an update, how many updates running the jump has been held beyond its first.</summary>
+    private void CountJumpHeld()
+    {
+        bool held = _input.IsHeld(GameAction.Jump);
+        _jumpHeldFor = held && _jumpWasHeld ? _jumpHeldFor + 1 : 0;
+        _jumpWasHeld = held;
     }
 
     /// <summary>

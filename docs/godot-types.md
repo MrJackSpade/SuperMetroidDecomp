@@ -575,7 +575,8 @@ in `engine/actors/player/`.
 - **Manages:** turning input into movement and actions, moving with the shared `Mover`, firing, taking a `Hit`,
   collecting pickups and items, and applying to itself what the room reports.
 - **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, turning,
-  jumping, falling, wall jumping, knocked back, held, carried, pushed, using a station, scripted, dying.
+  jumping, falling, turning in the air, wall jumping, knocked back, held, carried, pushed, using a station,
+  scripted, dying.
 - **Standard mechanics are properties of the controller**, switched and tuned by the game, not code the game
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
@@ -626,9 +627,37 @@ in `engine/actors/player/`.
   its end gives way to a jump asked for on its last update. Letting the new direction go during a turn makes the
   player steered for the rest of it. With no turn time set the player turns at once and runs on, reversing.
 - As a change the input asked for (or the state's unasked carrying on) is about to take effect, the game's player
-  is told (`Entering`) and may do something of its own or name another state.
-- A wall jump leaves the wall at a set speed with steering locked for a moment, or, where the game says it is
-  steered, is steered by its own move values from its start for as long as the lock lasts.
+  is told (`Entering`) and may do something of its own or name another state. A state the input asked to carry on
+  is told so (`CarriedOn`), which is where a change within a state takes effect.
+- **Up and down.** A rise is a rise until something ends it (`Player.IsRising`): gravity slowing it to rest, or past
+  rest, does not. The state the player is in turns it into a fall from rest on the update after it has passed rest
+  (`TurnAtTop`), moving nothing down that update, so a rise that gravity brings exactly to rest takes one update
+  more; letting go of the jump while rising cuts it to the game's cut speed, and where that is none it is a fall
+  from rest at once. A move down is by the speed the player had; gravity then acts on that speed for the next update
+  (`MoveDownUnderGravity`); a fall gains up to the fastest fall, and a rise past its top that no state turns gains
+  without that limit. Landing (`Player.Land`) brings the player to rest across and makes them steered; a dash is
+  left for standing to spend.
+- **In the air.** A jump keeps the jump's own move values from its start until the player lands: `JumpingState` is
+  the whole jump, and `FallingState` is for walking off a floor and for being let go in the air. A jump from the
+  ground may first gather itself for `jump_start_updates`, moving nothing of the player's own. Both steer by the air
+  rule (`SteerAndMoveInAir`): steered with neither direction held, the player stops across at once and does not move
+  across that update; unsteered or reversing they carry on. A player taking up a new stance in the air (their aim, and
+  in a jump whether they steer the way they face or hold the attack) has their steering set afresh: unsteered while a
+  dash still carries them, else steered. An update with nothing at all held makes a jumper who has speed unsteered
+  (the dash is folded into their speed and their momentum ends) and takes a faller's dash and momentum. Steering
+  against the way they face turns them in the air (`AirTurningState`): they face the new way at once and reverse by
+  the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
+  not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from. A
+  landing ends standing whatever is held.
+- **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
+  updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
+  the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
+  update of the landing is not counted.
+- A wall jump of the plain kind leaves the wall at a set speed, facing away, with steering locked for a moment, and
+  then carries on as a jump. One of the steered kind (`wall_jump_steered`) leaves it with the player's own speed
+  across at rest (a dash and momentum kept) and the way they face unchanged, gains speed by the wall jump's own move
+  values whether or not a direction is held, and lasts for as long as the jump is held; let go, it carries on as a
+  jump.
 - A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
 - The effect left at the player's feet on landing may come from their data.
 - Facing and aim are separate values, never part of a state's name.
@@ -670,6 +699,19 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
   switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her. Her scene
   says so: crawling needs `morph_ball`, jumping while crawling needs `spring_ball`.
+- **Her jumps.** A jump from standing or a crouch is a plain jump whatever is held, gathered for one update; a jump
+  from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. A spin
+  keeps her own speed across only while its top speed capped it this update, while she is reversing, or while the
+  way she faces is held; otherwise that speed is cleared, and a dash still carries her. Aiming, or firing,
+  straightens her out into a jump once the update is done (aiming alone does not while the jump and the way she
+  faces are both held); steering the other way turns the spin (dash folded in, momentum ended, reversing).
+- **Her wall jump** is from a spin only. A wall within `wall_jump_reach` on the side away from the direction held
+  makes the spin ready from the next update for `wall_jump_ready_updates`; ready, a fresh jump with the wall still
+  there jumps off it, and that update she moves neither up nor down. A spin held steadily from the ground does not
+  look for walls: it does once an update's input has asked nothing of it, or it has turned, or it came out of a
+  wall jump. In the wall jump, steering the other way makes it a spin that way, an angle or the attack makes it a
+  jump, the jump held keeps it, and anything else lets it go into a spin, which keeps what the wall jump gave her
+  across only as a space jump or a screw attack. The wall jump is heard as a landing.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
 - **Her run's one pixel.** As the cartridge does, a run about to be taken up in a pose she is not already running

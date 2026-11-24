@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
 using Game.Data;
@@ -7,9 +6,10 @@ using Game.Data;
 namespace Game;
 
 /// <summary>
-/// A spin jump: the somersault a jump becomes when she is moving. It keeps its speed across without steering, can
-/// jump off walls, jumps again in mid-air with the space jump, and hurts what it touches with the screw attack, or
-/// with a fully charged beam. Aiming or firing straightens her out of it.
+/// A spin jump: the somersault a jump from a run is. It keeps its speed across only while its top speed caps it,
+/// while she is reversing, or while the way she faces is held; a dash still carries her whatever is held. It can jump
+/// off walls, jumps again in mid-air with the space jump, and hurts what it touches with the screw attack, or with a
+/// fully charged beam. Aiming or firing straightens her out of it into a jump; steering the other way turns the spin.
 /// </summary>
 public sealed class SpinJumpingState : PlayerState, ISamusLook
 {
@@ -22,19 +22,37 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// <summary>The name, in each medium's speeds, of the falling speed at and above which the space jump no longer works.</summary>
     public const string SpaceJumpMostFall = "space_jump_most_fall";
 
-    private readonly bool _keepsSpeed;
-    private readonly Facing? _toward;
+    /// <summary>How a spin begins.</summary>
+    public enum Start
+    {
+        /// <summary>From the ground: she is launched.</summary>
+        FromGround,
+
+        /// <summary>Out of a wall jump whose jump was let go: she keeps rising as she was.</summary>
+        AfterWallJump,
+
+        /// <summary>Out of a wall jump by steering the other way: she turns as the spin begins.</summary>
+        Turning,
+    }
+
+    private readonly Start _start;
+
+    /// <summary>Whether the spin has settled enough to look for a wall to jump from: see <see cref="Unasked"/>.</summary>
+    private bool _looksForWalls;
+
+    /// <summary>The updates left in which the spin is ready to jump off a wall.</summary>
+    private Countdown _ready;
+
+    /// <summary>Whether this update's input asked the spin to turn.</summary>
+    private bool _turnAsked;
 
     /// <summary>A spin jump from the ground.</summary>
     public SpinJumpingState()
     {
     }
 
-    /// <summary>A spin jump from the ground that turns her to face <paramref name="toward"/> as it starts.</summary>
-    public SpinJumpingState(Facing toward) => _toward = toward;
-
-    /// <summary>A spin jump that carries on with the upward speed she already has, as after a wall jump.</summary>
-    public SpinJumpingState(bool keepsSpeed) => _keepsSpeed = keepsSpeed;
+    /// <summary>A spin that begins as <paramref name="start"/> says.</summary>
+    public SpinJumpingState(Start start) => _start = start;
 
     /// <summary>The look of the spin she is in: the screw attack's, the space jump's or the plain one.</summary>
     public string Look { get; private set; } = "spin_jumping";
@@ -42,35 +60,99 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        if (_toward is { } toward)
-            owner.Facing = toward;
         owner.TrySetForm(owner.FormOr(Samus.Spinning), aroundMiddle: true);
-        Look = owner.Inventory.IsOn(Equipment.ScrewAttack) ? "screw_attacking" : owner.Inventory.IsOn(Equipment.SpaceJump) ? "space_jumping" : "spin_jumping";
-        if (_keepsSpeed)
-            return;
-        owner.Velocity = owner.Velocity.WithY(-owner.LaunchSpeed(offWall: false));
-        owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
+        bool swamped = owner.IsWhollyInLiquid;
+        bool screw = !swamped && owner.Inventory.IsOn(Equipment.ScrewAttack), space = !swamped && owner.Inventory.IsOn(Equipment.SpaceJump);
+        Look = screw ? "screw_attacking" : space ? "space_jumping" : "spin_jumping";
+        switch (_start)
+        {
+            case Start.FromGround:
+                owner.Rise(owner.LaunchSpeed(offWall: false));
+                owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
+                break;
+
+            case Start.AfterWallJump:
+                // Only the space jump's and the screw attack's spins keep what the wall jump gave her across.
+                if (!screw && !space)
+                    owner.StopAcross();
+                else if (!screw)
+                    owner.Room.Session.Sounds.Request(Sounds.SpaceJump, channel: "samus");
+                _looksForWalls = true;
+                break;
+
+            case Start.Turning:
+                Turn(owner);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Undefined start {_start} of a spin jump.");
+        }
     }
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
-        // Aiming or firing straightens her out of the spin once this update's movement is done.
+        GameInput input = owner.Input;
         owner.AimFromInput();
-        if (owner.Aim != Aim.Forward || owner.Input.WasPressed(GameAction.Attack))
-            return owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();
+        bool aims = owner.Aim != Aim.Forward;
+        bool forward = owner.Intent != 0 && (owner.Intent > 0) == (owner.Facing == Facing.Right);
+        _turnAsked = false;
+
+        // Firing, or aiming with the attack held, straightens her out into a jump once this update is done; so does
+        // aiming alone, unless the jump and the way she faces are both held.
+        if (input.WasPressed(GameAction.Attack) || (aims && input.IsHeld(GameAction.Attack)))
+            return new JumpingState(keepsSpeed: true);
+        if (forward && input.IsHeld(GameAction.Jump))
+            return Spinning(owner);
+        if (aims)
+            return new JumpingState(keepsSpeed: true);
+        if (forward)
+            return Spinning(owner);
+        if (owner.Intent == 0)
+            return null;
+        _turnAsked = true;
+        return Spinning(owner);
+    }
+
+    /// <summary>She spins on, her arm at rest.</summary>
+    private SpinJumpingState Spinning(Player owner)
+    {
+        owner.Aim = Aim.Forward;
         return this;
+    }
+
+    /// <summary>The spin turns once she has moved.</summary>
+    public override void CarriedOn(Player owner)
+    {
+        if (_turnAsked)
+            Turn(owner);
+    }
+
+    /// <summary>
+    /// With nothing asked, the spin goes on as it is. A spin looks for a wall to jump from only once it has done so,
+    /// or turned, or come out of a wall jump: one held steadily from the ground does not.
+    /// </summary>
+    public override PlayerState? Unasked(Player owner)
+    {
+        owner.Aim = Aim.Forward;
+        _looksForWalls = true;
+        return null;
+    }
+
+    /// <summary>Turns the spin: the dash is added into her speed, her momentum ends, and she reverses.</summary>
+    private void Turn(Player owner)
+    {
+        owner.TurnAround();
+        owner.EndMomentum();
+        _looksForWalls = true;
+        if (Look == "space_jumping")
+            owner.Room.Session.Sounds.Request(Sounds.SpaceJump, channel: "samus");
     }
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
-        if (WallJumpingState.CanStart(owner))
-        {
-            owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
-            return new WallJumpingState();
-        }
 
         // Wholly under a liquid that hinders her, the spin neither jumps again nor hurts anything.
         bool swamped = owner.IsWhollyInLiquid;
@@ -83,17 +165,45 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
                 charged.IsActive = true;
         }
 
-        JumpingState.CutShort(owner);
         owner.StepDash(building: false);
-        owner.SteerPlainly(owner.Moves(Moves));
-        owner.MoveAcross();
-        bool falling = !owner.Velocity.Y.IsNegative;
-        MoveResult down = owner.MoveDown();
-        owner.Fall();
-        if ((down.Blocked && falling) || (falling && owner.IsOnGround))
-            return owner.Intent != 0 ? new RunningState() : new StandingState();
+        JumpingState.CutShort(owner);
 
-        return null;
+        // The spin keeps her own speed across only while its top speed capped it, while she reverses, or while the way
+        // she faces is held; kept, it no longer needs steering.
+        bool capped = owner.SteerInAir(owner.Moves(Moves));
+        bool forward = owner.Input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left);
+        if (!capped && owner.Steering != Steering.Reversing && !forward)
+            owner.ComeToRest();
+        else if (owner.Steering == Steering.Steered)
+            owner.Steering = Steering.Unsteered;
+        owner.MoveAcross();
+
+        if (JumpsOffWall(owner))
+        {
+            // The wall jump takes the place of this update's rise or fall.
+            owner.Room.Session.Sounds.Request(Sounds.Land, channel: "samus");
+            return new WallJumpingState();
+        }
+
+        return AirStance.FallAndLand(owner);
+    }
+
+    /// <summary>
+    /// Whether she jumps off a wall this update. A wall within reach on the side away from the direction held makes
+    /// the spin ready from the next update, for as long as its ready picture lasts; ready, a fresh press of the jump
+    /// with the wall still there jumps off it.
+    /// </summary>
+    private bool JumpsOffWall(Player owner)
+    {
+        var samus = (Samus)owner;
+        bool ready = _ready.IsRunning;
+        _ready = _ready.Stepped();
+        if (!_looksForWalls || !owner.MayWallJump || WallJumpingState.WallInReach(owner) is null)
+            return false;
+        if (ready)
+            return owner.JumpPressed;
+        _ready = Countdown.Of(samus.WallJumpReadyUpdates);
+        return false;
     }
 
     /// <summary>
@@ -102,12 +212,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// </summary>
     private static void TrySpaceJump(Player owner)
     {
-        if (!owner.Inventory.IsOn(Equipment.SpaceJump) || !owner.Input.WasPressed(GameAction.Jump))
+        if (!owner.Inventory.IsOn(Equipment.SpaceJump) || !owner.JumpPressed || owner.IsRising)
             return;
         Pixels falling = owner.Velocity.Y;
-        if (falling.IsNegative || falling < owner.Medium.Speed(SpaceJumpLeastFall) || falling >= owner.Medium.Speed(SpaceJumpMostFall))
+        if (falling < owner.Medium.Speed(SpaceJumpLeastFall) || falling >= owner.Medium.Speed(SpaceJumpMostFall))
             return;
-        owner.Velocity = owner.Velocity.WithY(-owner.LaunchSpeed(offWall: false));
+        owner.Rise(owner.LaunchSpeed(offWall: false));
         owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
     }
 

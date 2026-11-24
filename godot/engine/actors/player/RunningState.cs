@@ -22,7 +22,7 @@ public sealed class RunningState : PlayerState
         _hadSpeed = !owner.Velocity.X.IsZero;
         if (owner.MayCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();
-        if (owner.Input.WasPressed(GameAction.Jump))
+        if (owner.JumpPressed)
             return new JumpingState();
         if (owner.Intent == 0)
             return owner.Aim == Shared.Aim.Forward ? null : new StandingState();

@@ -16,7 +16,7 @@ public sealed class CrouchingState : PlayerState
             return new CrawlingState();
         if (owner.Input.WasPressed(GameAction.Up) && owner.CanTakeForm(Player.Standing))
             return new StandingState();
-        if (owner.Input.WasPressed(GameAction.Jump) && owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true))
+        if (owner.JumpPressed && owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true))
             return new JumpingState();
         if (owner.Intent != 0)
             owner.Facing = owner.Intent > 0 ? Shared.Facing.Right : Shared.Facing.Left;

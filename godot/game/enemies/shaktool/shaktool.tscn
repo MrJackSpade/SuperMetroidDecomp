@@ -29,7 +29,31 @@ script = ExtResource("3")
 [node name="Part7" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Hurtbox" type="Node2D" parent="."]
+[node name="Hurtbox1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Hurtbox2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Hurtbox3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Hurtbox4" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Hurtbox5" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Hurtbox6" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Hurtbox7" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
 

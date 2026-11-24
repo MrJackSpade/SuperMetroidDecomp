@@ -642,7 +642,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 - **Colour and strength variants** are one scene with different data files.
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
   that starts another timeline taking effect in the same update; marking its place in a timeline and resuming there;
-  judging a hit itself (`TakeHit` can be overridden, part by part); firing its data's shots; leaving effects and
+  judging a hit itself (`TakeHit` can be overridden, part by part); keeping health part by part (`HealthOf` says
+  which health a hit on a part is taken from); firing its data's shots; leaving effects and
   drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time; and asking whether
   the player rests against its solid.
 - **A boss is an `Enemy`.** One scene. Its parts are child nodes with their own hurtboxes, and the boss decides what

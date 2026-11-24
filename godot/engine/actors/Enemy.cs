@@ -382,7 +382,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return HitResult.TurnedBack;
 
         int damage = reaction.DamageFrom(hit.Damage);
-        bool lethal = damage > 0 && Health.WouldBeEmptiedBy(damage);
+        Health health = HealthOf(part);
+        bool lethal = damage > 0 && health.WouldBeEmptiedBy(damage);
         bool takesStatus = reaction.StatusWhen == StatusWhen.Always ||
             (reaction.StatusWhen == StatusWhen.InsteadOfDying && lethal && Status != reaction.Status);
         if (takesStatus)
@@ -400,13 +401,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return takesStatus ? HitResult.Hurt : HitResult.Absorbed;
         }
 
-        Health.Take(damage);
+        health.Take(damage);
         _unhittable = Countdown.Of(reaction.UnhittableUpdates);
         _flash = Countdown.Of(HurtFlashUpdates);
         WasJustHurt = true;
         if (!IsFrozen)
             Sound(_hurtSound);
-        if (Health.IsEmpty)
+        if (health.IsEmpty)
         {
             _destroyedBy = hit;
             if (!DiesAtOnce(hit))
@@ -429,6 +430,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// The reaction to a hit that landed on <paramref name="part"/>. An enemy whose parts react differently says so here.
     /// </summary>
     protected virtual Reaction ReactionTo(Hit hit, Collider part) => _reactions.To(hit);
+
+    /// <summary>
+    /// The health a hit that landed on <paramref name="part"/> is taken from; emptying it destroys the enemy. The
+    /// engine's enemy has one health. An enemy whose parts each have health of their own says which here.
+    /// </summary>
+    protected virtual Health HealthOf(Collider part) => Health;
 
     /// <summary>The enemy's reactions as its data file gives them.</summary>
     protected Reactions Reactions => _reactions;

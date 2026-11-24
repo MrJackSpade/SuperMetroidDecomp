@@ -11,13 +11,24 @@ namespace Game.Enemies;
 /// <summary>
 /// Shaktool: a digging machine, a chain of seven parts with a saw at each end and its head in the middle. One saw
 /// stays put while the rest of the chain curls round it and straightens out ahead; when the far saw meets a wall the
-/// chain pauses, and either turns end for end or curls back the other way. Its saws cut through what they are made
-/// to cut, and so it digs its way along.
+/// chain pauses, each part nodding in its turn, and either turns end for end or curls back the other way. Its saws
+/// cut through what they are made to cut, and so it digs its way along. Every part can be shot and has health of its
+/// own; the first part destroyed takes the whole machine with it.
 /// </summary>
 /// <remarks>
-/// Its head plays "head_up", "head_up_right" and so on round the eight ways it can point. The visuals named "Part1"
-/// through "Part7" are its parts in order; the saws play "saw" and, while it pauses at a wall, "saw_bob", whose cue
-/// "resume" sets it moving again; the arms play "arm". Its hitboxes "Saw1" and "Saw2" are its saws.
+/// <code>
+/// "parts": [ { "angle": 0, "turn": 0, "look": "saw", "bob": "saw_bob" }, ... ],
+/// "orbit": [ 0, 0.29, ... ]
+/// </code>
+/// "parts" lists its seven parts in order: the angle each starts at about the part before it and how fast it turns,
+/// both in 256ths of an angle step, the timeline it shows, and the timeline it plays when the chain stops at a wall.
+/// A part's timeline may hold steps with no picture, which leave the part as it was shown; its cues are "lower" and
+/// "raise", which nudge the part a pixel away from the way the chain will go and back, and "resume", which sets the
+/// chain moving again. "orbit" is how far across a part sits from the one before it at each of the 256 angle steps,
+/// straight up at nothing and turning clockwise; how far down is the same a quarter turn behind. Its head plays
+/// "head_up", "head_up_right" and so on round the eight ways it can point. The visuals named "Part1" through "Part7"
+/// are its parts in order, the hurtboxes "Hurtbox1" through "Hurtbox7" what a shot lands on, and the hitboxes "Saw1"
+/// and "Saw2" its saws.
 /// </remarks>
 public partial class Shaktool : Enemy
 {
@@ -25,13 +36,9 @@ public partial class Shaktool : Enemy
     [Export]
     public bool StartsClockwise { get; set; } = true;
 
-    /// <summary>How far each part sits from the one before it, in pixels.</summary>
-    [Export, DataValue("link_length")]
-    public int LinkLength { get; set; } = 12;
-
-    /// <summary>Half the size of a saw, in pixels, for meeting walls and for cutting.</summary>
-    [Export, DataValue("saw_half_size")]
-    public int SawHalfSize { get; set; } = 8;
+    /// <summary>Half the size of a part, in pixels, for being shot, for meeting walls and for cutting.</summary>
+    [Export, DataValue("part_half_size")]
+    public int PartHalfSize { get; set; } = 6;
 
     /// <summary>How far round, in angle steps, the chain has curled when it starts to straighten.</summary>
     [Export, DataValue("straighten_at")]
@@ -41,19 +48,30 @@ public partial class Shaktool : Enemy
     [Export, DataValue("straighten_restart")]
     public int StraightenRestart { get; set; } = 120;
 
+    /// <summary>How fast every part turns while the chain straightens, in 256ths of an angle step an update.</summary>
+    [Export, DataValue("straightening_turn")]
+    public int StraighteningTurn { get; set; } = 256;
+
+    /// <summary>After a wall, each part turns each update by its angle short of the chain's new aim divided by this.</summary>
+    [Export, DataValue("convergence_shares")]
+    public int ConvergenceShares { get; set; } = 64;
+
     private const int Parts = 7;
-    private const int Head = 3;
+    private const int Head = Parts / 2;
     private const int StepParts = 256;
     private const int TurnParts = Turns.PerTurn * StepParts;
-
-    // Each part's starting angle about the part before it, in angle steps, and how fast it turns, in 256ths of a step.
-    private static readonly int[] StartAngles = [0, 248, 232, 208, 176, 152, 136];
-    private static readonly int[] TurnSpeeds = [0, 32, 96, 192, 320, 416, 480];
     private static readonly string[] Ways = ["up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"];
 
+    private readonly int[] _startAngle = new int[Parts];
+    private readonly int[] _startTurn = new int[Parts];
+    private readonly string[] _look = new string[Parts];
+    private readonly string[] _bob = new string[Parts];
+    private readonly Pixels[] _orbit = new Pixels[Turns.PerTurn];
     private readonly int[] _angle = new int[Parts];
     private readonly int[] _turn = new int[Parts];
     private readonly PixelPosition[] _at = new PixelPosition[Parts];
+    private readonly TimelinePlayer?[] _players = new TimelinePlayer?[Parts];
+    private readonly Health[] _health = new Health[Parts];
     private bool _paused;
     private bool _straightening;
     private bool _turnsEndForEndNext = true;
@@ -61,8 +79,29 @@ public partial class Shaktool : Enemy
     private bool _headReversed;
     private int _target;
     private int _curled;
-    private TimelinePlayer? _saw;
-    private TimelinePlayer? _arm;
+    private string _headPicture = "";
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        IReadOnlyList<DataNode> parts = data.List("parts");
+        if (parts.Count != Parts)
+            throw data.Problem($"lists {parts.Count} parts where Shaktool has {Parts}");
+        for (int part = 0; part < Parts; part++)
+        {
+            _startAngle[part] = parts[part].Int("angle");
+            _startTurn[part] = parts[part].Int("turn");
+            _look[part] = parts[part].Text("look");
+            _bob[part] = parts[part].Text("bob");
+        }
+
+        IReadOnlyList<DataNode> orbit = data.List("orbit");
+        if (orbit.Count != Turns.PerTurn)
+            throw data.Problem($"gives its orbit at {orbit.Count} angle steps where a turn has {Turns.PerTurn}");
+        for (int step = 0; step < Turns.PerTurn; step++)
+            _orbit[step] = orbit[step].AsPixels();
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -71,18 +110,43 @@ public partial class Shaktool : Enemy
         _at[0] = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         for (int part = 0; part < Parts; part++)
         {
-            _angle[part] = StartAngles[part] * StepParts;
-            _turn[part] = TurnSpeeds[part];
+            _angle[part] = _startAngle[part];
+            _turn[part] = _startTurn[part];
+            _health[part] = new Health(MaxHealth);
             if (part > 0)
                 _at[part] = _at[part - 1] + Reach(_angle[part]);
+            if (part != Head)
+                _players[part] = new TimelinePlayer(Timelines.Get(_look[part]));
         }
 
-        _saw = new TimelinePlayer(Timelines.Get("saw"));
-        _arm = new TimelinePlayer(Timelines.Get("arm"));
         AlwaysActive = true;
-        Play("head_down");
+        Play(_look[Head]);
         ShowParts();
     }
+
+    /// <inheritdoc/>
+    protected override Health HealthOf(Collider part)
+    {
+        for (int index = 0; index < Parts; index++)
+        {
+            if (part.Name == $"Hurtbox{index + 1}")
+                return _health[index];
+        }
+
+        throw new InvalidOperationException($"A hit landed on \"{part.Name}\" of Shaktool \"{Name}\", which is none of its parts.");
+    }
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step)
+    {
+        // A step with no picture leaves the head as it was shown.
+        if (step.Picture.Length > 0)
+            _headPicture = step.Picture;
+        return _headPicture;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnCue(string cue) => OnPartCue(Head, cue);
 
     /// <inheritdoc/>
     protected override void Behave()
@@ -99,8 +163,8 @@ public partial class Shaktool : Enemy
         }
 
         Hit cut = new(1, HitSide.Enemies, new HitKind(HitKinds.Saw)) { Source = this };
-        Room.Terrain.TakeHit(cut, SawRect(_at[0]));
-        Room.Terrain.TakeHit(cut, SawRect(_at[Parts - 1]));
+        Room.Terrain.TakeHit(cut, PartRect(_at[0]));
+        Room.Terrain.TakeHit(cut, PartRect(_at[Parts - 1]));
         ShowParts();
     }
 
@@ -111,19 +175,18 @@ public partial class Shaktool : Enemy
     private PixelOffset Reach(int angle)
     {
         int steps = angle / StepParts;
-        Pixels length = Pixels.FromWhole(LinkLength);
-        return new PixelOffset(Turns.Sine(steps, length), Turns.Sine(steps - Turns.PerTurn / 4, length));
+        return new PixelOffset(_orbit[Turns.Wrap(steps)], _orbit[Turns.Wrap(steps - Turns.PerTurn / 4)]);
     }
 
-    /// <summary>The room a saw takes up when it is at <paramref name="at"/>.</summary>
-    private PixelRect SawRect(PixelPosition at) =>
-        new(at.X.Whole - SawHalfSize, at.Y.Whole - SawHalfSize, SawHalfSize * 2, SawHalfSize * 2);
+    /// <summary>The room a part takes up when it is at <paramref name="at"/>.</summary>
+    private PixelRect PartRect(PixelPosition at) =>
+        new(at.X.Whole - PartHalfSize, at.Y.Whole - PartHalfSize, PartHalfSize * 2, PartHalfSize * 2);
 
     /// <summary>Puts a part where its angle has it about the part before, and turns its angle on.</summary>
     private void Orbit(int part)
     {
         _at[part] = _at[part - 1] + Reach(_angle[part]);
-        int by = _straightening ? StepParts : _turn[part];
+        int by = _straightening ? StraighteningTurn : _turn[part];
         _angle[part] = Wrapped(_angle[part] + (_clockwise ? by : -by));
     }
 
@@ -135,7 +198,7 @@ public partial class Shaktool : Enemy
         Orbit(tail);
         PixelPosition wanted = PixelPosition.FromWhole(_at[tail].X.Whole, _at[tail].Y.Whole);
         var across = PixelPosition.FromWhole(wanted.X.Whole, before.Y.Whole);
-        if (Room.Terrain.IsSolidIn(SawRect(across), SlopeTreatment.Ignore) || Room.Terrain.IsSolidIn(SawRect(wanted), SlopeTreatment.Wall))
+        if (Room.Terrain.IsSolidIn(PartRect(across), SlopeTreatment.Ignore) || Room.Terrain.IsSolidIn(PartRect(wanted), SlopeTreatment.Wall))
         {
             _at[tail] = before;
             MeetWall();
@@ -151,7 +214,7 @@ public partial class Shaktool : Enemy
             for (int part = 0; part < Parts; part++)
             {
                 _angle[part] = _target;
-                _turn[part] = TurnSpeeds[part];
+                _turn[part] = _startTurn[part];
             }
 
             _curled = StraightenRestart * StepParts;
@@ -185,20 +248,24 @@ public partial class Shaktool : Enemy
         for (int part = Parts - 1; part >= 0; part--)
         {
             int left = Wrapped(_clockwise ? _target - _angle[part] : _angle[part] - _target);
-            _turn[part] = left / StepParts * StepParts / 64;
+            _turn[part] = left / StepParts * StepParts / ConvergenceShares;
+            // Each part stops and nods.
+            if (part == Head)
+                Play(_bob[part], restart: true);
+            else
+                _players[part] = new TimelinePlayer(Timelines.Get(_bob[part]));
         }
 
         _paused = true;
-        _saw = new TimelinePlayer(Timelines.Get("saw_bob"));
     }
 
     /// <summary>Turns the chain end for end: the saws change places, and each part takes the mirrored angle of its opposite number.</summary>
     private void TurnEndForEnd()
     {
         _headReversed = !_headReversed;
-        (int Left, int Right)[] pairs = [(6, 1), (5, 2), (4, 3)];
-        foreach ((int left, int right) in pairs)
+        for (int right = 1; right <= Head; right++)
         {
+            int left = Parts - right;
             int saved = _angle[left];
             _angle[left] = Opposite(_angle[right]);
             _angle[right] = Opposite(saved);
@@ -210,35 +277,60 @@ public partial class Shaktool : Enemy
     /// <summary>The angle straight opposite, in whole steps.</summary>
     private static int Opposite(int angle) => Wrapped(angle + TurnParts / 2) / StepParts * StepParts;
 
-    /// <summary>Moves the parts' pictures on, and puts them, the saws' hitboxes and the enemy itself where they are.</summary>
+    /// <summary>Acts on a cue of one part's timeline.</summary>
+    private void OnPartCue(int part, string cue)
+    {
+        switch (cue)
+        {
+            case "lower":
+                Nudge(part, _target / StepParts + Turns.PerTurn / 2);
+                break;
+            case "raise":
+                Nudge(part, _target / StepParts);
+                break;
+            case "resume":
+                _paused = false;
+                break;
+            default:
+                throw new InvalidOperationException($"Shaktool \"{Name}\" does not know the cue \"{cue}\".");
+        }
+    }
+
+    /// <summary>Moves a part a pixel the way an angle points: straight up at nothing, turning clockwise.</summary>
+    private void Nudge(int part, int angle)
+    {
+        Pixels one = Pixels.FromWhole(1);
+        _at[part] += new PixelOffset(Turns.Sine(angle, one), Turns.Sine(angle - Turns.PerTurn / 4, one));
+    }
+
+    /// <summary>Moves the parts' pictures on, and puts them, their colliders and the enemy itself where they are.</summary>
     private void ShowParts()
     {
-        if (_saw is not null)
+        for (int part = 0; part < Parts; part++)
         {
-            foreach (string cue in _saw.Step())
-            {
-                if (cue != "resume")
-                    continue;
-                _paused = false;
-                _saw = new TimelinePlayer(Timelines.Get("saw"));
-            }
+            if (_players[part] is not { } player)
+                continue;
+            foreach (string cue in player.Step())
+                OnPartCue(part, cue);
         }
 
-        _arm?.Step();
         Position = _at[Head];
         for (int part = 0; part < Parts; part++)
         {
-            var offset = new Vector2(_at[part].X.Whole - Position.X.Whole, _at[part].Y.Whole - Position.Y.Whole);
-            bool saw = part is 0 or Parts - 1;
-            TimelinePlayer? player = saw ? _saw : _arm;
-            if (part != Head && player is not null && GetNodeOrNull<ActorVisual>($"Part{part + 1}") is { } visual)
+            var offset = new Vector2I(_at[part].X.Whole - Position.X.Whole, _at[part].Y.Whole - Position.Y.Whole);
+            // A step with no picture leaves the part as it was shown.
+            if (_players[part] is { } player && GetNodeOrNull<ActorVisual>($"Part{part + 1}") is { } visual)
             {
                 visual.Position = offset;
-                visual.Show(player.Current);
+                if (player.Current.Picture.Length > 0)
+                    visual.Show(player.Current);
             }
 
-            if (saw && GetNodeOrNull<Collider>(part == 0 ? "Saw1" : "Saw2") is { } hitbox)
-                hitbox.Rect = new PixelRect((int)offset.X - SawHalfSize, (int)offset.Y - SawHalfSize, SawHalfSize * 2, SawHalfSize * 2);
+            var rect = new PixelRect(offset.X - PartHalfSize, offset.Y - PartHalfSize, PartHalfSize * 2, PartHalfSize * 2);
+            if (GetNodeOrNull<Collider>($"Hurtbox{part + 1}") is { } hurtbox)
+                hurtbox.Rect = rect;
+            if (part is 0 or Parts - 1 && GetNodeOrNull<Collider>(part == 0 ? "Saw1" : "Saw2") is { } hitbox)
+                hitbox.Rect = rect;
         }
     }
 }

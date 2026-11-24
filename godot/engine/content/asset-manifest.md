@@ -127,7 +127,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/sbug.json` | `Sbug` | contact_damage, dash_updates, health, zigzag_leg_updates |
 | `enemies/sciser.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
-| `enemies/shaktool.json` | `Shaktool` | contact_damage, health, link_length, saw_half_size, straighten_at, straighten_restart |
+| `enemies/shaktool.json` | `Shaktool` | contact_damage, convergence_shares, health, part_half_size, straighten_at, straighten_restart, straightening_turn |
 | `enemies/shutter_destroyable.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/shutter_growing.json` | `GrowingShutter` | activation_sound, contact_damage, health |
 | `enemies/shutter_shootable.json` | `Shutter` | activation_sound, contact_damage, health |

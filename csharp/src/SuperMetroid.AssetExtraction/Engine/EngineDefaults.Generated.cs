@@ -280,7 +280,7 @@ internal static partial class EngineDefaults
         ["Ripper"] = [("can_be_latched", "false")],
         ["Samus"] = [("weapons", "[]"), ("varia_damage_over", "2"), ("gravity_damage_over", "4"), ("low_energy", "30"), ("low_energy_sound_every", "24"), ("boost_stage_updates", "[]"), ("stored_shine_updates", "180"), ("shinespark_windup_updates", "30"), ("shinespark_speed", "8"), ("shinespark_acceleration", "0.5"), ("shinespark_top_speed", "15"), ("shinespark_least_energy", "30"), ("shinespark_crash_updates", "30"), ("reserve_refill_per_update", "1"), ("crystal_flash_energy_below", "51"), ("crystal_flash_ammunition", "10"), ("crystal_flash_energy_each", "50"), ("crystal_flash_drain_every", "8"), ("charged_spin_updates", "60"), ("xray_opening_updates", "64"), ("suit_pickup_updates", "240"), ("xray_reach", "256")],
         ["Sbug"] = [("dash_updates", "33"), ("zigzag_leg_updates", "16")],
-        ["Shaktool"] = [("link_length", "12"), ("saw_half_size", "8"), ("straighten_at", "240"), ("straighten_restart", "120")],
+        ["Shaktool"] = [("part_half_size", "6"), ("straighten_at", "240"), ("straighten_restart", "120"), ("straightening_turn", "256"), ("convergence_shares", "64")],
         ["Shutter"] = [("activation_sound", "\"\"")],
         ["Spark"] = [("extra_off_updates", "8"), ("drip_below", "8")],
         ["SporeSpawn"] = [("start_rise", "128"), ("descent_speed", "1"), ("ceiling_above", "64"), ("stalk_anchor_above", "72"), ("stalk_body_gap", "40"), ("vertical_sway_narrowing", "16"), ("widened_sway_limit", "40"), ("sway_widening", "8"), ("fast_swing_below", "400"), ("fast_sway_step", "2"), ("death_drops", "16"), ("dust_effect", "\"\""), ("explosion_effect", "\"\""), ("hardening_sound", "\"\""), ("explosion_sound", "\"\"")],

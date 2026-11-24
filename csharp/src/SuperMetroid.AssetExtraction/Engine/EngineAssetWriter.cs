@@ -51,6 +51,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteGlassTube();
         writer.WriteYard();
         writer.WriteMagdollite();
+        writer.WriteShaktool();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

@@ -91,20 +91,26 @@ public partial class AttractDemoMode : PlayingMode
         return new RoomEntry("", PixelVelocity.Zero, facing) { At = PixelPosition.FromWhole(start.Int("x"), start.Int("y")) };
     }
 
-    /// <summary>The demo has played to its end: the next of its set follows, or the title after the last.</summary>
+    /// <summary>
+    /// The demo has played to its end: the next of its set follows, or, after the last, the music stops and the title
+    /// begins again from its opening.
+    /// </summary>
     private GameMode PlayedOut()
     {
         string? next = Session.Service<DemoSchedule>().AfterDemo();
         CartridgeSounds.Of(Session).DemoPlaying = false;
         Session.BeginAgain();
-        return next is null ? new TitleMode(atRestAtOnce: true) : Of(Session.Content, next);
+        if (next is not null)
+            return Of(Session.Content, next);
+        Session.Sounds.RequestMusic("");
+        return new TitleMode(TitleMode.Beginning.AfterDemos);
     }
 
     private GameMode BackToTitle()
     {
         CartridgeSounds.Of(Session).DemoPlaying = false;
         Session.BeginAgain();
-        return new TitleMode(atRestAtOnce: true);
+        return new TitleMode(TitleMode.Beginning.AtRest);
     }
 
     /// <summary>Gives Samus what the demo says she has.</summary>

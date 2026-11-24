@@ -99,7 +99,11 @@ public partial class PlayingMode : GameMode
         Session.Progress.CountPlayUpdate();
 
         if (Session.TakeSaveRequest() is { } save)
+        {
+            // That the game has been saved at this place is itself remembered, and is in the save.
+            Session.Progress.Record(SaveData.SavedAtFact(save.EntryPoint));
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
+        }
         foreach (ISessionService service in Session.Services)
             service.Step(Session);
         _hud?.Refresh(Session, Room);

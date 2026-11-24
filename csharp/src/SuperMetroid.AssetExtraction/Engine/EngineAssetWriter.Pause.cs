@@ -166,24 +166,6 @@ public sealed partial class EngineAssetWriter
             wireframes[name] = Placed(PauseEquipmentPictures.WireframeFrame(wireframe));
         }
 
-        // The sign of where Samus is on the map: a ring that swells and shrinks, about the cell she is in.
-        var pulse = new JsonArray();
-        foreach (SuperMetroid.Core.Animation.AnimationBeat<MapSpriteId, MapIndicatorCue> beat in PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse))
-        {
-            if (beat is not SuperMetroid.Core.Animation.AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame shown)
-                continue;
-            string frame = MapSpriteDefinitions.Names[shown.Shown];
-            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
-            pulse.Add(new JsonObject
-            {
-                ["picture"] = _sheets.WriteSprite(
-                    _tree, SpriteSheetId.MapSprites, frame, $"pause/map_{EngineSheets.FileName(frame)}.png",
-                    MapSpriteShades.Drawn(MapSpriteScreen.Pause, MapSpriteColouring.Markers).Key),
-                ["updates"] = shown.Duration,
-                ["offset"] = At(-originX, -originY),
-            });
-        }
-
         // The bar of her reserves: a little tank for each she has, full, empty or part filled, and a cap after the last.
         string Bar(PauseReserveTankVisual visual) => _sheets.WriteSprite(
             _tree, SpriteSheetId.PauseSprites, PauseReserveTankParts.SheetFrameName(PauseReserveTankDefinitions.InstalledNames.Of(visual)),
@@ -208,35 +190,6 @@ public sealed partial class EngineAssetWriter
             ["flicker_updates"] = PauseCadenceDefinitions.ReserveFlickerStepHidden.CountsEachWay,
         };
 
-        MapFraming framing = MapFramingDefinitions.Pause;
-        const int cell = GameplayHudDefinitions.MinimapSquarePixels;
-
-        // The arrows that say which ways the map can be moved, their colours going round as the old highlight does.
-        var arrows = new JsonObject();
-        foreach (MapScrollDirection direction in MapScrollControls.Directions)
-        {
-            string frame = MapSpriteDefinitions.Names[MapArrowDefinitions.ArrowPictures[direction]];
-            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
-            var looks = new JsonArray();
-            foreach (MapHighlightFrame look in screens.Maps.HighlightCycle.Frames)
-            {
-                looks.Add(_sheets.WriteSprite(
-                    _tree, SpriteSheetId.MapSprites, frame, $"pause/map_{EngineSheets.FileName(frame)}_{look.Frame}.png", MapSpriteShades.Highlight(look).Key));
-            }
-
-            // An arrow lies with its own point at its place, a little lower on this screen than the old game keeps it.
-            var at = screens.Maps.Arrows.Get(direction).Position;
-            arrows[Named(direction)] = new JsonObject { ["x"] = at.X - originX, ["y"] = at.Y + framing.ArrowDrop - originY, ["pictures"] = looks };
-        }
-
-        // The highlight the arrows are coloured by: how long each of its looks lasts, and how long the first lasts
-        // the first time, which is what the old highlight has left as it is made.
-        var highlight = new JsonObject
-        {
-            ["first_updates"] = new MapHighlightAnimation(screens.Maps.HighlightCycle).player.UpdatesLeft,
-            ["updates"] = new JsonArray([.. screens.Maps.HighlightCycle.Frames.Select(look => (JsonNode)screens.Maps.HighlightCycle.Duration(look))]),
-        };
-
         // The arrow of her reserves while they refill by themselves and the selector is on that line: one picture
         // for each count of the old game's clock, round and round.
         string litArrow = PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.Lit);
@@ -247,6 +200,13 @@ public sealed partial class EngineAssetWriter
             [.. PauseReserveArrowPulseFrame.All.Select(pulseFrame => (JsonNode)Shaded(litArrow, PauseReserveArrowShades.Pulse(pulseFrame))["picture"]!.GetValue<string>())]);
         if (PauseReserveArrowPulseFrame.All.Count != PauseCadenceDefinitions.ReserveArrowPulseFrame.Steps)
             throw new InvalidDataException("The pause screen's reserve arrow has other than one picture for each step of its pulse.");
+
+        // The map is a plane behind the page, moved under it; over it lie the arrows that say which ways it can be
+        // moved, their colours going round as the old highlight does, and the sign of where Samus is.
+        JsonObject map = MapFramingData(MapFramingDefinitions.Pause);
+        map["highlight"] = MapHighlightData(screens);
+        map["arrows"] = MapArrowData(screens, MapFramingDefinitions.Pause, folder);
+        map["indicator"] = MapIndicatorPulse(MapSpriteScreen.Pause, folder, null);
         _tree.WriteData("pause/pause.json", new JsonObject
         {
             ["backdrop"] = Colour(screens.Backdrops.Pause),
@@ -261,42 +221,7 @@ public sealed partial class EngineAssetWriter
                 ["page_out_wait"] = 0,
             },
             ["held_repeat_delay"] = PauseCadenceDefinitions.HeldInputRepeatDelay,
-            ["map"] = new JsonObject
-            {
-                // The opening of the frame the map shows through, in the backdrop's picture.
-                ["opening"] = new JsonObject
-                {
-                    ["x"] = MapFrameDefinitions.OpeningCorner.X, ["y"] = MapFrameDefinitions.OpeningCorner.Y,
-                    ["width"] = MapFrameDefinitions.OpeningSize.X, ["height"] = MapFrameDefinitions.OpeningSize.Y,
-                },
-                ["highlight"] = highlight,
-                // The map is a plane behind the page, moved under it. These say where it first lies and how far it moves.
-                ["cell"] = cell,
-                ["screen_width"] = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels,
-                ["screen_height"] = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels,
-                ["centre_line"] = framing.CentreLine,
-                ["left_edge"] = framing.LeftEdge,
-                ["right_edge"] = framing.RightEdge,
-                ["top_edge"] = framing.TopEdge,
-                ["bottom_edge"] = framing.BottomEdge,
-                ["centre_column"] = MapFramingDefinitions.CentreColumn,
-                ["row_middle_above_centre"] = MapFramingDefinitions.RowMiddleAboveCentredLine,
-                ["here_leftmost"] = MapFramingDefinitions.MarkerLeftmostColumn,
-                ["here_rightmost"] = MapFramingDefinitions.MarkerRightmostColumn,
-                ["here_top"] = MapFramingDefinitions.MarkerTopLine,
-                ["lowest_map_top"] = MapFramingDefinitions.LowestMapTop,
-                // The cells its bounds are taken to be while none of it shows.
-                ["unrevealed"] = new JsonObject
-                {
-                    ["left"] = MapFramingDefinitions.UnrevealedLeftColumn, ["right"] = MapFramingDefinitions.UnrevealedRightColumn,
-                    ["top"] = MapFramingDefinitions.UnrevealedTopRow, ["bottom"] = MapFramingDefinitions.UnrevealedBottomRow,
-                },
-                ["scroll_step"] = MapScrollDefinitions.StepPixels,
-                ["scroll_updates"] = MapScrollDefinitions.StepTicks,
-                ["scroll_moves_at"] = MapScrollDefinitions.PulseTick,
-                ["arrows"] = arrows,
-                ["indicator"] = new JsonObject { ["steps"] = pulse, ["loops_to"] = 0 },
-            },
+            ["map"] = map,
             ["area_folder"] = "areas",
             ["sounds"] = new JsonObject
             {

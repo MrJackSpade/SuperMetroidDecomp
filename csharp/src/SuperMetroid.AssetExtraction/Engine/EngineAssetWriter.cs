@@ -84,6 +84,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteFileSelect();
         writer.WriteOptions();
         writer.WriteAudio();
+        writer.WriteSaveMap();
         writer.WriteWords();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();

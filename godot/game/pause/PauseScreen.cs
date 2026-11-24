@@ -110,7 +110,7 @@ public partial class PauseScreen : GameMode
     private Node2D? _frame;
     private Node2D? _page;
     private Node2D? _marks;
-    private MapView? _map;
+    private ScrollingMap? _map;
     private CinematicSprite? _indicator;
     private Sprite2D? _selector;
     private Sprite2D? _reserveArrow;
@@ -123,12 +123,7 @@ public partial class PauseScreen : GameMode
     private int _pageDark;
     private int _fadeWaitLeft;
     private Vector2I _here;
-    private int _mapCellSize;
     private readonly Dictionary<string, Sprite2D> _arrows = new(StringComparer.Ordinal);
-    private Rect2I _mapBounds;
-    private Vector2I _scroll;
-    private string? _scrolling;
-    private int _scrollAge;
     private int _look;
     private int _lookLeft;
     private int _selectorLook;
@@ -137,12 +132,6 @@ public partial class PauseScreen : GameMode
     private HashSet<GameAction> _repeating = [];
     private int? _repeatWait;
 
-    /// <summary>The ways the map can be moved, in the order they are tried when several are held.</summary>
-    private static readonly (string Name, GameAction Action, Vector2I Step)[] ScrollWays =
-    [
-        ("left", GameAction.Left, new Vector2I(-1, 0)), ("right", GameAction.Right, new Vector2I(1, 0)),
-        ("up", GameAction.Up, new Vector2I(0, -1)), ("down", GameAction.Down, new Vector2I(0, 1)),
-    ];
     private bool _showsMap = true;
     private string _chosen = "";
     private int? _pourLeft;
@@ -272,6 +261,24 @@ public partial class PauseScreen : GameMode
         _layer.AddChild(backdrop);
         _frame = new Node2D { Name = "Frame" };
         _layer.AddChild(_frame);
+
+        // The map lies in the plane of the backdrop's picture, whose opening it shows through, about where Samus is.
+        // A room that is in no area has no map to show, and the screen is then its equipment page alone.
+        Room room = _playing.Room;
+        DataNode map = data.Get("map");
+        bool hasMap = room.Area.Length > 0;
+        if (hasMap)
+        {
+            Area area = Area.Read(Session.Content.ReadData($"{data.Text("area_folder")}/{room.Area}.json"));
+            DataNode picture = data.Get("backdrops").Get(room.Area);
+            var plane = new Vector2I(picture.Int("x"), picture.Int("y"));
+            _here = new Vector2I(
+                room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
+                room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y) * map.Int("cell");
+            _map = ScrollingMap.Of(map, area, Session.Progress, Session.Content, plane, plane, _here);
+            _layer.AddChild(_map);
+        }
+
         _page = new Node2D { Name = "Page" };
         _layer.AddChild(_page);
         _marks = new Node2D { Name = "Marks" };
@@ -282,9 +289,8 @@ public partial class PauseScreen : GameMode
             hud.Layer = _layer.Layer + 1;
         }
 
-        DataNode map = data.Get("map");
         (_look, _lookLeft) = (0, map.Get("highlight").Int("first_updates"));
-        foreach ((string way, _, _) in ScrollWays)
+        foreach ((string way, _, _) in ScrollingMap.Ways)
         {
             DataNode arrow = map.Get("arrows").Get(way);
             var sprite = new Sprite2D
@@ -304,8 +310,6 @@ public partial class PauseScreen : GameMode
         _marks.AddChild(_indicator);
         _indicator.Step();
 
-        // A room that is in no area has no map to show, and the screen is then its equipment page alone.
-        bool hasMap = _playing.Room.Area.Length > 0;
         _lit = hasMap ? Lit.OnMapPage : Lit.OnEquipmentPage;
         ShowFrame();
         ChooseFirst();
@@ -335,8 +339,8 @@ public partial class PauseScreen : GameMode
         StepHeldRepeat(input);
         if (_showsMap && _turn == PageTurn.None)
         {
-            foreach ((string way, _, _) in ScrollWays)
-                _arrows[way].Visible = CanScroll(way);
+            foreach ((string way, _, _) in ScrollingMap.Ways)
+                _arrows[way].Visible = Map().CanScroll(way);
         }
 
         if (StepPageTurn())
@@ -346,12 +350,14 @@ public partial class PauseScreen : GameMode
             if (_repeating.Contains(Actions.AngleUp))
                 BeginPageTurn(Lit.OnEquipmentPage);
             bool leaving = Leaves();
-            StepMapScroll(input);
+            if (Map().StepScroll(input))
+                Sound("scroll");
+            PlaceIndicator();
             return leaving;
         }
 
         StepEquipment(input);
-        if (_repeating.Contains(Actions.AngleDown) && _playing.Room.Area.Length > 0)
+        if (_repeating.Contains(Actions.AngleDown) && _map is not null)
             BeginPageTurn(Lit.OnMapPage);
         return Leaves();
     }
@@ -798,11 +804,13 @@ public partial class PauseScreen : GameMode
             child.QueueFree();
         }
 
-        (_map, _selector, _reserveArrow) = (null, null, null);
+        (_selector, _reserveArrow) = (null, null);
         (_marks ?? throw NotShown()).Visible = map;
+        if (_map is not null)
+            _map.Visible = map;
         if (map)
         {
-            ShowMap(data.Get("map"), _playing.Room);
+            PlaceIndicator();
             return;
         }
 
@@ -811,146 +819,15 @@ public partial class PauseScreen : GameMode
         ShowEquipment();
     }
 
-    /// <summary>
-    /// Lays the map behind the page's frame, showing through its opening: the whole of the area's map, as much of it
-    /// as shows. The first time, it is moved so that the middle of what shows lies about the middle of the screen and
-    /// the sign of where Samus is lies within the page; after that it lies where it was left.
-    /// </summary>
-    private void ShowMap(DataNode at, Room room)
+    /// <summary>The map behind the page.</summary>
+    private ScrollingMap Map() => _map ?? throw new InvalidOperationException("The pause screen has no map: the room is in no area.");
+
+    /// <summary>Puts the sign of where Samus is over her cell of the map, where the map now lies.</summary>
+    private void PlaceIndicator()
     {
-        Node2D page = _page ?? throw NotShown();
-        Area area = Area.Read(Session.Content.ReadData($"{Data().Text("area_folder")}/{room.Area}.json"));
-        int cell = at.Int("cell");
-        if (area.TileSize != cell)
-            throw new InvalidOperationException($"The pause screen's map is laid out for cells of {cell} pixels, and the map of {room.Area} has cells of {area.TileSize}.");
-        bool first = _mapCellSize == 0;
-        _mapCellSize = cell;
-
-        // The opening is a part of the backdrop's picture, and the map lies in the plane of that picture.
-        DataNode opening = at.Get("opening");
-        Vector2I plane = PlaneCorner(room);
-        var window = new Control
-        {
-            Name = "Opening", ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore,
-            Position = new Vector2(plane.X + opening.Int("x"), plane.Y + opening.Int("y")), Size = new Vector2(opening.Int("width"), opening.Int("height")),
-        };
-        page.AddChild(window);
-
-        // Enough cells to cover the screen wherever the map lies under it, and one more each way for a part cell.
-        _map = new MapView { Name = "Map", Window = new Vector2I(at.Int("screen_width") / cell + 1, at.Int("screen_height") / cell + 1) };
-        window.AddChild(_map);
-        _map.Present(area, Session.Progress, Session.Content);
-        if (!first)
-        {
-            PlaceMap();
-            return;
-        }
-
-        _here = new Vector2I(
-            room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
-            room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
-
-        // Its bounds are those of what the area's map shows once had, or of what has been explored while it is not.
-        bool had = area.RevealedBy.Length > 0 && Session.Progress.Has(area.RevealedBy);
-        List<AreaCell> counted = [.. area.Cells.Where(found => had ? !found.Secret : _map.IsExplored(found))];
-        DataNode none = at.Get("unrevealed");
-        int left = counted.Count > 0 ? counted.Min(found => found.Place.X) : none.Int("left");
-        int right = counted.Count > 0 ? counted.Max(found => found.Place.X) : none.Int("right");
-        int top = counted.Count > 0 ? counted.Min(found => found.Place.Y) : none.Int("top");
-        int bottom = counted.Count > 0 ? counted.Max(found => found.Place.Y) : none.Int("bottom");
-        _mapBounds = new Rect2I(left * cell, top * cell, (right - left) * cell, (bottom - top) * cell);
-
-        Vector2I here = _here * cell;
-        int across = _mapBounds.Position.X + _mapBounds.Size.X / 2 - at.Int("centre_column");
-        int hereAcross = here.X - across;
-        if (hereAcross > at.Int("here_rightmost"))
-            across += hereAcross - at.Int("here_rightmost");
-        else if (hereAcross <= at.Int("here_leftmost"))
-            across -= at.Int("here_leftmost") - hereAcross;
-        int middle = _mapBounds.Position.Y + _mapBounds.Size.Y / 2 + at.Int("row_middle_above_centre");
-        int lift = Mathf.FloorToInt((float)(at.Int("centre_line") - middle) / cell) * cell;
-        int down = -lift;
-        int hereDown = here.Y + lift;
-        if (hereDown <= at.Int("here_top"))
-            down = Math.Max(down - (at.Int("here_top") - hereDown), -at.Int("lowest_map_top"));
-        _scroll = new Vector2I(across, down);
-        (_scrolling, _scrollAge) = (null, 0);
-        PlaceMap();
-    }
-
-    /// <summary>Where the corner of the backdrop's picture lies on the screen: the map lies in that picture's plane.</summary>
-    private Vector2I PlaneCorner(Room room)
-    {
-        if (room.Area.Length == 0)
-            return Vector2I.Zero;
-        DataNode backdrop = Data().Get("backdrops").Get(room.Area);
-        return new Vector2I(backdrop.Int("x"), backdrop.Int("y"));
-    }
-
-    /// <summary>Whether the map can be moved a way: what shows of it still lies past that edge of the page.</summary>
-    private bool CanScroll(string way)
-    {
-        DataNode at = Data().Get("map");
-        return way switch
-        {
-            "left" => _mapBounds.Position.X - _scroll.X < at.Int("left_edge"),
-            "right" => _mapBounds.End.X - _scroll.X >= at.Int("right_edge"),
-            "up" => _mapBounds.Position.Y - _scroll.Y < at.Int("top_edge"),
-            "down" => _mapBounds.End.Y - _scroll.Y >= at.Int("bottom_edge"),
-            _ => throw new InvalidOperationException($"The pause screen's map cannot be moved \"{way}\"."),
-        };
-    }
-
-    /// <summary>
-    /// Plays one update of the map's moving. A direction held
-    /// starts a move, which takes its while and moves the map part way through; once started it runs on though the
-    /// direction is let go, and only a move down is stopped short, when the map can go no further down.
-    /// </summary>
-    private void StepMapScroll(GameInput input)
-    {
-        DataNode at = Data().Get("map");
-        if (_scrolling is null)
-        {
-            foreach ((string way, GameAction action, _) in ScrollWays)
-            {
-                if (!CanScroll(way) || !input.IsHeld(action))
-                    continue;
-                (_scrolling, _scrollAge) = (way, 0);
-                break;
-            }
-        }
-
-        if (_scrolling == "down" && !CanScroll("down"))
-            _scrolling = null;
-        if (_scrolling is not { } moving)
-            return;
-        _scrollAge++;
-        if (_scrollAge == at.Int("scroll_moves_at"))
-        {
-            _scroll += ScrollWays.First(found => found.Name == moving).Step * at.Int("scroll_step");
-            PlaceMap();
-        }
-
-        if (_scrollAge < at.Int("scroll_updates"))
-            return;
-        _scrolling = null;
-        Sound("scroll");
-    }
-
-    /// <summary>Puts the map where it has been moved to, and the sign of where Samus is over her cell of it.</summary>
-    private void PlaceMap()
-    {
-        MapView map = _map ?? throw NotShown();
-        var first = new Vector2I(Mathf.FloorToInt((float)_scroll.X / _mapCellSize), Mathf.FloorToInt((float)_scroll.Y / _mapCellSize));
-
-        // The map is drawn within the opening, whose corner its own place is measured from.
-        DataNode opening = Data().Get("map").Get("opening");
-        map.Position = first * _mapCellSize - _scroll - new Vector2I(opening.Int("x"), opening.Int("y"));
-        map.Centre = first + map.Window / 2;
-        map.QueueRedraw();
         if (_indicator is not { } indicator)
             return;
-        Vector2I here = _here * _mapCellSize - _scroll;
+        Vector2I here = Map().OnScreen(_here);
         indicator.Place = PixelPosition.FromWhole(here.X, here.Y);
         indicator.ShowPlace();
     }

@@ -83,6 +83,11 @@ public sealed partial class EngineAssetWriter
 
         // The Rio: its swoop begins and ends with animations that say when they are done.
         Enemy("enemies/rio.json", "Rio", EnemyDefinitionId.Rio).BodyColliders(Ordinary)
+            .Value("reach", RioLaunchDefinitions.RioTriggerDistance)
+            .Value("across_speed", EngineNames.Number(RioLaunchDefinitions.RioXVelocity))
+            .Value("dive_speed", EngineNames.Number(RioLaunchDefinitions.RioYVelocity))
+            .Value("lift", EngineNames.Number(RioLaunchDefinitions.RioGravity))
+            .Value("return_speed", EngineNames.Number(-RioLaunchDefinitions.ReturnYVelocity))
             .Value("dive_sound", EngineNames.Sound(EnemySoundEffectDefinitions.RioDiveSound))
             .Looks(RioAnimations.Segments, RioAnimations.StartingWith, static (RioCue _) => "finished",
                 ("idle", RioSegment.TuckedWingbeat), ("swoop_start", RioSegment.SwoopOpening), ("swoop", RioSegment.SwoopLoop),
@@ -94,6 +99,9 @@ public sealed partial class EngineAssetWriter
         Enemy("enemies/squeept.json", "Squeept", EnemyDefinitionId.Squeept).BodyColliders("Hurtbox")
             .Value("gravity", EngineNames.Number(NorfairLavaJumpDefinitions.Gravity))
             .Value("flip_speed", EngineNames.Number(-NorfairLavaJumpDefinitions.AnimationSwitchVelocity))
+            // It is back in the lava once it is in the lowest row of blocks of any screen of the room.
+            .Value("screen_height", RoomGridConversions.BlocksPerScreen * RoomGridConversions.BlockPixels)
+            .Value("block_height", RoomGridConversions.BlockPixels)
             // The four upward speeds a leap may start with, picked by a number drawn.
             .Group("launch_speeds", EngineNames.List(EngineNames.Each(NorfairLavaJumpDefinitions.Launch).Select(speed => EngineNames.Number(-speed))))
             .Value("jump_sound", EngineNames.Sound(EnemySoundEffectDefinitions.SqueeptJumpSound))
@@ -102,6 +110,16 @@ public sealed partial class EngineAssetWriter
             .Write();
 
         Enemy("enemies/oum.json", "Oum", EnemyDefinitionId.Oum).BodyColliders("Body", "Solid", "Hurtbox", "Hitbox")
+            .Value("pushing_reach_across", OumMotionDefinitions.PushingReachX)
+            .Value("pushing_reach_down", OumMotionDefinitions.PushingReachY)
+            .Value("attack_reach", OumMotionDefinitions.AttackReach)
+            .Value("attack_cooldown", OumMotionDefinitions.InitialAttackCooldown)
+            .Value("settling_bounces", OumMotionDefinitions.SettlingBounces)
+            .Value("bounce_step", OumMotionDefinitions.BounceAcceleration.InTwoHundredFiftySixthsOfMark)
+            .Value("fastest_fall_mark", EngineNames.Marks(OumMotionDefinitions.FastestFallPlace))
+            .Value("impact_loss_marks", EngineNames.Marks(OumMotionDefinitions.ImpactCurveLoss))
+            .Value("roll_speed", OumMotionDefinitions.RollSpeed.WholePixels)
+            .Value("shove_distance", OumMotionDefinitions.ShoveDistance)
             .Looks(OumAnimations.Segments, OumAnimations.StartingWith,
                 static (OumCue cue) => cue.Kind switch
                 {
@@ -122,6 +140,17 @@ public sealed partial class EngineAssetWriter
             .Group("shell_left", EngineNames.List(MamaTurtleShellContourDefinitions.LeftOfOrigin))
             .Group("shell_right", EngineNames.List(MamaTurtleShellContourDefinitions.RightOfOrigin))
             .Value("wall_sound", EngineNames.Sound(EnemySoundEffectDefinitions.MamaTurtleWallSound))
+            .Value("awake_half_height", MamaTurtleMotionDefinitions.AwakeHalfHeight)
+            .Value("rise_updates", MamaTurtleMotionDefinitions.RiseToHoverDuration)
+            .Value("hover_quickening", EngineNames.Number(MamaTurtleMotionDefinitions.HoverAcceleration))
+            .Value("fastest_hover", MamaTurtleMotionDefinitions.FastestHover.WholePixels)
+            .Value("ridden_peak", MamaTurtleMotionDefinitions.RiddenAscentPeak)
+            .Value("ridden_climb_speed", MamaTurtleMotionDefinitions.RiddenAscentSpeed)
+            .Value("peak_pause", MamaTurtleMotionDefinitions.PeakPause)
+            .Value("fall_quickening", EngineNames.Number(MamaTurtleMotionDefinitions.FallAcceleration))
+            .Value("fastest_fall", MamaTurtleMotionDefinitions.FastestFall.WholePixels)
+            .Value("wall_shake_strength", (int)MamaTurtleMotionDefinitions.WallQuake.Strength - (int)SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light + 1)
+            .Value("wall_shake_updates", MamaTurtleMotionDefinitions.WallQuakeDuration)
             .Looks(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingWith,
                 static (MamaTurtleCue cue) => cue switch
                 {
@@ -136,6 +165,12 @@ public sealed partial class EngineAssetWriter
             .Write();
 
         Enemy("enemies/baby_turtle.json", "BabyTurtle", EnemyDefinitionId.BabyTurtle).BodyColliders("Body", "Solid", "Hurtbox")
+            .Value("crawl_speed", MamaTurtleMotionDefinitions.BabyCrawlSpeed)
+            .Value("travel_distance", MamaTurtleMotionDefinitions.BabyTravelDistance)
+            .Value("rider_left_delay", MamaTurtleMotionDefinitions.BabyRiderLeftDelay)
+            .Value("hide_updates", MamaTurtleMotionDefinitions.BabyHideDuration)
+            .Value("spin_speed", (int)MamaTurtleMotionDefinitions.BabySpinVelocity.X)
+            .Value("spin_fall_speed", (int)MamaTurtleMotionDefinitions.BabySpinVelocity.Y)
             .Looks(BabyTurtleAnimations.Segments, BabyTurtleAnimations.StartingWith,
                 static (BabyTurtleCue cue) => cue.Kind switch
                 {
@@ -155,6 +190,9 @@ public sealed partial class EngineAssetWriter
         // The Rinka: it forms unseen, and then comes out to take aim.
         Enemy("enemies/rinka.json", "Rinka", EnemyDefinitionId.Rinka).BodyColliders(Ordinary)
             .Value("puff_effect", DustFile(DustExplosionAnimation.SmallExplosion))
+            .Value("aim_updates", RinkaLifeDefinitions.AimDelayUpdates)
+            .Value("speed", EngineNames.Number(RinkaLifeDefinitions.Speed))
+            .Value("view_margin", RinkaLifeDefinitions.FlightMargin)
             .Looks(RinkaAnimations.Segments, RinkaAnimations.StartingWith,
                 static (RinkaCue cue) => cue.Kind switch
                 {
@@ -168,6 +206,8 @@ public sealed partial class EngineAssetWriter
 
         // The Sbug: a look for each of the eight ways it can point.
         Enemy("enemies/sbug.json", "Sbug", EnemyDefinitionId.Sbug).BodyColliders("Hurtbox")
+            .Value("dash_updates", SbugMovementDefinitions.LegDuration)
+            .Value("zigzag_leg_updates", SbugDefinitions.ZigZagSecondLeg.CountsEachWay)
             .Looks(SbugAnimations.Segments, SbugAnimations.StartingWith,
                 ("facing_right", CompassDirection.Right), ("facing_up_right", CompassDirection.UpRight), ("facing_up", CompassDirection.Up),
                 ("facing_up_left", CompassDirection.UpLeft), ("facing_left", CompassDirection.Left),
@@ -177,11 +217,13 @@ public sealed partial class EngineAssetWriter
 
         // The Tripper, and the suspensor platform, which is the same thing with one look whether it sinks or not.
         Enemy("enemies/tripper.json", "Tripper", EnemyDefinitionId.Tripper).BodyColliders("Body", "Solid", "Hurtbox")
+            .Value("resting_depth", PlatformMotionDefinitions.RestingDepthBelowPlacement)
             .Looks(PlatformAnimations.Segments, PlatformAnimations.StartingWith, static (PlatformCue _) => null,
                 ("moving_left", PlatformSegment.TripperMovingLeft), ("moving_right", PlatformSegment.TripperMovingRight),
                 ("still_left", PlatformSegment.TripperStillMovingLeft), ("still_right", PlatformSegment.TripperStillMovingRight))
             .Write();
         Enemy("enemies/suspensor_platform.json", "Tripper", EnemyDefinitionId.SuspensorPlatform).BodyColliders("Body", "Solid", "Hurtbox")
+            .Value("resting_depth", PlatformMotionDefinitions.RestingDepthBelowPlacement)
             .Looks(PlatformAnimations.Segments, PlatformAnimations.StartingWith, static (PlatformCue _) => null,
                 ("moving_left", PlatformSegment.SuspensorPlatformHeadingLeft), ("moving_right", PlatformSegment.SuspensorPlatformHeadingRight),
                 ("still_left", PlatformSegment.SuspensorPlatformHeadingLeft), ("still_right", PlatformSegment.SuspensorPlatformHeadingRight))
@@ -190,6 +232,7 @@ public sealed partial class EngineAssetWriter
         SuperMetroid.Core.Compatibility.FallingSparkUnauthoredLaunch pastTheList = _installation.LoadEnemyOverreads().FallingSparkUnauthoredLaunch;
         Enemy("enemies/spark.json", "Spark", EnemyDefinitionId.Spark).BodyColliders(Ordinary)
             .Value("drip_below", FallingSparkMotionDefinitions.SpawnBelowSource)
+            .Value("extra_off_updates", SparkTimingDefinitions.ExtraTimeOut)
             // The eight speeds across a falling spark may drip with; the old game lists seven and reads the eighth from past its list.
             .Group("spark_drifts", EngineNames.List(EngineNames.Each(FallingSparkLaunchDefinitions.Launch).Select(launch => EngineNames.Number(launch.DriftWith(() => pastTheList)))))
             .Shot("falling_spark", RoomEnemyProjectileKind.FallingSpark, static (spark, shot, projectile) =>

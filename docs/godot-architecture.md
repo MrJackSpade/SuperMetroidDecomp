@@ -449,7 +449,9 @@ it in the game.
 4. **Confirm it** with a focused check of what the slice does. Not with a recorded movie: the replays are off
    limits until the owner opens testing (manifesto, section 4).
 5. **Report** what the slice does, how it is built, each original structure that was not carried over, and each
-   quirk kept and where it lives.
+   quirk kept and where it lives. Anything the slice still does differently from the old game is not part of a
+   finished slice: each such difference gets its own ticket in the v1.0.0 milestone (AGENTS.md, "Full parity with
+   the cartridge is required").
 
 ## Checking parity
 

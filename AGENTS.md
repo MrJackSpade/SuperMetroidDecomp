@@ -22,6 +22,27 @@
 - The manifesto does not authorize starting Godot work or switching away from the active
   ticket.
 
+## Full parity with the cartridge is required
+
+- The owner's rule, in the owner's words: "Nothing can differ from cart behavior." The first
+  test of the Godot game will be a recorded SMV movie played through it, which needs the game
+  to be accurate frame by frame. That covers every update from power-on, in play and out of
+  it: the title, the menus, the cinematics, door transitions, message boxes and pauses as
+  much as Samus, enemies and rooms; positions, timings, the order things happen in, what
+  fires and what is hit, random draws, energy and counts.
+- A known difference is a defect, never an accepted end state. "Close enough", "simplified",
+  "the Godot way" and "still different, not fixed" are not outcomes of a piece of work. A
+  difference is fixed, or it stays open as a ticket.
+- Every difference found gets its own ticket in the `v1.0.0` milestone, whether it was found
+  by reading the old code, while building something else, or left behind by the work in
+  hand. v1.0.0 is not complete while one is open.
+- When migrating anything, read the old code for it line by line and carry over exactly what
+  it does, in the Godot design. Numbers that agree are not enough: the order of an update,
+  the rules that use the numbers, and the oddities of the cartridge's arithmetic are part of
+  the behaviour.
+- This does not open the recorded movies. They stay off limits until the owner opens testing
+  (v1.0.0 manifesto, section 4); until then parity is reached by reading the old code.
+
 ## Rules come from the owner
 
 - Do not change a rule, weaken or reinterpret one, or add a rule of a new kind (a check, a

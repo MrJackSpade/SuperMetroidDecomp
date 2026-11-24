@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -10,7 +11,7 @@ namespace Game.Enemies;
 /// <summary>
 /// One of the bugs a Kago lets out: it waits on the ground for a moment, jumps, a random height and usually back
 /// toward its hive, falls, and waits again. Until it has got clear of its hive, shots pass it by; after that any
-/// shot destroys it. Touching Samus hurts her and is the end of it.
+/// shot destroys it. Bombs and power bombs never touch it. Touching Samus hurts her and is the end of it.
 /// </summary>
 /// <remarks>
 /// Its timelines are "waiting", curled up before its first jump; "jump_start", whose cue "jump" launches it;
@@ -97,6 +98,11 @@ public partial class KagoBug : Enemy
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => _clear && base.IsHitBy(side);
+
+    /// <inheritdoc/>
+    public override HitResult TakeHit(Hit hit, Collider part) =>
+        // The old game's bombs and power bombs strike none of what enemies let out, its bugs among it.
+        hit.CarriesAny([new HitKind(HitKinds.Bomb), new HitKind(HitKinds.PowerBomb)]) ? HitResult.Ignored : base.TakeHit(hit, part);
 
     /// <inheritdoc/>
     protected override void OnCue(string cue)

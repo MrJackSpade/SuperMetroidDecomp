@@ -646,11 +646,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (IsDead)
             return;
         BeforeMoving();
+        MovedAs = State;
         States.Step();
         DeliverBodyPowers();
         AfterState();
         CountJumpHeld();
     }
+
+    /// <summary>
+    /// The state the player last moved as: what they were doing through the latest update's movement, whatever they
+    /// have become since. Nothing before their first.
+    /// </summary>
+    public PlayerState? MovedAs { get; private set; }
 
     /// <summary>What the input asked, in the first part of this update, of the state the player was then in; and that state.</summary>
     private PlayerState? _asked;

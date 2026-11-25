@@ -327,16 +327,22 @@ class Generator:
         self.by_name = {room.name: key for key, room in self.rooms.items()}
         # Each room's doors: the name of each, with the rectangle its blocks cover, in pixels.
         self.room_doors: dict[str, dict[str, tuple[int, int, int, int]]] = {}
+        # The blocks an elevator rests on in each room that has one: their rectangle, in pixels.
+        self.elevator_rests: dict[str, tuple[int, int, int, int]] = {}
         for key, room in self.rooms.items():
             levels = self.door_blocks.get(room.name, {})
             default_level = self.states[self.choices[key][0]].level
             blocks = levels.get(default_level) or (next(iter(levels.values())) if levels else {})
             doors = {}
             for door, cells in blocks.items():
-                # The blocks an elevator stands in are marked as a door that leads nowhere; the elevator is an object.
-                if door == 'ElevatorPseudoDoor':
-                    continue
                 xs, ys = [cell['x'] for cell in cells], [cell['y'] for cell in cells]
+                # The blocks an elevator rests on are marked as a door that leads nowhere; the elevator is an object,
+                # which is told where they are.
+                if door == 'ElevatorPseudoDoor':
+                    if len(cells) != (max(xs) - min(xs) + 1) * (max(ys) - min(ys) + 1):
+                        raise ValueError(f'The blocks an elevator rests on in {room.name} are not one rectangle')
+                    self.elevator_rests[key] = (min(xs) * BLOCK, min(ys) * BLOCK, (max(xs) - min(xs) + 1) * BLOCK, (max(ys) - min(ys) + 1) * BLOCK)
+                    continue
                 doors[door] = (min(xs) * BLOCK, min(ys) * BLOCK, (max(xs) - min(xs) + 1) * BLOCK, (max(ys) - min(ys) + 1) * BLOCK)
             self.room_doors[key] = doors
         # Mother Brain's way out is a door her death makes: her room's level has no blocks for it until then. It lies
@@ -634,6 +640,10 @@ class Generator:
             present = present or placed.only_when
             if present is not None:
                 properties['PresentWhen'] = present
+            if placed.scene == enemies.ELEVATOR:
+                if key not in self.elevator_rests:
+                    raise ValueError(f'{room.name} has an elevator and no blocks marked for it to rest on')
+                properties['RestsOn'] = 'Rect2i(%d, %d, %d, %d)' % self.elevator_rests[key]
             if placed.scene.endswith('.tscn'):
                 scene.node(names[mine], '.', properties, instance=placed.scene)
             else:
@@ -650,12 +660,9 @@ class Generator:
             settings['ScrollLayout'] = quoted(layout)
         return settings
 
-    def rides(self, key: str, direction: str) -> bool:
-        """Whether a room has an elevator that travels the way a door goes, or is Maridia's tube."""
-        state = self.states[self.choices[key][0]]
-        if state.main == 'MaridiaElevatube':
-            return True
-        return direction in ('Up', 'Down') and any(placed.enemy == 'Elevator' for placed in self.populations[state.enemies])
+    def is_tube(self, key: str) -> bool:
+        """Whether a room is Maridia's tube, whose ride makes the arrival at its doors."""
+        return self.states[self.choices[key][0]].main == 'MaridiaElevatube'
 
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
@@ -727,18 +734,13 @@ class Generator:
             else:
                 offset_x = width // 2
                 offset_y = ARRIVAL_INSET if door.direction == 'Up' else height - ARRIVAL_INSET
-                # Someone arriving by elevator is put where the elevator's path ends, for it to bring them to rest.
-                for elevator in self.populations[base.enemies]:
-                    if (elevator.enemy == 'Elevator' and legacy.last_name(elevator.settings['Direction']) == door.direction
-                            and x <= elevator.at[0] < x + width):
-                        offset_x = elevator.at[0] - x
-                        offset_y = int(elevator.settings['ArrivalY']) - enemies.ELEVATOR_HOLDS_ABOVE - y
             if base.main == 'MaridiaElevatube':
                 # Someone arriving in Maridia's tube is put where its ride from that end begins.
                 arrives = sequences.TUBE_ARRIVES_ABOVE if y == 0 else sequences.TUBE_ARRIVES_BELOW
                 offset_x, offset_y = arrives[0] - x, arrives[1] - y
-            # A door whose arrival an elevator or the tube makes, at either end, is not passed by the door's own scroll.
-            carried = self.rides(key, door.direction) or self.rides(target_key, door.direction)
+            # A door whose arrival the tube makes, at either end, is not passed by the door's own scroll. An elevator's
+            # door is passed as any other, and the elevators make the ride.
+            carried = self.is_tube(key) or self.is_tube(target_key)
             scene.node(self.exit_name(room, name), '.', {
                 'position': f'Vector2({x}, {y})',
                 'Size': f'Vector2i({width}, {height})',

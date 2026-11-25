@@ -42,7 +42,7 @@ ArrivalOffset = Vector2i(32, 40)
 Travel = 3
 ToScreen = Vector2i(0, 0)
 SamusStep = 1.75
-Scrolls = false
+Scrolls = true
 
 [node name="ToMaridiaElevator" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -51,16 +51,17 @@ Size = Vector2i(32, 16)
 LeadsToRoom = "res://game/rooms/maridia/maridia_elevator.tscn"
 LeadsToExit = "ToForgottenHighwayElevator"
 Style = 1
-ArrivalOffset = Vector2i(16, 54)
+ArrivalOffset = Vector2i(16, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = false
+Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("5")]
-position = Vector2(112, 144)
-Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 128)])
-StartsOn = "down"
+position = Vector2(128, 192)
+GoesDown = true
+ArrivesAtY = 320
+RestsOn = Rect2i(112, 192, 32, 16)
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(96, 32)

@@ -20,6 +20,11 @@ namespace Game;
 /// play does (the liquid, the statues and the update's random number), with the random number alone, or with
 /// neither. A power bomb's blast does not go on through a door. The source room is not kept on screen while the
 /// next scrolls in.
+/// <para>
+/// A door entered while an elevator's door is armed is an elevator's. Going down, the ride goes on for a wait of
+/// updates before the passage begins. As the next room is set up a ride that was leaving arrives there: its elevator
+/// puts Samus above it, and the scroll carries her on from that place.
+/// </para>
 /// </remarks>
 public partial class DoorTransitionMode : GameMode
 {
@@ -44,6 +49,9 @@ public partial class DoorTransitionMode : GameMode
 
     /// <summary>The last of a fade's counted steps that moves its colours; the step after ends it.</summary>
     private const int FadeLastStep = 13;
+
+    /// <summary>How many updates an elevator going down rides on before its door's passage begins.</summary>
+    private const int ElevatorDownWaitUpdates = 48;
 
     /// <summary>How many updates pass while the next room is taken to be setting up.</summary>
     private const int SetupWaitUpdates = 2;
@@ -75,6 +83,14 @@ public partial class DoorTransitionMode : GameMode
     private int _stoodAtX;
     private int _stoodAtY;
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
+    private bool _elevatorAsked;
+    private int _elevatorWait;
+
+    /// <summary>
+    /// Whether the passage itself has begun: from then until play has control again, what holds still through a
+    /// door, as an elevator does, holds still. Before it an elevator going down still rides on.
+    /// </summary>
+    public bool PassageBegun { get; private set; }
 
     /// <summary>The passage that follows Samus entering <paramref name="door"/> during <paramref name="playing"/>.</summary>
     public DoorTransitionMode(PlayingMode playing, Door door)
@@ -117,6 +133,26 @@ public partial class DoorTransitionMode : GameMode
         switch (_stage)
         {
             case Stage.Entering:
+                // An elevator's door, going down: the ride goes on behind the door for its wait, each update played
+                // as one of the door's waits for sounds, and the passage begins on the update after.
+                if (!_elevatorAsked)
+                {
+                    _elevatorAsked = true;
+                    ElevatorJourney journey = ElevatorJourney.Of(Session);
+                    if (journey.DoorArmed && journey.GoesDown)
+                        _elevatorWait = ElevatorDownWaitUpdates;
+                }
+
+                if (_elevatorWait > 0)
+                {
+                    _elevatorWait--;
+                    room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
+                    room.StepForTransition(enemies: true);
+                    break;
+                }
+
+                PassageBegun = true;
+
                 // The door's first update: the room's enemies run once more with sounds still let in, and then
                 // Samus's sounds and the enemies' are told to stop. From here until the next room has faded in
                 // every sound asked for is turned away.
@@ -244,6 +280,10 @@ public partial class DoorTransitionMode : GameMode
                 samus.Position = new PixelPosition(
                     samus.Position.X.WithWhole(OffFarEdge(OffNearEdge(samus.Position.X.Whole))),
                     samus.Position.Y.WithWhole(OffNearEdge(samus.Position.Y.Whole)));
+
+                // An elevator's door leaves her in the elevator's hands.
+                if (ElevatorJourney.Of(Session).DoorArmed && samus.State is not RidingElevatorState)
+                    samus.ChangeState(new RidingElevatorState());
                 room.ShowNow();
                 _fadeSteps = 0;
                 _stage = Stage.FadingIn;
@@ -324,7 +364,7 @@ public partial class DoorTransitionMode : GameMode
         _ => throw new InvalidOperationException($"Undefined way {_way} through a door."),
     };
 
-    /// <summary>How many updates the scroll moves for, the one taken while the room loaded among them.</summary>
+    /// <summary>How many steps the scroll takes, the two of the update that loads the room among them.</summary>
     private int MovingUpdates => _way switch
     {
         Door.Way.Right or Door.Way.Left => 63,
@@ -354,9 +394,11 @@ public partial class DoorTransitionMode : GameMode
     };
 
     /// <summary>
-    /// Sets the next room up with Samus in it, and takes the scroll's first step. She arrives where the scroll's setup
-    /// puts her: the first step of the scroll taken from where she stood (not for a door going down), her place within
-    /// her screen kept at the view's setup place, fractions and all.
+    /// Sets the next room up with Samus in it, and takes the scroll's first two steps: the one taken while the room
+    /// loaded, and this update's own. She arrives where the scroll's setup puts her: the first step of the scroll
+    /// taken from where she stood (not for a door going down), her place within her screen kept at the view's setup
+    /// place, fractions and all. An elevator that receives a ride puts her above it as the room is set up, and
+    /// after the scroll's first step she is put back there, at a whole pixel's height, to be carried on from it.
     /// </summary>
     private void Load(Samus samus)
     {
@@ -366,12 +408,20 @@ public partial class DoorTransitionMode : GameMode
             moved.X.WithWhole(setup.X + WithinScreen(moved.X.Whole)), moved.Y.WithWhole(setup.Y + WithinScreen(moved.Y.Whole)));
         (_stoodAtX, _stoodAtY) = (rebased.X.Whole, rebased.Y.Whole);
 
+        // A ride that was leaving the room arrives in the next.
+        ElevatorJourney journey = ElevatorJourney.Of(Session);
+        journey.PassDoor();
         var entry = new RoomEntry(_toExit, samus.Velocity, samus.Facing) { At = rebased, KeepsView = true };
         _playing.ChangeRoom(_toRoom, entry);
+        PixelPosition? onElevator = journey.TakeSetDownPlace();
+        samus.Position = rebased;
         _view = setup;
         _scrollLeft = MovingUpdates;
         Scroll(samus);
-        _scrollLeft--;
+        if (onElevator is { } place)
+            samus.Position = new PixelPosition(samus.Position.X.WithWhole(place.X.Whole), Pixels.FromWhole(place.Y.Whole));
+        Scroll(samus);
+        _scrollLeft -= 2;
         _fadeSteps = 0;
         _playing.Room.ShowNow();
     }

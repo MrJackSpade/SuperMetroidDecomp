@@ -39,8 +39,8 @@ public partial class Door : RoomExit
     public double SamusStep { get; set; }
 
     /// <summary>
-    /// Whether the passage is the door's own scroll. A door whose arrival something else makes, an elevator's or the
-    /// tube's, is passed by the engine's plain change of rooms, with the arrival its exit gives.
+    /// Whether the passage is the door's own scroll. A door whose arrival something else makes, the tube's, is passed
+    /// by the engine's plain change of rooms, with the arrival its exit gives.
     /// </summary>
     [Export]
     public bool Scrolls { get; set; } = true;

@@ -365,6 +365,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `ISoundFlow` | Whatever a game's way with sound keeps: what waits, and what is playing as gameplay sees it | Deciding how what is asked for comes to be heard: whether each sound is let in, how long it and the music wait, and on which update each starts. A room set up to be played asks it for the room's music once its version is chosen and before anything of the room enters, so that music the room's things ask for as they enter comes after the room's own (`EnterRoom`; the engine's own asks for the version's music at once unless the version keeps what plays). The session opens every update with it before the mode in control plays (the music's turn) and closes every update with it after (the sounds' turns); the mode says, as its update begins, whether the music gets its turn (`GameMode.GivesMusicItsTurn`), and once it has played the update, what closes it: whether the music gets a turn there, and how many turns the sounds get (`SoundWorkAtClose`, a `ClosingSoundWork`; one turn of the sounds unless the mode says otherwise). The engine's own, `ImmediateSoundFlow`, lets everything in and starts it at once on the channel asked, and nothing waits; a game supplies another through `GameDefinition.CreateSoundFlow`, which is handed the game's content to read its data from. It is game state, moved on once an update. | Depend on a sound device, or play anything. |
 | `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play after the room has been stepped, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. One with something to do before the room acts is an `IUpdateOpener` as well: the room calls it as each of its updates opens, before the player's input is read, whatever is stopped. One with something to do each time the room's liquid has moved is an `ILiquidWatcher`: the room calls it right after the liquid's move, wherever the liquid is moved. | Belong to a room. |
 | `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. A session service; when time is up it hands over to its time-up mode. | Know which room the player is in. |
+| `ElevatorJourney` (this game's, `game/objects/elevator/`) | The elevator ride under way, and whether an elevator's door is armed | Outlasting the room a ride begins in: begun by the elevator left, turned into an arrival by the door's passage, ended by the elevator reached. A session service. Every elevator of a room reads the one ride, as the cartridge's do. | Move an elevator or Samus. |
 
 `SaveData` is the saved form itself: what a slot's file holds, captured from a session and put back into one. It
 can give what it remembers as `Progress` of its own, for showing a saved game without loading it. A game saved to
@@ -520,6 +521,10 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 - **Manages:** its own reaction to the player, to hits and to `Progress`.
 - **Does not:** act on its own as an enemy does, or change another object's or the room's state except through
   their methods.
+- **Its turn:** with the room's objects, after the player and the projectiles. A kind that says it acts with the
+  enemies (`ActsWithEnemies`) takes its turn among them instead, in the order all joined the room: before the
+  player moves, held still when the enemies are, and on the updates of a passage between rooms on which the
+  enemies take their turns. A thing the player's movement must find already moved, as an elevator, is such a kind.
 
 | Kind | Manages | Settings |
 | --- | --- | --- |
@@ -539,7 +544,7 @@ Every kind here is the engine's except `Gunship`.
 
 **Barriers and exits.** A door is two separate things, and neither knows about the other.
 
-- This game's exits are `Door`s (`game/rooms/doors/`): a `RoomExit` that also says the way Samus travels through it, the screen of the next room the view comes to rest on, how far she is moved on each update of its scroll, and whether its passage is the door's own scroll or, for an elevator's door and the tube's, the plain change of rooms.
+- This game's exits are `Door`s (`game/rooms/doors/`): a `RoomExit` that also says the way Samus travels through it, the screen of the next room the view comes to rest on, how far she is moved on each update of its scroll, and whether its passage is the door's own scroll or, for the tube's, the plain change of rooms. An elevator's door is passed as any other: entered while an elevator's door is armed, the passage first lets a ride down go on for its wait, and as it sets the next room up it turns a ride that was leaving into one arriving.
 - A `RoomExit` is a region at the edge of a room. When the player enters it, the room transition begins. Its
   settings are the room and exit it leads to, and how the transition looks: scrolling across, scrolling up or down,
   or fading. Every way out of a room is one, whether or not anything stands in front of it. The exit a player
@@ -566,10 +571,19 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 
 **Things built from these, not types of their own.** Apply move 1 before adding a kind.
 
-- **An elevator** is a `Carrier` whose path ends at a `RoomExit`, started by a press of up or down. The room it
-  leads to has a carrier of its own whose path ends where the player arrives, and it brings them to rest. The path
-  runs on past the exit, so the exit takes the player on the way; where it ends is where a player coming the other
-  way arrives.
+- **An elevator** of this game is not built from these: it is the game's own `Elevator` (`game/objects/elevator/`),
+  because the cartridge's ride is its own thing, update for update. Samus arms it by standing on the blocks it
+  rests on, as she moved upright and settled; the elevator hears of that on its next turn, and a fresh press of its
+  way on that turn starts the ride (without one the door is disarmed again). She then rides in a state of her own
+  (`RidingElevatorState`): facing forward, held a set height above the elevator each time it takes its turn, and
+  moved by her own step down of one pixel, which only the terrain under her feet stops. While the ride is leaving
+  that step is what meets the door of the shaft, so the door is entered when her feet reach it and not when her
+  body first overlaps it; she meets no exit by overlapping it while she rides. The ride itself is the session's
+  (`ElevatorJourney`), since it outlasts the room: the door's passage turns a ride that was leaving into one
+  arriving, the elevator of the room reached starts from the height rides arrive at with her on it, and after the
+  passage comes back to where it rests, asks for its sound to stop and lets her go. Resuming from the pause
+  disarms the door and leaves the ride as it stands, so a ride down that reaches its door disarmed begins the
+  passage without its wait. A general game's elevator can still be a `Carrier` whose path ends at a `RoomExit`.
 - **An item held in a shell** (a statue's orb) is an `Item` with a `Barrier` around it. The item cannot be touched
   until the barrier is open, because the barrier is solid.
 - **An item hidden in the wall** is an `Item` behind a block. It cannot be seen or touched until the block is gone.
@@ -659,7 +673,9 @@ in `engine/actors/player/`.
   and first moves on the next, so a jump asked for while running still runs that update and rises on the next. A
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`
   is for whatever takes the player over at once (a hold, a script, a station) and drops an interruption that was
-  waiting.
+  waiting. The player keeps the state they last moved as (`MovedAs`), for whoever must know what they were doing
+  through the latest movement whatever they have become since. A state may say the player meets no exit by
+  overlapping it (`MeetsExits`); whoever moves the player then takes them through one (`Room.EnterExit`).
 - **The update has two parts, with the enemies between them.** In the first (`BeginUpdate`) weapons fire, from the
   state, the place and the aim the last update left the player in, and then the input is asked. The room steps the
   player's own shots, then the enemies. In the second (`FinishUpdate`) the player moves, the change takes effect,
@@ -1260,8 +1276,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   the animals break; Botwoon's wall; the shell around a statue-held item. Mother Brain's glass turned out to be an
   enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
-- `RoomExit`: every door, and the far end of every elevator.
-- `Carrier`: every elevator; the Maridia transport tube. The two Chozo statues that come to life are one enemy
+- `RoomExit`: every door.
+- `Elevator` (this game's, `game/objects/elevator/`): every elevator.
+- `Carrier`: the Maridia transport tube. The two Chozo statues that come to life are one enemy
   scene (`ChozoStatue`) with two setups, not carriers: the one walks through terrain by its timeline's strides with
   Samus in its hand, and the other lowers the room's liquid.
 - `Platform`: none placed. The Tripper is an enemy (it can be frozen and shot), and the suspensor platform is the
@@ -1371,8 +1388,13 @@ explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinsta
 Things in the old code that are not things in the game: "held place" objects, slot hand-overs and other storage
 left-overs; the old compatibility module's contents as a set (each is re-examined, and only an oddity that touches
 something the engine owns reaches `game/compatibility/`); scroll "extension" objects; block "extension" tiles;
-elevators, doors and item containers as types of their own; room "states" as separate rooms; debugger save states
+item containers as types of their own; room "states" as separate rooms; debugger save states
 and input recording tools.
+
+Doors and elevators were first built from the general kinds alone. Full parity with the cartridge needs the passage
+through a door and an elevator's ride update for update, which those kinds cannot say, so each is now a kind of this
+game's own (`Door` with its `DoorTransitionMode`, and `Elevator` with its `ElevatorJourney`); the general kinds stay as
+they were for any other game.
 
 **Why, and extending it.** This section is the worked example of sections 0 and 2 applied to the whole game, so
 that placing a thing is looking it up, not deciding. It was built from the old code's lists of names, not from

@@ -45,11 +45,11 @@ Size = Vector2i(32, 16)
 LeadsToRoom = "res://game/rooms/norfair/business_center.tscn"
 LeadsToExit = "ToWarehouseEntrance"
 Style = 1
-ArrivalOffset = Vector2i(16, 54)
+ArrivalOffset = Vector2i(16, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = false
+Scrolls = true
 
 [node name="ToEastTunnel" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -78,9 +78,10 @@ SamusStep = 0.78125
 Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("6")]
-position = Vector2(112, 112)
-Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 160)])
-StartsOn = "down"
+position = Vector2(128, 160)
+GoesDown = true
+ArrivesAtY = 320
+RestsOn = Rect2i(112, 160, 32, 16)
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)

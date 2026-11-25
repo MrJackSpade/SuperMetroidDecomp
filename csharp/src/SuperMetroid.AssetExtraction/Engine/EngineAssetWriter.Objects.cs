@@ -64,7 +64,7 @@ public sealed partial class EngineAssetWriter
     {
         // The elevator's pad blinks whether it is at rest or carrying her.
         EngineSheetPictures pad = EnemyPictures("objects/elevator", EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Elevator));
-        new EngineObjectFile(_tree, "objects/elevator.json", "Carrier")
+        new EngineObjectFile(_tree, "objects/elevator.json", "Elevator")
             .PictureOffset(pad)
             .Timeline("rest", EngineTimelines.Of(
                 ElevatorAnimations.Segments, ElevatorAnimations.StartingWith(ElevatorSegment.Idle), frame => PictureOf(pad, frame), static (NoAnimationCue _) => null))

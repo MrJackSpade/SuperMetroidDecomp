@@ -62,6 +62,7 @@ internal static partial class EngineDefaults
         ["DraygonCannonShot"] = "Projectile",
         ["DraygonGoop"] = "Projectile",
         ["Earthquake"] = "RoomEffect",
+        ["Elevator"] = "RoomObject",
         ["Ending"] = "Cinematic",
         ["Enemy"] = "Node2D",
         ["EscapeDachora"] = "Creature",

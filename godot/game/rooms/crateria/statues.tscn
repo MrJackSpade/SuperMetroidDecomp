@@ -64,16 +64,17 @@ Size = Vector2i(32, 16)
 LeadsToRoom = "res://game/rooms/tourian/tourian_first.tscn"
 LeadsToExit = "ToStatues"
 Style = 1
-ArrivalOffset = Vector2i(16, 54)
+ArrivalOffset = Vector2i(16, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = false
+Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("6")]
-position = Vector2(112, 384)
-Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 144)])
-StartsOn = "down"
+position = Vector2(128, 432)
+GoesDown = true
+ArrivesAtY = 576
+RestsOn = Rect2i(112, 432, 32, 16)
 
 [node name="GreyCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)

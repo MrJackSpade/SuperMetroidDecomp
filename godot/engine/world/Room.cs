@@ -48,6 +48,9 @@ public partial class Room : Node2D
     private Mover? _mover;
 
     private readonly List<Enemy> _enemies = [];
+
+    /// <summary>Who takes a turn in the enemies' pass, in the order they joined: the enemies, and the objects that act with them.</summary>
+    private readonly List<IRoomEntity> _enemyPass = [];
     private readonly List<Projectile> _projectiles = [];
     private readonly List<Pickup> _pickups = [];
     private readonly List<Effect> _effects = [];
@@ -103,6 +106,18 @@ public partial class Room : Node2D
 
     /// <summary>The exit the player has entered, once they have; the mode in control begins the transition.</summary>
     public RoomExit? ExitEntered { get; private set; }
+
+    /// <summary>
+    /// Takes the player to have entered <paramref name="exit"/>, for whoever moves a player whose state keeps them
+    /// from meeting exits by themselves. The first exit entered in an update stands.
+    /// </summary>
+    public void EnterExit(RoomExit exit)
+    {
+        ArgumentNullException.ThrowIfNull(exit);
+        if (!_exits.Contains(exit))
+            throw new InvalidOperationException($"The exit \"{exit.Name}\" is not one of the room \"{Name}\".");
+        ExitEntered ??= exit;
+    }
 
     /// <summary>The live enemies, in the order they joined the room.</summary>
     public IReadOnlyList<Enemy> Enemies => _enemies;
@@ -289,13 +304,7 @@ public partial class Room : Node2D
         }
 
         if (!stopped.HasFlag(Stopped.Enemies))
-        {
-            foreach (Enemy enemy in _enemies.ToList())
-            {
-                if (!_leaving.Contains(enemy) && IsActive(enemy))
-                    enemy.Step();
-            }
-        }
+            StepEnemyPass();
 
         // The pass is counted whether or not the enemies were held still through it.
         Session.CountEnemyPass();
@@ -308,7 +317,8 @@ public partial class Room : Node2D
                 trigger.Step(this, body);
             if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
                 _arrivedAt = null;
-            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
+            if (Player.State.MeetsExits)
+                ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
         }
 
         if (!stopped.HasFlag(Stopped.Projectiles))
@@ -335,12 +345,7 @@ public partial class Room : Node2D
 
         if (!stopped.HasFlag(Stopped.Room))
         {
-            foreach (RoomObject roomObject in _objects.ToList())
-            {
-                if (!_leaving.Contains(roomObject))
-                    roomObject.Step();
-            }
-
+            StepObjects();
             foreach (PatchSequence change in _terrainChanges.ToList())
                 change.Step(this);
             _terrainChanges.RemoveAll(change => change.IsOver);
@@ -493,12 +498,7 @@ public partial class Room : Node2D
 
         if (enemies)
         {
-            foreach (Enemy enemy in _enemies.ToList())
-            {
-                if (!_leaving.Contains(enemy) && IsActive(enemy))
-                    enemy.Step();
-            }
-
+            StepEnemyPass();
             Session.CountEnemyPass();
         }
 
@@ -512,17 +512,42 @@ public partial class Room : Node2D
         }
 
         if (objects)
-        {
-            foreach (RoomObject roomObject in _objects.ToList())
-            {
-                if (!_leaving.Contains(roomObject))
-                    roomObject.Step();
-            }
-        }
-
+            StepObjects();
         RemoveLeaving();
         AddArriving();
         ShowAll();
+    }
+
+    /// <summary>
+    /// The enemies' pass: each enemy that is active takes its turn, and among them, in the order all joined the
+    /// room, each object that acts with the enemies.
+    /// </summary>
+    private void StepEnemyPass()
+    {
+        foreach (IRoomEntity entity in _enemyPass.ToList())
+        {
+            if (_leaving.Contains(entity))
+                continue;
+            if (entity is Enemy enemy)
+            {
+                if (IsActive(enemy))
+                    enemy.Step();
+            }
+            else
+            {
+                ((RoomObject)entity).Step();
+            }
+        }
+    }
+
+    /// <summary>The room's objects take their turns, all but those that act with the enemies.</summary>
+    private void StepObjects()
+    {
+        foreach (RoomObject roomObject in _objects.ToList())
+        {
+            if (!roomObject.ActsWithEnemies && !_leaving.Contains(roomObject))
+                roomObject.Step();
+        }
     }
 
     /// <summary>Shows everything where it stands, with the room where the view has it: for whoever has moved the view or the player outside an update.</summary>
@@ -724,6 +749,7 @@ public partial class Room : Node2D
         {
             case Enemy enemy:
                 _enemies.Add(enemy);
+                _enemyPass.Add(enemy);
                 break;
             case Projectile projectile:
                 _projectiles.Add(projectile);
@@ -739,6 +765,8 @@ public partial class Room : Node2D
                 break;
             case RoomObject roomObject:
                 _objects.Add(roomObject);
+                if (roomObject.ActsWithEnemies)
+                    _enemyPass.Add(roomObject);
                 break;
         }
 
@@ -784,6 +812,7 @@ public partial class Room : Node2D
             {
                 case Enemy enemy:
                     _enemies.Remove(enemy);
+                    _enemyPass.Remove(enemy);
                     break;
                 case Projectile projectile:
                     _projectiles.Remove(projectile);
@@ -799,6 +828,7 @@ public partial class Room : Node2D
                     break;
                 case RoomObject roomObject:
                     _objects.Remove(roomObject);
+                    _enemyPass.Remove(roomObject);
                     break;
             }
 

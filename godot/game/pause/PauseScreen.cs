@@ -213,6 +213,10 @@ public partial class PauseScreen : GameMode
             case Phase.Restoring:
                 Session.OpenUpdate();
                 Restore();
+
+                // Resuming disarms an elevator's door and leaves its ride as it stands: a ride down that reaches its
+                // door disarmed begins the door's passage without the wait.
+                ElevatorJourney.Of(Session).Disarm();
                 BeginFade(dark: _levels);
                 _phase = Phase.Brightening;
                 return this;

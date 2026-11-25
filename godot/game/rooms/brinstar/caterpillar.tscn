@@ -88,11 +88,11 @@ Size = Vector2i(32, 16)
 LeadsToRoom = "res://game/rooms/crateria/red_brinstar_elevator.tscn"
 LeadsToExit = "ToCaterpillar"
 Style = 1
-ArrivalOffset = Vector2i(16, -2)
+ArrivalOffset = Vector2i(16, 40)
 Travel = 3
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = false
+Scrolls = true
 
 [node name="ToRedBrinstarSave" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -121,9 +121,10 @@ SamusStep = 0.78125
 Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("6")]
-position = Vector2(112, 658)
-Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, -682)])
-StartsOn = "up"
+position = Vector2(128, 706)
+GoesDown = false
+ArrivesAtY = 24
+RestsOn = Rect2i(112, 704, 32, 16)
 
 [node name="Zero" parent="." instance=ExtResource("7")]
 position = Vector2(95, 1928)

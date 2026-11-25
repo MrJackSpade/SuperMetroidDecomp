@@ -37,6 +37,7 @@ public partial class SuperMetroid : GameDefinition
         new Escape(),
         new Compatibility.FrameRandom(_random ?? throw new InvalidOperationException("The session's services were asked for before its random numbers.")),
         new Menus.DemoSchedule(),
+        new ElevatorJourney(),
     ];
 
     /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>

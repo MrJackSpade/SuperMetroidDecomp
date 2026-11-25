@@ -203,7 +203,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `objects/door_cap_yellow_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/door_cap_yellow_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/door_cap_yellow_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/elevator.json` | `Carrier` |  |
+| `objects/elevator.json` | `Elevator` |  |
 | `objects/escape_dachora.json` | `EscapeDachora` |  |
 | `objects/escape_etecoon.json` | `EscapeEtecoon` |  |
 | `objects/etecoon.json` | `Etecoon` | jump_sound, wake_sound, wall_sound |

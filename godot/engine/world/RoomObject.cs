@@ -78,6 +78,13 @@ public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasVal
     {
     }
 
+    /// <summary>
+    /// Whether it takes its turn among the enemies, in the order all joined the room: before the player moves, and
+    /// held still with the enemies. Every other object takes its turn with the room's objects, after the player and
+    /// the projectiles.
+    /// </summary>
+    public virtual bool ActsWithEnemies => false;
+
     /// <summary>Plays one update of the object.</summary>
     internal void Step() => OnStep();
 

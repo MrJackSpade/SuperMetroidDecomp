@@ -19,6 +19,9 @@ public sealed class StandingState : PlayerState
     /// </param>
     public StandingState(int settlingUpdates = 0) => _settling = Countdown.Of(settlingUpdates);
 
+    /// <summary>Whether the player was still settling from a landing through this state's latest move.</summary>
+    public bool MovedSettling { get; private set; }
+
     /// <inheritdoc/>
     public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
 
@@ -49,6 +52,7 @@ public sealed class StandingState : PlayerState
         owner.MoveAcross();
         bool grounded = owner.PressToGround();
         owner.StopAcross();
+        MovedSettling = _settling.IsRunning;
         if (_settling.IsRunning)
         {
             _settling = _settling.Stepped();

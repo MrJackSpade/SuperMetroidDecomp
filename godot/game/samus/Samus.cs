@@ -762,7 +762,12 @@ public partial class Samus : Player
         // A suit that has just become hers holds her while it is put on.
         bool varia = Inventory.Owns(Equipment.VariaSuit), gravity = Inventory.Owns(Equipment.GravitySuit);
         if ((varia && !_woreVaria) || (gravity && !_woreGravity))
+        {
+            // Putting a suit on ends an elevator's ride and disarms its door.
+            ElevatorJourney.Of(Room.Session).End();
             ChangeState(new CollectingSuitState());
+        }
+
         _woreVaria = varia;
         _woreGravity = gravity;
     }
@@ -1202,9 +1207,25 @@ public partial class Samus : Player
         return Pixels.FromParts(speed.Whole + DashSpeed.Whole / 2, (speed.Fraction + DashSpeed.Fraction) % Pixels.FractionsPerPixel);
     }
 
+    /// <summary>
+    /// Her step down was stopped over <paramref name="under"/>, the row of pixels beneath her feet: when what stopped
+    /// it first is the blocks an elevator rests on, she has stood at its door, which the elevator hears of on its
+    /// next turn. Her blocks are tried from the left on an even update and from the right on an odd one.
+    /// </summary>
+    public void NoteElevatorStand(PixelRect under)
+    {
+        bool fromLeft = Room.Session.Clock.Updates % 2 == 0;
+        if (Room.Objects.OfType<Elevator>().Any(elevator => elevator.IsStoodOn(under, fromLeft)))
+            ElevatorJourney.Of(Room.Session).NoteStand();
+    }
+
     /// <inheritdoc/>
     protected override void AfterState()
     {
+        // Having moved upright and settled, on the ground, she stands on whatever is under her feet.
+        if (MovedAs is StandingState { MovedSettling: false } && IsOnGround)
+            NoteElevatorStand(new PixelRect(BodyRect.Left, BodyRect.Bottom, BodyRect.Width, 1));
+
         // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
         if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
             LoseMomentum();

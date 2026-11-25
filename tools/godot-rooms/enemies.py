@@ -616,20 +616,16 @@ def steam(p, index, listed):
     return Placed(O + 'ceres_steam/ceres_steam.tscn', 'Steam', {'DataFile': quoted(f'objects/ceres_steam_{way}.json')}, enemy=False)
 
 
-# How far above an elevator's platform Samus's middle is, and the region above the platform she is taken hold of in.
-ELEVATOR_HOLDS_ABOVE = 26
-ELEVATOR_REGION = (32, 48)
+# The elevator's scene; the room's generator tells each one the blocks it rests on.
+ELEVATOR = O + 'elevator/elevator.tscn'
 
 
 @rule('Elevator')
 def elevator(p, index, listed):
-    # It stands in its region's corner; its path runs from where it rests to where the old code starts an arrival,
-    # which is past the exit it leaves by.
+    # It stands where the old elevator does, and says its way and the height at which a ride arrives.
     down = legacy.last_name(p.settings['Direction']) == 'Down'
-    travel = int(p.settings['ArrivalY']) - p.at[1]
-    return Placed(O + 'elevator/elevator.tscn', 'Elevator', {
-        'Path': f'Array[Vector2i]([Vector2i(0, 0), Vector2i(0, {travel})])', 'StartsOn': quoted('down' if down else 'up')},
-        at=(p.at[0] - ELEVATOR_REGION[0] // 2, p.at[1] - ELEVATOR_REGION[1]), enemy=False)
+    return Placed(ELEVATOR, 'Elevator', {'GoesDown': truth(down), 'ArrivesAtY': str(int(p.settings['ArrivalY']))},
+                  at=(p.at[0], p.at[1]), enemy=False)
 
 
 @rule('CeresDoor')

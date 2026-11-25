@@ -57,6 +57,12 @@ public abstract class PlayerState : State<Player>
     public virtual bool InControl => true;
 
     /// <summary>
+    /// Whether the player enters a room's exit by coming to overlap it in this state. One that does not is taken
+    /// through an exit only by whoever moves them (<see cref="World.Room.EnterExit"/>).
+    /// </summary>
+    public virtual bool MeetsExits => true;
+
+    /// <summary>
     /// What of the room waits while the player is in this state: nothing, unless the state says otherwise, as one in
     /// which time stands still for everything but the player does. Play asks as each update begins.
     /// </summary>

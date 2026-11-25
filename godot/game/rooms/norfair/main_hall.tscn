@@ -69,16 +69,17 @@ Size = Vector2i(32, 16)
 LeadsToRoom = "res://game/rooms/norfair/lower_norfair_elevator.tscn"
 LeadsToExit = "ToMainHall"
 Style = 1
-ArrivalOffset = Vector2i(16, -2)
+ArrivalOffset = Vector2i(16, 40)
 Travel = 3
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = false
+Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("5")]
-position = Vector2(1136, 626)
-Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, -650)])
-StartsOn = "up"
+position = Vector2(1152, 674)
+GoesDown = false
+ArrivesAtY = 24
+RestsOn = Rect2i(1136, 672, 32, 16)
 
 [node name="Dragon" parent="." instance=ExtResource("6")]
 position = Vector2(720, 760)

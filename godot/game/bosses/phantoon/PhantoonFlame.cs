@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -251,12 +252,17 @@ public partial class PhantoonFlame : Projectile, IHasValues
         PlayTimeline(RestingTimeline);
     }
 
-    /// <summary>Puts it on its circle about Phantoon: straight up at nothing, turning clockwise.</summary>
+    /// <summary>
+    /// Puts it on its circle about Phantoon: straight up at nothing, turning clockwise. As on the cartridge, each way is
+    /// the radius counted within 256 times the sine in 256ths, cut off toward nothing.
+    /// </summary>
     private void PlaceOnRing()
     {
         if (_phantoon is not { } phantoon || !IsInstanceValid(phantoon))
             return;
-        Pixels radius = Pixels.FromWhole(_radius);
-        Position = phantoon.FlameCentre + PixelOffset.FromWhole(Turns.Sine(_angle, radius).Whole, Turns.Sine(_angle + 3 * Turns.PerTurn / 4, radius).Whole);
+        Position = phantoon.FlameCentre + PixelOffset.FromWhole(ReachAlong(_angle), ReachAlong(_angle + 3 * Turns.PerTurn / 4));
     }
+
+    /// <summary>How far along an angle's sine its radius reaches, in whole pixels.</summary>
+    private int ReachAlong(int angle) => CartridgeAngles.SignedSine(angle) * (_radius % 256) / 256;
 }

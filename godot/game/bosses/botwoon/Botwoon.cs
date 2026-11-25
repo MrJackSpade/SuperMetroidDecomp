@@ -5,6 +5,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -169,6 +170,8 @@ public partial class Botwoon : Enemy
     private bool _tailExited;
     private int? _savedRing;
     private int _startingHealth;
+
+    // The way it aims its spit, as the cartridge counts an angle: none right, a quarter turn up.
     private int _spitAngle;
     private int _headFallPlace;
     private int _wallAge;
@@ -431,7 +434,7 @@ public partial class Botwoon : Enemy
     /// it, and otherwise the one it has last turned past going clockwise, as its head and body take theirs as they move.
     /// </summary>
     private static string WayOf(int across, int down, bool nearest = false) =>
-        Ways[Turns.Wrap(Turns.AngleOf(across, down) + Turns.PerTurn / 4 + (nearest ? Turns.PerTurn / 16 : 0)) * Ways.Length / Turns.PerTurn];
+        Ways[Turns.Wrap(Turns.PerTurn / 4 - CartridgeAngles.AimAngle(across, down) + (nearest ? Turns.PerTurn / 16 : 0)) * Ways.Length / Turns.PerTurn];
 
     /// <summary>The speed curve its falls follow.</summary>
     private SpeedCurve Curve => _curve ?? throw new InvalidOperationException("Botwoon is not in a room.");
@@ -495,10 +498,10 @@ public partial class Botwoon : Enemy
         {
             // Homing on its hole, it stops the moment it has passed through the hole's mouth.
             (int x, int y) = _holes[_targetHole];
-            int bearing = Turns.AngleOf(Math.Clamp(x - Position.X.Whole, -255, 255), Math.Clamp(y - Position.Y.Whole, -255, 255));
+            int bearing = CartridgeAngles.AimAngle(HoleReach(x - Position.X.Whole), HoleReach(y - Position.Y.Whole));
             if (_insideHole == _wasInsideHole)
             {
-                Position += new PixelOffset(Turns.Cosine(bearing, Pixels.FromWhole(speed)), Turns.Sine(bearing, Pixels.FromWhole(speed)));
+                Position += CartridgeAngles.VelocityAlong(bearing, speed).OverOneUpdate;
             }
             else
             {
@@ -552,6 +555,9 @@ public partial class Botwoon : Enemy
     /// <summary>A place in its trail brought within the ring.</summary>
     private static int Wrap(int place) => ((place % Trail) + Trail) % Trail;
 
+    /// <summary>A distance to its hole as its aim reads it: held within 255 either way, except that 256 left or up is kept.</summary>
+    private static int HoleReach(int distance) => distance < -256 ? -255 : distance > 255 ? 255 : distance;
+
     /// <summary>Notes when its head passes through the mouth of a hole, going in or coming out.</summary>
     private void DetectHole()
     {
@@ -593,19 +599,19 @@ public partial class Botwoon : Enemy
 
             case HeadDoing.Aiming:
                 SetHeadDepth(1);
-                PixelOffset toSamus = Target - Position;
-                _spitAngle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
-                Play($"spitting_{WayOf(toSamus.X.Whole, toSamus.Y.Whole, nearest: true)}");
+                int toSamusAcross = Target.X.Whole - Position.X.Whole, toSamusDown = Target.Y.Whole - Position.Y.Whole;
+                _spitAngle = CartridgeAngles.AimAngle(toSamusAcross, toSamusDown);
+                Play($"spitting_{WayOf(toSamusAcross, toSamusDown, nearest: true)}");
                 _head = HeadDoing.WaitingForSpitFrame;
                 break;
 
             case HeadDoing.SpitAimed:
-                // A fan of five, an eighth of a turn to either side of her.
+                // A fan of five, an eighth of a turn to either side of her, fired from her clockwise side round.
                 int speed = Stages[_stage].SpitSpeed;
                 for (int shot = 0; shot < 5; shot++)
                 {
                     int angle = _spitAngle + (shot - 2) * (Turns.PerTurn / 16);
-                    Fire("spit", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole), new PixelVelocity(Turns.Cosine(angle, Pixels.FromWhole(speed)), Turns.Sine(angle, Pixels.FromWhole(speed))));
+                    Fire("spit", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole), CartridgeAngles.VelocityAlong(angle, speed));
                 }
 
                 _spitCooldown = Countdown.Of(48);

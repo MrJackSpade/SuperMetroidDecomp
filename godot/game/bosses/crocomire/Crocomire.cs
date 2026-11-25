@@ -5,6 +5,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -743,14 +744,21 @@ public partial class Crocomire : Enemy
     /// <summary>Spits one ball of fire, aimed on a slant.</summary>
     private void Spit(int gradient)
     {
-        int bearing = Turns.AngleOf(-_volleyReach, gradient);
+        // As the cartridge counts an angle: none right, a quarter turn up.
+        int bearing = CartridgeAngles.AimAngle(-_volleyReach, gradient);
         Pixels speed = Shot("fire").Speed;
+        int speedIn256ths = speed.Whole * 256 + speed.Fraction / 256;
         // The old fire first moves straight across once, and takes its aimed speed only from its next update.
         CrocomireFire fire = Fire("fire", Position + _spitFrom, new PixelVelocity(Pixels.FromWhole(_spitFirstStep), Pixels.Zero)) as CrocomireFire
             ?? throw new InvalidOperationException("Crocomire's shot \"fire\" is not a ball of its fire.");
-        _justSpat.Add((fire, new PixelVelocity(Turns.Cosine(bearing, speed), Turns.Sine(bearing, speed))));
+        _justSpat.Add((fire, new PixelVelocity(
+            From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, bearing + Turns.PerTurn / 4)),
+            From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, bearing + Turns.PerTurn / 2)))));
         Sound(SpitSound);
     }
+
+    /// <summary>A distance counted in 256ths of a pixel.</summary>
+    private static Pixels From256ths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
 
     /// <summary>Gives the fire spat in the last update the speed it is aimed at.</summary>
     private void AimJustSpat()

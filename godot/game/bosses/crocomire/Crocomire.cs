@@ -757,6 +757,9 @@ public partial class Crocomire : Enemy
         Sound(SpitSound);
     }
 
+    /// <summary>A quickening as a speed takes it: its whole 256ths of a pixel, with what is finer left out.</summary>
+    private static Pixels Whole256ths(Pixels quickening) => Pixels.FromParts(quickening.Whole, quickening.Fraction / 256 * 256);
+
     /// <summary>A distance counted in 256ths of a pixel.</summary>
     private static Pixels From256ths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
 
@@ -1009,8 +1012,10 @@ public partial class Crocomire : Enemy
 
                 Pixels quicker = _downQuickening + Pixels.FromNumber(7.0 / 512), most = Pixels.FromNumber(3.0 / 16);
                 _downQuickening = quicker < most ? quicker : most;
-                Pixels speed = _downSpeed + _downQuickening;
-                _downSpeed = speed.Whole >= 3 ? Pixels.FromWhole(3) : speed;
+                // Its speed takes only the whole 256ths of what quickens it, and past its fastest keeps the fastest's
+                // whole pixels with its own part of a pixel, so at its fastest it climbs through that pixel and starts over.
+                Pixels speed = _downSpeed + Whole256ths(_downQuickening);
+                _downSpeed = speed.Whole > 3 ? speed.WithWhole(3) : speed;
                 Position += new PixelOffset(Pixels.Zero, _downSpeed);
                 break;
 
@@ -1032,7 +1037,7 @@ public partial class Crocomire : Enemy
 
                 Pixels slower = _downQuickening + Pixels.FromNumber(1.0 / 256), least = Pixels.FromNumber(31.0 / 256);
                 _downQuickening = slower < least ? slower : least;
-                Pixels rise = _downSpeed - _downQuickening;
+                Pixels rise = _downSpeed - Whole256ths(_downQuickening);
                 _downSpeed = rise.IsNegative ? Pixels.FromNumber(255.0 / 256) : rise;
                 Position -= new PixelOffset(Pixels.Zero, _downSpeed);
                 break;

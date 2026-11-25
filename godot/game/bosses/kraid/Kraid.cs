@@ -261,6 +261,9 @@ public partial class Kraid : Enemy
     private int _flashStep = -1;
     private int _flashLeft;
     private bool _flashShowsHurt;
+
+    /// <summary>Whether it still shows its room's own colours, as it does until its flash first shows a frame or its health is gone.</summary>
+    private bool _inRoomColours;
     private readonly List<Crumble> _ceilingRocks = [];
     private readonly List<Crumble> _sinkCrumbles = [];
     private readonly Dictionary<int, List<Walk>> _walks = [];
@@ -307,7 +310,7 @@ public partial class Kraid : Enemy
     /// <summary>Whether it has begun to rise to its full height: its spikes are out of sight from then until each next comes out.</summary>
     public bool HasBegunGrowing { get; private set; }
 
-    /// <summary>The set of its pictures its parts show: how hurt it is, or the flash of a hit in the mouth.</summary>
+    /// <summary>The set of its pictures its parts show: how hurt it is, or the flash of a hit in the mouth; none, its room's own colours.</summary>
     public string Shade { get; private set; } = "";
 
     /// <summary>A picture's path with the name of a set of its pictures put where the path leaves room for one.</summary>
@@ -511,8 +514,10 @@ public partial class Kraid : Enemy
         ShowMouth("closed", 0);
         // Its mouth and body let every shot through while it rises.
         _headPoses?.TakeNone();
-        Shade = BandShade().Shade;
-        // Its eyes start in the colours of its band.
+        // It shows its room's own colours, with none of its eyes' own, until its flash first shows a frame or its
+        // health is gone; its eyes start in the colours of its band all the same.
+        _inRoomColours = true;
+        Shade = "";
         _eyes = [.. BandShade().Eyes];
         ShowEyes();
         if (GetNodeOrNull<ActorVisual>("Arm") is { } arm)
@@ -1186,12 +1191,12 @@ public partial class Kraid : Enemy
     }
 
     /// <summary>
-    /// Shows its eyes' colours on its body and head in place of those their pictures have its eyes in; dying, its body
-    /// and head show their pictures' own.
+    /// Shows its eyes' colours on its body and head in place of those their pictures have its eyes in; in its room's
+    /// own colours, and dying, its body and head show their pictures' own.
     /// </summary>
     private void ShowEyes()
     {
-        ColourSwap[] swaps = IsFinished ? [] : [.. _picturedEyes.Select((pictured, eye) => new ColourSwap(ColourOf(pictured), ColourOf(_eyes[eye])))];
+        ColourSwap[] swaps = IsFinished || _inRoomColours ? [] : [.. _picturedEyes.Select((pictured, eye) => new ColourSwap(ColourOf(pictured), ColourOf(_eyes[eye])))];
         Visual?.Recolour(EyeColours, swaps);
         GetNodeOrNull<ActorVisual>("Head")?.Recolour(EyeColours, swaps);
     }
@@ -1249,14 +1254,15 @@ public partial class Kraid : Enemy
 
     /// <summary>
     /// Moves the flash of a hit in the mouth on, and settles which set of its pictures it shows. Each time the flash
-    /// shows other colours its eyes take that set's colours at once, as they do on every update once its health is gone.
+    /// shows other colours its eyes take that set's colours at once, as they do on every update once its health is gone;
+    /// until the first such time it shows its room's own colours.
     /// </summary>
     private void StepColours()
     {
         if (Health.IsEmpty)
         {
             // Dying, it flashes no more.
-            (_flashStep, _flashShowsHurt) = (-1, false);
+            (_flashStep, _flashShowsHurt, _inRoomColours) = (-1, false, false);
             _eyes = [.. BandShade().Eyes];
         }
         else if (_flashStep >= 0 && --_flashLeft <= 0)
@@ -1265,10 +1271,11 @@ public partial class Kraid : Enemy
                 (_flashShowsHurt, _flashLeft) = _hurtFlash[_flashStep++];
             else
                 (_flashStep, _flashShowsHurt) = (-1, false);
+            _inRoomColours = false;
             _eyes = [.. _flashShowsHurt ? _hurtEyes : BandShade().Eyes];
         }
 
-        Shade = _flashShowsHurt ? HurtShade : BandShade().Shade;
+        Shade = _inRoomColours ? "" : _flashShowsHurt ? HurtShade : BandShade().Shade;
         ShowEyes();
     }
 

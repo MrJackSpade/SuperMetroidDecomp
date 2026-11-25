@@ -88,6 +88,9 @@ public sealed class DrainedState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <summary>Pinned in a beam she is in its hands; on her knees or trying to rise she is in her own.</summary>
+    public override bool InAnothersHands => Posed == Pose.Pinned;
+
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 

@@ -483,6 +483,9 @@ A scene. One per room of the game.
   player moves as though it were not, until something of the room lets it in (`Liquid.LetIn`). This game's water
   behind Maridia's glass tube is let in by the tube, as it breaks or as it finds itself broken; the other room
   whose water is held back has nothing that lets it in.
+- **Has the view follow the player** each update in the ordinary way, unless the state the player is in says the
+  view follows them slowly (`PlayerState.ViewFollowsSlowly`, a `SlowFollowing`: so many pixels an update toward
+  keeping them within a part of the view), as this game's fast swing on the grapple beam does.
 - **Where play begins in it:** at an exit, at anything with a place, or at an `EntryPoint`, a place that is
   nothing else, which may say where the view is put when play begins there (this game's save points, elevators
   and landings put it where the cartridge's table of them does, keeping the parts of a pixel the view had);

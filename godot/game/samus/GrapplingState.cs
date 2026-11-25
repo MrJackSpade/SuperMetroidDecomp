@@ -16,6 +16,15 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// <summary>How many parts one angle step of 256 to the turn is divided into, for a smooth swing.</summary>
     private const int Parts = 256;
 
+    /// <summary>
+    /// While the swing turns a quarter of a step an update or faster, either way, the view follows her three pixels an
+    /// update toward keeping her between 96 and 160 across it and 112 and 144 down it, as the cartridge's does.
+    /// </summary>
+    private static readonly SlowFollowing FastSwingView = new(3, new PixelRect(96, 112, 64, 32));
+
+    /// <inheritdoc/>
+    public override SlowFollowing? ViewFollowsSlowly(Player owner) => Math.Abs(_turning) >= Parts / 4 ? FastSwingView : null;
+
     /// <summary>The name, in each medium's speeds, of the pull that swings her back toward hanging straight down.</summary>
     public const string SwingPull = "grapple_swing_pull";
 

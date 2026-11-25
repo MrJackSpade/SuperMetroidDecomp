@@ -1032,10 +1032,18 @@ public partial class Room : Node2D
 
         if (Player.State is DyingState)
             return;
-        var tracking = new ViewTracking(
-            Player.ViewFacing == Facing.Right ? _playerInView.X : _playerInView.Y,
-            Player.Velocity.Y.IsNegative, ViewAboveWhileRising, ViewAboveOtherwise);
-        Session.Camera.Track(_playerAtUpdateStart, Player.Position, tracking, frozen);
+        if (Player.State.ViewFollowsSlowly(Player) is { } slowly)
+        {
+            Session.Camera.TrackSlowly(Player.Position, slowly.Step, slowly.Middle, frozen);
+        }
+        else
+        {
+            var tracking = new ViewTracking(
+                Player.ViewFacing == Facing.Right ? _playerInView.X : _playerInView.Y,
+                Player.Velocity.Y.IsNegative, ViewAboveWhileRising, ViewAboveOtherwise);
+            Session.Camera.Track(_playerAtUpdateStart, Player.Position, tracking, frozen);
+        }
+
         foreach (ViewFloor floor in _viewFloors)
         {
             if (floor.IsHolding)

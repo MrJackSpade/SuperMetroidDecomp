@@ -57,6 +57,13 @@ public abstract class PlayerState : State<Player>
     public virtual bool InControl => true;
 
     /// <summary>
+    /// How the view follows the player slowly in this state, when it does: by so many pixels an update toward keeping
+    /// them within a part of the view, with the speeds of its ordinary following left as they were. Null for a state
+    /// the view follows in the ordinary way, as nearly all are.
+    /// </summary>
+    public virtual SlowFollowing? ViewFollowsSlowly(Player owner) => null;
+
+    /// <summary>
     /// The form the player is in for this state, taken as the state is entered; null for a state that takes them in
     /// the form they have. The player fits the form before anything of the state is entered
     /// (<see cref="Player.FitForm"/>): where it fits they are put where the fitting leaves them and the state is

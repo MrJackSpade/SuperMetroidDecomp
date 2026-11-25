@@ -794,6 +794,17 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         string sound = inLiquid ? liquid.Type.SplashSound : liquid.Type.SplashOutSound;
         if (sound.Length > 0)
             Room.Session.Sounds.Request(sound, channel: "liquid");
+        OnSplashed(liquid, inLiquid);
+    }
+
+    /// <summary>
+    /// Called as the player's feet have crossed a liquid's surface, once the splash is left and its sound asked for:
+    /// what a game's player asks for here follows the splash's sound. The engine's player does nothing.
+    /// </summary>
+    /// <param name="liquid">The liquid whose surface was crossed.</param>
+    /// <param name="entered">Whether the feet went into it; otherwise they came out.</param>
+    protected virtual void OnSplashed(Liquid liquid, bool entered)
+    {
     }
 
     /// <summary>Called at the start of each update, before weapons fire and the input is asked.</summary>

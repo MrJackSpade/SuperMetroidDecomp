@@ -1004,6 +1004,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
   landing, a crouch, curling up); with "_suited" after any of them while she wears the varia or the gravity suit
   (she faces out of the screen in another pose). Her pictures are written once, in their sheet's own colours.
+- **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
+  tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
 - **Her colours** are hers to keep (`SamusColours`), as the cartridge keeps her palette: the colouring her suit
   shows is set by what colours her and stays until something sets another, whatever she wears. Every colouring,
   her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`

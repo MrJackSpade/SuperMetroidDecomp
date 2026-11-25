@@ -13,6 +13,9 @@ public static class Sounds
     /// <summary>Stops a spin jump's sound.</summary>
     public const string SpinJumpStop = "samus_stop_spin_jump";
 
+    /// <summary>A spin jump's sound taken up again as she leaves water.</summary>
+    public const string SpinJumpResumed = "samus_resumed_spin_jump";
+
     /// <summary>Stops the speed booster's sound, or an elevator's.</summary>
     public const string SpeedBoosterStop = "room_stop_speed_booster_or_elevator";
 
@@ -165,6 +168,6 @@ public static class Sounds
         CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
         BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
         BigExplosion, MenuMove, MenuAccept, Typing, SamusStop, SpinJumpStop, EnemyStop, RoomStop, PowerBombExplosion,
-        SpeedBoosterStop, ChargingResumed, EnemyContactKill,
+        SpeedBoosterStop, ChargingResumed, EnemyContactKill, SpinJumpResumed,
     ];
 }

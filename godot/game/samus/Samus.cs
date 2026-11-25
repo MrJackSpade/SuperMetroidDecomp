@@ -513,6 +513,19 @@ public partial class Samus : Player
     public PlayerMedium MediumLastEntered => Mediums.First(medium => medium.MediumName == (_liquidLastEntered ?? PlayerMedium.Air));
 
     /// <summary>
+    /// Out of water in a spin or a wall jump, without the gravity suit, her spin's sound is asked for again, after the
+    /// splash's own, as the cartridge asks as she leaves.
+    /// </summary>
+    protected override void OnSplashed(Liquid liquid, bool entered)
+    {
+        if (!entered && liquid.Type.Name == WaterName && !Inventory.IsOn(Equipment.GravitySuit)
+            && MovedAs is SpinJumpingState or WallJumpingState)
+        {
+            Room.Session.Sounds.Request(Sounds.SpinJumpResumed, channel: "samus");
+        }
+    }
+
+    /// <summary>
     /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
     /// landing that is not a hard one and came down at a whole number of pixels an update, none included, does neither.
     /// </summary>

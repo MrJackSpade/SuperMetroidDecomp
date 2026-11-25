@@ -28,10 +28,8 @@ this check before packaging and passes the same Version property to the verifier
 and game so dependency identities also match for tagged releases. Core verification additionally checks that every
 options property is explicitly represented in the template.
 
-The Actions **Run workflow** button performs build validation and uploads Actions
-artifacts without creating a release or posting to Discord. Without signing secrets,
-this manual validation uses the runner's temporary Android debug key; do not use that
-APK to update an existing installation. Tag builds require the persistent signing secrets.
+A tag push is the only thing that runs it: the repository has no other workflow and
+no manual run. Tag builds require the persistent signing secrets.
 
 ## One-time GitHub configuration
 

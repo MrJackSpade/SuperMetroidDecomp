@@ -3,7 +3,6 @@ name: Tagged release
 on:
   push:
     tags: ['v*']
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -61,7 +60,6 @@ jobs:
           if-no-files-found: error
 
   publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     needs: [version, windows]
     runs-on: ubuntu-latest
     permissions:

@@ -1,7 +1,6 @@
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -29,6 +28,17 @@ public sealed partial class EngineAssetWriter
         const string sporeScene = "res://game/bosses/spore_spawn/spore_spawn_spore.tscn", sporeFile = "bosses/spore_spawn_spore.json";
         EngineEnemy boss = Enemy("bosses/spore_spawn.json", "SporeSpawn", EnemyDefinitionId.SporeSpawn);
         SortedDictionary<string, string> roomPlaces = RoomPlacesOf(EnemyDefinitionId.SporeSpawn);
+
+        // Its other colours, how hurt it is and each step of its hardening, are changes of the colours of its body's
+        // pictures and of its stalk's, each cut from sheets of its own.
+        const string enemyFamily = GameInstallationLayout.EnemySheetDirectoryName;
+        string sporeSpawnKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.SporeSpawn);
+        IReadOnlyList<string> bodySheets = [_sheets.EnemySheet(sporeSpawnKey)];
+        IReadOnlyList<string> stalkSheets = [_sheets.SheetHolding(sporeSpawnKey, EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.SporeSpawnStalk))];
+        JsonObject BodyColours(string shade) =>
+            ShadeChange(shade, enemyFamily, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [boss.Folder] = bodySheets });
+        JsonObject StalkColours(string shade) =>
+            ShadeChange(shade, enemyFamily, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [$"{boss.Folder}/stalk"] = stalkSheets });
 
         // The ceiling crumbles through each frame of the old change and is left as its last, the patch a room where
         // it has been beaten begins with.
@@ -108,15 +118,17 @@ public sealed partial class EngineAssetWriter
             .Group("health_shades", EngineNames.List(SporeSpawnHealthBandDefinitions.HighestFirst.Select(band => (JsonNode)new JsonObject
             {
                 ["health"] = band.MinimumHealth,
-                ["shade"] = HealthSet(band),
+                ["body"] = BodyColours(SporeSpawnShades.Health(band).Key),
+                ["stalk"] = StalkColours(SporeSpawnShades.Health(band).Key),
             })))
             .Group("hardening_colours", EngineNames.List(SporeSpawnDeathFadeStep.All.Select(step => (JsonNode)new JsonObject
             {
                 ["shade"] = HardeningSet(step),
+                ["body"] = BodyColours(SporeSpawnShades.DeathSprite(step).Key),
+                ["stalk"] = StalkColours(SporeSpawnShades.DeathSprite(step).Key),
                 // Each step of its hardening lays the room's level and then its background in the husk's colours.
                 ["room"] = ShadeChange($"{SporeSpawnShades.DeathLevel(step).Key}+{SporeSpawnShades.DeathBackground(step).Key}", roomPlaces),
-            })))
-            .PictureSets("{shade}");
+            })));
 
         foreach ((string name, SporeSpawnBodySegment segment) in new[]
                  {
@@ -136,14 +148,6 @@ public sealed partial class EngineAssetWriter
         boss.SpawnedLook("stalk", SporeSpawnProjectileAnimations.CeilingSegments, SporeSpawnProjectileAnimations.StartingWith(SporeSpawnCeilingSegment.Stalk), Release)
             .SpawnedLook("emitter_closed", SporeSpawnProjectileAnimations.CeilingSegments, SporeSpawnProjectileAnimations.StartingWith(SporeSpawnCeilingSegment.SpawnerClosed), Release)
             .SpawnedLook("emitter_release", SporeSpawnProjectileAnimations.CeilingSegments, SporeSpawnProjectileAnimations.StartingWith(SporeSpawnCeilingSegment.SpawnerRelease), Release);
-
-        // Its body and its stalk in each of its other colours: how hurt it is, and each step of its hardening.
-        EnemyProjectileFrameId[] stalk = [EnemyProjectileFrameId.SporeSpawnStalk];
-        foreach ((string set, PictureShade shade) in SporeSpawnHealthBandDefinitions.HighestFirst.Select(band => (HealthSet(band), SporeSpawnShades.Health(band)))
-                     .Concat(SporeSpawnDeathFadeStep.All.Select(step => (HardeningSet(step), SporeSpawnShades.DeathSprite(step)))))
-        {
-            boss.ShadedSet(set, shade.Key).ShadedSpawnedSet(set, "stalk", stalk, shade.Key);
-        }
 
         // A spore drifts through everything and is taken away at the floor; shot, it bursts and may leave something.
         static string? Burst(SporeSpawnSporeCue cue) => cue switch
@@ -180,11 +184,8 @@ public sealed partial class EngineAssetWriter
         _tree.WriteData(sporeFile, spore);
     }
 
-    /// <summary>The name of the set of Spore Spawn's pictures that shows it as hurt as one of its bands of health is.</summary>
-    private static string HealthSet(SporeSpawnHealthBand band) => "_" + EngineSheets.FileName(band.Key);
-
-    /// <summary>The name of the set of Spore Spawn's pictures that shows one step of its hardening.</summary>
-    private static string HardeningSet(SporeSpawnDeathFadeStep step) => $"_hardening_{step.Step}";
+    /// <summary>The name of one step of Spore Spawn's hardening.</summary>
+    private static string HardeningSet(SporeSpawnDeathFadeStep step) => $"hardening_{step.Step}";
 
     /// <summary>How many angle steps a swing of Spore Spawn's turns each update: forward for one the old game turns counterclockwise.</summary>
     private static int SwayTurn(TurnStep step)

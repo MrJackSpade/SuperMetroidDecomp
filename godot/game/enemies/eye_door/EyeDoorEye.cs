@@ -76,6 +76,9 @@ public partial class EyeDoorEye : Enemy
     public bool IsDestroyed => IsDead || _doing == Doing.Destroyed;
 
     private Doing _doing;
+
+    /// <summary>The shot that has reached it and that it has yet to take, in its own turn; a later one takes the place of an earlier.</summary>
+    private Hit? _strike;
     private bool _takesShots;
     private bool _lidUp;
     private int _hits;
@@ -111,17 +114,38 @@ public partial class EyeDoorEye : Enemy
         _puffAt = Offset(data.Get("puff_at"));
     }
 
-    /// <inheritdoc/>
+    /// <summary>It is a fitting of its room, as the cartridge's is: its turn comes with the room's objects.</summary>
+    public override bool ActsWithObjects => true;
+
+    /// <summary>
+    /// A shot that reaches it is kept until its own turn, where it is taken before its pictures count on; of several
+    /// only the last is kept. What the shot makes of the meeting is settled here: a missile has struck, anything else
+    /// has stopped on it.
+    /// </summary>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
         // With its lid down it is as solid as the wall: a shot stops on it and that is all.
         if (!_takesShots || !_lidUp)
             return HitResult.Absorbed;
+        _strike = hit;
+        return hit.Carries(new HitKind(HitKinds.SuperMissile)) || hit.Carries(new HitKind(HitKinds.Missile)) ? HitResult.Hurt : HitResult.Absorbed;
+    }
+
+    /// <summary>
+    /// Takes the shot it has yet to take, while it takes shots: a missile counts a hit and a super missile every hit
+    /// it needs, and any other shot only makes the dud's sound. Returns whether it was hit, which takes its turn: its
+    /// pictures do not count on through it.
+    /// </summary>
+    private bool TakeStrike()
+    {
+        if (!_takesShots || _strike is not { } hit)
+            return false;
+        _strike = null;
         bool super = hit.Carries(new HitKind(HitKinds.SuperMissile));
         if (!super && !hit.Carries(new HitKind(HitKinds.Missile)))
         {
             Sound(DudSound);
-            return HitResult.Absorbed;
+            return false;
         }
 
         Sound(HitSound);
@@ -133,7 +157,7 @@ public partial class EyeDoorEye : Enemy
         if (_hits < HitsToDestroy)
         {
             Begin(Doing.Flinching, "flinching");
-            return HitResult.Hurt;
+            return true;
         }
 
         _takesShots = false;
@@ -148,7 +172,7 @@ public partial class EyeDoorEye : Enemy
         // Its flashes, to the doorway cleared and to a shut blue cap, are drawn over its cap, blue from now on: a cap
         // opened meanwhile shows only once they are done, as on the cartridge.
         Begin(Doing.Destroyed, "destroyed");
-        return HitResult.Hurt;
+        return true;
     }
 
     /// <inheritdoc/>
@@ -164,7 +188,7 @@ public partial class EyeDoorEye : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_takesShots, _lidUp, _hits) = (false, false, 0);
+        (_takesShots, _lidUp, _hits, _strike) = (false, false, 0, null);
         Begin(Doing.Closed, "closed");
         _parts = new TimelinePlayer(Timelines.Get("part_still"));
     }
@@ -200,7 +224,12 @@ public partial class EyeDoorEye : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void Behave() => StepParts();
+    protected override void Behave()
+    {
+        // A shot is taken before its pictures count on, and one that hits it takes the turn.
+        HoldsTimeline = TakeStrike();
+        StepParts();
+    }
 
     /// <summary>Decides what it does next, each time what it was doing has played out.</summary>
     private void OnTimelineDone()

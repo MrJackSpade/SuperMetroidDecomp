@@ -579,7 +579,8 @@ public partial class Room : Node2D
                 continue;
             if (entity is Enemy enemy)
             {
-                if (IsActive(enemy))
+                // One that acts with the room's objects takes its turn with them.
+                if (!enemy.ActsWithObjects && IsActive(enemy))
                     enemy.Step();
             }
             else
@@ -648,6 +649,13 @@ public partial class Room : Node2D
         {
             if (!roomObject.ActsWithEnemies && !_leaving.Contains(roomObject))
                 roomObject.Step();
+        }
+
+        // An enemy that acts with the room's objects takes its whole turn after them, wherever the view is.
+        foreach (Enemy enemy in _enemies.ToList())
+        {
+            if (enemy.ActsWithObjects && !_leaving.Contains(enemy))
+                enemy.Step();
         }
     }
 

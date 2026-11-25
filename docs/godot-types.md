@@ -596,7 +596,9 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
   enemies take their turns. A thing the player's movement must find already moved, as an elevator, is such a kind;
   and any object does where its placing says so (`TurnsWithEnemies`), which this game's rooms say for everything
   the cartridge steps as an enemy: the gunship, Ceres's doors and steam, the animals, the morph ball's eye, the
-  Rinka sources.
+  Rinka sources. The other way about, an enemy whose kind says it acts with the room's objects
+  (`Enemy.ActsWithObjects`) takes its whole turn after them, wherever the view is, and none in the enemies' pass:
+  what takes hits and acts as an enemy but was a fitting of the cartridge's room, as an eye door's eye.
 
 | Kind | Manages | Settings |
 | --- | --- | --- |

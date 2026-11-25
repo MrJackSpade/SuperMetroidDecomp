@@ -82,7 +82,15 @@ public partial class OverlayEffect : RoomEffect
             return;
         _player.Step();
         _drifted += _drift;
-        _view = room.Session.Camera.View;
+    }
+
+    /// <summary>
+    /// Lays the overlay over <paramref name="view"/>, the part of the room now on screen. The room does this whenever
+    /// it shows itself, so the overlay is there from the moment the room is, whether or not it has yet been stepped.
+    /// </summary>
+    internal void Follow(PixelRect view)
+    {
+        _view = view;
         QueueRedraw();
     }
 

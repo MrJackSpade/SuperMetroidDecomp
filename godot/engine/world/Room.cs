@@ -1124,6 +1124,8 @@ public partial class Room : Node2D
         Position = new Vector2(shake.X - viewTopLeft.X, shake.Y - viewTopLeft.Y);
         foreach (Backdrop backdrop in _backdrops)
             backdrop.Follow(viewTopLeft);
+        foreach (OverlayEffect overlay in _roomEffects.OfType<OverlayEffect>())
+            overlay.Follow(Session.Camera.View);
         EntityNode.Show(Player, (ShownTurn is { } turn ? turn.Turned(Player.Position) : Player.Position) - PixelOffset.FromWhole(shake.X, shake.Y));
         foreach (Enemy enemy in _enemies)
             enemy.ShowPosition();

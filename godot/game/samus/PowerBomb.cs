@@ -20,7 +20,7 @@ namespace Game;
 /// gathers. The blast ends on the update after the last of them.
 /// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
 /// </remarks>
-public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
+public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingStep
 {
     /// <inheritdoc/>
     [Export(PropertyHint.File)]
@@ -72,8 +72,13 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {
+        // Blasting, it strikes the terrain along the border of its reach here, in the shots' own step.
         if (_blasting)
+        {
+            if (_blastUpdate > 0)
+                StrikeBorder(room, Math.Max(0, _reach));
             return;
+        }
 
         Bomb.ThrowBall(this, FuseUpdates - Age);
         if (Age < FuseUpdates)
@@ -86,8 +91,9 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
     }
 
     /// <summary>
-    /// Plays one update of the blast as the update opens, before anyone acts: it reaches further, its hit lands on what
-    /// it reaches and on the terrain along the border of its reach, and once its reaches are done the bomb leaves.
+    /// Plays one update of the blast as the update opens, before anyone acts: it reaches further, and once its
+    /// reaches are done the bomb leaves. Its hit lands on the terrain along the border of its reach in the shots'
+    /// own step, and on what it reaches as the update ends, as the cartridge's does.
     /// </summary>
     public void StepOpening(Room room)
     {
@@ -106,14 +112,18 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
         _reach = BlastReaches[_blastUpdate];
         _blastUpdate++;
         QueueRedraw();
-        int parts = Math.Max(1, WidthParts);
-        int across = Math.Max(0, _reach), down = (across * HeightParts + (parts - 1) / 2) / parts;
-        if (_reach <= 0)
-        {
-            StrikeBorder(room, across);
-            return;
-        }
+    }
 
+    /// <summary>
+    /// As the update ends the blast's hit lands on what it reaches; a blast that has not grown from nothing reaches
+    /// nothing.
+    /// </summary>
+    public void StepClosing(Room room)
+    {
+        if (!_blasting || _blastUpdate == 0 || _reach <= 0)
+            return;
+        int parts = Math.Max(1, WidthParts);
+        int across = _reach, down = (across * HeightParts + (parts - 1) / 2) / parts;
         var blast = PixelRect.Around(Position.X.Whole, Position.Y.Whole, _reach, down);
         var lately = new HashSet<IHittable> { this };
         foreach ((IHittable reached, int at) in _reachedAt)
@@ -127,8 +137,6 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
             if (result != HitResult.Ignored)
                 _reachedAt[target] = _blastUpdate;
         }
-
-        StrikeBorder(room, across);
     }
 
     /// <summary>

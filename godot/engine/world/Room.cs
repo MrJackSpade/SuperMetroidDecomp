@@ -407,6 +407,16 @@ public partial class Room : Node2D
             }
         }
 
+        // Then whatever a projectile has left for the end of the update.
+        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDead && Player.State is not DyingState)
+        {
+            foreach (Projectile projectile in _projectiles.ToList())
+            {
+                if (projectile is IClosingStep closing && !_leaving.Contains(projectile))
+                    closing.StepClosing(this);
+            }
+        }
+
         if (!stopped.HasFlag(Stopped.Room))
         {
             foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())

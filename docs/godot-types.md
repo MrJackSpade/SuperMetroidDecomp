@@ -1003,7 +1003,11 @@ not lifted from a shared routine.
 - **When it hits.** The player's shot delivers its hit as it moves, to whatever it comes upon but an enemy or an
   enemy's shot: each enemy tries the player's shots against itself in its own turn ("An enemy's turn", above), and
   the room tries the player's shots against the enemies' shots, each of the enemies' in turn against each of the
-  player's where they stand, at the end of its update, after the enemies' shots have been tried against the player. An enemy's shot does not hit as it moves either:
+  player's where they stand, at the end of its update, after the enemies' shots have been tried against the player.
+  A projectile with a part of its own to play there, after both, is an `IClosingStep` (as one with a part in the
+  update's opening is an `IOpeningStep`): this game's power bomb grows its blast as the update opens, strikes the
+  terrain along the blast's border in its own step among the player's shots, and lands its hit on what the blast
+  reaches as the update ends. An enemy's shot does not hit as it moves either:
   it moves, and the room tries each enemy's shot once, where it then stands, at the end of the room's update, after
   the room's objects have played (and so after a message that suspended the update). The room first asks the player
   once whether any is tried at all (`Player.BeginEnemyShots`: none once the player is dead or dying, and a game may

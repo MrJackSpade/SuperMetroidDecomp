@@ -378,5 +378,8 @@ public sealed class GameSession
     {
         _host.AddChild(mode);
         mode.TakeControl(this);
+
+        // Said on the console, so that whoever plays can name where they were when they report something.
+        GD.Print($"[update {UpdateNumber}] in control: {mode.GetType().Name}");
     }
 }

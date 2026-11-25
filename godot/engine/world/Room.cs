@@ -213,6 +213,9 @@ public partial class Room : Node2D
         }
 
         Join(player);
+
+        // Said on the console, so that whoever plays can name the room when they report something.
+        GD.Print($"[update {session.UpdateNumber}] room: {(SceneFilePath.Length > 0 ? SceneFilePath : Name.ToString())}, entered at {(entry.EntryPoint.Length > 0 ? entry.EntryPoint : "a place given")}");
         // The player is put where they arrive before anything else enters, so that what enters finds them there.
         PlacePlayer(entry);
         _playerAtUpdateStart = Player.Position;

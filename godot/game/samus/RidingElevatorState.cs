@@ -31,6 +31,15 @@ public sealed class RidingElevatorState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool MeetsExits => false;
 
+    /// <summary>The row under her feet her last step down was tried against; nothing on an update the ride did not move her.</summary>
+    private PixelRect? _stepped;
+
+    /// <summary>
+    /// The shaft's triggers are met by her step down alone, the row under her feet, and by nothing on an update the
+    /// ride does not move her, as all through a ride arriving upward.
+    /// </summary>
+    public override PixelRect? TriggerReach(Player owner) => _stepped;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
@@ -44,12 +53,14 @@ public sealed class RidingElevatorState : PlayerState, ISamusLook
     {
         owner.Velocity = PixelVelocity.Zero;
         ElevatorJourney journey = ElevatorJourney.Of(owner.Room.Session);
+        _stepped = null;
         if (!journey.MovesSamus)
             return null;
 
         // The step is tried against the row of pixels under her feet alone, and only the terrain stops it.
         PixelRect body = owner.BodyRect;
         var under = new PixelRect(body.Left, body.Bottom, body.Width, 1);
+        _stepped = under;
         bool leaving = journey.Status == ElevatorJourney.Stage.Leaving;
         if (owner.Room.Mover.IsFree(under, owner, owner.BodyMoves with { StoppedBySolids = false }))
         {

@@ -312,9 +312,12 @@ public partial class Room : Node2D
         if (!stopped.HasFlag(Stopped.Player))
         {
             Player.FinishUpdate();
-            PixelRect body = Player.BodyRect;
-            foreach (Trigger trigger in _triggers.ToList())
-                trigger.Step(this, body);
+            if (Player.State.TriggerReach(Player) is { } reach)
+            {
+                foreach (Trigger trigger in _triggers.ToList())
+                    trigger.Step(this, reach);
+            }
+
             MeetExits();
         }
 

@@ -690,7 +690,7 @@ in `engine/actors/player/`.
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`
   is for whatever takes the player over at once (a hold, a script, a station) and drops an interruption that was
   waiting. A change of form moves the middle of the body at once, but the body and the hurtbox keep the shape they had until the player's next update begins, so whatever meets the player in between (the room's exits, the enemies' shots, pickups, objects) meets the body they had. The player keeps the state they last moved as (`MovedAs`), for whoever must know what they were doing
-  through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, at a station or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state may say the player meets no exit by
+  through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, at a station or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state says what of the player the room's triggers are tried against (`TriggerReach`: their body, unless it says otherwise, or nothing). A state may say the player meets no exit by
   overlapping it (`MeetsExits`); whoever moves the player then takes them through one (`Room.EnterExit`).
 - **The update has two parts, with the enemies between them.** In the first (`BeginUpdate`) weapons fire, from the
   state, the place and the aim the last update left the player in, and then the input is asked. The room steps the

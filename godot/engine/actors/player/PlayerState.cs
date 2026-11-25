@@ -64,6 +64,12 @@ public abstract class PlayerState : State<Player>
     public virtual bool InAnothersHands => false;
 
     /// <summary>
+    /// What of the player the room's triggers are tried against after this state has moved: their body, unless the
+    /// state says otherwise; nothing for a state in which the player meets no trigger.
+    /// </summary>
+    public virtual Shared.PixelRect? TriggerReach(Player owner) => owner.BodyRect;
+
+    /// <summary>
     /// Whether the player enters a room's exit by coming to overlap it in this state. One that does not is taken
     /// through an exit only by whoever moves them (<see cref="World.Room.EnterExit"/>).
     /// </summary>

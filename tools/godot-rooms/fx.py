@@ -2,10 +2,13 @@
 
 The old code gives each version of a room one "effect": perhaps a liquid with a level, perhaps rain or fog or spores,
 with the colour effects it starts. One of those colour effects is the heat that burns Samus, so a room that starts
-it has heat. A room entered by certain doors shows a different effect than by its others; what is placed for such an
+it has heat. Each of the others that shows on the room's own pictures (rock that glows, lights, lightning) is a colour
+effect placed in the room, in the order the old effect starts them. A room entered by certain doors shows a different effect than by its others; what is placed for such an
 effect is present only when the room was entered at that door's entry point.
 """
 from __future__ import annotations
+
+import re
 
 from enemies import Placed, number, quoted, snake
 
@@ -15,6 +18,7 @@ LIQUID = 'res://engine/world/Liquid.cs'
 OVERLAY = 'res://engine/world/OverlayEffect.cs'
 TRIGGER = 'res://engine/world/Trigger.cs'
 DARKNESS = 'res://game/effects/FirefleaDarkness.cs'
+COLOURS = 'res://engine/world/ColourEffect.cs'
 SCREEN = 256
 
 # What heat takes from Samus each update, in hundredths of a point of energy.
@@ -39,7 +43,51 @@ COLOURED = {
 }
 
 
-def effect_things(effect: dict, room: legacy.Room) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
+def room_colour_effects() -> dict[str, dict]:
+    """
+    Each of the old code's colour effects that shows on a room's own pictures, by name: how it starts and what it
+    watches, with the height it watches Samus against where it watches that.
+    """
+    shown_on_rooms = set(re.findall(r'ColourEffectColours\.(\w+)', legacy.without_comments(
+        legacy.read('Fx', 'ColourEffects', 'ColourEffectRoomColourDefinitions.cs'))))
+    text = legacy.without_comments(legacy.read('Fx', 'ColourEffects', 'ColourEffectAnimations.cs'))
+    heights = dict(re.findall(r'const int (\w+) = (\d+);', legacy.without_comments(
+        legacy.read('Fx', 'ColourEffects', 'CrateriaLightningDefinitions.cs'))))
+    effects = {}
+    listed = re.findall(
+        r'\[A\.(\w+)\]\s*=\s*new\(ColourEffectStart\.(\w+),\s*ColourEffectColours\.(\w+),\s*'
+        r'(?:new\s+)?ColourEffectCondition\.(\w+)(?:\(CrateriaLightningDefinitions\.(\w+)\))?', text)
+    for name, start, colours, watches, height in listed:
+        if colours in shown_on_rooms:
+            effects[name] = {'start': start, 'watches': watches, 'height': int(heights[height]) if height else None}
+    if not effects:
+        raise ValueError('No colour effect of the old code shows on a room\'s own pictures.')
+    return effects
+
+
+ROOM_COLOUR_EFFECTS = room_colour_effects()
+
+
+def colour_effect(name: str, ctx) -> Placed:
+    """One of the old code's colour effects on a room's own pictures, as the colour effect placed in the room."""
+    old = ROOM_COLOUR_EFFECTS[name]
+    properties = {'EffectName': quoted(snake(name)), 'StepsFile': quoted('colours/{graphics}/' + snake(name) + '.json')}
+    only_when = None
+    mini_boss = lambda: ctx.fact(ctx.boss('AreaMiniBoss') + '_defeated')  # noqa: E731
+    if old['start'] == 'SkippedOnceAreaMiniBossIsDead':
+        only_when = ctx.none_of([mini_boss()])
+    elif old['start'] != 'Plain':
+        raise ValueError(f'The colour effect {name} starts in a way this does not know: {old["start"]}.')
+    if old['watches'] == 'EndsWhenAreaMiniBossDies':
+        properties['EndsWhen'] = mini_boss()
+    elif old['watches'] == 'RestartsWhileSamusIsHigh':
+        properties['RestartsWhile'] = ctx.player_above(old['height'])
+    elif old['watches'] != 'WatchesNothing':
+        raise ValueError(f'The colour effect {name} watches something this does not know: {old["watches"]}.')
+    return Placed(COLOURS, name, properties, at=(0, 0), enemy=False, only_when=only_when)
+
+
+def effect_things(effect: dict, room: legacy.Room, ctx) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
     """What one of the old code's effects places, and which of those tells which."""
     placed: list[Placed] = []
     links: list[tuple[Placed, Placed]] = []
@@ -84,6 +132,8 @@ def effect_things(effect: dict, room: legacy.Room) -> tuple[list[Placed], list[t
             'EffectName': quoted(OVERLAYS[kind]), 'LookFile': quoted(f'effects/{OVERLAYS[kind]}.json')}, at=(0, 0), enemy=False))
     if kind == 'Fireflea':
         placed.append(Placed(DARKNESS, 'Darkness', {'EffectName': quoted('darkness')}, at=(0, 0), enemy=False))
+    # Its colour effects on the room's own pictures, in the order it starts them.
+    placed.extend(colour_effect(name, ctx) for name in effect['colours'] if name in ROOM_COLOUR_EFFECTS)
     return placed, links
 
 
@@ -95,17 +145,21 @@ def things(selection: dict, room: legacy.Room, ctx, entry_point) -> tuple[list[P
     placed: list[Placed] = []
     links: list[tuple[Placed, Placed]] = []
     by_door = [(entry_point(door), effect) for door, effect in selection['doors']]
+    def also(thing: Placed, entered: str) -> str:
+        """A thing's own condition, if it has one, together with the way the room was entered."""
+        return entered if thing.only_when is None else ctx.all_of([thing.only_when, entered])
+
     for point, effect in by_door:
-        mine, told = effect_things(effect, room)
+        mine, told = effect_things(effect, room, ctx)
         for thing in mine:
-            thing.only_when = ctx.entered_at(point)
+            thing.only_when = also(thing, ctx.entered_at(point))
         placed.extend(mine)
         links.extend(told)
     if selection['default'] is not None:
-        mine, told = effect_things(selection['default'], room)
+        mine, told = effect_things(selection['default'], room, ctx)
         if by_door:
             for thing in mine:
-                thing.only_when = ctx.none_of([ctx.entered_at(point) for point, _ in by_door])
+                thing.only_when = also(thing, ctx.none_of([ctx.entered_at(point) for point, _ in by_door]))
         placed.extend(mine)
         links.extend(told)
     return placed, links

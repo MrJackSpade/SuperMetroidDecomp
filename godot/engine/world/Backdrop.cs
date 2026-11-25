@@ -8,8 +8,14 @@ namespace Engine.World;
 /// scenery does. It affects nothing in play.
 /// </summary>
 [Tool]
-public partial class Backdrop : Node2D, IPlaced
+public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
 {
+    /// <summary>The colours of its picture shown as others, made the first time any is asked for.</summary>
+    private Ui.Recolouring? _recolouring;
+
+    /// <inheritdoc/>
+    public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
+
     /// <summary>The layer's picture, as a path within the assets tree.</summary>
     [Export(PropertyHint.File)]
     public string Picture { get; set; } = "";

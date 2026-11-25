@@ -9,8 +9,14 @@ namespace Engine.Actors.Components;
 /// Nothing here advances gameplay, and gameplay never reads anything back from it.
 /// </summary>
 [Tool]
-public partial class ActorVisual : Node2D
+public partial class ActorVisual : Node2D, Ui.IRecoloured
 {
+    /// <summary>The colours of its pictures shown as others, made the first time any is asked for.</summary>
+    private Ui.Recolouring? _recolouring;
+
+    /// <inheritdoc/>
+    public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
+
     /// <summary>The picture shown before gameplay selects one, as a path within the assets tree; empty for none.</summary>
     [Export(PropertyHint.File)]
     public string Picture { get; set; } = "";

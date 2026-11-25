@@ -749,6 +749,19 @@ public partial class Room : Node2D
     }
 
     /// <summary>
+    /// Adds a room-wide condition to the room while it is being played: whatever starts one that the room's scene does
+    /// not place. It is the room's from then on, set up at once and stepped with the room's other effects from the
+    /// next update that steps them.
+    /// </summary>
+    public void AddEffect(RoomEffect effect)
+    {
+        ArgumentNullException.ThrowIfNull(effect);
+        AddChild(effect);
+        effect.Setup(this);
+        _roomEffects.Add(effect);
+    }
+
+    /// <summary>
     /// Takes the room down as it is left: the player is taken out of it to go on to the next room, and everything else
     /// goes with the room.
     /// </summary>

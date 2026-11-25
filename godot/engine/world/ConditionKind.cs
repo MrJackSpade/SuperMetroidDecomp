@@ -32,4 +32,7 @@ public enum ConditionKind
 
     /// <summary>Was this room entered at the named entry point?</summary>
     EnteredAt,
+
+    /// <summary>Is the player's middle above a height in this room? The height, in pixels from the room's top, is what the condition is about.</summary>
+    PlayerIsAbove,
 }

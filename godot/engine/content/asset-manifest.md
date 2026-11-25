@@ -677,6 +677,29 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `cinematics/ceres_destruction.json` | `game/cinematics/CeresDestruction.cs` |
 | `cinematics/ending.json` | `game/cinematics/Ending.cs` |
 | `cinematics/intro.json` | `game/cinematics/Intro.cs` |
+| `colours/{graphics}/beacon_flashing.json` | `game/rooms/brinstar/caterpillar.tscn`, `game/rooms/brinstar/red_tower.tscn`, `game/rooms/brinstar/warehouse_energy_tank.tscn` and 3 more |
+| `colours/{graphics}/brinstar_blue_background_spores.json` | `game/rooms/brinstar/etecoon_energy_tank.tscn`, `game/rooms/brinstar/etecoon_super.tscn`, `game/rooms/brinstar/green_brinstar_main_shaft.tscn` and 3 more |
+| `colours/{graphics}/brinstar_red_background_glow.json` | `game/rooms/brinstar/caterpillar.tscn`, `game/rooms/brinstar/hellway.tscn`, `game/rooms/brinstar/red_tower.tscn` |
+| `colours/{graphics}/crateria_escape_yellow_lightning.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/landing_site.tscn` |
+| `colours/{graphics}/crateria_lightning.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/landing_site.tscn` |
+| `colours/{graphics}/maridia_background_waterfalls.json` | `game/rooms/maridia/colosseum.tscn`, `game/rooms/maridia/east_cactus_alley.tscn`, `game/rooms/maridia/halfie_climb.tscn` |
+| `colours/{graphics}/maridia_sand_falls.json` | `game/rooms/maridia/aqueduct_save.tscn`, `game/rooms/maridia/botwoon.tscn`, `game/rooms/maridia/botwoon_quicksand.tscn` and 3 more |
+| `colours/{graphics}/maridia_sand_pits.json` | `game/rooms/maridia/aqueduct.tscn`, `game/rooms/maridia/below_botwoon_energy_tank.tscn`, `game/rooms/maridia/botwoon_energy_tank.tscn` and 11 more |
+| `colours/{graphics}/norfair_dark_foreground_heat_glow.json` | `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/acid_statue.tscn`, `game/rooms/norfair/amphitheatre.tscn` and 45 more |
+| `colours/{graphics}/norfair_foreground_and_heat_phase.json` | `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/acid_statue.tscn`, `game/rooms/norfair/amphitheatre.tscn` and 45 more |
+| `colours/{graphics}/norfair_green_foreground_heat_glow.json` | `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/acid_statue.tscn`, `game/rooms/norfair/amphitheatre.tscn` and 45 more |
+| `colours/{graphics}/norfair_purple_foreground_heat_glow.json` | `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/acid_statue.tscn`, `game/rooms/norfair/amphitheatre.tscn` and 45 more |
+| `colours/{graphics}/old_tourian_background_panels_flash_yellow.json` | `game/rooms/crateria/climb.tscn` |
+| `colours/{graphics}/old_tourian_background_railings_flash_yellow.json` | `game/rooms/crateria/climb.tscn` |
+| `colours/{graphics}/old_tourian_red_flashing.json` | `game/rooms/crateria/climb.tscn` |
+| `colours/{graphics}/parlor_escape_sky_flicker.json` | `game/rooms/crateria/parlor.tscn` |
+| `colours/{graphics}/spore_spawn_blue_background_spores.json` | `game/rooms/brinstar/spore_spawn.tscn` |
+| `colours/{graphics}/tourian_background_red_flashing.json` | `game/rooms/tourian/tourian_escape1.tscn`, `game/rooms/tourian/tourian_escape2.tscn`, `game/rooms/tourian/tourian_escape3.tscn` and 1 more |
+| `colours/{graphics}/tourian_general_level_red_flashing.json` | `game/rooms/tourian/tourian_escape1.tscn`, `game/rooms/tourian/tourian_escape2.tscn`, `game/rooms/tourian/tourian_escape3.tscn` and 1 more |
+| `colours/{graphics}/tourian_glowing_arkanoid_blocks_and_red_orbs.json` | `game/rooms/tourian/big_boy.tscn`, `game/rooms/tourian/blue_hopper.tscn`, `game/rooms/tourian/dust_torizo.tscn` and 9 more |
+| `colours/{graphics}/tourian_red_flashing_arkanoid_blocks_and_red_orbs.json` | `game/rooms/tourian/tourian_escape1.tscn`, `game/rooms/tourian/tourian_escape2.tscn`, `game/rooms/tourian/tourian_escape3.tscn` and 1 more |
+| `colours/{graphics}/upper_crateria_red_flashing.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/landing_site.tscn`, `game/rooms/crateria/parlor.tscn` |
+| `colours/{graphics}/wrecked_ship_green_lights.json` | `game/rooms/wrecked_ship/assembly_line.tscn`, `game/rooms/wrecked_ship/attic.tscn`, `game/rooms/wrecked_ship/basement.tscn` and 10 more |
 | `effects/big_dust_cloud.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
 | `effects/ceres_debris_dark.json` | `game/rooms/ceres/falling_tile.tscn` |
 | `effects/ceres_debris_light.json` | `game/rooms/ceres/falling_tile.tscn` |

@@ -1,0 +1,124 @@
+using Engine.Shared;
+using Godot;
+
+namespace Engine.Ui;
+
+/// <summary>
+/// The changed colours of one drawn thing: what each source has asked to be shown as what, and the shader that shows
+/// it. A thing that can be recoloured keeps one and hands its own drawing to it. The shader swaps exact colours, so a
+/// picture's shapes are untouched and nothing is drawn twice; with nothing asked for the thing has no shader at all.
+/// </summary>
+/// <remarks>
+/// Where two sources change the same colour, the one that asked first is shown. A thing shows at most
+/// <see cref="MostSwaps"/> changed colours at once.
+/// </remarks>
+public sealed class Recolouring
+{
+    /// <summary>The most colours one thing can show changed at once.</summary>
+    public const int MostSwaps = 64;
+
+    private const string Code = """
+        shader_type canvas_item;
+        uniform int swap_count = 0;
+        uniform vec3 swap_from[64];
+        uniform vec3 swap_to[64];
+        varying vec4 tint;
+        void vertex() {
+            tint = COLOR;
+        }
+        void fragment() {
+            vec4 shown = texture(TEXTURE, UV);
+            for (int i = 0; i < 64; i++) {
+                if (i >= swap_count) {
+                    break;
+                }
+                vec3 apart = abs(shown.rgb - swap_from[i]);
+                if (max(apart.r, max(apart.g, apart.b)) < 0.002) {
+                    shown.rgb = swap_to[i];
+                    break;
+                }
+            }
+            COLOR = shown * tint;
+        }
+        """;
+
+    /// <summary>What each source asked for, in the order the sources first asked.</summary>
+    private readonly List<(string Source, IReadOnlyList<ColourSwap> Swaps)> _asked = [];
+
+    /// <summary>The thing drawn.</summary>
+    private readonly CanvasItem _item;
+
+    /// <summary>The material that shows the changes, made the first time any is asked for.</summary>
+    private ShaderMaterial? _material;
+
+    /// <summary>The changed colours of <paramref name="item"/>.</summary>
+    public Recolouring(CanvasItem item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        _item = item;
+    }
+
+    /// <summary>Whether any colour is shown changed.</summary>
+    public bool IsChanged => _asked.Count > 0;
+
+    /// <summary>
+    /// Keeps <paramref name="swaps"/> as what <paramref name="source"/> asks for, in place of what it asked before, and
+    /// shows the thing so. An empty list takes back all the source asked for.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">More colours are changed at once than a thing can show.</exception>
+    public void Recolour(string source, IReadOnlyList<ColourSwap> swaps)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(source);
+        ArgumentNullException.ThrowIfNull(swaps);
+        int at = _asked.FindIndex(asked => asked.Source == source);
+        if (swaps.Count == 0)
+        {
+            if (at < 0)
+                return;
+            _asked.RemoveAt(at);
+        }
+        else if (at < 0)
+        {
+            _asked.Add((source, swaps));
+        }
+        else
+        {
+            _asked[at] = (source, swaps);
+        }
+
+        Show();
+    }
+
+    /// <summary>Hands the shader every colour changed, or takes the shader away when none is.</summary>
+    private void Show()
+    {
+        if (_asked.Count == 0)
+        {
+            if (ReferenceEquals(_item.Material, _material))
+                _item.Material = null;
+            return;
+        }
+
+        var from = new Vector3[MostSwaps];
+        var to = new Vector3[MostSwaps];
+        int count = 0;
+        foreach ((string source, IReadOnlyList<ColourSwap> swaps) in _asked)
+        {
+            foreach (ColourSwap swap in swaps)
+            {
+                if (count == MostSwaps)
+                    throw new InvalidOperationException($"\"{_item.Name}\" is asked to show more than {MostSwaps} colours changed at once; the last asked for is one of \"{source}\".");
+                from[count] = new Vector3(swap.From.R, swap.From.G, swap.From.B);
+                to[count] = new Vector3(swap.To.R, swap.To.G, swap.To.B);
+                count++;
+            }
+        }
+
+        _material ??= new ShaderMaterial { Shader = new Shader { Code = Code } };
+        _material.SetShaderParameter("swap_count", count);
+        _material.SetShaderParameter("swap_from", from);
+        _material.SetShaderParameter("swap_to", to);
+        if (!ReferenceEquals(_item.Material, _material))
+            _item.Material = _material;
+    }
+}

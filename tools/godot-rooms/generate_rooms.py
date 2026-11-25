@@ -287,6 +287,9 @@ class Context:
     def entered_at(self, entry_point: str) -> str:
         return self._about(9, entry_point)
 
+    def player_above(self, height: int) -> str:
+        return self._about(10, str(height))
+
     def all_of(self, parts: list[str]) -> str:
         return self._of(4, parts)
 

@@ -45,7 +45,8 @@ public sealed class ContentLibrary
 
     /// <summary>
     /// This library as a room drawn with the set of graphics named <paramref name="graphics"/> reads it: the same
-    /// files, with that name put for <see cref="GraphicsPlaceholder"/> in the path of every picture loaded.
+    /// files, with that name put for <see cref="GraphicsPlaceholder"/> in the path of every picture loaded and every
+    /// file read.
     /// </summary>
     public ContentLibrary DrawnWith(string graphics)
     {
@@ -78,13 +79,7 @@ public sealed class ContentLibrary
     /// <summary>The picture at <paramref name="path"/>, as a texture. A picture is loaded once and shared.</summary>
     public Texture2D LoadTexture(string path)
     {
-        if (path.Contains(GraphicsPlaceholder, StringComparison.Ordinal))
-        {
-            if (_graphics.Length == 0)
-                throw new ContentException(path, "is a picture for a set of graphics, asked for where no set of graphics is known.");
-            path = path.Replace(GraphicsPlaceholder, _graphics, StringComparison.Ordinal);
-        }
-
+        path = ForSet(path);
         if (_textures.TryGetValue(path, out Texture2D? loaded))
             return loaded;
         Image image = Image.LoadFromFile(RequireFile(path))
@@ -105,10 +100,21 @@ public sealed class ContentLibrary
         return File.Exists(file) ? file : throw new ContentException(path, "does not exist in the assets folder.");
     }
 
+    /// <summary>A path with this library's set of graphics put where the path leaves the set to be named.</summary>
+    private string ForSet(string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        if (!path.Contains(GraphicsPlaceholder, StringComparison.Ordinal))
+            return path;
+        if (_graphics.Length == 0)
+            throw new ContentException(path, "is a file for a set of graphics, asked for where no set of graphics is known.");
+        return path.Replace(GraphicsPlaceholder, _graphics, StringComparison.Ordinal);
+    }
+
     /// <summary>The absolute file a path within the assets tree names. The path must stay inside the tree.</summary>
     private string Resolve(string path)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        path = ForSet(path);
         string file = Path.GetFullPath(Path.Combine(_root, path));
         if (!file.StartsWith(_root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
             throw new ContentException(path, "is not a path inside the assets folder.");

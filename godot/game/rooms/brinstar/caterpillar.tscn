@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -13,8 +13,9 @@
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
-[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="15"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="15"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="16"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -374,14 +375,26 @@ AtEntry = "ToRedFish"
 What = "open_to_top"
 Target = NodePath("../Screen1x3")
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="BrinstarRedBackgroundGlow" type="Node2D" parent="."]
 script = ExtResource("14")
+position = Vector2(0, 0)
+EffectName = "brinstar_red_background_glow"
+StepsFile = "colours/{graphics}/brinstar_red_background_glow.json"
+
+[node name="BeaconFlashing" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
+EffectName = "beacon_flashing"
+StepsFile = "colours/{graphics}/beacon_flashing.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("15")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_caterpillar.png"
 ScrollShare = Vector2(1, 1)
 
 [node name="Plants" type="Node" parent="."]
-script = ExtResource("15")
+script = ExtResource("16")
 StartsWhen = SubResource("r2")
 DataFile = "objects/samus_eater.json"
 

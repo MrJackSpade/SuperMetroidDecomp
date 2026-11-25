@@ -69,6 +69,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteSamus();
         writer.WriteRoomPatches();
         writer.WriteBackdrops();
+        writer.WriteRoomColourEffects();
         writer.WriteStatueHall();
         writer.WriteLiquidsAndOverlays();
         writer.WriteCeresFloors();

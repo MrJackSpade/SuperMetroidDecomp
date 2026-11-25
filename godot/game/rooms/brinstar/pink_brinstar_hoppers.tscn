@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -11,8 +11,9 @@
 [ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
 [ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -190,13 +191,19 @@ StartsWhen = SubResource("r3")
 Until = SubResource("r2")
 Records = PackedStringArray("zebes_awake")
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="BrinstarBlueBackgroundSpores" type="Node2D" parent="."]
 script = ExtResource("12")
+position = Vector2(0, 0)
+EffectName = "brinstar_blue_background_spores"
+StepsFile = "colours/{graphics}/brinstar_blue_background_spores.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("13")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_thin_horizontal_pattern.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Plants" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 StartsWhen = SubResource("r3")
 DataFile = "objects/samus_eater.json"

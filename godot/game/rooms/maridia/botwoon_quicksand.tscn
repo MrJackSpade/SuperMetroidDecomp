@@ -1,11 +1,12 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="5"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="6"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="6"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -114,8 +115,14 @@ DecelerationInterval = 2
 MaximumSpeed = 10.99609375
 AlwaysActive = true
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="MaridiaSandFalls" type="Node2D" parent="."]
 script = ExtResource("6")
+position = Vector2(0, 0)
+EffectName = "maridia_sand_falls"
+StepsFile = "colours/{graphics}/maridia_sand_falls.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_botwoon_quicksand.png"
 ScrollShare = Vector2(1, 1)

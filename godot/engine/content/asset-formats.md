@@ -21,6 +21,7 @@ with comments allowed.
 | An item type | `items/` | `ItemType` | What an item grants, its message and how it looks. |
 | A liquid type | `liquids/` | `LiquidType` | How a liquid slows, what it takes and how it looks. |
 | An overlay's look | `effects/` | `OverlayEffect` | The pictures laid over the whole view, how they move and how they are laid over the room. |
+| A colour effect's steps | `colours/{graphics}/` | `ColourEffect` | The steps of a change of colours: how long each lasts, the colours it shows changed, each as the pictures have it and as it is shown, and a sound it may ask for; and the step it goes back to after its last. One file for each set of graphics the effect is shown in, since a step names colours as that set's pictures have them. |
 | A speed curve | wherever it is named | `SpeedCurve` | The marks of a curve of speeds. |
 | Drops and pickups | wherever they are named | `DropTable`, `PickupType` | What an enemy leaves and what each pickup gives. |
 | An area | `areas/`, and wherever a screen with a map of its own names | `Area` | An area's name and map: its cells, its markers and the labels laid over it. One area may have a file for each screen that draws it in colours of its own. |

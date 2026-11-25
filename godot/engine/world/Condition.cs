@@ -39,6 +39,9 @@ public partial class Condition : Resource
         ConditionKind.None => !Parts.Any(part => part.IsTrue(room)),
         ConditionKind.PlayerCarries => room.Player.Inventory.Capacity(RequireAbout()) > 0,
         ConditionKind.EnteredAt => room.Entry?.EntryPoint == RequireAbout(),
+        ConditionKind.PlayerIsAbove => room.Player.Position.Y.Whole < (int.TryParse(RequireAbout(), out int height)
+            ? height
+            : throw new InvalidOperationException($"A condition on the player's height is about \"{About}\", which is not a number.")),
         ConditionKind.EnemiesKilled => room.EnemiesKilled >= (int.TryParse(RequireAbout(), out int kills)
             ? kills
             : throw new InvalidOperationException($"A condition on enemies killed is about \"{About}\", which is not a number.")),

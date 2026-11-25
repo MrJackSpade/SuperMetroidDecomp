@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,8 +7,9 @@
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
-[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -160,14 +161,32 @@ AlwaysActive = true
 position = Vector2(96, 192)
 DataFile = "objects/door_cap_blue_up.json"
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="TourianBackgroundRedFlashing" type="Node2D" parent="."]
 script = ExtResource("8")
+position = Vector2(0, 0)
+EffectName = "tourian_background_red_flashing"
+StepsFile = "colours/{graphics}/tourian_background_red_flashing.json"
+
+[node name="TourianGeneralLevelRedFlashing" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+EffectName = "tourian_general_level_red_flashing"
+StepsFile = "colours/{graphics}/tourian_general_level_red_flashing.json"
+
+[node name="TourianRedFlashingArkanoidBlocksAndRedOrbs" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+EffectName = "tourian_red_flashing_arkanoid_blocks_and_red_orbs"
+StepsFile = "colours/{graphics}/tourian_red_flashing_arkanoid_blocks_and_red_orbs.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/tourian_pipe_room_letterbox.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Escape" type="Node" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 StartsWhen = SubResource("r2")
 TurnsHarder = false
 ShakeStrength = 1

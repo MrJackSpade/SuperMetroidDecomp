@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/work_robot/work_robot.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="14"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -601,4 +602,11 @@ PresentWhen = SubResource("r1")
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="WreckedShipGreenLights" type="Node2D" parent="."]
+script = ExtResource("15")
+position = Vector2(0, 0)
+EffectName = "wrecked_ship_green_lights"
+StepsFile = "colours/{graphics}/wrecked_ship_green_lights.json"
 PresentWhen = SubResource("r1")

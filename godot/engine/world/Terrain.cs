@@ -11,8 +11,14 @@ namespace Engine.World;
 /// or weapons: it is told a rectangle touched it or a hit landed on it, and answers from its tiles' and blocks' rules.
 /// </summary>
 [Tool]
-public partial class Terrain : Node2D, ITerrainShape
+public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 {
+    /// <summary>The colours of its tiles' pictures shown as others, made the first time any is asked for.</summary>
+    private Ui.Recolouring? _recolouring;
+
+    /// <inheritdoc/>
+    public void Recolour(string source, IReadOnlyList<ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
+
     /// <summary>The layout's data file, as a path within the assets tree.</summary>
     [Export(PropertyHint.File)]
     public string LayoutFile { get; set; } = "";

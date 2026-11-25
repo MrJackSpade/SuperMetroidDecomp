@@ -39,7 +39,7 @@ public partial class YappingMaw : Enemy
     [Export, DataValue("longest_reach")]
     public int LongestReach { get; set; } = 64;
 
-    /// <summary>How many updates after letting go, or drawing back, before it can catch Samus again.</summary>
+    /// <summary>How many updates after letting go, or drawing back, it refuses to catch Samus; it may catch her from the second update after them.</summary>
     [Export, DataValue("grab_cooldown")]
     public int GrabCooldown { get; set; } = 48;
 
@@ -127,10 +127,10 @@ public partial class YappingMaw : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        // It can catch her only once its cooldown has run out; having caught her, not again until the strike is over.
-        if (_cooldown != 0 || _holds || IsDead)
+        // It can catch her only while its cooldown reads below nothing; having caught her, not again until the strike is over.
+        if (_cooldown >= 0 || _holds || IsDead)
             return;
-        _cooldown = -1;
+        _cooldown = 0;
         _holds = true;
         Room.Player.Hold();
     }
@@ -148,8 +148,9 @@ public partial class YappingMaw : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (_cooldown > 0)
-            _cooldown--;
+        // The cooldown counts down every update with no floor, within 65536: past nothing it lets it catch Samus for
+        // 32768 updates, then reads as above nothing again and refuses for 32768, and so on until it starts again.
+        _cooldown = unchecked((short)(_cooldown - 1));
         switch (_doing)
         {
             case Doing.Watching:

@@ -1349,19 +1349,29 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <param name="byDashAlone">Whether only a dash's speed carries the player this update, their own speed left as it is.</param>
     public MoveResult MoveAcross(bool byDashAlone = false)
     {
-        MoveOptions options = BodyMoves;
-        Pixels reach = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
+        MoveResult result = MoveAcrossBy(Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross)));
+        if (result.Blocked)
+            StopAcross();
+        return result;
+    }
+
+    /// <summary>
+    /// Moves the player across by a distance, leftward when it is negative, whatever their speed: every move of
+    /// their own across is one of these. Slopes ahead take their share of it, an active body power clears the way
+    /// first, and the body moves as the game has it move. A state that moves the player by a speed of its own, and
+    /// not their speed across, moves them so.
+    /// </summary>
+    public MoveResult MoveAcrossBy(Pixels reach)
+    {
         _reachAcross = reach.Abs();
         Pixels distance = OverSlopes(reach);
         ClearWay(distance, Pixels.Zero);
 
         // The slopes take their share of how far the player goes, not of how far ahead the move is tried.
-        MoveResult result = Room.Mover.MoveAcross(Body, distance, options, triedAs: reach);
+        MoveResult result = Room.Mover.MoveAcross(Body, distance, BodyMoves, triedAs: reach);
         if (result.PutOnSlope)
             _putOnSlope = true;
         OnBodyMoved(across: true, distance, result.Moved);
-        if (result.Blocked)
-            StopAcross();
         return result;
     }
 
@@ -1386,8 +1396,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public MoveResult MoveDown()
     {
         Pixels distance = InLiquid(Velocity.Y);
-        ClearWay(Pixels.Zero, distance);
-        MoveResult result = MoveDownBy(distance);
+        MoveResult result = MoveDownBy(distance, clearsWay: true);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
@@ -1398,8 +1407,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// own up or down is one of these. A move of some distance that no solid stopped ends the hold sloped ground had
     /// taken of them.
     /// </summary>
-    public MoveResult MoveDownBy(Pixels distance)
+    /// <param name="distance">How far, negative upward.</param>
+    /// <param name="clearsWay">Whether an active body power first clears the way, as a move by the player's own speed does.</param>
+    public MoveResult MoveDownBy(Pixels distance, bool clearsWay = false)
     {
+        if (clearsWay)
+            ClearWay(Pixels.Zero, distance);
         MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
         if (!distance.IsZero && result.BlockedBy is null)
             _putOnSlope = false;
@@ -1473,8 +1486,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         Pixels distance = InLiquid(Velocity.Y);
         Fall();
-        ClearWay(Pixels.Zero, distance);
-        MoveResult result = MoveDownBy(distance);
+        MoveResult result = MoveDownBy(distance, clearsWay: true);
         if (result.Blocked && !keepsSpeedWhenStopped)
             FallFromRest();
         return result;

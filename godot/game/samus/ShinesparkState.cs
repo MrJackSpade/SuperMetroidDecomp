@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Collision;
 using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
@@ -171,8 +170,6 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         if (samus.Power(HitKinds.Shinespark) is { } power)
             power.IsActive = true;
         FlownFrom = samus.Position;
-
-        MoveOptions options = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
         Pixels gravity = Pixels.FromNumber(samus.Medium.Gravity);
         bool stoppedAcross = false, stoppedDown = false;
         if (_across != 0)
@@ -181,7 +178,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             Pixels faster = _acrossSpeed + gravity;
             Pixels top = Pixels.FromNumber(samus.ShinesparkTopSpeed);
             _acrossSpeed = faster >= top ? top : faster;
-            stoppedAcross = samus.Room.Mover.MoveAcross(samus.Body, _acrossSpeed * _across, options).Blocked;
+
+            // She moves as she always moves across: over slopes, and through what her body breaks.
+            stoppedAcross = samus.MoveAcrossBy(_acrossSpeed * _across).Blocked;
         }
 
         if (_down != 0)
@@ -191,7 +190,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             _riseGain += gravity;
             _riseSpeed += _riseGain;
             Pixels rise = _riseSpeed.Whole > samus.ShinesparkMostRise ? _riseSpeed.WithWhole(samus.ShinesparkMostRise) : _riseSpeed;
-            stoppedDown = samus.Room.Mover.MoveDown(samus.Body, rise * _down, options).Blocked;
+
+            // The speed it has gathered is her speed upward, which a move across reads on the next update.
+            samus.Velocity = samus.Velocity.WithY(_riseSpeed * _down);
+            stoppedDown = samus.MoveDownBy(rise * _down, clearsWay: true).Blocked;
         }
 
         // A diagonal spark slides up a wall it meets, and ends only when it can rise no further.
@@ -206,8 +208,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _stage = Stage.Crashed;
         FlownFrom = null;
 
-        // Her boost ends as she crashes. How far the echoes have circled is not started over.
+        // Her boost and her speed end as she crashes. How far the echoes have circled is not started over.
         samus.EndBoost();
+        samus.Velocity = PixelVelocity.Zero;
         (_crash, _crashRadius) = (Crash.Expanding, 0);
         (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);
         samus.Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");

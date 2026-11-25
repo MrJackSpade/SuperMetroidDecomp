@@ -4,6 +4,7 @@ using Engine.Actors.Movement;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -61,6 +62,13 @@ public partial class YappingMaw : Enemy
 
     private const int FullStretch = 128;
     private const int Links = 4;
+    private const int QuarterTurn = 64, HalfTurn = 128;
+
+    /// <summary>The steps of curl for each step a link bends by.</summary>
+    private const int CurlPerBendStep = 4;
+
+    /// <summary>The distance on one axis, in pixels, from which it measures by that axis alone.</summary>
+    private const int ShortProductReach = 255;
 
     private static readonly string[] Ways = ["up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"];
 
@@ -73,10 +81,13 @@ public partial class YappingMaw : Enemy
     }
 
     private readonly Dictionary<string, PixelOffset> _heldOffsets = new(StringComparer.Ordinal);
+    private readonly PixelOffset[] _linkAt = new PixelOffset[Links];
     private SpeedCurve? _curve;
     private Doing _doing;
     private PixelPosition _origin;
     private int _reach;
+
+    // As the cartridge counts it: none right, a quarter turn up.
     private int _bearing;
     private string _way = "up";
     private PixelOffset _heldAt;
@@ -154,9 +165,7 @@ public partial class YappingMaw : Enemy
         switch (_doing)
         {
             case Doing.Watching:
-                PixelOffset toSamus = Target - _origin;
-                int across = toSamus.X.Whole, down = toSamus.Y.Whole;
-                int distance = (int)Math.Sqrt((double)across * across + (double)down * down);
+                (int distance, int bearing) = Measure();
                 if (distance < SafetyDistance)
                 {
                     _cooldown = GrabCooldown;
@@ -166,7 +175,7 @@ public partial class YappingMaw : Enemy
                 if (distance >= ActivationDistance)
                     break;
                 _reach = Math.Min(distance, LongestReach);
-                _bearing = Turns.AngleOf(across, down);
+                _bearing = bearing;
                 _doing = Doing.BeginStrike;
                 break;
 
@@ -174,8 +183,8 @@ public partial class YappingMaw : Enemy
                 _stretch = Pixels.Zero;
                 _place = 0;
                 _drawingBack = false;
-                // The way it strikes is the nearest of eight to its bearing, counted round from straight up.
-                _way = Ways[Turns.Wrap(_bearing + Turns.PerTurn / 4 + Turns.PerTurn / 16) * Ways.Length / Turns.PerTurn];
+                // The way it strikes is the nearest of eight to its bearing, counted round clockwise from straight up.
+                _way = Ways[Turns.Wrap(QuarterTurn - _bearing + Turns.PerTurn / 16) * Ways.Length / Turns.PerTurn];
                 Play($"attack_{_way}", restart: true);
                 _heldAt = HeldOffset(_way);
                 _doing = Doing.Striking;
@@ -208,6 +217,7 @@ public partial class YappingMaw : Enemy
     private void Strike()
     {
         SpeedCurve curve = _curve ?? throw new InvalidOperationException($"The Yapping Maw \"{Name}\" is not in a room.");
+        Bend();
         Position = Along(Links);
         Pixels speed = curve.SpeedAt(Math.Min(_place, (curve.Marks - 1) * SpeedCurve.PartsPerMark));
         _stretch += _drawingBack ? -speed : speed;
@@ -237,15 +247,86 @@ public partial class YappingMaw : Enemy
             HoldSamus();
     }
 
-    /// <summary>Where the <paramref name="link"/>th of its links is, the last being its mouth: evenly out along its strike.</summary>
-    private PixelPosition Along(int link)
+    /// <summary>
+    /// How far Samus is, and the bearing it would strike along, as the cartridge measures them. From 255 pixels away on
+    /// either axis it measures by that axis alone, and its bearing is straight up; nearer, the distance is the whole
+    /// pixels of two short products along its aim at her offsets folded onto the lower right, each axis's offset the
+    /// radius of its own, and the bearing its aim at her.
+    /// </summary>
+    private (int Distance, int Bearing) Measure()
     {
-        int stretch = Math.Clamp(_stretch.Whole, 0, FullStretch);
-        Pixels length = Pixels.FromWhole(_reach).Share(stretch * link, FullStretch * Links);
-        return PixelPosition.FromWhole(
-            _origin.X.Whole + Turns.Cosine(_bearing, length).Whole,
-            _origin.Y.Whole + Turns.Sine(_bearing, length).Whole);
+        int across = Target.X.Whole - _origin.X.Whole, down = Target.Y.Whole - _origin.Y.Whole;
+        int farAcross = Math.Abs(across), farDown = Math.Abs(down);
+        if (farAcross >= ShortProductReach)
+            return (farAcross, QuarterTurn);
+        if (farDown >= ShortProductReach)
+            return (farDown, QuarterTurn);
+        int folded = CartridgeAngles.AimAngle(farAcross, farDown);
+        int distance = Math.Abs(CartridgeAngles.CircleSine(folded - QuarterTurn, farAcross).Whole)
+            + Math.Abs(CartridgeAngles.CircleSine(folded, farDown).Whole);
+        return (distance, CartridgeAngles.AimAngle(across, down));
     }
+
+    /// <summary>
+    /// Bends its four links for how far it has curled, as the cartridge does. Each link turns from a half turn by a
+    /// quarter of the curl's whole steps for each link out, the mirrored way when its bearing lies in the turn's second
+    /// half, on a circle whose radius across is half its reach and down a quarter, less where an uncurled link would lie.
+    /// The bearing then turns a correction whose length is the link's offset across, for both of its parts. The eight
+    /// offsets, link by link and across before down, take their corrections in one chain within 65536, each passing the
+    /// end moving the next one a pixel further.
+    /// </summary>
+    private void Bend()
+    {
+        int curl = _stretch.Whole;
+        if (curl < 0 || curl > FullStretch)
+            throw new InvalidOperationException($"The Yapping Maw \"{Name}\" bends with a curl of {curl}, outside 0 through {FullStretch}.");
+        int bendStep = curl / CurlPerBendStep;
+        int radius = _reach / 2;
+        int baselineAcross = AcrossOf(HalfTurn, radius), baselineDown = DownOf(HalfTurn, radius / 2);
+        bool mirrored = _bearing >= HalfTurn;
+        bool passedEnd = false;
+        for (int link = 0; link < Links; link++)
+        {
+            int multiple = bendStep * (link + 1);
+            int linkAngle = mirrored ? HalfTurn + multiple : HalfTurn - multiple;
+            int across = Held(AcrossOf(linkAngle, radius) - baselineAcross);
+            int down = Held(DownOf(linkAngle, radius / 2) - baselineDown);
+            int correctionAcross = Held(AcrossOf(_bearing, across) - AcrossOf(0, across));
+            int correctionDown = Held(DownOf(_bearing, across) - DownOf(0, across));
+            across = Chained(across, correctionAcross, ref passedEnd);
+            down = Chained(down, correctionDown, ref passedEnd);
+            _linkAt[link] = PixelOffset.FromWhole(unchecked((short)across), unchecked((short)down));
+        }
+    }
+
+    /// <summary>An offset as the cartridge holds it, within 65536: one backward as its complement.</summary>
+    private static int Held(int offset) => unchecked((ushort)offset);
+
+    /// <summary>An offset held within 65536 moved by a correction, and a pixel more if the one before passed the end; notes whether this one does.</summary>
+    private static int Chained(int offset, int correction, ref bool passedEnd)
+    {
+        int moved = offset + correction + (passedEnd ? 1 : 0);
+        passedEnd = moved >= 65536;
+        return Held(moved);
+    }
+
+    /// <summary>A link's offset across for a turn and a length: its offset down a quarter turn behind.</summary>
+    private static int AcrossOf(int angle, int length) => DownOf(angle - QuarterTurn, length);
+
+    /// <summary>
+    /// A link's offset down for a turn and a length, as the cartridge reckons it: the fine sine read coarsely, reversed,
+    /// along the length counted within 256, in whole pairs of pixels rounded down.
+    /// </summary>
+    private static int DownOf(int angle, int length)
+    {
+        int wrapped = Turns.Wrap(angle);
+        int share = CartridgeAngles.CoarseSizeOfFineSine(wrapped) * 2;
+        int reversed = wrapped >= HalfTurn ? share : -share;
+        return reversed * (length % 256) >> 9 << 1;
+    }
+
+    /// <summary>Where the <paramref name="link"/>th of its links is, the last being its mouth: the root, then each link's far end as last bent.</summary>
+    private PixelPosition Along(int link) => link == 0 ? _origin : _origin + _linkAt[link - 1];
 
     /// <summary>Keeps Samus in its mouth.</summary>
     private void HoldSamus() => Room.Player.Position = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + _heldAt;
@@ -285,7 +366,8 @@ public partial class YappingMaw : Enemy
         {
             if (_link is null || GetNodeOrNull<ActorVisual>($"Link{link + 1}") is not { } visual)
                 continue;
-            PixelPosition at = _doing == Doing.Striking ? Along(link) : _origin;
+            // The links stay where they were last bent, as the mouth does.
+            PixelPosition at = Along(link);
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
             visual.Show(_link.Current);
         }

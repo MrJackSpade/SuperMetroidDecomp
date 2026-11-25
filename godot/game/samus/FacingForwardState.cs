@@ -27,7 +27,9 @@ public sealed class FacingForwardState : PlayerState, ISamusLook
         owner.Velocity = PixelVelocity.Zero;
         // Her charge is kept as it stands, as the cartridge keeps it: she cannot attack here to count it on or let it go.
         owner.LoseMomentum();
-        owner.TrySetForm(Player.Standing);
+
+        // The front view's own height: taller than standing, so on the ground she is lifted by the difference.
+        owner.TrySetForm(RidingElevatorState.Form);
     }
 
     /// <inheritdoc/>

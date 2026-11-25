@@ -63,7 +63,9 @@ public partial class CeresArrival : RoomSequence
         samus.Position = new PixelPosition(samus.Position.X, Pixels.FromWhole(LandingY));
         pad.SetShown(false);
         platform.SetShown(false);
-        samus.Release();
+
+        // She is let go still in the front view, and stays so until she is turned.
+        samus.ChangeState(new StandingForwardState());
         return true;
     }
 

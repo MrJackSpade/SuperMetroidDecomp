@@ -37,10 +37,6 @@ public partial class Gunship : RoomObject, ITriggerTarget
     [Export]
     public string SavedMessage { get; set; } = "";
 
-    /// <summary>How far above the room's top it starts when it comes down to land, in pixels.</summary>
-    [Export]
-    public int ArrivesFromAbove { get; set; } = 256;
-
     /// <summary>The timelines of its hatch, by their data files.</summary>
     [Export, DataValue("pad_closed")]
     public string PadClosed { get; set; } = "";
@@ -132,6 +128,9 @@ public partial class Gunship : RoomObject, ITriggerTarget
     /// <summary>How far above her middle its top half sits while she is aboard.</summary>
     private const int TopAboveSamus = 17;
 
+    /// <summary>How much of each thing she carries the ship gives her each update she is aboard.</summary>
+    private const int RefillEach = 2;
+
     private Phase _phase;
     private int _timer;
     private int _restY;
@@ -177,11 +176,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
     {
         if (what != "land")
             throw new ArgumentException($"The gunship can be told to \"land\", not \"{what}\".", nameof(what));
-        // It starts high above with Samus aboard.
+        // It starts about Samus, where she arrives high over the landing site, with her aboard.
         Player samus = Room.Player;
         samus.ChangeState(new FacingForwardState());
-        Position = new PixelPosition(Position.X, Pixels.FromWhole(-ArrivesFromAbove));
-        samus.Position = new PixelPosition(Position.X, Position.Y + Pixels.FromWhole(TopAboveSamus));
+        PlaceAbout(samus);
         (_phase, _hoverWait) = (Phase.DescendToLand, 1);
     }
 
@@ -207,7 +205,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 MoveWithSamus(samus, Pixels.FromNumber(Position.Y.Whole < _restY - 351 ? 4.5 : 2.5));
                 if (Position.Y.Whole < _restY)
                     break;
-                MoveWithSamus(samus, Pixels.FromWhole(_restY) - Position.Y);
+
+                // The ship alone is set at its landing height, keeping its part of a pixel; Samus stays as far down
+                // as the last of the descent took her.
+                Position = new PixelPosition(Position.X, Position.Y.WithWhole(_restY));
                 (_phase, _brake) = (Phase.LandingBrakes, 0);
                 break;
 
@@ -216,7 +217,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 if (++_brake < LandingBrakes.Length)
                     break;
                 (_bob, _bobWait) = (0, 1);
-                samus.Position = new PixelPosition(Position.X + Pixels.FromWhole(1), samus.Position.Y);
+
+                // She is put a pixel right of the ship's middle, which the view does not follow as a move of hers.
+                samus.Position = new PixelPosition(samus.Position.X.WithWhole(Position.X.Whole + 1), samus.Position.Y);
+                Room.Session.Camera.TakePlayerToHaveStoodAtX(samus.Position.X.Whole);
                 OpenHatch();
                 _phase = Phase.WaitForLandingHatch;
                 break;
@@ -238,7 +242,9 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 if (--_timer > 0)
                     break;
                 _phase = Phase.Idle;
-                samus.Release();
+
+                // She is let go still in the front view.
+                samus.ChangeState(new StandingForwardState());
                 // Having landed, the game is saved.
                 Room.Session.RequestSave(Room.SceneFilePath, Name);
                 break;
@@ -294,7 +300,9 @@ public partial class Gunship : RoomObject, ITriggerTarget
                     break;
                 if (yes)
                     Room.Session.RequestSave(Room.SceneFilePath, Name);
-                OpenHatch(sounding: true);
+
+                // The pad opens to let her out without its sound.
+                OpenHatch(sounding: false);
                 _phase = Phase.WaitForExitHatch;
                 break;
 
@@ -315,7 +323,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 if (--_timer > 0)
                     break;
                 _phase = Phase.Idle;
-                samus.Release();
+                samus.ChangeState(new StandingForwardState());
                 break;
 
             case Phase.WaitForEngines:
@@ -326,7 +334,8 @@ public partial class Gunship : RoomObject, ITriggerTarget
             case Phase.FireUpEngines:
                 // It shakes on the ground, harder as its engines catch, and raises dust.
                 int shake = (_rumble >= 64 ? 2 : 1) * (_rumble % 2 == 1 ? 1 : -1);
-                MoveWithSamus(samus, Pixels.FromWhole(shake));
+                samus.Position += PixelOffset.FromWhole(0, shake);
+                PlaceAbout(samus);
                 if (++_rumble == 64)
                 {
                     for (int cloud = 0; cloud < DustAcross.Length; cloud++)
@@ -338,7 +347,8 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 break;
 
             case Phase.SteadyLiftoff:
-                MoveWithSamus(samus, Pixels.FromWhole(-2));
+                samus.Position -= PixelOffset.FromWhole(0, 2);
+                PlaceAbout(samus);
                 if (Position.Y.Whole < _restY - 223)
                     (_phase, _escapeSpeed) = (Phase.AcceleratingLiftoff, Pixels.FromWhole(2));
                 break;
@@ -364,7 +374,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
     /// <summary>With Samus standing on its hatch, a press of down takes her in.</summary>
     private void TakeSamusIn(Player samus)
     {
-        if (!samus.Input.WasPressed(GameAction.Down) || samus.State is not StandingState)
+        if (!samus.Input.WasPressed(GameAction.Down) || samus.State is not (StandingState or StandingForwardState))
             return;
         PixelOffset from = samus.Position - Position;
         if (from.X.Whole <= -8 || from.X.Whole > 8 || from.Y.Whole <= -64 || from.Y.Whole > 0)
@@ -373,7 +383,14 @@ public partial class Gunship : RoomObject, ITriggerTarget
 
         // Going aboard ends an elevator's ride and disarms its door.
         ElevatorJourney.Of(Room.Session).End();
-        samus.Position = new PixelPosition(Position.X, samus.Position.Y);
+
+        // She is put over the ship's middle, keeping her part of a pixel, and the view does not follow that.
+        if (samus.Position.X.Whole != Position.X.Whole)
+        {
+            samus.Position = new PixelPosition(samus.Position.X.WithWhole(Position.X.Whole), samus.Position.Y);
+            Room.Session.Camera.TakePlayerToHaveStoodAtX(samus.Position.X.Whole);
+        }
+
         OpenHatch();
         _phase = Phase.WaitForHatchToOpen;
     }
@@ -382,17 +399,15 @@ public partial class Gunship : RoomObject, ITriggerTarget
     private static bool Refill(Player samus)
     {
         Inventory inventory = samus.Inventory;
-        bool shortOfAny = false;
-        foreach (string amount in new[] { Inventory.Energy, Amounts.ReserveEnergy, Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs })
-        {
-            // Her reserves fill once her energy has.
-            if (amount == Amounts.ReserveEnergy && !inventory.IsFull(Inventory.Energy))
-            {
-                shortOfAny |= !inventory.IsFull(amount);
-                continue;
-            }
 
-            inventory.Add(amount, 2);
+        // Her energy takes its two; what of them it has no room for goes to her reserves, on the same update.
+        int taken = inventory.Add(Inventory.Energy, RefillEach);
+        if (inventory.IsFull(Inventory.Energy))
+            inventory.Add(Amounts.ReserveEnergy, RefillEach - taken);
+        bool shortOfAny = !inventory.IsFull(Inventory.Energy) || !inventory.IsFull(Amounts.ReserveEnergy);
+        foreach (string amount in new[] { Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs })
+        {
+            inventory.Add(amount, RefillEach);
             shortOfAny |= !inventory.IsFull(amount);
         }
 
@@ -404,8 +419,13 @@ public partial class Gunship : RoomObject, ITriggerTarget
         _escapeSpeed += Pixels.FromNumber(0.25);
         if (_escapeSpeed >= Pixels.FromWhole(10))
             _escapeSpeed = Pixels.FromWhole(9);
-        MoveWithSamus(samus, -_escapeSpeed);
+        samus.Position -= new PixelOffset(Pixels.Zero, _escapeSpeed);
+        PlaceAbout(samus);
     }
+
+    /// <summary>Sets the ship about Samus: its top a set height above her whole place, keeping its own part of a pixel.</summary>
+    private void PlaceAbout(Player samus) =>
+        Position = new PixelPosition(Position.X, Position.Y.WithWhole(samus.Position.Y.Whole - TopAboveSamus));
 
     /// <summary>Moves the ship, and Samus with it.</summary>
     private void MoveWithSamus(Player samus, Pixels down)

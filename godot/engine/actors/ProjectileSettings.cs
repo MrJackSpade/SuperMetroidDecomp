@@ -11,7 +11,7 @@ namespace Engine.Actors;
 /// </summary>
 /// <remarks>
 /// <code>
-/// { "width": 8, "height": 8, "meeting_terrain": "ends", "meeting_target": "ends", "met_by_shot": "ignored",
+/// { "width": 8, "height": 8, "meeting_terrain": "ends", "terrain_at_middle": false, "meeting_target": "ends", "met_by_shot": "ignored",
 ///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "view_margin_below": 96, "picture": "shots/beam.png",
 ///   "terrain_shake": { "strength": 1, "updates": 30, "way": "both" } }
 /// </code>
@@ -94,6 +94,12 @@ public sealed record ProjectileSettings
 
     /// <summary>What it does on meeting terrain or a solid.</summary>
     public Terrain MeetingTerrain { get; init; }
+
+    /// <summary>
+    /// Whether it meets terrain at its middle point alone, and lands its hit on the terrain there: its width and
+    /// height are then only what targets and solids meet.
+    /// </summary>
+    public bool TerrainAtMiddle { get; init; }
 
     /// <summary>What it does on hurting a target.</summary>
     public Target MeetingTarget { get; init; }
@@ -205,6 +211,7 @@ public sealed record ProjectileSettings
             Width = data.Has("width") ? data.Int("width") : plain.Width,
             Height = data.Has("height") ? data.Int("height") : plain.Height,
             MeetingTerrain = data.Has("meeting_terrain") ? data.Get("meeting_terrain").AsEnum<Terrain>() : plain.MeetingTerrain,
+            TerrainAtMiddle = data.Has("terrain_at_middle") && data.Flag("terrain_at_middle"),
             MeetingTarget = data.Has("meeting_target") ? data.Get("meeting_target").AsEnum<Target>() : plain.MeetingTarget,
             MetByShot = data.Has("met_by_shot") ? data.Get("met_by_shot").AsEnum<MetBy>() : plain.MetByShot,
             Motion = data.Has("motion") ? data.Get("motion").AsEnum<Moves>() : plain.Motion,

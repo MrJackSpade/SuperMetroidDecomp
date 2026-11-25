@@ -412,9 +412,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
 
         if (passes && hitsTerrain)
-            room.Terrain.TakeHit(Hit, area);
+            room.Terrain.TakeHit(Hit, TerrainArea);
 
-        if (!passes && room.Terrain.IsSolidIn(area, SlopeTreatment.Wall))
+        if (!passes && room.Terrain.IsSolidIn(TerrainArea, SlopeTreatment.Wall))
             return StopAgainst(room, previous, next, hitsTerrain);
 
         // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
@@ -521,6 +521,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         return true;
     }
 
+    /// <summary>What of the projectile meets terrain: all it covers, or its middle point alone when its settings say so.</summary>
+    private PixelRect TerrainArea => _settings.TerrainAtMiddle ? new PixelRect(Position.X.Whole, Position.Y.Whole, 1, 1) : Area;
+
     /// <summary>
     /// Stops the projectile against terrain or something solid it has met in moving from <paramref name="previous"/>
     /// to <paramref name="next"/>: it bounces off, or it ends there. Always returns false: it travels no further this update.
@@ -528,10 +531,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     private bool StopAgainst(Room room, PixelPosition previous, PixelPosition next, bool hitsTerrain)
     {
         if (hitsTerrain)
-            room.Terrain.TakeHit(Hit, Area);
+            room.Terrain.TakeHit(Hit, TerrainArea);
         if (_settings.MeetingTerrain == ProjectileSettings.Terrain.Bounces)
         {
-            bool acrossBlocked = room.Terrain.IsSolidIn(Area.MovedBy(0, previous.Y.Whole - next.Y.Whole), SlopeTreatment.Wall);
+            bool acrossBlocked = room.Terrain.IsSolidIn(TerrainArea.MovedBy(0, previous.Y.Whole - next.Y.Whole), SlopeTreatment.Wall);
             Velocity = acrossBlocked ? Velocity.WithX(-Velocity.X) : Velocity.WithY(-Velocity.Y);
             Position = previous;
             return false;

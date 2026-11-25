@@ -332,6 +332,8 @@ public sealed partial class EngineAssetWriter
         projectile["acceleration"] = EngineNames.Number(super ? Along(straight.SuperMissile) : Along(straight.Beam) + Along(straight.Missile));
         projectile["diagonal_acceleration"] = EngineNames.Number(super ? Along(slanted.SuperMissile) : Along(slanted.Beam) + Along(slanted.Missile));
         projectile["meeting_terrain"] = "ends_and_hits";
+        // A missile tests the terrain at its middle point, not across its width.
+        projectile["terrain_at_middle"] = true;
         projectile["meeting_target"] = "ends";
         string burst = $"samus/shots/{name}_burst.json";
         _tree.WriteData(burst, ShotTimeline(pictures, super ? Segment.SuperMissileExplosion : Segment.MissileExplosion, sized: false));

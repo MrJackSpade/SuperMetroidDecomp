@@ -39,7 +39,13 @@ public sealed record Hit
     /// <summary>How many updates fewer than for any other hit what it harms shows that it was hurt: a blow that shows for less.</summary>
     public int FlashFewer { get; init; }
 
-    /// <summary>Whatever delivered the hit, when its target needs to know.</summary>
+    /// <summary>
+    /// Where what delivers the hit is as it lands, when that is something with a place of its own, as a shot is: for
+    /// whatever shows where it was struck or reckons from there. Null for a hit that comes of nothing with a place.
+    /// </summary>
+    public PixelPosition? At { get; init; }
+
+    /// <summary>Whoever caused the hit, when its target needs to know: the launcher of a shot, not the shot.</summary>
     public object? Source { get; init; }
 
     /// <summary>Whether the hit carries <paramref name="kind"/>.</summary>

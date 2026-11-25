@@ -57,6 +57,8 @@ public sealed partial class EngineAssetWriter
         const string directory = GameInstallationLayout.RoomObjectKraidVisualDirectoryName;
         string armKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.KraidArm), footKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.KraidFoot);
         EngineEnemy kraid = Enemy("bosses/kraid.json", "Kraid", EnemyDefinitionId.Kraid, armKey, footKey);
+        // What a shot that does it no harm leaves is its own class's, part by part.
+        kraid.Data.Remove("dud");
         List<(RoomDefinition Room, RoomStateSettings State)> states = StatesHolding(EnemyDefinitionId.Kraid);
 
         // What it does to its room: the ceiling's blocks it breaks as it grows, each with the rock that falls from

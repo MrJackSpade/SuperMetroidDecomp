@@ -132,7 +132,7 @@ public partial class Metroid : Enemy
         }
 
         // A shot throws it back from where the shot was, harder the further off it was.
-        PixelPosition from = hit.Source is ICollisionOwner source ? source.Position : Room.Player.Position;
+        PixelPosition from = hit.At ?? Room.Player.Position;
         Velocity = new PixelVelocity(
             Pixels.FromWhole(Position.X.Whole - from.X.Whole).Share(1, 8),
             Pixels.FromWhole(Position.Y.Whole - from.Y.Whole).Share(1, 8));

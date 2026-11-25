@@ -3,6 +3,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
 
 namespace SuperMetroid.AssetExtraction.Engine;
@@ -54,6 +55,12 @@ internal sealed partial class EngineEnemy
         if (Definition.HurtSoundEffect is { } cry && EngineNames.Sound(cry) is not null)
             Data["hurt_sound"] = EngineNames.Sound(cry, SoundRequestPriority.Low);
         Data["status_sounds"] = new JsonObject { ["frozen"] = EngineNames.Sound(RoomSound.EnemyFrozen, SoundRequestPriority.Low) };
+        // A shot or a bomb that does it no harm leaves the dud's flash where it is, with the dud's sound, and is spent.
+        Data["dud"] = new JsonObject
+        {
+            ["effect"] = EngineAssetWriter.EffectFile(RoomEffectActorKind.DudShot),
+            ["sound"] = EngineNames.Sound(SamusSound.DudShot, SoundRequestPriority.Low),
+        };
     }
 
     /// <summary>What the old game's list of enemies says of it.</summary>

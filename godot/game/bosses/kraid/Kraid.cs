@@ -417,8 +417,8 @@ public partial class Kraid : Enemy
         if (part.Name == "Mouth")
         {
             // A shot in its mouth that does no harm leaves the dud's own effect, not its body's explosion.
-            if (MouthDudEffect.Length > 0 && hit.Source is Node2D dudShot)
-                LeaveEffect(MouthDudEffect, PixelPosition.FromWhole((int)dudShot.Position.X, (int)dudShot.Position.Y));
+            if (MouthDudEffect.Length > 0 && hit.At is { } dudAt)
+                LeaveEffect(MouthDudEffect, dudAt);
             Sound(DudSound, SoundPriority.Low);
             MarkMouthHit();
             return;
@@ -427,8 +427,8 @@ public partial class Kraid : Enemy
         // A shot at its arm or its body does no harm and leaves its explosion; one at its body also makes its eye glow
         // and its mouth open, and a charged one, three times over.
         string dud = hit.CarriesAny([new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.PowerBomb)]) ? BigDudEffect : DudEffect;
-        if (dud.Length > 0 && hit.Source is Node2D shot)
-            LeaveEffect(dud, PixelPosition.FromWhole((int)shot.Position.X, (int)shot.Position.Y));
+        if (dud.Length > 0 && hit.At is { } shotAt)
+            LeaveEffect(dud, shotAt);
         Sound(DudSound);
         if (IsArmShield(part) || _stage != Stage.Fighting || _fight != Fight.FirstThinking)
             return;

@@ -31,6 +31,8 @@ public sealed partial class EngineAssetWriter
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Crocomire)),
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.CrocomireTongue)));
         var crocomire = new EngineEnemy(_tree, _sheets, file, "Crocomire", EnemyDefinitionId.Crocomire, pictures);
+        // What a shot that does it no harm leaves is its own class's, part by part.
+        crocomire.Data.Remove("dud");
 
         // What it does to its room. The Godot project's room asks for the bridge's crumbling and collapse and the
         // opened spike wall by name; the walls that hold Samus in while it dies are named by its data.

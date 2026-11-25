@@ -20,10 +20,12 @@ namespace Engine.Actors;
 /// "reactions": [ ... ], "drops": { ... }, "colliders": { ... }, "timelines": { ... },
 /// "shots": { "spit": { "damage": 10, "speed": 2, "projectile": { ... } } },
 /// "hurt_flash_updates": 8, "stunned_while_hurt": true, "hurt_sound": "cry", "status_sounds": { "frozen": "enemy_frozen" },
+/// "dud": { "effect": "effects/dud_shot.json", "sound": "dud_shot:low" },
 /// "death": { "effect": "effects/small_explosion.json", "sound": "enemy_killed",
 ///            "by_kind": { "power_bomb": "effects/other_explosion.json" } },
 /// "picture_offset": { "x": -8, "y": -8 }
 /// </code>
+/// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
 /// "death" names the timeline its death plays, which its <see cref="Remains"/> play out before its drop appears;
 /// "by_kind" names another for a death by a hit carrying a kind, the first listed that the hit carries.
 /// </remarks>
@@ -89,6 +91,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private readonly Dictionary<string, ShotType> _shots = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _statusSounds = new(StringComparer.Ordinal);
     private string _hurtSound = "";
+    private string _dudEffect = "";
+    private string _dudSound = "";
     private Enemy? _replacement;
     private int _respawnUpdates = 64;
     private string _deathEffect = "";
@@ -206,6 +210,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
         StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
         _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";
+        _dudEffect = data.Has("dud") && data.Get("dud").Has("effect") ? data.Get("dud").Text("effect") : "";
+        _dudSound = data.Has("dud") && data.Get("dud").Has("sound") ? data.Get("dud").Text("sound") : "";
         _deathEffect = data.Has("death") && data.Get("death").Has("effect") ? data.Get("death").Text("effect") : "";
         _deathSound = data.Has("death") && data.Get("death").Has("sound") ? data.Get("death").Text("sound") : "";
         _deathEffectsByKind.Clear();
@@ -448,9 +454,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return HitResult.Hurt;
         if (damage == 0)
         {
-            if (!takesStatus)
-                OnAbsorbed(hit, part);
-            return takesStatus ? HitResult.Hurt : HitResult.Absorbed;
+            if (takesStatus)
+                return HitResult.Hurt;
+            HitResult answer = LeaveDud(hit);
+            OnAbsorbed(hit, part);
+            return answer;
         }
 
         health.Take(damage);
@@ -495,6 +503,21 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>What the enemy leaves when it is destroyed, as its data file gives it.</summary>
     protected DropTable Drops => _drops;
+
+    /// <summary>
+    /// Leaves what the enemy's data gives for a shot that does it no harm ("dud"), where the shot is, and asks for
+    /// the dud's sound. Only a hit that comes of something with a place leaves it, and only an enemy whose data gives
+    /// one: the answer is then that the hit was a dud, and otherwise that it was absorbed.
+    /// </summary>
+    private HitResult LeaveDud(Hit hit)
+    {
+        if (hit.At is not { } at || (_dudEffect.Length == 0 && _dudSound.Length == 0))
+            return HitResult.Absorbed;
+        if (_dudEffect.Length > 0)
+            LeaveEffect(_dudEffect, at);
+        Sound(_dudSound);
+        return HitResult.Dud;
+    }
 
     /// <summary>Called when a hit landed on the enemy and did it no damage and gave it no status.</summary>
     protected virtual void OnAbsorbed(Hit hit, Collider part)

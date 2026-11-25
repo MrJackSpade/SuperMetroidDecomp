@@ -441,7 +441,7 @@ public partial class Crocomire : Enemy
             return;
         }
 
-        PixelPosition at = hit.Source is ICollisionOwner source ? source.Position : Position;
+        PixelPosition at = hit.At ?? Position;
         switch (PartMet(part).Shot)
         {
             case "absorbed" or "plain":

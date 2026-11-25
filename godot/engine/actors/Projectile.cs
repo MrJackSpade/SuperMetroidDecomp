@@ -522,7 +522,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
         _alreadyHurt.Add(this);
-        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, area, from: _launcher, skipping: _alreadyHurt, landsOn: landsOn).ToList())
+        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit with { At = Position }, area, from: _launcher, skipping: _alreadyHurt, landsOn: landsOn).ToList())
         {
             OnMetTarget(room, target, result);
             if (result != HitResult.Ignored && !_shookForTarget && _settings.TargetShake is { } targetShake)
@@ -549,6 +549,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                     return false;
                 case HitResult.Absorbed:
                     End(room);
+                    return false;
+                case HitResult.Dud:
+                    // Its target has shown the dud: it is gone with nothing of its own left behind.
+                    OnEnded(room);
+                    Leave(room);
                     return false;
                 case HitResult.Hurt:
                 case HitResult.Destroyed:

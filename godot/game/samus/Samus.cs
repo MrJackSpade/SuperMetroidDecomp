@@ -640,6 +640,11 @@ public partial class Samus : Player
             Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
         }
 
+        // A fresh press of the attack on the update a jump's pose is taken up, or changed, hands the shot to the
+        // next update's firing.
+        if (to is JumpingState handing && Input.WasPressed(GameAction.Attack) && (!ReferenceEquals(from, to) || handing.TookUpStance))
+            _shotHanded = true;
+
         if (to is JumpingState jump)
         {
             if (ReferenceEquals(from, to))
@@ -770,6 +775,8 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
+        (_shotHandedNow, _shotHanded) = (_shotHanded, false);
         StartCrystalFlashIfOffered();
         _ranFromStart = State is RunningState;
         _spunAtStart = State is SpinJumpingState or WallJumpingState;
@@ -950,7 +957,21 @@ public partial class Samus : Player
 
         Weapons.Select(weapon);
         int liveBefore = Weapons.LiveOf(weapon).Count;
-        base.Attack(input);
+        if (_shotHandedNow && weapon == Arsenal.Beam && Weapons.Selected is { } beam && beam.Charges(Inventory))
+        {
+            // A handed shot makes a beam that charges let its charge go at once, before the hold is asked about: a
+            // full charge as a charged shot, anything less as a plain one, if the wait and the places allow one at
+            // all. The charge starts over either way.
+            bool full = Weapons.IsCharged;
+            Weapons.StepCooldown();
+            Weapons.DropCharge();
+            Weapons.Fire(this, beam, full);
+        }
+        else
+        {
+            base.Attack(input);
+        }
+
         bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
 
         // The charge begins to sound a little way into it, on the weapons' channel, so that the shot's own sound
@@ -1238,6 +1259,9 @@ public partial class Samus : Player
     }
 
     private readonly Compatibility.ShotInheritance _shotInheritance = new();
+
+    /// <summary>Whether this update's change of pose handed a shot to the next update's firing, and whether the last one's did.</summary>
+    private bool _shotHanded, _shotHandedNow;
 
     /// <inheritdoc/>
     protected override void OnBodyMoved(bool across, Pixels asked, Pixels moved) => _shotInheritance.Record(across, asked, moved);

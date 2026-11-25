@@ -78,12 +78,16 @@ public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasVal
     {
     }
 
+    /// <summary>Whether this one takes its turn among the enemies, as where it is placed says.</summary>
+    [Export]
+    public bool TurnsWithEnemies { get; set; }
+
     /// <summary>
     /// Whether it takes its turn among the enemies, in the order all joined the room: before the player moves, and
     /// held still with the enemies. Every other object takes its turn with the room's objects, after the player and
-    /// the projectiles.
+    /// the projectiles. A kind that always does says so itself; any other does where its placing says so.
     /// </summary>
-    public virtual bool ActsWithEnemies => false;
+    public virtual bool ActsWithEnemies => TurnsWithEnemies;
 
     /// <summary>Plays one update of the object.</summary>
     internal void Step() => OnStep();

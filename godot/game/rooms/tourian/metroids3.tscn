@@ -121,30 +121,39 @@ PresentWhen = SubResource("r7")
 
 [node name="RinkaSource" parent="." instance=ExtResource("7")]
 position = Vector2(264, 72)
+TurnsWithEnemies = true
 
 [node name="RinkaSource2" parent="." instance=ExtResource("7")]
 position = Vector2(24, 72)
+TurnsWithEnemies = true
 
 [node name="RinkaSource3" parent="." instance=ExtResource("7")]
 position = Vector2(40, 184)
+TurnsWithEnemies = true
 
 [node name="RinkaSource4" parent="." instance=ExtResource("7")]
 position = Vector2(232, 184)
+TurnsWithEnemies = true
 
 [node name="RinkaSource5" parent="." instance=ExtResource("7")]
 position = Vector2(440, 72)
+TurnsWithEnemies = true
 
 [node name="RinkaSource6" parent="." instance=ExtResource("7")]
 position = Vector2(616, 72)
+TurnsWithEnemies = true
 
 [node name="RinkaSource7" parent="." instance=ExtResource("7")]
 position = Vector2(616, 184)
+TurnsWithEnemies = true
 
 [node name="RinkaSource8" parent="." instance=ExtResource("7")]
 position = Vector2(1496, 72)
+TurnsWithEnemies = true
 
 [node name="RinkaSource9" parent="." instance=ExtResource("7")]
 position = Vector2(1464, 184)
+TurnsWithEnemies = true
 
 [node name="Cleared" type="Node" parent="."]
 script = ExtResource("8")

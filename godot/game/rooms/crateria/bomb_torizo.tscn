@@ -190,6 +190,7 @@ ScrollShare = Vector2(0.75, 0.75)
 
 [node name="EscapeDachora" parent="." instance=ExtResource("13")]
 position = Vector2(224, 184)
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="EscapeEtecoon" parent="." instance=ExtResource("14")]
@@ -197,6 +198,7 @@ position = Vector2(128, 200)
 Waits = false
 StartsFacing = 0
 RunSpeed = 2
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="EscapeEtecoon2" parent="." instance=ExtResource("14")]
@@ -204,6 +206,7 @@ position = Vector2(160, 200)
 Waits = false
 StartsFacing = 1
 RunSpeed = 2.5
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="EscapeEtecoon3" parent="." instance=ExtResource("14")]
@@ -211,6 +214,7 @@ position = Vector2(232, 200)
 Waits = true
 StartsFacing = 1
 RunSpeed = 2
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="GreyCap2" parent="." instance=ExtResource("11")]

@@ -67,12 +67,15 @@ SamusStep = 0.78125
 
 [node name="RinkaSource" parent="." instance=ExtResource("5")]
 position = Vector2(232, 440)
+TurnsWithEnemies = true
 
 [node name="RinkaSource2" parent="." instance=ExtResource("5")]
 position = Vector2(232, 520)
+TurnsWithEnemies = true
 
 [node name="RinkaSource3" parent="." instance=ExtResource("5")]
 position = Vector2(8, 584)
+TurnsWithEnemies = true
 
 [node name="RedCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 608)

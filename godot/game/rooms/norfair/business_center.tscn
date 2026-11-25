@@ -118,6 +118,7 @@ SamusStep = 0.0
 position = Vector2(128, 706)
 GoesDown = false
 ArrivesAtY = 24
+TurnsWithEnemies = true
 RestsOn = Rect2i(112, 704, 32, 16)
 
 [node name="Sova" parent="." instance=ExtResource("6")]

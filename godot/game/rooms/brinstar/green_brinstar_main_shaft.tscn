@@ -182,6 +182,7 @@ SamusStep = 0.78125
 position = Vector2(128, 706)
 GoesDown = false
 ArrivesAtY = 24
+TurnsWithEnemies = true
 RestsOn = Rect2i(112, 704, 32, 16)
 
 [node name="Zeela" parent="." instance=ExtResource("7")]
@@ -240,14 +241,17 @@ CrawlSpeed = 0.5
 [node name="Etecoon" parent="." instance=ExtResource("9")]
 position = Vector2(607, 2968)
 Route = 0
+TurnsWithEnemies = true
 
 [node name="Etecoon2" parent="." instance=ExtResource("9")]
 position = Vector2(623, 2968)
 Route = 1
+TurnsWithEnemies = true
 
 [node name="Etecoon3" parent="." instance=ExtResource("9")]
 position = Vector2(639, 2968)
 Route = 2
+TurnsWithEnemies = true
 
 [node name="PowerBombTank" parent="." instance=ExtResource("10")]
 position = Vector2(968, 1960)

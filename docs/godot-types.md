@@ -529,7 +529,10 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 - **Its turn:** with the room's objects, after the player and the projectiles. A kind that says it acts with the
   enemies (`ActsWithEnemies`) takes its turn among them instead, in the order all joined the room: before the
   player moves, held still when the enemies are, and on the updates of a passage between rooms on which the
-  enemies take their turns. A thing the player's movement must find already moved, as an elevator, is such a kind.
+  enemies take their turns. A thing the player's movement must find already moved, as an elevator, is such a kind;
+  and any object does where its placing says so (`TurnsWithEnemies`), which this game's rooms say for everything
+  the cartridge steps as an enemy: the gunship, Ceres's doors and steam, the animals, the morph ball's eye, the
+  Rinka sources.
 
 | Kind | Manages | Settings |
 | --- | --- | --- |

@@ -79,10 +79,12 @@ SamusStep = 0.78125
 [node name="CeresDoor" parent="." instance=ExtResource("6")]
 position = Vector2(32, 127)
 DataFile = "objects/ceres_door_right.json"
+TurnsWithEnemies = true
 
 [node name="CeresDoor2" parent="." instance=ExtResource("6")]
 position = Vector2(224, 383)
 DataFile = "objects/ceres_door_left.json"
+TurnsWithEnemies = true
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("7")
@@ -105,26 +107,31 @@ PresentWhen = SubResource("r5")
 [node name="Steam" parent="." instance=ExtResource("10")]
 position = Vector2(112, 156)
 DataFile = "objects/ceres_steam_up.json"
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam2" parent="." instance=ExtResource("10")]
 position = Vector2(194, 176)
 DataFile = "objects/ceres_steam_right.json"
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam3" parent="." instance=ExtResource("10")]
 position = Vector2(120, 278)
 DataFile = "objects/ceres_steam_up.json"
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam4" parent="." instance=ExtResource("10")]
 position = Vector2(62, 304)
 DataFile = "objects/ceres_steam_left.json"
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam5" parent="." instance=ExtResource("10")]
 position = Vector2(136, 404)
 DataFile = "objects/ceres_steam_up.json"
+TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Backdrop2" type="Node2D" parent="."]

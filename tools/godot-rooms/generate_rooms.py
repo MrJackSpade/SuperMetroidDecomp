@@ -477,6 +477,10 @@ class Generator:
             by_index = dict(enemies.places(self.populations[state.enemies], enemies.RULES, self.unplaced))
             ctx = Context(self, scene, room, self.quotas[state.enemies])
             for placed in by_index.values():
+                # What the old game steps as an enemy and the Godot game places as a room object still takes its
+                # turn among the enemies, before Samus moves.
+                if not placed.enemy and placed.scene.endswith('.tscn'):
+                    placed.properties.setdefault('TurnsWithEnemies', 'true')
                 things.append(placed)
                 links[id(placed)] = {name: by_index[target] for name, target in placed.refers.items()}
                 if placed.until_beaten:

@@ -119,6 +119,7 @@ position = Vector2(744, 96)
 [node name="Dachora" parent="." instance=ExtResource("9")]
 position = Vector2(96, 1704)
 StartsFacing = 1
+TurnsWithEnemies = true
 
 [node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 96)

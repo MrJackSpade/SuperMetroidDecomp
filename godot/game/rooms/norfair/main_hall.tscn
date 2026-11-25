@@ -76,6 +76,7 @@ SamusStep = 0.0
 position = Vector2(1152, 674)
 GoesDown = false
 ArrivesAtY = 24
+TurnsWithEnemies = true
 RestsOn = Rect2i(1136, 672, 32, 16)
 
 [node name="Dragon" parent="." instance=ExtResource("6")]

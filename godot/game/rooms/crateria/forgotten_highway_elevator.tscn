@@ -59,6 +59,7 @@ SamusStep = 0.0
 position = Vector2(128, 192)
 GoesDown = true
 ArrivesAtY = 320
+TurnsWithEnemies = true
 RestsOn = Rect2i(112, 192, 32, 16)
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]

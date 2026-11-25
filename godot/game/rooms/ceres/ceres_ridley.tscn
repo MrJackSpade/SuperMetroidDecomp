@@ -86,6 +86,7 @@ PresentWhen = SubResource("r5")
 position = Vector2(16, 127)
 DataFile = "objects/ceres_ridley_room_door.json"
 HeldShutBy = SubResource("r6")
+TurnsWithEnemies = true
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")

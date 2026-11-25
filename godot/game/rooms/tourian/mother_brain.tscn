@@ -148,6 +148,7 @@ EnemyScene = ExtResource("9")
 IntervalUpdates = 1
 Places = Array[Vector2i]([Vector2i(999, 38), Vector2i(999, 166), Vector2i(823, 54), Vector2i(823, 166), Vector2i(631, 28), Vector2i(631, 182), Vector2i(439, 54), Vector2i(439, 166), Vector2i(247, 28), Vector2i(247, 182), Vector2i(128, 168)])
 OwnPlace = 2
+TurnsWithEnemies = true
 PresentWhen = SubResource("r10")
 
 [node name="RinkaSource2" parent="." instance=ExtResource("10")]
@@ -156,6 +157,7 @@ EnemyScene = ExtResource("9")
 IntervalUpdates = 1
 Places = Array[Vector2i]([Vector2i(999, 38), Vector2i(999, 166), Vector2i(823, 54), Vector2i(823, 166), Vector2i(631, 28), Vector2i(631, 182), Vector2i(439, 54), Vector2i(439, 166), Vector2i(247, 28), Vector2i(247, 182), Vector2i(128, 168)])
 OwnPlace = 3
+TurnsWithEnemies = true
 PresentWhen = SubResource("r10")
 
 [node name="RinkaSource3" parent="." instance=ExtResource("10")]
@@ -164,6 +166,7 @@ EnemyScene = ExtResource("9")
 IntervalUpdates = 1
 Places = Array[Vector2i]([Vector2i(999, 38), Vector2i(999, 166), Vector2i(823, 54), Vector2i(823, 166), Vector2i(631, 28), Vector2i(631, 182), Vector2i(439, 54), Vector2i(439, 166), Vector2i(247, 28), Vector2i(247, 182), Vector2i(128, 168)])
 OwnPlace = 4
+TurnsWithEnemies = true
 PresentWhen = SubResource("r10")
 
 [node name="MotherBrainGlass" parent="." instance=ExtResource("11")]

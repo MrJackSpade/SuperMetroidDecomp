@@ -72,6 +72,7 @@ SamusStep = 0.78125
 position = Vector2(128, 704)
 GoesDown = false
 ArrivesAtY = 24
+TurnsWithEnemies = true
 RestsOn = Rect2i(112, 704, 32, 16)
 
 [node name="Ripper" parent="." instance=ExtResource("6")]

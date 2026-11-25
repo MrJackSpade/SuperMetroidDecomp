@@ -88,6 +88,7 @@ SamusStep = 0.78125
 position = Vector2(552, 616)
 Faces = 1
 MountedOn = 1
+TurnsWithEnemies = true
 PresentWhen = SubResource("r5")
 
 [node name="FaceBlock" parent="." instance=ExtResource("7")]

@@ -107,12 +107,14 @@ SamusStep = 0.78125
 position = Vector2(1032, 584)
 Faces = 0
 MountedOn = 0
+TurnsWithEnemies = true
 PresentWhen = SubResource("r6")
 
 [node name="Elevator" parent="." instance=ExtResource("7")]
 position = Vector2(1408, 706)
 GoesDown = false
 ArrivesAtY = 24
+TurnsWithEnemies = true
 RestsOn = Rect2i(1392, 704, 32, 16)
 
 [node name="FaceBlock" parent="." instance=ExtResource("8")]

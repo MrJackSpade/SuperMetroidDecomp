@@ -74,6 +74,14 @@
   - A presentation ticket is closed unworked only when matching the cartridge there would need
     a weird, unclean or non-idiomatic design, and the ticket says which design that would be
     and why there is no clean way. "It changes nothing of play" is never a reason to close one.
+  - No presentation ticket is closed, as done or as not to be done, without a comment that says
+    whether the resolution broke the project's idiomatic design. The owner's words: "Every
+    single ticket about a presentation level disparity needs to be closed with a comment about
+    whether or not that resolution broke the idiomatic design of the project. You will not
+    close any presentation parity issues as done, or wont do, without this justification."
+    Done: the comment says how the look was got and that the design is whole, or what it cost.
+    Not done: the comment names the design matching it would have needed and why that is
+    unclean. The same holds when a finished one is labelled for validation.
   - An old mechanism is not copied to get a look: "You can't have idiomatic design if you're
     trying to port archaic design patterns." The look is matched in the Godot design, or the
     ticket is closed for the reason above.

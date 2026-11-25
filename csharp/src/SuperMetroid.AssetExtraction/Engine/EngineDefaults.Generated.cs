@@ -78,6 +78,7 @@ internal static partial class EngineDefaults
         ["EyeDoorSpit"] = "Projectile",
         ["EyeDoorSweat"] = "Projectile",
         ["FaceBlock"] = "Enemy",
+        ["FaceBlockGlow"] = "RoomObject",
         ["FakeKraid"] = "Enemy",
         ["FallingSpark"] = "Projectile",
         ["FileSelectMode"] = "GameMode",

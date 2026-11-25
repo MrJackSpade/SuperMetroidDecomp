@@ -3,6 +3,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -62,6 +63,10 @@ public partial class WorkRobot : Enemy
     [Export, DataValue("footstep_sound")]
     public string FootstepSound { get; set; } = "";
 
+    /// <summary>The sound of its laser, by name, heard only from where <see cref="LaserIsHeard"/> says.</summary>
+    [Export, DataValue("laser_sound")]
+    public string LaserSound { get; set; } = "";
+
     private int _cooldown;
     private Pixels _fallSpeed;
 
@@ -119,10 +124,28 @@ public partial class WorkRobot : Enemy
                 Pixels down = parts[1] == "up" ? -slant : parts[1] == "down" ? slant : Pixels.Zero;
                 string shot = parts[1] == "level" ? "laser_level" : "laser_diagonal";
                 PixelPosition muzzle = PixelPosition.FromWhole(Position.X.Whole + (Facing == Facing.Left ? -MuzzleAhead : MuzzleAhead), Position.Y.Whole - MuzzleAbove);
-                Fire(shot, muzzle, new PixelVelocity(Facing.Toward(Shot(shot).Speed), down));
+                ShotType type = Shot(shot);
+                Projectile laser = type.Launch(muzzle, new PixelVelocity(Facing.Toward(type.Speed), down), HitSide.Enemies, this, this);
+                if (Room.Spawn(laser) && LaserIsHeard())
+                    Sound(LaserSound);
                 Play(parts[2], restart: true);
                 break;
         }
+    }
+
+    /// <summary>
+    /// Whether a laser it fires is heard. The cartridge asks for the sound only when its body reaches into the view's
+    /// columns, its bottom reaches the view's top or below, and its top lies less than a view's height below the top
+    /// of the room, wherever the view stands down the room: one lower in its room fires silently even in view.
+    /// </summary>
+    private bool LaserIsHeard()
+    {
+        PixelRect body = (Body ?? throw new InvalidOperationException($"The Work Robot \"{Name}\" has no body.")).RoomRect;
+        Camera camera = Room.Session.Camera;
+        return body.Right - camera.Left >= 0 &&
+            body.Left - (camera.Width + 1) - camera.Left < 0 &&
+            body.Bottom - camera.Top >= 0 &&
+            body.Top - camera.Height < 0;
     }
 
     /// <summary>Counts its cooldown down by one.</summary>

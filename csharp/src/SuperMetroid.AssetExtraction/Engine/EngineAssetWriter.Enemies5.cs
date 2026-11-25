@@ -207,7 +207,6 @@ public sealed partial class EngineAssetWriter
         static void RobotLaser(EngineEnemy robot, JsonObject shot, JsonObject projectile)
         {
             shot["speed"] = EngineNames.Number(WorkRobotLaserDefinitions.Speed);
-            shot["sound"] = EngineNames.Sound(EnemySoundEffectDefinitions.WorkRobotLaserSound);
             projectile["timeline"] = robot.SpawnedTimeline("laser", WorkRobotLaserAnimations.Segments,
                 WorkRobotLaserAnimations.StartingAt[WorkRobotLaserSegment.Flare], EngineEnemy.EndsOnly);
             projectile["picture_offset"] = EngineEnemy.NoOffset();
@@ -223,6 +222,7 @@ public sealed partial class EngineAssetWriter
             .Value("muzzle_above", WorkRobotLaserDefinitions.MuzzleAbove)
             .Value("laser_slant_speed", EngineNames.Number(WorkRobotLaserDefinitions.DiagonalVerticalSpeed))
             .Value("footstep_sound", EngineNames.Sound(EnemySoundEffectDefinitions.WorkRobotFootstepSound))
+            .Value("laser_sound", EngineNames.Sound(EnemySoundEffectDefinitions.WorkRobotLaserSound))
             .Shot("laser_level", RoomEnemyProjectileKind.WorkRobotLaserHorizontal, RobotLaser)
             .Shot("laser_diagonal", RoomEnemyProjectileKind.WorkRobotLaserDiagonal, RobotLaser);
         foreach ((WorkRobotSegment segment, SuperMetroid.Core.Animation.Animation<WorkRobotSegment> animation) in WorkRobotAnimations.StartingAt)

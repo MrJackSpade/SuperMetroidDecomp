@@ -45,6 +45,7 @@ public partial class CeresDestruction : Cinematic
         FlyingAwayFromExplosion,
         HoldingAfterExplosion,
         FadingOutCeres,
+        SettingUpZebes,
         FadingInZebes,
         ClearingZebes,
         ShowingTitle,
@@ -256,6 +257,11 @@ public partial class CeresDestruction : Cinematic
                     break;
                 }
 
+                // The planet is set up on the next update, which is black throughout.
+                _phase = Phase.SettingUpZebes;
+                break;
+
+            case Phase.SettingUpZebes:
                 SetUpZebes();
                 _phase = Phase.FadingInZebes;
                 break;

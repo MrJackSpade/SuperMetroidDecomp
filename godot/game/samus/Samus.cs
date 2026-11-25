@@ -669,10 +669,13 @@ public partial class Samus : Player
         if (!stepsOn)
             return to;
         Facing headed = from is MoonwalkingState ? Facing.Opposite() : Facing;
+
+        // Stopped by a wall or by something solid, the run does not begin: she is left in the wall-stop pose, aiming
+        // as she was.
         MoveResult step = Room.Mover.MoveAcross(Body, headed.Toward(Pixels.FromWhole(1)), BodyMoves);
         if (!step.Blocked)
             return to;
-        return from is StandingState or WallStoppedState ? from : new StandingState();
+        return from is WallStoppedState ? from : new WallStoppedState();
     }
 
     /// <summary>

@@ -123,10 +123,18 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <summary>
     /// Waits for a direction, which launches her only with the jump held, the first of these that holds, as the
     /// cartridge has it: up launches her straight up, the angle-up action diagonally the way she faces, and the way she
-    /// faces across. The way behind her does nothing. The windup running out launches her straight up.
+    /// faces across. The way behind her does nothing. The windup running out launches her straight up, whatever is
+    /// held on that update: the cartridge's launch then takes the place of what the input asked for.
     /// </summary>
     private void WindUp(Samus samus)
     {
+        _left = _left.Stepped();
+        if (_left.IsOver)
+        {
+            Launch(samus, 0, -1);
+            return;
+        }
+
         GameInput input = samus.Input;
         int forward = samus.Facing == Facing.Right ? 1 : -1;
         if (input.IsHeld(GameAction.Jump))
@@ -146,13 +154,8 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             if (input.IsHeld(forward > 0 ? GameAction.Right : GameAction.Left))
             {
                 Launch(samus, forward, 0);
-                return;
             }
         }
-
-        _left = _left.Stepped();
-        if (_left.IsOver)
-            Launch(samus, 0, -1);
     }
 
     /// <summary>Launches her the given way.</summary>

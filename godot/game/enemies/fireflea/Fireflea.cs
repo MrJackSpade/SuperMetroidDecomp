@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -76,13 +77,7 @@ public partial class Fireflea : Enemy
             darkness.Triggered("darken");
     }
 
-    /// <summary>Where on its circle it is now, on whole pixels.</summary>
-    private PixelPosition OnCircle()
-    {
-        Pixels radius = Pixels.FromWhole(Radius);
-        int angle = _angle.Whole;
-        return PixelPosition.FromWhole(
-            _middle.X.Whole + Turns.Cosine(angle, radius, Turns.Fineness.Coarse).Whole,
-            _middle.Y.Whole - Turns.Sine(angle, radius, Turns.Fineness.Coarse).Whole);
-    }
+    /// <summary>Where on its circle it is now, on whole pixels: the cartridge's short product of its radius.</summary>
+    private PixelPosition OnCircle() =>
+        PixelPosition.FromWhole(_middle.X.Whole, _middle.Y.Whole) + CartridgeAngles.CircleOffset(_angle.Whole, Radius);
 }

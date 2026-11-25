@@ -2,6 +2,7 @@ using System.Globalization;
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -137,10 +138,10 @@ public partial class WallPirate : Enemy
 
         if (_doing != Doing.Leaping)
             return;
-        // The leap is half an oval, from one wall up and over to the other.
+        // The leap is half an oval, from one wall up and over to the other, its points the cartridge's short products.
         Position = PixelPosition.FromWhole(
-            _arcCentre.X + Turns.Sine(_arcAngle + Turns.PerTurn / 2, Pixels.FromWhole(JumpSpan / 2), Turns.Fineness.Coarse).Whole,
-            _arcCentre.Y - Turns.Sine(_arcAngle + Turns.PerTurn / 4, Pixels.FromWhole(JumpSpan / 4), Turns.Fineness.Coarse).Whole);
+            _arcCentre.X + CartridgeAngles.CircleSine(_arcAngle + Turns.PerTurn / 2, JumpSpan / 2).Whole,
+            _arcCentre.Y - CartridgeAngles.CircleCosine(_arcAngle, JumpSpan / 4).Whole);
         int turn = SlowJump ? SlowJumpTurn : FastJumpTurn;
         int shortBy = SlowJump ? SlowJumpShortBy : 0;
         bool right = Wall == Facing.Right;

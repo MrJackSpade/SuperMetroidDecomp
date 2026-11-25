@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -15,6 +16,8 @@ namespace Game.Enemies;
 /// </remarks>
 public partial class Rinka : Enemy
 {
+    private const int QuarterTurn = 64, HalfTurn = 128;
+
     /// <summary>Whether it goes out with only a puff when killed, leaving nothing, as those in Mother Brain's room do.</summary>
     [Export]
     public bool Quiet { get; set; }
@@ -111,10 +114,15 @@ public partial class Rinka : Enemy
             case Doing.Aiming:
                 if (--_aim > 0)
                     return;
-                PixelOffset toSamus = Room.Player.Position - Position;
-                int angle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
+                // As the cartridge aims: between whole pixels, the angle counting up from right, and the speed in
+                // 256ths of a pixel split along it with what is finer dropped.
+                int aim = CartridgeAngles.AimAngle(
+                    Room.Player.Position.X.Whole - Position.X.Whole, Room.Player.Position.Y.Whole - Position.Y.Whole);
                 Pixels speed = Pixels.FromNumber(Speed);
-                Velocity = new PixelVelocity(Turns.Cosine(angle, speed), Turns.Sine(angle, speed));
+                int speedIn256ths = speed.Whole * 256 + speed.Fraction / 256;
+                Velocity = new PixelVelocity(
+                    FromTwoFiftySixths(CartridgeAngles.SpeedAlong(speedIn256ths, aim + QuarterTurn)),
+                    FromTwoFiftySixths(CartridgeAngles.SpeedAlong(speedIn256ths, aim + HalfTurn)));
                 _doing = Doing.Flying;
                 return;
 
@@ -135,4 +143,7 @@ public partial class Rinka : Enemy
         _hidden = hidden;
         Visual?.SetShown(!hidden);
     }
+
+    /// <summary>A distance given in 256ths of a pixel.</summary>
+    private static Pixels FromTwoFiftySixths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 0xFF) << 8);
 }

@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -141,10 +142,10 @@ public partial class Bull : Enemy
         // A shot knocks it the way the shot was going; anything with no direction, such as a bomb, knocks it upward.
         PixelOffset way = hit.Direction;
         _angle = way.X.IsZero && way.Y.IsZero ? Turns.PerTurn * 3 / 4 : Turns.AngleOf(way.X.Whole * 256 + way.X.Fraction / 256, way.Y.Whole * 256 + way.Y.Fraction / 256);
+        // The count between changes of speed runs on from where it stood.
         _gain = Pixels.FromNumber(KickAcceleration);
         _speed = Pixels.FromNumber(KickSpeed);
         _doing = Doing.Slowing;
-        _interval = Countdown.Of(DecelerationInterval);
         _guard = Countdown.Of(KickGuardUpdates);
         Play("shot", restart: true);
     }
@@ -159,18 +160,30 @@ public partial class Bull : Enemy
         return true;
     }
 
-    /// <summary>The angle from it to Samus, 0 straight right and a quarter turn straight down.</summary>
-    private int AngleToSamus()
-    {
-        PixelOffset toSamus = Target - Position;
-        return Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
-    }
+    /// <summary>
+    /// The angle from it to Samus, 0 straight right and a quarter turn straight down: the cartridge's aim between whole
+    /// pixels, which counts up from right, taken backward.
+    /// </summary>
+    private int AngleToSamus() =>
+        Turns.Wrap(-CartridgeAngles.AimAngle(Target.X.Whole - Position.X.Whole, Target.Y.Whole - Position.Y.Whole));
 
     /// <summary>Drifts one update along its line, at half its speed.</summary>
     private void Drift()
     {
-        Pixels half = _speed.Share(1, 2);
-        Position += new PixelOffset(Reversed(Turns.Cosine(_angle, half)), Reversed(Turns.Sine(_angle, half)));
+        int speedIn256ths = _speed.Whole * 256 + _speed.Fraction / 256;
+        Position += new PixelOffset(Step(_angle + Turns.PerTurn / 4, speedIn256ths), Step(_angle, speedIn256ths));
+    }
+
+    /// <summary>
+    /// Its step along the axis whose angle is given, as the cartridge reckons it: the fine sine read coarsely in 128ths
+    /// times the speed in 256ths of a pixel, halved, which is the size in 65536ths of a pixel; then reversed up or left
+    /// in the turn's second half.
+    /// </summary>
+    private static Pixels Step(int axisAngle, int speedIn256ths)
+    {
+        int size = CartridgeAngles.CoarseSizeOfFineSine(axisAngle) * 2 * speedIn256ths / 2;
+        Pixels forward = Pixels.FromParts(size / Pixels.FractionsPerPixel, size % Pixels.FractionsPerPixel);
+        return Turns.Wrap(axisAngle) >= Turns.PerTurn / 2 ? Reversed(-forward) : forward;
     }
 
     /// <summary>

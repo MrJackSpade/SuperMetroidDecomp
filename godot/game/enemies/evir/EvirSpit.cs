@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -84,10 +85,11 @@ public partial class EvirSpit : Enemy
                 Position = holder.Grip;
                 if (Math.Abs(Target.X.Whole - holder.Position.X.Whole) >= ThrowDistance)
                     return;
-                PixelOffset toSamus = Target - Position;
-                int angle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
-                Pixels speed = Pixels.FromWhole(Speed);
-                Velocity = new PixelVelocity(Turns.Cosine(angle, speed), Turns.Sine(angle, speed));
+                // As the cartridge has it: the aim between whole pixels, counting up from right, and its speed laid
+                // along it by the short product, across by the cosine and down by the sine a half turn on.
+                int aim = CartridgeAngles.AimAngle(Target.X.Whole - Position.X.Whole, Target.Y.Whole - Position.Y.Whole);
+                Velocity = new PixelVelocity(
+                    CartridgeAngles.CircleCosine(aim, Speed), CartridgeAngles.CircleSine(aim + Turns.PerTurn / 2, Speed));
                 Play("idle");
                 _doing = Doing.Flying;
                 Position += new PixelOffset(Velocity.X, Velocity.Y);

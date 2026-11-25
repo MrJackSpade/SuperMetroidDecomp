@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -45,8 +46,9 @@ public partial class Waver : Enemy
         }
         else
         {
-            // The wave is in whole pixels a step, as the original's is.
-            int down = -Turns.Sine(_angle, Pixels.FromWhole(WaveHeight), Turns.Fineness.Coarse).Whole;
+            // The wave is in whole pixels a step, as the original's is: the whole pixels of the cartridge's short
+            // product a half turn on.
+            int down = CartridgeAngles.CircleSine(_angle + Turns.PerTurn / 2, WaveHeight).Whole;
             _angle = Turns.Wrap(MoveDownBy(Pixels.FromWhole(down)) ? _angle + Turns.PerTurn / 2 : _angle + WaveStep);
         }
 

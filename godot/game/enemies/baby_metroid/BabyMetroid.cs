@@ -5,6 +5,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -146,7 +147,7 @@ public partial class BabyMetroid : Enemy
         if (Room.Projectiles.FirstOrDefault(shot => shot.Side == HitSide.Player) is not { } first)
             return HitResult.Absorbed;
         double strength = Math.Min(hit.Damage / 32.0, 15 / 16.0);
-        PushAwayFrom(first.Position - Position, Pixels.FromNumber(strength));
+        PushAwayFrom(first.Position, Pixels.FromNumber(strength));
         return HitResult.Absorbed;
     }
 
@@ -159,7 +160,7 @@ public partial class BabyMetroid : Enemy
         StopFollowing();
         if (samus.State is SpinJumpingState && samus.Position.X.Whole >= ArenaLeft)
         {
-            PushAwayFrom(samus.Position - Position, Pixels.FromNumber(0.25));
+            PushAwayFrom(samus.Position, Pixels.FromNumber(0.25));
             return;
         }
 
@@ -496,12 +497,22 @@ public partial class BabyMetroid : Enemy
             && Math.Abs(place.Y.Whole - Position.Y.Whole) < body.Height / 2 + reachDown + 1;
     }
 
-    /// <summary>Knocks it away from something lying <paramref name="toIt"/> from it.</summary>
-    private void PushAwayFrom(PixelOffset toIt, Pixels speed)
+    /// <summary>
+    /// Knocks it away from something at <paramref name="source"/>. As on the cartridge: the grapple's angle to it between
+    /// whole pixels, clockwise from up, taken backward, and the speed in 256ths of a pixel along that angle's sine across
+    /// and along its sine a quarter turn on down.
+    /// </summary>
+    private void PushAwayFrom(PixelPosition source, Pixels speed)
     {
-        int angle = Turns.AngleOf(toIt.X.Whole, toIt.Y.Whole);
-        Velocity = new PixelVelocity(Velocity.X - Turns.Cosine(angle, speed), Velocity.Y - Turns.Sine(angle, speed));
+        int away = Turns.Wrap(-CartridgeAngles.ClockwiseAngleFromUp(source.X.Whole - Position.X.Whole, source.Y.Whole - Position.Y.Whole));
+        int speedIn256ths = speed.Whole * 256 + speed.Fraction / 256;
+        Velocity = new PixelVelocity(
+            Velocity.X + FromTwoFiftySixths(CartridgeAngles.SpeedAlong(speedIn256ths, away)),
+            Velocity.Y + FromTwoFiftySixths(CartridgeAngles.SpeedAlong(speedIn256ths, away + Turns.PerTurn / 4)));
     }
+
+    /// <summary>A distance given in 256ths of a pixel.</summary>
+    private static Pixels FromTwoFiftySixths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 0xFF) << 8);
 
     /// <summary>
     /// Closes the last of the way to a place, gaining speed toward it and stopping dead as it gets there. Returns

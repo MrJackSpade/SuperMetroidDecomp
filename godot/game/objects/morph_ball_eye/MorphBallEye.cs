@@ -2,8 +2,8 @@ using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
-using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -99,9 +99,7 @@ public partial class MorphBallEye : RoomObject
     private int _halfWidth;
     private int _widthGrowth;
     private int _shade;
-
-    /// <summary>Whether it has taken up the glow of its room's face blocks.</summary>
-    private bool _glows;
+    private ColourChange? _shownGlow;
     private float _light;
 
     /// <inheritdoc/>
@@ -122,7 +120,7 @@ public partial class MorphBallEye : RoomObject
     protected override void OnEnterRoom()
     {
         (_doing, _beam, _halfWidth, _widthGrowth, _shade, _light) = (Doing.WaitingForSamus, Beam.Off, 0, 0, 0, 0f);
-        _glows = false;
+        _shownGlow = null;
         Play("closed");
         string side = MountedOn switch
         {
@@ -148,12 +146,13 @@ public partial class MorphBallEye : RoomObject
         Player samus = Room.Player;
         StepBeam();
 
-        // It shares the colours of its room's face blocks, and so shows their glow from the update after that starts.
-        if (!_glows && Room.Objects.OfType<Enemies.FaceBlockGlow>().FirstOrDefault() is { HasStarted: true } glow)
+        // It shares the colours of its room's face blocks, and so shows their glow.
+        ColourChange glow = Room.Enemies.OfType<Enemies.FaceBlock>().Select(block => block.Glow).FirstOrDefault(level => level is not null) ?? ColourChange.None;
+        if (!ReferenceEquals(glow, _shownGlow))
         {
             foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-                glow.StartOn(visual);
-            _glows = true;
+                glow.ShowOn(visual, Enemies.FaceBlock.GlowSource);
+            _shownGlow = glow;
         }
 
         if (!samus.Inventory.Owns(Equipment.MorphBall))
@@ -180,7 +179,7 @@ public partial class MorphBallEye : RoomObject
                 Sound(ActivationSound);
                 (_beam, _halfWidth, _widthGrowth, _shade, _light) = (Beam.Widening, 0, 0, 0, 1f);
                 _doing = Doing.Open;
-                LookAt();
+                LookAt(to);
                 break;
 
             case Doing.Open:
@@ -194,7 +193,7 @@ public partial class MorphBallEye : RoomObject
                     break;
                 }
 
-                LookAt();
+                LookAt(to);
                 break;
 
             case Doing.Closing:
@@ -210,14 +209,10 @@ public partial class MorphBallEye : RoomObject
         ShowBeam();
     }
 
-    /// <summary>
-    /// Turns it to look along the way to Samus: the cartridge's aim between whole pixels, which counts up from right,
-    /// taken backward to count clockwise from right as its angle does.
-    /// </summary>
-    private void LookAt()
+    /// <summary>Turns it to look along the way to Samus.</summary>
+    private void LookAt(PixelOffset to)
     {
-        PixelPosition samus = Room.Player.Position;
-        _angle = Turns.Wrap(-CartridgeAngles.AimAngle(samus.X.Whole - Position.X.Whole, samus.Y.Whole - Position.Y.Whole));
+        _angle = Turns.AngleOf(to.X.Whole, to.Y.Whole);
         Show(_aims[Turns.Wrap(_angle) * _aims.Count / Turns.PerTurn]);
     }
 

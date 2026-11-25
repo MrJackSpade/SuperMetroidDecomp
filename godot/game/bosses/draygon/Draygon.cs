@@ -568,7 +568,9 @@ public partial class Draygon : Enemy
                 samus.Facing = Facing;
                 samus.ChangeState(new GrabbedState(EscapePresses));
                 _holds = true;
-                (_spiralRadius, _spiralAngle, _spiralTurn, _spiralY) = (Pixels.Zero, 3 * Turns.PerTurn / 4, 8 * 256, Pixels.FromWhole(384));
+                // A grab sets the whole pixels of the height its spiral winds about and leaves the part of a pixel the
+                // fight's last spiral lifted it to, so that part decides on which updates this one rises a pixel.
+                (_spiralRadius, _spiralAngle, _spiralTurn, _spiralY) = (Pixels.Zero, 3 * Turns.PerTurn / 4, 8 * 256, _spiralY.WithWhole(384));
                 _phase = Phase.Carry;
                 break;
 

@@ -43,7 +43,6 @@ ArrivalOffset = Vector2i(16, 40)
 Travel = 3
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = true
 
 [node name="ToForgottenHighwaySave" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -56,7 +55,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToThreadTheNeedle" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -69,7 +67,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(6, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("5")]
 position = Vector2(128, 704)

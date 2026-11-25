@@ -60,7 +60,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 7)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Boyon" parent="." instance=ExtResource("6")]
 position = Vector2(600, 168)

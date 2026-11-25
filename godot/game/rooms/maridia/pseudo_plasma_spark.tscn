@@ -45,7 +45,6 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 1.5
-Scrolls = true
 
 [node name="ToNorthwestMaridiaBug" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -58,7 +57,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(3, 1)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToPlasmaSpark" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -71,7 +69,6 @@ ArrivalOffset = Vector2i(-24, -8)
 Travel = 0
 ToScreen = Vector2i(0, 2)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Owtch" parent="." instance=ExtResource("5")]
 position = Vector2(384, 696)

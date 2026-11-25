@@ -50,7 +50,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToButterfly" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -63,7 +62,6 @@ ArrivalOffset = Vector2i(984, 1064)
 Travel = 0
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToKassiuz" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -76,7 +74,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 3)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToToilet" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -89,7 +86,6 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 1.5
-Scrolls = false
 
 [node name="Owtch" parent="." instance=ExtResource("6")]
 position = Vector2(848, 1272)

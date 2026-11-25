@@ -41,7 +41,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(8, 1)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Alcoon" parent="." instance=ExtResource("5")]
 position = Vector2(136, 216)

@@ -183,6 +183,7 @@ internal static partial class EngineDefaults
         ["TorizoSuperMissile"] = "CuedProjectile",
         ["TourianStatueHall"] = "RoomSequence",
         ["Tripper"] = "Enemy",
+        ["TubeRide"] = "RoomSequence",
         ["TurningFloor"] = "Backdrop",
         ["TypedText"] = "PixelText",
         ["TypedWarning"] = "RoomSequence",

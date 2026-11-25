@@ -186,7 +186,8 @@ public partial class PlayingMode : GameMode
 
     /// <summary>
     /// The groups of things in the room that do not run this update: what the state the player is in holds still
-    /// (<see cref="PlayerState.Stops"/>), unless a game's own play says otherwise.
+    /// (<see cref="PlayerState.Stops"/>) and what the room's playing sequences do
+    /// (<see cref="RoomSequence.Stops"/>), unless a game's own play says otherwise.
     /// </summary>
-    protected virtual Stopped WhatIsStopped() => Session.Player.State.Stops;
+    protected virtual Stopped WhatIsStopped() => Session.Player.State.Stops | Room.StoppedBySequences;
 }

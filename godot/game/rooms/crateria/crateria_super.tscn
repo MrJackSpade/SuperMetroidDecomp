@@ -42,7 +42,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(2, 7)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToClimbUpper" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -55,7 +54,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(2, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Boyon" parent="." instance=ExtResource("5")]
 position = Vector2(600, 1960)

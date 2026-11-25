@@ -544,7 +544,7 @@ Every kind here is the engine's except `Gunship`.
 
 **Barriers and exits.** A door is two separate things, and neither knows about the other.
 
-- This game's exits are `Door`s (`game/rooms/doors/`): a `RoomExit` that also says the way Samus travels through it, the screen of the next room the view comes to rest on, how far she is moved on each update of its scroll, and whether its passage is the door's own scroll or, for the tube's, the plain change of rooms. An elevator's door is passed as any other: entered while an elevator's door is armed, the passage first lets a ride down go on for its wait, and as it sets the next room up it turns a ride that was leaving into one arriving.
+- This game's exits are `Door`s (`game/rooms/doors/`): a `RoomExit` that also says the way Samus travels through it, the screen of the next room the view comes to rest on, and how far she is moved on each update of its scroll. Every door of this game is passed by the door's own passage. An elevator's door is passed as any other: entered while an elevator's door is armed, the passage first lets a ride down go on for its wait, and as it sets the next room up it turns a ride that was leaving into one arriving.
 - A `RoomExit` is a region at the edge of a room. When the player enters it, the room transition begins. Its
   settings are the room and exit it leads to, and how the transition looks: scrolling across, scrolling up or down,
   or fading. Every way out of a room is one, whether or not anything stands in front of it. The exit a player
@@ -584,6 +584,11 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
   passage comes back to where it rests, asks for its sound to stop and lets her go. Resuming from the pause
   disarms the door and leaves the ride as it stands, so a ride down that reaches its door disarmed begins the
   passage without its wait. A general game's elevator can still be a `Carrier` whose path ends at a `RoomExit`.
+- **Maridia's tube** is a room sequence of its room (`TubeRide`, `game/rooms/maridia/`), one for each end, started
+  by coming in at that end. While it plays it holds the player's own update still, so Samus stays exactly as she
+  came in; at the end of each update it puts her on the tube's middle line, moves her by the ride's speed through
+  the terrain, has the room test its exits again, and lets the speed gain unless that would pass the fastest. The
+  doors at both ends are passed as any other.
 - **An item held in a shell** (a statue's orb) is an `Item` with a `Barrier` around it. The item cannot be touched
   until the barrier is open, because the barrier is solid.
 - **An item hidden in the wall** is an `Item` behind a block. It cannot be seen or touched until the block is gone.
@@ -601,7 +606,10 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 - **Manages:** calling the methods of the room's objects, terrain, effects and camera at the right moments, and
   recording a story event when it finishes. One with something that must happen before anything else in an update
   is an `IOpeningStep` as well: the room calls that part as the update opens, while the sequence is running, and
-  the rest where every sequence is stepped.
+  the rest where every sequence is stepped. One that holds part of the room still while it plays says so
+  (`Stops`), as a ride that moves a player whose own update must not run; play adds that to what the player's
+  state holds still. One that moves the player has the room test its exits again (`Room.MeetExits`), since the
+  room's own test came earlier in the update.
 - **Does not:** hold behaviour that belongs to an object in the room, or exist outside its room.
 
 ### Other room parts
@@ -1278,7 +1286,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
 - `RoomExit`: every door.
 - `Elevator` (this game's, `game/objects/elevator/`): every elevator.
-- `Carrier`: the Maridia transport tube. The two Chozo statues that come to life are one enemy
+- `Carrier`: nothing of this game's now; the tube and the elevators are the game's own. The two Chozo statues that come to life are one enemy
   scene (`ChozoStatue`) with two setups, not carriers: the one walks through terrain by its timeline's strides with
   Samus in its hand, and the other lowers the room's liquid.
 - `Platform`: none placed. The Tripper is an enemy (it can be frozen and shot), and the suspensor platform is the
@@ -1344,7 +1352,7 @@ begun (`CeresShaking`); the falling debris (`CeresDebris`); the elevator shaft t
 (`CeresShaft`, which tells the `Escape` service she has left). Crateria: the gunship landing. Brinstar and
 Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is open to the view, the zone beside
 it is closed), Crocomire's room shaking (`CrocomireRoomShaking`: the terrain is shown shifted by as much as he
-rattles his wall). Maridia: the transport tube ride, which is a `Carrier` that gains speed. Tourian: the entrance
+rattles his wall). Maridia: the transport tube ride (`TubeRide`: Samus held as she came in and moved by the room at a speed that gains). Tourian: the entrance
 statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once its boss is beaten, and the
 statue's descent, which is its part of an update's opening (`IOpeningStep`), played before the update's random
 number is drawn; the statue is the room's backdrop, which the hall sinks, with a picture over it for each

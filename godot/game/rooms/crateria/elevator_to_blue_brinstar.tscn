@@ -66,7 +66,6 @@ ArrivalOffset = Vector2i(16, -24)
 Travel = 2
 ToScreen = Vector2i(5, 0)
 SamusStep = 0.0
-Scrolls = true
 
 [node name="ToPit" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -79,7 +78,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(2, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("6")]
 position = Vector2(128, 162)

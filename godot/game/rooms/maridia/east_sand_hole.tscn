@@ -40,7 +40,6 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(1, 0)
 SamusStep = 1.5
-Scrolls = true
 
 [node name="Boulder" parent="." instance=ExtResource("5")]
 position = Vector2(400, 160)

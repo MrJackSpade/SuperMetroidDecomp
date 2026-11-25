@@ -42,7 +42,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 2)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToFishTankLeft" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -55,7 +54,6 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 1.5
-Scrolls = true
 
 [node name="ToFishTankRight" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -68,7 +66,6 @@ ArrivalOffset = Vector2i(160, 472)
 Travel = 2
 ToScreen = Vector2i(3, 0)
 SamusStep = 1.5
-Scrolls = true
 
 [node name="ToMainStreetLower" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -81,7 +78,6 @@ ArrivalOffset = Vector2i(40, -8)
 Travel = 1
 ToScreen = Vector2i(2, 2)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToMainStreetUpper" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -94,7 +90,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(1, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToRedFish" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -107,7 +102,6 @@ ArrivalOffset = Vector2i(32, 40)
 Travel = 3
 ToScreen = Vector2i(2, 1)
 SamusStep = 1.75
-Scrolls = true
 
 [node name="Powamp" parent="." instance=ExtResource("5")]
 position = Vector2(512, 384)

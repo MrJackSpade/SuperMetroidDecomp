@@ -315,10 +315,7 @@ public partial class Room : Node2D
             PixelRect body = Player.BodyRect;
             foreach (Trigger trigger in _triggers.ToList())
                 trigger.Step(this, body);
-            if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
-                _arrivedAt = null;
-            if (Player.State.MeetsExits)
-                ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
+            MeetExits();
         }
 
         if (!stopped.HasFlag(Stopped.Projectiles))
@@ -363,6 +360,24 @@ public partial class Room : Node2D
 
         Finish(stopped);
     }
+
+    /// <summary>
+    /// Tests the player's body against the room's exits, as each update does once the player has moved: the exit
+    /// they arrived by does not take them until they have left it in control of themselves, and a state that meets
+    /// no exits is taken by none. For whoever moves the player later in an update than their own movement.
+    /// </summary>
+    public void MeetExits()
+    {
+        PixelRect body = Player.BodyRect;
+        if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
+            _arrivedAt = null;
+        if (Player.State.MeetsExits)
+            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
+    }
+
+    /// <summary>What the room's playing sequences hold still between them.</summary>
+    public Stopped StoppedBySequences =>
+        _sequences.Where(sequence => sequence.IsRunning).Aggregate(Stopped.Nothing, (all, sequence) => all | sequence.Stops);
 
     /// <summary>What was stopped in the update that is suspended for a message; null when none is.</summary>
     private Stopped? _suspended;

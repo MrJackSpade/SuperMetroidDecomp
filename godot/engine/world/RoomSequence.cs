@@ -35,6 +35,12 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     /// <summary>How many updates the sequence has played since it started.</summary>
     public int Elapsed { get; private set; }
 
+    /// <summary>
+    /// What of the room waits while the sequence is playing: nothing, unless the sequence says otherwise, as one that
+    /// holds the player still while it moves them does. Play asks as each update begins.
+    /// </summary>
+    public virtual Stopped Stops => Stopped.Nothing;
+
     /// <summary>Puts the sequence at its start, and starts it if its condition says so.</summary>
     internal void Setup(Room room)
     {

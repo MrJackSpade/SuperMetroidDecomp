@@ -38,7 +38,6 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(0, 0)
 SamusStep = 1.5
-Scrolls = true
 
 [node name="Bull" parent="." instance=ExtResource("5")]
 position = Vector2(56, 216)

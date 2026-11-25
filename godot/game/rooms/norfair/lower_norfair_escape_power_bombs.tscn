@@ -41,7 +41,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(1, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToLowerNorfairSpringBallMaze" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -54,7 +53,6 @@ ArrivalOffset = Vector2i(32, 40)
 Travel = 3
 ToScreen = Vector2i(4, 0)
 SamusStep = 1.75
-Scrolls = true
 
 [node name="PowerBombTank" parent="." instance=ExtResource("5")]
 position = Vector2(200, 136)

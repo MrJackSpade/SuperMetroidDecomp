@@ -41,7 +41,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(5, 1)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="Zoa" parent="." instance=ExtResource("5")]
 position = Vector2(696, 200)

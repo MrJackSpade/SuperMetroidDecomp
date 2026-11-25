@@ -660,10 +660,6 @@ class Generator:
             settings['ScrollLayout'] = quoted(layout)
         return settings
 
-    def is_tube(self, key: str) -> bool:
-        """Whether a room is Maridia's tube, whose ride makes the arrival at its doors."""
-        return self.states[self.choices[key][0]].main == 'MaridiaElevatube'
-
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
         scene = Scene()
@@ -734,13 +730,6 @@ class Generator:
             else:
                 offset_x = width // 2
                 offset_y = ARRIVAL_INSET if door.direction == 'Up' else height - ARRIVAL_INSET
-            if base.main == 'MaridiaElevatube':
-                # Someone arriving in Maridia's tube is put where its ride from that end begins.
-                arrives = sequences.TUBE_ARRIVES_ABOVE if y == 0 else sequences.TUBE_ARRIVES_BELOW
-                offset_x, offset_y = arrives[0] - x, arrives[1] - y
-            # A door whose arrival the tube makes, at either end, is not passed by the door's own scroll. An elevator's
-            # door is passed as any other, and the elevators make the ride.
-            carried = self.is_tube(key) or self.is_tube(target_key)
             scene.node(self.exit_name(room, name), '.', {
                 'position': f'Vector2({x}, {y})',
                 'Size': f'Vector2i({width}, {height})',
@@ -751,7 +740,6 @@ class Generator:
                 'Travel': str(DOOR_WAYS.index(door.direction)),
                 'ToScreen': f'Vector2i({door.to_screen[0]}, {door.to_screen[1]})',
                 'SamusStep': repr(samus_step(door)),
-                'Scrolls': 'false' if carried else 'true',
             }, script='res://game/rooms/doors/Door.cs')
             entries.append((name, x, y))
 

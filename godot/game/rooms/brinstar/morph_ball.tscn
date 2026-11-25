@@ -78,7 +78,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="ToElevatorToBlueBrinstar" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -91,7 +90,6 @@ ArrivalOffset = Vector2i(16, 40)
 Travel = 3
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.0
-Scrolls = true
 
 [node name="ToGreenHillZone" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -104,7 +102,6 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(1, 0)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="MorphBallEye" parent="." instance=ExtResource("6")]
 position = Vector2(1032, 584)

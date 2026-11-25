@@ -41,7 +41,6 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(3, 0)
 SamusStep = 1.25
-Scrolls = true
 
 [node name="ToUpperNorfairFarming" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -54,7 +53,6 @@ ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 1)
 SamusStep = 0.78125
-Scrolls = true
 
 [node name="PirateRedWalking" parent="." instance=ExtResource("5")]
 position = Vector2(80, 512)

@@ -49,12 +49,9 @@ ESCAPE_BLASTS = {
 # The terrain patches a room's escape version has in place, by the old setup routine that made the change.
 ESCAPE_PATCHES = {'AutoDestroyWallDuringEscape': 'escape_wall_destroyed', 'TurnWallIntoShotBlocksDuringEscape': 'wall_shot_blocks'}
 
-# Where Samus is put as she comes into Maridia's tube from above and from below; how far past an end of it a ride
-# rests, which is past that end's exit; and where a ride holds her from its corner.
-TUBE_ARRIVES_ABOVE = (128, 64)
-TUBE_ARRIVES_BELOW = (128, 2496)
-TUBE_PAST_END = -8
-TUBE_HOLDS = (16, 22)
+# Maridia's tube: the ride that starts as Samus comes in by each of its room's exits, with how far it moves her on
+# its first update and how much that gains each update, in pixels; negative is upward.
+TUBE_RIDES = (('RideUp', 'ToOasis', -1.0, -0.125), ('RideDown', 'ToPlasmaSpark', 1.0, 0.125))
 
 # The old code's backgrounds that are no picture: none, the layer a boss's body is drawn on, and that layer cleared.
 NOT_PICTURES = {'null', 'BossBody', 'Cleared', 'KraidAlive'}
@@ -165,14 +162,11 @@ class Sequences:
             self.links.append((shaft, 'ShaftTop', named['Screen4x1']))
             self.links.append((shaft, 'Beside', named['Screen3x1']))
         if state.main == 'MaridiaElevatube':
-            # The tube takes whoever comes in at one end out at the other: each ride rests past the far end and
-            # brings an arrival back to it, which carries them out by that end's exit.
-            height = room.screens[1] * SCREEN
-            for name, rest, arrives in (('RideUp', TUBE_PAST_END, TUBE_ARRIVES_BELOW[1]), ('RideDown', height + TUBE_PAST_END + 18, TUBE_ARRIVES_ABOVE[1])):
-                top = rest - TUBE_HOLDS[1]
-                self.placed.append(Placed('res://game/objects/elevator/tube_ride.tscn', name, {
-                    'Path': f'Array[Vector2i]([Vector2i(0, 0), Vector2i(0, {arrives - rest})])'},
-                    at=(TUBE_ARRIVES_BELOW[0] - TUBE_HOLDS[0], top), enemy=False))
+            # The tube takes whoever comes in at one end out at the other: a ride for each end, started by coming
+            # in there.
+            for name, entry, speed, gain in TUBE_RIDES:
+                self.placed.append(sequence('maridia/TubeRide.cs', name, {
+                    'StartsAtEntry': quoted(entry), 'StartSpeed': repr(speed), 'Gain': repr(gain)}))
 
     def ceres(self, state: legacy.State, ridley_gone: bool, ctx, named: dict[str, Placed], landing: tuple[str, str]) -> None:
         shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {'StartsWhen': ctx.always()})

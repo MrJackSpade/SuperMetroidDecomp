@@ -988,6 +988,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             return true;
         if (PlaceInForm(form, aroundMiddle) is not { } place)
             return false;
+
+        // A change of form that moves the middle of the body is not a move of the player's: the view takes them to
+        // have stood where the change leaves them, and follows nothing of this update's way down.
+        if (place.Y.Whole != Position.Y.Whole)
+            Room.Session.Camera.TakePlayerToHaveStoodAtY(place.Y.Whole);
         Position = place;
         ApplyForm(form);
         return true;

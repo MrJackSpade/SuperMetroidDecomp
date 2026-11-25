@@ -59,6 +59,14 @@ public sealed partial class EngineAssetWriter
             // The grapple beam's own pictures are hers too, and take her colourings where their sheet has them.
             if (_sheets.HasShade(SpriteFamily, grappleSheet, shade.Key))
                 places[SamusGrapplePlace] = [grappleSheet];
+
+            // Her shots' pictures are hers too, and take her colourings where the sheet they were cut from has them.
+            foreach (SuperMetroid.Core.Progression.SamusBeamCombination shotBeams in Enum.GetValues<SuperMetroid.Core.Progression.SamusBeamCombination>())
+            {
+                string shotSheet = SpriteSheetDefinitions.FileNames[ProjectileSheetFrames.For(shotBeams)];
+                if (_sheets.HasShade(SpriteFamily, shotSheet, shade.Key))
+                    places[$"samus/shots/{BeamsName(shotBeams)}/pictures"] = [shotSheet];
+            }
             shades[name] = ShadeChange(shade.Key, SpriteFamily, places);
             return name;
         }

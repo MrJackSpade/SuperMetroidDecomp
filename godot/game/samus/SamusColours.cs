@@ -185,20 +185,40 @@ public sealed class SamusColours
     public void ShowOn(ActorVisual visual)
     {
         ArgumentNullException.ThrowIfNull(visual);
-        // What was laid last is asked first, so it is the one shown where two change one colour: the colours of
-        // her body without the suit first, then over her beams' colours what was laid over them, and her beams'
-        // over her suit's.
-        IEnumerable<string> suitless = _suitless is { } bare ? [bare] : [];
-        (string Place, ColourSwap[] Swaps)[] shown =
-        [
-            .. suitless.Concat(((IEnumerable<string>)_overBeams).Reverse()).Append(Beams).Append(Suit)
-                .SelectMany(shade => _shades[shade]).Where(place => visual.ShowsPicturesIn(place.Place)),
-        ];
+        (string Place, ColourSwap[] Swaps)[] shown = ShownOn(visual);
         string places = string.Join('|', shown.Select(place => place.Place).Distinct());
         if (_shownOn.TryGetValue(visual, out (int Change, string Places) last) && last == (_change, places))
             return;
         _shownOn[visual] = (_change, places);
         visual.Recolour(Source, [.. shown.SelectMany(place => place.Swaps)]);
+    }
+
+    /// <summary>
+    /// Shows her colours, as they stand, on something of hers that is made and gone again, as a shot is as it is
+    /// fired: the colours her colouring changes in the pictures of the places it shows a picture from. It is not
+    /// kept track of, and is not shown her colours again when they change.
+    /// </summary>
+    public void ShowOnNew(Engine.Ui.IRecoloured thing)
+    {
+        ArgumentNullException.ThrowIfNull(thing);
+        (string Place, ColourSwap[] Swaps)[] shown = ShownOn(thing);
+        if (shown.Length > 0)
+            thing.Recolour(Source, [.. shown.SelectMany(place => place.Swaps)]);
+    }
+
+    /// <summary>
+    /// The colours her colouring changes on <paramref name="thing"/>, place by place. What was laid last comes
+    /// first, so it is the one shown where two change one colour: the colours of her body without the suit first,
+    /// then over her beams' colours what was laid over them, and her beams' over her suit's.
+    /// </summary>
+    private (string Place, ColourSwap[] Swaps)[] ShownOn(Engine.Ui.IRecoloured thing)
+    {
+        IEnumerable<string> suitless = _suitless is { } bare ? [bare] : [];
+        return
+        [
+            .. suitless.Concat(((IEnumerable<string>)_overBeams).Reverse()).Append(Beams).Append(Suit)
+                .SelectMany(shade => _shades[shade]).Where(place => thing.ShowsPicturesIn(place.Place)),
+        ];
     }
 
     /// <summary>The name of a colouring her data has, or an error naming one it has not.</summary>

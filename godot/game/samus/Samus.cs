@@ -1195,6 +1195,13 @@ public partial class Samus : Player
 
         bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
 
+        // A shot is shown in her colours where they change its pictures: the opening's flashbacks show hers in theirs.
+        if (fired)
+        {
+            foreach (Engine.Actors.Projectile shot in Weapons.LiveOf(weapon))
+                Colours.ShowOnNew(shot);
+        }
+
         if (fired && weapon == Arsenal.Beam)
         {
             // A beam fired takes back the asking again of a charge's sound.

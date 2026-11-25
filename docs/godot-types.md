@@ -1188,7 +1188,9 @@ not lifted from a shared routine.
 
 - **Owns:** its position and velocity, its side (the player's or the enemies'), the `Hit` it delivers, its
   lifetime, its collider and its visual.
-- **Manages:** moving, hitting what it meets, and removing itself.
+- **Manages:** moving, hitting what it meets, and removing itself. It can be shown a change of colours
+  (`IRecoloured`), which its visual shows: this game shows Samus's colours on a shot as she fires it, so that the
+  opening's flashbacks show her missiles in the opening's own colours.
 - **Does not:** decide what its target does about the hit, or know its target's type.
 - **When it hits.** The player's shot delivers its hit as it moves, to whatever it comes upon but an enemy or an
   enemy's shot: each enemy tries the player's shots against itself in its own turn ("An enemy's turn", above), and

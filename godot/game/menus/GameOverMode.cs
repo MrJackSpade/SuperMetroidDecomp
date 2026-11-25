@@ -162,7 +162,7 @@ public partial class GameOverMode : GameMode
                 _map = SaveMapMode.Of(Session);
                 // A game saved where the map marks nothing (at Ceres) starts on this update, with no hold and no fade.
                 if (_map is null)
-                    return new LoadingMode();
+                    return GameLoad.OfSlot(appears: false);
             }
 
             _continues = _yes;

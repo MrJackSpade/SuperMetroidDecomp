@@ -180,7 +180,7 @@ public partial class CeresDestruction : Cinematic
 
     /// <inheritdoc/>
     protected override GameMode Next() =>
-        SamusAboard ? Session.Definition.CreateModeAfterDeath() : new PlayingMode(LandingRoom, LandingEntry);
+        SamusAboard ? Session.Definition.CreateModeAfterDeath() : Menus.GameLoad.OfLanding(LandingRoom, LandingEntry);
 
     private void SetUpStation()
     {

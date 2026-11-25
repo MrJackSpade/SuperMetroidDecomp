@@ -12,11 +12,8 @@ public partial class LoadingMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        Session.BeginAgain();
-        if (!Session.Saves.Has(Session.Slot))
-            return Session.Definition.CreateModeForNewGame();
-        SaveData save = Session.Saves.Read(Session.Slot);
-        save.ApplyTo(Session);
-        return new PlayingMode(save.Room, save.EntryPoint);
+        return Session.LoadSlot() is { } save
+            ? new PlayingMode(save.Room, save.EntryPoint)
+            : Session.Definition.CreateModeForNewGame();
     }
 }

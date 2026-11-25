@@ -305,9 +305,9 @@ public partial class Intro : Cinematic
     /// <inheritdoc/>
     protected override GameMode Next()
     {
-        // Whatever the opening did with Samus is forgotten: the game begins with her as she starts.
-        Session.BeginAgain();
-        return new PlayingMode();
+        // The new game is loaded on the update after the opening's last: whatever the opening did with Samus is
+        // forgotten there, and the game begins with her as she starts.
+        return Menus.GameLoad.OfNewGame();
     }
 
     /// <summary>Starts a page: its words begin to be typed from the top.</summary>

@@ -124,6 +124,20 @@ public sealed class GameSession
             service.BeginAgain();
     }
 
+    /// <summary>
+    /// Starts the session's game afresh and, when the session's save slot holds a save, puts the saved game into it.
+    /// Returns the save, which says where play resumes, or null when the slot holds none.
+    /// </summary>
+    public SaveData? LoadSlot()
+    {
+        BeginAgain();
+        if (!Saves.Has(Slot))
+            return null;
+        SaveData save = Saves.Read(Slot);
+        save.ApplyTo(this);
+        return save;
+    }
+
     /// <summary>The view onto the room being played.</summary>
     public Camera Camera { get; }
 
@@ -286,9 +300,19 @@ public sealed class GameSession
 
             Mode = next;
             if (next.HasTakenControl)
+            {
                 next.Resume();
+            }
             else
-                Show(next);
+            {
+                // A new mode laid over modes that have not had control either brings them with it: each is put on
+                // screen and enters, from the one at the bottom up, and the mode handed to last.
+                for (int index = kept.Count - 1; index >= 0; index--)
+                {
+                    if (!kept[index].HasTakenControl)
+                        Show(kept[index]);
+                }
+            }
         }
 
         Sounds.CloseUpdate(closing);

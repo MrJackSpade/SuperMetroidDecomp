@@ -75,6 +75,7 @@ public sealed class CartridgeSounds : ISoundFlow
         _music.Reset(_setAtPowerOn);
         _downtime = 0;
         _lastRoomAsked = "";
+        SavedGameAppears = false;
         _askedOfProgram.Clear();
         _programDropsAsked = true;
         _askedOfProgram.Add(("enemy", null));
@@ -134,6 +135,16 @@ public sealed class CartridgeSounds : ISoundFlow
     }
 
     /// <summary>
+    /// Whether the next room entered is the one a saved game appears in: Samus's fanfare is asked for there, and the
+    /// room's own music behind it (<see cref="EnterRoom"/>). Whoever loads the saved game says so before its room
+    /// is set up.
+    /// </summary>
+    public bool SavedGameAppears { get; set; }
+
+    /// <summary>How many turns of the music's queue Samus's fanfare waits as a saved game appears, and the room's music behind it.</summary>
+    private const int FanfareWait = 14, MusicAfterFanfareWait = 365;
+
+    /// <summary>
     /// A room's version changes the music only when it is another room's or another version than the last one asked
     /// about, and never during a demonstration, whose music is the title's. Through a door only its set is asked for
     /// here; otherwise its set and then its music.
@@ -141,9 +152,23 @@ public sealed class CartridgeSounds : ISoundFlow
     public void EnterRoom(Room room)
     {
         ArgumentNullException.ThrowIfNull(room);
+        bool appears = SavedGameAppears;
+        SavedGameAppears = false;
         if (DemoPlaying || room.Version is not { } version)
             return;
         string asked = $"{room.SceneFilePath}#{room.Versions.IndexOf(version)}";
+        if (appears)
+        {
+            // The room's set is asked for where it is not the one loaded, then her fanfare, and behind it what the
+            // room chooses: its music, or silence where it keeps or silences its own. The room's version is taken
+            // as asked about, so its music does not take the fanfare's place at once.
+            _lastRoomAsked = asked;
+            AskRoomSet(version);
+            _music.AskMusic(Data.Music.SamusFanfare, FanfareWait);
+            _music.AskMusic(version.KeepsMusic ? "" : version.MusicIsTheme ? ThemeOf(_music.SetLoadedAfterWaiting) : version.Music, MusicAfterFanfareWait);
+            return;
+        }
+
         if (asked == _lastRoomAsked)
             return;
         _lastRoomAsked = asked;

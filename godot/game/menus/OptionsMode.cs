@@ -156,7 +156,12 @@ public partial class OptionsMode : GameMode
         if (_starting)
         {
             Session.Options.Save();
-            return SaveMapMode.Of(Session) is { } map ? map : new LoadingMode();
+            if (SaveMapMode.Of(Session) is { } map)
+                return map;
+
+            // A game saved where the map marks nothing (at Ceres) is loaded with no map shown; with no game saved a
+            // new one begins.
+            return Session.Saves.Has(Session.Slot) ? GameLoad.OfSlot(appears: false) : new LoadingMode();
         }
 
         if (_afterFade is { } then)

@@ -349,7 +349,7 @@ public partial class SaveMapMode : GameMode
         if (_loadsNext)
         {
             Session.Options.Save();
-            return new LoadingMode();
+            return GameLoad.OfSlot(appears: true);
         }
 
         DataNode entry = _data.Get("entry");

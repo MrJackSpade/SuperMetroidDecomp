@@ -504,7 +504,7 @@ public partial class BabyMetroid : Enemy
     /// </summary>
     private void PushAwayFrom(PixelPosition source, Pixels speed)
     {
-        int away = Turns.Wrap(-CartridgeAngles.ClockwiseAngleFromUp(source.X.Whole - Position.X.Whole, source.Y.Whole - Position.Y.Whole));
+        int away = Turns.Wrap(-CartridgeAngles.AngleClockwiseFromUp(source.X.Whole - Position.X.Whole, source.Y.Whole - Position.Y.Whole));
         int speedIn256ths = speed.Whole * 256 + speed.Fraction / 256;
         Velocity = new PixelVelocity(
             Velocity.X + FromTwoFiftySixths(CartridgeAngles.SpeedAlong(speedIn256ths, away)),

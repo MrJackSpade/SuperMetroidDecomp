@@ -403,15 +403,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         return projectile;
     }
 
-    /// <summary>Launches one of its shots from <paramref name="at"/> straight at the player, at the shot's own speed.</summary>
-    protected Projectile FireAtPlayer(string shot, PixelPosition at)
-    {
-        ShotType type = Shot(shot);
-        PixelOffset toPlayer = Target - at;
-        int angle = Turns.AngleOf(toPlayer.X.Whole, toPlayer.Y.Whole);
-        return Fire(shot, at, new PixelVelocity(Turns.Cosine(angle, type.Speed), Turns.Sine(angle, type.Speed)));
-    }
-
     /// <summary>Asks for a sound, with a priority for a name that does not say its own.</summary>
     protected void Sound(string sound, SoundPriority priority = SoundPriority.Normal)
     {

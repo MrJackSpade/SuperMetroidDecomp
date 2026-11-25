@@ -172,7 +172,8 @@ something that leaves the room.
   `CartridgeAngles` is the cartridge's own sines, its aim at a point and the products it makes with them, for
   every enemy, boss and shot that reckons with an angle: the half wave in 65535ths and in 256ths with what is finer
   dropped, the fine sine that peaks at 32767, the aim read from a slope counted round, a speed along an angle in
-  256ths, a whole speed's share along an axis, and the short product that places a thing on a circle. The engine's
+  256ths, a whole speed's share along an axis, a length's reach rounded down, the short product that places a thing
+  on a circle, and the grapple beam's own angle, counted clockwise from up. The engine's
   `Turns` are the engine's (rounded, in 65536ths) and give other numbers; an enemy takes the member its cartridge
   code takes (the engine hands out the sine's share of any peak, `Turns.HalfWave`, for such a table).
   `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll

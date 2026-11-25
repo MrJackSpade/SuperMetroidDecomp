@@ -27,9 +27,10 @@ namespace Game.Enemies;
 /// "tail_tip_pictures" by the way it points: the turn is shared out evenly among them from the angle
 /// "tail_tip_arc_start", in turn toward the right. Its hurtboxes "TailTip" and "TailJoint" stop shots. Its shot is
 /// "fireball".</para>
-/// <para>The names of its pictures may hold "{look}", which stands for the colours it is in: "_hidden" until its
-/// eyes show, "_eyes_" and a step as they come out of the dark, "_body_" and a step as the rest of it does, and
-/// then the look of its health, nothing when it is unhurt. Under "pose_boxes" its data gives, for each picture of
+/// <para>It has one set of pictures, and the colours it is in are changes of their colours, shown on all its
+/// visuals at once. Its data's "colours" gives them: "hidden", the dark it waits in from the moment it is set up;
+/// "eyes", each step of its eyes coming out of the dark; and "body", each step of the rest of it doing so but the
+/// last, which is its own colours as its fight gives them. Under "pose_boxes" its data gives, for each picture of
 /// its body, the parts of it that can be touched and shot in that pose, each from its place; they are its colliders
 /// "Part1" and on, which shots meet, and "Part1Touch" and on, which hurt. "flight_bounds" gives the least and
 /// greatest places its middle may be ("left", "top", "right", "bottom"), in the room's pixels.</para>
@@ -110,7 +111,21 @@ public partial class Ridley : Enemy
     private readonly List<string> _tailPictures = [];
     private readonly List<string> _tailTipPictures = [];
     private readonly Dictionary<string, List<PixelRect>> _poseBoxes = new(StringComparer.Ordinal);
-    private string _fadeLook = "_hidden";
+
+    /// <summary>The name the colours it is in are changed under on its visuals.</summary>
+    private const string OwnColours = "RidleyColours";
+
+    /// <summary>Its colours in the dark it waits in, and at each step of its eyes' and then its body's coming out of it.</summary>
+    private ColourChange _hiddenColours = ColourChange.None;
+    private readonly List<ColourChange> _eyeColours = [];
+    private readonly List<ColourChange> _bodyColours = [];
+
+    /// <summary>The colours of its showing itself, until it has shown itself.</summary>
+    private ColourChange? _fadeColours;
+
+    /// <summary>For each of its visuals, the colours last shown on it.</summary>
+    private readonly Dictionary<ActorVisual, ColourChange> _shownColours = [];
+
     private string _pose = "";
     private string _posed = "";
     private int _wingPose;
@@ -174,23 +189,49 @@ public partial class Ridley : Enemy
             _poseBoxes[picture] = [.. boxes.Items().Select(box => new PixelRect(box.Int("left"), box.Int("top"), box.Int("width"), box.Int("height")))];
         DataNode bounds = data.Get("flight_bounds");
         FlightBounds = new Rect2I(bounds.Int("left"), bounds.Int("top"), bounds.Int("right") - bounds.Int("left"), bounds.Int("bottom") - bounds.Int("top"));
+        DataNode colours = data.Get("colours");
+        _hiddenColours = ColourChange.Read(colours.Get("hidden"));
+        _eyeColours.Clear();
+        _eyeColours.AddRange(colours.List("eyes").Select(ColourChange.Read));
+        _bodyColours.Clear();
+        _bodyColours.AddRange(colours.List("body").Select(ColourChange.Read));
+        if (_eyeColours.Count != FadeSteps || _bodyColours.Count != FadeSteps - 1)
+            throw colours.Problem("must give its eyes' colours for each step of their showing, and its body's for each step of its showing but the last");
         if (OnCeres)
+        {
             _retreatColours = ColourChange.Read(data.Get("retreat_colours"));
+            _ownColours = ColourChange.Read(colours.Get("own"));
+        }
         else
+        {
             ReadNorfairValues(data);
+        }
     }
 
-    /// <summary>The colours it is in, as the names of its pictures say them.</summary>
-    private string Look => _fadeLook.Length > 0 ? _fadeLook : OnCeres ? "" : _band.Look;
+    /// <summary>The colours it is in.</summary>
+    private ColourChange Colours => _fadeColours ?? (OnCeres ? _ownColours : _band.Colours);
 
-    /// <summary>One of its pictures, in the colours it is in.</summary>
-    private string Coloured(string picture) => picture.Replace("{look}", Look, StringComparison.Ordinal);
+    /// <summary>
+    /// Shows the colours it is in on each of its visuals, at once. A change is worked out for a visual by the pictures it
+    /// shows, so one that shows none yet is shown them once it does.
+    /// </summary>
+    private void ShowColours()
+    {
+        ColourChange colours = Colours;
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+        {
+            if (visual.Picture.Length == 0 || (_shownColours.TryGetValue(visual, out ColourChange? shown) && ReferenceEquals(shown, colours)))
+                continue;
+            colours.ShowOn(visual, OwnColours);
+            _shownColours[visual] = colours;
+        }
+    }
 
     /// <inheritdoc/>
     protected override string PictureOf(TimelineStep step)
     {
         _pose = step.Picture;
-        return Coloured(step.Picture);
+        return step.Picture;
     }
 
     /// <summary>Puts the parts of it that can be touched and shot where the pose it shows has them.</summary>
@@ -251,6 +292,10 @@ public partial class Ridley : Enemy
             EnterCeres();
         else
             EnterNorfair();
+
+        // It arrives with its own colours hidden in black.
+        _fadeColours = _hiddenColours;
+        ShowColours();
     }
 
     /// <inheritdoc/>
@@ -261,6 +306,7 @@ public partial class Ridley : Enemy
             BehaveOnCeres();
         else
             BehaveInNorfair();
+        ShowColours();
     }
 
     /// <summary>Called as its roar begins, before it takes off.</summary>
@@ -299,7 +345,7 @@ public partial class Ridley : Enemy
 
             case Reveal.FadeInEyes:
                 // Its eyes brighten a step at a time, and then glow alone a while.
-                _fadeLook = "_eyes_" + Math.Min(FadeSteps - 1, _fade / EyeFadeStepUpdates).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                _fadeColours = _eyeColours[Math.Min(FadeSteps - 1, _fade / EyeFadeStepUpdates)];
                 if (++_fade < FadeSteps * EyeFadeStepUpdates + EyeHoldUpdates)
                     break;
                 (Revealing, _fade) = (Reveal.FadeInBody, 0);
@@ -314,11 +360,11 @@ public partial class Ridley : Enemy
                 int bodyStep = _fade / BodyFadeStepUpdates - 1;
                 if (bodyStep < FadeSteps - 1)
                 {
-                    _fadeLook = "_body_" + bodyStep.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    _fadeColours = _bodyColours[bodyStep];
                     break;
                 }
 
-                _fadeLook = "";
+                _fadeColours = null;
                 IsIntangible = false;
                 Revealing = Reveal.WaitBeforeRoar;
                 _wait = BeforeRoarUpdates;
@@ -593,7 +639,7 @@ public partial class Ridley : Enemy
 
         if (GetNodeOrNull<ActorVisual>("Wings") is { } wings)
         {
-            wings.Show(Coloured(_wingPictures[_wingPose].Replace("{side}", Side, StringComparison.Ordinal)));
+            wings.Show(_wingPictures[_wingPose].Replace("{side}", Side, StringComparison.Ordinal));
             wings.SetShown(!IsTurning);
             // Its wings flash with its body.
             if (Visual is { } body)
@@ -680,7 +726,7 @@ public partial class Ridley : Enemy
                 continue;
             PixelOffset from = link.Position - Position;
             visual.Position = new Vector2(from.X.Whole, from.Y.Whole);
-            visual.Show(Coloured(index < _tailPictures.Count ? _tailPictures[index] : _tailTipPictures[TailTipPicture]));
+            visual.Show(index < _tailPictures.Count ? _tailPictures[index] : _tailTipPictures[TailTipPicture]);
             // Its tail flashes with its body.
             if (Visual is { } shown)
                 visual.Tint(shown.Modulate);

@@ -1415,9 +1415,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   its cannons, says which cannon fires on which of its turns and from where, and each cannon in the room says which
   it is);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
-  a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s; its pictures are kept once
-  for each of the colours it is in, the dark it waits in, each step of its eyes' and body's showing and each look
-  of its health, and its data says which parts of it can be touched and shot in each pose); Mother Brain (her brain, the joints of her neck
+  a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s; it has one set of pictures,
+  and the colours it is in, the dark it waits in, each step of its eyes' and body's showing and each look of its
+  health, are changes of their colours shown on all its visuals at once, each written with its arrival's colours
+  and the rest laid together; its data says which parts of it can be touched and shot in each pose); Mother Brain (her brain, the joints of her neck
   and her beam are parts of one enemy written across several files, one per part of her fight; her glass and her
   turrets are enemies; her rings, bombs, drool and the glow at her hand are `Projectile`s of their own).
 - What a boss does to the room (the camera's limits, doors, lights, the alarm and its countdown) is not in the

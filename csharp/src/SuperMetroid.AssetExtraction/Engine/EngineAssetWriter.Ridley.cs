@@ -31,9 +31,6 @@ public sealed partial class EngineAssetWriter
     /// <summary>The data file of the scene of a piece of one fight's fire.</summary>
     private static string RidleyFireData(EngineEnemy ridley, string what) => $"{ridley.Folder}_{what}.json";
 
-    /// <summary>What stands in the names of Ridley's pictures for the colours it is in.</summary>
-    private const string RidleyLookPlaceholder = "{look}";
-
     /// <summary>Writes Ridley's two fights, each with its fire as the rooms of that fight draw it.</summary>
     private void WriteRidley()
     {
@@ -48,17 +45,54 @@ public sealed partial class EngineAssetWriter
         ceres.Write();
     }
 
-    /// <summary>A picture of Ridley's as its timelines name it: one of the sets of its pictures, by the colours it is in.</summary>
-    private static string RidleySets(EngineEnemy ridley, string picture) => picture.StartsWith(ridley.Folder + "/", StringComparison.Ordinal)
-        ? ridley.Folder + RidleyLookPlaceholder + picture[ridley.Folder.Length..]
-        : throw new InvalidDataException($"Ridley's picture {picture} is not one of its own.");
+    /// <summary>The shades his eyes' and his body's showing end on, which leave him in his own colours.</summary>
+    private static string[] RidleyShownShades =>
+        [RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End).Key, RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.End).Key];
+
+    /// <summary>
+    /// The colours one of Ridley's fights shows on his one set of pictures, as one change: his arrival's colours, his
+    /// own hidden in black, and <paramref name="laid"/> over those, in the order the old game lays them over every
+    /// picture of his.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The change holds in one region of his pictures only, and his pictures have no map of regions; or, aboard Ceres,
+    /// the Baby's shade, which the old game lays between his arrival's colours and his own hidden, changes his pictures.
+    /// </exception>
+    private JsonObject RidleyLook(EngineEnemy ridley, bool onCeres, params string[] laid)
+    {
+        const string family = GameInstallationLayout.EnemySheetDirectoryName;
+        string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(onCeres ? EnemyDefinitionId.RidleyCeres : EnemyDefinitionId.Ridley));
+        var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [ridley.Folder] = [sheet] };
+        string arrival = (onCeres ? RidleyShades.CeresStart : RidleyShades.NorfairStart).Key;
+        string over = string.Join('+', laid.Prepend((onCeres ? RidleyShades.CeresHidden : RidleyShades.NorfairHidden).Key));
+        string shade = $"{arrival}+{over}";
+        JsonObject change = ShadeChange(shade, family, places);
+        foreach (KeyValuePair<string, JsonNode?> place in change)
+        {
+            foreach (KeyValuePair<string, JsonNode?> colour in place.Value!.AsObject())
+            {
+                if (colour.Key.Contains('/', StringComparison.Ordinal))
+                    throw new InvalidDataException($"The shade {shade} changes the colour {colour.Key} of Ridley's pictures in one region of them only, and his pictures have no map of regions.");
+            }
+        }
+
+        if (onCeres)
+        {
+            // The Godot Ridley does not follow the Baby's shade, which is sound only while it changes nothing of his.
+            foreach (CeresBabyShade baby in Enum.GetValues<CeresBabyShade>())
+            {
+                if (ShadeChange($"{arrival}+{RidleyShades.Baby(baby).Key}+{over}", family, places).ToJsonString() != change.ToJsonString())
+                    throw new InvalidDataException($"The Baby's shade {baby} changes the colours of Ceres Ridley's own pictures under {shade}, and the Godot Ridley does not follow the Baby's shade.");
+            }
+        }
+
+        return change;
+    }
 
     /// <summary>Begins the data file of one of Ridley's fights with what both fights share.</summary>
     private EngineEnemy RidleyFight(string file, EnemyDefinitionId id, bool onCeres)
     {
         EngineEnemy ridley = Enemy(file, "Ridley", id);
-        const string family = GameInstallationLayout.EnemySheetDirectoryName;
-        string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(id));
 
         static string? Cue(RidleyBodyCue cue) => cue switch
         {
@@ -140,7 +174,7 @@ public sealed partial class EngineAssetWriter
         {
             if (onCeres && frame == EnemyFrameId.RidleyBodyForward)
                 continue;
-            poses[RidleySets(ridley, ridley.Picture(frame))] = BoxesOf(frame);
+            poses[ridley.Picture(frame)] = BoxesOf(frame);
         }
 
         // Until its first pose places them, its parts lie where its standing pose has them.
@@ -167,8 +201,8 @@ public sealed partial class EngineAssetWriter
         for (int pose = 0; pose < beat.Count; pose++)
         {
             RidleyWingPose shown = beat[(first + pose) % beat.Count];
-            string left = RidleySets(ridley, ridley.Picture(shown.FacingLeft)).Replace("_facing_left_", "_facing_{side}_", StringComparison.Ordinal);
-            string right = RidleySets(ridley, ridley.Picture(shown.FacingRight)).Replace("_facing_right_", "_facing_{side}_", StringComparison.Ordinal);
+            string left = ridley.Picture(shown.FacingLeft).Replace("_facing_left_", "_facing_{side}_", StringComparison.Ordinal);
+            string right = ridley.Picture(shown.FacingRight).Replace("_facing_right_", "_facing_{side}_", StringComparison.Ordinal);
             if (left != right || !left.Contains("{side}", StringComparison.Ordinal))
                 throw new InvalidDataException($"Ridley's wing pictures {left} and {right} are not one picture named for each side.");
             wings.Add(left);
@@ -177,21 +211,21 @@ public sealed partial class EngineAssetWriter
         IEnumerable<EnemyFrameId> links = RidleyTailDefinitions.ShaftLinks.Select(link => link.Frame).Prepend(RidleyTailDefinitions.BaseLink.Frame);
         TurnArcs<EnemyFrameId> tips = RidleySupplementalVisualDefinitions.TailTipFrames;
 
-        // Its pictures as each of its colours shows them: the dark it waits in, its eyes and then the rest of it
-        // coming out of that dark.
-        string hidden = (onCeres ? RidleyShades.CeresHidden : RidleyShades.NorfairHidden).Key;
+        // Its colours as it shows itself, each a change of the colours of its one set of pictures: the dark it waits
+        // in, its eyes and then the rest of it coming out of that dark. The last step of its body's showing is its own
+        // colours, which aboard Ceres it keeps and in Norfair the band of its health gives.
         IReadOnlyList<RidleyFadeImage> eyes = RidleyFadeDefinitions.EyeFade.Images, body = RidleyFadeDefinitions.BodyFade.Images;
         if (eyes.Count != body.Count)
             throw new InvalidDataException("Ridley's eyes and body come out of the dark in different numbers of steps, where the Godot Ridley has one number for both.");
-        _sheets.CutShades(_tree, family, ridley.Folder + "_hidden", sheet, hidden);
-        for (int step = 0; step < eyes.Count; step++)
+        string eyesShown = RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End).Key;
+        var colours = new JsonObject
         {
-            string number = step.ToString(CultureInfo.InvariantCulture);
-            _sheets.CutShades(_tree, family, ridley.Folder + "_eyes_" + number, sheet, hidden, RidleyShades.Fade(eyes[step]).Key);
-            // The last step of its body's showing is its own colours.
-            if (step < body.Count - 1)
-                _sheets.CutShades(_tree, family, ridley.Folder + "_body_" + number, sheet, hidden, RidleyShades.Fade(eyes[^1]).Key, RidleyShades.Fade(body[step]).Key);
-        }
+            ["hidden"] = RidleyLook(ridley, onCeres),
+            ["eyes"] = EngineNames.List(eyes.Select(image => (JsonNode)RidleyLook(ridley, onCeres, RidleyShades.Fade(image).Key))),
+            ["body"] = EngineNames.List(body.Take(body.Count - 1).Select(image => (JsonNode)RidleyLook(ridley, onCeres, eyesShown, RidleyShades.Fade(image).Key))),
+        };
+        if (onCeres)
+            colours["own"] = RidleyLook(ridley, onCeres, RidleyShownShades);
 
         (Offset16<RoomPixels> least, Offset16<RoomPixels> greatest) = onCeres
             ? (CeresRidleyArenaDefinitions.MovementMinimum, CeresRidleyArenaDefinitions.MovementMaximum)
@@ -210,9 +244,9 @@ public sealed partial class EngineAssetWriter
             .Group("pose_boxes", poses)
             .Group("flight_bounds", new JsonObject { ["left"] = (int)least.X, ["top"] = (int)least.Y, ["right"] = (int)greatest.X, ["bottom"] = (int)greatest.Y })
             .Group("wing_pictures", wings)
-            .Group("tail_pictures", new JsonArray([.. links.Select(link => (JsonNode)RidleySets(ridley, ridley.Picture(link)))]))
-            .Group("tail_tip_pictures", new JsonArray([.. tips.InTurnOrder.Select(tip => (JsonNode)RidleySets(ridley, ridley.Picture(tip)))]))
-            .PictureSets(RidleyLookPlaceholder);
+            .Group("tail_pictures", new JsonArray([.. links.Select(link => (JsonNode)ridley.Picture(link))]))
+            .Group("tail_tip_pictures", new JsonArray([.. tips.InTurnOrder.Select(tip => (JsonNode)ridley.Picture(tip))]))
+            .Group("colours", colours);
         return ridley;
     }
 
@@ -302,14 +336,10 @@ public sealed partial class EngineAssetWriter
         return Timeline("fireball", RidleyFireballSegment.Fireball);
     }
 
-    /// <summary>Gives Ridley's fight in Norfair what only it has: its health's bands and looks, its death and its pieces.</summary>
+    /// <summary>Gives Ridley's fight in Norfair what only it has: its health's bands and colours, its death and its pieces.</summary>
     private void WriteNorfairRidley(EngineEnemy ridley)
     {
         const string family = GameInstallationLayout.EnemySheetDirectoryName;
-        string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Ridley));
-        static string LookOf(RidleyHealthShade? shade) => shade is null ? "" : "_" + shade.Key.Replace('-', '_');
-        foreach (RidleyHealthShade shade in RidleyHealthShadeDefinitions.LeastHurtFirst)
-            _sheets.CutShades(_tree, family, ridley.Folder + LookOf(shade), sheet, RidleyShades.Health(shade).Key);
 
         JsonObject Band(NorfairRidleyHealthBand band, int? below)
         {
@@ -318,7 +348,10 @@ public sealed partial class EngineAssetWriter
                 written["below"] = health;
             written["hover_divisor"] = band.HoverDivisor;
             written["grab_divisor"] = band.GrabDivisor;
-            written["look"] = LookOf(band.HealthShade);
+            // Its own colours, with the band's look of its health laid over them where the band has one.
+            written["colours"] = band.HealthShade is { } shade
+                ? RidleyLook(ridley, onCeres: false, [.. RidleyShownShades, RidleyShades.Health(shade).Key])
+                : RidleyLook(ridley, onCeres: false, RidleyShownShades);
             written["pogo"] = EngineNames.List(EngineNames.Each(band.PogoLaunch).Select(pogo => (JsonNode)new JsonObject
             {
                 ["across"] = EngineNames.Number(pogo.Velocity.X),

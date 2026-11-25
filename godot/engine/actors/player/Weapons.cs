@@ -36,6 +36,24 @@ public sealed class Weapons
     /// <summary>How many places of <paramref name="pool"/> are held.</summary>
     public int PlacesHeld(string pool) => _held.Where(held => held.Pool == pool && held.StillHolds).Sum(held => held.Places);
 
+    /// <summary>How many places <paramref name="pool"/> has, as the weapons that share it give it.</summary>
+    /// <exception cref="InvalidOperationException">No weapon shares the pool.</exception>
+    public int PlacesIn(string pool) =>
+        (_weapons.FirstOrDefault(weapon => weapon.Pool == pool) ?? throw new InvalidOperationException($"No weapon shares the pool \"{pool}\".")).MaxLive;
+
+    /// <summary>
+    /// Has a projectile that no weapon fired hold one place of <paramref name="pool"/>, until it has ended and what it
+    /// left is gone: what a game launches for the player by itself and counts among their shots.
+    /// </summary>
+    public void HoldPlace(string pool, Projectile projectile)
+    {
+        ArgumentNullException.ThrowIfNull(projectile);
+        var alone = new Held(pool, 1);
+        alone.Shots.Add(projectile);
+        projectile.LeftOnEnding += alone.Left.Add;
+        _held.Add(alone);
+    }
+
     /// <summary>Has <paramref name="projectiles"/> hold places of <paramref name="weapon"/>'s pool: together, or each its own.</summary>
     private void HoldPlaces(WeaponStats weapon, IReadOnlyList<Projectile> projectiles)
     {

@@ -12,7 +12,9 @@ namespace Game;
 /// her up and then launches her in a straight line, across, up or diagonally, faster and faster, hurting what she
 /// passes through and costing her energy as she goes. It ends against something solid, or when her energy runs low.
 /// There she is held while two echoes of her circle out, round and back in; then, after a moment, the echoes are let
-/// go and fly off, and she is free.
+/// go and fly off, and she is free. How long they circle is counted on from what the last crash left
+/// (<see cref="Compatibility.CrashOrbitTravel"/>). The circling echoes are no shots of hers; let go, each takes one of
+/// her shots' places, the second while one is free and the first only while two are, and one with no place is gone.
 /// </summary>
 public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 {
@@ -31,8 +33,8 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         Holding,
     }
 
-    /// <summary>How far the echoes move out or in each update, how far out they circle from, how far each turns an update, and how far they circle in all.</summary>
-    private const int CrashRadiusStep = 4, CrashCirclingRadius = 12, CrashTurn = 4, CrashTravel = 128;
+    /// <summary>How far the echoes move out or in each update, how far out they circle from, and how far each turns an update.</summary>
+    private const int CrashRadiusStep = 4, CrashCirclingRadius = 12, CrashTurn = 4;
 
     /// <summary>Whether the windup starts lifted, as one begun out of a jump does.</summary>
     private readonly bool _lifted;
@@ -44,7 +46,6 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     private Stage _stage;
     private Crash _crash;
     private int _crashRadius;
-    private int _crashTravelled;
     private int _firstAngle, _secondAngle;
     private ShinesparkEcho? _firstEcho, _secondEcho;
     private Countdown _left;
@@ -110,10 +111,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
                 Fly(samus);
                 return null;
             case Stage.Crashed:
-                if (!StepCrash(samus))
-                    return null;
-                samus.EndBoost();
-                return owner.StateAtRest();
+                return StepCrash(samus) ? owner.StateAtRest() : null;
             default:
                 throw new InvalidOperationException($"Undefined shinespark stage {_stage}.");
         }
@@ -207,7 +205,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             return;
         _stage = Stage.Crashed;
         FlownFrom = null;
-        (_crash, _crashRadius, _crashTravelled) = (Crash.Expanding, 0, 0);
+
+        // Her boost ends as she crashes. How far the echoes have circled is not started over.
+        samus.EndBoost();
+        (_crash, _crashRadius) = (Crash.Expanding, 0);
         (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);
         samus.Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
         samus.Room.Session.Sounds.Request(Sounds.ShinesparkEnd, channel: "samus");
@@ -229,6 +230,38 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         }
 
         (_firstEcho, _secondEcho) = (null, null);
+    }
+
+    /// <summary>
+    /// Lets the echoes go as far as her shots' places leave room: the second while a place is free, and the first only
+    /// while two are. One let go takes a place until it has left the screen; one with no place is gone. The first, let
+    /// go, leaves her height as what the next crash's echoes count their circling on from.
+    /// </summary>
+    private void LetGo(Samus samus, int firstAngle, int secondAngle)
+    {
+        if (_firstEcho is not { } first || _secondEcho is not { } second)
+            return;
+        int free = samus.Weapons.PlacesIn(samus.ShinesparkEchoPool) - samus.Weapons.PlacesHeld(samus.ShinesparkEchoPool);
+        if (free >= 2)
+        {
+            samus.Weapons.HoldPlace(samus.ShinesparkEchoPool, first);
+            first.Fly(firstAngle, samus.OrbitTravel);
+            samus.OrbitTravel.LeaveHeight(samus.Position.Y.Whole);
+        }
+        else
+        {
+            first.Dismiss(samus.Room);
+        }
+
+        if (free >= 1)
+        {
+            samus.Weapons.HoldPlace(samus.ShinesparkEchoPool, second);
+            second.Fly(secondAngle, null);
+        }
+        else
+        {
+            second.Dismiss(samus.Room);
+        }
     }
 
     private static ShinesparkEcho Echo(Samus samus, ShotType shot, int angle)
@@ -256,8 +289,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             case Crash.Circling:
                 int turn = samus.Facing == Facing.Left ? -CrashTurn : CrashTurn;
                 (_firstAngle, _secondAngle) = (_firstAngle + turn, _secondAngle + turn);
-                _crashTravelled += CrashTurn;
-                if (_crashTravelled >= CrashTravel)
+                if (samus.OrbitTravel.Advance())
                     _crash = Crash.Contracting;
                 break;
 
@@ -278,8 +310,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 
                 // The echoes are let go along the line the spark flew: to either side of it, or along a diagonal.
                 (int first, int second) = _across == 0 ? (64, 192) : _down == 0 ? (0, 128) : _across > 0 ? (224, 96) : (32, 160);
-                _firstEcho?.Fly(first);
-                _secondEcho?.Fly(second);
+                LetGo(samus, first, second);
                 return true;
         }
 

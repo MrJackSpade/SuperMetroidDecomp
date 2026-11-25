@@ -132,6 +132,13 @@ public partial class Samus : Player
     [Export(PropertyHint.File), DataValue("shinespark_echo_shot")]
     public string ShinesparkEchoShot { get; set; } = "";
 
+    /// <summary>The pool of her weapons' places an echo let go takes one of, by name.</summary>
+    [Export, DataValue("shinespark_echo_pool")]
+    public string ShinesparkEchoPool { get; set; } = "";
+
+    /// <summary>How far a crash's echoes have turned about her, which one crash leaves for the next.</summary>
+    public Compatibility.CrashOrbitTravel OrbitTravel { get; } = new();
+
     /// <summary>How many updates after something of the room itself hurts her, as a spike does, she cannot be hurt again.</summary>
     [Export, DataValue("hazard_invincible_updates")]
     public int HazardInvincibleUpdates { get; set; } = 60;
@@ -453,6 +460,9 @@ public partial class Samus : Player
     protected override void OnEnteredRoom(Room room)
     {
         GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
+
+        // Her shots do not come with her into a room, and the count her crash's echoes left goes with them.
+        OrbitTravel.Clear();
 
         // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.
         if (!room.GetChildren().OfType<Liquid>().Any())

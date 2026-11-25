@@ -291,6 +291,7 @@ public sealed partial class EngineAssetWriter
             .Value("shinespark_least_energy", ShinesparkDefinitions.MinimumSustainingEnergy)
             .Value("shinespark_crash_updates", ShinesparkDefinitions.CrashHoldFrames)
             .Value("shinespark_echo_shot", ShinesparkEchoFile)
+            .Value("shinespark_echo_pool", ShotPool)
             .Value("special_attack_updates", BeamChargeDefinitions.SpecialAttackCounter)
             .Value("charge_sound_updates", BeamChargeDefinitions.ChargeSoundStartCounter)
             .Value("bomb_jump_fuse_left", MorphBallBombDefinitions.BombJumpExplosionCount)

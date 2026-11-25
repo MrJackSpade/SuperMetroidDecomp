@@ -35,6 +35,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>The data file of the shot of a shinespark's echoes.</summary>
     private const string ShinesparkEchoFile = "samus/shots/shinespark_echo.json";
 
+    /// <summary>The pool of places her beams, missiles and a crash's echoes share.</summary>
+    private const string ShotPool = "shots";
+
     /// <summary>The beams that combine, with the equipment each is in the Godot game and the kind its hit carries.</summary>
     private static readonly (SamusBeamFlags Beam, string Equipment, string Kind)[] SamusBeams =
     [
@@ -233,7 +236,7 @@ public sealed partial class EngineAssetWriter
             ["held_cooldown"] = SamusProjectileCooldowns.Read(plain, BeamShotCooldowns.Shot.HeldFire),
             ["max_live"] = SamusProjectileSystem.PlaceCount,
             // Beams and missiles share the five places: a beam takes one however many projectiles show it.
-            ["pool"] = "shots",
+            ["pool"] = ShotPool,
             ["places"] = 1,
             ["charge_updates"] = BeamChargeDefinitions.FullyChargedCounter,
             ["charge_needs"] = "charge_beam",
@@ -360,7 +363,7 @@ public sealed partial class EngineAssetWriter
             ["cooldown"] = super ? SamusProjectileCooldownDefinitions.SuperMissileShot : SamusProjectileCooldownDefinitions.MissileShot,
             // A super missile takes a second place for its unseen link: none is fired with four places held.
             ["max_live"] = SamusProjectileSystem.PlaceCount,
-            ["pool"] = "shots",
+            ["pool"] = ShotPool,
             ["places"] = super ? SamusProjectileSystem.PlaceCount - SuperMissileDefinitions.AdmissionLimit + 1 : 1,
             ["costs"] = super ? "super_missiles" : "missiles",
             ["cost"] = 1,

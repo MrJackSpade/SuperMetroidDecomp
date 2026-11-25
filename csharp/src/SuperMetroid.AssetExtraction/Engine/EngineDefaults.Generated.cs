@@ -313,7 +313,7 @@ internal static partial class EngineDefaults
         ["WalkingPirate"] = [("walk_speed_left", "0.2187652587890625"), ("walk_speed_right", "0.21875"), ("firing_band", "16"), ("flinch_reach", "32"), ("ledge_reach_left", "17"), ("ledge_reach_right", "16"), ("muzzle_ahead", "24")],
         ["WallPirate"] = [("detection_band", "32"), ("muzzle_above", "16"), ("muzzle_ahead", "24"), ("fast_jump_turn", "4"), ("slow_jump_turn", "2"), ("slow_jump_short_by", "2"), ("block_size", "16")],
         ["Waver"] = [("speed", "1.5"), ("wave_height", "4"), ("wave_step", "2"), ("spins_at", "56")],
-        ["WorkRobot"] = [("gravity", "0.5"), ("laser_cooldown", "16"), ("turn_delay", "8"), ("recoil_delay", "64"), ("muzzle_ahead", "4"), ("muzzle_above", "16"), ("laser_slant_speed", "0.5"), ("footstep_sound", "\"\"")],
+        ["WorkRobot"] = [("gravity", "0.5"), ("laser_cooldown", "16"), ("turn_delay", "8"), ("recoil_delay", "64"), ("muzzle_ahead", "4"), ("muzzle_above", "16"), ("laser_slant_speed", "0.5"), ("footstep_sound", "\"\""), ("laser_sound", "\"\"")],
         ["YappingMaw"] = [("safety_distance", "32"), ("longest_reach", "64"), ("grab_cooldown", "48"), ("retracted_hold", "65"), ("root_distance", "8"), ("bite_sound", "\"\""), ("speed_curve", "\"\"")],
         ["Yard"] = [("aggressive_crawl_speed", "2.25"), ("hiding_reach_above", "96"), ("hiding_probe_reach", "7"), ("turn_lookahead", "7"), ("turn_rest_updates", "16"), ("landing_speed_limit", "3"), ("gravity", "0.125"), ("fall_speed_limit", "4"), ("air_drag", "0.0625"), ("shot_launch_speed", "1"), ("falls_at_shake", "2"), ("bounce_sound", "\"\"")],
         ["Zebetite"] = [("pair_offset", "40"), ("fall_effect", "\"\""), ("shot_sound", "\"\"")],

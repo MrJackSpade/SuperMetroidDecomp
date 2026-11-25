@@ -229,6 +229,25 @@ public partial class GameDefinition : Resource
     public int SpentDropUpdates { get; set; }
 
     /// <summary>
+    /// For how many of the enemies' passes in turn a hurt enemy shows its flash and then its own look, by the count
+    /// of passes as it stands once the pass is counted. None: the flash shows on every update it runs.
+    /// </summary>
+    [Export]
+    public int EnemyFlashPassesEachWay { get; set; }
+
+    /// <summary>
+    /// How many updates of a freeze are left when a frozen enemy's look stops showing steadily and begins to blink,
+    /// and for how many updates in turn it then shows its frozen look and its own. No updates each way: it never
+    /// blinks.
+    /// </summary>
+    [Export]
+    public int FrozenLookSteadyUpdates { get; set; }
+
+    /// <inheritdoc cref="FrozenLookSteadyUpdates"/>
+    [Export]
+    public int FrozenLookBlinkUpdatesEachWay { get; set; }
+
+    /// <summary>
     /// Whether a status an enemy is in still lasts, apart from its time: it does, unless the game has something that
     /// ends a status early. Each enemy in a status asks on its turn.
     /// </summary>

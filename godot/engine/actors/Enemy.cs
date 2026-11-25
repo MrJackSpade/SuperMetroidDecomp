@@ -765,14 +765,41 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (Visual is null)
             return;
-        Visual.Tint(IsFrozen ? FrozenTint : ShowsHurtFlash ? HurtTint : RestingTint);
+        Visual.Tint(ShowsFrozenLook ? FrozenTint : ShowsHurtFlash ? HurtTint : RestingTint);
     }
 
     /// <summary>
-    /// Whether the enemy shows its hurt flash: on every other update while the flash runs. An enemy that shows its
-    /// hurt its own way, and not by the flash every enemy shares, says so here.
+    /// Whether the picture of this update shows the enemy's hurt flash: while the flash still runs once the turn
+    /// has counted it down, on the passes the game's definition gives the flash, by the count of the enemies'
+    /// passes as it stands once this pass is counted. An enemy that shows its hurt its own way, and not by the
+    /// flash every enemy shares, says so here.
     /// </summary>
-    protected virtual bool ShowsHurtFlash => _flash.IsRunning && _flash.Remaining % 2 == 0;
+    protected virtual bool ShowsHurtFlash
+    {
+        get
+        {
+            if (!_flash.IsRunning)
+                return false;
+            int each = Room.Session.Definition.EnemyFlashPassesEachWay;
+            return each == 0 || (Room.Session.EnemyPasses + 1) % (2 * each) >= each;
+        }
+    }
+
+    /// <summary>
+    /// Whether the picture of this update shows the frozen look: steadily while as many updates of the freeze are
+    /// left as the game's definition says, and then on so many updates in turn, by the updates left.
+    /// </summary>
+    private bool ShowsFrozenLook
+    {
+        get
+        {
+            if (!IsFrozen)
+                return false;
+            int each = Room.Session.Definition.FrozenLookBlinkUpdatesEachWay;
+            return each == 0 || _statusLeft.Remaining >= Room.Session.Definition.FrozenLookSteadyUpdates
+                || _statusLeft.Remaining % (2 * each) >= each;
+        }
+    }
 
     /// <summary>The tint the enemy is shown with when nothing has happened to it. An enemy that glows says so here.</summary>
     protected virtual Color RestingTint => Colors.White;

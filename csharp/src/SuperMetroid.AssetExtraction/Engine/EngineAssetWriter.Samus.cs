@@ -142,6 +142,9 @@ public sealed partial class EngineAssetWriter
 
             // A bomb jump thrown to one side goes by speeds of its own, the same in every medium.
             moves["bomb_jumping"] = Moves(SamusHorizontalSpeedDefinitions.DiagonalBombJump);
+
+            // Her flight after letting go of a swing on the grapple beam slows by speeds of its own, the same in every medium.
+            moves["grapple_release"] = Moves(SamusHorizontalSpeedDefinitions.GrappleRelease);
             bool liquid = medium != SamusLiquidMedium.Air;
 
             // In a liquid every picture of her animations is held longer, so the changes they time last longer.

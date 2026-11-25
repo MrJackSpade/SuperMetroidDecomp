@@ -352,6 +352,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// flies off at twice the swing's speed: down by the sine of the line's angle, and across by the sine of the
     /// angle a quarter turn back, less a few steps for each whole step of the swing's speed, facing left when the
     /// swing turned on and right when it turned back.
+    /// The flight that follows is its own movement (<see cref="GrappleReleasedState"/>) and moves her on this update.
     /// </summary>
     private PlayerState LetGo(Player owner, SamusGrapple? grapple, GrappleSwingRules rules)
     {
@@ -368,9 +369,15 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         int wholeSteps = Math.Abs(_turning) / Parts;
         int lead = rules.ReleaseLead - rules.ReleaseLeadPerStep * wholeSteps;
         long across = Math.Abs((long)CartridgeAngles.SignedSine(Turns.Wrap(WholeStep - lead)) * twice);
+        // The way the line ran as she let go is the way she is still shown on this update.
+        string look = Look;
         owner.Facing = _turning >= 0 ? Facing.Left : Facing.Right;
+        owner.Aim = Aim.Forward;
         owner.Velocity = new PixelVelocity(FromFractions(owner.Facing == Facing.Left ? -across : across), FromFractions(down));
-        return down < 0 ? new JumpingState(keepsSpeed: true) : new FallingState();
+
+        // Her flight moves her on this same update; one that is over at once leaves her in the jump it ends in.
+        var flight = new GrappleReleasedState(look);
+        return flight.Move(owner) ?? flight;
     }
 
     /// <summary>Whether a liquid slows her swing: she is in one without the suit that lets her move freely in it.</summary>

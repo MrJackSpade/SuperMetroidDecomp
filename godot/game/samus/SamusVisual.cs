@@ -96,7 +96,8 @@ public partial class SamusVisual : Node2D
                 _passing = false;
         }
 
-        if (name.Length == 0)
+        // Riding an elevator she is drawn on the even counts of the clock only.
+        if (name.Length == 0 || (samus.State is RidingElevatorState && samus.Room.Session.Clock.Updates % 2 != 0))
         {
             _shown = null;
             picture.Show("");

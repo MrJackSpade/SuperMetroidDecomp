@@ -341,13 +341,10 @@ public sealed partial class EngineAssetWriter
             Add($"xray_crouching_{name}_left", SamusHeld(P.XrayingCrouchingLeftPose, frame));
         }
 
-        // Facing out of the screen: in a station, in the gunship, taking a suit. On a lift the old game draws her on
-        // every other update.
+        // Facing out of the screen: in a station, in the gunship, on an elevator, taking a suit.
         SamusAnimationFrame still = new(Seg.Still, 0);
         Add("facing_forward", SamusHeld(P.ForwardFacingPowerSuitPose, still));
         Add("collecting_suit", SamusHeld(P.ForwardFacingPowerSuitPose, still));
-        timelines.Add("carried", SamusTimeline(
-            [SamusStepWritten(new SamusStep(P.ForwardFacingPowerSuitPose, still, 1)), new JsonObject { ["picture"] = "", ["updates"] = 1 }], 0));
 
         // A crystal flash: she rises, glows while her ammunition is taken, and the Godot state ends it.
         foreach ((string side, P pose) in new[] { ("right", P.CrystalFlashRightPose), ("left", P.CrystalFlashLeftPose) })

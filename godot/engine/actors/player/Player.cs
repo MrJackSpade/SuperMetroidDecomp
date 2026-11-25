@@ -837,9 +837,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
 
-    /// <summary>Carries the player: they go where they are taken until released.</summary>
-    public void Carry() => ChangeState(new CarriedState());
-
     /// <summary>Pushes the player at <paramref name="velocity"/> for <paramref name="updates"/> updates.</summary>
     public void Push(PixelVelocity velocity, int updates) => ChangeState(new PushedState(velocity, updates));
 
@@ -855,7 +852,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         return scripted;
     }
 
-    /// <summary>Gives the player back control after being held, carried, pushed, at a station or scripted.</summary>
+    /// <summary>Gives the player back control after being held, pushed, at a station or scripted.</summary>
     public void Release() => ChangeState(StateAtRest());
 
     /// <summary>

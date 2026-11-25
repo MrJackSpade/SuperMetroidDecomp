@@ -537,7 +537,6 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `Barrier` | A solid object with health that only certain damage wears down, or that opens when told to. | Below. |
 | `Item` | Granting its `ItemType` when the player touches it, recording it in `Progress`, showing its message. | `ItemType`; remembered as. |
 | `Station` | Holding the player while it works, then granting or recording the result. | What it does: save (and the entry point a game saved there resumes at); reveal the area's map; refill listed inventory amounts. How it is used: by standing in it (it puts the player at its middle, facing out; used or refused, it waits for the room to be entered anew, as it does when the game resumed at it), or by running against either side of it, facing it and aiming ahead (it is then solid over its own area, by the solid collider of its scene). Which way the player must face; a question it asks first; the message it shows when done, how long that is held, and whether the game then pauses on its pause screen; how it looks at rest, at work, and at rest once it has nothing more to do (a map station whose area's map is revealed, which cannot be used again); an effect it leaves as it starts, which may be another for its right side; and its sounds. A refill station does nothing for a player who is full. |
-| `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. Its data's timelines show it at rest and moving. | Path; speed, and how much it gains each update up to what limit; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
 | `Hazard` | Hurting or grabbing the player on contact, without being killable. Its data's timelines show it at rest, holding and letting go; one that holds by its timeline bites on that timeline's cues, and one whose reach changes as it is shown says so by cues ("area:left:top:width:height", "safe"). | The `Hit` or ongoing damage it does (and whether its contact is a hit even when it does no damage), or its hold: for how long, whether at one place, what each bite takes, and how long the player is safe after; the most updates it waits, by chance, before it first appears. |
@@ -591,7 +590,7 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
   (`StandingForwardState`): there she moves nothing, fires nothing and does not stand at the elevator's door, until
   right or left is held and turns her that way. Resuming from the pause
   disarms the door and leaves the ride as it stands, so a ride down that reaches its door disarmed begins the
-  passage without its wait. A general game's elevator can still be a `Carrier` whose path ends at a `RoomExit`.
+  passage without its wait.
 - **Maridia's tube** is a room sequence of its room (`TubeRide`, `game/rooms/maridia/`), one for each end, started
   by coming in at that end. While it plays it holds the player's own update still, so Samus stays exactly as she
   came in; at the end of each update it puts her on the tube's middle line, moves her by the ride's speed through
@@ -639,9 +638,9 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 **Why, and extending it.** A room is a container that forgets. That one decision is why "remembered as" and
 "present when" exist: instead of each object managing its own persistence and each room having variants, there is
 one rule for surviving and one rule for being there. The room object kinds are deliberately few and general,
-because most fixtures of the old game turned out to be a `Barrier`, a `Carrier` or a combination. Before adding a
+because most fixtures of the old game turned out to be a `Barrier`, a `Station` or a combination. Before adding a
 kind, try to build the thing from existing kinds placed together; the list under "Things built from these" is the
-pattern. A fixture needs its own kind only when it has behaviour none of them has. When a barrier, carrier or
+pattern. A fixture needs its own kind only when it has behaviour none of them has. When a barrier, platform or
 station needs to do one more thing, that is one more setting or one more choice within a setting. When a block
 needs a new rule, it is a new choice in the block rules table, and the question is whether it is still "a tile
 with a rule" or has become an object; if it needs its own state machine, it is an object.
@@ -658,7 +657,7 @@ in `engine/actors/player/`.
 - **Manages:** turning input into movement and actions, moving with the shared `Mover`, firing, taking a `Hit`,
   collecting pickups and items, and applying to itself what the room reports.
 - **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, changing
-  posture, turning, jumping, falling, turning in the air, wall jumping, knocked back, held, carried, pushed, using
+  posture, turning, jumping, falling, turning in the air, wall jumping, knocked back, held, pushed, using
   a station, scripted, dying.
 - **Standard mechanics are properties of the controller**, switched and tuned by the game, not code the game
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
@@ -690,7 +689,7 @@ in `engine/actors/player/`.
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`
   is for whatever takes the player over at once (a hold, a script, a station) and drops an interruption that was
   waiting. The player keeps the state they last moved as (`MovedAs`), for whoever must know what they were doing
-  through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, carried, at a station, scripted or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state may say the player meets no exit by
+  through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, at a station, scripted or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state may say the player meets no exit by
   overlapping it (`MeetsExits`); whoever moves the player then takes them through one (`Room.EnterExit`).
 - **The update has two parts, with the enemies between them.** In the first (`BeginUpdate`) weapons fire, from the
   state, the place and the aim the last update left the player in, and then the input is asked. The room steps the
@@ -1016,7 +1015,7 @@ decides what to do about it.
 | Home in | Steering toward a target at a limited turn rate. |
 | Orbit | Circling a point or another thing at a set radius and speed. |
 | Bounce | Travelling straight and reflecting off what it meets. |
-| Follow path | Moving along a set path. Platforms and carriers use this one too. |
+| Follow path | Moving along a set path. Platforms use this one too. |
 | Pursuit | Working out the speed of a flier drawn toward a place: harder the farther off, turned about sharply when going the wrong way, more sharply when well out of view. The flier moves itself. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
@@ -1294,8 +1293,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
 - `RoomExit`: every door.
 - `Elevator` (this game's, `game/objects/elevator/`): every elevator.
-- `Carrier`: nothing of this game's now; the tube and the elevators are the game's own. The two Chozo statues that come to life are one enemy
-  scene (`ChozoStatue`) with two setups, not carriers: the one walks through terrain by its timeline's strides with
+- The two Chozo statues that come to life are one enemy
+  scene (`ChozoStatue`) with two setups: the one walks through terrain by its timeline's strides with
   Samus in its hand, and the other lowers the room's liquid.
 - `Platform`: none placed. The Tripper is an enemy (it can be frozen and shot), and the suspensor platform is the
   Tripper's scene with its own data, because it sinks under Samus's weight the same way. The shutters are
@@ -1409,8 +1408,9 @@ and input recording tools.
 
 Doors and elevators were first built from the general kinds alone. Full parity with the cartridge needs the passage
 through a door and an elevator's ride update for update, which those kinds cannot say, so each is now a kind of this
-game's own (`Door` with its `DoorTransitionMode`, and `Elevator` with its `ElevatorJourney`); the general kinds stay as
-they were for any other game.
+game's own (`Door` with its `DoorTransitionMode`, and `Elevator` with its `ElevatorJourney`). The engine's `Carrier`, which
+the elevators and the tube were first built from, was removed with its player state once nothing used it: the engine
+keeps no kind that no game uses.
 
 **Why, and extending it.** This section is the worked example of sections 0 and 2 applied to the whole game, so
 that placing a thing is looking it up, not deciding. It was built from the old code's lists of names, not from

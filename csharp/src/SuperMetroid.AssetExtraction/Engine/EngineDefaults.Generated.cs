@@ -28,7 +28,6 @@ internal static partial class EngineDefaults
         ["Boyon"] = "Enemy",
         ["Bull"] = "Enemy",
         ["Cacatac"] = "Enemy",
-        ["Carrier"] = "RoomObject",
         ["CeresArrival"] = "RoomSequence",
         ["CeresDebris"] = "RoomSequence",
         ["CeresDeparture"] = "Cinematic",

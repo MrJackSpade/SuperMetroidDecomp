@@ -201,27 +201,6 @@ public sealed class ObjectsChecks
     }
 
     [Check]
-    public void ACarrierTakesThePlayerAlongItsPathAndLetsGo()
-    {
-        using var world = new StandInWorld(OpenRoom).StartAt(100, 80);
-        var lift = world.Place(new Carrier
-        {
-            Name = "Lift", Path = [new Vector2I(0, 0), new Vector2I(0, -30)], Speed = 2, Size = new Vector2I(32, 16), HoldsAt = new Vector2I(16, 16),
-        }, 84, 64);
-        world.Setup();
-
-        world.Step(1);
-        Expect.True(lift.IsCarrying);
-        Expect.True(world.Player.State is CarriedState);
-        world.Step(10);
-        Expect.True(world.Player.Position.Y < Pixels.FromWhole(70));
-
-        world.Step(10);
-        Expect.False(lift.IsCarrying);
-        Expect.True(world.Player.State.InControl);
-    }
-
-    [Check]
     public void APlatformCarriesThePlayerStandingOnIt()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(108, 60);

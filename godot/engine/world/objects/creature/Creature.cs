@@ -114,6 +114,6 @@ public abstract partial class Creature : RoomObject, IMoves
         if (_animation is null)
             return;
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_animation.Current);
+            visual.Show(_animation.Shown);
     }
 }

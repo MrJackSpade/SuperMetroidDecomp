@@ -205,7 +205,7 @@ public partial class Hazard : RoomObject
         }
 
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_showing.Current);
+            visual.Show(_showing.Shown);
         return _showing.IsOver;
     }
 
@@ -227,6 +227,6 @@ public partial class Hazard : RoomObject
         if (_showing is null)
             return;
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_showing.Current);
+            visual.Show(_showing.Shown);
     }
 }

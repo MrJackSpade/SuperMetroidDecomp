@@ -399,7 +399,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         if (_showing is not null)
         {
             foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-                visual.Show(_showing.Current);
+                visual.Show(_showing.Shown);
         }
     }
 
@@ -426,7 +426,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 
         (_showing, _showingName) = (new TimelinePlayer(_timelines.Get(Named(shown))), shown);
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_showing.Current);
+            visual.Show(_showing.Shown);
     }
 
     private void Sound(string sound)

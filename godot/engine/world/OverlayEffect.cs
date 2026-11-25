@@ -89,9 +89,9 @@ public partial class OverlayEffect : RoomEffect
     /// <inheritdoc/>
     public override void _Draw()
     {
-        if (_player is null || _content is null || !IsActive || _player.Current.Picture.Length == 0)
+        if (_player is null || _content is null || !IsActive || _player.Shown.Picture.Length == 0)
             return;
-        Texture2D texture = _content.LoadTexture(_player.Current.Picture);
+        Texture2D texture = _content.LoadTexture(_player.Shown.Picture);
         Vector2 size = texture.GetSize();
 
         // Tiles cover the view from the first one that reaches into it.

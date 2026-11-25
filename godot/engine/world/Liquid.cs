@@ -178,10 +178,10 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     {
         if (_surface is null || _body is null || _content is null)
             return;
-        Texture2D strip = _content.LoadTexture(_surface.Current.Picture);
-        Texture2D body = _content.LoadTexture(_body.Current.Picture);
+        Texture2D strip = _content.LoadTexture(_surface.Shown.Picture);
+        Texture2D body = _content.LoadTexture(_body.Shown.Picture);
         // The strip's timeline says how far up from the surface its picture starts.
-        int top = Surface.Whole + _surface.Current.Offset.Y;
+        int top = Surface.Whole + _surface.Shown.Offset.Y;
         int bottom = _view.Top + _view.Height;
         int right = _view.Left + _view.Width;
         if (top >= bottom)

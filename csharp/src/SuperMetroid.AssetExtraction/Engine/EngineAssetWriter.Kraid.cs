@@ -236,6 +236,11 @@ public sealed partial class EngineAssetWriter
         if (KraidCadenceDefinitions.MouthSpitRock.Phase != 0)
             throw new InvalidDataException("Kraid's rocks do not leave its mouth from the update it opens, as its data's one cadence says.");
 
+        // The values a channel of a colour moves through as its eyes glow and dim, a step an update, darkest first.
+        var channelSteps = new JsonArray();
+        for (int step = 0; step <= FadeLevelColour.FullLevel; step++)
+            channelSteps.Add(FadeLevelColour.Grey(step).ToColour().Red);
+
         kraid.Group("reactions", EngineReactions.Of(hurtInMouth))
             .Value("rise_wait_updates", KraidArenaDefinitions.RiseWaitUpdates)
             .Value("lunge_delay_updates", KraidArenaDefinitions.LungeDelayUpdates)
@@ -287,8 +292,16 @@ public sealed partial class EngineAssetWriter
             {
                 ["health"] = band.MinimumEighths is { } eighths ? KraidHealthThresholds.Eighths(kraid.Definition.Health, eighths) : 0,
                 ["shade"] = KraidHealthSet(band),
-                ["eye_glow_updates"] = KraidEyeGlowUpdates(eyes, band),
+                ["eyes"] = KraidEyes(eyes.Of(band)),
             })))
+            // Every set of its body's pictures has its eyes in the colours of its most hurt band; its eyes' colours
+            // are shown in their place.
+            .Group("eye_colours", new JsonObject
+            {
+                ["pictured"] = KraidEyes(eyes.Shaded),
+                ["hurt"] = KraidEyes(eyes.Hurt),
+                ["steps"] = channelSteps,
+            })
             .Group("hurt_flash", new JsonObject
             {
                 ["wait"] = KraidArenaDefinitions.HurtFlashStepUpdates,
@@ -499,20 +512,12 @@ public sealed partial class EngineAssetWriter
         ["left"] = left, ["top"] = top, ["width"] = Math.Max(1, right - left), ["height"] = Math.Max(1, bottom - top),
     };
 
-    /// <summary>
-    /// How many updates Kraid's eye takes to glow when it is as hurt as a band of its health: as many as the old
-    /// game's steps from the band's eye colours to the glow's brightest.
-    /// </summary>
-    private static int KraidEyeGlowUpdates(KraidEyeColours eyes, KraidHealthBand band)
+    /// <summary>The colours of Kraid's eyes, one for each eye, each written as six hexadecimal digits.</summary>
+    private static JsonArray KraidEyes(ReadOnlySpan<SuperMetroid.Core.Assets.RgbColor> colours)
     {
-        KraidEyeGlow glow = KraidEyeGlow.Showing(eyes.Of(band));
-        for (int updates = 1; updates <= FadeLevelColour.FullLevel + 1; updates++)
-        {
-            glow = glow.Glowed();
-            if (glow.HasPeaked)
-                return updates;
-        }
-
-        throw new InvalidDataException($"Kraid's eye never reaches its brightest from the colours of its {band} band.");
+        var written = new JsonArray();
+        foreach (SuperMetroid.Core.Assets.RgbColor colour in colours)
+            written.Add($"{colour.Red:x2}{colour.Green:x2}{colour.Blue:x2}");
+        return written;
     }
 }

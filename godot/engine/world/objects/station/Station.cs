@@ -100,7 +100,10 @@ public partial class Station : RoomObject
     [Export]
     public int MessageHoldUpdates { get; set; }
 
-    /// <summary>Whether the game pauses, on its pause screen, once that message has been dismissed.</summary>
+    /// <summary>
+    /// Whether the game pauses, on its pause screen, once that message has been dismissed. The station then keeps
+    /// hold of the player until that pause has ended.
+    /// </summary>
     [Export]
     public bool PausesAfter { get; set; }
 
@@ -238,9 +241,11 @@ public partial class Station : RoomObject
             _resting = Countdown.Of(RestUpdates);
             if (DoneMessage.Length > 0)
                 Room.Session.RequestMessage(DoneMessage, holdUpdates: MessageHoldUpdates);
+            // A station that pauses the game keeps hold of the player through the pause, and lets them go as it ends.
             if (PausesAfter)
-                Room.Session.RequestPause();
-            player.Release();
+                Room.Session.RequestPause(whenOver: player.Release);
+            else
+                player.Release();
             return;
         }
 

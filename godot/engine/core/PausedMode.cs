@@ -21,5 +21,11 @@ public partial class PausedMode : GameMode
     public override GameMode? Keeps => _playing;
 
     /// <inheritdoc/>
-    public override GameMode Step(GameInput input) => input.WasPressed(GameAction.Pause) ? _playing : this;
+    public override GameMode Step(GameInput input)
+    {
+        if (!input.WasPressed(GameAction.Pause))
+            return this;
+        Session.EndPause();
+        return _playing;
+    }
 }

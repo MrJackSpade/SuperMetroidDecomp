@@ -340,6 +340,9 @@ public partial class PauseScreen : GameMode
     {
         // What the pages switched on or off is put right about her before play shows again.
         (Session.Player as global::Game.Samus)?.ReconcileAfterPause();
+
+        // The pause is over: a station that held her through it lets her go.
+        Session.EndPause();
         if (_playing.Hud is { } hud)
             hud.Layer = _hudLayer;
         CanvasLayer layer = _layer ?? throw NotShown();

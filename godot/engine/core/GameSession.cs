@@ -139,6 +139,7 @@ public sealed class GameSession
         // The screen is fully lit again, its fade at no pace, whatever the game before left it.
         Darkness.Restart(0, 0);
         _messages.Clear();
+        (_pauseRequested, _whenPauseOver) = (false, null);
         SaveRequested = null;
         foreach (ISessionService service in Services)
             service.BeginAgain();
@@ -212,8 +213,30 @@ public sealed class GameSession
 
     private bool _pauseRequested;
 
-    /// <summary>Asks for the game to be paused, on its pause screen, as soon as no message is waiting to be shown.</summary>
-    public void RequestPause() => _pauseRequested = true;
+    /// <summary>What whoever asked for the pause left to be done as it ends; null for nothing.</summary>
+    private Action? _whenPauseOver;
+
+    /// <summary>
+    /// Asks for the game to be paused, on its pause screen, as soon as no message is waiting to be shown.
+    /// <paramref name="whenOver"/> is done as that pause ends, before play shows again: a station that holds the
+    /// player through the pause it asks for lets them go so.
+    /// </summary>
+    public void RequestPause(Action? whenOver = null)
+    {
+        _pauseRequested = true;
+        _whenPauseOver = whenOver;
+    }
+
+    /// <summary>
+    /// Says a pause has ended, before play shows again: what whoever asked for it left to be done then is done. The
+    /// mode that was the pause says so, whoever asked for it.
+    /// </summary>
+    public void EndPause()
+    {
+        Action? whenOver = _whenPauseOver;
+        _whenPauseOver = null;
+        whenOver?.Invoke();
+    }
 
     /// <summary>Whether a pause was asked for; asking takes the request.</summary>
     public bool TakePauseRequest()

@@ -73,7 +73,7 @@ public partial class AttractDemoMode : PlayingMode
         GameMode next = base.Step(_recording.Next());
 
         // Nothing a demo leads to is followed but the change from one room to the next.
-        if (ReferenceEquals(next, this) || next is RoomTransitionMode)
+        if (ReferenceEquals(next, this) || next is DoorTransitionMode)
             return next;
         return BackToTitle();
     }

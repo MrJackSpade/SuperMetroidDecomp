@@ -6,6 +6,7 @@ using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -425,15 +426,14 @@ public partial class SporeSpawn : Enemy
                 // Across it swings once for every twice it swings up and down: a figure of eight.
                 int behind = Turns.Wrap(_angle - Turns.PerTurn / 4);
                 Position = PixelPosition.FromWhole(
-                    _centre.X.Whole + Turns.Sine(_angle + Turns.PerTurn / 4, Pixels.FromWhole(_radius), Turns.Fineness.Coarse).Whole,
-                    _centre.Y.Whole + Turns.Sine(behind * 2 + Turns.PerTurn / 2, Pixels.FromWhole(_radius - VerticalSwayNarrowing), Turns.Fineness.Coarse).Whole);
+                    _centre.X.Whole + CartridgeAngles.CircleCosine(_angle, _radius).Whole,
+                    _centre.Y.Whole + CartridgeAngles.CircleSine(behind * 2 + Turns.PerTurn / 2, _radius - VerticalSwayNarrowing).Whole);
                 _angle = Turns.Wrap(_angle + _turn);
                 break;
 
             case Moving.SetupDeath:
-                PixelOffset home = _centre - Position;
-                int bearing = Turns.AngleOf(home.X.Whole, home.Y.Whole);
-                Velocity = new PixelVelocity(Turns.Cosine(bearing, Pixels.FromWhole(1)), Turns.Sine(bearing, Pixels.FromWhole(1)));
+                int bearing = CartridgeAngles.AimAngle(_centre.X.Whole - Position.X.Whole, _centre.Y.Whole - Position.Y.Whole);
+                Velocity = CartridgeAngles.VelocityAlong(bearing, 1);
                 break;
 
             case Moving.Dying:

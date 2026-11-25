@@ -596,7 +596,18 @@ internal sealed partial class EngineLayouts
                     ["broken_by"] = new JsonArray("bomb", "power_bomb", "screw_attack", "speed_boost", "shinespark"),
                 };
                 // The breaking a bomb sets off, which is silent under the bomb's own blast.
-                List<int> pictures = AddBreakup(rules, Frames(BlockReactionChangeDefinitions.BombBreak[bombable]));
+                BlockReactionChange bombed = BlockReactionChangeDefinitions.BombBreak[bombable];
+                List<int> pictures = AddBreakup(rules, Frames(bombed));
+                // A power bomb and Samus's body break it the same way, each with a sound of its own.
+                string byPowerBomb = BreakSoundOf(bombed, BlockReactionChangeDefinitions.ReactionBomb[bombable]);
+                string byBody = BreakSoundOf(bombed, BlockReactionChangeDefinitions.CollisionBomb[bombable]);
+                rules["break_sound_by_kind"] = new JsonObject
+                {
+                    ["power_bomb"] = byPowerBomb,
+                    ["screw_attack"] = byBody,
+                    ["speed_boost"] = byBody,
+                    ["shinespark"] = byBody,
+                };
                 pictures.AddRange(AddSight(rules, collision, reaction, width, height));
                 return new ReactingBlock($"bomb_{body}_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }

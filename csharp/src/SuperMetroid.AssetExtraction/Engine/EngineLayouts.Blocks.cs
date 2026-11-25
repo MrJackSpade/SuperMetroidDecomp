@@ -354,6 +354,30 @@ internal sealed partial class EngineLayouts
     }
 
     /// <summary>
+    /// The sound of a way of breaking a block that differs from another way only in its sound, named with the priority
+    /// it is asked for with: a block type says the one breaking and a sound for each kind of hit.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The two ways differ in more than their sound, or this one has none.</exception>
+    private string BreakSoundOf(BlockReactionChange plain, BlockReactionChange heard)
+    {
+        var plainFrames = Frames(plain).ToList();
+        var heardFrames = Frames(heard).ToList();
+        if (plain.FirstFrameDelay != heard.FirstFrameDelay
+            || !plainFrames.Select(frame => (frame.Shown, frame.Updates)).SequenceEqual(heardFrames.Select(frame => (frame.Shown, frame.Updates))))
+        {
+            throw new InvalidDataException("Two ways of breaking one block differ in more than their sound, which a block type cannot say.");
+        }
+
+        foreach ((BreakupFrame _, int _, SoundEffectId? sound, SoundRequestPriority priority) in heardFrames)
+        {
+            if (sound is { } effect && EngineNames.Sound(effect) is not null)
+                return EngineNames.Sound(effect, priority);
+        }
+
+        throw new InvalidDataException("A way of breaking a block that is told from another by its sound has none.");
+    }
+
+    /// <summary>
     /// What one frame of a block's breaking up shows: the block whole again, or the block whose picture stands for it
     /// in pieces, or nothing while it is gone.
     /// </summary>

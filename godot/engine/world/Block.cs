@@ -36,9 +36,6 @@ public sealed class Block
     /// <summary>How many updates it has been broken for.</summary>
     private int _brokenFor;
 
-    /// <summary>Whether it has broken since this was last asked.</summary>
-    private bool _justBroke;
-
     /// <summary>Whether the block is solid right now.</summary>
     public bool IsSolid => !Broken && Type.Solid;
 
@@ -52,16 +49,7 @@ public sealed class Block
         Hidden = false;
         _stoodOn = false;
         _brokenFor = 0;
-        _justBroke = true;
         _regrow = Countdown.Of(Type.RegrowsAfter);
-    }
-
-    /// <summary>Whether it has broken since this was last asked.</summary>
-    internal bool TakeJustBroke()
-    {
-        bool broke = _justBroke;
-        _justBroke = false;
-        return broke;
     }
 
     /// <summary>

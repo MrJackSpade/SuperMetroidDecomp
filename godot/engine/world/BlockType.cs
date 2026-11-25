@@ -23,7 +23,8 @@ namespace Engine.World;
 ///   "hides_again": true,
 ///   "breaking": { "steps": [ { "picture": "tiles/{graphics}/83.png", "updates": 4 } ] },
 ///   "regrowing": { "steps": [ { "picture": "tiles/{graphics}/85.png", "updates": 4 } ] },
-///   "break_sound": "enemy_block_crumble"
+///   "break_sound": "enemy_block_crumble",
+///   "break_sound_by_kind": { "power_bomb": "enemy_block_crumble:low" }
 /// }
 /// </code>
 /// A block is drawn with the picture of the tile it lies on, at each tile it covers. One whose type gives an "intact"
@@ -32,7 +33,9 @@ namespace Engine.World;
 /// tiles differ once it is known gives, in place of "intact", "intact_parts": a picture for each tile, row by row.
 /// One that "hides_again" comes back from breaking looking like plain terrain once more. "breaking" is the timeline shown,
 /// at each of its tiles, from the moment it breaks, and "regrowing" the one whose end is the moment it comes back;
-/// "regrows_after" counts from the break to the return and takes in both. "break_sound" is heard as it breaks.
+/// "regrows_after" counts from the break to the return and takes in both. "break_sound" is heard as it breaks,
+/// unless the hit that broke it carries a kind "break_sound_by_kind" names, the first listed of them: then that
+/// kind's sound is.
 /// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
 /// it, "rise_limit", "holds_up", "feet_only", "stops_momentum", and under "eased" the equipment ("by") that eases
 /// it with the three numbers it has for one who wears it.
@@ -140,8 +143,29 @@ public sealed class BlockType
     /// <summary>The pictures shown up to the moment it comes back; null for one that is back at once.</summary>
     public FrameTimeline? Regrowing { get; private init; }
 
-    /// <summary>The sound of it breaking, by name; empty for none.</summary>
+    /// <summary>The sound of it breaking, by name, where what broke it has none of its own here; empty for none.</summary>
     public string BreakSound { get; private init; } = "";
+
+    /// <summary>The sounds of it breaking under a hit of a kind, by name, in the order its data lists them.</summary>
+    public IReadOnlyList<(HitKind Kind, string Sound)> BreakSoundsByKind { get; private init; } = [];
+
+    /// <summary>
+    /// The sound of it breaking, by name: under <paramref name="hit"/>, the sound of the first listed kind the hit
+    /// carries, and otherwise, or broken by nothing that is a hit, its plain one. Empty for none.
+    /// </summary>
+    public string BreakSoundFor(Hit? hit)
+    {
+        if (hit is not null)
+        {
+            foreach ((HitKind kind, string sound) in BreakSoundsByKind)
+            {
+                if (hit.Carries(kind))
+                    return sound;
+            }
+        }
+
+        return BreakSound;
+    }
 
     /// <summary>Reads a block type from its data file.</summary>
     public static BlockType Read(DataNode data)
@@ -184,6 +208,9 @@ public sealed class BlockType
             Breaking = data.Has("breaking") ? FrameTimeline.Read(data.Get("breaking")) : null,
             Regrowing = data.Has("regrowing") ? FrameTimeline.Read(data.Get("regrowing")) : null,
             BreakSound = data.Has("break_sound") ? data.Text("break_sound") : "",
+            BreakSoundsByKind = data.Has("break_sound_by_kind")
+                ? [.. data.Get("break_sound_by_kind").Entries().Select(entry => (new HitKind(entry.Key), entry.Value.AsText()))]
+                : [],
         };
         if (type.RegrowsAfter < 0 || type.StoodOnUpdates < 0 || type.LatchedUpdates < 0)
             throw data.Problem("gives a negative number of updates");

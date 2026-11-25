@@ -50,7 +50,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     /// <summary>The block covering each tile, by row then column; null where there is none.</summary>
     private Block?[][] _blockAt = [];
 
-    /// <summary>The sounds of the blocks that have broken and not yet been heard.</summary>
+    /// <summary>The sounds of the blocks that have broken and not yet been asked for: one for each block, in the order they broke.</summary>
     private readonly List<string> _breakSounds = [];
 
     /// <summary>The tiles a revealing ability sees, by row and column, with how many more updates each is shown as seen.</summary>
@@ -400,6 +400,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             if (hit.CarriesAny(block.Type.BrokenBy))
             {
                 block.Break();
+                NoteBroken(block, hit);
                 broken.Add(block);
             }
         }
@@ -433,7 +434,16 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         if (block.Type.Contact != BlockContact.LatchOnce || block.Broken || block.Type.LatchedUpdates > 0)
             return;
         block.Break();
+        NoteBroken(block, by: null);
         Redraw();
+    }
+
+    /// <summary>Keeps the sound of a block that has just broken, under a hit or under nothing that is one, to be asked for.</summary>
+    private void NoteBroken(Block block, Hit? by)
+    {
+        string sound = block.Type.BreakSoundFor(by);
+        if (sound.Length > 0)
+            _breakSounds.Add(sound);
     }
 
     /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals, through this update.</summary>
@@ -484,16 +494,17 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
         foreach (Block block in _blocks)
         {
+            bool stood = !block.Broken;
             changed |= block.Step(spaceIsClear: !isOccupied(block.Rect));
-            if (block.TakeJustBroke() && block.Type.BreakSound.Length > 0 && !_breakSounds.Contains(block.Type.BreakSound))
-                _breakSounds.Add(block.Type.BreakSound);
+            if (stood && block.Broken)
+                NoteBroken(block, by: null);
         }
 
         if (changed)
             Redraw();
     }
 
-    /// <summary>The sounds of the blocks that broke since this was last asked, each once.</summary>
+    /// <summary>The sounds of the blocks that broke since this was last asked: one for each block, in the order they broke.</summary>
     public IReadOnlyList<string> TakeBreakSounds()
     {
         string[] sounds = [.. _breakSounds];

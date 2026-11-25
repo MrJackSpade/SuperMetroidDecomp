@@ -159,11 +159,15 @@ public sealed partial class EngineAssetWriter
         for (int band = 0; band < bands.Count; band++)
             _sheets.CutShade(_tree, family, folder + "_health_" + band.ToString(CultureInfo.InvariantCulture), sheet, DraygonShades.Health(bands[band]).Key);
 
-        // The colours its tail and arms show in its fight: its opening's, with its own laid over them.
+        // The colours its tail and arms show: its opening's, and from its first hurt on its own laid over them.
         string tailSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonTail));
         string armsSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonArms));
-        string fightShade = $"{DraygonShades.Intro.Key}+{DraygonShades.Sprite.Key}";
-        var partColours = new JsonObject { ["Tail"] = EnemySheetSwaps(tailSheet, fightShade), ["Arms"] = EnemySheetSwaps(armsSheet, fightShade) };
+        JsonObject PartColours(string shade) => new() { ["Tail"] = EnemySheetSwaps(tailSheet, shade), ["Arms"] = EnemySheetSwaps(armsSheet, shade) };
+        var partColours = new JsonObject
+        {
+            ["opening"] = PartColours(DraygonShades.Intro.Key),
+            ["fought"] = PartColours($"{DraygonShades.Intro.Key}+{DraygonShades.Sprite.Key}"),
+        };
 
         static JsonObject Field(RandomSampleField field) => new() { ["from"] = field.Shift, ["digits"] = field.Width };
 

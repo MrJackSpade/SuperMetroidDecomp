@@ -355,12 +355,18 @@ public partial class Ridley : Enemy
                 break;
 
             case Reveal.FadeInBody:
-                // The rest of it brightens a step at a time; its last step is its own colours.
-                int bodyStep = _fade / BodyFadeStepUpdates;
-                _fadeColours = bodyStep < FadeSteps - 1 ? _bodyColours[bodyStep] : null;
-                if (++_fade < FadeSteps * BodyFadeStepUpdates)
+                // The rest of it brightens a step at a time; its last step is its own colours. Each step, the first
+                // too, shows on the last of its updates, as the old game's fade starts a step's length late.
+                if (++_fade % BodyFadeStepUpdates != 0)
                     break;
+                int bodyStep = _fade / BodyFadeStepUpdates - 1;
+                if (bodyStep < FadeSteps - 1)
+                {
+                    _fadeColours = _bodyColours[bodyStep];
+                    break;
+                }
 
+                _fadeColours = null;
                 IsIntangible = false;
                 Revealing = Reveal.WaitBeforeRoar;
                 _wait = BeforeRoarUpdates;

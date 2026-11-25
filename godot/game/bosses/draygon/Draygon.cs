@@ -31,8 +31,8 @@ namespace Game.Enemies;
 /// "eye_dying_left", "eye_dying_right", "eye_dead_left" and "eye_dead_right". The names of the pictures of its body
 /// and eye may hold "{health}", which stands for "_health_" and which of its "health_bands" its health is in, from
 /// nothing up: the least health of each, highest first. "part_colours" gives the colours its "Tail" and "Arms" show
-/// changed, each as its pictures have it and as it is shown in its fight. Its hurtbox "Belly" is where it can be hurt;
-/// the rest of its
+/// changed, each as its pictures have it and as it is shown: "opening" from the start, and "fought" from its first
+/// hurt on. Its hurtbox "Belly" is where it can be hurt; the rest of its
 /// colliders are its shell, which stops shots and hurts to touch. "facing_colliders" gives every collider its place
 /// when it faces "left" and when it faces "right". Its shot is "goop". Its data lists "intro_dance", the steps each
 /// of its brood takes one after another, "intro_dancer_delays", how many updates into the dance each sets off, and
@@ -170,7 +170,9 @@ public partial class Draygon : Enemy
     private readonly Dictionary<string, TimelinePlayer> _parts = new(StringComparer.Ordinal);
     private readonly Dictionary<Facing, Dictionary<string, PixelRect>> _boxes = [];
     private readonly List<int> _healthBands = [];
-    private readonly Dictionary<string, ColourSwap[]> _partColours = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ColourSwap[]> _openingColours = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ColourSwap[]> _foughtColours = new(StringComparer.Ordinal);
+    private bool _fought;
     private readonly List<(string Cannon, PixelPosition From)> _cannonTurns = [];
     private (int From, int Digits) _cannonChoice;
     private DropTable _scatteredDrops = DropTable.Nothing;
@@ -224,9 +226,8 @@ public partial class Draygon : Enemy
         _healthBands.AddRange(data.List("health_bands").Select(band => band.AsInt()));
         if (_healthBands.Count == 0)
             throw data.Problem("must give at least one band of its health");
-        _partColours.Clear();
-        foreach ((string part, DataNode colours) in data.Get("part_colours").Entries())
-            _partColours[part] = ColourChange.ReadSwaps(colours);
+        ReadPartColours(data.Get("part_colours").Get("opening"), _openingColours);
+        ReadPartColours(data.Get("part_colours").Get("fought"), _foughtColours);
         _cannonChoice = Field(data.Get("cannon_choice"));
         _cannonTurns.Clear();
         _cannonTurns.AddRange(data.List("cannon_turns").Select(turn => (turn.Text("cannon"), PixelPosition.FromWhole(turn.Int("x"), turn.Int("y")))));
@@ -237,10 +238,18 @@ public partial class Draygon : Enemy
         _dyingScatter = Scatter(data.Get("dying_scatter"));
     }
 
-    /// <summary>Shows its tail and arms in its fight's colours.</summary>
-    private void ShowPartColours()
+    /// <summary>Reads the colours each of its parts shows changed, by the part's name.</summary>
+    private static void ReadPartColours(DataNode parts, Dictionary<string, ColourSwap[]> into)
     {
-        foreach ((string part, ColourSwap[] swaps) in _partColours)
+        into.Clear();
+        foreach ((string part, DataNode colours) in parts.Entries())
+            into[part] = ColourChange.ReadSwaps(colours);
+    }
+
+    /// <summary>Shows its tail and arms with the colours given changed.</summary>
+    private void ShowPartColours(Dictionary<string, ColourSwap[]> colours)
+    {
+        foreach ((string part, ColourSwap[] swaps) in colours)
         {
             (GetNodeOrNull<ActorVisual>(part) ?? throw new InvalidOperationException($"Draygon's data colours its part \"{part}\", which it does not have."))
                 .Recolour(nameof(Draygon), swaps);
@@ -294,7 +303,9 @@ public partial class Draygon : Enemy
         _leftStart = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         _quickening = Pixels.FromNumber(SwoopQuickening);
         Face(Facing.Right);
-        ShowPartColours();
+        // Its tail and arms show its opening's colours until it is first hurt.
+        _fought = false;
+        ShowPartColours(_openingColours);
     }
 
     /// <inheritdoc/>
@@ -872,10 +883,17 @@ public partial class Draygon : Enemy
 
     /// <summary>
     /// Hurt, by the current or by anything else, it takes the current's harm on every eighth update of its own while
-    /// Samus's grapple beam is on a live wire, as the cartridge deals the shock in its hurt's own behaviour.
+    /// Samus's grapple beam is on a live wire, as the cartridge deals the shock in its hurt's own behaviour. Its
+    /// first turn hurt shows its tail and arms in its fight's colours, which they keep.
     /// </summary>
     protected override void WhileHurt()
     {
+        if (!_fought)
+        {
+            _fought = true;
+            ShowPartColours(_foughtColours);
+        }
+
         if (Room.Player is not Samus { Grapple.IsLatched: true } || Updates % 8 != 0)
             return;
         Health.Take(Math.Min(GrappleShockDamage, Health.Current));

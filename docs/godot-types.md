@@ -1150,7 +1150,8 @@ is rolled and left in the place it held. Phantoon's flames and the Torizos' orbs
 **Places for what enemies launch and leave.** A room may keep a count of places (`GameDefinition.EnemyPlaces`;
 none, unless the game says) for the enemies' shots, the remains of the destroyed and the pickups dropped. Each
 holds one place while it is in play; a projectile of the enemies' holds one unless its data says it holds none
-(`"holds_place": false`). A thing takes the highest free place, and with none free it is not made (`Room.Spawn`
+(`"holds_place": false`), and an effect holds one where whoever leaves it says so (`Effect.Of`, as the dust and
+sparkles the cartridge counts among its enemies' projectiles do), playing with the room's other effects all the same. A thing takes the highest free place, and with none free it is not made (`Room.Spawn`
 says so): a shot is not fired, a death leaves no remains, and a drop made outright is neither made nor rolled.
 They take their turns from the highest place down, each place asked as its turn comes, so what takes a lower
 place during the turns has its turn among them and what takes a higher one waits an update; the enemies' shots

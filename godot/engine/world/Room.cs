@@ -630,7 +630,7 @@ public partial class Room : Node2D
     /// of the destroyed, and a projectile that is not the player's unless its settings say it holds none.
     /// </summary>
     private static bool HoldsPlace(IRoomEntity entity) =>
-        entity is Pickup or Remains or Projectile { Side: not HitSide.Player, Settings.HoldsPlace: true };
+        entity is Pickup or Remains or Projectile { Side: not HitSide.Player, Settings.HoldsPlace: true } or Effect { HoldsPlace: true };
 
     /// <summary>Whether the room has a place free for something more the enemies launch or leave.</summary>
     public bool HasFreePlace => _places.HasFree;

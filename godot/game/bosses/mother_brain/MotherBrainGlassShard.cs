@@ -81,6 +81,7 @@ public partial class MotherBrainGlassShard : Projectile, IHasValues
             return;
         int bits = BitOperations.Log2((uint)SparkleSpread);
         int across = random.Draw().Part(0, bits) - SparkleCentre, down = random.Draw().Part(0, bits) - SparkleCentre;
-        room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(SparkleEffect)), Position + PixelOffset.FromWhole(across, down)));
+        // The sparkle holds one of those places while it plays, as the cartridge's does.
+        room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(SparkleEffect)), Position + PixelOffset.FromWhole(across, down), holdsPlace: true));
     }
 }

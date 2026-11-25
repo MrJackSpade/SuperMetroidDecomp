@@ -24,11 +24,21 @@ public partial class Effect : Node2D, IRoomEntity
     /// <summary>Where each picture's top-left corner lies from the effect's place, in pixels.</summary>
     public Vector2I PictureOffset { get; set; }
 
+    /// <summary>
+    /// Whether it holds one of the room's places for what its enemies launch and leave for as long as it plays, as
+    /// dust or a sparkle that one of them throws off does where a game counts those: with no place free it is not
+    /// made. It is still only looked at, and plays with the room's other effects.
+    /// </summary>
+    public bool HoldsPlace { get; private init; }
+
     /// <summary>An effect playing <paramref name="timeline"/> once at <paramref name="at"/>.</summary>
-    public static Effect Of(FrameTimeline timeline, PixelPosition at)
+    /// <param name="timeline">What it plays.</param>
+    /// <param name="at">Where it is.</param>
+    /// <param name="holdsPlace">Whether it holds one of the room's places for what its enemies launch and leave.</param>
+    public static Effect Of(FrameTimeline timeline, PixelPosition at, bool holdsPlace = false)
     {
         ArgumentNullException.ThrowIfNull(timeline);
-        return new Effect { _timeline = timeline, Position = at, Name = "Effect" };
+        return new Effect { _timeline = timeline, Position = at, Name = "Effect", HoldsPlace = holdsPlace };
     }
 
     /// <inheritdoc/>

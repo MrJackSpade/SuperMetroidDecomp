@@ -945,7 +945,11 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   its touch against the player (not while frozen). Then it behaves and its timeline moves on, unless a status or
   its hurt stops it. A hurt holds it from the turn the hit lands on; its flash runs down a step at the end of each
   turn, once the turn has been shown, and the hurt lets go when no more of the flash is left than the game's
-  definition says (`EnemyHurtEndsAtFlashLeft`: none, so the whole flash, unless it says; this game's is eight). The player's shots do not hit enemies as they move, an enemy out of view or asleep is not
+  definition says (`EnemyHurtEndsAtFlashLeft`: none, so the whole flash, unless it says; this game's is eight).
+  A status's time is counted after the hits, and not while a hurt holds the enemy; the turn that finds the time
+  run out, or finds that the status no longer lasts (`GameDefinition.StatusLasts`: this game's frozen enemies thaw
+  once the ice beam is switched off), is still held by the status, which ends with it. Being frozen ends the
+  hurt's flash. The player's shots do not hit enemies as they move, an enemy out of view or asleep is not
   hit, and an enemy's body is no wall to a shot: an enemy stops a shot only by what it does when the shot hits it.
 - **Colour and strength variants** are one scene with different data files.
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue

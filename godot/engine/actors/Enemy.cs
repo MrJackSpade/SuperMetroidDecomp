@@ -256,12 +256,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Updates++;
         bool unhittableAtStart = _unhittable.IsRunning;
         _unhittable = _unhittable.Stepped();
-        if (Status.Length > 0)
-        {
-            _statusLeft = _statusLeft.Stepped();
-            if (_statusLeft.IsOver)
-                EndStatus();
-        }
 
         // Its hits are settled in its own turn, before it acts and where it stood before moving: the player's shots
         // are tried against it, then its touch against the player. An enemy that could not be hit as its turn began
@@ -277,8 +271,23 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 return;
         }
 
-        // A hurt stops its behaviour from the turn the hit lands on.
-        if (!IsFrozen && !(StunnedWhileHurt && _hurt))
+        // A hurt stops its behaviour from the turn the hit lands on, and holds off a status's time meanwhile. A
+        // status holds the turn that finds its time run out, or finds that it no longer lasts, and ends with it;
+        // on any other turn its time runs down. Being frozen ends the hurt's flash.
+        bool heldByHurt = StunnedWhileHurt && _hurt;
+        bool heldByStatus = false;
+        if (!heldByHurt && Status.Length > 0)
+        {
+            heldByStatus = IsFrozen;
+            if (heldByStatus)
+                (_flash, _hurt) = (Countdown.Over, false);
+            if (_statusLeft.IsOver || !Room.Session.Definition.StatusLasts(Room.Session, Status))
+                EndStatus();
+            else
+                _statusLeft = _statusLeft.Stepped();
+        }
+
+        if (!heldByHurt && !heldByStatus && !IsFrozen)
         {
             Behave();
             if (!IsDead)

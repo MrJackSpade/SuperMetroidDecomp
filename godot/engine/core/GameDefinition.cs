@@ -172,6 +172,12 @@ public partial class GameDefinition : Resource
     public int EnemyHurtEndsAtFlashLeft { get; set; }
 
     /// <summary>
+    /// Whether a status an enemy is in still lasts, apart from its time: it does, unless the game has something that
+    /// ends a status early. Each enemy in a status asks on its turn.
+    /// </summary>
+    public virtual bool StatusLasts(GameSession session, string status) => true;
+
+    /// <summary>
     /// Makes what keeps how each screen of the room being played lets the view in. The engine's plain keeper, which
     /// knows the room's own screens and nothing else, unless the game needs another.
     /// </summary>

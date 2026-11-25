@@ -45,6 +45,10 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
     public override IRandomSequence CreateRandomSequence() => _random = new Compatibility.CartridgeRandom();
 
+    /// <summary>An enemy stays frozen only while the ice beam is switched on: switched off, it thaws on its next turn.</summary>
+    public override bool StatusLasts(GameSession session, string status) =>
+        status != Engine.Actors.Enemy.Frozen || session.Player.Inventory.IsOn(Data.Equipment.IceBeam);
+
     /// <summary>Sounds and music wait their turn as the cartridge's do.</summary>
     public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) => new CartridgeSounds(content);
 

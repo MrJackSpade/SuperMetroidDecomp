@@ -193,9 +193,10 @@ public sealed partial class EngineAssetWriter
             ["floor_per_pixel"] = 1,
             ["floor_centre"] = At(TitleSequenceDefinitions.Scenes.FloorCentre.X, TitleSequenceDefinitions.Scenes.FloorCentre.Y),
             ["floor_scroll"] = At(resting.Position.X, resting.Position.Y),
+            // The copyright is never at rest in its drawn colours alone: come to rest by itself it keeps its fade's last
+            // look, which lies over the restored colours, and rebuilt it shows the restored colours.
             ["pictures"] = new JsonArray(
-                Sprite("Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring, "logo"),
-                Sprite("Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin, TitleSequenceDefinitions.Sprites.CopyrightColouring, "copyright")),
+                Sprite("Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring, "logo")),
             // The copyright with its colours as the old game restores them once a skip has rebuilt the title.
             ["restored_copyright"] = Sprite("Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin,
                 TitleSequenceDefinitions.Sprites.CopyrightColouring, "copyright_restored", TitleShades.RestoredCopyright.Key),

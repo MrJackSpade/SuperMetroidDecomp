@@ -57,6 +57,13 @@ public abstract class PlayerState : State<Player>
     public virtual bool InControl => true;
 
     /// <summary>
+    /// Whether the player is in another's hands in this state: held, carried, at a station, scripted or dying. A move
+    /// of their own that takes them out of control, as a knockback does, is not that. What a game runs only while
+    /// the player plays, as a countdown, reads it.
+    /// </summary>
+    public virtual bool InAnothersHands => false;
+
+    /// <summary>
     /// Whether the player enters a room's exit by coming to overlap it in this state. One that does not is taken
     /// through an exit only by whoever moves them (<see cref="World.Room.EnterExit"/>).
     /// </summary>

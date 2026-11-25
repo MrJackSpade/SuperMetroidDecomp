@@ -26,6 +26,9 @@ public sealed class RidingElevatorState : PlayerState, ISamusLook
     public override bool InControl => false;
 
     /// <inheritdoc/>
+    public override bool InAnothersHands => true;
+
+    /// <inheritdoc/>
     public override bool MeetsExits => false;
 
     /// <inheritdoc/>

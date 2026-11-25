@@ -15,6 +15,9 @@ public sealed class UsingStationState : PlayerState
     public override bool InControl => false;
 
     /// <inheritdoc/>
+    public override bool InAnothersHands => true;
+
+    /// <inheritdoc/>
     public override void Enter(Player owner) => owner.Velocity = PixelVelocity.Zero;
 
     /// <inheritdoc/>

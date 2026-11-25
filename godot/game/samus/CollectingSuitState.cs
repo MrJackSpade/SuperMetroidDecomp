@@ -21,6 +21,9 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     public override bool InControl => false;
 
     /// <inheritdoc/>
+    public override bool InAnothersHands => true;
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.StopAcross();

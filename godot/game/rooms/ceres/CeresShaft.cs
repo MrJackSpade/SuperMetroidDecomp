@@ -77,6 +77,9 @@ public partial class CeresShaft : RoomSequence
             // The elevator has her: she stands still, and after a moment it carries her off.
             samus.TrySetForm(Player.Standing);
             samus.Hold();
+
+            // The countdown stands still while the elevator has her, and still shows.
+            room.Session.Service<Escape>().ShowsWhileHeld = true;
             _leavingIn = DepartureUpdates;
         }
 

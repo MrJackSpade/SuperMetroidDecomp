@@ -197,7 +197,7 @@ public partial class Hud : GameHud, IHasValues
         ShowMinimap(session, room);
 
         Escape escape = session.Service<Escape>();
-        if (escape.IsRunning)
+        if (escape.IsShown)
         {
             (int x, int y) = escape.ScreenPlace;
             var at = new Vector2I(x, y);

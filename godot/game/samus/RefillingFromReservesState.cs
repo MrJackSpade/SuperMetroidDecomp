@@ -22,6 +22,9 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <inheritdoc/>
+    public override bool InAnothersHands => true;
+
     /// <summary>Time stands still for everything but her: the enemies, every shot and pickup, and the room itself wait.</summary>
     public override Stopped Stops => Stopped.Enemies | Stopped.Projectiles | Stopped.Room;
 

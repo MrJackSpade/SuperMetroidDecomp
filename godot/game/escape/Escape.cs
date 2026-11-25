@@ -58,9 +58,19 @@ public sealed class Escape : ISessionService
     private Phase _phase;
     private int _wait;
     private PixelPosition _place;
+    private bool _played;
 
     /// <summary>Whether the countdown is running or has run out.</summary>
     public bool IsRunning => _phase is not (Phase.Inactive or Phase.Stopped);
+
+    /// <summary>
+    /// Whether its readout shows: while it runs, on the updates it plays. It does not play, or show, while Samus is
+    /// in another's hands, unless whoever has her says it shows as it stands (<see cref="ShowsWhileHeld"/>).
+    /// </summary>
+    public bool IsShown => IsRunning && (_played || ShowsWhileHeld);
+
+    /// <summary>Whether the readout shows as it stands while Samus is in another's hands; whoever takes her so says.</summary>
+    public bool ShowsWhileHeld { get; set; }
 
     /// <summary>Whether time is up.</summary>
     public bool IsExpired => _phase == Phase.Expired;
@@ -85,6 +95,7 @@ public sealed class Escape : ISessionService
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hundredths);
         Remaining = hundredths;
+        (_played, ShowsWhileHeld) = (false, false);
         _place = PixelPosition.FromWhole(CentreX, CentreY);
         (_phase, _wait) = (Phase.InitialDelay, InitialDelay);
     }
@@ -109,6 +120,7 @@ public sealed class Escape : ISessionService
     public void BeginAgain()
     {
         _phase = Phase.Inactive;
+        (_played, ShowsWhileHeld) = (false, false);
         _leavingFor = null;
         _leftZebes = false;
         Remaining = 0;
@@ -118,6 +130,13 @@ public sealed class Escape : ISessionService
     public void Step(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
+
+        // Only an update Samus plays in her own hands is one of the countdown's: held for a refill from her reserves,
+        // dying, riding an elevator, putting on a suit or aboard her ship, it neither waits, moves nor counts, so it
+        // cannot run out while she is held.
+        _played = !session.Player.State.InAnothersHands;
+        if (!_played)
+            return;
         long updates = session.Clock.Updates;
         switch (_phase)
         {

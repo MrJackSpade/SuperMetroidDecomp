@@ -21,6 +21,9 @@ public sealed class ScriptedState : PlayerState
     public override bool InControl => false;
 
     /// <inheritdoc/>
+    public override bool InAnothersHands => true;
+
+    /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
         owner.Velocity = Falls ? Velocity.WithY(owner.Velocity.Y) : Velocity;

@@ -480,7 +480,7 @@ public partial class PauseScreen : GameMode
 
         // A tank of her reserves that is nearly empty flickers, and the page is shown again each time it changes.
         DataNode bar = Data().Get("equipment").Get("reserve").Get("bar");
-        if (FlickeringSteps(bar) is not null && Session.Clock.Updates % bar.Int("flicker_updates") == 0)
+        if (FlickeringSteps(bar) is not null && Session.Clock.ShortUpdates % bar.Int("flicker_updates") == 0)
             ShowEquipment();
     }
 
@@ -961,7 +961,8 @@ public partial class PauseScreen : GameMode
         int steps = rest / perStep;
         if (rest == 0 || rest % perStep == 0 || steps >= bar.Int("flicker_below_steps"))
             return null;
-        return Session.Clock.Updates / bar.Int("flicker_updates") % 2 == 0 ? steps + 1 : steps;
+        // The flicker and the arrow's pulse go by the short count, which a door's scroll starts over.
+        return Session.Clock.ShortUpdates / bar.Int("flicker_updates") % 2 == 0 ? steps + 1 : steps;
     }
 
     /// <summary>
@@ -985,7 +986,7 @@ public partial class PauseScreen : GameMode
         {
             placed = reserve.Get("arrow_pulse");
             IReadOnlyList<DataNode> pictures = placed.List("pictures");
-            picture = pictures[(int)(Session.Clock.Updates / placed.Int("updates_each") % pictures.Count)].AsText();
+            picture = pictures[Session.Clock.ShortUpdates / placed.Int("updates_each") % pictures.Count].AsText();
         }
         else
         {

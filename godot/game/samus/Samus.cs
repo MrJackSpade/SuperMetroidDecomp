@@ -464,16 +464,25 @@ public partial class Samus : Player
         from is SpinJumpingState or WallJumpingState ? InMedium("spin_landing_updates", SpinLandingUpdates) : base.SettlingUpdatesAfter(from);
 
     /// <summary>
-    /// Throws the morph ball as a bomb of her own lies against it: straight up when the bomb was beneath her middle,
-    /// and to the side away from it otherwise. Only the ball in her control is thrown, or one already being thrown,
-    /// which is thrown afresh.
+    /// Throws her as a bomb of her own lies against her: straight up when the bomb was beneath her middle, and to the
+    /// side away from it otherwise. The ball in her control is thrown as it is, and one already being thrown is
+    /// thrown afresh. Upright she is thrown in a jump's pose, where that body fits, from standing, a wall stop, a
+    /// run, a crouch, a fall, walking backwards, a wall jump or the grapple; a jump, a spin, a turn and every other
+    /// state refuse the throw, an upright throw under way among them.
     /// </summary>
     public void BombJump(PixelPosition bomb)
     {
-        if (State is not (CrawlingState or BombJumpingState))
-            return;
         int away = Position.X.Whole - bomb.X.Whole;
-        Interrupt(new BombJumpingState(away));
+        if (State is CrawlingState or BombJumpingState { Upright: false })
+        {
+            Interrupt(new BombJumpingState(away));
+            return;
+        }
+
+        bool upright = State is StandingState or WallStoppedState or RunningState or CrouchingState or FallingState
+            or MoonwalkingState or WallJumpingState or GrapplingState;
+        if (upright && CanTakeForm(FormOr(Jumping), aroundMiddle: true))
+            Interrupt(new BombJumpingState(away, upright: true));
     }
 
     /// <summary>

@@ -5,11 +5,12 @@ using Engine.Shared;
 namespace Game;
 
 /// <summary>
-/// A bomb jump: one of her own bombs going off against the morph ball throws it upward, and to one side when the bomb
-/// was off to the other. Its first update only sets the rise. Then the ball rises out of her control: thrown to a side
-/// it takes up whatever speed across it had and gains by the throw's own move values; a wall stops that speed and not
+/// A bomb jump: one of her own bombs going off against her throws her upward, and to one side when the bomb was off
+/// to the other. The morph ball is thrown as it is; upright, she is thrown in the pose of a jump with her arm level,
+/// facing as she did. Its first update only sets the rise. Then she rises out of her control: thrown to a side she
+/// takes up whatever speed across she had and gains by the throw's own move values; a wall stops that speed and not
 /// the rise. The throw is over at the top of the rise, the update after gravity has slowed it past rest, or at a
-/// ceiling, and the ball is hers again.
+/// ceiling, and she is her own again: the ball, or in the jump she was thrown in.
 /// </summary>
 public sealed class BombJumpingState : PlayerState, ISamusLook
 {
@@ -25,11 +26,26 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
     /// <summary>Whether the throw has yet to set the ball rising.</summary>
     private bool _starting = true;
 
-    /// <summary>A bomb jump throwing the ball the given way across.</summary>
-    public BombJumpingState(int across) => _across = Math.Sign(across);
+    /// <summary>A bomb jump throwing her the given way across: the ball, or upright.</summary>
+    public BombJumpingState(int across, bool upright = false) => (_across, Upright) = (Math.Sign(across), upright);
+
+    /// <summary>Whether she is thrown upright, in a jump's pose, and not as the ball.</summary>
+    public bool Upright { get; }
 
     /// <inheritdoc/>
-    public string Look => "morph_ball";
+    public string Look => Upright ? "jumping" : "morph_ball";
+
+    /// <inheritdoc/>
+    public override void Enter(Player owner)
+    {
+        if (!Upright)
+            return;
+        owner.Aim = Aim.Forward;
+        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
+    }
+
+    /// <summary>What she is once the throw is over: the ball, or the jump she was thrown in, falling.</summary>
+    private PlayerState Thrown() => Upright ? new JumpingState(keepsSpeed: true) : new CrawlingState();
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
@@ -56,12 +72,12 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
         {
             if (_across != 0)
                 owner.Steering = Steering.Unsteered;
-            return new CrawlingState();
+            return Thrown();
         }
 
         if (!owner.IsRising)
-            return new CrawlingState();
+            return Thrown();
         MoveResult up = owner.MoveDownUnderGravity();
-        return up.Blocked ? new CrawlingState() : null;
+        return up.Blocked ? Thrown() : null;
     }
 }

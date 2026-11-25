@@ -4,6 +4,7 @@ using Engine.Actors.Movement;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -506,13 +507,11 @@ public partial class KiHunter : Enemy
     /// <summary>The whole angle steps in a turn counted in 256ths of a step, rounded down.</summary>
     private static int FloorSteps(int parts) => (int)Math.Floor(parts / 256.0);
 
-    /// <summary>How far across a point at <paramref name="angle"/> on a circle of <paramref name="radius"/> lies, in whole pixels.</summary>
-    private static int CircleAcross(int angle, int radius) =>
-        Turns.Sine(angle + Turns.PerTurn / 4, Pixels.FromWhole(radius), Turns.Fineness.Coarse).Whole;
+    /// <summary>How far across a point at <paramref name="angle"/> on a circle of <paramref name="radius"/> lies, in whole pixels, by the cartridge's short product.</summary>
+    private static int CircleAcross(int angle, int radius) => CartridgeAngles.CircleCosine(angle, radius).Whole;
 
-    /// <summary>How far down a point at <paramref name="angle"/> on a circle of <paramref name="radius"/> lies, in whole pixels; angles turn upward.</summary>
-    private static int CircleDown(int angle, int radius) =>
-        Turns.Sine(angle + HalfTurn, Pixels.FromWhole(radius), Turns.Fineness.Coarse).Whole;
+    /// <summary>How far down a point at <paramref name="angle"/> on a circle of <paramref name="radius"/> lies, in whole pixels, by the cartridge's short product; angles turn upward.</summary>
+    private static int CircleDown(int angle, int radius) => CartridgeAngles.CircleSine(angle + HalfTurn, radius).Whole;
 
     /// <summary>The visual of its wings.</summary>
     private ActorVisual? WingsVisual => GetNodeOrNull<ActorVisual>("Wings");

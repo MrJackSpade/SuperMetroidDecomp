@@ -513,12 +513,18 @@ public sealed partial class EngineAssetWriter
         // on that update, the one after its last reach.
         var blast = new PowerBombBlastTimeline();
         InstalledPowerBombGlowColors colours = _installation.LoadMaps().PowerBombGlowColors;
+        // What is seen of it on each of those updates: the oval it shows, and the colour it adds inside it.
+        static int Glow(RgbColor colour) => (colour.Red << 16) | (colour.Green << 8) | colour.Blue;
         blast.Start();
         var reaches = new JsonArray();
+        var ovals = new JsonArray();
+        var glows = new JsonArray();
         blast.StepFrame(colours);
         while (blast.IsRunning)
         {
             reaches.Add(blast.ExplosionRadius.WholePixels);
+            ovals.Add(blast.ShownRadius);
+            glows.Add(Glow(blast.GlowColor));
             if (reaches.Count > 4096)
                 throw new InvalidDataException("The old power bomb's blast does not end.");
             blast.StepFrame(colours);
@@ -528,10 +534,14 @@ public sealed partial class EngineAssetWriter
         // steps give it, until its glow has faded.
         blast.BeginCrystalFlash();
         var flashReaches = new JsonArray { blast.ExplosionRadius.WholePixels };
+        var flashOvals = new JsonArray { blast.ShownRadius };
+        var flashGlows = new JsonArray { Glow(blast.GlowColor) };
         blast.StepFrame(colours);
         while (blast.IsRunning)
         {
             flashReaches.Add(blast.ExplosionRadius.WholePixels);
+            flashOvals.Add(blast.ShownRadius);
+            flashGlows.Add(Glow(blast.GlowColor));
             if (flashReaches.Count > 4096)
                 throw new InvalidDataException("The old crystal flash's blast does not end.");
             blast.StepFrame(colours);
@@ -541,6 +551,10 @@ public sealed partial class EngineAssetWriter
             .Value("fuse_updates", MorphBallBombDefinitions.InitialBombTimer)
             .Value("blast_reaches", reaches)
             .Value("flash_blast_reaches", flashReaches)
+            .Value("blast_ovals", ovals)
+            .Value("blast_glows", glows)
+            .Value("flash_blast_ovals", flashOvals)
+            .Value("flash_blast_glows", flashGlows)
             .Value("height_parts", PowerBombExplosionDefinitions.OvalHeightParts)
             .Value("width_parts", PowerBombExplosionDefinitions.OvalWidthParts)
             .Value("rehit_after", EnemyCollisionDefinitions.PowerBombInvincibilityUpdates)

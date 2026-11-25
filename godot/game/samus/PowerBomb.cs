@@ -21,6 +21,11 @@ namespace Game;
 /// the fuse runs out; nought is an update on which it reaches nothing but the terrain where it lies, as while it
 /// gathers. The blast ends on the update after the last of them.
 /// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "flash_blast_reaches": [4, 4, 5], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
+/// What is seen of a blast is given beside its reaches, update for update: the oval shown ("blast_ovals", how far
+/// across, nought for none) and the colour it adds to everything inside it ("blast_glows", as red, green and blue
+/// in one number), and the same for a crystal flash's blast ("flash_blast_ovals", "flash_blast_glows"). The ovals
+/// are the cartridge's own, close to the blast's reach but not it, and the glow goes on fading after the blast has
+/// done growing.
 /// A blast that ends where the Samus who laid it lies may start a crystal flash. The bomb is then kept, holding its
 /// place among her power bombs, until the flash's rise is done and the flash's own blast begins: that blast is this
 /// bomb's too, from where she has risen to, by "flash_blast_reaches", the first of which it reaches on the update it
@@ -56,9 +61,24 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     [Export, DataValue("rehit_after")]
     public int RehitAfter { get; set; } = 48;
 
-    /// <summary>The colour the blast is drawn in.</summary>
-    [Export]
-    public Color Colour { get; set; } = new(1f, 1f, 0.6f, 0.6f);
+    /// <summary>How far across the oval shown on each update of the blast is, in pixels; nought shows none.</summary>
+    [Export, DataValue("blast_ovals")]
+    public int[] BlastOvals { get; set; } = [];
+
+    /// <summary>The colour the blast adds inside its oval on each of its updates: red, green and blue in one number.</summary>
+    [Export, DataValue("blast_glows")]
+    public int[] BlastGlows { get; set; } = [];
+
+    /// <summary>How far across the oval shown on each update of a crystal flash's blast is.</summary>
+    [Export, DataValue("flash_blast_ovals")]
+    public int[] FlashBlastOvals { get; set; } = [];
+
+    /// <summary>The colour a crystal flash's blast adds inside its oval on each of its updates.</summary>
+    [Export, DataValue("flash_blast_glows")]
+    public int[] FlashBlastGlows { get; set; } = [];
+
+    /// <summary>How many points the oval's outline is drawn with.</summary>
+    private const int OvalPoints = 128;
 
     /// <summary>
     /// How far the blast reaches across, for the rest of an update's sweep of the enemies, once it has killed one that
@@ -97,7 +117,14 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     public override void _ValidateProperty(Godot.Collections.Dictionary property) => DataValues.Validate(this, property);
 
     /// <inheritdoc/>
-    protected override void OnLaunched(Room room) => DataValues.Fill(this, room.Content);
+    protected override void OnLaunched(Room room)
+    {
+        DataValues.Fill(this, room.Content);
+
+        // The blast's oval adds its colour to what lies beneath it, over everything of the room.
+        Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
+        ZIndex = RoomDepth.Overlay;
+    }
 
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
@@ -275,16 +302,22 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     /// <inheritdoc/>
     public override void _Draw()
     {
-        if (!_blasting || _reach <= 0)
+        // What is shown is the oval and the colour of the update the blast last played; a bomb that waits through a
+        // crystal flash's rise shows nothing.
+        int shown = _blastUpdate - 1;
+        int[] ovals = _flash ? FlashBlastOvals : BlastOvals, glows = _flash ? FlashBlastGlows : BlastGlows;
+        if (!_blasting || _awaiting || _over || shown < 0 || shown >= ovals.Length || shown >= glows.Length || ovals[shown] <= 0)
             return;
-        float across = _reach, down = across * HeightParts / Math.Max(1, WidthParts);
-        var points = new Vector2[32];
+        int glow = glows[shown];
+        var colour = new Color(((glow >> 16) & 255) / 255f, ((glow >> 8) & 255) / 255f, (glow & 255) / 255f);
+        float across = ovals[shown], down = ovals[shown] * HeightParts / Math.Max(1, WidthParts);
+        var points = new Vector2[OvalPoints];
         for (int point = 0; point < points.Length; point++)
         {
             float angle = Mathf.Tau * point / points.Length;
             points[point] = new Vector2(Mathf.Cos(angle) * across, Mathf.Sin(angle) * down);
         }
 
-        DrawColoredPolygon(points, Colour);
+        DrawColoredPolygon(points, colour);
     }
 }

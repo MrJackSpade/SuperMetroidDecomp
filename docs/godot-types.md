@@ -166,6 +166,9 @@ something that leaves the room.
   `CrashOrbitTravel` is how far a shinespark crash's echoes have circled, which the cartridge keeps in the height
   of the first echo let go and does not start over: a crash counts its circling on from what the last crash, or
   that echo while it flew, left, and entering a room leaves nothing; it moves the update she is free again.
+  `EnergyFraction` is the part of one energy she holds beyond her whole energy: ongoing damage (heat, lava,
+  acid, spikes, a chewing plant) comes off it first and borrows a whole energy the moment it asks for more than is
+  held, so such damage takes an energy on its first update; a suit divides the damage counted in 256ths.
   `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll
   layout loads all fifty (its own screens and what the layout's load writes after them, from
   `rooms/scroll_layouts.json`), a room with none writes only its own, and the camera reads the cells past a room's

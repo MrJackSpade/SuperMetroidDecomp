@@ -1808,22 +1808,23 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (blockHit > 0)
             TakeHit(new Hit(blockHit, HitSide.Neutral, HitKind.Hazard), Hurtbox);
 
-        hundredths = OngoingDamageTaken(hundredths);
-        if (hundredths == 0)
-            return;
-        _ongoingHundredths += hundredths;
-        int points = _ongoingHundredths / 100;
-        _ongoingHundredths %= 100;
-        if (points == 0)
-            return;
-        Inventory.Lose(Inventory.Energy, points);
+        int points = OngoingPointsTaken(hundredths);
+        if (points > 0)
+            Inventory.Lose(Inventory.Energy, points);
     }
 
     /// <summary>
-    /// The ongoing damage the player takes this update, in hundredths of a point, out of what reached them. A game
-    /// whose equipment lessens it says so here.
+    /// How many whole points this update's ongoing damage takes, of the hundredths of a point that reached the
+    /// player. The engine's player keeps the hundredths until they make a whole point. A game whose equipment
+    /// lessens the damage, or that takes a point some other way, says so here.
     /// </summary>
-    protected virtual int OngoingDamageTaken(int hundredths) => hundredths;
+    protected virtual int OngoingPointsTaken(int hundredths)
+    {
+        _ongoingHundredths += hundredths;
+        int points = _ongoingHundredths / 100;
+        _ongoingHundredths %= 100;
+        return points;
+    }
 
     /// <summary>Called on each update the room itself does the player ongoing damage: its heat, or its liquid. The engine's player does nothing.</summary>
     protected virtual void OnRoomDamage()

@@ -86,6 +86,12 @@ public sealed partial class EngineAssetWriter
         return steepest;
     }
 
+    /// <summary>How many counts of the clock lie between her breaths, which fall on the count that divides by it.</summary>
+    /// <exception cref="InvalidDataException">The old cadence does not fall on that count.</exception>
+    private static int BreathBubbleEvery() => SamusCadenceDefinitions.BreathBubble.Phase == 0
+        ? SamusCadenceDefinitions.BreathBubble.Period
+        : throw new InvalidDataException("Samus's breath falls on another count of the clock than the one its period divides.");
+
     /// <summary>A speed the old game keeps unsigned, as a plain number of pixels.</summary>
     private static double Number(UnsignedSixteenSixteen speed) => speed.RawValue / (double)UnsignedSixteenSixteen.FromWholePixels(1).RawValue;
 
@@ -220,6 +226,16 @@ public sealed partial class EngineAssetWriter
             .Value("turn_updates", SamusSegmentUpdates(P.TurningRightToLeftPose, Seg.Main))
             .Value("dying_updates", SamusDyingUpdates())
             .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))
+
+            // Her breath under water: a bubble on the clock's cadence, which holds the next off while it shows.
+            .Value("breath_bubble_effect", SamusParticleFile(SamusParticleKind.Bubbles))
+            .Value("breath_bubble_every", BreathBubbleEvery())
+            .Value("breath_bubble_hold_updates", SamusParticle.UpdatesUntilFinished(
+                SamusParticleKind.Bubbles, SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.AtOnce))
+            .Value("breath_mouth_above_top", SamusLiquidParticleDefinitions.BreathTestAboveTop)
+            .Value("breath_bubble_below_top", SamusLiquidParticleDefinitions.BubbleBelowTop)
+            .Value("breath_low_sound", EngineNames.Sound(EnemySound.LowBubbles))
+            .Value("breath_high_sound", EngineNames.Sound(EnemySound.HighBubbles))
 
             // She climbs as steeply as the old game's sloped shapes step from one pixel column to the next.
             .Value("climb_per_pixel", SteepestSlopeStep())

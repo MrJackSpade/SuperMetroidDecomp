@@ -128,6 +128,37 @@ public partial class Samus : Player
     [Export, DataValue("special_attack_updates")]
     public int SpecialAttackUpdates { get; set; } = 120;
 
+    /// <summary>The bubble her breath lets out under water, by the data file of its timeline; empty for none.</summary>
+    [Export(PropertyHint.File), DataValue("breath_bubble_effect")]
+    public string BreathBubbleEffect { get; set; } = "";
+
+    /// <summary>A bubble may rise on every count of the clock that this divides.</summary>
+    [Export, DataValue("breath_bubble_every")]
+    public int BreathBubbleEvery { get; set; } = 128;
+
+    /// <summary>How many updates a bubble holds the next one off.</summary>
+    [Export, DataValue("breath_bubble_hold_updates")]
+    public int BreathBubbleHoldUpdates { get; set; } = 1;
+
+    /// <summary>How far above the top of her body her mouth is taken to be, when it is asked whether it is under water.</summary>
+    [Export, DataValue("breath_mouth_above_top")]
+    public int BreathMouthAboveTop { get; set; } = 24;
+
+    /// <summary>How far below the top of her body a bubble starts.</summary>
+    [Export, DataValue("breath_bubble_below_top")]
+    public int BreathBubbleBelowTop { get; set; } = 6;
+
+    /// <summary>The two sounds of a bubble, by name; a number drawn picks one.</summary>
+    [Export, DataValue("breath_low_sound")]
+    public string BreathLowSound { get; set; } = "";
+
+    /// <inheritdoc cref="BreathLowSound"/>
+    [Export, DataValue("breath_high_sound")]
+    public string BreathHighSound { get; set; } = "";
+
+    /// <summary>The updates left before another bubble may rise.</summary>
+    private Countdown _bubbleWait = Countdown.Over;
+
     /// <summary>The echoes a shinespark throws off as it ends, by the data file of their shot; empty for none.</summary>
     [Export(PropertyHint.File), DataValue("shinespark_echo_shot")]
     public string ShinesparkEchoShot { get; set; } = "";
@@ -619,6 +650,9 @@ public partial class Samus : Player
 
     /// <summary>The name of the liquid type that ends a boosted run.</summary>
     private const string LavaName = "lava";
+
+    /// <summary>The name of the liquid she breathes bubbles in.</summary>
+    private const string WaterName = "water";
 
     /// <summary>Up, down and her two angle actions aim.</summary>
     public override bool AimIsHeld => base.AimIsHeld || Input.IsHeld(Actions.AngleUp) || Input.IsHeld(Actions.AngleDown);
@@ -1215,8 +1249,12 @@ public partial class Samus : Player
     /// <summary>A hit's damage, lessened by her suit: the Gravity suit's share when it is on, else the Varia suit's.</summary>
     protected override int DamageFrom(Hit hit) => hit.Damage / SuitDivisor;
 
-    /// <inheritdoc/>
-    protected override int OngoingDamageTaken(int hundredths) => hundredths / SuitDivisor;
+    /// <summary>The part of one energy she holds beyond her whole energy, which ongoing damage is taken from first.</summary>
+    private readonly Compatibility.EnergyFraction _energyFraction = new();
+
+    /// <summary>Her suit divides ongoing damage, and it comes off the part of an energy she holds, a whole energy borrowed at once.</summary>
+    protected override int OngoingPointsTaken(int hundredths) =>
+        _energyFraction.Take(hundredths, SuitDivisor, Inventory.Amount(Inventory.Energy));
 
     /// <inheritdoc/>
     protected override void OnRoomDamage()
@@ -1343,6 +1381,25 @@ public partial class Samus : Player
             ElevatorJourney.Of(Room.Session).NoteStand();
     }
 
+    /// <summary>
+    /// Lets a bubble out, on the clock's cadence, while her mouth is under water and no bubble holds it off: the bubble
+    /// rises from by her head, and a number is drawn for which of its two sounds is heard. In a room with no water her
+    /// mouth is under unless it is above the room, as the cartridge reads the water's line there.
+    /// </summary>
+    private void Breathe()
+    {
+        int top = Head.Y.Whole, mouth = top - BreathMouthAboveTop;
+        bool under = Room.Liquid is { } liquid && liquid.Type.Name == WaterName ? mouth >= liquid.Surface.Whole : mouth >= -1;
+        if (!under || Room.Session.Clock.Updates % BreathBubbleEvery != 0 || _bubbleWait.IsRunning)
+            return;
+        if (BreathBubbleEffect.Length > 0)
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(BreathBubbleEffect)), PixelPosition.FromWhole(Position.X.Whole, top + BreathBubbleBelowTop)));
+        _bubbleWait = Countdown.Of(BreathBubbleHoldUpdates);
+        string sound = Room.Session.Random.Draw().Part(0, 1) == 1 ? BreathLowSound : BreathHighSound;
+        if (sound.Length > 0)
+            Room.Session.Sounds.Request(sound, channel: "samus");
+    }
+
     /// <inheritdoc/>
     protected override void AfterState()
     {
@@ -1353,6 +1410,12 @@ public partial class Samus : Player
         // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
         if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
             LoseMomentum();
+
+        // Her breath: with her feet in water, and on the update they leave it for the air, a bubble may rise.
+        bool feetInLiquid = Room.Liquid is not null && FeetAreInLiquid;
+        if (feetInLiquid ? Room.Liquid!.Type.Name == WaterName : _liquidLastEntered == WaterName)
+            Breathe();
+        _bubbleWait = _bubbleWait.Stepped();
         _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
         if (_ranFromStart && State is RunningState)
             StepStride();

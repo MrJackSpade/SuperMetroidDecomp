@@ -424,13 +424,24 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.CollisionOwner is not Enemy);
 
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
-        // all have moved. The player's shot meets what it comes upon as it moves, but for enemies: each enemy tries
-        // the shots against itself in its own turn.
+        // all have moved. The player's shot meets what it comes upon as it moves, but for enemies and their shots:
+        // each enemy tries the shots against itself in its own turn, and the room tries them against the enemies'
+        // shots once all have moved.
         if (!DeliversHitNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
-        if (!MeetTargets(room, area, target => target is not Enemy))
+        if (!MeetTargets(room, area, target => target is not Enemy and not Projectile))
             return false;
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+    }
+
+    /// <summary>
+    /// Tries the player's shot against one of the enemies' shots, where each stands. The room does this for every
+    /// pair once all have moved and the enemies' shots have been tried against the player.
+    /// </summary>
+    internal void MeetShot(Projectile enemyShot)
+    {
+        if (!HasEnded && !enemyShot.HasEnded && DeliversHitNow && Side == HitSide.Player)
+            MeetTargets(Room, Area, target => ReferenceEquals(target, enemyShot));
     }
 
     /// <summary>

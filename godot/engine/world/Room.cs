@@ -390,6 +390,23 @@ public partial class Room : Node2D
             Player.EndEnemyShots();
         }
 
+        // Then the player's shots against the enemies' shots, each of the enemies' in turn against each of the
+        // player's, whether or not any was tried against the player.
+        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDead && Player.State is not DyingState)
+        {
+            var shots = _projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList();
+            foreach (Projectile enemyShot in _projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
+            {
+                if (_leaving.Contains(enemyShot))
+                    continue;
+                foreach (Projectile shot in shots)
+                {
+                    if (!_leaving.Contains(shot))
+                        shot.MeetShot(enemyShot);
+                }
+            }
+        }
+
         if (!stopped.HasFlag(Stopped.Room))
         {
             foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())

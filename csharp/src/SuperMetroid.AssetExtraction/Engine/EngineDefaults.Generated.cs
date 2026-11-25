@@ -54,6 +54,7 @@ internal static partial class EngineDefaults
         ["DachoraShaftCamera"] = "RoomSequence",
         ["DeadSidehopper"] = "Enemy",
         ["DeadTorizo"] = "Enemy",
+        ["DeathBlackOut"] = "GameMode",
         ["Diver"] = "Enemy",
         ["Door"] = "RoomExit",
         ["DoorTransitionMode"] = "GameMode",

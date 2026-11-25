@@ -48,7 +48,8 @@ public partial class CrocomireSpikePiece : Projectile
             _quickening = quicker < _mostQuickening ? quicker : _mostQuickening;
         }
 
-        Pixels faster = _across + _quickening;
+        // Its speed takes only the whole 256ths of what quickens it, as the body's does.
+        Pixels faster = _across + Pixels.FromParts(_quickening.Whole, _quickening.Fraction / 256 * 256);
         _across = faster.Whole > _fastest ? faster.WithWhole(_fastest) : faster;
         _fall += _gravity;
         Position += new PixelOffset(_across, _fall);

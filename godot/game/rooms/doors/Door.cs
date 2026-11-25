@@ -37,4 +37,11 @@ public partial class Door : RoomExit
     /// <summary>How far Samus is moved along the way of travel on each update of the door's scroll, in pixels.</summary>
     [Export]
     public double SamusStep { get; set; }
+
+    /// <summary>
+    /// Whether the rooms' tiles are shown through the door's scroll, in the colours the passage leaves lit: so for
+    /// every door but one into or out of a room that shows only what stands in it through its doors.
+    /// </summary>
+    [Export]
+    public bool ShowsTilesThrough { get; set; } = true;
 }

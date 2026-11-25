@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.AssetExtraction.Installation;
@@ -103,6 +104,33 @@ public sealed partial class EngineAssetWriter
             LibraryBackgroundView.BossBody or LibraryBackgroundView.Nothing => null,
             _ => throw new InvalidDataException($"The background {background.Name} is of a kind this does not know: {background.View}."),
         };
+    }
+
+    /// <summary>
+    /// Writes, for each set of graphics, the colours of its tiles a door's fade leaves lit: the cartridge fades every
+    /// colour to black through a door but a handful, and a room's tiles drawn in those stay lit through the door's
+    /// scroll, the doors' frames among them. A door between two rooms that both show their tiles through it keeps a
+    /// few more. A colour lit in one region of the tiles' pictures and faded in another is written with the region.
+    /// </summary>
+    private void WriteDoorLitColours()
+    {
+        static string Written(int colour, int region)
+        {
+            string hex = colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+            return region == ShadeSwap.Everywhere ? hex : $"{hex}/{region}";
+        }
+
+        foreach (RoomGraphicsSet set in EngineLayouts.States().Select(placed => placed.State.GraphicsSet).Distinct())
+        {
+            string sheet = set.ToString();
+            JsonArray Lit(SuperMetroid.Core.Assets.PictureShade dark) =>
+                new([.. _sheets.ShadeKeeps(RoomBlockFamily, sheet, dark.Key).Select(kept => (JsonNode)Written(kept.Colour, kept.Region))]);
+            _tree.WriteData($"tiles/{EngineRoomObjects.GraphicsName(sheet)}/door_lit.json", new JsonObject
+            {
+                ["lit"] = Lit(SuperMetroid.AssetExtraction.Rooms.DoorFadeRoomShades.Dark),
+                ["lit_between_common_rooms"] = Lit(SuperMetroid.AssetExtraction.Rooms.DoorFadeRoomShades.DarkBetweenCommonRooms),
+            });
+        }
     }
 
     /// <summary>Writes the picture behind every room that has one of its own, once for each set of graphics it is coloured by.</summary>

@@ -59,6 +59,7 @@ ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(3, 0)
 SamusStep = 1.5
+ShowsTilesThrough = false
 
 [node name="ToCrocomireEscape" type="Node2D" parent="."]
 script = ExtResource("4")

@@ -18,8 +18,15 @@ namespace Game;
 /// <remarks>
 /// Each step below is a count of updates the old transition takes, and says whether the update opens as an update of
 /// play does (the liquid, the statues and the update's random number), with the random number alone, or with
-/// neither. A power bomb's blast does not go on through a door. The source room is not kept on screen while the
-/// next scrolls in.
+/// neither. A power bomb's blast does not go on through a door.
+/// <para>
+/// The fade is a black cover, and what the cartridge's fade leaves lit is drawn again over it: the room's tiles in
+/// the few colours the passage keeps (<see cref="LitColours"/>, written for each set of graphics), which the doors'
+/// frames are drawn in. The room left gives up its terrain as the next is loaded and its screen stays where it was,
+/// sliding off as the next room scrolls in round it. Under the cover the rooms and what stands in them are drawn as
+/// ever and are not seen. A door into or out of a room that shows only what stands in it through its doors
+/// (<see cref="Door.ShowsTilesThrough"/>) shows no tiles through its scroll.
+/// </para>
 /// <para>
 /// A door entered while an elevator's door is armed is an elevator's. Going down, the ride goes on for a wait of
 /// updates before the passage begins. As the next room is set up a ride that was leaving arrives there: its elevator
@@ -103,6 +110,7 @@ public partial class DoorTransitionMode : GameMode
 
         // The door is gone with its room before the passage is over: what it says is taken now.
         (_toRoom, _toExit, _way, _toScreen) = (door.LeadsToRoom, door.LeadsToExit, door.Travel, door.ToScreen);
+        _showsTilesThrough = door.ShowsTilesThrough;
         _samusStep = Pixels.FromNumber(door.SamusStep);
     }
 
@@ -115,6 +123,99 @@ public partial class DoorTransitionMode : GameMode
         _fade = new ScreenFade { Name = "Fade" };
         AddChild(_fade);
         _fade.Cover(0, FadeLastStep);
+
+        // What stays lit is drawn over the cover, in the part of the screen below the HUD's strip.
+        var lit = new CanvasLayer { Name = "Lit", Layer = _fade.Layer + 1 };
+        AddChild(lit);
+        int top = (_playing.Hud as Hud)?.StripHeight ?? 0;
+        _litArea = new Control
+        {
+            Name = "Play", Position = new Vector2(0, top), Size = new Vector2(Session.Camera.Width, Session.Camera.Height - top),
+            ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        lit.AddChild(_litArea);
+        ShowLitTilesOf(_playing.Room);
+        PlaceLit();
+    }
+
+    private readonly bool _showsTilesThrough;
+    private Control? _litArea;
+    private LitTiles? _litTiles;
+    private Control? _leftScreen;
+
+    /// <summary>The view at which the scroll into the next room began, which the screen of the room left lies at.</summary>
+    private Vector2I _scrollBeganAt;
+
+    /// <summary>The colours a room's tiles keep lit through this door, as its set of graphics has them.</summary>
+    private LitColours LitOf(Room room) => LitColours.Read(
+        room.Content.ReadData(room.Content.Named("tiles/{graphics}/door_lit.json")).List(_showsTilesThrough ? "lit_between_common_rooms" : "lit"));
+
+    /// <summary>Draws the lit colours of a room's tiles over the cover, in place of those of the room before it.</summary>
+    private void ShowLitTilesOf(Room room)
+    {
+        Control area = _litArea ?? throw new InvalidOperationException("The door's passage has not taken control.");
+        DropLitTiles();
+        _litTiles = new LitTiles { Name = "Tiles", Of = room.Terrain, Material = LitOf(room).Material() };
+        area.AddChild(_litTiles);
+    }
+
+    /// <summary>Does away at once with the lit copy of a room's tiles, whose terrain is about to go or to be handed on.</summary>
+    private void DropLitTiles()
+    {
+        if (_litTiles is null)
+            return;
+        _litTiles.GetParent().RemoveChild(_litTiles);
+        _litTiles.Free();
+        _litTiles = null;
+    }
+
+    /// <summary>
+    /// Keeps the screen of the room being left in sight: the room gives up its terrain, which is drawn in its lit
+    /// colours over black in a window the size of the play area, where the screen was. Called before the next room
+    /// is loaded.
+    /// </summary>
+    private void KeepScreenOf(Room left)
+    {
+        Control area = _litArea ?? throw new InvalidOperationException("The door's passage has not taken control.");
+        ShaderMaterial lit = LitOf(left).Material();
+        var view = new Vector2(Session.Camera.Left, Session.Camera.Top);
+        DropLitTiles();
+        Terrain terrain = left.ReleaseTerrain();
+        _leftScreen = new Control { Name = "LeftScreen", Size = area.Size, ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 1 };
+        var black = new ColorRect { Name = "Black", Color = Colors.Black, Size = area.Size, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _leftScreen.AddChild(black);
+        _leftScreen.AddChild(terrain);
+
+        // Its tiles lie in the window where they lay on the screen: where the terrain lies in its room, against the
+        // view the room was left with and the top of the play area.
+        terrain.Position = terrain.Position - view - area.Position;
+        terrain.Material = lit;
+        area.AddChild(_leftScreen);
+    }
+
+    /// <summary>
+    /// Puts what is lit where it is now: the tiles of the room in play where its terrain is, as strongly as the cover
+    /// covers, and the screen of the room left as far from where it was as the view has scrolled.
+    /// </summary>
+    private void PlaceLit()
+    {
+        ScreenFade fade = _fade ?? throw new InvalidOperationException("The door's passage has not taken control.");
+        Control area = _litArea ?? throw new InvalidOperationException("The door's passage has not taken control.");
+        bool scrolling = _stage is >= Stage.BeginningDisplay and <= Stage.Finishing;
+        area.Visible = _showsTilesThrough || !scrolling;
+        if (_litTiles is not null)
+        {
+            _litTiles.Follow();
+
+            // Under a cover that is not yet whole the room's own tiles still show: the lit copy comes in with the cover.
+            _litTiles.Modulate = new Color(1, 1, 1, (float)fade.Covered / fade.Steps);
+        }
+
+        if (_leftScreen is not null)
+        {
+            _leftScreen.Position = new Vector2(_scrollBeganAt.X - _view.X, _scrollBeganAt.Y - _view.Y);
+            _leftScreen.Visible = _stage < Stage.FadingIn;
+        }
     }
 
     /// <inheritdoc/>
@@ -318,6 +419,7 @@ public partial class DoorTransitionMode : GameMode
                 throw new InvalidOperationException($"Undefined stage {_stage} of a door's passage.");
         }
 
+        PlaceLit();
         return this;
     }
 
@@ -416,7 +518,13 @@ public partial class DoorTransitionMode : GameMode
         ElevatorJourney journey = ElevatorJourney.Of(Session);
         journey.PassDoor();
         var entry = new RoomEntry(_toExit, samus.Velocity, samus.Facing) { At = rebased, KeepsView = true };
+
+        // The screen of the room left stays in sight where it was, as the scroll begins.
+        if (_showsTilesThrough)
+            KeepScreenOf(_playing.Room);
+        _scrollBeganAt = setup;
         _playing.ChangeRoom(_toRoom, entry);
+        ShowLitTilesOf(_playing.Room);
         PixelPosition? onElevator = journey.TakeSetDownPlace();
         samus.Position = rebased;
         _view = setup;

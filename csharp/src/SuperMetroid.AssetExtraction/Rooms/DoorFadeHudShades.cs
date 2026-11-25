@@ -18,10 +18,10 @@ internal static partial class DoorFadeHudShades
     private const int HudInks = 32;
 
     /// <summary>The inks every door keeps lit: the minimap's explored and unexplored colours, the highlighted item's and the room highlight.</summary>
-    private static readonly ImmutableArray<int> Kept = [9, 10, 13, 14, 17, 18, 19, 29];
+    internal static readonly ImmutableArray<int> Kept = [9, 10, 13, 14, 17, 18, 19, 29];
 
     /// <summary>The inks a door between two common rooms also keeps lit: the HUD's item backgrounds and the minimap's.</summary>
-    private static readonly ImmutableArray<int> KeptBetweenCommonRooms = [20, 21, 22, 23, 28];
+    internal static readonly ImmutableArray<int> KeptBetweenCommonRooms = [20, 21, 22, 23, 28];
 
     /// <summary>The HUD's two dark shades: every door's, and a door's between two common rooms.</summary>
     internal static IReadOnlyList<SheetShade> Of() =>

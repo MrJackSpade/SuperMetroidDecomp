@@ -25,6 +25,38 @@ internal sealed partial class EngineSheets
     private readonly Dictionary<(string Family, string Sheet), Dictionary<int, SortedSet<int>>> _regionsDrawn = [];
 
     /// <summary>
+    /// The colours one shade of a sheet leaves as they are, of those the sheet's pictures draw: each with the region
+    /// it is left in, or <see cref="ShadeSwap.Everywhere"/> where the shade leaves it in every region that draws it.
+    /// Black is left out: a shade that darkens leaves it as it is, and it shows as nothing either way.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation has no such sheet or shade.</exception>
+    internal IReadOnlyList<(int Colour, int Region)> ShadeKeeps(string family, string sheet, string shade)
+    {
+        InstalledSheetDocument document = Document(family, sheet);
+        Dictionary<int, SortedSet<int>> drawn = RegionsDrawn(family, sheet, document);
+        var changed = new HashSet<(int Colour, int Region)>();
+        foreach (((int colour, int region), RgbaPixel shown) in ShadeOf(sheet, document, shade))
+        {
+            if (((shown.R << 16) | (shown.G << 8) | shown.B) != colour)
+                changed.Add((colour, region));
+        }
+
+        var kept = new List<(int Colour, int Region)>();
+        foreach ((int colour, SortedSet<int> regions) in drawn.OrderBy(entry => entry.Key))
+        {
+            if (colour == 0)
+                continue;
+            int[] left = [.. regions.Where(region => !changed.Contains((colour, region)))];
+            if (left.Length == regions.Count)
+                kept.Add((colour, ShadeSwap.Everywhere));
+            else
+                kept.AddRange(left.Select(region => (colour, region)));
+        }
+
+        return kept;
+    }
+
+    /// <summary>
     /// The colours one shade of a sheet changes. A colour the shade shows alike in every region of the sheet's
     /// pictures that draws it is one swap that holds everywhere; a colour it changes in one region and leaves, or
     /// shows otherwise, in another is a swap for each region it changes. A colour the shade leaves as it is, or that

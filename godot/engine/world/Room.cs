@@ -917,6 +917,19 @@ public partial class Room : Node2D
     }
 
     /// <summary>
+    /// Gives the room's terrain up as the room is left, to whoever goes on showing it: a door's passage keeps the
+    /// screen of the room left in sight while the next scrolls in. The terrain is taken out of the room and is the
+    /// taker's to place and to free. The room is done with after this: it is taken down and freed, and nothing more
+    /// is asked of it.
+    /// </summary>
+    public Terrain ReleaseTerrain()
+    {
+        Terrain terrain = Terrain;
+        RemoveChild(terrain);
+        return terrain;
+    }
+
+    /// <summary>
     /// Takes the room down as it is left: the player is taken out of it to go on to the next room, and everything else
     /// goes with the room.
     /// </summary>

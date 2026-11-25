@@ -29,6 +29,9 @@ internal static partial class RoomSheetShades
         Ensure.NotNull(inputs);
         SelectedRoom[] rooms = [.. RoomsOf(tileset)];
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
+
+        // What a door's fade leaves of the room, which the Godot game's assets are written from.
+        shades.AddRange(DoorFadeRoomShades.Of());
         foreach ((EnemyDefinitionId[] enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> roomShades) in EnemyRoomShades)
         {
             if (enemies.Any(enemy => Places(rooms, enemy)))

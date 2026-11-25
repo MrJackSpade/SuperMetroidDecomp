@@ -62,6 +62,9 @@ public partial class Hud : GameHud, IHasValues
     private readonly List<string> _timerDigits = [];
     private readonly Dictionary<string, Area> _areas = new(StringComparer.Ordinal);
     private string _template = "";
+
+    /// <summary>How tall the HUD's strip at the top of the screen is, in pixels: its background's height.</summary>
+    public int StripHeight => _template.Length == 0 ? 0 : _content?.LoadTexture(_template).GetHeight() ?? 0;
     private string _tankFull = "";
     private string _tankEmpty = "";
     private Vector2I _energyAt;

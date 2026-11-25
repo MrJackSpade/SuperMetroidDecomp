@@ -772,3 +772,4 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `samus/colours.json` | `game/samus/Samus.Colours.cs` |
 | `samus/death.json` | `game/samus/DeathMode.cs` |
 | `text/emergency.png` | `game/rooms/ceres/ceres_ridley.tscn` |
+| `tiles/{graphics}/door_lit.json` | `game/rooms/doors/DoorTransitionMode.cs` |

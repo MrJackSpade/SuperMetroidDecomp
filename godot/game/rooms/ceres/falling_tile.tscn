@@ -75,6 +75,7 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(0, 2)
 SamusStep = 0.78125
+ShowsTilesThrough = false
 
 [node name="ToMagnetStairs" type="Node2D" parent="."]
 script = ExtResource("5")

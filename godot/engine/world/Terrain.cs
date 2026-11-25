@@ -595,7 +595,13 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     }
 
     /// <inheritdoc/>
-    public override void _Draw()
+    public override void _Draw() => DrawTiles(this);
+
+    /// <summary>
+    /// Draws every tile's picture as it is now on <paramref name="on"/>, which may be the terrain itself or something
+    /// that shows its tiles again somewhere else (<see cref="LitTiles"/>).
+    /// </summary>
+    internal void DrawTiles(CanvasItem on)
     {
         if (_layout is null || _content is null)
             return;
@@ -606,7 +612,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             {
                 string picture = PictureShownAt(row, column);
                 if (picture.Length > 0)
-                    DrawTexture(_content.LoadTexture(picture), new Vector2(column * size, row * size));
+                    on.DrawTexture(_content.LoadTexture(picture), new Vector2(column * size, row * size));
             }
         }
     }

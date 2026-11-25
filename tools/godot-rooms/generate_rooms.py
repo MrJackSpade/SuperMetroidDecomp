@@ -747,6 +747,9 @@ class Generator:
                 'Travel': str(DOOR_WAYS.index(door.direction)),
                 'ToScreen': f'Vector2i({door.to_screen[0]}, {door.to_screen[1]})',
                 'SamusStep': repr(samus_step(door)),
+                # A room that shows only what stands in it through its doors shows no tiles through the scroll, and
+                # neither does the room on the door's other side.
+                **({'ShowsTilesThrough': 'false'} if 'ObjectsOnly' in room.properties.get('DoorTransition', '') + target.properties.get('DoorTransition', '') else {}),
             }, script='res://game/rooms/doors/Door.cs')
             entries.append((name, x, y))
 

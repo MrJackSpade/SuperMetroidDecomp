@@ -1406,7 +1406,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   each picture, each pose saying what every piece does and how far its mouth is open; what it does in the acid is a
   script in its data; the bridge's blocks, the walls that hold Samus in while it dies and the opened spike wall are
   patches; the pieces of the spike wall are a `Projectile` of their own class, the bridge's pieces and its fire
-  plain ones; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts; while its fight lasts the door of its room is wall, a patch of the room's terrain, and the door's cap is out of sight); Botwoon
+  plain ones; the screens of its room its fight and death shut and open it writes to the room's scroll cells
+  itself; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts; while its fight lasts the door of its room is wall, a patch of the room's terrain, and the door's cap is out of sight); Botwoon
   (its head is the enemy, sized by a cue for the way it points, and the thirteen segments of its body are visuals
   with hurtboxes that stop shots and are not hurt; how hurt it is is a set of its pictures; its wall falls as a
   `PatchSequence` the room goes on playing after it is gone, and the `CameraZone` its wall kept shut is opened as

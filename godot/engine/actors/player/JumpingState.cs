@@ -148,12 +148,19 @@ public sealed class JumpingState : PlayerState
 
     /// <summary>
     /// The body takes the form of the stance asked for, where it fits; a new stance is taken up only when it does, and
-    /// sets the steering afresh.
+    /// sets the steering afresh. Where it does not fit the aim goes back to the stance's own.
     /// </summary>
     public override void CarriedOn(Player owner)
     {
         bool fits = owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
-        if (!fits || _stanceAsked == Stance)
+        if (!fits)
+        {
+            // With no room for the form of the stance asked for, the player keeps the stance they have, and its aim.
+            owner.Aim = Stance.Aim;
+            return;
+        }
+
+        if (_stanceAsked == Stance)
             return;
         owner.SteerAfresh();
         _stance = _stanceAsked;

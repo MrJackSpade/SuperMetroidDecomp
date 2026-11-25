@@ -28,6 +28,7 @@ public sealed partial class EngineAssetWriter
     {
         const string sporeScene = "res://game/bosses/spore_spawn/spore_spawn_spore.tscn", sporeFile = "bosses/spore_spawn_spore.json";
         EngineEnemy boss = Enemy("bosses/spore_spawn.json", "SporeSpawn", EnemyDefinitionId.SporeSpawn);
+        SortedDictionary<string, string> roomPlaces = RoomPlacesOf(EnemyDefinitionId.SporeSpawn);
 
         // The ceiling crumbles through each frame of the old change and is left as its last, the patch a room where
         // it has been beaten begins with.
@@ -108,6 +109,12 @@ public sealed partial class EngineAssetWriter
             {
                 ["health"] = band.MinimumHealth,
                 ["shade"] = HealthSet(band),
+            })))
+            .Group("hardening_colours", EngineNames.List(SporeSpawnDeathFadeStep.All.Select(step => (JsonNode)new JsonObject
+            {
+                ["shade"] = HardeningSet(step),
+                // Each step of its hardening lays the room's level and then its background in the husk's colours.
+                ["room"] = ShadeChange($"{SporeSpawnShades.DeathLevel(step).Key}+{SporeSpawnShades.DeathBackground(step).Key}", roomPlaces),
             })))
             .PictureSets("{shade}");
 

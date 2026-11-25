@@ -4,6 +4,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -22,7 +23,8 @@ namespace Game.Enemies;
 /// Their cues are "movement:&lt;idle|descending|moving|setup_death|dying&gt;"; "sway:&lt;radius&gt;:&lt;steps&gt;",
 /// which sets how wide it swings and how many angle steps a swing turns each update, backwards when below nothing;
 /// "spores:&lt;on|off&gt;"; "pose:&lt;name&gt;", which puts its parts where its data's "poses" have them under that
-/// name (<see cref="ColliderPoses"/>); "shade:&lt;name&gt;", which shows it in the set of its pictures of that name;
+/// name (<see cref="ColliderPoses"/>); "shade:&lt;name&gt;", which shows it in the set of its pictures of that name
+/// and the room's own pictures in the colours "hardening_colours" gives that step of its hardening ("shade", "room");
 /// "widen", "reopen", "harden", "drops", "hardening_dust" and "dying_explosion". "ceiling_crumble" is the change to
 /// the terrain that brings the ceiling above it down as it dies (<see cref="PatchSequence"/>).
 /// <code>
@@ -35,7 +37,8 @@ namespace Game.Enemies;
 /// them in that order. Only "Core" can be hurt, and only in a pose that says so; every other part turns shots away. A
 /// pose that does not name a part leaves it switched off. "health_shades" lists, most health first, the set of its
 /// pictures it shows from the first hurt of an opening on, by the least health it is shown at; a picture's path holds
-/// "{shade}" where the set's name goes. The visuals "Stalk1" through "Stalk4" are its stalk, ceiling end first, shown by
+/// "{shade}" where the set's name goes. A room where it has been beaten is shown in the colours of the last step of its
+/// hardening from the moment it is set up. The visuals "Stalk1" through "Stalk4" are its stalk, ceiling end first, shown by
 /// the timeline "stalk" in its own colours, and "Emitter1" through "Emitter4" the places in the ceiling its spores
 /// come from, playing "emitter_closed" and "emitter_release", whose cue "spore" lets the spore go. "emitters" gives
 /// each one's place from where Spore Spawn hangs and the way its spores first drift. Its stalk and emitters go on
@@ -137,6 +140,9 @@ public partial class SporeSpawn : Enemy
     private ColliderPoses? _poses;
     private PatchSequence? _ceilingCrumble;
     private readonly List<(int Health, string Shade)> _healthShades = [];
+
+    /// <summary>Each step of its hardening, in turn: the step's name and the room's own pictures in its colours.</summary>
+    private readonly List<(string Shade, ColourChange Room)> _hardening = [];
     private Moving _moving;
     private PixelPosition _centre;
     private int _angle;
@@ -180,6 +186,10 @@ public partial class SporeSpawn : Enemy
 
         _healthShades.Clear();
         _healthShades.AddRange(data.List("health_shades").Select(shade => (shade.Int("health"), shade.Text("shade"))));
+        _hardening.Clear();
+        _hardening.AddRange(data.List("hardening_colours").Select(step => (step.Text("shade"), ColourChange.Read(step.Get("room")))));
+        if (_hardening.Count == 0)
+            throw data.Problem("must list the steps of its hardening");
     }
 
     /// <inheritdoc/>
@@ -198,6 +208,9 @@ public partial class SporeSpawn : Enemy
                 shell.Enabled = true;
             PlaceStalk();
             ShowParts();
+            // A room where it has been beaten is in the colours of its last step of hardening from the moment it is
+            // set up, so through the door's passage too.
+            ShowHardening(_hardening[^1].Shade);
             return;
         }
 
@@ -320,6 +333,7 @@ public partial class SporeSpawn : Enemy
                 break;
             case "shade":
                 _shade = parts[1];
+                ShowHardening(parts[1]);
                 break;
             case "widen":
                 if (_radius < WidenedSwayLimit)
@@ -353,6 +367,21 @@ public partial class SporeSpawn : Enemy
             default:
                 throw new InvalidOperationException($"Spore Spawn's timeline \"{Playing}\" gives the cue \"{cue}\", which it does not know.");
         }
+    }
+
+    /// <summary>Shows the room's own pictures, its level and its background, in the colours of a step of its hardening, at once.</summary>
+    private void ShowHardening(string shade)
+    {
+        foreach ((string name, ColourChange room) in _hardening)
+        {
+            if (name == shade)
+            {
+                Room.Recolour(nameof(SporeSpawn), room);
+                return;
+            }
+        }
+
+        throw new InvalidOperationException($"Spore Spawn has no step of its hardening named \"{shade}\".");
     }
 
     /// <summary>Puts its parts where a pose has them, and switches off those the pose does not name.</summary>

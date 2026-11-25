@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Core;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -470,13 +471,28 @@ public partial class MotherBrain
     private void BeginHandBeam()
     {
         _handBeamAt = Position + PixelOffset.FromWhole(64, -48);
-        PixelOffset toSamus = Room.Player.Position - _handBeamAt;
-        // The angle is kept from straight down toward the right.
-        _handBeamAngle = Turns.Wrap(Turns.PerTurn / 4 - Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole));
-        Pixels speed = Shot("hand_beam").Speed;
-        _handBeamSpeed = new PixelVelocity(Turns.Sine(_handBeamAngle, speed), Turns.Cosine(_handBeamAngle, speed));
+        PixelPosition samus = Room.Player.Position;
+        // The angle is kept from straight down toward the right: the cartridge's aim, from whole pixels to whole
+        // pixels, a quarter turn on.
+        int aim = CartridgeAngles.AimAngle(samus.X.Whole - _handBeamAt.X.Whole, samus.Y.Whole - _handBeamAt.Y.Whole);
+        _handBeamAngle = Turns.Wrap(aim + Turns.PerTurn / 4);
+        _handBeamSpeed = AlongHeading(In256ths(Shot("hand_beam").Speed), _handBeamAngle);
         ((MotherBrainHandBeam)Fire("hand_beam_charge", _handBeamAt, PixelVelocity.Zero)).FiredBy(this);
     }
+
+    /// <summary>
+    /// A speed in 256ths of a pixel split along a heading from straight down toward the right, as the cartridge splits
+    /// it: across by the heading's sine, down by the sine a quarter turn on.
+    /// </summary>
+    private static PixelVelocity AlongHeading(int speedIn256ths, int heading) => new(
+        From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, heading)),
+        From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, heading + Turns.PerTurn / 4)));
+
+    /// <summary>A distance in the 256ths of a pixel the cartridge holds a speed in, what is finer dropped.</summary>
+    private static int In256ths(Pixels distance) => distance.Whole * 256 + distance.Fraction / 256;
+
+    /// <summary>A distance from a count of 256ths of a pixel.</summary>
+    private static Pixels From256ths(int count) => Pixels.FromParts(count >> 8, (count & 255) * 256);
 
     /// <summary>
     /// Lays down the next piece of the beam from her hand: a step further along its line and knocked a little off it
@@ -486,8 +502,8 @@ public partial class MotherBrain
     {
         _handBeamAt += _handBeamSpeed.OverOneUpdate;
         int turn = Turns.Wrap(_handBeamAngle + Random.Draw().Part(0, 8));
-        Pixels knock = Pixels.FromWhole(Random.Draw().Part(8, 3));
-        PixelPosition at = _handBeamAt + new PixelOffset(Turns.Sine(turn, knock), Turns.Cosine(turn, knock));
+        int knock = Random.Draw().Part(8, 3);
+        PixelPosition at = _handBeamAt + AlongHeading(knock * 256, turn).OverOneUpdate;
         if (at.Y.Whole < 34 || at.Y.Whole >= 206 || at.X.Whole < 2 || at.X.Whole >= 238)
         {
             Leave(BigExplosionEffect, at);
@@ -535,8 +551,7 @@ public partial class MotherBrain
                 break;
 
             case "ring":
-                Pixels speed = Shot("ring").Speed;
-                var ring = (MotherBrainRing)Fire("ring", _head + MouthOffset, new PixelVelocity(Turns.Sine(_ringAngle, speed), Turns.Cosine(_ringAngle, speed)));
+                var ring = (MotherBrainRing)Fire("ring", _head + MouthOffset, AlongHeading(In256ths(Shot("ring").Speed), _ringAngle));
                 ring.HeldBy(this);
                 break;
 
@@ -590,8 +605,9 @@ public partial class MotherBrain
     /// </summary>
     private void AimRings(PixelPosition target)
     {
-        PixelOffset to = target - (_head + MouthOffset);
-        int angle = Turns.Wrap(Turns.PerTurn / 4 - Turns.AngleOf(to.X.Whole, to.Y.Whole));
+        // The cartridge aims from whole pixels to whole pixels, a quarter turn on so as to count from straight down.
+        PixelPosition mouth = _head + MouthOffset;
+        int angle = Turns.Wrap(CartridgeAngles.AimAngle(target.X.Whole - mouth.X.Whole, target.Y.Whole - mouth.Y.Whole) + Turns.PerTurn / 4);
         _ringAngle = angle is >= 16 and < 72 ? angle : angle is >= 72 and < 192 ? 72 : 16;
     }
 }

@@ -732,7 +732,7 @@ public partial class Botwoon : Enemy
                     TimelineStep step = look.Steps[_ripple is null ? 0 : _ripple.StepIndex % look.Steps.Count];
                     visual.Show(step with { Picture = Shaded(step.Picture) });
                     // Its body flashes with its head.
-                    visual.Tint(IsFlashing && Updates % 2 == 0 ? new Color(2f, 2f, 2f) : Colors.White);
+                    visual.Tint(IsFlashing && Room.Session.Clock.ShortUpdates % 4 >= 2 ? new Color(2f, 2f, 2f) : Colors.White);
                 }
             }
 

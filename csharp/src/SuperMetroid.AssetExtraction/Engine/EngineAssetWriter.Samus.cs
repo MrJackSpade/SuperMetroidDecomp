@@ -386,6 +386,11 @@ public sealed partial class EngineAssetWriter
             ["extend_speed"] = GrappleFiringDefinitions.CardinalSpeed.Pixels,
             ["extend_diagonal_speed"] = GrappleFiringDefinitions.DiagonalSpeed.Pixels,
             ["reach"] = GrappleBeamDefinitions.Physics.FiringCancelLength,
+            ["length_each_update"] = GrappleBeamDefinitions.Physics.FiringExtension,
+            ["substeps"] = GrappleExtensionStepCarryover.Substeps,
+
+            // While the line is out her beams' colours are those of one set of beams.
+            ["firing_beams"] = EngineSheets.FileName(GrappleBeamDefinitions.BeamShades.FiringSelection.ToString()),
             ["damage"] = EngineReactions.GrappleHitDamage,
 
             // The swing's own numbers: its speeds of turning in 256ths of an angle step an update, its lengths in pixels.

@@ -174,6 +174,10 @@ public partial class CeresDestruction : Cinematic
 
         if (_phase <= Phase.FadingOutCeres)
             StepStation();
+
+        // The lights and the flicker take their turn after what is seen has taken its own, from the update each begins on.
+        _navigationLights?.Step();
+        _engineFlicker?.Step();
         _counter++;
         ShowFloor();
         return _phase == Phase.Finished;
@@ -183,9 +187,17 @@ public partial class CeresDestruction : Cinematic
     protected override GameMode Next() =>
         SamusAboard ? new Menus.DeathBlackOut() : Menus.GameLoad.OfLanding(LandingRoom, LandingEntry);
 
+    /// <summary>The blinking of the station's navigation lights on the floor, from the station's setup until the planet's.</summary>
+    private ColourSteps? _navigationLights;
+
+    /// <summary>The flicker of the gunship's engine, from the planet's setup; seen once the approach's floor is shown.</summary>
+    private ColourSteps? _engineFlicker;
+
     private void SetUpStation()
     {
         ShowFloorPicture("station_floor");
+        _navigationLights = new ColourSteps((_data ?? throw NotEntered()).Get("navigation_lights"), "NavigationLights");
+        _navigationLights.ShowOn(Floor());
         Spawn(_spaceThings, "large_asteroids", Pixels.FromNumber(0.25), loops: true);
         Spawn(_spaceThings, "small_asteroids", Pixels.FromNumber(0.03125), loops: true);
         Spawn(_spaceThings, "vortex", Pixels.Zero, loops: false);
@@ -437,6 +449,10 @@ public partial class CeresDestruction : Cinematic
         (_blasting, Glow().Visible) = (false, false);
         Floor().Visible = false;
         (_scrollX, _scrollY, _angle, _size) = (0, 0, 0, 256);
+        // The station's lights end here, and the gunship's engine begins to flicker; it is seen on the approach's floor.
+        _navigationLights?.Stop();
+        _navigationLights = null;
+        _engineFlicker = new ColourSteps((_data ?? throw NotEntered()).Get("engine_flicker"), "EngineFlicker");
         MosaicPicture zebes = _zebes ?? throw NotEntered();
         zebes.Visible = true;
         _blockWidth = 9;
@@ -462,6 +478,7 @@ public partial class CeresDestruction : Cinematic
         _scrollY = -104 + (_scrollY - Math.Floor(_scrollY));
         (_angle, _size) = (32, 256);
         ShowFloorPicture("approach_floor");
+        (_engineFlicker ?? throw NotEntered()).ShowOn(Floor());
         _floorOverSprites = true;
         _sliders.Add((Spawn(null, "planet", Pixels.Zero, loops: false), Pixels.FromNumber(0.25), false));
         foreach (string stars in new[] { "stars_upper_left", "stars_upper_right", "stars_lower_left", "stars_lower_right" })

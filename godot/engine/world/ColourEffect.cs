@@ -13,16 +13,8 @@ namespace Engine.World;
 /// and the enemies act, shows its first step on its first update, and affects play in no way of its own.
 /// </summary>
 /// <remarks>
-/// Its steps are a data file:
-/// <code>
-/// { "steps": [ { "updates": 8, "colours": { "tiles/norfair": { "f8a800": "f8d038", "c05800/1": "e08010" } }, "sound": "room_thunder" },
-///              { "updates": 8, "colours": { } } ],
-///   "loops_to": 0 }
-/// </code>
-/// Each step lasts its "updates". Its "colours" are a change of colours listed place by place
-/// (<see cref="ColourChange"/>): a colour the step does not list shows as the pictures have it, and each thing the
-/// effect is shown on is shown the colours of the places it shows pictures from. A step may name a "sound", asked
-/// for as the step begins. After the last step the effect goes back to the step "loops_to" names; with none it stays on its last step.
+/// Its steps are a data file, played by the engine's <see cref="ColourSteps"/>, which says how they are written: each
+/// thing the effect is shown on is shown the colours of the places it shows pictures from, and a step's sound is asked for as the step begins.
 /// It can be told to "start" and to "stop", which takes its colours back; it ends by itself, taking its colours
 /// back, once its <see cref="EndsWhen"/> holds; and on every update its <see cref="RestartsWhile"/> holds it begins
 /// again at its first step.
@@ -59,49 +51,28 @@ public partial class ColourEffect : RoomEffect
     [Export]
     public Condition? RestartsWhile { get; set; }
 
-    private readonly List<(int Updates, ColourChange Colours, string Sound)> _steps = [];
-    private readonly List<IRecoloured> _shownOn = [];
-    private int? _loopsTo;
-    private int _at = -1;
-    private int _left;
+    /// <summary>Its steps, read as the room is set up; they keep their changes under the effect's name.</summary>
+    private ColourSteps? _colours;
 
-    /// <summary>The name its changes are kept under on what it is shown on.</summary>
-    private string Source => Name;
+    private ColourSteps Colours => _colours ?? throw new InvalidOperationException($"The colour effect \"{Name}\" has not been set up.");
 
     /// <summary>Shows the effect on <paramref name="target"/> as well, from its next step on.</summary>
-    public void ShowOn(IRecoloured target)
-    {
-        ArgumentNullException.ThrowIfNull(target);
-        if (!_shownOn.Contains(target))
-            _shownOn.Add(target);
-    }
+    public void ShowOn(IRecoloured target) => Colours.ShowOn(target);
 
     /// <inheritdoc/>
     protected override void OnSetup(Room room)
     {
         if (StepsFile.Length == 0)
             throw new InvalidOperationException($"The colour effect \"{Name}\" names no file of steps.");
-        DataNode data = room.Content.ReadData(StepsFile);
-        _steps.Clear();
-        foreach (DataNode step in data.List("steps"))
+        _colours = new ColourSteps(room.Content.ReadData(StepsFile), Name);
+        if (OnTerrain)
+            _colours.ShowOn(room.Terrain);
+        if (OnBackdrops)
         {
-            int updates = step.Int("updates");
-            if (updates < 1)
-                throw step.Get("updates").Problem("must be at least 1");
-            _steps.Add((updates, ColourChange.Read(step.Get("colours")), step.Has("sound") ? step.Text("sound") : ""));
+            foreach (Backdrop backdrop in room.GetChildren().OfType<Backdrop>())
+                _colours.ShowOn(backdrop);
         }
 
-        if (_steps.Count == 0)
-            throw data.Get("steps").Problem("lists no step");
-        _loopsTo = data.Has("loops_to") ? data.Int("loops_to") : null;
-        if (_loopsTo is { } loop && (loop < 0 || loop >= _steps.Count))
-            throw data.Get("loops_to").Problem("names no step of the effect");
-
-        _shownOn.Clear();
-        if (OnTerrain)
-            _shownOn.Add(room.Terrain);
-        if (OnBackdrops)
-            _shownOn.AddRange(room.GetChildren().OfType<Backdrop>());
         foreach (string thing in OnThings)
         {
             Node node = room.GetNodeOrNull(thing)
@@ -109,19 +80,20 @@ public partial class ColourEffect : RoomEffect
             IRecoloured[] visuals = [.. node.FindChildren("*", owned: false).Prepend(node).OfType<IRecoloured>()];
             if (visuals.Length == 0)
                 throw new InvalidOperationException($"The colour effect \"{Name}\" is shown on \"{thing}\", which has nothing that can be recoloured.");
-            _shownOn.AddRange(visuals);
+            foreach (IRecoloured visual in visuals)
+                _colours.ShowOn(visual);
         }
-
-        _at = -1;
     }
 
     /// <inheritdoc/>
     protected override void OnStep(Room room)
     {
+        ColourSteps colours = Colours;
+
         // Its first update shows its first step.
-        if (_at < 0)
+        if (!colours.HasBegun)
         {
-            Begin(room, 0);
+            Ask(room, colours.Step());
             return;
         }
 
@@ -133,26 +105,11 @@ public partial class ColourEffect : RoomEffect
 
         if (RestartsWhile is { } restarts && restarts.IsTrue(room))
         {
-            Begin(room, 0);
+            Ask(room, colours.Restart());
             return;
         }
 
-        if (--_left > 0)
-            return;
-        int next = _at + 1;
-        if (next == _steps.Count)
-        {
-            // With nowhere to go back to, it stays on its last step.
-            if (_loopsTo is not { } loop)
-            {
-                _left = 1;
-                return;
-            }
-
-            next = loop;
-        }
-
-        Begin(room, next);
+        Ask(room, colours.Step());
     }
 
     /// <inheritdoc/>
@@ -164,23 +121,17 @@ public partial class ColourEffect : RoomEffect
             base.Triggered(what);
     }
 
-    /// <summary>Begins a step: its colours are shown and its sound asked for.</summary>
-    private void Begin(Room room, int step)
+    /// <summary>Asks for the sound of a step that has just begun, where it names one.</summary>
+    private static void Ask(Room room, string sound)
     {
-        _at = step;
-        _left = _steps[step].Updates;
-        foreach (IRecoloured target in _shownOn)
-            _steps[step].Colours.ShowOn(target, Source);
-        if (_steps[step].Sound.Length > 0)
-            room.Session.Sounds.Request(_steps[step].Sound, channel: "room");
+        if (sound.Length > 0)
+            room.Session.Sounds.Request(sound, channel: "room");
     }
 
     /// <summary>Ends the effect: its colours are taken back, and it begins at its first step if started again.</summary>
     private void Stop()
     {
-        foreach (IRecoloured target in _shownOn)
-            target.Recolour(Source, []);
-        _at = -1;
+        Colours.Stop();
         SetActive(false);
     }
 }

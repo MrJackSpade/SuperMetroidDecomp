@@ -86,6 +86,10 @@ public sealed partial class EngineAssetWriter
         timelines["stars"] = CeresTimeline(CeresFlightActorDefinitions.FrontStars.Animation, CeresFlightActorDefinitions.FrontStars.Colouring, SpriteSheetId.CeresFlightSprites, folder + "/stars");
         places["stars"] = At(CeresFlightActorDefinitions.FrontStarsStart.X, CeresFlightActorDefinitions.FrontStarsStart.Y);
         var rearView = new JsonArray();
+
+        // What the station's navigation lights are shown on: each thing seen from behind that is drawn in a colouring
+        // the lights animate, with the sheet its pictures are cut from.
+        var litPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         foreach (CeresRearViewActorRole role in CeresFlightActorDefinitions.RearViewSpawnOrder)
         {
             string name = Named(role);
@@ -94,7 +98,13 @@ public sealed partial class EngineAssetWriter
             places[name] = At(artwork.CeresFlight.Actors[role].X, artwork.CeresFlight.Actors[role].Y);
             if (seen.InitialVelocity != default)
                 throw new InvalidDataException($"The {role} seen from behind the gunship starts with a speed, which the Godot game does not give it.");
-            rearView.Add(new JsonObject { ["name"] = name, ["drift"] = EngineNames.Number(seen.HorizontalDelta), ["loops"] = seen.DriftsRoundLoop });
+            bool hasLights = CeresFlightSceneDefinitions.LitColours.ContainsKey(seen.Colouring);
+            if (hasLights)
+                litPlaces[$"{folder}/{name}"] = [EngineSheets.SheetOf(SpriteSheetId.CeresFlightSprites)];
+            rearView.Add(new JsonObject
+            {
+                ["name"] = name, ["drift"] = EngineNames.Number(seen.HorizontalDelta), ["loops"] = seen.DriftsRoundLoop, ["lit"] = hasLights,
+            });
         }
 
         places["caption"] = At(SpaceColonyCaption.Left(0), SpaceColonyCaptionDefinitions.Top);
@@ -177,8 +187,16 @@ public sealed partial class EngineAssetWriter
             ["examination_picture"] = Whole(SpriteSheetId.IntroScenePictures, IntroScenePictures.Page(IntroScenePage.ScientistExamination), "examination"),
             ["flight_backdrop"] = Colour(artwork.CeresFlight.Backdrop),
             ["front_floor"] = Whole(SpriteSheetId.CeresFloor, CeresFloors.FrameName(CeresFloorShot.FlightFront), "front_floor"),
-            ["rear_floor"] = Whole(SpriteSheetId.CeresFloor, CeresFloors.FrameName(CeresFloorShot.FlightRear), "rear_floor"),
+            ["rear_floor"] = _sheets.WriteSpriteWithRegions(_tree, SpriteSheetId.CeresFloor, CeresFloors.FrameName(CeresFloorShot.FlightRear), $"{folder}/rear_floor.png"),
             ["rear_view"] = rearView,
+            // The gunship's engine flickers on its picture from behind, and the station's lights blink on its sprite,
+            // from the update the view from behind is set up: the old game's two changes of colours, step for step.
+            ["engine_flicker"] = ColourSteps(CeresFlightSceneDefinitions.GunshipEngineFlicker, shade => ShadeChange(
+                shade, SpriteFamily, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+                {
+                    [$"{folder}/rear_floor.png"] = [EngineSheets.SheetOf(SpriteSheetId.CeresFloor)],
+                })),
+            ["navigation_lights"] = ColourSteps(CeresFlightSceneDefinitions.NavigationLights, shade => ShadeChange(shade, SpriteFamily, litPlaces)),
             ["caption"] = Words("intro_space_colony", colony),
             ["caption_font"] = folder + "/caption_font.json",
             ["caption_second_picture"] = Whole(SpriteSheetId.CeresCinematicPictures, CeresCinematicPictures.JapaneseCaption, "caption_second"),

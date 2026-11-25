@@ -89,6 +89,12 @@ public partial class Intro
         ShowGunship();
     }
 
+    /// <summary>The flicker of the gunship's engine, from the update the view from behind is set up; none before.</summary>
+    private ColourSteps? _engineFlicker;
+
+    /// <summary>The blinking of the station's navigation lights, from the same update; none before.</summary>
+    private ColourSteps? _navigationLights;
+
     /// <summary>Plays one update of the flight and returns whether it is over.</summary>
     private bool StepFlight()
     {
@@ -161,6 +167,11 @@ public partial class Intro
         {
             foreach (CinematicSprite seen in _rearView)
                 seen.Step();
+
+            // The engine's flicker and the station's lights take their turn after what is seen has taken its own,
+            // from the update the view from behind is set up.
+            _engineFlicker?.Step();
+            _navigationLights?.Step();
         }
         else if (_flight != Flight.Finished)
         {
@@ -189,6 +200,12 @@ public partial class Intro
         gunship.Picture = Data().Text("rear_floor");
         gunship.Setup(Session.Content, new Vector2I(256, 224));
         Node2D sprites = _flightSprites ?? throw NotEntered();
+
+        // The gunship's engine flickers on its picture, and the station's lights blink on what the data says is lit.
+        _engineFlicker = new ColourSteps(Data().Get("engine_flicker"), "EngineFlicker");
+        _engineFlicker.ShowOn(gunship);
+        _navigationLights = new ColourSteps(Data().Get("navigation_lights"), "NavigationLights");
+
         // The data lists what is seen from the nearest to the farthest; the farthest is laid down first.
         foreach (DataNode thing in Data().List("rear_view").Reverse())
         {
@@ -198,6 +215,10 @@ public partial class Intro
             seen.LoopWidth = thing.Flag("loops") ? DriftLoopWidth : 0;
             sprites.AddChild(seen);
             _rearView.Add(seen);
+            if (!thing.Flag("lit"))
+                continue;
+            foreach (IRecoloured visual in seen.FindChildren("*", owned: false).OfType<IRecoloured>())
+                _navigationLights.ShowOn(visual);
         }
 
         ScreenFade flash = _flash ?? throw NotEntered();

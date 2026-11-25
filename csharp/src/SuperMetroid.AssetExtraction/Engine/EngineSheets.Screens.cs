@@ -114,14 +114,18 @@ internal sealed partial class EngineSheets
 
     /// <summary>
     /// Cuts named frames of a sprite sheet into one picture each under <paramref name="folder"/>, all on one canvas
-    /// with the place of what they show at the same point of each; in the shades named, where any are.
+    /// with the place of what they show at the same point of each; in the shades named, where any are. A picture
+    /// some of whose pixels the sheet tells apart by region has its map of regions beside it, so that a change of
+    /// colours that reaches only one region of it can be shown on it.
     /// </summary>
     internal EngineSheetPictures CutSprites(EngineAssetTree tree, SpriteSheetId sheet, string folder, IEnumerable<string> frames, params string[] shades)
     {
         string name = SheetOf(sheet);
         if (!_documents.ContainsKey((SpriteFamily, name)))
             throw new InvalidDataException($"The installation has no sheet {name} in {SpriteFamily}.");
-        return CutFrames(tree, SpriteFamily, folder, [.. frames.Distinct(StringComparer.Ordinal).Select(frame => (frame, name))], shades.Length == 0 ? null : shades);
+        return CutFrames(
+            tree, SpriteFamily, folder, [.. frames.Distinct(StringComparer.Ordinal).Select(frame => (frame, name))], shades.Length == 0 ? null : shades,
+            fileName: null, regionMaps: true);
     }
 
     /// <summary>
@@ -132,6 +136,21 @@ internal sealed partial class EngineSheets
     {
         (RgbaPixel[] pixels, int width, int height) = SpritePixels(sheet, frame, shades);
         tree.WritePicture(path, width, height, pixels);
+        return path;
+    }
+
+    /// <summary>
+    /// Writes one frame of a sprite sheet as <see cref="WriteSprite"/> does, in the sheet's own colours, with its map
+    /// of regions beside it where the sheet tells regions apart: a picture whose colours are changed where it is
+    /// drawn.
+    /// </summary>
+    internal string WriteSpriteWithRegions(EngineAssetTree tree, SpriteSheetId sheet, string frame, string path)
+    {
+        (RgbaPixel[] pixels, int width, int height) = SpritePixels(sheet, frame);
+        tree.WritePicture(path, width, height, pixels);
+        string name = SheetOf(sheet);
+        if (HasRegions(SpriteFamily, name))
+            tree.WriteRegionMap(path, width, height, FrameRegions(SpriteFamily, name, frame));
         return path;
     }
 

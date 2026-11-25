@@ -61,12 +61,29 @@ public sealed partial class EngineAssetWriter
         }
 
         string Whole(SpriteSheetId sheet, string frame, string name) => _sheets.WriteSprite(_tree, sheet, frame, $"{folder}/{name}.png");
+
+        // A floor's colours are changed where it is drawn, so its map of regions is written with it.
+        string Floor(CeresFloorShot shot, string name) =>
+            _sheets.WriteSpriteWithRegions(_tree, SpriteSheetId.CeresFloor, CeresFloors.FrameName(shot), $"{folder}/{name}.png");
         _tree.WriteData("cinematics/ceres_destruction.json", new JsonObject
         {
             ["backdrop"] = Colour(artwork.CeresFlight.Backdrop),
-            ["station_floor"] = Whole(SpriteSheetId.CeresFloor, CeresFloors.FrameName(CeresFloorShot.Station), "station_floor"),
-            ["explosion_floor"] = Whole(SpriteSheetId.CeresFloor, CeresFloors.FrameName(CeresFloorShot.Explosion), "explosion_floor"),
-            ["approach_floor"] = Whole(SpriteSheetId.CeresFloor, CeresFloors.FrameName(CeresFloorShot.ZebesApproach), "approach_floor"),
+            ["station_floor"] = Floor(CeresFloorShot.Station, "station_floor"),
+            ["explosion_floor"] = Floor(CeresFloorShot.Explosion, "explosion_floor"),
+            ["approach_floor"] = Floor(CeresFloorShot.ZebesApproach, "approach_floor"),
+            // The station's lights blink on the turning floor until the planet is set up, and the gunship's engine
+            // flickers on the approach's floor from then: the old game's two changes of colours, step for step.
+            ["navigation_lights"] = ColourSteps(CeresDestructionSceneDefinitions.NavigationLights, shade => ShadeChange(
+                shade, SpriteFamily, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+                {
+                    [$"{folder}/station_floor.png"] = [EngineSheets.SheetOf(SpriteSheetId.CeresFloor)],
+                    [$"{folder}/explosion_floor.png"] = [EngineSheets.SheetOf(SpriteSheetId.CeresFloor)],
+                })),
+            ["engine_flicker"] = ColourSteps(CeresDestructionSceneDefinitions.GunshipEngineFlicker, shade => ShadeChange(
+                shade, SpriteFamily, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+                {
+                    [$"{folder}/approach_floor.png"] = [EngineSheets.SheetOf(SpriteSheetId.CeresFloor)],
+                })),
             ["zebes"] = Whole(SpriteSheetId.CeresCinematicPictures, CeresCinematicPictures.ZebesPlanet, "zebes"),
             ["blast_sound"] = EngineNames.Sound(SamusSound.PowerBombExplosion),
             ["second_title_languages"] = new JsonArray(Languages[1]),

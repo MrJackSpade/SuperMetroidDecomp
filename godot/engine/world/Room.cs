@@ -281,10 +281,11 @@ public partial class Room : Node2D
     /// <summary>
     /// Plays one update of the room, in a fixed order: the opening, in which the liquid moves, the sequences and
     /// projectiles with a part in it play that part, and then the session services that open an update play
-    /// theirs; the room's effects, all but its shaking, and the liquid's pictures; the first part of the player's
+    /// theirs; the first part of the player's
     /// update, in which their input is read and their weapons fire; the player's own shots; enemies; the rest of the
     /// player's update, in which they move; triggers and exits; every other projectile, pickups and the remains of
-    /// the destroyed; room objects, the terrain, the room's shaking and its sequences; then effects. Groups named in
+    /// the destroyed; room objects, the terrain, the liquid's pictures, the room's effects and its sequences; then
+    /// effects. Groups named in
     /// <paramref name="stopped"/> do not run; the services that open the update always do.
     /// </summary>
     /// <param name="input">The update's input.</param>
@@ -298,19 +299,6 @@ public partial class Room : Node2D
         EnergySettled = EmptyEnergy.NotGone;
         _playerAtUpdateStart = Player.Position;
         OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
-
-        // The room's conditions play on before anyone acts: one that is started or told something during an update
-        // first shows it in the next. The shaking is not among them: it is stepped once all that may start it has run.
-        if (!stopped.HasFlag(Stopped.Room))
-        {
-            foreach (RoomEffect effect in _roomEffects)
-            {
-                if (effect is not Earthquake)
-                    effect.Step(this);
-            }
-
-            Liquid?.Step(Session.Camera.View);
-        }
 
         if (!stopped.HasFlag(Stopped.Player))
             Player.BeginUpdate(input);
@@ -487,8 +475,9 @@ public partial class Room : Node2D
             ExitEntered = null;
         if (!stopped.HasFlag(Stopped.Room) && !energyGone)
         {
-            foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())
-                quake.Step(this);
+            Liquid?.Step(Session.Camera.View);
+            foreach (RoomEffect effect in _roomEffects)
+                effect.Step(this);
         }
 
         foreach (Effect effect in _effects.ToList())

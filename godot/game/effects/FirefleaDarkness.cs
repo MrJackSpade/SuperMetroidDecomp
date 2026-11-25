@@ -6,8 +6,7 @@ namespace Game.Effects;
 
 /// <summary>
 /// The dark of a Fireflea room. The room's light comes from its Firefleas: it pulses gently, and each Fireflea
-/// that dies leaves the room darker, until with five gone it is as dark as it gets. It is told to "darken", and
-/// shows the death from its next update on.
+/// that dies leaves the room darker, until with five gone it is as dark as it gets. It is told to "darken".
 /// </summary>
 public partial class FirefleaDarkness : RoomEffect
 {
@@ -20,8 +19,6 @@ public partial class FirefleaDarkness : RoomEffect
     /// <summary>How many updates each step of the pulse lasts.</summary>
     private const int PulseStepUpdates = 6;
 
-    /// <summary>How many Firefleas have died, and how many of those deaths the room shows yet.</summary>
-    private int _died;
     private int _killed;
     private int _pulse;
     private int _wait = PulseStepUpdates;
@@ -30,7 +27,7 @@ public partial class FirefleaDarkness : RoomEffect
     /// <inheritdoc/>
     protected override void OnSetup(Room room)
     {
-        (_died, _killed, _pulse, _wait) = (0, 0, 0, PulseStepUpdates);
+        (_killed, _pulse, _wait) = (0, 0, PulseStepUpdates);
         ZIndex = 105;
     }
 
@@ -43,16 +40,13 @@ public partial class FirefleaDarkness : RoomEffect
             return;
         }
 
-        _died = Math.Min(_died + 1, DarknessLevels.Length - 1);
+        _killed = Math.Min(_killed + 1, DarknessLevels.Length - 1);
     }
 
     /// <inheritdoc/>
     protected override void OnStep(Room room)
     {
         _view = room.Session.Camera.View;
-
-        // The deaths are looked at here, once an update, before anything in the room acts.
-        _killed = _died;
 
         // At its darkest the pulse stops at its darkest too.
         if (_killed >= DarknessLevels.Length - 1)

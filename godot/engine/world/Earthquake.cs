@@ -5,8 +5,7 @@ namespace Engine.World;
 
 /// <summary>
 /// The room shaking. It lasts a set number of updates each time it starts, and while it lasts the view is offset back
-/// and forth. It changes nothing in play. Unlike the other room effects it is stepped late in an update, after the
-/// enemies and room objects that may start it, so a shake shows on the update it is started in.
+/// and forth. It changes nothing in play.
 /// </summary>
 public partial class Earthquake : RoomEffect
 {

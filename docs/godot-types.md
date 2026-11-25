@@ -720,8 +720,9 @@ in `engine/actors/player/`.
   momentum ends, and they slow, unsteered, each update, even if steered again, until past rest; they then gain one
   step and stand. A runner who lets the direction go but still aims stands at once. A runner stopped by a wall
   stands. **Turning** on the ground faces the new way from its first update and reverses by the turn's own move
-  values for as long as the turn lasts, ending the player's momentum on each of its updates; it ends standing, and
-  its end gives way to a jump asked for on its last update. Letting the new direction go during a turn makes the
+  values for as long as the turn lasts, ending the player's momentum on each of its updates; it ends standing, or in
+  whatever state it was given to lead to (`TurningState(then)`), and its end gives way to a jump asked for on its
+  last update. Letting the new direction go during a turn makes the
   player steered for the rest of it. With no turn time set the player turns at once and runs on, reversing.
 - As a change the input asked for (or the state's unasked carrying on) is about to take effect, the game's player
   is told (`Entering`) and may do something of its own or name another state. A state the input asked to carry on
@@ -733,7 +734,12 @@ in `engine/actors/player/`.
   from rest at once. A move down is by the speed the player had; gravity then acts on that speed for the next update
   (`MoveDownUnderGravity`); a fall gains up to the fastest fall, and a rise past its top that no state turns gains
   without that limit. Landing (`Player.Land`) brings the player to rest across and makes them steered; a dash is
-  left for standing to spend.
+  left for standing to spend. A player may also be left adrift (`Player.Drift`, `IsAdrift`): in the air at rest,
+  neither rising nor falling, by something that put them there without starting a fall. Gravity draws one adrift
+  down as it wears a rise away, with no fastest fall and no top to be turned at; a jump is not cut short; a turn in
+  the air and a change of posture press them down as they do on the ground, gravity left out; the low form is
+  taken as on the ground, and falls from rest on its first move. They are adrift until they land or something
+  gives them a rise, a fall or a speed up or down of its own.
 - **In the air.** A jump keeps the jump's own move values from its start until the player lands: `JumpingState` is
   the whole jump, and `FallingState` is for walking off a floor and for being let go in the air. A jump from the
   ground may first gather itself for `jump_start_updates`, moving nothing of the player's own. Both steer by the air
@@ -861,7 +867,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her crouch and her ball.** Crouching out of a run at full boost stores a shine, as the crouch begins; the dash
   then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
   held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
-  press of down while already aiming down, or in a wall jump, curls her up.
+  press of down while already aiming down, or in a wall jump, curls her up. While she changes out of the ball, the
+  attack held with the way she faces, else with up, else with down, breaks her out into a fall aiming so
+  (`FallingState(AirStance)`, which leaves her speed and steering as they are), where that body fits; on the
+  ground, where she has no speed up or down, that leaves her adrift.
 - **Her boost** is counted in strides of her run. The stride's ten pictures each last their own updates
   (`run_stride_updates`), or the dash's (`dash_stride_updates`), or, with the speed booster on, those of the stage
   of the boost she is at (`boost_stride_updates`); a run taken up afresh starts the stride again. Each stride
@@ -915,8 +924,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   is in `Samus.Entering`.
 - **Moonwalking** walks her backwards by its own move values while the attack and the direction behind her are
   held. A jump turns her (the engine's turn), and the turn becomes a spin jump while the jump and the way she then
-  faces are held; with the attack let go she turns; steering the way she faces she runs; walking off a floor she
-  falls facing the way she was going.
+  faces are held; with the attack let go she turns, with the jump if it is held; steering the way she faces she
+  runs; walking off a floor she falls facing the way she was going. A turn made with the jump that runs out leads
+  to a spin with no jump begun (`SpinJumpingState.Start.Adrift`): she is adrift in the spin's smaller body, cannot
+  space jump, and is drawn down with no fastest fall until she lands, which is the cartridge's moonfall.
 - **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
   another aim or the attack is asked; her body is compact for as long (`aiming_down`).
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down

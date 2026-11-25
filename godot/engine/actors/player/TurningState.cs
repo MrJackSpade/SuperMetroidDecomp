@@ -5,7 +5,7 @@ namespace Engine.Actors;
 /// <summary>
 /// Turning around on the ground, standing or crouched. The player faces the new way from the start and goes on moving
 /// the old way, reversing, by the turn's own move values; each update of the turn ends their momentum. When its time
-/// is up they stand, or crouch as they were.
+/// is up they stand, or crouch as they were, unless the turn was given something else to lead to.
 /// </summary>
 public sealed class TurningState : PlayerState
 {
@@ -15,6 +15,16 @@ public sealed class TurningState : PlayerState
     /// <summary>A turn on the ground.</summary>
     /// <param name="crouched">Whether the player turns crouched, and stays so.</param>
     public TurningState(bool crouched = false) => Crouched = crouched;
+
+    /// <summary>A turn on the ground, standing, that leads to <paramref name="then"/> when its time is up and not to standing.</summary>
+    public TurningState(PlayerState then)
+    {
+        ArgumentNullException.ThrowIfNull(then);
+        _then = then;
+    }
+
+    /// <summary>The state the turn leads to, where that is not standing or the crouch it was made in.</summary>
+    private readonly PlayerState? _then;
 
     /// <summary>Whether the player turns crouched.</summary>
     public bool Crouched { get; }
@@ -65,7 +75,7 @@ public sealed class TurningState : PlayerState
         if (_left.IsRunning)
             return null;
         owner.ArmJumpBuffer();
-        return Crouched ? new CrouchingState() : new StandingState();
+        return _then ?? (Crouched ? new CrouchingState() : new StandingState());
     }
 
     /// <summary>A jump asked for on the last update of the turn is not lost to its end.</summary>

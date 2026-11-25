@@ -40,6 +40,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
 
         /// <summary>Out of a wall jump by steering the other way: she turns as the spin begins.</summary>
         Turning,
+
+        /// <summary>
+        /// With no jump begun: she is left adrift in the spin's smaller body, as a moonwalk's turn made with the jump
+        /// held leaves her when it runs out.
+        /// </summary>
+        Adrift,
     }
 
     private readonly Start _start;
@@ -100,6 +106,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
 
             case Start.Turning:
                 Turn(owner);
+                break;
+
+            case Start.Adrift:
+                // The cartridge takes up the spin's pose here without starting a jump: she has no way up or down.
+                owner.Drift();
+                owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
                 break;
 
             default:
@@ -253,12 +265,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     }
 
     /// <summary>
-    /// Jumps again in mid-air when the space jump is on: on a fresh press of jump while she is falling, and only while
-    /// her falling speed is within the window of the medium she was last in.
+    /// Jumps again in mid-air when the space jump is on: on a fresh press of jump while she is falling, not rising and
+    /// not adrift, and only while her falling speed is within the window of the medium she was last in.
     /// </summary>
     private static void TrySpaceJump(Player owner)
     {
-        if (!owner.Inventory.IsOn(Equipment.SpaceJump) || !owner.JumpPressed || owner.IsRising)
+        if (!owner.Inventory.IsOn(Equipment.SpaceJump) || !owner.JumpPressed || owner.IsRising || owner.IsAdrift)
             return;
         Pixels falling = owner.Velocity.Y;
         // The least speed is the medium's she was in as her last update ended, as the cartridge remembers it.

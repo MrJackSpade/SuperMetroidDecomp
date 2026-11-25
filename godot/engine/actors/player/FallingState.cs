@@ -16,9 +16,29 @@ public sealed class FallingState : PlayerState
     /// <param name="offFloor">Whether the player has walked off a floor, and so falls from rest unless they are rising.</param>
     public FallingState(bool offFloor = false) => _offFloor = offFloor;
 
+    /// <summary>
+    /// A fall taken up in <paramref name="stance"/> out of something else, with the player's speed and steering left
+    /// exactly as they are.
+    /// </summary>
+    public FallingState(AirStance stance)
+    {
+        _stance = stance;
+        _carriesOn = true;
+    }
+
+    /// <summary>Whether the fall carries on from something else, in a stance it was given.</summary>
+    private readonly bool _carriesOn;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        if (_carriesOn && _stance is { } given)
+        {
+            owner.Aim = given.Aim;
+            owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
+            return;
+        }
+
         owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
         if (_offFloor && !owner.IsRising)
             owner.FallFromRest();

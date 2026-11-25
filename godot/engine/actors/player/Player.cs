@@ -303,6 +303,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             // An upward speed is a rise. A speed left as it was keeps what it was: a rise that gravity has brought to
             // rest, or past it, is still a rise until the state the player is in turns it into a fall.
             IsRising = value.Y.IsNegative || (value.Y == _velocity.Y && IsRising);
+            IsAdrift = IsAdrift && value.Y == _velocity.Y;
             _velocity = value;
         }
     }
@@ -315,6 +316,21 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     public bool IsRising { get; private set; }
 
+    /// <summary>
+    /// Whether the player is adrift: left in the air neither rising nor falling, by something that put them there
+    /// without starting a fall. Gravity draws an adrift player down as it wears a rise away, with no fastest fall,
+    /// and there is no top for a state to turn into a fall: they are adrift until they land, or until something gives
+    /// them a rise, a fall or a speed up or down of its own.
+    /// </summary>
+    public bool IsAdrift { get; private set; }
+
+    /// <summary>Leaves the player adrift, at rest up and down.</summary>
+    public void Drift()
+    {
+        _velocity = _velocity.WithY(Pixels.Zero);
+        (IsRising, IsAdrift) = (false, true);
+    }
+
     /// <summary>Whether gravity has slowed the player's rise past rest, so that it is due to become a fall.</summary>
     public bool IsPastTop => IsRising && _velocity.Y > Pixels.Zero;
 
@@ -322,14 +338,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void Rise(Pixels speed)
     {
         _velocity = _velocity.WithY(-speed);
-        IsRising = true;
+        (IsRising, IsAdrift) = (true, false);
     }
 
     /// <summary>Puts the player at rest up and down, about to fall.</summary>
     public void FallFromRest()
     {
         _velocity = _velocity.WithY(Pixels.Zero);
-        IsRising = false;
+        (IsRising, IsAdrift) = (false, false);
     }
 
     /// <summary>
@@ -1218,12 +1234,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>
     /// Adds the medium's gravity to the player's speed: to a fall, up to the fastest they fall; to a rise, however far
-    /// it takes it, which leaves a rise slowed to rest or past it for the state to turn into a fall.
+    /// it takes it, which leaves a rise slowed to rest or past it for the state to turn into a fall; and to the speed
+    /// of a player adrift as to a rise.
     /// </summary>
     public void Fall()
     {
         PlayerMedium medium = Medium;
-        Pixels down = IsRising ? _velocity.Y + Pixels.FromNumber(medium.Gravity) : AfterGravity(_velocity.Y, medium);
+        Pixels down = IsRising || IsAdrift ? _velocity.Y + Pixels.FromNumber(medium.Gravity) : AfterGravity(_velocity.Y, medium);
         _velocity = _velocity.WithY(down);
     }
 

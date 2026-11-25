@@ -47,8 +47,18 @@ public sealed class AirTurningState : PlayerState
         owner.StepDash(building: false);
         owner.Steer(owner.Moves(TurningMoves));
         owner.MoveAcross();
-        owner.TurnAtTop();
-        owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
+
+        // A player adrift is held as one on the ground is through the turn: pressed down, gravity left out of it.
+        if (owner.IsAdrift)
+        {
+            owner.PressToGround();
+        }
+        else
+        {
+            owner.TurnAtTop();
+            owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
+        }
+
         owner.LoseMomentum();
         _left = _left.Stepped();
         return null;

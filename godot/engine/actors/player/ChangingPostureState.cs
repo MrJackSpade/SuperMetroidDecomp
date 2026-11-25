@@ -7,7 +7,8 @@ namespace Engine.Actors;
 /// Passing from one posture to another: crouching down, standing up, taking the low form or leaving it, where the
 /// game gives the change a length. The body takes its new form at once. For as long as the change lasts the input is
 /// not asked, the player moves across only as far as a dash carries them, and they cannot attack; a change into or
-/// out of the low form made in the air goes on falling. Then the state it leads to follows.
+/// out of the low form made in the air goes on falling, unless the player is adrift, who is pressed down as one on
+/// the ground is. Then the state it leads to follows.
 /// </summary>
 public sealed class ChangingPostureState : PlayerState
 {
@@ -30,6 +31,9 @@ public sealed class ChangingPostureState : PlayerState
     /// <summary>The state the change leads to.</summary>
     public PlayerState Then { get; }
 
+    /// <summary>The form the player was in as the change began; empty until it has.</summary>
+    public string From { get; private set; } = "";
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -39,6 +43,7 @@ public sealed class ChangingPostureState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        From = owner.Form;
         if (_form != Player.Crawling)
         {
             owner.TrySetForm(_form);
@@ -56,7 +61,7 @@ public sealed class ChangingPostureState : PlayerState
     public override PlayerState? Move(Player owner)
     {
         owner.MoveAcross(byDashAlone: true);
-        if (_fallsInAir && (owner.IsRising || !owner.IsOnGround))
+        if (_fallsInAir && !owner.IsAdrift && (owner.IsRising || !owner.IsOnGround))
         {
             // A rise stopped by a ceiling keeps its speed for gravity to wear away; a fall stopped by ground is over.
             owner.TurnAtTop();

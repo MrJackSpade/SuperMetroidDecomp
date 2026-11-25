@@ -38,9 +38,12 @@ namespace Game.Enemies;
 /// and "death_spikes", the crumbling of the spikes as it dies (<see cref="PatchSequence"/>); "walks", for each place
 /// it may stand the places it may walk to next, each with a "weight", a "to" and how many "updates" it then thinks;
 /// "spit", where its rocks leave it from, how fast they rise and the eight speeds across that chance picks from;
-/// "health_shades", most health first, the set of its pictures it shows at each least "health" and how many updates
-/// its eye takes to glow there; and "hurt_flash", the "wait" and then the steps, each so many "updates" and "hurt" or
-/// not, of the flash a hit in the mouth sets off. A picture's path holds "{shade}" where the set's name goes. Its
+/// "health_shades", most health first, the set of its pictures it shows at each least "health" and the colours of its
+/// "eyes" there; "eye_colours", the colours every set of its body's pictures has its eyes in ("pictured"), which its
+/// eyes' colours are shown in place of, its eyes' colours in the flash of a hit ("hurt"), and the "steps" a channel of
+/// a colour moves through as its eyes glow and dim, darkest first; and "hurt_flash", the "wait" and then the steps,
+/// each so many "updates" and "hurt" or not, of the flash a hit in the mouth sets off. Each colour is six hexadecimal
+/// digits, red, green and blue. A picture's path holds "{shade}" where the set's name goes. Its
 /// shots are "spit_rock", "rising_rock", "rising_rock_small" and "ceiling_rock". All its places are in the room's own
 /// pixels.</para>
 /// </remarks>
@@ -233,8 +236,18 @@ public partial class Kraid : Enemy
 
     private sealed record Walk(int Weight, int To, int Updates);
 
+    /// <summary>The colour of one of its eyes, as the steps of each channel.</summary>
+    private readonly record struct EyeColour(int Red, int Green, int Blue);
+
+    /// <summary>The name its eyes' colours are shown under.</summary>
+    private const string EyeColours = "KraidEyes";
+
     private readonly List<(int From, int Left)> _bodyEdge = [];
-    private readonly List<(int Health, string Shade, int EyeGlowUpdates)> _healthShades = [];
+    private readonly List<(int Health, string Shade, EyeColour[] Eyes)> _healthShades = [];
+    private readonly List<int> _channelSteps = [];
+    private EyeColour[] _picturedEyes = [];
+    private EyeColour[] _hurtEyes = [];
+    private EyeColour[] _eyes = [];
     private readonly List<(bool Hurt, int Updates)> _hurtFlash = [];
     private readonly List<Pixels> _spitSpeeds = [];
     private ColliderPoses? _headPoses;
@@ -248,7 +261,6 @@ public partial class Kraid : Enemy
     private int _flashStep = -1;
     private int _flashLeft;
     private bool _flashShowsHurt;
-    private int _glowUpdates = 1;
     private readonly List<Crumble> _ceilingRocks = [];
     private readonly List<Crumble> _sinkCrumbles = [];
     private readonly Dictionary<int, List<Walk>> _walks = [];
@@ -269,7 +281,6 @@ public partial class Kraid : Enemy
     private int _footWait;
     private int _footThink;
     private int _openLeft;
-    private int _glow;
     private int _fade;
     private int _nextCeilingRock;
     private int _mouthReopens;
@@ -328,10 +339,19 @@ public partial class Kraid : Enemy
         _headPoses = ColliderPoses.Read(data.Get("head_poses"), this);
         _armPoses = ColliderPoses.Read(data.Get("arm_poses"), this);
         _footPoses = ColliderPoses.Read(data.Get("foot_poses"), this);
+        DataNode eyeColours = data.Get("eye_colours");
+        _channelSteps.Clear();
+        _channelSteps.AddRange(eyeColours.List("steps").Select(step => step.AsInt()));
+        if (_channelSteps.Count < 2)
+            throw eyeColours.Problem("must give the steps of a channel of colour, at least the darkest and the brightest");
+        _picturedEyes = ReadEyes(eyeColours, "pictured");
+        _hurtEyes = ReadEyes(eyeColours, "hurt");
         _healthShades.Clear();
-        _healthShades.AddRange(data.List("health_shades").Select(band => (band.Int("health"), band.Text("shade"), band.Int("eye_glow_updates"))));
+        _healthShades.AddRange(data.List("health_shades").Select(band => (band.Int("health"), band.Text("shade"), ReadEyes(band, "eyes"))));
         if (_healthShades.Count == 0)
             throw data.Problem("must give at least one of its health shades");
+        if (_hurtEyes.Length != _picturedEyes.Length || _healthShades.Any(band => band.Eyes.Length != _picturedEyes.Length))
+            throw data.Problem("must give the colours of each of its eyes, as many as its pictures have, wherever it gives its eyes' colours");
         DataNode flash = data.Get("hurt_flash");
         _hurtFlashWait = flash.Int("wait");
         _hurtFlash.Clear();
@@ -492,6 +512,9 @@ public partial class Kraid : Enemy
         // Its mouth and body let every shot through while it rises.
         _headPoses?.TakeNone();
         Shade = BandShade().Shade;
+        // Its eyes start in the colours of its band.
+        _eyes = [.. BandShade().Eyes];
+        ShowEyes();
         if (GetNodeOrNull<ActorVisual>("Arm") is { } arm)
             arm.Position = new Vector2(0, -44);
         if (GetNodeOrNull<ActorVisual>("Foot") is { } foot)
@@ -658,31 +681,20 @@ public partial class Kraid : Enemy
 
             case Fight.BeginEyeGlow:
                 _fight = Fight.GlowEye;
-                _glow = 0;
-                // Its eye glows for as long as its colours, as hurt as it is, take to reach their brightest.
-                _glowUpdates = BandShade().EyeGlowUpdates;
                 PlayPart("Head", "head_eye_glow", restart: true);
-                StepHead();
-                ShowEyeGlow(++_glow);
-                if (_glow >= _glowUpdates)
-                    _fight = Fight.UnglowEye;
+                GlowEyes();
                 break;
 
             case Fight.GlowEye:
-                StepHead();
-                ShowEyeGlow(++_glow);
-                if (_glow >= _glowUpdates)
-                    _fight = Fight.UnglowEye;
+                GlowEyes();
                 break;
 
             case Fight.UnglowEye:
-                // It dims as long as it glowed, and roars on the update after it has dimmed.
-                if (_glow > 0)
-                {
-                    ShowEyeGlow(--_glow);
+                // Its eyes dim a step an update toward its band's colours, and it roars on the update it finds them there.
+                bool dimmed = DimEyes(BandShade().Eyes);
+                ShowEyes();
+                if (!dimmed)
                     break;
-                }
-
                 _fight = Fight.MouthOpenReaction;
                 PlayPart("Head", "head_roar", restart: true);
                 break;
@@ -1139,11 +1151,76 @@ public partial class Kraid : Enemy
     /// <summary>Moves it to a place across the room.</summary>
     private void SetX(int x) => Position = new PixelPosition(Pixels.FromWhole(x), Position.Y);
 
-    /// <summary>Shows how far its eye glows, out of the updates its glowing takes.</summary>
-    private void ShowEyeGlow(int glow)
+    /// <summary>
+    /// Its eye's glow: its head plays on and each eye's red and green brighten a step, and once every one is at its
+    /// brightest its eyes begin to dim.
+    /// </summary>
+    private void GlowEyes()
     {
-        if (GetNodeOrNull<ActorVisual>("Head") is { } head)
-            head.Tint(Colors.White.Lerp(new Color(1f, 0.6f, 0.6f), Math.Clamp((float)glow / Math.Max(1, _glowUpdates), 0f, 1f)));
+        StepHead();
+        int brightest = _channelSteps.Count - 1;
+        for (int eye = 0; eye < _eyes.Length; eye++)
+            _eyes[eye] = _eyes[eye] with { Red = Math.Min(_eyes[eye].Red + 1, brightest), Green = Math.Min(_eyes[eye].Green + 1, brightest) };
+        if (_eyes.All(eye => eye.Red == brightest && eye.Green == brightest))
+            _fight = Fight.UnglowEye;
+        ShowEyes();
+    }
+
+    /// <summary>
+    /// Dims each eye's red and green a step toward <paramref name="band"/>'s where they differ, one at none going round
+    /// to the brightest. Returns whether its eyes' red and green were already the band's.
+    /// </summary>
+    private bool DimEyes(EyeColour[] band)
+    {
+        int brightest = _channelSteps.Count - 1;
+        int Dimmed(int step, int to) => step == to ? step : step == 0 ? brightest : step - 1;
+        bool wereBand = true;
+        for (int eye = 0; eye < _eyes.Length; eye++)
+        {
+            EyeColour shown = _eyes[eye];
+            wereBand &= shown.Red == band[eye].Red && shown.Green == band[eye].Green;
+            _eyes[eye] = shown with { Red = Dimmed(shown.Red, band[eye].Red), Green = Dimmed(shown.Green, band[eye].Green) };
+        }
+
+        return wereBand;
+    }
+
+    /// <summary>
+    /// Shows its eyes' colours on its body and head in place of those their pictures have its eyes in; dying, its body
+    /// and head show their pictures' own.
+    /// </summary>
+    private void ShowEyes()
+    {
+        ColourSwap[] swaps = IsFinished ? [] : [.. _picturedEyes.Select((pictured, eye) => new ColourSwap(ColourOf(pictured), ColourOf(_eyes[eye])))];
+        Visual?.Recolour(EyeColours, swaps);
+        GetNodeOrNull<ActorVisual>("Head")?.Recolour(EyeColours, swaps);
+    }
+
+    /// <summary>A colour of its eyes as it is shown.</summary>
+    private Color ColourOf(EyeColour eye) =>
+        Color.Color8((byte)_channelSteps[eye.Red], (byte)_channelSteps[eye.Green], (byte)_channelSteps[eye.Blue]);
+
+    /// <summary>Reads the colours of its eyes a group names, one for each eye, as the steps of each channel.</summary>
+    private EyeColour[] ReadEyes(DataNode group, string name)
+    {
+        EyeColour[] eyes = [.. group.List(name).Select(ReadEye)];
+        return eyes.Length > 0 ? eyes : throw group.Problem($"must give the colours of its eyes in \"{name}\"");
+    }
+
+    /// <summary>One colour of its eyes, written as six hexadecimal digits, each channel one of the steps a channel moves through.</summary>
+    private EyeColour ReadEye(DataNode colour)
+    {
+        string text = colour.AsText();
+        if (text.Length != 6 || !text.All(Uri.IsHexDigit))
+            throw colour.Problem($"names the colour \"{text}\", which is not six hexadecimal digits");
+        int Step(string channel)
+        {
+            int value = Convert.ToInt32(channel, 16);
+            int step = _channelSteps.IndexOf(value);
+            return step >= 0 ? step : throw colour.Problem($"names the colour \"{text}\", one of whose channels, {value}, is none of the steps of a channel");
+        }
+
+        return new EyeColour(Step(text[..2]), Step(text[2..4]), Step(text[4..]));
     }
 
     /// <summary>
@@ -1158,10 +1235,10 @@ public partial class Kraid : Enemy
         (_headPoses ?? throw new InvalidOperationException("Kraid's data has not been read.")).Take(mouth);
     }
 
-    /// <summary>The set of its pictures that shows it as hurt as it is, and how long its eye takes to glow there.</summary>
-    private (int Health, string Shade, int EyeGlowUpdates) BandShade()
+    /// <summary>The set of its pictures that shows it as hurt as it is, and the colours of its eyes there.</summary>
+    private (int Health, string Shade, EyeColour[] Eyes) BandShade()
     {
-        foreach ((int Health, string Shade, int EyeGlowUpdates) band in _healthShades)
+        foreach ((int Health, string Shade, EyeColour[] Eyes) band in _healthShades)
         {
             if (Health.Current >= band.Health)
                 return band;
@@ -1170,13 +1247,17 @@ public partial class Kraid : Enemy
         return _healthShades[^1];
     }
 
-    /// <summary>Moves the flash of a hit in the mouth on, and settles which set of its pictures it shows.</summary>
+    /// <summary>
+    /// Moves the flash of a hit in the mouth on, and settles which set of its pictures it shows. Each time the flash
+    /// shows other colours its eyes take that set's colours at once, as they do on every update once its health is gone.
+    /// </summary>
     private void StepColours()
     {
         if (Health.IsEmpty)
         {
             // Dying, it flashes no more.
             (_flashStep, _flashShowsHurt) = (-1, false);
+            _eyes = [.. BandShade().Eyes];
         }
         else if (_flashStep >= 0 && --_flashLeft <= 0)
         {
@@ -1184,9 +1265,11 @@ public partial class Kraid : Enemy
                 (_flashShowsHurt, _flashLeft) = _hurtFlash[_flashStep++];
             else
                 (_flashStep, _flashShowsHurt) = (-1, false);
+            _eyes = [.. _flashShowsHurt ? _hurtEyes : BandShade().Eyes];
         }
 
         Shade = _flashShowsHurt ? HurtShade : BandShade().Shade;
+        ShowEyes();
     }
 
     /// <inheritdoc/>

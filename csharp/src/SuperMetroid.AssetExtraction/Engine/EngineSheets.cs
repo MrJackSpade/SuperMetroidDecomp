@@ -172,7 +172,7 @@ internal sealed partial class EngineSheets
     /// <summary>Cuts named frames, each from the sheet given for it or showing nothing where no sheet is given, onto one canvas.</summary>
     private EngineSheetPictures CutFrames(
         EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames, IReadOnlyList<string>? shades = null,
-        Func<string, string>? fileName = null)
+        Func<string, string>? fileName = null, bool regionMaps = false)
     {
         InstalledSheetFrameDocument FrameOf((string Name, string Sheet) frame) =>
             _documents[(family, frame.Sheet)].Frames.TryGetValue(frame.Name, out InstalledSheetFrameDocument? found)
@@ -225,6 +225,26 @@ internal sealed partial class EngineSheets
             string path = $"{folder}/{(fileName is null ? FileName(frame.Name) : fileName(frame.Name))}.png";
             tree.WritePicture(path, width, height, canvas);
             paths[frame.Name] = path;
+            if (regionMaps && image.RecolourRegions is { } placedRegions)
+            {
+                // The picture's map of regions lies beside it, where any pixel it shows is in a region but the first.
+                var canvasRegions = new int[width * height];
+                bool told = false;
+                for (int y = 0; y < placed.Size.Y; y++)
+                {
+                    int from = (placed.Corner.Y + y) * document.Size.X + placed.Corner.X, to = (down + y) * width + across;
+                    for (int x = 0; x < placed.Size.X; x++)
+                    {
+                        if (image.Pixels[from + x].A == 0)
+                            continue;
+                        canvasRegions[to + x] = placedRegions[from + x];
+                        told |= placedRegions[from + x] != 0;
+                    }
+                }
+
+                if (told)
+                    tree.WriteRegionMap(path, width, height, canvasRegions);
+            }
         }
 
         return new EngineSheetPictures(left, top, width, height, paths);

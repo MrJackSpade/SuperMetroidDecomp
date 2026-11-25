@@ -127,6 +127,7 @@ public partial class Metroid : Enemy
                 return;
             _escapeMovesLeft = EscapeMoves.Length;
             _moving = Moving.Escaping;
+            (Room.Player as Samus)?.SetDrainFlash(false);
             Play("chasing", restart: true);
             return;
         }
@@ -185,6 +186,9 @@ public partial class Metroid : Enemy
         if (Math.Abs(Position.X.Whole - samus.Position.X.Whole) >= LatchDistance || Math.Abs(Position.Y.Whole - aimY) >= LatchDistance)
             return;
         _moving = Moving.Attached;
+
+        // Fastened on, it has her flash for as long as it holds her.
+        (Room.Player as Samus)?.SetDrainFlash(true);
         Play("draining", restart: true);
     }
 
@@ -234,6 +238,8 @@ public partial class Metroid : Enemy
     /// <inheritdoc/>
     protected override void OnDied()
     {
+        (Room.Player as Samus)?.SetDrainFlash(false);
+
         // Beside its own drop it leaves more, scattered about, each placed by a fresh random number.
         for (int drop = 1; drop < DropCount; drop++)
         {

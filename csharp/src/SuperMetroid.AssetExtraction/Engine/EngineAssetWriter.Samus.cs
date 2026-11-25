@@ -296,6 +296,14 @@ public sealed partial class EngineAssetWriter
             .Value("boost_stride_counts", EngineNames.List(boostCounts))
             .Value("stored_shine_updates", ShinesparkDefinitions.StoredShineFrames)
             .Value("stored_shine_sound_updates", ShinesparkDefinitions.StoredShineSoundDelayFrames)
+            .Value("hurt_flash_sound_count", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.ImpactSoundUpdate)
+            .Value("hurt_flash_coloured_counts", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.ColouredUpdates)
+            .Value("hurt_flash_recovery_count", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.SoundRecoveryCount)
+            .Value("hurt_flash_end_count", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.EndingUpdate)
+            .Value("spark_hurt_flash_count", ShinesparkDefinitions.MovingSparkHurtFlashCount)
+            .Value("spark_windup_glow_updates", ShinesparkDefinitions.WindupShadeFrames)
+            .Value("spark_glow_updates", ShinesparkDefinitions.SparkShadeFrames)
+            .Value("spark_finished_glow_updates", ShinesparkDefinitions.FinishedShadeFrames)
             .Value("shinespark_windup_updates", ShinesparkDefinitions.WindupFrames)
 
             // A windup begun out of a jump takes the old lift off her place: that far up.
@@ -400,6 +408,7 @@ public sealed partial class EngineAssetWriter
         var timelines = new JsonObject();
         var heights = new JsonObject();
         WriteSamusLooks(timelines, heights);
+        WriteSamusColours();
         file.Group("shot_heights", heights);
         foreach ((string name, JsonNode? timeline) in timelines.ToList())
         {

@@ -93,6 +93,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             owner.Position += PixelOffset.FromWhole(0, -samus.ShinesparkLift);
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         samus.BoostFully();
+        samus.BeginSparkColouring();
         _stage = Stage.WindingUp;
         _left = Countdown.Of(samus.ShinesparkWindupUpdates);
     }
@@ -110,7 +111,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
                 Fly(samus);
                 return null;
             case Stage.Crashed:
-                return StepCrash(samus) ? owner.StateAtRest() : null;
+                // Its glow is kept going through the crash, and outlasts its end by a moment.
+                bool over = StepCrash(samus);
+                samus.KeepSparkGlow(over ? samus.SparkFinishedGlowUpdates : samus.SparkGlowUpdates);
+                return over ? owner.StateAtRest() : null;
             default:
                 throw new InvalidOperationException($"Undefined shinespark stage {_stage}.");
         }
@@ -169,6 +173,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     {
         if (samus.Power(HitKinds.Shinespark) is { } power)
             power.IsActive = true;
+
+        // While it flies no hurt colours her or is heard, and its glow is kept going.
+        samus.HoldHurtFlashForSpark();
+        samus.KeepSparkGlow(samus.SparkGlowUpdates);
         FlownFrom = samus.Position;
         Pixels gravity = Pixels.FromNumber(samus.Medium.Gravity);
         bool stoppedAcross = false, stoppedDown = false;
@@ -211,6 +219,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // Her boost and her speed end as she crashes. How far the echoes have circled is not started over.
         samus.EndBoost();
         samus.Velocity = PixelVelocity.Zero;
+        samus.EndHurtFlash();
         (_crash, _crashRadius) = (Crash.Expanding, 0);
         (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);
         samus.Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");

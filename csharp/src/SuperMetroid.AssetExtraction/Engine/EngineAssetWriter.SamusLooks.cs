@@ -19,7 +19,7 @@ using Seg = SuperMetroid.Core.Samus.Poses.SamusAnimationSegmentName;
 namespace SuperMetroid.AssetExtraction.Engine;
 
 /// <summary>
-/// How Samus looks: her pictures, cut once for each suit, and a timeline for every look the Godot game gives her,
+/// How Samus looks: her pictures, cut once in their sheet's own colours, and a timeline for every look the Godot game gives her,
 /// each the old pose's own animation. The Godot game names a timeline for her look, the way she faces and her aim.
 /// </summary>
 public sealed partial class EngineAssetWriter
@@ -27,10 +27,7 @@ public sealed partial class EngineAssetWriter
     /// <summary>The family of sheets Samus, her shots and her effects are on.</summary>
     private const string SpriteFamily = GameInstallationLayout.SpriteSheetDirectoryName;
 
-    /// <summary>What stands in a picture's path for the suit she wears.</summary>
-    private const string SuitPlace = "{suit}";
-
-    /// <summary>Her suits, as her pictures' folders are named for them.</summary>
+    /// <summary>Her suits, as her colours are named for them.</summary>
     private static readonly (string Name, SamusSuit Suit)[] SamusSuits =
         [("power", SamusSuit.Power), ("varia", SamusSuit.Varia), ("gravity", SamusSuit.Gravity)];
 
@@ -47,68 +44,17 @@ public sealed partial class EngineAssetWriter
     private static string SamusBodySheet => SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusBody];
 
     /// <summary>
-    /// The name a body frame's picture is written under. The old game has one pose facing out of the screen for the
-    /// power suit and another for the other two, with the same frames; a picture's path names the suit, so both are
-    /// written under one name.
+    /// Her body's pictures, cut once, in their sheet's own colours, onto canvases that are all alike, by the frame's
+    /// name. Every colouring of her, her suits' own among them, is a change of those colours ("samus/colours.json"),
+    /// so each picture some of whose colours are changed by region has its map of regions beside it.
     /// </summary>
-    private static string SamusFileName(string frame)
-    {
-        foreach (P pose in new[] { P.ForwardFacingPowerSuitPose, P.ForwardFacingSuitedPose })
-        {
-            string named = SamusPoseIdKeys.Installed.Of(pose) + ".";
-            if (frame.StartsWith(named, StringComparison.Ordinal))
-                return EngineSheets.FileName("ForwardFacing." + frame[named.Length..]);
-        }
+    private EngineSheetPictures SamusPictures => _samusPictures ??= _sheets.CutNamed(
+        _tree, SpriteFamily, SamusBodyPlace, SamusBodySheet, _sheets.FramesOf(SpriteFamily, SamusBodySheet), shade: null, EngineSheets.FileName,
+        regionMaps: true);
 
-        return EngineSheets.FileName(frame);
-    }
-
-    /// <summary>Her body's pictures, cut once for each suit onto canvases that are all alike, by the frame's name; the paths are the first suit's.</summary>
-    private EngineSheetPictures SamusPictures
-    {
-        get
-        {
-            if (_samusPictures is not null)
-                return _samusPictures;
-            string powerOnly = SamusPoseIdKeys.Installed.Of(P.ForwardFacingPowerSuitPose) + ".", suitedOnly = SamusPoseIdKeys.Installed.Of(P.ForwardFacingSuitedPose) + ".";
-            var cuts = new List<EngineSheetPictures>();
-            foreach ((string name, SamusSuit suit) in SamusSuits)
-            {
-                string notWorn = suit == SamusSuit.Power ? suitedOnly : powerOnly;
-                IEnumerable<string> frames = _sheets.FramesOf(SpriteFamily, SamusBodySheet).Where(frame => !frame.StartsWith(notWorn, StringComparison.Ordinal));
-                cuts.Add(_sheets.CutNamed(_tree, SpriteFamily, $"samus/{name}", SamusBodySheet, frames, SamusShades.Suit(suit).Key, SamusFileName));
-            }
-
-            EngineSheetPictures first = cuts[0];
-            if (cuts.Any(cut => cut.OffsetX != first.OffsetX || cut.OffsetY != first.OffsetY || cut.Width != first.Width || cut.Height != first.Height))
-                throw new InvalidDataException("Samus's pictures do not lie alike in each of her suits, which one timeline for all three needs.");
-            return _samusPictures = first;
-        }
-    }
-
-    /// <summary>The picture of one frame of her body's sheet, with <see cref="SuitPlace"/> where the suit's folder goes; empty for a frame that shows nothing.</summary>
-    private string SamusPicture(string frame)
-    {
-        if (_sheets.ShowsNothing(SpriteFamily, SamusBodySheet, frame))
-            return "";
-        string suited = SamusPoseIdKeys.Installed.Of(P.ForwardFacingSuitedPose) + ".";
-        if (frame.StartsWith(suited, StringComparison.Ordinal))
-            frame = SamusPoseIdKeys.Installed.Of(P.ForwardFacingPowerSuitPose) + "." + frame[suited.Length..];
-        string path = SamusPictures.Of(frame);
-        string folder = $"samus/{SamusSuits[0].Name}/";
-        if (path.Length == 0)
-            return "";
-        if (!path.StartsWith(folder, StringComparison.Ordinal))
-            throw new InvalidDataException($"Samus's picture {path} is not in her first suit's folder.");
-        string named = $"samus/{SuitPlace}/{path[folder.Length..]}";
-        foreach ((string name, SamusSuit _) in SamusSuits)
-        {
-            if (!_tree.Holds(named.Replace(SuitPlace, name, StringComparison.Ordinal)))
-                throw new InvalidDataException($"Samus's picture {named} was not written for her {name} suit.");
-        }
-
-        return named;
-    }
+    /// <summary>The picture of one frame of her body's sheet; empty for a frame that shows nothing.</summary>
+    private string SamusPicture(string frame) =>
+        _sheets.ShowsNothing(SpriteFamily, SamusBodySheet, frame) ? "" : SamusPictures.Of(frame);
 
     /// <summary>One step of a timeline of hers: a frame of a pose's animation shown for so many updates.</summary>
     private readonly partial record struct SamusStep(P Pose, SamusAnimationFrame Frame, int Updates);
@@ -346,6 +292,10 @@ public sealed partial class EngineAssetWriter
         Add("facing_forward", SamusHeld(P.ForwardFacingPowerSuitPose, still));
         Add("collecting_suit", SamusHeld(P.ForwardFacingPowerSuitPose, still));
 
+        // The old game has one pose facing out of the screen for the power suit and another for the other two.
+        Add("facing_forward_suited", SamusHeld(P.ForwardFacingSuitedPose, still));
+        Add("collecting_suit_suited", SamusHeld(P.ForwardFacingSuitedPose, still));
+
         // A crystal flash: she rises, glows while her ammunition is taken, and the Godot state ends it.
         foreach ((string side, P pose) in new[] { ("right", P.CrystalFlashRightPose), ("left", P.CrystalFlashLeftPose) })
         {
@@ -406,17 +356,9 @@ public sealed partial class EngineAssetWriter
         string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusDeath];
         IReadOnlyList<IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>> explosion =
             [.. SamusDeathAnimations.ExplosionSegments.Beats(SamusDeathExplosionSegment.Explosion)];
-        var cuts = new List<EngineSheetPictures>();
-        foreach ((string name, SamusSuit suit) in SamusSuits)
-        {
-            cuts.Add(_sheets.CutNamed(_tree, SpriteFamily, $"samus/{name}", sheet, _sheets.FramesOf(SpriteFamily, sheet), SamusShades.Suit(suit).Key,
-                frame => EngineSheets.FileName("Death." + frame)));
-        }
-
-        EngineSheetPictures pictures = cuts[0];
-        if (cuts.Any(cut => cut.OffsetX != pictures.OffsetX || cut.OffsetY != pictures.OffsetY))
-            throw new InvalidDataException("The pictures of Samus's death do not lie alike in each of her suits.");
-        string folder = $"samus/{SamusSuits[0].Name}/";
+        // Cut once, in their sheet's own colours, as her body's are: her colours are changed where they are drawn.
+        EngineSheetPictures pictures = _sheets.CutNamed(
+            _tree, SpriteFamily, SamusDeathPlace, sheet, _sheets.FramesOf(SpriteFamily, sheet), shade: null, EngineSheets.FileName, regionMaps: true);
         foreach ((string side, P pose, HorizontalDirection facing) in new[]
             { ("right", P.DeathSequenceRightPose, HorizontalDirection.Right), ("left", P.DeathSequenceLeftPose, HorizontalDirection.Left) })
         {
@@ -432,7 +374,7 @@ public sealed partial class EngineAssetWriter
                 string path = pictures.Of(SamusDeathSheetDefinitions.ExplosionFrame(facing, shown.Shown));
                 steps.Add(new JsonObject
                 {
-                    ["picture"] = path.Length == 0 ? "" : $"samus/{SuitPlace}/{path[folder.Length..]}",
+                    ["picture"] = path,
                     ["updates"] = shown.Duration,
 
                     // These pictures lie on a canvas of their own; the step puts them where that canvas lies.

@@ -8,16 +8,16 @@ using Godot;
 namespace Game;
 
 /// <summary>
-/// Shows Samus: the timeline for what she is doing, the way she faces and where she aims, in the suit she wears, with
-/// her flicker after a hit and her glows. It is stepped once per update, after she has acted, and only shows; nothing
+/// Shows Samus: the timeline for what she is doing, the way she faces and where she aims, in the colours she shows
+/// (<see cref="SamusColours"/>), with her flicker after a hit. It is stepped once per update, after she has acted, and only shows; nothing
 /// in play reads it.
 /// </summary>
 /// <remarks>
 /// Her timelines are named for her look, then the way she faces, then her aim: "standing_right_up". Where she has no
 /// timeline of the whole name, the one without the aim is used, and failing that the one of the look alone. While
-/// her energy is low, a timeline of any of those names with "_low" after it is used before them. In a
-/// picture's path, "{suit}" stands for the suit she wears: "power", "varia" or "gravity". A step's own offset places
-/// its picture, as in any timeline.
+/// her energy is low, a timeline of any of those names with "_low" after it is used before them, and wearing the
+/// varia or the gravity suit, one with "_suited" after it before those. A step's own offset places its picture, as
+/// in any timeline.
 /// <para>
 /// As her look changes from one to another, a timeline named for both, then the way she faces, is played once
 /// between them if her data has one: "falling_to_standing_right" is her landing. It is only shown; what she is doing
@@ -26,11 +26,7 @@ namespace Game;
 /// </remarks>
 public partial class SamusVisual : Node2D
 {
-    /// <summary>The tint while a shine is stored.</summary>
-    [Export]
-    public Color StoredShineTint { get; set; } = new(1.4f, 1.4f, 1.0f);
-
-    /// <summary>The tint while she is boosting or shinesparking.</summary>
+    /// <summary>The tint while she is boosting.</summary>
     [Export]
     public Color BoostTint { get; set; } = new(1.0f, 1.3f, 1.6f);
 
@@ -128,10 +124,9 @@ public partial class SamusVisual : Node2D
             }
         }
 
-        string suit = samus.Inventory.IsOn(Equipment.GravitySuit) ? "gravity" : samus.Inventory.IsOn(Equipment.VariaSuit) ? "varia" : "power";
-        TimelineStep step = _player.Current;
-        _shown = step with { Picture = step.Picture.Replace("{suit}", suit, StringComparison.Ordinal) };
+        _shown = _player.Current;
         picture.Show(_shown);
+        samus.Colours.ShowOn(picture);
 
         // After a hit she flickers, shown on one update and hidden on the next, but not while she is thrown back or
         // reads as holding a shine.
@@ -139,8 +134,7 @@ public partial class SamusVisual : Node2D
         StepEchoes(samus, picture);
         picture.Tint(
             samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
-            : samus.State is ShinesparkState || samus.IsBoosting ? BoostTint
-            : samus.HasStoredShine ? StoredShineTint
+            : samus.IsBoosting && samus.State is not ShinesparkState ? BoostTint
             : samus.Weapons.IsCharged ? ChargedTint
             : Colors.White);
     }
@@ -222,9 +216,16 @@ public partial class SamusVisual : Node2D
             }
 
             if (_shown is null)
+            {
                 shown.Show("");
+            }
             else
+            {
+                // An echo is her picture in her colours.
                 shown.Show(_shown);
+                samus.Colours.ShowOn(shown);
+            }
+
             shown.Tint(EchoTint);
             shown.Position = new Vector2(at.X.Whole - samus.Position.X.Whole, at.Y.Whole - samus.Position.Y.Whole);
         }
@@ -240,6 +241,11 @@ public partial class SamusVisual : Node2D
         string facing = samus.Facing == Facing.Right ? "right" : "left";
         string aim = Samus.AimName(samus.Aim);
         string[] candidates = [$"{look}_{facing}_{aim}", $"{look}_{facing}", look];
+
+        // Wearing the varia or the gravity suit, a look that has a timeline of its own for that shows it: she faces
+        // out of the screen in another pose.
+        if (samus.SuitWorn != "power")
+            candidates = [.. candidates.Select(name => name + "_suited"), .. candidates];
 
         // Short of energy, a look that has a timeline of its own for that shows it: she breathes faster.
         if (samus.Inventory.Amount(Amounts.Energy) <= samus.LowEnergy)

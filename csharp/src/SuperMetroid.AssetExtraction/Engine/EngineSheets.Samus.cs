@@ -22,15 +22,23 @@ internal sealed partial class EngineSheets
 
     /// <summary>
     /// Cuts named frames of one sheet onto one canvas of their own, as one of the sheet's shades shows them or, with no
-    /// shade named, as they are; each is written under the file name <paramref name="fileName"/> gives for it.
+    /// shade named, as they are; each is written under the file name <paramref name="fileName"/> gives for it. With
+    /// <paramref name="regionMaps"/>, a picture some of whose pixels the sheet tells apart by region has its map of
+    /// regions written beside it, for a thing whose colours are changed where it is drawn.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame or shade.</exception>
     internal EngineSheetPictures CutNamed(
-        EngineAssetTree tree, string family, string folder, string sheet, IEnumerable<string> frames, string? shade, Func<string, string> fileName)
+        EngineAssetTree tree, string family, string folder, string sheet, IEnumerable<string> frames, string? shade, Func<string, string> fileName,
+        bool regionMaps = false)
     {
         _ = Document(family, sheet);
-        return CutFrames(tree, family, folder, [.. frames.Select(frame => (frame, sheet))], shade is null ? null : [shade], fileName);
+        return CutFrames(tree, family, folder, [.. frames.Select(frame => (frame, sheet))], shade is null ? null : [shade], fileName, regionMaps);
     }
+
+    /// <summary>Whether a sheet has a shade of the name given.</summary>
+    /// <exception cref="InvalidDataException">The family has no such sheet.</exception>
+    internal bool HasShade(string family, string sheet, string shade) =>
+        Document(family, sheet).Shades is { } shades && shades.ContainsKey(shade);
 
     /// <summary>One sheet's document.</summary>
     private InstalledSheetDocument Document(string family, string sheet) =>

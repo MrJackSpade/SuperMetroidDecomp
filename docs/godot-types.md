@@ -1002,7 +1002,22 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
-  landing, a crouch, curling up). Her pictures are written once for each suit; `{suit}` in a path names the folder.
+  landing, a crouch, curling up); with "_suited" after any of them while she wears the varia or the gravity suit
+  (she faces out of the screen in another pose). Her pictures are written once, in their sheet's own colours.
+- **Her colours** are hers to keep (`SamusColours`), as the cartridge keeps her palette: the colouring her suit
+  shows is set by what colours her and stays until something sets another, whatever she wears. Every colouring,
+  her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`
+  with every glow (`SamusGlow`: the colourings it shows in turn, each for so many updates, and the step it goes
+  back to); `SamusVisual` shows her colouring on her picture and her echoes. Nothing tints her for a colouring her
+  data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
+- **Her colour step** (`Samus.StepColours`) runs once an update, after she has moved and just before she is
+  shown, and not while a suit is being put on or she is dying. What colours her takes its turn there in the
+  cartridge's order, and one that takes her colours keeps those after it from theirs: the stored shine's and the
+  shinespark's glow, then the flash of whatever drains her (`SetDrainFlash`), then a hurt's flash. Counts that the
+  cartridge keeps in its colour step are kept there and nowhere else, so they stand still on an update the step
+  does not run: the stored shine's time with its sound, and the count of a hurt's flash, which a knockback or
+  energy found lost after she is shown starts, a flying shinespark holds, and which times her hurt's sound and
+  the asking again of the sound the hurt cut short. A family not yet moved here is a ticket, not a tint to copy.
   Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
   equipment; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
   `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.

@@ -1,0 +1,99 @@
+using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Colours;
+using G = SuperMetroid.Core.Samus.Colours.SamusGlowSegment;
+
+namespace SuperMetroid.AssetExtraction.Engine;
+
+/// <summary>
+/// Samus's colours: every colouring the old game gives her as a change of the colours of her one set of pictures, and
+/// every glow as the colourings it shows in turn with the updates each shows for.
+/// </summary>
+/// <remarks>
+/// <code>
+/// {
+///   "starting": "suit_starting_0",
+///   "suits": { "power": "suit_power_0", "varia": "suit_varia_0", "gravity": "suit_gravity_0" },
+///   "hurt": "hurt_hurt_0",
+///   "drain_flash": { "power": "speed_booster_power_3" },
+///   "glows": { "stored_shine_power": { "steps": [ { "shade": "stored_shine_power_0", "updates": 1 } ], "loops_from": 0 } },
+///   "shades": { "suit_power_0": { "samus/body": { "5a5a00": "734200" }, "samus/death": { "5a5a00": "734200" } } }
+/// }
+/// </code>
+/// A shade is named for the old colouring and its step. It lists, for the pictures of each place, the colours it
+/// changes as <see cref="ShadeChange"/> writes them. A glow that "loops_from" a step goes back to it after its last,
+/// and one that does not ends after its last.
+/// </remarks>
+public sealed partial class EngineAssetWriter
+{
+    /// <summary>The folder her body's pictures are written under.</summary>
+    private const string SamusBodyPlace = "samus/body";
+
+    /// <summary>The folder the pictures of her suit breaking up are written under.</summary>
+    private const string SamusDeathPlace = "samus/death";
+
+    /// <summary>Writes her colours.</summary>
+    /// <exception cref="InvalidDataException">A glow has a beat that shows no colouring.</exception>
+    private void WriteSamusColours()
+    {
+        string deathSheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusDeath];
+        var shades = new JsonObject();
+
+        // The name a colouring is written under; it is written the first time it is named.
+        string Shade(PictureShade shade)
+        {
+            string name = $"{EngineSheets.FileName(shade.Effect)}_{shade.Step}";
+            if (shades.ContainsKey(name))
+                return name;
+            var places = new Dictionary<string, IReadOnlyList<string>> { [SamusBodyPlace] = [SamusBodySheet] };
+            if (_sheets.HasShade(SpriteFamily, deathSheet, shade.Key))
+                places[SamusDeathPlace] = [deathSheet];
+            shades[name] = ShadeChange(shade.Key, SpriteFamily, places);
+            return name;
+        }
+
+        string SuitName(SamusSuit suit) => SamusSuits.Single(named => named.Suit == suit).Name;
+        var glows = new SortedDictionary<string, JsonObject>(StringComparer.Ordinal);
+        foreach ((G glow, Animation<G> animation) in SamusGlowAnimationDefinitions.Animations)
+        {
+            (List<IAnimationBeat<PictureShade, NoAnimationCue>> lead, List<IAnimationBeat<PictureShade, NoAnimationCue>>? cycle) =
+                EngineTimelines.Played(SamusGlowAnimationDefinitions.Segments, animation);
+            var steps = new JsonArray();
+            foreach (IAnimationBeat<PictureShade, NoAnimationCue> beat in lead.Concat(cycle ?? []))
+            {
+                if (beat is not AnimationBeat<PictureShade, NoAnimationCue>.Frame shown)
+                    throw new InvalidDataException($"Samus's glow {glow} has a beat this does not know: {beat.GetType().Name}.");
+                steps.Add(new JsonObject { ["shade"] = Shade(shown.Shown), ["updates"] = shown.Duration });
+            }
+
+            var written = new JsonObject { ["steps"] = steps };
+            if (cycle is not null)
+                written["loops_from"] = lead.Count;
+            glows.Add(EngineSheets.FileName(glow.Glow.ToString()) + (glow.Suit is { } suit ? "_" + SuitName(suit) : ""), written);
+        }
+
+        var suits = new JsonObject();
+        var drainFlash = new JsonObject();
+        foreach ((string name, SamusSuit suit) in SamusSuits)
+        {
+            suits[name] = Shade(SamusShades.Suit(suit));
+            drainFlash[name] = Shade(SamusShades.FullBodyCycle(SamusFullBodyCycleShades.SpeedBoostShade(suit)));
+        }
+
+        var glowsWritten = new JsonObject();
+        foreach ((string name, JsonObject glow) in glows)
+            glowsWritten[name] = glow;
+        _tree.WriteData("samus/colours.json", new JsonObject
+        {
+            ["starting"] = Shade(SamusShades.StartingSuit),
+            ["suits"] = suits,
+            ["hurt"] = Shade(SamusShades.Hurt(SamusHurtColorVariant.Hurt)),
+            ["drain_flash"] = drainFlash,
+            ["glows"] = glowsWritten,
+            ["shades"] = shades,
+        });
+    }
+}

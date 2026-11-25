@@ -485,6 +485,7 @@ public partial class Samus : Player
             Weapons.Add(WeaponStats.Read(Room.Content.ReadData(file)));
         _woreVaria = Inventory.Owns(Equipment.VariaSuit);
         _woreGravity = Inventory.Owns(Equipment.GravitySuit);
+        ReadColours();
     }
 
     /// <inheritdoc/>
@@ -695,6 +696,10 @@ public partial class Samus : Player
     /// </summary>
     protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked)
     {
+        // A knockback beginning starts a hurt's flash from its first count, whatever count one had reached.
+        if (to is KnockedBackState)
+            _hurtFlash = 1;
+
         // Crouching out of a run at full boost stores a shine.
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
             StoreShine();
@@ -816,13 +821,18 @@ public partial class Samus : Player
     {
         _shine = Countdown.Of(StoredShineUpdates);
         _crystalFlashColouring = CrystalFlashColouring.None;
+        BeginStoredShineColouring();
     }
 
     /// <summary>
     /// Ends the stored shine, and with it any crystal flash's colouring that read as one: used up by a shinespark or a
     /// crystal flash, or ended as the X-ray's colouring of her takes their place.
     /// </summary>
-    public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
+    public void SpendShine()
+    {
+        (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
+        EndStoredShineColouring();
+    }
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
@@ -854,7 +864,6 @@ public partial class Samus : Player
         _ranFromStart = State is RunningState;
         _spunAtStart = State is SpinJumpingState or WallJumpingState;
         _aimAtUpdateStart = Aim;
-        _shine = _shine.Stepped();
         ChooseItem();
 
         // A suit that has just become hers holds her while it is put on.
@@ -868,6 +877,7 @@ public partial class Samus : Player
 
         _woreVaria = varia;
         _woreGravity = gravity;
+        ShowSuitIfChanged();
     }
 
     /// <inheritdoc/>
@@ -1046,6 +1056,10 @@ public partial class Samus : Player
         }
 
         bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
+
+        // A beam fired takes back the asking again of a charge's sound.
+        if (fired && weapon == Arsenal.Beam)
+            _chargingSoundArmed = false;
 
         // The charge begins to sound a little way into it, on the weapons' channel, so that the shot's own sound
         // takes its place; a charge that ends without a shot is hushed.
@@ -1294,8 +1308,8 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnHurt(Hit hit, Facing from)
     {
-        // A hurt keeps her charge, as the cartridge's does: a knockback neither counts it on nor lets it go.
-        Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
+        // A hurt keeps her charge, as the cartridge's does: a knockback neither counts it on nor lets it go. Her hurt
+        // is heard from the hurt's flash, on its second count.
 
         // A new hurt's knockback takes the place of whatever was left of the last.
         _knockbackCarried = Countdown.Over;
@@ -1429,13 +1443,8 @@ public partial class Samus : Player
                 FallFromRest();
         }
 
-        // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
-        if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
-            Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
-
-        // Once she is dying the cartridge no longer shows her the usual way, so a spin or a boost her death ends asks for no stop.
-        if (State is not DyingState)
-            StopEndedSounds();
+        // Her colour step, just before she is shown: the stored shine's time and sound are its own.
+        StepColours();
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,
@@ -1443,6 +1452,14 @@ public partial class Samus : Player
             _ => _crystalFlashColouring,
         };
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
+
+        // Once she is dying the cartridge no longer shows her the usual way, so nothing is looked at after she is shown,
+        // and a spin or a boost her death ends asks for no stop.
+        if (State is not DyingState)
+        {
+            LookAfterShown();
+            StopEndedSounds();
+        }
     }
 
     /// <summary>
@@ -1461,7 +1478,14 @@ public partial class Samus : Player
         }
 
         if (_spunAtStart && State is not (SpinJumpingState or WallJumpingState))
+        {
             Room.Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
+
+            // A charge that had begun to sound is asked for again at the next look after she is shown, if the attack
+            // is held now and still held then.
+            if (ChargeIsSounding && Input.IsHeld(GameAction.Attack))
+                _chargingSoundArmed = true;
+        }
     }
 
     /// <summary>

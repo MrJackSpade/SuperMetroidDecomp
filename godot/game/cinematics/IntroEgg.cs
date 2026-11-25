@@ -239,7 +239,7 @@ public partial class IntroEgg : RoomObject
         baby.Show(look.Current);
         PixelOffset from = _babyAt - Position;
         baby.Position = new Vector2(from.X.ToDisplay(), from.Y.ToDisplay());
-        baby.ZIndex = BabyIsInFront ? 1 : -1;
+        baby.ZIndex = BabyIsInFront ? 1 : RoomDepth.BehindThings;
     }
 
     /// <summary>The speed that takes something a step nearer a place, never past its limit either way.</summary>

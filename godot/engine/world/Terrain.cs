@@ -657,7 +657,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         QueueRedraw();
         if (_front is null)
         {
-            _front = new TerrainFront { Name = "Front", Of = this, ZIndex = RoomDepth.TilesInFront, UseParentMaterial = true };
+            _front = new TerrainFront { Name = "Front", Of = this, ZAsRelative = false, ZIndex = RoomDepth.TilesInFront, UseParentMaterial = true };
             AddChild(_front, forceReadableName: false, InternalMode.Back);
         }
 
@@ -683,7 +683,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
         if (_backdropColour is null)
         {
-            _backdropColour = new Sprite2D { Name = "BackdropColour", Centered = false, ZIndex = RoomDepth.BackdropColour, UseParentMaterial = true };
+            _backdropColour = new Sprite2D { Name = "BackdropColour", Centered = false, ZAsRelative = false, ZIndex = RoomDepth.BackdropColour, UseParentMaterial = true };
             AddChild(_backdropColour, forceReadableName: false, InternalMode.Back);
         }
 

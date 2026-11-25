@@ -14,9 +14,18 @@ public static class RoomDepth
     public const int Backdrop = -100;
 
     /// <summary>In front of the backdrop and behind the room's tiles and everything standing in the room.</summary>
-    public const int BehindRoom = -1;
+    public const int BehindRoom = -20;
 
-    /// <summary>The room's tiles and, after them, everything standing in the room: the depth a thing has unless it says otherwise.</summary>
+    /// <summary>The room's tiles, which the room gives its terrain.</summary>
+    public const int Tiles = -10;
+
+    /// <summary>
+    /// In front of the room's tiles and behind everything standing in the room: where a thing puts what it shows
+    /// behind the player and the rest, whatever order they stand in.
+    /// </summary>
+    public const int BehindThings = -5;
+
+    /// <summary>Everything standing in the room, in the order it stands there: the depth a thing has unless it says otherwise.</summary>
     public const int Things = 0;
 
     /// <summary>The part of the room's tiles that lies in front of the things standing in it.</summary>

@@ -587,7 +587,7 @@ public partial class Botwoon : Enemy
                 {
                     // Only its head goes behind everything inside the wall and in front of Samus out of it; its body
                     // stays behind her.
-                    SetHeadDepth(_insideHole ? -1 : 1);
+                    SetHeadDepth(_insideHole ? RoomDepth.BehindRoom : 1);
                     _headTangible = !_insideHole;
                     Play(_insideHole ? "hidden" : $"moving_{WayOf(across, down)}");
                 }

@@ -100,7 +100,7 @@ public partial class CuedProjectile : Projectile, IHasValues
                 ZIndex = 1;
                 break;
             case "behind":
-                ZIndex = -1;
+                ZIndex = RoomDepth.BehindThings;
                 break;
             case "origin":
                 Position = Origin;

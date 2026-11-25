@@ -169,6 +169,9 @@ public partial class Room : Node2D
 
         _terrain = GetChildren().OfType<Terrain>().SingleOrDefault()
             ?? throw new InvalidOperationException($"The room \"{Name}\" must have exactly one Terrain.");
+
+        // The room's tiles lie behind everything standing in it, wherever the terrain comes among its things.
+        _terrain.ZIndex = RoomDepth.Tiles;
         // The conditions that choose a version, and that decide which placed things are present, are asked before the
         // room has any enemies: they are about what has happened, not about what is in the room.
         _world = new CollisionWorld(_terrain);

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="15"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="16"]
 [ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="17"]
+[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="18"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -610,4 +611,7 @@ StartsWhen = SubResource("r5")
 DataFile = "objects/samus_eater.json"
 
 [node name="AtGreenBrinstarMainShaftElevator" type="Marker2D" parent="."]
+script = ExtResource("18")
 position = Vector2(128, 680)
+PlacesView = true
+ViewAt = Vector2i(0, 512)

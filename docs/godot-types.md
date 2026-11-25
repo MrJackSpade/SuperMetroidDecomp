@@ -479,6 +479,10 @@ A scene. One per room of the game.
   first part of the player's update; the player's own shots; the enemies; the rest of the player's update; triggers
   and exits; every other projectile, pickups and remains; room objects, terrain, the earthquake and the sequence;
   effects.
+- **Where play begins in it:** at an exit, at anything with a place, or at an `EntryPoint`, a place that is
+  nothing else, which may say where the view is put when play begins there (this game's save points, elevators
+  and landings put it where the cartridge's table of them does, keeping the parts of a pixel the view had);
+  otherwise the view is put about the player.
 - **Draws at set depths** (`RoomDepth`), from the back: the colour shown wherever nothing of the room is drawn
   (a layout may give one as its "backdrop"; the terrain spreads it behind everything, and it changes colour with
   the tiles); the backdrop; what lies behind the room; the room's tiles

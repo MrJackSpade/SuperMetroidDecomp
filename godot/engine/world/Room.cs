@@ -214,8 +214,14 @@ public partial class Room : Node2D
         _playerAtUpdateStart = Player.Position;
 
         // Whoever brings the player in keeping the view puts the view where it belongs.
+        // A place play begins at may say where the view is put; otherwise it is put about the player.
         if (!entry.KeepsView)
-            Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
+        {
+            if (entry.At is null && GetNodeOrNull(entry.EntryPoint) is EntryPoint { PlacesView: true } begun)
+                Session.Camera.Place(begun.ViewAt.X, begun.ViewAt.Y, keepsFractions: true);
+            else
+                Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
+        }
         if (ViewHeld)
             Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
         foreach (Node child in GetChildren())

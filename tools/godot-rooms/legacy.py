@@ -429,15 +429,15 @@ def room_fx() -> dict[str, dict]:
     return result
 
 
-def load_stations() -> dict[str, tuple[str, tuple[int, int]]]:
-    """The places play can begin at: for each, the door that leads to its room, and where Samus is put there."""
+def load_stations() -> dict[str, tuple[str, tuple[int, int], tuple[int, int]]]:
+    """The places play can begin at: for each, the door that leads to its room, where Samus is put there, and where the view is."""
     text = without_comments(read('Rooms', 'RoomObjects', 'LoadStationPlacementDefinitions.cs'))
     result = {}
     for match in re.finditer(r'\[LoadStationDefinitions\.(\w+)\] = new\(', text):
         open_at = match.end() - 1
         arguments = split_arguments(text[open_at + 1:matching(text, open_at) - 1])
-        samus = numbers(arguments[2])
-        result[match.group(1)] = (last_name(arguments[0]), (samus[0], samus[1]))
+        view, samus = numbers(arguments[1]), numbers(arguments[2])
+        result[match.group(1)] = (last_name(arguments[0]), (samus[0], samus[1]), (view[0], view[1]))
     return result
 
 

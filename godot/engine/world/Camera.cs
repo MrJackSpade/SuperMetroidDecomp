@@ -84,14 +84,19 @@ public sealed class Camera
     }
 
     /// <summary>
-    /// Puts the view at a place, kept inside the room, at rest there with no fraction. Whatever point of the player it
+    /// Puts the view at a place, kept inside the room, at rest there, with no fraction unless it is to keep its own. Whatever point of the player it
     /// was tracking is forgotten: the next tracking starts from where the player stood as that update began.
     /// </summary>
-    public void Place(int left, int top)
+    /// <param name="left">Where its left edge is put, in the room's pixels.</param>
+    /// <param name="top">Where its top edge is put.</param>
+    /// <param name="keepsFractions">Whether it keeps the parts of a pixel it had, as a view put somewhere as play begins does.</param>
+    public void Place(int left, int top, bool keepsFractions = false)
     {
         left = Math.Clamp(left, 0, (_columns - 1) * Screen);
         top = Math.Clamp(top, 0, (_rows - 1) * Screen + LowerRest);
-        Position = PixelPosition.FromWhole(left, top);
+        Position = keepsFractions
+            ? new PixelPosition(Pixels.FromParts(left, Position.X.Fraction), Pixels.FromParts(top, Position.Y.Fraction))
+            : PixelPosition.FromWhole(left, top);
         (IdealLeft, IdealTop) = (left, top);
         (_tracked, _trackedXWritten, _trackedYWritten) = (null, null, null);
     }

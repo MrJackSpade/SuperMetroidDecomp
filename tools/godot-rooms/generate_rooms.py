@@ -763,11 +763,15 @@ class Generator:
                 x = door.to_screen[0] * SCREEN + SCREEN // 2
                 y = door.to_screen[1] * SCREEN + SCREEN // 2
                 self.scenes[key].node(name, '.', {'position': f'Vector2({x}, {y})'}, kind='Marker2D')
-        for station, (door, (x, y)) in legacy.load_stations().items():
+        for station, (door, (x, y), (view_x, view_y)) in legacy.load_stations().items():
             # The Ceres elevator sets her down from the top of its shaft.
             if station == 'CeresElevator':
                 y = 0
-            self.scenes[self.doors[door].to_room].node('At' + station, '.', {'position': f'Vector2({x}, {y})'}, kind='Marker2D')
+            # Play that begins at one of these puts the view where the cartridge's table of them does.
+            self.scenes[self.doors[door].to_room].node(
+                'At' + station, '.',
+                {'position': f'Vector2({x}, {y})', 'PlacesView': 'true', 'ViewAt': f'Vector2i({view_x}, {view_y})'},
+                script='res://engine/world/EntryPoint.cs', kind='Marker2D')
         for key, scene in self.scenes.items():
             path = os.path.join(GODOT, room_scene(self.rooms[key])[len('res://'):])
             os.makedirs(os.path.dirname(path), exist_ok=True)

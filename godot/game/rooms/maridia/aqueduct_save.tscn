@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="7"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -74,4 +75,7 @@ Picture = "backdrops/{graphics}/level_save_room_door_on_right.png"
 ScrollShare = Vector2(1, 1)
 
 [node name="AtAqueductSave" type="Marker2D" parent="."]
+script = ExtResource("10")
 position = Vector2(96, 152)
+PlacesView = true
+ViewAt = Vector2i(0, 0)

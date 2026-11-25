@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="14"]
 [ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="15"]
 [ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="16"]
+[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="17"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -351,4 +352,7 @@ Records = PackedStringArray("zebes_awake")
 PresentWhen = SubResource("r1")
 
 [node name="AtMorphBallElevator" type="Marker2D" parent="."]
+script = ExtResource("17")
 position = Vector2(1408, 680)
+PlacesView = true
+ViewAt = Vector2i(1280, 512)

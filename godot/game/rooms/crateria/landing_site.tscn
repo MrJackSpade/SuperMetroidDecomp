@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://game/rooms/crateria/ZebesDeparture.cs" id="14"]
 [ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="15"]
 [ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="16"]
+[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="17"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -467,7 +468,13 @@ SmokeSound = "enemy_big_explosion"
 PresentWhen = SubResource("r1")
 
 [node name="AtGunship" type="Marker2D" parent="."]
+script = ExtResource("17")
 position = Vector2(1152, 1088)
+PlacesView = true
+ViewAt = Vector2i(1024, 1024)
 
 [node name="AtZebesArrival" type="Marker2D" parent="."]
+script = ExtResource("17")
 position = Vector2(1152, 128)
+PlacesView = true
+ViewAt = Vector2i(1024, 0)

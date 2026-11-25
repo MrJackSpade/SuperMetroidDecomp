@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
 [ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -115,4 +116,7 @@ Until = SubResource("r2")
 Records = PackedStringArray("map revealed: tourian")
 
 [node name="AtTourianFirstElevator" type="Marker2D" parent="."]
+script = ExtResource("12")
 position = Vector2(128, 680)
+PlacesView = true
+ViewAt = Vector2i(0, 512)

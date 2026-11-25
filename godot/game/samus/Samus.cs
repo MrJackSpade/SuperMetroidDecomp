@@ -385,6 +385,9 @@ public partial class Samus : Player
         return result;
     }
 
+    /// <summary>How many updates longer a weapon's hit makes an enemy flash than a blow of her body does.</summary>
+    private const int WeaponFlashUpdates = 8;
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
@@ -396,8 +399,13 @@ public partial class Samus : Player
         {
             foreach ((string name, DataNode power) in data.Get("body_powers").Entries())
             {
-                // An enemy her body harms makes no cry: the blow has a sound of its own (OnBodyPowerHarmed).
-                var made = new BodyPower(name, power.Int("damage"), [.. power.List("kinds").Select(kind => new HitKind(kind.AsText()))]) { Quiet = true };
+                // An enemy her body harms makes no cry: the blow has a sound of its own (OnBodyPowerHarmed). And it
+                // flashes for its own count of updates, without the eight a weapon's hit adds, which its data counts in.
+                var made = new BodyPower(name, power.Int("damage"), [.. power.List("kinds").Select(kind => new HitKind(kind.AsText()))])
+                {
+                    Quiet = true,
+                    FlashFewer = WeaponFlashUpdates,
+                };
                 _powers[name] = made;
                 AddBodyPower(made);
             }

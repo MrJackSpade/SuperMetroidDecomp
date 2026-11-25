@@ -22,6 +22,13 @@ public sealed class BodyPower
     /// <summary>The hit the player's body delivers while the power is active.</summary>
     public Hit Hit { get; private init; }
 
+    /// <summary>How many updates fewer than for any other hit what the power's hit harms shows that it was hurt.</summary>
+    public int FlashFewer
+    {
+        get => Hit.FlashFewer;
+        init => Hit = Hit with { FlashFewer = value };
+    }
+
     /// <summary>Whether what the power's hit harms makes no cry of its own.</summary>
     public bool Quiet
     {

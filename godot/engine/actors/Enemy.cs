@@ -455,7 +455,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
         health.Take(damage);
         _unhittable = Countdown.Of(reaction.UnhittableUpdates);
-        _flash = Countdown.Of(HurtFlashUpdates);
+        _flash = Countdown.Of(Math.Max(0, HurtFlashUpdates - hit.FlashFewer));
         _hurt = true;
         WasJustHurt = true;
         if (!IsFrozen && !hit.Quiet)

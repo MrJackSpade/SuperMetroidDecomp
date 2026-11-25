@@ -36,6 +36,9 @@ public sealed record Hit
     /// <summary>Whether what it harms makes no cry of its own, as under a blast or a blow that has its own sound.</summary>
     public bool Quiet { get; init; }
 
+    /// <summary>How many updates fewer than for any other hit what it harms shows that it was hurt: a blow that shows for less.</summary>
+    public int FlashFewer { get; init; }
+
     /// <summary>Whatever delivered the hit, when its target needs to know.</summary>
     public object? Source { get; init; }
 

@@ -353,6 +353,10 @@ public partial class Draygon : Enemy
                 throw new InvalidOperationException($"Draygon's body gives the cue \"{cue}\", which it does not know.");
         }
 
+        // With no place free for a goop, none leaves and no number is drawn to spread it.
+        if (!Room.HasFreePlace)
+            return;
+
         // A goop leaves from by its tail, somewhere between straight down and straight ahead.
         PixelPosition from = PixelPosition.FromWhole(Position.X.Whole + (_pass == Facing.Right ? 24 : -28), Position.Y.Whole - 16);
         // As the cartridge counts an angle: none right, a quarter turn up.

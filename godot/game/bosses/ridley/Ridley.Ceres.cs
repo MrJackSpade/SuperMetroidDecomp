@@ -21,7 +21,8 @@ namespace Game.Enemies;
 /// plays "baby_idle" and "baby_expressive"; their cue "reacts" livens it when it is falling, and "cries" has it cry
 /// or, as often as not when it is still, settle. Its data's "retreat_colours" is the change of colours its going
 /// gives the chamber's own pictures, which stays for as long as the room is there; under its "colours", "own" is
-/// the change of its own pictures' colours it shows once it has shown itself.
+/// the change of its own pictures' colours it shows once it has shown itself. Its "health_bands" each give the
+/// fewest "hits" in a band and the "colours" it shows from then on, while it fights, in place of its own.
 /// </remarks>
 public partial class Ridley
 {
@@ -54,6 +55,14 @@ public partial class Ridley
 
     /// <summary>Its own colours, once it has shown itself.</summary>
     private ColourChange _ownColours = ColourChange.None;
+
+    /// <summary>The bands of hits taken that show a look of its health, most hits first.</summary>
+    private readonly List<CeresBand> _ceresBands = [];
+
+    /// <summary>The colours of the band of hits it shows, or none before the first.</summary>
+    private ColourChange? _ceresBandColours;
+
+    private sealed record CeresBand(int Hits, ColourChange Colours);
 
     /// <summary>The capsule's cry, by name.</summary>
     [Export, DataValue("baby_cry_sound")]
@@ -116,7 +125,28 @@ public partial class Ridley
         // Nothing harms it here; each hit only counts toward driving it off.
         FlashFor(HitFlashUpdates);
         _hits++;
+        // The look of its health shows at once.
+        ShowCeresBand();
+        ShowColours();
         return HitResult.Hurt;
+    }
+
+    /// <summary>Reads the bands of hits taken that show a look of its health.</summary>
+    private void ReadCeresBands(DataNode data)
+    {
+        _ceresBands.Clear();
+        _ceresBands.AddRange(data.List("health_bands").Select(band => new CeresBand(band.Int("hits"), ColourChange.Read(band.Get("colours")))).OrderByDescending(band => band.Hits));
+        if (_ceresBands.Count == 0)
+            throw data.Problem("must list the bands of hits taken that show a look of its health");
+    }
+
+    /// <summary>While it fights, takes the colours of the band its hits have reached; before the first its own stay.</summary>
+    private void ShowCeresBand()
+    {
+        if (!_fighting)
+            return;
+        if (_ceresBands.FirstOrDefault(band => _hits >= band.Hits) is { } reached)
+            _ceresBandColours = reached.Colours;
     }
 
     /// <summary>Sets it up for its fight aboard Ceres.</summary>
@@ -169,6 +199,7 @@ public partial class Ridley
             RandomDraw chance = Random.Last;
             if (chance.Part(8, 8) == 255)
                 Tail.LinkSpacing = 8 + chance.Part(0, 4);
+            ShowCeresBand();
         }
 
         StepBaby();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
@@ -29,6 +30,8 @@ internal sealed partial class AcceptedFrameBoundary
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains the frame-boundary display latch.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>The frame's colours, latched with its scene.</summary>
+    private readonly IFrameColourLatch _colours;
     /// <summary>Sprite frame made visible at each frame boundary.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
 
@@ -60,6 +63,7 @@ internal sealed partial class AcceptedFrameBoundary
         _input = dependencies.Input;
         _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
+        _colours = dependencies.Colours;
         _displayedSprites = dependencies.DisplayedSprites;
         _screenLayers = dependencies.ScreenLayers;
         _sprites = dependencies.Sprites;
@@ -113,6 +117,9 @@ internal sealed partial class AcceptedFrameBoundary
     private RoomFrameLatch LatchRoomFrame(RoomScope scope, ShownHud hud)
     {
         IEnemyDisplaySources displays = scope.Enemies.DisplaySources;
+        // The frame's colours latch with its scene (#3036): the colours the update left, over the sprites it left, as the
+        // cartridge uploads both in one NMI.
+        FramePaint colours = _colours.LatchColours(scope, _displayedSprites);
         var scrolls = new GameplayRenderSnapshot(
             _backgroundScroll.ForegroundPosition,
             _backgroundScroll.ForegroundScroll,
@@ -146,14 +153,14 @@ internal sealed partial class AcceptedFrameBoundary
                 RoomLevelPlane band = level.BackgroundPlane;
                 return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
                     CeresPerspectiveFloors.RidleyGetaway(flown, displays.FlownFloorWalls), floor.Publish(),
-                    new RoomBackgroundLayer(band.Cells, BlockPictures(scope, appearance, band, reveal)));
+                    new RoomBackgroundLayer(band.Cells, BlockPictures(scope, appearance, band, reveal))) { Colours = colours };
             }
             // The elevator shaft's floor shows while the shaft has its transform, which exists exactly while the room was
             // entered through the shaft's door; it fills the gameplay view.
             if (_display.ActiveTurningFloor is { } shaft)
             {
                 return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
-                    CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), floor.Publish(), BackgroundBand: null);
+                    CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), floor.Publish(), BackgroundBand: null) { Colours = colours };
             }
         }
         // The background shows the background plane when the room state shows its level background; otherwise it shows
@@ -175,7 +182,7 @@ internal sealed partial class AcceptedFrameBoundary
             // Only the statue room has statues, so only its frames carry a descent (#2385). The descent stops at its
             // authored distance, which holds the offset between minus that distance and zero (#1627).
             scope.TourianStatues?.DisplayedVerticalOffset,
-            reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Grid, pictures) : null);
+            reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Grid, pictures) : null) { Colours = colours };
     }
 
     /// <summary>The room's part of the scene: the room's blending, the sky's vertical scroll, and the room and its boss.</summary>

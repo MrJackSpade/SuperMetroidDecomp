@@ -18,12 +18,16 @@ namespace Game;
 ///   "shortening_probe": 8, "lengthening_probe": 56, "body_point_spacing": 8, "body_points": 6, "stopping_points": 2,
 ///   "anchor_toward_positive": 8, "anchor_toward_negative": 7,
 ///   "release_lead": 64, "release_lead_per_step": 3, "retraction": -8, "long_line": 64, "long_line_shortening": 24,
-///   "fast_turning": 64,
+///   "fast_turning": 64, "wall_jump_window": 30, "wall_jump_probe": 16,
+///   "stops": [ { "angle": 54912, "kind": "held", "facing": "right", "x": -30, "y": -24 } ],
 ///   "body_left": [ { "x": 0, "y": -15 } ], "body_right": [ { "x": 0, "y": -14 } ]
 /// }
 /// </code>
 /// "body_left" and "body_right" give, for each of the ways the line can run from her counted round from straight
-/// up, where her place lies from the end of the line she holds, facing left and facing right.
+/// up, where her place lies from the end of the line she holds, facing left and facing right. "stops" lists the
+/// exact angles, in 65536ths of a turn, at which a swing stopped by her hand on the shortest line leaves her in a
+/// pose of its own: held crouched ("held") or against a wall ("wall"), facing as it says, at the place given from
+/// what holds the line.
 /// </remarks>
 public sealed class GrappleSwingRules
 {
@@ -59,6 +63,21 @@ public sealed class GrappleSwingRules
         LongLine = data.Int("long_line");
         LongLineShortening = data.Int("long_line_shortening");
         FastTurning = data.Int("fast_turning");
+        WallJumpWindow = data.Int("wall_jump_window");
+        WallJumpProbe = data.Int("wall_jump_probe");
+        Stops =
+        [
+            .. data.List("stops").Select(stop => new Stop(
+                stop.Int("angle"),
+                stop.Text("kind") switch
+                {
+                    "held" => false,
+                    "wall" => true,
+                    string kind => throw new ContentException(data.File, $"gives a stop of the swing the kind \"{kind}\", which is neither held nor wall"),
+                },
+                stop.Text("facing") == "left",
+                PixelOffset.FromWhole(stop.Int("x"), stop.Int("y")))),
+        ];
         BodyLeft = [.. data.List("body_left").Select(place => PixelOffset.FromWhole(place.Int("x"), place.Int("y")))];
         BodyRight = [.. data.List("body_right").Select(place => PixelOffset.FromWhole(place.Int("x"), place.Int("y")))];
         if (BodyLeft.Count == 0 || BodyLeft.Count != BodyRight.Count || Turns.PerTurn % BodyLeft.Count != 0)
@@ -161,6 +180,18 @@ public sealed class GrappleSwingRules
 
     /// <summary>While the swing turns this fast or faster, either way, the view follows her slowly.</summary>
     public int FastTurning { get; }
+
+    /// <summary>The updates after a wall held by the line is let go in which the jump still jumps off it.</summary>
+    public int WallJumpWindow { get; }
+
+    /// <summary>How far, in pixels, a wall is felt for on the side she faces in that window.</summary>
+    public int WallJumpProbe { get; }
+
+    /// <summary>The angles at which a swing stopped by her hand leaves her in a pose of its own.</summary>
+    public IReadOnlyList<Stop> Stops { get; }
+
+    /// <summary>One such angle: the line's angle in parts of a step, whether she is left against a wall or held crouched, the way she faces, and her place from what holds the line.</summary>
+    public sealed record Stop(int Angle, bool GrabsWall, bool FacesLeft, PixelOffset Place);
 
     /// <summary>Where her place lies from the end of the line she holds, facing left, for each way the line can run.</summary>
     public IReadOnlyList<PixelOffset> BodyLeft { get; }

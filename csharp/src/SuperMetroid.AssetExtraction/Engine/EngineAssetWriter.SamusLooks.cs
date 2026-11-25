@@ -278,6 +278,9 @@ public sealed partial class EngineAssetWriter
         Look("grapple_crouching", "diagonal_down", P.GrappleCrouchingDownRightPose, P.GrappleCrouchingDownLeftPose);
         Look("grapple_crouching", "down", P.GrappleStandingDownLeftPose, P.GrappleStandingDownLeftPose);
 
+        // Against a wall, holding on by the line.
+        Look("grapple_wall_contact", null, P.GrappleWallContactRightPose, P.GrappleWallContactLeftPose);
+
         // Swinging, she is shown one of so many ways by the way the line runs from her.
         for (int way = 0; way < GrappleSwingDirection.Count; way++)
         {

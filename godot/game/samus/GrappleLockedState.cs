@@ -15,9 +15,14 @@ namespace Game;
 public sealed class GrappleLockedState : PlayerState, ISamusLook
 {
     private readonly bool _crouched;
+    private readonly PixelPosition? _at;
+    private readonly Aim? _aim;
 
-    /// <summary>Held by the line, crouched or standing.</summary>
+    /// <summary>Held by the line as it takes hold, crouched or standing.</summary>
     public GrappleLockedState(bool crouched) => _crouched = crouched;
+
+    /// <summary>Held by the line at a place and with an aim of the holder's own: a swing stopped by her hand at one of its exact angles.</summary>
+    public GrappleLockedState(bool crouched, PixelPosition at, Aim aim) => (_crouched, _at, _aim) = (crouched, at, aim);
 
     /// <inheritdoc/>
     public string Look => _crouched ? "grapple_crouching" : "grapple_standing";
@@ -33,6 +38,13 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
         GrappleSwingRules rules = grapple.Swing;
         owner.LoseMomentum();
         owner.Velocity = PixelVelocity.Zero;
+        if (_at is { } at && _aim is { } aim)
+        {
+            // She is put there outright and takes the pose's body where she is, as the cartridge sets a pose's size.
+            (owner.Aim, owner.Position) = (aim, at);
+            owner.TrySetForm(owner.FormOr(_crouched ? Player.Crouching : Player.Standing), aroundMiddle: true);
+            return;
+        }
 
         // The line's end is reckoned as a swing's is, from the angle of where she was and the line's length as it
         // took hold, a long line shortened; she is put there, less where the line leaves a standing body.

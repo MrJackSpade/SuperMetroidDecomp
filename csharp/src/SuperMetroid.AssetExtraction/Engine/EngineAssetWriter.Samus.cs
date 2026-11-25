@@ -429,6 +429,27 @@ public sealed partial class EngineAssetWriter
                 ["long_line"] = GrappleBeamDefinitions.Connection.LongRope,
                 ["long_line_shortening"] = GrappleBeamDefinitions.Connection.LongRopeShortening,
                 ["fast_turning"] = GrappleSlowScrollDefinitions.FastSwingAngularSpeed.FractionsOfStep,
+                ["wall_jump_window"] = GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames,
+                ["wall_jump_probe"] = GrappleBeamDefinitions.WallGrab.WallJumpProbePixels,
+
+                // The exact angles at which a swing stopped by her hand leaves her in a pose of its own.
+                ["stops"] = EngineNames.List(GrappleConnections.SpecialConnections.Select(stop =>
+                {
+                    (string kind, string facing) = stop.Pose switch
+                    {
+                        P.GrappleCrouchingDownRightPose => ("held", "right"),
+                        P.GrappleCrouchingDownLeftPose => ("held", "left"),
+                        P.GrappleWallContactRightPose => ("wall", "right"),
+                        P.GrappleWallContactLeftPose => ("wall", "left"),
+                        _ => throw new InvalidDataException($"A stop of the grapple's swing takes the pose {stop.Pose}, which this does not know."),
+                    };
+                    if ((kind == "wall") != (stop.Phase == GrapplePhase.WallGrab))
+                        throw new InvalidDataException($"The grapple's stop in the pose {stop.Pose} is in the phase {stop.Phase}, which its pose does not say.");
+                    return (JsonNode)new JsonObject
+                    {
+                        ["angle"] = stop.Angle.RawValue, ["kind"] = kind, ["facing"] = facing, ["x"] = stop.SamusOffset.X, ["y"] = stop.SamusOffset.Y,
+                    };
+                })),
                 ["body_left"] = EngineNames.List(GrappleSwingDirection.All.Select(way =>
                 {
                     Offset16<RoomPixels> place = GrappleBodyPlacements.Offset(way, SamusFacingDirection.Left);

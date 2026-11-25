@@ -69,6 +69,9 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// <summary>The updates left of a bounce off the ground, in which the jump adds its kick.</summary>
     private int _bounceLeft;
 
+    /// <summary>Whether the swing was last stopped by her hand on the shortest line, and has not turned freely since.</summary>
+    private bool _restsByHand;
+
     /// <summary>Whether she was under a liquid, without the gravity suit, when last looked at.</summary>
     private bool _submerged;
 
@@ -114,7 +117,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         _length = grapple.Length;
         if (_length >= rules.LongLine)
             _length -= rules.LongLineShortening;
-        (_turning, _pushing, _pulling, _correcting, _kick, _bounceLeft) = (0, 0, 0, 0, 0, 0);
+        (_turning, _pushing, _pulling, _correcting, _kick, _bounceLeft, _restsByHand) = (0, 0, 0, 0, 0, 0, false);
         _lengthChange = rules.Retraction;
         _submerged = IsSubmerged(owner);
         owner.Velocity = PixelVelocity.Zero;
@@ -147,6 +150,16 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         if (_bounceLeft > 0 && owner.Input.WasPressed(GameAction.Jump))
             _kick = Math.Sign(_turning) * (_submerged ? rules.JumpKick / rules.SubmergedShare : rules.JumpKick);
         Turn(owner, rules);
+
+        // Stopped by her hand at one of the exact angles the swing's data names, she is left in that angle's pose
+        // at its place from what holds the line: held crouched, or against a wall.
+        if (_restsByHand && rules.Stops.FirstOrDefault(named => named.Angle == _angle) is { } stop)
+        {
+            owner.Facing = stop.FacesLeft ? Facing.Left : Facing.Right;
+            PixelPosition at = _anchor + stop.Place;
+            return stop.GrabsWall ? new GrappleWallGrabState(at) : new GrappleLockedState(crouched: true, at, Aim.DiagonalDown);
+        }
+
         PlaceFromLine(owner, rules);
         _submerged = IsSubmerged(owner);
         return null;
@@ -283,7 +296,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
                 _angle = safe * Parts + Parts / 2;
                 if (_length == rules.Shortest && struck < rules.StoppingPoints)
                 {
-                    (_turning, _kick) = (0, 0);
+                    (_turning, _kick, _restsByHand) = (0, 0, true);
                 }
                 else
                 {
@@ -297,7 +310,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
             safe = candidate;
         }
 
-        _angle = target;
+        (_angle, _restsByHand) = (target, false);
         if (_bounceLeft > 0)
             _bounceLeft--;
         _kick = _kick < 0 ? Math.Min(0, _kick + rules.KickDecay) : Math.Max(0, _kick - rules.KickDecay);

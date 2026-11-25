@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Game.Compatibility;
 using Game.Data;
 using Godot;
@@ -82,6 +83,9 @@ public partial class Shaktool : Enemy
     private int _curled;
     private string _headPicture = "";
 
+    /// <summary>The part the latest hit landed on.</summary>
+    private int _struck;
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
@@ -126,15 +130,35 @@ public partial class Shaktool : Enemy
     }
 
     /// <inheritdoc/>
-    protected override Health HealthOf(Collider part)
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        _struck = PartOf(part);
+        return base.TakeHit(hit, part);
+    }
+
+    /// <inheritdoc/>
+    protected override Health HealthOf(Collider part) => _health[PartOf(part)];
+
+    /// <summary>
+    /// The machine dies where the part that was struck lies, as the cartridge's struck part died where it was and
+    /// the rest were taken away: its death and what it leaves are there, not at its head.
+    /// </summary>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        Position = _at[_struck];
+        return true;
+    }
+
+    /// <summary>Which of its parts, counted from nought, <paramref name="hurtbox"/> is.</summary>
+    private int PartOf(Collider hurtbox)
     {
         for (int index = 0; index < Parts; index++)
         {
-            if (part.Name == $"Hurtbox{index + 1}")
-                return _health[index];
+            if (hurtbox.Name == $"Hurtbox{index + 1}")
+                return index;
         }
 
-        throw new InvalidOperationException($"A hit landed on \"{part.Name}\" of Shaktool \"{Name}\", which is none of its parts.");
+        throw new InvalidOperationException($"A hit landed on \"{hurtbox.Name}\" of Shaktool \"{Name}\", which is none of its parts.");
     }
 
     /// <inheritdoc/>

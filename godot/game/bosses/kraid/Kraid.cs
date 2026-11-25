@@ -292,7 +292,8 @@ public partial class Kraid : Enemy
     private int _footWait;
     private int _footThink;
     private int _openLeft;
-    private int _fade;
+    /// <summary>The count every gradual fade shares, by which his backdrop's fades are over.</summary>
+    private Compatibility.SharedFadeCount FadeCount => Room.Session.Service<Compatibility.SharedFadeCount>();
     private int _nextCeilingRock;
     private int _mouthReopens;
     private bool _mouthReopenMarked;
@@ -771,12 +772,13 @@ public partial class Kraid : Enemy
                 break;
 
             case Growth.ShowBackdrop:
-                _fade = 0;
+                // His room is drawn anew before its backdrop fades, which starts the fades' shared count over.
+                FadeCount.Restart();
                 _growth = Growth.FadeBackdrop;
                 break;
 
             case Growth.FadeBackdrop:
-                if (++_fade <= BackdropFadeSteps)
+                if (!FadeCount.TakeStep(BackdropFadeSteps - 1))
                     break;
                 _stage = Stage.Fighting;
                 _fight = Fight.SecondThinking;
@@ -803,7 +805,6 @@ public partial class Kraid : Enemy
             case Death.Begin:
                 PlayPart("Arm", "arm_dying_or_preparing_to_lunge", restart: true);
                 PlayPart("Head", "head_death", restart: true);
-                _fade = 0;
                 if (_deathSpikes is { } spikes)
                     Room.Play(spikes.FromStart());
                 _death = Death.FadeOut;
@@ -811,7 +812,7 @@ public partial class Kraid : Enemy
 
             case Death.FadeOut:
                 StepHead();
-                if (++_fade <= BackdropFadeSteps)
+                if (!FadeCount.TakeStep(BackdropFadeSteps - 1))
                     break;
                 // With the room dark its body is drawn behind what stands in the room again, grown or not.
                 _death = Death.ShowBody;
@@ -883,11 +884,16 @@ public partial class Kraid : Enemy
 
             case Sinking.Wait:
                 if (--_wait <= 0)
-                    (_sinking, _fade) = (Sinking.FadeIn, 0);
+                {
+                    // His room is drawn anew before this fade too, and the shared count starts over.
+                    FadeCount.Restart();
+                    _sinking = Sinking.FadeIn;
+                }
+
                 break;
 
             case Sinking.FadeIn:
-                if (++_fade <= BackdropFadeSteps)
+                if (!FadeCount.TakeStep(BackdropFadeSteps - 1))
                     break;
                 if (VictoryMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(VictoryMusic);

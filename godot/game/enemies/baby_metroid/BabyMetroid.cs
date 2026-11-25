@@ -468,6 +468,9 @@ public partial class BabyMetroid : Enemy
     /// <summary>Its membrane beats, slowly or fast; every few beats it cries.</summary>
     private void StepMembrane()
     {
+        // The membrane waits while a fade's count runs, as through a door's fade, when its turns go on.
+        if (Room.Session.Service<SharedFadeCount>().IsPastStart)
+            return;
         if (--_pulseWait > 0)
             return;
         _pulseWait = _feeding ? FeedingPulseUpdates : CalmPulseUpdates;

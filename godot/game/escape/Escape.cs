@@ -234,12 +234,17 @@ public sealed class Escape : ISessionService
     /// Takes one step of the white-out that follows time running out, and returns whether the screen was white
     /// already, when no step is taken and the white-out is over. Its first step leaves the screen as it was and each
     /// of the next <see cref="WhiteOutParts"/> whitens it by a part. Whatever takes play from the time up leaves
-    /// the white-out where it stood.
+    /// the white-out where it stood. When it is over is by <paramref name="count"/>, the count every fade shares.
     /// </summary>
-    public bool StepWhiteOut()
+    public bool StepWhiteOut(Compatibility.SharedFadeCount count)
     {
-        if (_whiteOutSteps > WhiteOutParts)
+        ArgumentNullException.ThrowIfNull(count);
+        if (count.TakeStep(WhiteOutParts))
+        {
+            _whiteOutSteps = WhiteOutParts + 1;
             return true;
+        }
+
         _whiteOutSteps++;
         return false;
     }

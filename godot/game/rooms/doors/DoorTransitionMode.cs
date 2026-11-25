@@ -323,13 +323,14 @@ public partial class DoorTransitionMode : GameMode
 
     /// <summary>
     /// Takes one step of a fade: its first step shows what it starts from, each later one moves one more part, and
-    /// the step after its last ends it.
+    /// the step after its last ends it. When it ends is by the count every fade of the cartridge shares
+    /// (<see cref="SharedFadeCount"/>); how far it shows is by its own steps.
     /// </summary>
     /// <returns>Whether the fade ended on this update, moving nothing.</returns>
     private bool TakeFadeStep(out int moved)
     {
-        moved = _fadeSteps;
-        if (_fadeSteps > FadeLastStep)
+        moved = Math.Min(_fadeSteps, FadeLastStep);
+        if (Session.Service<SharedFadeCount>().TakeStep(FadeLastStep))
         {
             _fadeSteps = 0;
             return true;

@@ -49,7 +49,7 @@ public partial class TimeUpMode : GameMode
         {
             // A whole update of play, and then the white-out's step, which it takes whatever the update led to.
             GameMode? next = _playing.PlayBeneath(input, BeneathTheWhiteOut);
-            bool whitened = escape.StepWhiteOut();
+            bool whitened = escape.StepWhiteOut(Session.Service<Compatibility.SharedFadeCount>());
             _playing.Hud?.Refresh(Session, _playing.Room);
             if (next is not null)
                 return next;

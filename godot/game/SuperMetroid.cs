@@ -37,7 +37,8 @@ public partial class SuperMetroid : GameDefinition
 
     /// <summary>
     /// This game adds the escape countdown, the random number the cartridge drew every frame, which of the title's
-    /// demos is due, the elevator's journey, and what was held on the pause screen from one pause to the next.
+    /// demos is due, the elevator's journey, what was held on the pause screen from one pause to the next, and the
+    /// count of steps the cartridge's gradual fades share.
     /// </summary>
     public override IReadOnlyList<ISessionService> CreateServices() =>
     [
@@ -46,6 +47,7 @@ public partial class SuperMetroid : GameDefinition
         new Menus.DemoSchedule(),
         new ElevatorJourney(),
         new PauseHeldButtons(),
+        new Compatibility.SharedFadeCount(),
     ];
 
     /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>

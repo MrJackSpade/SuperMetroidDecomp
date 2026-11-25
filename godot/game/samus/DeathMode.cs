@@ -151,13 +151,17 @@ public partial class DeathMode : GameMode
                 if (_playing.PlayBeneath(input, TimeStandingStill) is { } elsewhere)
                     return elsewhere;
                 int parts = data.Int("fade_parts");
-                if (_fadeSteps <= parts)
+                if (!Session.Service<Compatibility.SharedFadeCount>().TakeStep(parts))
                 {
-                    // The first step shows everything as it was, and each after it a part darker, to black.
-                    cover.Cover(_fadeSteps++, parts);
+                    // The first step shows everything as it was, and each after it a part darker, to black. When the
+                    // black-out is over is by the count every fade shares, which a fade cut short before it may
+                    // have left part way.
+                    cover.Cover(Math.Min(_fadeSteps++, parts), parts);
                 }
                 else
                 {
+                    cover.Cover(parts, parts);
+
                     // The update after the last part: every library is told to stop, which no number of sounds
                     // waiting turns away, and the death's music is asked for behind the stop and its set.
                     Session.Sounds.StopAll(SoundPriority.Essential);

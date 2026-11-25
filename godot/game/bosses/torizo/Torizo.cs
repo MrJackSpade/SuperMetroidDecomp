@@ -81,6 +81,12 @@ public partial class Torizo : Enemy
     [Export, DataValue("fade_steps")]
     public int FadeSteps { get; set; } = 16;
 
+    /// <summary>
+    /// The last value of the fades' shared count at which a step of his body's fade counts as one: the step after
+    /// completes a fade by that count, whatever his own steps show.
+    /// </summary>
+    private const int SharedFadeLastStep = 13;
+
     /// <summary>Below this health it drools, and Bomb Torizo's gut blows up.</summary>
     [Export, DataValue("gut_health")]
     public int GutHealth { get; set; } = 350;
@@ -629,6 +635,8 @@ public partial class Torizo : Enemy
                 break;
 
             case "advance_fade":
+                // Each step is also one of the count every gradual fade shares, which his waking leaves at one.
+                Room.Session.Service<SharedFadeCount>().TakeStep(SharedFadeLastStep);
                 if (_fadeStep < FadeSteps)
                     _tint = _fadeFrom.Lerp(_fadeTo, (float)++_fadeStep / FadeSteps);
                 break;

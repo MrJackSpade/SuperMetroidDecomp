@@ -1100,9 +1100,11 @@ public partial class Room : Node2D
         }
         else
         {
+            // The view leads a player on the way up, which a rise gravity has slowed to rest or past it still is
+            // until their state turns it into a fall: by their own word for it, not by the sign of their speed.
             var tracking = new ViewTracking(
                 Player.ViewFacing == Facing.Right ? _playerInView.X : _playerInView.Y,
-                Player.Velocity.Y.IsNegative, ViewAboveWhileRising, ViewAboveOtherwise);
+                Player.IsRising, ViewAboveWhileRising, ViewAboveOtherwise);
             Session.Camera.Track(_playerAtUpdateStart, Player.Position, tracking, frozen);
         }
 

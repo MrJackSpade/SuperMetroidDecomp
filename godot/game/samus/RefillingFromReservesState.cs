@@ -48,6 +48,9 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
             inventory.Spend(Amounts.ReserveEnergy, inventory.Amount(Amounts.ReserveEnergy));
         if (owner.Room.Session.Clock.IsEvery(8))
             owner.Room.Session.Sounds.Request(Sounds.EnergyRefill, channel: "samus", priority: SoundPriority.Low);
-        return null;
+
+        // The refill is over on the update that leaves the tanks empty: she is her own again, and the room goes on,
+        // from the next.
+        return inventory.Amount(Amounts.ReserveEnergy) == 0 ? owner.StateAtRest() : null;
     }
 }

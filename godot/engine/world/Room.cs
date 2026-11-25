@@ -447,6 +447,16 @@ public partial class Room : Node2D
         {
             foreach (RoomSequence sequence in _sequences)
                 sequence.Step(this);
+        }
+
+        // Only now is a player with no energy left asked what follows: they die, unless the update has also taken
+        // them into an exit, or are saved. Being saved forgets an exit entered on this update; and the room does
+        // not shake on the update either begins.
+        bool energyGone = Player.SettleEmptyEnergy(mayDie: ExitEntered is null);
+        if (energyGone && Player.State is not DyingState)
+            ExitEntered = null;
+        if (!stopped.HasFlag(Stopped.Room) && !energyGone)
+        {
             foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())
                 quake.Step(this);
         }

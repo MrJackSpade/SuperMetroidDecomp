@@ -886,13 +886,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             return HitResult.Ignored;
         if (hit.Carries(HitKind.Contact) && hit.Source is IHittable toucher && BodyPowerStops(toucher))
             return HitResult.Ignored;
+        // A hit that takes the last of the player's energy is a hit like any other: what follows from having none is
+        // settled once, as the update ends (SettleEmptyEnergy).
         Inventory.Lose(Inventory.Energy, DamageFrom(hit));
-        if (Inventory.Amount(Inventory.Energy) == 0 && !SurvivesEmptyEnergy())
-        {
-            Die();
-            return HitResult.Destroyed;
-        }
-
         _invincible = Countdown.Of(InvincibleUpdates);
         Facing from = hit.Direction.X.IsZero ? Facing : hit.Direction.X.IsNegative ? Facing.Right : Facing.Left;
         OnHurt(hit, from);
@@ -908,8 +904,26 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (IsDead || State is DyingState)
             return;
         Inventory.Lose(Inventory.Energy, DamageFrom(hit));
-        if (Inventory.Amount(Inventory.Energy) == 0 && !SurvivesEmptyEnergy())
-            Die();
+    }
+
+    /// <summary>
+    /// Settles what follows from the player having no energy left. The room asks once in each update, when its
+    /// sequences have played: until then a player whose energy is gone plays the update on like any other, is hit
+    /// again, and may be given energy back. With none left they are saved if what they are saves them
+    /// (<see cref="SurvivesEmptyEnergy"/>), and otherwise die, unless <paramref name="mayDie"/> is false, as when the
+    /// update has also taken them into an exit: then they go on with none, to be asked again on a later update.
+    /// </summary>
+    /// <returns>Whether the player began to die, or to be saved from it, on this update.</returns>
+    internal bool SettleEmptyEnergy(bool mayDie)
+    {
+        if (IsDead || State is DyingState || Inventory.Amount(Inventory.Energy) > 0)
+            return false;
+        if (SurvivesEmptyEnergy())
+            return true;
+        if (!mayDie)
+            return false;
+        Die();
+        return true;
     }
 
     /// <summary>The energy <paramref name="hit"/> would take from the player as they are equipped now.</summary>
@@ -1598,8 +1612,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (points == 0)
             return;
         Inventory.Lose(Inventory.Energy, points);
-        if (Inventory.Amount(Inventory.Energy) == 0 && !SurvivesEmptyEnergy())
-            Die();
     }
 
     /// <summary>

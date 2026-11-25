@@ -394,6 +394,12 @@ select, options, game over, time up, and one per cinematic.
   second message the asker may name to follow a yes), `RequestSave`
   for a save, `RequestPause` for the pause screen once the messages asked for with it have been shown. The mode in
   control takes the request and acts on it.
+- **Energy gone.** A hit that takes the last of the player's energy is a hit like any other: they are knocked back,
+  play the update on, can be hit again and can be given energy back. What follows from having none is settled
+  once in each update, by the room, when its sequences have played (`Player.SettleEmptyEnergy`): the player is
+  saved if what they are saves them (Samus's reserves, which forget an exit entered on the same update), and
+  otherwise begins to die, unless the same update took them into an exit, when they pass through with none and
+  are asked again after. The room does not shake on the update either begins.
 - **Death.** There is no death mode in the engine: the player plays its own dying, and when it is over
   `PlayingMode` hands to whatever the `GameDefinition` makes for after a death. The engine's default reloads; this
   game's is its game-over screen.

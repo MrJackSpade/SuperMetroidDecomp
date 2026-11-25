@@ -201,6 +201,7 @@ public partial class Ridley : Enemy
         {
             _retreatColours = ColourChange.Read(data.Get("retreat_colours"));
             _ownColours = ColourChange.Read(colours.Get("own"));
+            ReadCeresBands(data);
         }
         else
         {
@@ -209,7 +210,7 @@ public partial class Ridley : Enemy
     }
 
     /// <summary>The colours it is in.</summary>
-    private ColourChange Colours => _fadeColours ?? (OnCeres ? _ownColours : _band.Colours);
+    private ColourChange Colours => _fadeColours ?? (OnCeres ? _ceresBandColours ?? _ownColours : _band.Colours);
 
     /// <summary>
     /// Shows the colours it is in on each of its visuals, at once. A change is worked out for a visual by the pictures it

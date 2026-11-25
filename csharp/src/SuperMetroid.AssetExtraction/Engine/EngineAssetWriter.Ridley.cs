@@ -12,6 +12,7 @@ using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Spatial;
@@ -464,46 +465,43 @@ public sealed partial class EngineAssetWriter
     /// <summary>Gives Ridley's fight aboard Ceres what only it has: how it is driven off, and the capsule in its claws.</summary>
     private void WriteCeresRidley(EngineEnemy ridley)
     {
-        // The capsule. Each of its poses is drawn in the colours the old game gives that pose as it cries, and in its
-        // resting colours as it only sways. Its pictures are kept apart from Ridley's own, which come in sets.
+        // The capsule. The old game draws it in the hurt flash's look on every update, never in the shades its colour
+        // cues lay over Ridley's own, so it shows one set of pictures in one set of colours.
         string spawner = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.RidleyCeres);
         string[] frames = [.. Enum.GetValues<CeresBabyPose>().Select(pose => EnemySheetDefinitions.EncounterFrameName(CeresBabyFrameDefinitions.ShownFrames.Of(pose)))];
-        var shaded = new Dictionary<CeresBabyShade, EngineSheetPictures>();
-        foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
-            shaded[shade] = _sheets.CutSpawnedShade(_tree, $"{ridley.Folder}_baby/{EngineSheets.FileName(shade.ToString())}", spawner, frames, RidleyShades.Baby(shade).Key);
-        EngineSheetPictures resting = shaded[CeresBabyShade.Resting];
-        if (shaded.Values.Any(cut => cut.OffsetX != resting.OffsetX || cut.OffsetY != resting.OffsetY))
-            throw new InvalidDataException("The capsule's pictures lie in different places in its different colours.");
+        EngineSheetPictures capsule = _sheets.CutSpawnedShade(_tree, $"{ridley.Folder}_baby", spawner, frames, EnemyShades.HurtFlash.Key);
 
         JsonObject Baby(CeresBabySegment segment)
         {
-            CeresBabyShade shade = CeresBabyShade.Resting;
-            string? Cue(CeresBabyCue cue)
+            static string? Cue(CeresBabyCue cue) => cue switch
             {
-                switch (cue)
-                {
-                    case CeresBabyCue.ReactsToMotion:
-                        return "reacts";
-                    case CeresBabyCue.Cries:
-                        return "cries";
-                    case CeresBabyCue.UpdateColors colours:
-                        // Its colours are in its pictures: every frame after this is drawn in them.
-                        shade = colours.Shade;
-                        return null;
-                    default:
-                        throw new InvalidDataException($"The capsule's animation raises {cue}, which this does not know.");
-                }
-            }
+                CeresBabyCue.ReactsToMotion => "reacts",
+                CeresBabyCue.Cries => "cries",
+                // Its colour cues change nothing the capsule is drawn in.
+                CeresBabyCue.UpdateColors => null,
+                _ => throw new InvalidDataException($"The capsule's animation raises {cue}, which this does not know."),
+            };
 
             JsonObject timeline = EngineTimelines.Of(CeresBabyAnimations.Segments, CeresBabyAnimations.StartingWith(segment),
-                pose => shaded[shade].Of(EnemySheetDefinitions.EncounterFrameName(CeresBabyFrameDefinitions.ShownFrames.Of(pose))), Cue);
+                pose => capsule.Of(EnemySheetDefinitions.EncounterFrameName(CeresBabyFrameDefinitions.ShownFrames.Of(pose))), Cue);
             // Its visual is one of Ridley's, whose pictures lie from another corner.
-            timeline["offset"] = new JsonObject { ["x"] = resting.OffsetX - ridley.Pictures.OffsetX, ["y"] = resting.OffsetY - ridley.Pictures.OffsetY };
+            timeline["offset"] = new JsonObject { ["x"] = capsule.OffsetX - ridley.Pictures.OffsetX, ["y"] = capsule.OffsetY - ridley.Pictures.OffsetY };
             return timeline;
         }
 
         // The colours its retreat gives the chamber, on the pictures of each state of a room that places it.
         ridley.Group("retreat_colours", ShadeChange($"{RidleyShades.RetreatRoom.Key}+{RidleyShades.RetreatShared.Key}", RoomPlacesOf(EnemyDefinitionId.RidleyCeres)));
+
+        // The bands of hits taken that lay a look of its health over its own colours. A band with no look leaves the
+        // colours as they are, which, as hits only add up, is the last band's look reached below it.
+        var bands = new JsonArray();
+        foreach (CeresRidleyHealthBand band in CeresRidleyHealthBandDefinitions.HighestFirst)
+        {
+            if (band.HealthShade is { } shade)
+                bands.Add(new JsonObject { ["hits"] = band.MinimumHits, ["colours"] = RidleyLook(ridley, onCeres: true, [.. RidleyShownShades, RidleyShades.Health(shade).Key]) });
+        }
+
+        ridley.Group("health_bands", bands);
 
         ridley
             .Timeline("baby_idle", Baby(CeresRidleyBabyScene.SilentAnimation))

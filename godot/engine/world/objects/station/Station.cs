@@ -142,7 +142,21 @@ public partial class Station : RoomObject
     [Export]
     public string DoneSound { get; set; } = "";
 
+    /// <summary>How many updates after it has finished that sound is asked for; none for the update it finishes on.</summary>
+    [Export]
+    public int DoneSoundAfter { get; set; }
+
+    /// <summary>How many updates after it has finished it takes no one: until it has come back to rest.</summary>
+    [Export]
+    public int RestUpdates { get; set; }
+
     private Countdown _working = Countdown.Over;
+
+    /// <summary>The updates left before the sound of its finishing is asked for; over when none is waiting.</summary>
+    private Countdown _doneSoundWait = Countdown.Over;
+
+    /// <summary>The updates left before it takes anyone again.</summary>
+    private Countdown _resting = Countdown.Over;
     private bool _busy;
     private bool _asking;
     private bool? _answer;
@@ -162,6 +176,7 @@ public partial class Station : RoomObject
     protected override void OnEnterRoom()
     {
         (_busy, _asking, _answer) = (false, false, null);
+        (_doneSoundWait, _resting) = (Countdown.Over, Countdown.Over);
         // A game that resumes at a station begins with the player standing in it.
         _usedThisVisit = HowUsed == Use.StandingIn && Room.Entry is { } entry && entry.EntryPoint == (ResumesAt.Length > 0 ? ResumesAt : Name);
         if (HowUsed == Use.RunningAgainst)
@@ -179,6 +194,17 @@ public partial class Station : RoomObject
     {
         Player player = Room.Player;
         StepTimeline();
+
+        // The sound of its finishing comes a set time after it, and until it is back at rest it takes no one.
+        if (_doneSoundWait.IsRunning)
+        {
+            _doneSoundWait = _doneSoundWait.Stepped();
+            if (_doneSoundWait.IsOver)
+                Sound(DoneSound);
+        }
+
+        _resting = _resting.Stepped();
+        bool resting = _resting.IsRunning;
         if (_asking)
         {
             // The room is not stepped while the question is up; by now it has been answered.
@@ -205,7 +231,11 @@ public partial class Station : RoomObject
             _usedThisVisit = true;
             Finish(player);
             ShowAtRest();
-            Sound(DoneSound);
+            if (DoneSoundAfter > 0)
+                _doneSoundWait = Countdown.Of(DoneSoundAfter);
+            else
+                Sound(DoneSound);
+            _resting = Countdown.Of(RestUpdates);
             if (DoneMessage.Length > 0)
                 Room.Session.RequestMessage(DoneMessage, holdUpdates: MessageHoldUpdates);
             if (PausesAfter)
@@ -214,7 +244,7 @@ public partial class Station : RoomObject
             return;
         }
 
-        if (!FacesRightWay(player) || !CanBeUsed(player))
+        if (resting || !FacesRightWay(player) || !CanBeUsed(player))
             return;
         string effect;
         if (HowUsed == Use.StandingIn)

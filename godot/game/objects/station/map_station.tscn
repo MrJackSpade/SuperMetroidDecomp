@@ -19,6 +19,9 @@ DoneTimeline = "objects/map_station_done.json"
 WorkingEffect = "objects/map_station_arm_left.json"
 WorkingEffectOnRight = "objects/map_station_arm_right.json"
 StartSound = "enemy_station_engaged"
+DoneSound = "enemy_station_disengaged"
+DoneSoundAfter = 6
+RestUpdates = 18
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")

@@ -18,6 +18,9 @@ MessageHoldUpdates = 10
 WorkingEffect = "objects/missile_station_arm_left.json"
 WorkingEffectOnRight = "objects/missile_station_arm_right.json"
 StartSound = "enemy_station_engaged"
+DoneSound = "enemy_station_disengaged"
+DoneSoundAfter = 6
+RestUpdates = 18
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")

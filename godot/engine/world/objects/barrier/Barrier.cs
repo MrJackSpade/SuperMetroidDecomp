@@ -352,27 +352,17 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         return listed ? most : AnyHit;
     }
 
-    /// <summary>Moves what shows it on by one update, and goes on to what follows a look that has played out.</summary>
+    /// <summary>
+    /// Moves what shows it on by one update, and goes on to what follows a look that has played out. A look gives
+    /// way on the update after its last, as a frame of it gives way to the next: one that opens stops blocking then,
+    /// and what follows shows from that update.
+    /// </summary>
     private void StepLook()
     {
         if (_showing is null)
             return;
 
-        // A look may say, step by step, whether the barrier stands in the way meanwhile.
-        foreach (string cue in _showing.Step())
-        {
-            if (cue is "passable" or "blocking" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } solid)
-                solid.Enabled = cue == "blocking";
-        }
-
-        if (_showingName is "closed" or "sealed")
-        {
-            // Shut and held shut may look different, and it changes between them as its condition does.
-            string wanted = IsSealed && _timelines.Has("sealed") ? "sealed" : "closed";
-            if (wanted != _showingName)
-                Show(wanted);
-        }
-        else if (_showing.IsOver)
+        if (_showing.IsOver)
         {
             switch (_showingName)
             {
@@ -386,6 +376,23 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                 case "sealing":
                     Show(IsSealed ? "sealed" : "closed");
                     break;
+            }
+        }
+        else
+        {
+            // A look may say, step by step, whether the barrier stands in the way meanwhile.
+            foreach (string cue in _showing.Step())
+            {
+                if (cue is "passable" or "blocking" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } solid)
+                    solid.Enabled = cue == "blocking";
+            }
+
+            if (_showingName is "closed" or "sealed")
+            {
+                // Shut and held shut may look different, and it changes between them as its condition does.
+                string wanted = IsSealed && _timelines.Has("sealed") ? "sealed" : "closed";
+                if (wanted != _showingName)
+                    Show(wanted);
             }
         }
 

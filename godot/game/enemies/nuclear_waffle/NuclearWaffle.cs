@@ -4,6 +4,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -204,15 +205,8 @@ public partial class NuclearWaffle : Enemy
         return HasReached(angle, StartAngle) ? (angle, false) : (StartAngle, false);
     }
 
-    /// <summary>The place on its arc at an angle of the sweep.</summary>
-    private PixelPosition PointAt(int angle)
-    {
-        int steps = Turns.Wrap(angle / 256);
-        Pixels radius = Pixels.FromWhole(OrbitRadius);
-        return _origin + PixelOffset.FromWhole(
-            Turns.Sine(steps + Turns.PerTurn / 4, radius, Turns.Fineness.Coarse).Whole,
-            Turns.Sine(steps + Turns.PerTurn / 2, radius, Turns.Fineness.Coarse).Whole);
-    }
+    /// <summary>The place on its arc at an angle of the sweep, on whole pixels by the cartridge's short product.</summary>
+    private PixelPosition PointAt(int angle) => _origin + CartridgeAngles.CircleOffset(Turns.Wrap(angle / 256), OrbitRadius);
 
     /// <summary>
     /// Notes how far through the lava's surface a part of the chain at <paramref name="angle"/> has come, and throws

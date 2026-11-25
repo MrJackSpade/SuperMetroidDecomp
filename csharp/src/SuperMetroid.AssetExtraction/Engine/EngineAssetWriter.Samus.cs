@@ -293,7 +293,6 @@ public sealed partial class EngineAssetWriter
             .Value("stored_shine_sound_updates", ShinesparkDefinitions.StoredShineSoundDelayFrames)
             .Value("wall_jump_launch_updates", SamusPoseTraits.Of(P.WallJumpRightPose).Animation.Segment(Seg.Launch).Delays.Sum())
             .Value("spin_start_updates", SamusPoseTraits.Of(P.ScrewAttackRightPose).Animation.Segment(Seg.SpinStart).Delays.Sum())
-            .Value("speed_glow_first_wait", SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait)
             .Value("hurt_flash_sound_count", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.ImpactSoundUpdate)
             .Value("hurt_flash_coloured_counts", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.ColouredUpdates)
             .Value("hurt_flash_recovery_count", SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions.SoundRecoveryCount)

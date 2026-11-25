@@ -1037,24 +1037,22 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
   tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
-- **Her colours** are hers to keep (`SamusColours`), as the cartridge keeps her palette: the colouring her suit
-  shows is set by what colours her and stays until something sets another, whatever she wears. Every colouring,
+- **Her colours** (`SamusColours`) hold the colouring her suit shows and the colouring her beams show. Every colouring,
   her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`
   with every glow (`SamusGlow`: the colourings it shows in turn, each for so many updates, and the step it goes
-  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); Her beams' colours are a colouring too, for the beams she has switched on, and colourings may be laid over it (a crystal flash's bubble and body): her pictures draw some of their colours from her beams', so these show on her over her suit's. `SamusVisual` shows her colouring on her picture and her echoes. A suit put on shows its colours as it is collected, and a pause's end shows the colours of the suit she wears. Nothing tints her for a colouring her
+  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); Her beams' colours are a colouring too, for the beams she has switched on, and colourings may be laid over it (a crystal flash's bubble and body): her pictures draw some of their colours from her beams', so these show on her over her suit's. `SamusVisual` shows her colouring on her picture and her echoes. Nothing tints her for a colouring her
   data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
-- **Her colour step** (`Samus.StepColours`) runs once an update, after she has moved and just before she is
-  shown, and not while a suit is being put on. What colours her takes its turn there in the
-  cartridge's order, and one that takes her colours keeps those after it from theirs: her suit's colours where a
-  change of pose or a lost run asked for them; the charge's colours (a full
-  charge's pulse, a charged shot's flash, a hyper shot's glow; the update a shot's glow ends shows her suit and
-  passes over the turns of what glows), the screw attack's and the speed booster's glow, which share one place in
-  their colourings, the stored shine's and the shinespark's glow, a crystal flash's colouring of her beams' colours, then the flash
-  of whatever drains her (`SetDrainFlash`), then a hurt's flash. Counts that the
-  cartridge keeps in its colour step are kept there and nowhere else, so they stand still on an update the step
-  does not run: the stored shine's time with its sound, and the count of a hurt's flash, which a knockback or
-  energy found lost after she is shown starts, a flying shinespark holds, and which times her hurt's sound and
-  the asking again of the sound the hurt cut short. A family not yet moved here is a ticket, not a tint to copy.
+- **What colours her is chosen once an update** (`Samus.StepColours`), after she has moved and just before she
+  is shown, from what she is doing, and set nowhere else while she is played. Each of her glows moves on while
+  what makes it glow holds, and her suit shows the first that holds of: the flash of whatever drains her
+  (`SetDrainFlash`), a hurt's flash, the shine's glow (the shinespark's, or the stored shine's), the screw
+  attack's glow, the speed booster's, a shot's glow (a charged shot's flash, a hyper shot's glow) and a full
+  charge's pulse; with none, the colours of the suit she wears, which is also all she shows while a suit is
+  being put on. A crystal flash's colouring is laid over her beams' colours. This is the Godot design, not the
+  cartridge's order of palette writes: which update a colouring shows on is presentation and is not matched.
+  The stored shine's time is the shine's own (`CountStoredShine`), counted every update with its sound. The
+  count of a hurt's flash is kept with her colours: a knockback or energy found lost after she is shown starts
+  it, a flying shinespark holds it, and it times her hurt's sound and the asking again of the sound the hurt cut short. A family not yet moved here is a ticket, not a tint to copy.
   Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
   equipment; aiming level, a look may have pictures for how her arm is held (`Samus.HoldName`: `moving` in a
   jump steering the way she faces, `arm_out` with the attack held in the air or once held in a run); a turn in the

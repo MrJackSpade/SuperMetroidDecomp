@@ -160,7 +160,6 @@ public partial class Elevator : RoomObject
         foreach (Projectile shot in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList())
             Room.Remove(shot);
         (samus as Samus)?.ForgetCharge();
-        (samus as Samus)?.ForgetShotGlow();
         Hold(samus);
         journey.Begin(GoesDown);
     }

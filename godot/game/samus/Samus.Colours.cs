@@ -9,9 +9,11 @@ using Godot;
 namespace Game;
 
 /// <summary>
-/// Her colour step: once an update, after she has moved and just before she is shown, what colours her takes its turn
-/// in the cartridge's order, and each that takes her colours keeps those after it from theirs. The count of a hurt's
-/// flash lives here with the sounds it times, and the stored shine's time with the glow it shows.
+/// What colours her. Once an update, after she has moved and just before she is shown, each of her glows moves on
+/// while what makes it glow holds, and the colouring her suit shows is chosen from what she is doing: the first that
+/// holds of the flash of whatever drains her, a hurt's flash, the shine's glow, the screw attack's glow, the speed
+/// booster's, a shot's glow and a full charge's pulse; with none, the colours of the suit she wears. Nothing sets her
+/// suit's colouring anywhere else while she is played. The count of a hurt's flash lives here with the sounds it times.
 /// </summary>
 public partial class Samus
 {
@@ -39,10 +41,6 @@ public partial class Samus
     [Export, DataValue("spark_hurt_flash_count")]
     public int SparkHurtFlashCount { get; set; } = 8;
 
-    /// <summary>How many updates after a boost begins the speed booster's glow may first show a colouring.</summary>
-    [Export, DataValue("speed_glow_first_wait")]
-    public int SpeedGlowFirstWait { get; set; } = 1;
-
     /// <summary>How many updates a shinespark's glow lasts from its windup's start.</summary>
     [Export, DataValue("spark_windup_glow_updates")]
     public int SparkWindupGlowUpdates { get; set; } = 60;
@@ -69,50 +67,26 @@ public partial class Samus
     /// <summary>Her energy when it was last looked at for a loss, after she was shown.</summary>
     private int _energyAtLastCheck;
 
-    /// <summary>Which of the shine's two glows colours her.</summary>
-    private enum ShineColouring
-    {
-        /// <summary>Neither.</summary>
-        None,
-
-        /// <summary>The stored shine's, for as long as the shine is stored.</summary>
-        Stored,
-
-        /// <summary>The shinespark's, from its windup until its glow runs out.</summary>
-        Spark,
-    }
-
-    private ShineColouring _shineColouring;
-
     /// <summary>How many more updates the shinespark's glow lasts.</summary>
     private Countdown _sparkGlow = Countdown.Over;
 
     /// <summary>Where the shine's glow stands in its colourings; the stored shine's and the shinespark's each start it over.</summary>
     private int _shineGlowPlace;
 
-    /// <summary>Whether her suit's colours have been asked for, to be shown as her next colour step begins.</summary>
-    private bool _suitColoursDue;
+    /// <summary>Where the screw attack's glow stands in its colourings; it starts over whenever it does not show.</summary>
+    private int _screwGlowPlace;
 
-    /// <summary>
-    /// Where her body's glow stands, which the screw attack's glow and the speed booster's share: the step shown
-    /// next, in whichever of the two last moved it on.
-    /// </summary>
-    private int _bodyGlowPlace;
-
-    /// <summary>Whether the speed booster's glow was the last to move that place on; otherwise the screw attack's.</summary>
-    private bool _bodyGlowIsSpeed;
-
-    /// <summary>How many more updates the speed booster's glow holds the colouring it shows.</summary>
-    private int _bodyGlowLeft = 1;
+    /// <summary>The speed booster's glow, played from the update she reaches full boost and resting on its last colouring; none while she is not boosting.</summary>
+    private SamusGlowPlay? _speedGlow;
 
     /// <summary>Where the pulse of a full charge stands in its colourings; it starts over whenever she is not fully charged.</summary>
     private int _chargePulsePlace;
 
-    /// <summary>The glow a charged shot or a hyper shot started, until the update after its last colouring; none otherwise.</summary>
+    /// <summary>The glow a charged shot or a hyper shot started, until it has shown its last colouring; none otherwise.</summary>
     private SamusGlowPlay? _shotGlow;
 
-    /// <summary>Whether something that drains her has hold of her, and which colouring its flash shows next.</summary>
-    private bool _drainFlashing, _drainFlashShowsSuitNext;
+    /// <summary>Whether something that drains her has hold of her, and whether its flash shows its bright colouring this update.</summary>
+    private bool _drainFlashing, _drainFlashBright;
 
     /// <summary>Whether the charge's sound is to be asked for again at the next look after she is shown.</summary>
     private bool _chargingSoundArmed;
@@ -165,38 +139,20 @@ public partial class Samus
         }
     }
 
-    /// <summary>Shows the colours of the suit she wears, in place of whatever coloured her.</summary>
-    public void ShowSuitColours() => Colours.ShowSuit(Colours.SuitOf(SuitWorn));
-
     /// <summary>Reads her colours and shows the suit she wears. Called as she is made ready.</summary>
     private void ReadColours()
     {
         _colours = SamusColours.Read(Room.Content.ReadData(ColoursFile));
-        ShowSuitColours();
+        Colours.ShowSuit(Colours.SuitOf(SuitWorn));
         ShowBeamColours();
         _beamsOwned = BeamsOwned;
         _energyAtLastCheck = Inventory.Amount(Amounts.Energy);
     }
 
-    /// <summary>The stored shine's glow begins, from its first colouring.</summary>
-    private void BeginStoredShineColouring() => (_shineColouring, _shineGlowPlace) = (ShineColouring.Stored, 0);
-
-    /// <summary>
-    /// The stored shine's glow is taken from her as the shine is spent or given up: her suit's colours show until
-    /// whatever took it colours her.
-    /// </summary>
-    private void EndStoredShineColouring()
-    {
-        if (_shineColouring != ShineColouring.Stored)
-            return;
-        (_shineColouring, _shineGlowPlace) = (ShineColouring.None, 0);
-        ShowSuitColours();
-    }
-
-    /// <summary>A shinespark's windup begins: its glow takes her colours for the windup's length, and a hurt's flash ends.</summary>
+    /// <summary>A shinespark's windup begins: its glow colours her for the windup's length, and a hurt's flash ends.</summary>
     public void BeginSparkColouring()
     {
-        (_shineColouring, _shineGlowPlace) = (ShineColouring.Spark, 0);
+        _shineGlowPlace = 0;
         _sparkGlow = Countdown.Of(SparkWindupGlowUpdates);
         _hurtFlash = 0;
     }
@@ -216,250 +172,140 @@ public partial class Samus
     /// <summary>The grapple beam's firing, like a beam shot, and the gift of the hyper beam take back the asking again of a charge's sound.</summary>
     public void ForgetChargingSoundResume() => _chargingSoundArmed = false;
 
-    /// <summary>
-    /// What boards an elevator with her ends a shot's glow and starts the charge's pulse over, leaving her colours as
-    /// they are, as the cartridge clears her shots there.
-    /// </summary>
-    public void ForgetShotGlow() => (_shotGlow, _chargePulsePlace) = (null, 0);
+    /// <summary>Something that drains her takes hold of her, or lets her go: while it holds her she flashes, bright on one update and in her suit's colours on the next.</summary>
+    public void SetDrainFlash(bool held) => (_drainFlashing, _drainFlashBright) = (held, false);
 
     /// <summary>
-    /// A charged spin's touch on an enemy uses its charge up, as the cartridge does before it asks whether the touch
-    /// harms: the charge is let go, its pulse starts over and her suit's colours show at once.
-    /// </summary>
-    private void SpendChargedSpin()
-    {
-        Weapons.DropCharge();
-        _chargePulsePlace = 0;
-        ShowSuitColours();
-    }
-
-    /// <summary>Something that drains her takes hold of her, or lets her go: while it holds her she flashes, one colouring an update.</summary>
-    public void SetDrainFlash(bool held) => (_drainFlashing, _drainFlashShowsSuitNext) = (held, false);
-
-    /// <summary>
-    /// Plays her colour step. It does not run while a suit is being put on; while she is dying it runs for as long as
-    /// play goes on beneath her death. In the cartridge's order:
-    /// the charge's colours, which on the update a shot's glow ends keep the shine's glow from its turn; the shine's
-    /// glow; then the flash of whatever drains her, which keeps a hurt's flash from its turn; then a hurt's flash.
+    /// Moves her glows on and shows the colouring her suit takes this update. While a suit is being put on she shows
+    /// that suit's colours and nothing glows. The screw attack and the speed booster do not glow with her feet in a
+    /// liquid without the gravity suit.
     /// </summary>
     private void StepColours()
     {
+        string suit = Colours.SuitOf(SuitWorn);
         if (State is CollectingSuitState)
-            return;
-
-        // Her suit's colours, where a change of pose or a lost run asked for them, show first: what glows shows over them.
-        if (_suitColoursDue)
         {
-            _suitColoursDue = false;
-            ShowSuitColours();
+            Colours.ShowSuit(suit);
+            return;
         }
 
-        if (!StepChargeColouring())
-        {
-            StepBodyGlow();
-            StepShineColouring();
-            StepCrystalFlashColouring();
-        }
-        if (StepDrainFlash())
-            return;
-        StepHurtFlash();
+        string? hurt = StepHurtFlash(suit);
+        string? drain = DrainFlashShade(suit);
+        string? shine = ShineGlowShade();
+        string? screw = ScrewGlowShade();
+        string? speed = SpeedGlowShade();
+        string? shot = ShotGlowShade();
+        string? pulse = ChargePulseShade();
+        bool dulled = !Inventory.IsOn(Equipment.GravitySuit) && FeetAreInLiquid;
+        Colours.ShowSuit(drain ?? hurt ?? shine ?? (dulled ? null : screw ?? speed) ?? shot ?? pulse ?? suit);
+        StepCrystalFlashColouring();
     }
 
     /// <summary>
-    /// The charge's colours. With no shot's glow playing, a full charge with her grapple beam put away shows the next
-    /// colouring of its pulse on every update, in the suit she wears, the charged spin's own while her body is that
-    /// weapon; short of a full charge, or with the grapple out, the pulse starts over. A shot's glow shows each of
-    /// its colourings for its updates, and on the update after its last her suit's colours come back. Returns whether
-    /// this was that update: nothing else that glows takes its turn on it.
+    /// A full charge's pulse: with her grapple beam put away, the next colouring of the pulse on every update, in
+    /// the suit she wears, the charged spin's own while her body is that weapon. Short of a full charge, or with the
+    /// grapple out, it starts over and shows nothing.
     /// </summary>
-    private bool StepChargeColouring()
+    private string? ChargePulseShade()
+    {
+        if (Grapple is { IsOut: true } || Weapons.ChargedFor < ChargedSpinUpdates)
+        {
+            _chargePulsePlace = 0;
+            return null;
+        }
+
+        string pulse = Power(HitKinds.ChargedSpin) is { IsActive: true } ? "pseudo_screw_pulse" : "charged_beam_pulse";
+        return Colours.Glow($"{pulse}_{SuitWorn}").Next(ref _chargePulsePlace);
+    }
+
+    /// <summary>A shot's glow: each of its colourings for its updates, and nothing once it has shown its last.</summary>
+    private string? ShotGlowShade()
     {
         if (_shotGlow is not { } glow)
-        {
-            if (Grapple is { IsOut: true } || Weapons.ChargedFor < ChargedSpinUpdates)
-            {
-                _chargePulsePlace = 0;
-                return false;
-            }
-
-            string pulse = Power(HitKinds.ChargedSpin) is { IsActive: true } ? "pseudo_screw_pulse" : "charged_beam_pulse";
-            if (Colours.Glow($"{pulse}_{SuitWorn}").Next(ref _chargePulsePlace) is { } pulsed)
-                Colours.ShowSuit(pulsed);
-            return false;
-        }
-
-        string? shade = glow.Step();
-        if (glow.HasEnded)
-        {
-            _shotGlow = null;
-            ShowSuitColours();
-            return true;
-        }
-
-        if (shade is not null)
-            Colours.ShowSuit(shade);
-        return false;
-    }
-
-    /// <summary>Starts her body's glow over from its first colouring, the speed booster's next colouring so many updates off.</summary>
-    private void RestartBodyGlow(int wait) => (_bodyGlowPlace, _bodyGlowIsSpeed, _bodyGlowLeft) = (0, false, wait);
-
-    /// <summary>
-    /// The screw attack's glow and the speed booster's, which share one place in their colourings. Neither runs while
-    /// the shine's, a crystal flash's or the X-ray scope's colouring has her, nor with her feet in a liquid without
-    /// the gravity suit. In a spin with the screw attack on, the glow's place starts over while the spin shows its
-    /// first picture, her suit's colours show while it shows itself ready to jump off a wall, and otherwise the
-    /// screw attack's next colouring shows on every update; a wall jump does the same from where its spin begins,
-    /// and nothing before. At full boost otherwise the speed booster's next colouring shows as the one before runs
-    /// out, going on from where the place stands and resting on its brightest.
-    /// </summary>
-    private void StepBodyGlow()
-    {
-        if (_shineColouring != ShineColouring.None || _crystalFlashColouring != CrystalFlashColouring.None || State is XrayState)
-            return;
-        if (!Inventory.IsOn(Equipment.GravitySuit) && FeetAreInLiquid)
-            return;
-        bool screw = Inventory.IsOn(Equipment.ScrewAttack);
-        bool wallJump = State is WallJumpingState or SpinJumpingState { IsOfWallJump: true } && _wallJumpUpdates >= 0;
-        if (wallJump)
-        {
-            if (!screw)
-                return;
-            if (_wallJumpUpdates < WallJumpLaunchUpdates)
-                (_bodyGlowPlace, _bodyGlowIsSpeed) = (0, false);
-            else
-                ShowNextScrewShade();
-            return;
-        }
-
-        if (State is SpinJumpingState spin && screw)
-        {
-            if (_spinUpdates < SpinStartUpdates)
-                (_bodyGlowPlace, _bodyGlowIsSpeed) = (0, false);
-            else if (spin.IsReadyForWall)
-                ShowSuitColours();
-            else
-                ShowNextScrewShade();
-            return;
-        }
-
-        if (!IsBoosting || --_bodyGlowLeft > 0)
-            return;
-        SamusGlow speed = Colours.Glow($"speed_booster_rising_{SuitWorn}");
-        if (!_bodyGlowIsSpeed)
-        {
-            _bodyGlowPlace = Math.Min(Colours.Glow($"screw_attack_{SuitWorn}").GoesOnAt(_bodyGlowPlace), speed.Steps.Count - 1);
-            _bodyGlowIsSpeed = true;
-        }
-
-        if (speed.NextStep(ref _bodyGlowPlace) is not { } step)
-            return;
-        _bodyGlowLeft = step.Updates;
-        Colours.ShowSuit(step.Shade);
-    }
-
-    /// <summary>Shows the screw attack's next colouring, in the suit she wears, going on from where her body's glow stands.</summary>
-    private void ShowNextScrewShade()
-    {
-        SamusGlow screw = Colours.Glow($"screw_attack_{SuitWorn}");
-        if (_bodyGlowIsSpeed)
-        {
-            _bodyGlowPlace = Math.Min(Colours.Glow($"speed_booster_rising_{SuitWorn}").GoesOnAt(_bodyGlowPlace), screw.Steps.Count - 1);
-            _bodyGlowIsSpeed = false;
-        }
-
-        if (screw.Next(ref _bodyGlowPlace) is { } shade)
-            Colours.ShowSuit(shade);
+            return null;
+        glow.Step();
+        if (!glow.HasEnded)
+            return glow.Shown;
+        _shotGlow = null;
+        return null;
     }
 
     /// <summary>
-    /// The stored shine's and the shinespark's glow. The stored shine's time is counted here and nowhere else, so it
-    /// stands still on an update her colour step does not run; its sound is asked for here, a while after it is stored.
-    /// As either runs out her suit's colours show again.
+    /// The screw attack's glow: its next colouring on every update of a spin with the screw attack on, once the spin
+    /// has shown its first picture and while it does not show itself ready to jump off a wall; in a wall jump, from
+    /// where its spin begins.
     /// </summary>
-    private void StepShineColouring()
+    private string? ScrewGlowShade()
     {
-        switch (_shineColouring)
+        bool glows = Inventory.IsOn(Equipment.ScrewAttack) && State switch
         {
-            case ShineColouring.None:
-                return;
-            case ShineColouring.Stored:
-                if (_shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
-                    Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
-                _shine = _shine.Stepped();
-                if (_shine.IsRunning)
-                {
-                    ShowNextShineShade("stored_shine");
-                    return;
-                }
-
-                break;
-            case ShineColouring.Spark:
-                _sparkGlow = _sparkGlow.Stepped();
-                if (_sparkGlow.IsRunning)
-                {
-                    ShowNextShineShade("active_shinespark");
-                    return;
-                }
-
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined shine colouring {_shineColouring}.");
-        }
-
-        (_shineColouring, _shineGlowPlace) = (ShineColouring.None, 0);
-        ShowSuitColours();
+            WallJumpingState or SpinJumpingState { IsOfWallJump: true } when _wallJumpUpdates >= 0 => _wallJumpUpdates >= WallJumpLaunchUpdates,
+            SpinJumpingState spin => _spinUpdates >= SpinStartUpdates && !spin.IsReadyForWall,
+            _ => false,
+        };
+        if (glows)
+            return Colours.Glow($"screw_attack_{SuitWorn}").Next(ref _screwGlowPlace);
+        _screwGlowPlace = 0;
+        return null;
     }
 
-    /// <summary>Shows the next colouring of one of the shine's glows, in the suit she wears, from where the glow stands.</summary>
-    private void ShowNextShineShade(string glow)
+    /// <summary>The speed booster's glow: at full boost its colourings in turn, each for its updates, resting on the last.</summary>
+    private string? SpeedGlowShade()
     {
-        if (Colours.Glow($"{glow}_{SuitWorn}").Next(ref _shineGlowPlace) is { } shade)
-            Colours.ShowSuit(shade);
+        if (!IsBoosting)
+        {
+            _speedGlow = null;
+            return null;
+        }
+
+        _speedGlow ??= new SamusGlowPlay(Colours.Glow($"speed_booster_rising_{SuitWorn}"));
+        _speedGlow.Step();
+        return _speedGlow.Shown;
     }
 
     /// <summary>
-    /// The flash of something draining her: the speed booster's bright colouring on one update and her suit's on the
-    /// next, turn about, for as long as it holds her. Returns whether it took her colours.
+    /// The shine's glow: the shinespark's from its windup until its glow runs out, and otherwise the stored shine's
+    /// for as long as a shine is stored, the next colouring on every update.
     /// </summary>
-    private bool StepDrainFlash()
+    private string? ShineGlowShade()
+    {
+        _sparkGlow = _sparkGlow.Stepped();
+        string? glow = _sparkGlow.IsRunning ? "active_shinespark" : HasStoredShine ? "stored_shine" : null;
+        if (glow is not null)
+            return Colours.Glow($"{glow}_{SuitWorn}").Next(ref _shineGlowPlace);
+        _shineGlowPlace = 0;
+        return null;
+    }
+
+    /// <summary>The flash of something draining her: its bright colouring on one update and her suit's on the next, turn about, for as long as it holds her.</summary>
+    private string? DrainFlashShade(string suit)
     {
         if (!_drainFlashing)
-            return false;
-        if (_drainFlashShowsSuitNext)
-            ShowSuitColours();
-        else
-            Colours.ShowSuit(Colours.DrainFlashOf(SuitWorn));
-        _drainFlashShowsSuitNext = !_drainFlashShowsSuitNext;
-        return true;
+            return null;
+        _drainFlashBright = !_drainFlashBright;
+        return _drainFlashBright ? Colours.DrainFlashOf(SuitWorn) : suit;
     }
 
     /// <summary>
-    /// A hurt's flash: on its count of the sound her hurt is heard; through its coloured counts the hurt's colouring
-    /// and her suit's show turn about, the hurt's on the odd counts; the count it reaches for recovery asks again for
-    /// the sound the hurt cut short; and it ends on reaching its last.
+    /// Counts a hurt's flash on and says the colouring it shows: on its count of the sound her hurt is heard; through
+    /// its coloured counts the hurt's colouring and her suit's show turn about, the hurt's on the odd counts; the
+    /// count it reaches for recovery asks again for the sound the hurt cut short; and it ends on reaching its last.
     /// </summary>
-    private void StepHurtFlash()
+    private string? StepHurtFlash(string suit)
     {
         if (_hurtFlash == 0)
-            return;
+            return null;
         int before = _hurtFlash;
+
         // Pinned in a beam, thrown back, her hurt is not heard: the flash still counts and colours her.
         if (before == HurtFlashSoundCount && State is not DrainedState { Posed: DrainedState.Pose.Pinned })
             Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
-        if (before <= HurtFlashColouredCounts)
-        {
-            if (before % 2 != 0)
-                Colours.ShowSuit(Colours.Hurt);
-            else
-                ShowSuitColours();
-        }
-
         int after = ++_hurtFlash;
         if (after == HurtFlashRecoveryCount)
             RecoverSoundAfterHurt();
         if (after >= HurtFlashEndCount)
             _hurtFlash = 0;
+        return before > HurtFlashColouredCounts ? null : before % 2 != 0 ? Colours.Hurt : suit;
     }
 
     /// <summary>
@@ -483,8 +329,8 @@ public partial class Samus
     }
 
     /// <summary>
-    /// What the cartridge does once she has been shown: energy found lost since the last look starts a hurt's flash
-    /// if none is running, and the charge's sound, if armed, is asked for again while the attack is still held.
+    /// What is looked at once she has been shown: energy found lost since the last look starts a hurt's flash if none
+    /// is running, and the charge's sound, if armed, is asked for again while the attack is still held.
     /// </summary>
     private void LookAfterShown()
     {

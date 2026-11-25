@@ -9,8 +9,7 @@ namespace Game;
 /// Samus's colours: the colouring her suit shows now, the colouring her beams show with what is laid over it, and
 /// every colouring and glow her data gives her. Her pictures
 /// are one set, in their sheet's own colours; each colouring, her suits' own among them, is a change of those colours
-/// shown where she is drawn. Which colouring she shows is hers to keep, as the cartridge keeps her palette: it is set
-/// by what colours her (a suit put on, a hurt, a glow) and stays until something sets another, whatever she wears.
+/// shown where she is drawn. Which colouring her suit shows is chosen by her, once an update, from what she is doing.
 /// </summary>
 /// <remarks>
 /// <code>

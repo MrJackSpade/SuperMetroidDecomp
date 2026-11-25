@@ -16,6 +16,9 @@ public sealed class SamusGlowPlay(SamusGlow glow)
     /// <summary>Whether a glow that ends has passed its last colouring.</summary>
     public bool HasEnded { get; private set; }
 
+    /// <summary>The colouring it last moved to, which it goes on showing while that holds and once it has ended; null before its first step.</summary>
+    public string? Shown { get; private set; }
+
     /// <summary>
     /// Plays one update: counts the colouring shown down and, once that has run out, moves to the next, which is
     /// returned, the same colouring again included. Null while a colouring holds, and on the step a glow that ends
@@ -38,6 +41,7 @@ public sealed class SamusGlowPlay(SamusGlow glow)
 
         SamusGlowStep step = glow.Steps[_next++];
         _left = step.Updates;
+        Shown = step.Shade;
         return step.Shade;
     }
 }

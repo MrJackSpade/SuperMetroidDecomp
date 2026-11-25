@@ -56,10 +56,4 @@ public sealed record SamusGlow(IReadOnlyList<SamusGlowStep> Steps, int? LoopsFro
 
         return Steps[place++];
     }
-
-    /// <summary>
-    /// The step a place kept in this glow stands at, for another glow to go on from: the step it would show next, the
-    /// one it goes back to where it has passed its last, or its last where it ends there.
-    /// </summary>
-    public int GoesOnAt(int place) => place < Steps.Count ? place : LoopsFrom ?? Steps.Count - 1;
 }

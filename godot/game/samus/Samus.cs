@@ -769,14 +769,6 @@ public partial class Samus : Player
         if (to is KnockedBackState)
             _hurtFlash = 1;
 
-        // With the screw attack on, leaving a spin or a wall jump, and jumping off a wall out of a spin, ask for her
-        // suit's colours back at her colour step.
-        if (Inventory.IsOn(Equipment.ScrewAttack) && from is SpinJumpingState or WallJumpingState
-            && (to is WallJumpingState ? from is SpinJumpingState : to is not SpinJumpingState))
-        {
-            _suitColoursDue = true;
-        }
-
         // Crouching out of a run at full boost stores a shine.
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
             StoreShine();
@@ -898,18 +890,27 @@ public partial class Samus : Player
     {
         _shine = Countdown.Of(StoredShineUpdates);
         _crystalFlashColouring = CrystalFlashColouring.None;
-        BeginStoredShineColouring();
+        _shineGlowPlace = 0;
+    }
+
+    /// <summary>
+    /// Counts the stored shine's time down, once an update, and asks for its sound a while after it is stored. The
+    /// time is the shine's own: nothing that colours her holds it up.
+    /// </summary>
+    private void CountStoredShine()
+    {
+        if (!_shine.IsRunning)
+            return;
+        if (_shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
+            Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
+        _shine = _shine.Stepped();
     }
 
     /// <summary>
     /// Ends the stored shine, and with it any crystal flash's colouring that read as one: used up by a shinespark or a
     /// crystal flash, or ended as the X-ray's colouring of her takes their place.
     /// </summary>
-    public void SpendShine()
-    {
-        (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
-        EndStoredShineColouring();
-    }
+    public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
@@ -918,15 +919,13 @@ public partial class Samus : Player
     public void EndBoost() => _boostStage = -1;
 
     /// <summary>
-    /// What the cartridge puts right about her as a pause ends, whatever was switched on or off on its pages. Her
-    /// suit's colours show, in place of whatever coloured her. With the speed booster switched on, a run that has its
-    /// momentum and no boost begun begins one; with it switched off her boost and her run's momentum end and her
-    /// echoes are gone at once.
+    /// What follows, as a pause ends, from what was switched on or off on its pages. Her beams show the colours of
+    /// those now switched on. With the speed booster switched on, a run that has its momentum and no boost begun
+    /// begins one; with it switched off her boost and her run's momentum end and her echoes are gone at once.
     /// </summary>
     public void ReconcileAfterPause()
     {
         ShowBeamColours();
-        ShowSuitColours();
         if (Inventory.IsOn(Equipment.SpeedBooster))
         {
             if (HasMomentum && _boostStage < 0)
@@ -937,7 +936,6 @@ public partial class Samus : Player
         // Her run's speed stays until her next move looks at it, as the cartridge's does.
         EndBoost();
         EndMomentum();
-        RestartBodyGlow(1);
         GetNodeOrNull<SamusVisual>("Visual")?.ClearEchoes();
     }
 
@@ -1212,9 +1210,6 @@ public partial class Samus : Player
     private void LetLooseSpecialAttack(string beam)
     {
         Inventory.Spend(Amounts.PowerBombs, 1);
-
-        // The attack let loose asks for her suit's colours back at her colour step.
-        _suitColoursDue = true;
         ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]));
         ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail)) : shot;
         var lights = new SpecialAttack[4];
@@ -1426,7 +1421,7 @@ public partial class Samus : Player
         if (target is not Enemy || result == HitResult.Ignored)
             return;
         if (power.Name == HitKinds.ChargedSpin)
-            SpendChargedSpin();
+            Weapons.DropCharge();
         if (result is not (HitResult.Hurt or HitResult.Destroyed))
             return;
         Room.Session.Sounds.Request(Sounds.EnemyContactKill, channel: "enemies", priority: SoundPriority.WhenIdle);
@@ -1466,9 +1461,6 @@ public partial class Samus : Player
             return;
         _boostStage = 0;
         _stridesLeft = BoostStrideCounts[0];
-
-        // A boost begun starts her body's glow over, its first colouring a moment off.
-        RestartBodyGlow(SpeedGlowFirstWait);
     }
 
     /// <inheritdoc/>
@@ -1476,10 +1468,6 @@ public partial class Samus : Player
     {
         if (State is not ShinesparkState)
             EndBoost();
-
-        // A run's momentum lost starts her body's glow over and asks for her suit's colours at her colour step.
-        RestartBodyGlow(1);
-        _suitColoursDue = true;
     }
 
     /// <summary>The engine's gravity, except that her fall stops gaining speed once its whole pixels reach the limit, as the original's does.</summary>
@@ -1578,9 +1566,9 @@ public partial class Samus : Player
                 FallFromRest();
         }
 
-        // Her spin is counted on, and then her colour step, just before she is shown: the stored shine's time and
-        // sound are its own.
+        // Her spin and her stored shine are counted on, and then what colours her is chosen, just before she is shown.
         CountSpin();
+        CountStoredShine();
         StepColours();
         _crystalFlashColouring = _crystalFlashColouring switch
         {

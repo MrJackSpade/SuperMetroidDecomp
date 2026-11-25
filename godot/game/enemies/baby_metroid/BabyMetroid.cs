@@ -407,7 +407,6 @@ public partial class BabyMetroid : Enemy
 
             // Her flash ends, and as she is let fall her suit's colours show.
             (samus as Samus)?.SetDrainFlash(false);
-            (samus as Samus)?.ShowSuitColours();
             samus.ChangeState(new DrainedState(DrainedState.Pose.Kneeling, canStand: false));
             Room.Session.Sounds.RequestMusic(AfterwardMusic);
             return;

@@ -286,7 +286,7 @@ internal static partial class EngineDefaults
         ["Polyp"] = [("reach", "64"), ("first_launch_mark", "28")],
         ["PolypRock"] = [("curve_marks", "2"), ("fastest_fall_mark", "64"), ("speed_curve", "\"\"")],
         ["Powamp"] = [("rise_distance", "64"), ("rest_updates", "60"), ("inflation_updates", "10"), ("death_delay", "32"), ("wiggle_step_updates", "5"), ("rise_speed", "0.5"), ("sink_speed", "1.0"), ("spike_quickening", "0.125")],
-        ["PowerBomb"] = [("fuse_updates", "60"), ("blast_reaches", "[]"), ("height_parts", "3"), ("width_parts", "4"), ("rehit_after", "48")],
+        ["PowerBomb"] = [("fuse_updates", "60"), ("blast_reaches", "[]"), ("flash_blast_reaches", "[]"), ("height_parts", "3"), ("width_parts", "4"), ("rehit_after", "48")],
         ["Puyo"] = [("speed_curve", "\"\"")],
         ["Ridley"] = [("hits_to_drive_off", "100"), ("samus_low_energy", "30"), ("roar_hold_updates", "253"), ("hit_flash_updates", "13"), ("baby_cry_sound", "\"\""), ("arena_reveal_updates", "46"), ("arena_reveal_step_updates", "3"), ("wounded_health", "14400"), ("death_lunges", "10"), ("dust_effect", "\"\""), ("explosion_effect", "\"\""), ("piece_end_effect", "\"\""), ("bounce_sound", "\"\""), ("explosion_sound", "\"\""), ("death_drops", "16"), ("reveal_delay", "171"), ("fade_steps", "16"), ("eye_fade_step_updates", "1"), ("eye_hold_updates", "48"), ("body_fade_step_updates", "2"), ("tail_tip_arc_start", "-8"), ("before_roar_updates", "5"), ("tail_damage", "120"), ("roar_sound", "\"\"")],
         ["RidleyFireball"] = [("is", "\"fireball\""), ("flare_across", "\"\""), ("flare_down", "\"\""), ("flame", "\"\""), ("final_timeline", "\"\""), ("flame_speed", "14")],

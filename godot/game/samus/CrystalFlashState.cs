@@ -68,6 +68,9 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         _wait = Countdown.Of(samus.CrystalFlashDrainEvery);
     }
 
+    /// <summary>A flash taken from her before its rise is done lets the bomb kept for its blast go.</summary>
+    public override void Exit(Player owner) => ((Samus)owner).GiveUpCrystalFlashBlast();
+
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
@@ -79,7 +82,13 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
 
             // The rise done, everything the room's library sounds is stopped, at the priority nothing turns away.
             if (_rising == 0)
+            {
                 owner.Room.Session.Sounds.Request(Sounds.RoomStop, channel: "room", priority: SoundPriority.Essential);
+
+                // The flash's own blast begins where she has risen to.
+                samus.BeginCrystalFlashBlast();
+            }
+
             return null;
         }
 

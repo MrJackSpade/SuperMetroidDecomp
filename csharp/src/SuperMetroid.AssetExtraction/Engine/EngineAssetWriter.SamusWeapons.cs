@@ -524,9 +524,23 @@ public sealed partial class EngineAssetWriter
             blast.StepFrame(colours);
         }
 
+        // The blast a crystal flash starts: it reaches its first reach on the update it begins, and then as its own
+        // steps give it, until its glow has faded.
+        blast.BeginCrystalFlash();
+        var flashReaches = new JsonArray { blast.ExplosionRadius.WholePixels };
+        blast.StepFrame(colours);
+        while (blast.IsRunning)
+        {
+            flashReaches.Add(blast.ExplosionRadius.WholePixels);
+            if (flashReaches.Count > 4096)
+                throw new InvalidDataException("The old crystal flash's blast does not end.");
+            blast.StepFrame(colours);
+        }
+
         new EngineObjectFile(_tree, "samus/power_bomb.json", "PowerBomb")
             .Value("fuse_updates", MorphBallBombDefinitions.InitialBombTimer)
             .Value("blast_reaches", reaches)
+            .Value("flash_blast_reaches", flashReaches)
             .Value("height_parts", PowerBombExplosionDefinitions.OvalHeightParts)
             .Value("width_parts", PowerBombExplosionDefinitions.OvalWidthParts)
             .Value("rehit_after", EnemyCollisionDefinitions.PowerBombInvincibilityUpdates)

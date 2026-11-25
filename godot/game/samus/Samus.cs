@@ -338,17 +338,43 @@ public partial class Samus : Player
     /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
     public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
 
-    /// <summary>Where a power bomb of hers lay whose blast ended as this update opened, and on which update; none if none.</summary>
-    private (PixelPosition At, long Update)? _blastEnded;
+    /// <summary>The power bomb of hers whose blast ended as this update opened, and on which update; none if none.</summary>
+    private (PowerBomb Bomb, long Update)? _blastEnded;
+
+    /// <summary>The power bomb kept for the crystal flash its blast started, until the flash's own blast begins.</summary>
+    private PowerBomb? _flashBomb;
 
     /// <summary>
-    /// A power bomb of hers lying at <paramref name="at"/> has ended its blast as this update opens: a crystal flash
-    /// may start this update, if she lies exactly there.
+    /// A power bomb of hers has ended its blast as this update opens: a crystal flash may start this update, if she
+    /// lies exactly where it lies. The bomb waits to be told.
     /// </summary>
-    public void PowerBombBlastEnded(PixelPosition at)
+    public void PowerBombBlastEnded(PowerBomb bomb)
     {
-        _blastEnded = (at, Room.Session.UpdateNumber);
+        ArgumentNullException.ThrowIfNull(bomb);
+        _blastEnded = (bomb, Room.Session.UpdateNumber);
+        ResumeSoundsAfterBlast();
+    }
 
+    /// <summary>The blast a crystal flash of hers started has ended: her sounds are asked for again, and no flash is offered.</summary>
+    public void CrystalFlashBlastEnded() => ResumeSoundsAfterBlast();
+
+    /// <summary>The rise of her crystal flash is done: the flash's own blast begins where she has risen to, and the power bomb's hold is let go.</summary>
+    public void BeginCrystalFlashBlast()
+    {
+        _flashBomb?.BeginFlashBlast(Position);
+        _flashBomb = null;
+    }
+
+    /// <summary>A crystal flash that ends before its rise is done lets the bomb kept for it go.</summary>
+    public void GiveUpCrystalFlashBlast()
+    {
+        _flashBomb?.LeaveAfterBlast(Room);
+        _flashBomb = null;
+    }
+
+    /// <summary>As a blast ends, the sounds it turned away are asked for again.</summary>
+    private void ResumeSoundsAfterBlast()
+    {
         // The blast turned every sound away, so as it ends her spin's sound is asked for again, or else a charge's
         // that had begun to sound. A wall jump asks for neither here: which of the spin's sounds is its own is not kept.
         if (State is SpinJumpingState spin)
@@ -366,9 +392,17 @@ public partial class Samus : Player
         if (_blastEnded is not { } ended)
             return;
         _blastEnded = null;
-        if (ended.Update == Room.Session.UpdateNumber && ended.At.X.Whole == Position.X.Whole && ended.At.Y.Whole == Position.Y.Whole &&
+        PixelPosition at = ended.Bomb.Position;
+        if (ended.Update == Room.Session.UpdateNumber && at.X.Whole == Position.X.Whole && at.Y.Whole == Position.Y.Whole &&
             CrystalFlashState.CanStart(this))
+        {
+            // The bomb is kept, and with it the hold that allows one power bomb at a time, until the flash's own blast begins.
+            _flashBomb = ended.Bomb;
             ChangeState(new CrystalFlashState());
+            return;
+        }
+
+        ended.Bomb.LeaveAfterBlast(Room);
     }
 
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
@@ -495,6 +529,7 @@ public partial class Samus : Player
 
         // Her shots do not come with her into a room, and the count her crash's echoes left goes with them.
         OrbitTravel.Clear();
+        (_blastEnded, _flashBomb) = (null, null);
 
         // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.
         if (!room.GetChildren().OfType<Liquid>().Any())

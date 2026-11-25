@@ -1009,6 +1009,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The view's measure of her last move across** (`Camera.Speed`) is one pixel whenever the session's game starts
   afresh and its player is a new one (`GameSession.BeginAgain`, `Camera.TakePlayerAsNew`): what reads it before
   the view next follows a move, as a kicked Yard does, reads that.
+- **A crystal flash's blast is its power bomb's.** A power bomb whose blast ends tells her and waits; if a
+  crystal flash begins she keeps the bomb, which goes on holding its place among her power bombs, and as the
+  flash's rise is done the same bomb plays the flash's own blast from where she has risen to
+  (`PowerBomb.BeginFlashBlast`, by its `flash_blast_reaches`): it sweeps the enemies as any blast does, strikes
+  no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
   tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
 - **Her colours** are hers to keep (`SamusColours`), as the cartridge keeps her palette: the colouring her suit

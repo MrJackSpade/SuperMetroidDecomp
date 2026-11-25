@@ -20,7 +20,11 @@ namespace Game;
 /// Its data gives how far the blast reaches across on each of its updates, one after another, from the update after
 /// the fuse runs out; nought is an update on which it reaches nothing but the terrain where it lies, as while it
 /// gathers. The blast ends on the update after the last of them.
-/// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
+/// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "flash_blast_reaches": [4, 4, 5], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
+/// A blast that ends where the Samus who laid it lies may start a crystal flash. The bomb is then kept, holding its
+/// place among her power bombs, until the flash's rise is done and the flash's own blast begins: that blast is this
+/// bomb's too, from where she has risen to, by "flash_blast_reaches", the first of which it reaches on the update it
+/// begins. It strikes no terrain and offers no flash.
 /// </remarks>
 public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingStep
 {
@@ -35,6 +39,10 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     /// <summary>How far the blast reaches across on each of its updates, in pixels.</summary>
     [Export, DataValue("blast_reaches")]
     public int[] BlastReaches { get; set; } = [];
+
+    /// <summary>How far the blast a crystal flash starts reaches across on each of its updates, in pixels, from the update it begins.</summary>
+    [Export, DataValue("flash_blast_reaches")]
+    public int[] FlashBlastReaches { get; set; } = [];
 
     /// <summary>The blast reaches this many parts up and down…</summary>
     [Export, DataValue("height_parts")]
@@ -64,6 +72,12 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     private int _reach;
     private bool _blasting;
 
+    /// <summary>Whether its blast is done and it waits to learn whether a crystal flash takes it.</summary>
+    private bool _awaiting;
+
+    /// <summary>Whether the blast it plays is a crystal flash's.</summary>
+    private bool _flash;
+
     /// <summary>Whether the blast has begun.</summary>
     public bool IsBlasting => _blasting;
 
@@ -84,7 +98,8 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
         // Blasting, it strikes the terrain along the border of its reach here, in the shots' own step.
         if (_blasting)
         {
-            if (_blastUpdate > 0)
+            // A crystal flash's blast strikes no terrain, and a bomb that waits strikes none.
+            if (_blastUpdate > 0 && !_flash && !_awaiting)
                 StrikeBorder(room, Math.Max(0, _reach));
             return;
         }
@@ -106,20 +121,58 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     /// </summary>
     public void StepOpening(Room room)
     {
-        if (!_blasting)
+        if (!_blasting || _awaiting)
             return;
 
-        if (_blastUpdate >= BlastReaches.Length)
+        int[] reaches = _flash ? FlashBlastReaches : BlastReaches;
+        if (_blastUpdate >= reaches.Length)
         {
+            _reach = 0;
+            QueueRedraw();
+            if (Launcher is not Samus samus)
+            {
+                Leave(room);
+                return;
+            }
+
+            if (_flash)
+            {
+                samus.CrystalFlashBlastEnded();
+                Leave(room);
+                return;
+            }
+
             // The blast's end offers a crystal flash to the Samus who laid it, should she lie exactly where it lay.
-            if (Launcher is Samus samus)
-                samus.PowerBombBlastEnded(Position);
-            Leave(room);
+            // She says on this update whether one begins: the bomb waits for that, and leaves if none does.
+            _awaiting = true;
+            samus.PowerBombBlastEnded(this);
             return;
         }
 
-        _reach = BlastReaches[_blastUpdate];
+        _reach = reaches[_blastUpdate];
         _blastUpdate++;
+        QueueRedraw();
+    }
+
+    /// <summary>No crystal flash takes the bomb whose blast is done: it leaves.</summary>
+    public void LeaveAfterBlast(Room room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        if (_awaiting)
+            Leave(room);
+    }
+
+    /// <summary>
+    /// The crystal flash this bomb's blast started has finished its rise: the flash's own blast begins from
+    /// <paramref name="at"/>, reaching its first reach on this update.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The bomb does not wait for a crystal flash, or its data gives the flash's blast no reach.</exception>
+    public void BeginFlashBlast(PixelPosition at)
+    {
+        if (!_awaiting || FlashBlastReaches.Length == 0)
+            throw new InvalidOperationException("A power bomb begins a crystal flash's blast only while it waits for one, with reaches to give it.");
+        Position = at;
+        (_awaiting, _flash, _reach, _blastUpdate) = (false, true, FlashBlastReaches[0], 1);
         QueueRedraw();
     }
 
@@ -129,7 +182,7 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     /// </summary>
     public void StepClosing(Room room)
     {
-        if (!_blasting || _blastUpdate == 0 || _reach <= 0)
+        if (!_blasting || _awaiting || _blastUpdate == 0 || _reach <= 0)
             return;
         int parts = Math.Max(1, WidthParts);
         int across = _reach, down = (across * HeightParts + (parts - 1) / 2) / parts;

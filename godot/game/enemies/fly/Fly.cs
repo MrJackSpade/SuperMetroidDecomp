@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -13,6 +14,8 @@ namespace Game.Enemies;
 /// <remarks>Its timeline is "flying".</remarks>
 public partial class Fly : Enemy
 {
+    private const int QuarterTurn = 64, HalfTurn = 128;
+
     /// <summary>How near across Samus must come, in pixels, for it to dive.</summary>
     [Export, DataValue("reach")]
     public int Reach { get; set; } = 112;
@@ -65,10 +68,12 @@ public partial class Fly : Enemy
                 }
                 else if (Math.Abs(Position.X.Whole - Target.X.Whole) < Reach)
                 {
-                    PixelOffset toSamus = Target - Position;
-                    int aim = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
+                    // As the cartridge has it: the aim between whole pixels, counting up from right, and each speed
+                    // along it in 256ths of a pixel, across by its cosine and down by its sine a half turn on.
+                    int aim = CartridgeAngles.AimAngle(Target.X.Whole - Position.X.Whole, Target.Y.Whole - Position.Y.Whole);
                     Velocity = new PixelVelocity(
-                        Turns.Cosine(aim, Pixels.FromWhole(DiveAcrossSpeed)), Turns.Sine(aim, Pixels.FromWhole(DiveDownSpeed)));
+                        FromTwoFiftySixths(CartridgeAngles.SpeedAlong(DiveAcrossSpeed * 256, aim + QuarterTurn)),
+                        FromTwoFiftySixths(CartridgeAngles.SpeedAlong(DiveDownSpeed * 256, aim + HalfTurn)));
                     _targetRow = Target.Y.Whole;
                     _divedFor = 0;
                     _doing = Doing.Diving;
@@ -76,8 +81,10 @@ public partial class Fly : Enemy
                 }
 
                 // Its wheeling turns one way round a circle and then the other way round the next, which draws the eight.
-                Pixels one = Pixels.FromWhole(1);
-                Position += new PixelOffset(Turns.Sine(_angle, one), -Turns.Cosine(_angle, one));
+                // A pixel along the sine across and along the sine a quarter turn back down, in 256ths of a pixel.
+                Position += new PixelOffset(
+                    FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, _angle)),
+                    FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, _angle - QuarterTurn)));
                 _angle = Turns.Wrap(_angle + (_anticlockwise ? -WheelStep : WheelStep));
                 if (_angle == 0)
                     _anticlockwise = !_anticlockwise;
@@ -108,4 +115,7 @@ public partial class Fly : Enemy
                 throw new InvalidOperationException($"Undefined fly stage {_doing}.");
         }
     }
+
+    /// <summary>A distance given in 256ths of a pixel.</summary>
+    private static Pixels FromTwoFiftySixths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 0xFF) << 8);
 }

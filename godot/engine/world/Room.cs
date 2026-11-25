@@ -276,10 +276,15 @@ public partial class Room : Node2D
     /// the destroyed; room objects, the terrain, the room's shaking and its sequences; then effects. Groups named in
     /// <paramref name="stopped"/> do not run; the services that open the update always do.
     /// </summary>
-    public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
+    /// <param name="input">The update's input.</param>
+    /// <param name="stopped">The groups of things that do not run.</param>
+    /// <param name="play">Whoever plays the room and settles what of the update is play's; null for a room stepped by itself.</param>
+    public void Step(GameInput input, Stopped stopped = Stopped.Nothing, IRoomPlay? play = null)
     {
         if (_suspended is not null)
             throw new InvalidOperationException($"The room \"{Name}\" was given a new update while one was still suspended for a message.");
+        _play = play;
+        EnergySettled = EmptyEnergy.NotGone;
         _playerAtUpdateStart = Player.Position;
         OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
 
@@ -372,6 +377,12 @@ public partial class Room : Node2D
     /// <summary>What was stopped in the update that is suspended for a message; null when none is.</summary>
     private Stopped? _suspended;
 
+    /// <summary>Whoever plays the room on the update being played, if anyone does.</summary>
+    private IRoomPlay? _play;
+
+    /// <summary>What the update last played to its end settled about the player's energy running out.</summary>
+    public EmptyEnergy EnergySettled { get; private set; }
+
     /// <summary>
     /// Whether the update last begun stopped after the room's objects because a message had been asked for: the rest
     /// of it, the shaking, the room's sequences, the effects, what leaves and arrives, and the view, has yet to be
@@ -443,6 +454,9 @@ public partial class Room : Node2D
         }
 
         Follow(frozen: stopped.HasFlag(Stopped.Room));
+
+        // Play's own part of the update that comes here: whatever lasts beyond the room plays its update.
+        _play?.AfterView(this);
         if (!stopped.HasFlag(Stopped.Room))
         {
             foreach (RoomSequence sequence in _sequences)
@@ -453,10 +467,12 @@ public partial class Room : Node2D
         }
 
         // Only now is a player with no energy left asked what follows: they die, unless the update has also taken
-        // them into an exit, or are saved. Being saved forgets an exit entered on this update; and the room does
-        // not shake on the update either begins.
-        bool energyGone = Player.SettleEmptyEnergy(mayDie: ExitEntered is null);
-        if (energyGone && Player.State is not DyingState)
+        // them into an exit or play says the update leads elsewhere, or are saved. Being saved forgets an exit
+        // entered on this update; and the room does not shake on the update either begins.
+        (bool mayDie, bool mayBeSaved) = _play?.EmptyEnergyTerms(this) ?? (true, true);
+        EnergySettled = Player.SettleEmptyEnergy(mayDie && ExitEntered is null, mayBeSaved);
+        bool energyGone = EnergySettled is EmptyEnergy.Saved or EmptyEnergy.Dying;
+        if (EnergySettled == EmptyEnergy.Saved)
             ExitEntered = null;
         if (!stopped.HasFlag(Stopped.Room) && !energyGone)
         {

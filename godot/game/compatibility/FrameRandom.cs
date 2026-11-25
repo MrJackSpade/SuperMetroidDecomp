@@ -49,5 +49,8 @@ public sealed class FrameRandom : IUpdateOpener, ILiquidWatcher
     }
 
     /// <inheritdoc/>
+    public bool WantsToTakeOver => false;
+
+    /// <inheritdoc/>
     public GameMode? TakesOver(PlayingMode playing) => null;
 }

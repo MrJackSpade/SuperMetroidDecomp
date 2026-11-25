@@ -958,17 +958,19 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// (<see cref="SurvivesEmptyEnergy"/>), and otherwise die, unless <paramref name="mayDie"/> is false, as when the
     /// update has also taken them into an exit: then they go on with none, to be asked again on a later update.
     /// </summary>
-    /// <returns>Whether the player began to die, or to be saved from it, on this update.</returns>
-    internal bool SettleEmptyEnergy(bool mayDie)
+    /// <param name="mayDie">Whether the player may begin to die on this update.</param>
+    /// <param name="mayBeSaved">Whether what the player is may save them on this update.</param>
+    /// <returns>What was settled.</returns>
+    internal EmptyEnergy SettleEmptyEnergy(bool mayDie, bool mayBeSaved = true)
     {
         if (IsDead || State is DyingState || Inventory.Amount(Inventory.Energy) > 0)
-            return false;
-        if (SurvivesEmptyEnergy())
-            return true;
+            return EmptyEnergy.NotGone;
+        if (mayBeSaved && SurvivesEmptyEnergy())
+            return EmptyEnergy.Saved;
         if (!mayDie)
-            return false;
+            return EmptyEnergy.Withheld;
         Die();
-        return true;
+        return EmptyEnergy.Dying;
     }
 
     /// <summary>The energy <paramref name="hit"/> would take from the player as they are equipped now.</summary>

@@ -161,6 +161,19 @@ public partial class PauseScreen : GameMode
         _phase = Phase.Darkening;
     }
 
+    /// <summary>
+    /// The terms play goes on beneath the darkening and the brightening on, as the cartridge has it: the pause is not
+    /// asked for again, and Samus with no energy left does not begin to die until play is its own again, though her
+    /// reserves may still save her.
+    /// </summary>
+    private static readonly PlayTerms BeneathThePause = new() { MayPause = false, PlayerMayDie = false };
+
+    /// <summary>
+    /// Whether her reserves saved Samus on the update of play just played beneath the pause. The refill takes the
+    /// update from the pause, as it does from anything else the update began: play is its own again.
+    /// </summary>
+    private bool SavedBeneath => _playing.Room.EnergySettled == EmptyEnergy.Saved;
+
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
@@ -168,9 +181,10 @@ public partial class PauseScreen : GameMode
         {
             case Phase.Darkening:
             {
-                GameMode next = _playing.Step(input.Without(GameAction.Pause));
-                if (!ReferenceEquals(next, _playing))
+                if (_playing.PlayBeneath(input, BeneathThePause) is { } next)
                     return next;
+                if (SavedBeneath)
+                    return _playing;
                 if (StepFade(darker: true))
                     _phase = Phase.Preparing;
                 return this;
@@ -223,9 +237,10 @@ public partial class PauseScreen : GameMode
 
             case Phase.Brightening:
             {
-                GameMode next = _playing.Step(input.Without(GameAction.Pause));
-                if (!ReferenceEquals(next, _playing))
+                if (_playing.PlayBeneath(input, BeneathThePause) is { } next)
                     return next;
+                if (SavedBeneath)
+                    return _playing;
                 return StepFade(darker: false) ? _playing : this;
             }
 

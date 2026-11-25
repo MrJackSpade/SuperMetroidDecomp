@@ -9,7 +9,7 @@ namespace Game.Rooms.Ceres;
 /// <summary>
 /// The elevator shaft of Ceres in its last moments. Once the way to the elevator has been blown open the whole
 /// shaft tilts, one way and then the other, slowly near each end of its swing; and when Samus stands on the elevator
-/// it takes her, and she leaves the station.
+/// it takes her and her departure begins (<see cref="Cinematics.CeresDeparture"/>), the shaft tilting on beneath it.
 /// </summary>
 public partial class CeresShaft : RoomSequence
 {
@@ -35,9 +35,6 @@ public partial class CeresShaft : RoomSequence
     /// <summary>How many updates the shaft stays level before it first tilts.</summary>
     private const int LevelUpdates = 60;
 
-    /// <summary>How many updates Samus stands on the elevator before it takes her.</summary>
-    private const int DepartureUpdates = 60;
-
     /// <summary>
     /// How many updates the shaft holds each tilt, by how many steps from level it is, the update that turns it there
     /// the first: the old game's table, entry for entry.
@@ -51,36 +48,29 @@ public partial class CeresShaft : RoomSequence
     private int _hold;
     private int _tilt;
     private bool _backward;
-    private int _leavingIn;
+    private bool _taken;
 
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
         if (elapsed == 0)
-            (_hold, _tilt, _backward, _leavingIn) = (LevelUpdates, 0, false, 0);
+            (_hold, _tilt, _backward, _taken) = (LevelUpdates, 0, false, false);
         if (!room.Session.Progress.Has(StoryEvents.CeresElevatorDoorDestroyed))
             return false;
 
         Player samus = room.Player;
-        if (_leavingIn > 0)
+        if (!_taken && IsOnElevator(samus))
         {
-            if (--_leavingIn == 0)
-            {
-                // She is away, and that much is saved.
-                room.Session.RequestSave(LandingRoom, LandingEntry);
-                room.Session.Service<Escape>().Depart(LandingRoom, LandingEntry);
-                return true;
-            }
-        }
-        else if (IsOnElevator(samus))
-        {
-            // The elevator has her: she stands still, and after a moment it carries her off.
+            // The elevator has her: she stands still, and her departure begins after this update. The shaft goes on
+            // tilting beneath it.
             samus.TrySetForm(Player.Standing);
             samus.Hold();
+            _taken = true;
 
             // The countdown stands still while the elevator has her, and still shows.
-            room.Session.Service<Escape>().ShowsWhileHeld = true;
-            _leavingIn = DepartureUpdates;
+            Escape escape = room.Session.Service<Escape>();
+            escape.ShowsWhileHeld = true;
+            escape.Depart(LandingRoom, LandingEntry);
         }
 
         if (_hold > 0)

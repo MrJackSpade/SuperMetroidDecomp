@@ -208,6 +208,7 @@ public partial class Hud : GameHud, IHasValues
         }
 
         GetNode<HudCanvas>("Canvas").Show(pictures, marks);
+        ShowWhiteOut(escape.Whitened);
 
         void DrawNumber(int value, Vector2I at, int digits, List<string> numerals, int width)
         {
@@ -220,6 +221,26 @@ public partial class Hud : GameHud, IHasValues
                 divisor /= 10;
             }
         }
+    }
+
+    private ScreenFade? _whiteOut;
+
+    /// <summary>
+    /// Shows how far time running out has whitened the screen, in parts of <see cref="Escape.WhiteOutParts"/>: all of
+    /// it, this included. It is shown here, over play, and not by the time up, because it stays as it stood when
+    /// something takes play from beneath the time up.
+    /// </summary>
+    private void ShowWhiteOut(int parts)
+    {
+        if (_whiteOut is null)
+        {
+            if (parts == 0)
+                return;
+            _whiteOut = new ScreenFade { Name = "WhiteOut", Colour = Colors.White, Layer = Layer + 1 };
+            AddChild(_whiteOut);
+        }
+
+        _whiteOut.Cover(parts, Escape.WhiteOutParts);
     }
 
     /// <summary>Shows the map around the cell Samus is in, that cell shown as hers every other while.</summary>

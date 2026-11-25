@@ -53,8 +53,16 @@ public sealed class Escape : ISessionService
         Stopped,
     }
 
+    /// <summary>How many parts the white-out that follows time running out whitens the screen in.</summary>
+    public const int WhiteOutParts = 9;
+
     private (string Room, string EntryPoint)? _leavingFor;
     private bool _leftZebes;
+    private bool _timeUpDue;
+    private int _whiteOutSteps;
+
+    /// <summary>How many of its <see cref="WhiteOutParts"/> parts time running out has whitened the screen by.</summary>
+    public int Whitened => Math.Clamp(_whiteOutSteps - 1, 0, WhiteOutParts);
     private Phase _phase;
     private int _wait;
     private PixelPosition _place;
@@ -96,6 +104,7 @@ public sealed class Escape : ISessionService
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hundredths);
         Remaining = hundredths;
         (_played, ShowsWhileHeld) = (false, false);
+        (_timeUpDue, _whiteOutSteps) = (false, 0);
         _place = PixelPosition.FromWhole(CentreX, CentreY);
         (_phase, _wait) = (Phase.InitialDelay, InitialDelay);
     }
@@ -104,7 +113,7 @@ public sealed class Escape : ISessionService
     public void LeaveZebes() => _leftZebes = true;
 
     /// <summary>
-    /// Samus has left Ceres: the countdown stops, and after this update the screen goes dark and the station is seen
+    /// The elevator of Ceres has Samus: after this update her departure begins, at whose end the station is seen
     /// blowing up behind her, before play goes on in <paramref name="room"/>, entered at <paramref name="entryPoint"/>.
     /// </summary>
     public void Depart(string room, string entryPoint)
@@ -114,7 +123,7 @@ public sealed class Escape : ISessionService
     }
 
     /// <summary>Stops the countdown where it stands, as when the escape is over.</summary>
-    public void Stop() => _phase = Phase.Stopped;
+    public void Stop() => (_phase, _timeUpDue) = (Phase.Stopped, false);
 
     /// <inheritdoc/>
     public void BeginAgain()
@@ -123,6 +132,7 @@ public sealed class Escape : ISessionService
         (_played, ShowsWhileHeld) = (false, false);
         _leavingFor = null;
         _leftZebes = false;
+        (_timeUpDue, _whiteOutSteps) = (false, 0);
         Remaining = 0;
     }
 
@@ -130,6 +140,11 @@ public sealed class Escape : ISessionService
     public void Step(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
+
+        // Time up is asked for on the update the countdown runs out. Once the planet's escape is on it is asked for
+        // again on every update of play that finds the countdown run out, so a time up that a door or a refill from
+        // her reserves took play from comes back; on Ceres it does not.
+        _timeUpDue = IsExpired && session.Progress.Has(Data.StoryEvents.EscapeStarted);
 
         // Only an update Samus plays in her own hands is one of the countdown's: held for a refill from her reserves,
         // dying, riding an elevator, putting on a suit or aboard her ship, it neither waits, moves nor counts, so it
@@ -176,13 +191,17 @@ public sealed class Escape : ISessionService
     }
 
     /// <inheritdoc/>
+    public bool WantsToTakeOver => _timeUpDue || _leftZebes || _leavingFor is not null;
+
+    /// <inheritdoc/>
     public GameMode? TakesOver(PlayingMode playing)
     {
-        if (_leavingFor is { } landing)
+        // Time up comes before her leaving either place, as on the cartridge. The countdown stays run out, and shown,
+        // until the time up has gone black and stops it.
+        if (_timeUpDue)
         {
-            _leavingFor = null;
-            Stop();
-            return new CeresDeparture(playing) { LandingRoom = landing.Room, LandingEntry = landing.EntryPoint };
+            _timeUpDue = false;
+            return new TimeUpMode(playing);
         }
 
         if (_leftZebes)
@@ -201,16 +220,34 @@ public sealed class Escape : ISessionService
             };
         }
 
-        if (!IsExpired)
-            return null;
-        Stop();
-        return new TimeUpMode(playing);
+        // The countdown still stands, and shows, beneath the departure, which stops it once the screen is black.
+        if (_leavingFor is { } landing)
+        {
+            _leavingFor = null;
+            return new CeresDeparture(playing) { LandingRoom = landing.Room, LandingEntry = landing.EntryPoint };
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Takes one step of the white-out that follows time running out, and returns whether the screen was white
+    /// already, when no step is taken and the white-out is over. Its first step leaves the screen as it was and each
+    /// of the next <see cref="WhiteOutParts"/> whitens it by a part. Whatever takes play from the time up leaves
+    /// the white-out where it stood.
+    /// </summary>
+    public bool StepWhiteOut()
+    {
+        if (_whiteOutSteps > WhiteOutParts)
+            return true;
+        _whiteOutSteps++;
+        return false;
     }
 
     private void Count(long updates)
     {
         Remaining = Math.Max(0, Remaining - Cadence[(int)(updates % Cadence.Length)]);
         if (Remaining == 0)
-            _phase = Phase.Expired;
+            (_phase, _timeUpDue) = (Phase.Expired, true);
     }
 }

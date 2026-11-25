@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Ui;
 using Engine.Input;
 using Engine.Shared;
@@ -11,7 +12,7 @@ namespace Engine.Core;
 /// the mode that follows the player's death. A game says what is stopped while the rest runs by overriding
 /// <see cref="WhatIsStopped"/>.
 /// </summary>
-public partial class PlayingMode : GameMode
+public partial class PlayingMode : GameMode, IRoomPlay
 {
     private readonly string _firstRoom;
     private readonly string _firstEntryPoint;
@@ -99,15 +100,58 @@ public partial class PlayingMode : GameMode
     /// </summary>
     public override ClosingSoundWork SoundWorkAtClose => _handedToMessage ? ClosingSoundWork.None : ClosingSoundWork.Usual;
 
+    /// <summary>The terms the update being played is played on, and its input.</summary>
+    private PlayTerms _terms = PlayTerms.Usual;
+    private GameInput _input = GameInput.None;
+
+    /// <summary>Whether, as the player's energy was settled, the update was already going to take play elsewhere.</summary>
+    private bool _leadsElsewhere;
+
     /// <inheritdoc/>
-    public override GameMode Step(GameInput input)
+    public override GameMode Step(GameInput input) => Play(input, PlayTerms.Usual);
+
+    /// <summary>
+    /// Plays one whole update of play for a mode laid over it, on <paramref name="terms"/>. Returns the mode play
+    /// hands over to, which takes control in place of the mode laid over it, or null when play goes on beneath.
+    /// </summary>
+    public GameMode? PlayBeneath(GameInput input, PlayTerms terms)
+    {
+        ArgumentNullException.ThrowIfNull(terms);
+        GameMode next = Play(input, terms);
+        return ReferenceEquals(next, this) ? null : next;
+    }
+
+    /// <summary>Whatever lasts beyond the room and runs beside it plays its update: the session's services.</summary>
+    void IRoomPlay.AfterView(Room room)
+    {
+        foreach (ISessionService service in Session.Services)
+            service.Step(Session);
+    }
+
+    /// <summary>
+    /// A player whose energy is gone does not begin to die on an update that takes play elsewhere: one on which a
+    /// service wants control or the pause is asked for, as the room itself holds it off for an exit entered. Play
+    /// beneath another mode holds off what its terms say.
+    /// </summary>
+    (bool MayDie, bool MayBeSaved) IRoomPlay.EmptyEnergyTerms(Room room)
+    {
+        _leadsElsewhere = (_terms.ServicesMayTakeOver && Session.Services.Any(service => service.WantsToTakeOver)) || PauseIsAsked();
+        return (_terms.PlayerMayDie && !_leadsElsewhere, _terms.PlayerMayBeSaved);
+    }
+
+    /// <summary>Whether this update's input asks for the pause and play may give it.</summary>
+    private bool PauseIsAsked() => _terms.MayPause && _input.WasPressed(GameAction.Pause) && Session.Player.State.InControl;
+
+    /// <summary>Plays one update of play on the terms given, and returns the mode in control next.</summary>
+    private GameMode Play(GameInput input, PlayTerms terms)
     {
         _handedToMessage = false;
+        (_terms, _input) = (terms, input);
 
         // A pause that play asked for comes once the messages asked for with it have been shown, before play goes on.
-        if (Session.TakePauseRequest())
+        if (terms.MayPause && Session.TakePauseRequest())
             return Session.Definition.CreatePauseMode(this);
-        Room.Step(input, WhatIsStopped());
+        Room.Step(input, WhatIsStopped(), this);
 
         // A message asked for by the time the room's objects have played is shown at once: the rest of the update,
         // the room's and play's own, is played on the update the message hands back.
@@ -155,7 +199,9 @@ public partial class PlayingMode : GameMode
     /// <summary>What play does of an update once the room has played all of its own.</summary>
     private GameMode AfterRoom(GameInput input)
     {
-        Session.Progress.CountPlayUpdate();
+        // An update that withheld what follows from the player's energy running out does not count toward the play time.
+        if (Room.EnergySettled != EmptyEnergy.Withheld)
+            Session.Progress.CountPlayUpdate();
 
         if (Session.TakeSaveRequest() is { } save)
         {
@@ -163,24 +209,31 @@ public partial class PlayingMode : GameMode
             Session.Progress.Record(SaveData.SavedAtFact(save.EntryPoint));
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
         }
-        foreach (ISessionService service in Session.Services)
-            service.Step(Session);
         _hud?.Refresh(Session, Room);
         if (Session.Player.IsDead)
             return Session.Definition.CreateModeAfterDeath();
-        foreach (ISessionService service in Session.Services)
+
+        // What saved a player whose energy was gone takes the place of whatever else the update began: a service that
+        // wanted control wants it still and is asked again, and the pause is not given.
+        bool saved = Room.EnergySettled == EmptyEnergy.Saved;
+        if (_terms.ServicesMayTakeOver && !saved)
         {
-            if (service.TakesOver(this) is { } mode)
-                return mode;
+            foreach (ISessionService service in Session.Services)
+            {
+                if (service.WantsToTakeOver && service.TakesOver(this) is { } mode)
+                    return mode;
+            }
         }
 
         // A message asked for after the room's objects had played is shown with nothing of the update left to play.
         if (NextMessage(input, followsAnother: false) is { } box)
             return box;
+
+        // The pause comes before an exit entered on the same update, which is still entered when play comes back.
+        if (!saved && PauseIsAsked())
+            return Session.Definition.CreatePauseMode(this);
         if (Room.ExitEntered is { } exit)
             return Session.Definition.CreateRoomTransition(this, exit);
-        if (input.WasPressed(GameAction.Pause) && Session.Player.State.InControl)
-            return Session.Definition.CreatePauseMode(this);
         return this;
     }
 

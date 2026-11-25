@@ -103,5 +103,8 @@ public sealed class ElevatorJourney : ISessionService
     }
 
     /// <inheritdoc/>
+    public bool WantsToTakeOver => false;
+
+    /// <inheritdoc/>
     public GameMode? TakesOver(PlayingMode playing) => null;
 }

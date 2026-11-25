@@ -1,16 +1,28 @@
 using Engine.Core;
+using Engine.Input;
 using Engine.Ui;
 
 namespace Game.Cinematics;
 
 /// <summary>
-/// Samus leaving Ceres by its elevator: the screen goes dark over the shaft as it stood, and the station is then
-/// seen blowing up behind her.
+/// Samus leaving Ceres by its elevator. Play goes on beneath it throughout, the shaft still tilting: she stands held
+/// on the elevator for a while, then the screen goes dark over the shaft, and once it is black her leaving is saved
+/// and the station is seen blowing up behind her.
 /// </summary>
-public partial class CeresDeparture : Cinematic
+public partial class CeresDeparture : GameMode
 {
+    /// <summary>How many updates she stands on the elevator before the screen begins to darken, and how many levels it darkens in, one each update.</summary>
+    private const int HoldUpdates = 60, DarkLevels = 15;
+
+    /// <summary>
+    /// The terms play goes on beneath the departure on, as the cartridge has it: Samus with no energy left neither
+    /// begins to die nor is saved by her reserves, the pause is refused, and nothing of the escape's takes play.
+    /// </summary>
+    private static readonly PlayTerms BeneathTheDeparture = new() { PlayerMayDie = false, PlayerMayBeSaved = false, MayPause = false, ServicesMayTakeOver = false };
+
     private readonly PlayingMode _playing;
     private ScreenFade? _dark;
+    private int _elapsed;
 
     /// <summary>Samus leaving from <paramref name="playing"/>.</summary>
     public CeresDeparture(PlayingMode playing)
@@ -25,35 +37,39 @@ public partial class CeresDeparture : Cinematic
     /// <summary>The entry point she arrives at there.</summary>
     public string LandingEntry { get; set; } = "";
 
-    /// <summary>How many updates the screen takes to go dark.</summary>
-    private const int DarkeningUpdates = 15;
-
     /// <inheritdoc/>
     public override GameMode? Keeps => _playing;
-
-    /// <inheritdoc/>
-    protected override bool CanBeSkipped => false;
 
     /// <inheritdoc/>
     protected override void Enter()
     {
         _dark = new ScreenFade { Name = "Dark", Layer = 10 };
         AddChild(_dark);
-        _dark.FadeOut(DarkeningUpdates);
+        _dark.Cover(0, DarkLevels);
     }
 
     /// <inheritdoc/>
-    protected override bool Play(int elapsed)
+    public override GameMode Step(GameInput input)
     {
         ScreenFade dark = _dark ?? throw new InvalidOperationException("The departure from Ceres has not begun.");
-        dark.Step();
-        if (!dark.IsDone)
-            return false;
+        bool last = _elapsed == HoldUpdates + DarkLevels - 1;
+
+        // That she is away is saved by the update that reaches black, once it has played.
+        if (last)
+            Session.RequestSave(LandingRoom, LandingEntry);
+        if (_playing.PlayBeneath(input, BeneathTheDeparture) is { } other)
+            throw new InvalidOperationException($"Play beneath the departure from Ceres handed over to {other.GetType().Name}; held on the elevator, Samus leads play nowhere.");
+        _elapsed++;
+        if (_elapsed <= HoldUpdates)
+            return this;
+        dark.Cover(_elapsed - HoldUpdates, DarkLevels);
+        if (!last)
+            return this;
+
+        // Black: the countdown is over, the music stops and every library is told to stop.
+        Session.Service<Escape>().Stop();
         Session.Sounds.RequestMusic("");
         Session.Sounds.StopAll(SoundPriority.Essential);
-        return true;
+        return new CeresDestruction { LandingRoom = LandingRoom, LandingEntry = LandingEntry };
     }
-
-    /// <inheritdoc/>
-    protected override GameMode Next() => new CeresDestruction { LandingRoom = LandingRoom, LandingEntry = LandingEntry };
 }

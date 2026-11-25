@@ -38,7 +38,8 @@ namespace Game.Enemies;
 /// "{shade}" where the set's name goes. The visuals "Stalk1" through "Stalk4" are its stalk, ceiling end first, shown by
 /// the timeline "stalk" in its own colours, and "Emitter1" through "Emitter4" the places in the ceiling its spores
 /// come from, playing "emitter_closed" and "emitter_release", whose cue "spore" lets the spore go. "emitters" gives
-/// each one's place from where Spore Spawn hangs and the way its spores first drift. Its shot is "spore".
+/// each one's place from where Spore Spawn hangs and the way its spores first drift. Its stalk and emitters go on
+/// while it flashes hurt. Its shot is "spore".
 /// </remarks>
 public partial class SporeSpawn : Enemy
 {
@@ -406,6 +407,18 @@ public partial class SporeSpawn : Enemy
                 break;
         }
 
+        if (!Husk && !_dying)
+            ReleaseSpores();
+        ShowParts();
+    }
+
+    /// <summary>
+    /// Its emitters and stalk are things of their own on the cartridge, which a hurt does not hold: while it flashes,
+    /// still where it is, the emitters count down to their releases, drawing their numbers, and they and the stalk play
+    /// on.
+    /// </summary>
+    protected override void WhileHurt()
+    {
         if (!Husk && !_dying)
             ReleaseSpores();
         ShowParts();

@@ -46,6 +46,16 @@
   it: the title, the menus, the cinematics, door transitions, message boxes and pauses as
   much as Samus, enemies and rooms; positions, timings, the order things happen in, what
   fires and what is hit, random draws, energy and counts.
+- The order of importance, in the owner's words, is "the most important way to determine what
+  should or shouldn't be open/modified/reverted":
+  1. "Parity of GAMEPLAY (old recordings play end to end, with no desync)"
+  2. "Cleanliness of code, and idiomatic design"
+  3. "Parity of presentation."
+
+  A higher one wins over a lower one. Presentation is never matched at the cost of clean,
+  idiomatic code: "You can't have idiomatic design if you're trying to port archaic design
+  patterns." A change made for parity of implementation or of look, that play does not need
+  and that makes the code less clean or less idiomatic, is reverted, by a ticket of its own.
 - Parity is of gameplay. The owner's words: "parity with the old code means parity of
   gameplay, not that all quirks of the game design need to be carried forward". Asked which
   differences still count as work, the owner chose gameplay only:

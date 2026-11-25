@@ -394,6 +394,10 @@ public sealed partial class EngineAssetWriter
             ["length_each_update"] = GrappleBeamDefinitions.Physics.FiringExtension,
             ["substeps"] = GrappleExtensionStepCarryover.Substeps,
 
+            // The line's end takes up a pickup that has lain a while and lies near it.
+            ["pickup_reach"] = SuperMetroid.Core.Enemies.EnemyPickupDefinitions.GrappleReach,
+            ["pickup_delay"] = SuperMetroid.Core.Enemies.EnemyPickupDefinitions.GrappleDelay,
+
             // While the line is out her beams' colours are those of one set of beams.
             ["firing_beams"] = EngineSheets.FileName(GrappleBeamDefinitions.BeamShades.FiringSelection.ToString()),
             ["damage"] = EngineReactions.GrappleHitDamage,

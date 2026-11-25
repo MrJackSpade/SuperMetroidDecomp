@@ -1015,6 +1015,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   while she settles from a landing (`StandingState.IsSettling`), while she moves up or down, with her grapple beam
   out, while a power bomb's blast is under way, or while something that has hold of her withholds it
   (`Samus.ScopeWithheld`, which the giant Metroid sets for as long as it drains her).
+- **The grapple beam's end takes up pickups** (`SamusGrapple.TakePickups`): while the line is out, every pickup
+  that has lain `PickupDelay` updates and lies within `PickupReach` pixels of the line's end, across and down, is
+  collected (`Pickup.Collect`), judged as the pickup's own turn of that update would find it.
 - **Her swing on the grapple beam** (`GrapplingState`) is the cartridge's, not a weight on a string: a line of a set
   length turning about what holds it, its angle counted clockwise from straight up in 65536ths of a turn and its
   turning in 256ths of an angle step. She is put at the line's end each update, by the way the line runs and the

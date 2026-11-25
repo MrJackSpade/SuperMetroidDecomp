@@ -24,6 +24,9 @@ public partial class Pickup : Node2D, IRoomEntity
         return new Pickup { _type = type, Position = at, Name = "Pickup" };
     }
 
+    /// <summary>How many more updates the pickup lies before it is gone.</summary>
+    public int UpdatesLeft => _left.Remaining;
+
     /// <summary>The pickup's type.</summary>
     public PickupType Type => _type ?? throw new InvalidOperationException("The pickup has no type.");
 

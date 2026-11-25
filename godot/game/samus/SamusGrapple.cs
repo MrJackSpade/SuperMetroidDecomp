@@ -65,6 +65,14 @@ public partial class SamusGrapple : Node2D
     [Export]
     public string FiringBeams { get; set; } = "ice";
 
+    /// <summary>How near the line's end a pickup must lie, across and down, for the line to take it up.</summary>
+    [Export]
+    public int PickupReach { get; set; } = 16;
+
+    /// <summary>How many updates a pickup must have lain before the line can take it up.</summary>
+    [Export]
+    public int PickupDelay { get; set; } = 16;
+
     private enum Phase
     {
         /// <summary>Not out.</summary>
@@ -146,6 +154,8 @@ public partial class SamusGrapple : Node2D
         DiagonalExtendSpeed = data.Distance("extend_diagonal_speed").ToNumber();
         LengthEachUpdate = data.Int("length_each_update");
         Substeps = data.Int("substeps");
+        PickupReach = data.Int("pickup_reach");
+        PickupDelay = data.Int("pickup_delay");
         Reach = data.Int("reach");
         Damage = data.Int("damage");
         FiringBeams = data.Text("firing_beams");
@@ -216,7 +226,28 @@ public partial class SamusGrapple : Node2D
     public void Step(Samus samus)
     {
         StepLine(samus);
+        TakePickups(samus);
         ShowLine(samus);
+    }
+
+    /// <summary>
+    /// While the line is out its end takes up every pickup that lies within its reach of it, across and down, once
+    /// the pickup has lain its delay. A pickup is judged as its own turn of this update will find it: a turn older,
+    /// and not at all on the update its time ends.
+    /// </summary>
+    private void TakePickups(Samus samus)
+    {
+        if (!IsOut)
+            return;
+        PixelPosition end = Anchor;
+        foreach (Pickup pickup in samus.Room.Pickups.ToList())
+        {
+            int left = pickup.UpdatesLeft - 1;
+            if (left <= 0 || left >= pickup.Type.LastsUpdates - PickupDelay)
+                continue;
+            if (Math.Abs(pickup.Position.X.Whole - end.X.Whole) < PickupReach && Math.Abs(pickup.Position.Y.Whole - end.Y.Whole) < PickupReach)
+                pickup.Collect();
+        }
     }
 
     /// <summary>Plays the line's own update.</summary>

@@ -51,6 +51,13 @@ public partial class Swooper : Enemy
     [Export, DataValue("return_sound")]
     public string ReturnSound { get; set; } = "";
 
+    /// <summary>
+    /// Whether it shows its idle on every update it stays perched. One that does not goes back to its idle only when
+    /// a timeline it is showing finishes, keeping its climb and its flames until then.
+    /// </summary>
+    [Export, DataValue("idles_whenever_perched")]
+    public bool IdlesWheneverPerched { get; set; }
+
     private enum Doing
     {
         Perched,
@@ -109,7 +116,7 @@ public partial class Swooper : Enemy
                 bool heldBack = drawn.Part(0, 1) == 0 && drawn.Part(8, 1) == 0;
                 if (heldBack || Math.Abs(Target.X.Whole - Position.X.Whole) >= Reach)
                 {
-                    if (_finished || Playing != "idle")
+                    if (_finished || IdlesWheneverPerched)
                         Play("idle");
                     _finished = false;
                     break;
@@ -153,15 +160,8 @@ public partial class Swooper : Enemy
                     // An animation's finish is kept until it is taken, through the landing: one its climb's start gave
                     // ends a landing at once.
                     if (Timelines.Has("land"))
-                    {
                         Play("land");
-                        _doing = Doing.Landing;
-                    }
-                    else
-                    {
-                        _doing = Doing.Perched;
-                    }
-
+                    _doing = Doing.Landing;
                     break;
                 }
 
@@ -175,6 +175,13 @@ public partial class Swooper : Enemy
                 break;
 
             case Doing.Landing:
+                // With no timeline of its own the landing takes this one update and leaves the finish to the perch.
+                if (!Timelines.Has("land"))
+                {
+                    _doing = Doing.Perched;
+                    break;
+                }
+
                 if (!_finished)
                     break;
                 _finished = false;

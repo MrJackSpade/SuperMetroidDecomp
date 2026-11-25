@@ -1168,8 +1168,10 @@ public partial class Samus : Player
 
         if (Weapons.All.All(owned => owned.Name != weapon))
         {
+            // With no such weapon nothing fires. A charge carried into the ball stands, as the ball's own rules left it.
             Weapons.StepCooldown();
-            Weapons.DropCharge();
+            if (!_ballCharge)
+                Weapons.DropCharge();
             return;
         }
 

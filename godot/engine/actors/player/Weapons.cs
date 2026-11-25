@@ -114,7 +114,11 @@ public sealed class Weapons
         _weapons.FirstOrDefault(weapon => weapon.Name == name)
         ?? throw new ArgumentException($"The player has no weapon named \"{name}\".", nameof(name));
 
-    /// <summary>Selects the weapon of the given name. Selecting the weapon already selected changes nothing; another loses any charge.</summary>
+    /// <summary>
+    /// Selects the weapon of the given name. A charge being built is the player's, not the selection's: it stands
+    /// through a change of weapon, counted on only while a weapon that charges is selected, until it is let go or
+    /// dropped (<see cref="DropCharge"/>).
+    /// </summary>
     /// <exception cref="ArgumentException">The player has no weapon of that name.</exception>
     public void Select(string name)
     {
@@ -124,24 +128,7 @@ public sealed class Weapons
         if (index == _selected)
             return;
         _selected = index;
-        _chargedFor = 0;
         _heldFor = 0;
-    }
-
-    /// <summary>Selects the next weapon the player can use, after the selected one.</summary>
-    public void SelectNext(Inventory inventory)
-    {
-        for (int offset = 1; offset <= _weapons.Count; offset++)
-        {
-            int index = (_selected + offset) % _weapons.Count;
-            if (CanUse(_weapons[index], inventory))
-            {
-                _selected = index;
-                _chargedFor = 0;
-                _heldFor = 0;
-                return;
-            }
-        }
     }
 
     /// <summary>The live shots of the weapon named <paramref name="weapon"/>.</summary>
@@ -164,11 +151,9 @@ public sealed class Weapons
     {
         StepCooldown();
         WeaponStats? weapon = Selected;
+        // With no weapon to use nothing fires, and a charge already built stands.
         if (weapon is null || !CanUse(weapon, player.Inventory))
-        {
-            DropCharge();
             return;
-        }
 
         bool held = input.IsHeld(GameAction.Attack);
         if (weapon.Charges(player.Inventory))
@@ -191,7 +176,7 @@ public sealed class Weapons
             return;
         }
 
-        _chargedFor = 0;
+        // A weapon that does not charge leaves a charge already built as it stands.
         if (input.WasPressed(GameAction.Attack))
         {
             _heldFor = 0;

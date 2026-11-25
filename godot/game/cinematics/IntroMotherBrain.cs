@@ -44,6 +44,12 @@ public partial class IntroMotherBrain : Enemy
     /// <summary>How long a ring takes to appear before it moves.</summary>
     private const int RingAppearingUpdates = 30;
 
+    /// <summary>
+    /// How many updates the ring that strikes Samus throws her back for: longer than a hit of play's, far enough to
+    /// carry her from the pillar onto the ledge behind her.
+    /// </summary>
+    private const int RingKnockbackUpdates = 11;
+
     /// <summary>The waves of rings: how long each waits after the one before, and each ring's place, drift across and whether it strikes Samus.</summary>
     private static readonly (int Wait, (int X, int Y, double Drift, bool Strikes)[] Rings)[] Waves =
     [
@@ -180,7 +186,7 @@ public partial class IntroMotherBrain : Enemy
             {
                 bool reached = ring.Position.X.Whole + 8 >= samus.Position.X.Whole - 5;
                 if (reached)
-                    samus.KnockBack(Facing.Left);
+                    samus.KnockBack(Facing.Left, RingKnockbackUpdates);
                 gone = reached || IsExploding;
             }
             else

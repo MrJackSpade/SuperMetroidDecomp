@@ -203,10 +203,11 @@ public sealed partial class EngineAssetWriter
         }
 
         // The pictures shown once as one look gives way to another.
-        void Passing(string from, string to, P right, P left)
+        void Passing(string from, string to, P right, P left, string held = "")
         {
-            Add($"{from}_to_{to}_right", SamusPlayed(right));
-            Add($"{from}_to_{to}_left", SamusPlayed(left));
+            string suffix = held.Length == 0 ? "" : "_" + held;
+            Add($"{from}_to_{to}_right{suffix}", SamusPlayed(right));
+            Add($"{from}_to_{to}_left{suffix}", SamusPlayed(left));
         }
 
         Look("standing", null, P.FacingRightNormalPose, P.FacingLeftNormalPose);
@@ -366,8 +367,17 @@ public sealed partial class EngineAssetWriter
         WriteSamusDeath(timelines);
 
         // Landing, crouching and curling up each pass through a picture or two of their own.
+        // A landing out of a jump or a fall is by the way she aims, as the old table of landings has it: its own
+        // pictures aiming up and diagonally, the firing landing aiming level with the attack held, and the plain one
+        // aiming level or straight down.
         foreach (string from in new[] { "falling", "jumping" })
+        {
             Passing(from, "standing", P.NormalLandingRightPose, P.NormalLandingLeftPose);
+            Passing(from, "standing", P.LandingAimUpRightPose, P.LandingAimUpLeftPose, held: "up");
+            Passing(from, "standing", P.LandingAimDiagonalUpRightPose, P.LandingAimDiagonalUpLeftPose, held: "diagonal_up");
+            Passing(from, "standing", P.LandingAimDiagonalDownRightPose, P.LandingAimDiagonalDownLeftPose, held: "diagonal_down");
+            Passing(from, "standing", P.FiringLandingRightPose, P.FiringLandingLeftPose, held: "firing");
+        }
         foreach (string spin in new[] { "spin_jumping", "space_jumping", "screw_attacking" })
         {
             Passing(spin, "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);

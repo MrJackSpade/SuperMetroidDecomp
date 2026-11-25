@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Content;
+using Engine.Input;
 using Engine.Shared;
 using Game.Data;
 using Godot;
@@ -65,7 +66,12 @@ public partial class SamusVisual : Node2D
         if (look != _look)
         {
             // A change of look may pass through a picture or two of its own before the new look's are shown.
+            // The pictures between may be their own for the way she holds her weapon as the look changes: her aim's,
+            // or, aiming level with the attack held, the firing ones.
             string passing = $"{_look}_to_{look}_{(samus.Facing == Facing.Right ? "right" : "left")}";
+            string held = samus.Aim != Aim.Forward ? Samus.AimName(samus.Aim) : samus.Input.IsHeld(GameAction.Attack) ? "firing" : "";
+            if (held.Length > 0 && samus.Timelines.Has($"{passing}_{held}"))
+                passing = $"{passing}_{held}";
             _passing = _look.Length > 0 && samus.Timelines.Has(passing);
             _look = look;
             if (_passing)

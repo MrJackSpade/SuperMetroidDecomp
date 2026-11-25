@@ -102,7 +102,10 @@ public partial class Bull : Enemy
                 }
 
                 Drift();
-                int off = Math.Abs(Turns.Wrap(AngleToSamus() - _angle + Turns.PerTurn / 2) - Turns.PerTurn / 2);
+                // The cartridge counts the turn the short way round only when Samus's bearing is a half turn or more on
+                // from its heading; one behind its heading it counts as it stands, which may be the long way round.
+                int turn = AngleToSamus() - _angle;
+                int off = turn >= Turns.PerTurn / 2 ? Turns.PerTurn - turn : Math.Abs(turn);
                 if (off >= OffTargetTurn)
                     _doing = Doing.Slowing;
                 return;

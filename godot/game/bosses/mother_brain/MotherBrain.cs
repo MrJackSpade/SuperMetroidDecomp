@@ -26,7 +26,8 @@ namespace Game.Enemies;
 /// her body and the data file of the effect left there; "fire_hand_beam"; "hand_beam_done"; and "shape:" with the
 /// name of one of her data's "shapes", which puts the parts of her body that stop shots where one picture of it has
 /// them (<see cref="ColliderPoses"/>).</para>
-/// <para>Her visual "Head" is her brain, which plays the timelines her fight names; their cues are "shake", "drool",
+/// <para>Her visual "Head" is her brain, which plays the timelines her fight names as each update ends
+/// (<see cref="IClosingStep"/>), after everything in the room has had its turn; their cues are "shake", "drool",
 /// "big_breath", "neck:on", "neck:off", "aim_rings", "ring", "laser", "bomb:" with how many flames it leaves,
 /// "charge", "charge_particle", "maybe_hold:" with a timeline and "maybe_drool:" with a timeline, and those the rest
 /// of her fight adds. Her visuals "Neck0" to "Neck4" are the joints of her neck, each showing her timeline "neck".
@@ -35,7 +36,7 @@ namespace Game.Enemies;
 /// blasts of her fall and rise; "tube_drops", the pipes that fall in turn; and the names of her terrain patches. All
 /// her places are in the room's own pixels.</para>
 /// </remarks>
-public partial class MotherBrain : Enemy
+public partial class MotherBrain : Enemy, IClosingStep
 {
     /// <summary>The music of her fight, by name.</summary>
     [Export]
@@ -154,6 +155,9 @@ public partial class MotherBrain : Enemy
     private PixelPosition _head;
     private TimelinePlayer? _headTimeline;
     private string _headPlaying = "";
+
+    /// <summary>Whether her brain is playing its part of the update's end, where a timeline it starts goes straight on.</summary>
+    private bool _brainPlaying;
     private bool _headShown = true;
     private bool _onNeck;
     private bool _bodyTouches;
@@ -343,7 +347,7 @@ public partial class MotherBrain : Enemy
         if (IsDead)
             return;
         PushSamusAway(samus);
-        StepHead(samus);
+        PlaceHead(samus);
     }
 
     /// <summary>In her tank. Once the glass is gone and her health with it, and Samus has come close, she seems to die.</summary>
@@ -365,8 +369,11 @@ public partial class MotherBrain : Enemy
         BeginDescent();
     }
 
-    /// <summary>Moves her head: with her neck when she has one, and with whatever shakes it.</summary>
-    private void StepHead(Player samus)
+    /// <summary>
+    /// Moves her head with her neck, when she has one, and puts her brain's shape where her head is. What shakes her
+    /// brain moves only its picture.
+    /// </summary>
+    private void PlaceHead(Player samus)
     {
         if (_onNeck)
         {
@@ -376,20 +383,30 @@ public partial class MotherBrain : Enemy
             _head = _neck[4] + PixelOffset.FromWhole(0, -21);
         }
 
+        if (GetNodeOrNull<Collider>("Brain") is { } brain)
+        {
+            PixelOffset fromBody = _head - Position;
+            brain.Rect = new PixelRect(fromBody.X.Whole + _brainRect.Left, fromBody.Y.Whole + _brainRect.Top, _brainRect.Width, _brainRect.Height);
+        }
+    }
+
+    /// <summary>
+    /// Her brain's part of the update's end: it breathes, plays its timeline and is shown, once everything in the room
+    /// has had its turn. So what a cue of her brain's fires first takes a turn on the next update, and a cue that
+    /// reads the random number reads the update's last.
+    /// </summary>
+    public void StepClosing(Room room)
+    {
+        if (IsDead)
+            return;
+        Player samus = room.Player;
+
         // She breathes out a little, as often as not, whenever her last breath has gone.
         bool breathOut = _smallBreath is { } last && IsInstanceValid(last) && !Room.IsLeaving(last);
         if (_breathes && !breathOut && SmallBreathEffect.Length > 0 && Random.Last.Part(15, 1) == 0)
             _smallBreath = LeaveEffect(SmallBreathEffect, _head + PixelOffset.FromWhole(6, 16));
 
-        if (_headTimeline is { } timeline)
-        {
-            foreach (string cue in timeline.Step())
-            {
-                OnHeadCue(cue, samus);
-                if (_headTimeline != timeline)
-                    break;
-            }
-        }
+        TimelineStep? shown = PlayBrain(samus);
 
         // Her brain shakes when she is hurt, and for a while when her fight says so.
         PixelOffset shake = PixelOffset.FromWhole(0, 0);
@@ -403,13 +420,8 @@ public partial class MotherBrain : Enemy
             head.Position = new Vector2(fromBody.X.Whole, fromBody.Y.Whole);
             head.SetShown(_headShown);
             head.Tint(IsFlashing && Updates % 2 == 0 ? new Color(2f, 2f, 2f) : _brainDetached ? _headTint : _tint);
-            if (_headTimeline is not null)
-                head.Show(_headTimeline.Current);
-        }
-
-        if (GetNodeOrNull<Collider>("Brain") is { } brain)
-        {
-            brain.Rect = new PixelRect(fromBody.X.Whole + _brainRect.Left, fromBody.Y.Whole + _brainRect.Top, _brainRect.Width, _brainRect.Height);
+            if (shown is not null)
+                head.Show(shown);
         }
 
         for (int joint = 0; joint < _neck.Length; joint++)
@@ -423,11 +435,48 @@ public partial class MotherBrain : Enemy
         }
     }
 
-    /// <summary>Starts her brain on a timeline.</summary>
+    /// <summary>
+    /// Starts her brain on a timeline. Started in her own turn, one that opens with a picture counts the start as that
+    /// picture's first update, and one that opens with a cue waits for her brain's part of the update's end. Started
+    /// by a cue of her brain's, it is gone straight on into there.
+    /// </summary>
     private void PlayHead(string timeline)
     {
         _headPlaying = timeline;
         _headTimeline = new TimelinePlayer(Timelines.Get(timeline));
+        if (!_brainPlaying && _headTimeline.Current.Cues.Count == 0)
+            _headTimeline.Step();
+    }
+
+    /// <summary>How many times in one update her brain's timelines may start one another before that is taken for a mistake in them.</summary>
+    private const int MostBrainSwitches = 16;
+
+    /// <summary>
+    /// Plays one update of her brain's timeline and acts on the cues it reaches, going on into a timeline a cue
+    /// starts. Gives the step that update belongs to, which is the picture her brain shows; null with no timeline.
+    /// </summary>
+    private TimelineStep? PlayBrain(Player samus)
+    {
+        TimelineStep? shown = null;
+        _brainPlaying = true;
+        for (int switches = 0; _headTimeline is { } playing; switches++)
+        {
+            if (switches > MostBrainSwitches)
+                throw new InvalidOperationException($"Mother Brain's brain timelines start one another without end, the last of them \"{_headPlaying}\".");
+            shown = playing.Current;
+            foreach (string cue in playing.Step())
+            {
+                OnHeadCue(cue, samus);
+                if (_headTimeline != playing)
+                    break;
+            }
+
+            if (_headTimeline == playing)
+                break;
+        }
+
+        _brainPlaying = false;
+        return shown;
     }
 
     /// <summary>Turns the two parts of her neck, each as it has been told.</summary>

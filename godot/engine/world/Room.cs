@@ -430,12 +430,21 @@ public partial class Room : Node2D
             }
         }
 
-        // Then whatever a projectile has left for the end of the update.
+        // Then whatever a projectile has left for the end of the update, and then whatever an enemy has.
         if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDying)
         {
             foreach (Projectile projectile in _projectiles.ToList())
             {
                 if (projectile is IClosingStep closing && !_leaving.Contains(projectile))
+                    closing.StepClosing(this);
+            }
+        }
+
+        if (!stopped.HasFlag(Stopped.Enemies))
+        {
+            foreach (Enemy enemy in _enemies.ToList())
+            {
+                if (enemy is IClosingStep closing && !_leaving.Contains(enemy) && !enemy.IsAsleep && IsActive(enemy))
                     closing.StepClosing(this);
             }
         }

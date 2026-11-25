@@ -1131,6 +1131,12 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   once the ice beam is switched off), is still held by the status, which ends with it. Being frozen ends the
   hurt's flash. The player's shots do not hit enemies as they move, an enemy out of view or asleep is not
   hit, and an enemy's body is no wall to a shot: an enemy stops a shot only by what it does when the shot hits it.
+- **An enemy's part of the update's end.** An enemy with a part of its own to play once everything in the room has
+  had its turn is an `IClosingStep`, as a projectile is ("When it hits", below): the room calls it after the shots
+  have been tried against the player and one another and the projectiles' own closing parts, unless enemies are
+  stopped, and only an enemy that takes its turn. What it launches there first takes a turn on the next update, and
+  the last random number it finds is the update's last. This game's Mother Brain plays her brain there: its timeline
+  and cues, her breath, and what shows it; her neck and where her head is are her turn's.
 - **A shot that does it no harm** leaves what the enemy's data gives for that (`"dud"`: an effect where the shot
   is and a sound) and is spent: the enemy answers `HitResult.Dud`, and the shot is gone with nothing of its own
   left, where a hit merely absorbed ends the shot with its own ending. A hit that comes of nothing with a place

@@ -93,8 +93,16 @@ public sealed class CartridgeSounds : ISoundFlow
     /// <summary>Whether a demonstration is playing, which turns every sound away.</summary>
     public bool DemoPlaying { get; set; }
 
-    /// <summary>Whether a power bomb's blast, or the crystal flash's, is under way, which turns every sound away.</summary>
-    public bool PowerBombExploding { get; set; }
+    /// <summary>The room last entered, whose power bombs say whether a blast is under way.</summary>
+    private Room? _room;
+
+    /// <summary>
+    /// Whether a power bomb's blast, or the crystal flash's, is under way in the room being played, which turns every
+    /// sound away: from the blast's start, after its own sound is asked for, until its last reach is done, before the
+    /// sounds it turned away are asked for again. A blast that goes with its room is over with it.
+    /// </summary>
+    public bool PowerBombExploding =>
+        _room is { } room && Godot.GodotObject.IsInstanceValid(room) && room.Projectiles.OfType<PowerBomb>().Any(bomb => bomb.IsExploding);
 
     /// <inheritdoc/>
     public string Music => _music.Playing;
@@ -152,6 +160,7 @@ public sealed class CartridgeSounds : ISoundFlow
     public void EnterRoom(Room room)
     {
         ArgumentNullException.ThrowIfNull(room);
+        _room = room;
         bool appears = SavedGameAppears;
         SavedGameAppears = false;
         if (DemoPlaying || room.Version is not { } version)

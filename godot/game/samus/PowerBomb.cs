@@ -78,8 +78,15 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     /// <summary>Whether the blast it plays is a crystal flash's.</summary>
     private bool _flash;
 
-    /// <summary>Whether the blast has begun.</summary>
-    public bool IsBlasting => _blasting;
+    /// <summary>Whether the last reach of the blast it plays is done.</summary>
+    private bool _over;
+
+    /// <summary>
+    /// Whether its blast, or the blast of the crystal flash it started, is under way: from the fuse's end, once the
+    /// blast's own sound has been asked for, until its last reach is done. While it waits for a flash's rise no blast
+    /// is under way.
+    /// </summary>
+    public bool IsExploding => _blasting && !_awaiting && !_over;
 
     /// <inheritdoc/>
     public void ReadValues(DataNode data)
@@ -109,9 +116,10 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
             return;
 
         // The fuse is out: the bomb is gone, and its blast takes its first step as the next update opens.
+        // Its own sound is asked for before the blast is under way, which turns every other sound away.
+        room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions", priority: SoundPriority.Essential);
         _blasting = true;
         StopShowing();
-        room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions", priority: SoundPriority.Essential);
     }
 
     /// <summary>
@@ -127,6 +135,8 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
         int[] reaches = _flash ? FlashBlastReaches : BlastReaches;
         if (_blastUpdate >= reaches.Length)
         {
+            // The blast is over before anything is asked for again.
+            _over = true;
             _reach = 0;
             QueueRedraw();
             if (Launcher is not Samus samus)
@@ -172,7 +182,7 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
         if (!_awaiting || FlashBlastReaches.Length == 0)
             throw new InvalidOperationException("A power bomb begins a crystal flash's blast only while it waits for one, with reaches to give it.");
         Position = at;
-        (_awaiting, _flash, _reach, _blastUpdate) = (false, true, FlashBlastReaches[0], 1);
+        (_awaiting, _flash, _over, _reach, _blastUpdate) = (false, true, false, FlashBlastReaches[0], 1);
         QueueRedraw();
     }
 

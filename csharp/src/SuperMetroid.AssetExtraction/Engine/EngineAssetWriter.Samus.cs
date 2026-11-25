@@ -396,6 +396,9 @@ public sealed partial class EngineAssetWriter
             ["firing_beams"] = EngineSheets.FileName(GrappleBeamDefinitions.BeamShades.FiringSelection.ToString()),
             ["damage"] = EngineReactions.GrappleHitDamage,
 
+            // The line's own pictures, shown in her colours.
+            ["line"] = SamusGrappleLine(),
+
             // The swing's own numbers: its speeds of turning in 256ths of an angle step an update, its lengths in pixels.
             ["swing"] = new JsonObject
             {

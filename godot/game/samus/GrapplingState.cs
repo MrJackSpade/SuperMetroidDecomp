@@ -122,6 +122,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         _submerged = IsSubmerged(owner);
         owner.Velocity = PixelVelocity.Zero;
         PlaceFromLine(owner, rules);
+        grapple.ShowLineAs(WholeStep, _length);
     }
 
     /// <inheritdoc/>
@@ -161,6 +162,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         }
 
         PlaceFromLine(owner, rules);
+        grapple.ShowLineAs(WholeStep, _length);
         _submerged = IsSubmerged(owner);
         return null;
     }

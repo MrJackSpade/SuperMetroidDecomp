@@ -445,6 +445,66 @@ public sealed partial class EngineAssetWriter
         });
     }
 
+    /// <summary>The place of the grapple beam's own pictures.</summary>
+    private const string SamusGrapplePlace = "samus/grapple";
+
+    /// <summary>
+    /// The grapple beam's own pictures and how they are shown: the line's, a set for each way it can lie and be
+    /// mirrored with the set each angle step shows, in the order its pattern steps through them; its end's; how long
+    /// each shows; how many pixels of the line each of the line's pictures stands for; and where a picture's corner
+    /// lies from its middle.
+    /// </summary>
+    private JsonObject SamusGrappleLine()
+    {
+        string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.Grapple];
+        EngineSheetPictures pictures = _sheets.CutNamed(
+            _tree, SpriteFamily, SamusGrapplePlace, sheet, _sheets.FramesOf(SpriteFamily, sheet), shade: null, EngineSheets.FileName, regionMaps: true);
+
+        static AnimationBeat<T, NoAnimationCue>.Frame Shown<T>(IAnimationBeat<T, NoAnimationCue> beat)
+            where T : struct => beat as AnimationBeat<T, NoAnimationCue>.Frame
+                ?? throw new InvalidDataException($"The grapple beam's pictures have a beat this does not know: {beat.GetType().Name}.");
+        var rope = GrappleAnimations.RopeSegments.Beats(GrappleRopeSegment.Travelling).Select(Shown).ToList();
+        var end = GrappleAnimations.EndpointSegments.Beats(GrappleEndpointSegment.Cycling).Select(Shown).ToList();
+        if (rope.Select(beat => beat.Duration).Distinct().Count() != 1 || end.Select(beat => beat.Duration).Distinct().Count() != 1)
+            throw new InvalidDataException("The grapple beam's pictures do not each show for the same time, which its data gives as one number.");
+
+        // The sets of the line's pictures, and the set each angle step shows: by the way it lies and how it is mirrored there.
+        var sets = new JsonArray();
+        var setOfAngle = new JsonArray();
+        var known = new Dictionary<(GrappleRopeOrientation, SpriteMirror), int>();
+        for (int step = 0; step < RotationAngle.StepsPerTurn; step++)
+        {
+            RotationAngle angle = RotationAngle.FromSteps(step);
+            (GrappleRopeOrientation Lies, SpriteMirror Mirrored) key = (GrappleRopeOrientations.For(angle), SamusGrappleBeamDrawing.RopeMirror(angle));
+            if (!known.TryGetValue(key, out int set))
+            {
+                set = known.Count;
+                known.Add(key, set);
+                var paths = new JsonArray();
+                foreach (AnimationBeat<GrappleRopePicture, NoAnimationCue>.Frame beat in rope)
+                    paths.Add(pictures.Of(GrappleSheets.RopeFrame(key.Lies, beat.Shown, key.Mirrored)));
+                sets.Add(paths);
+            }
+
+            setOfAngle.Add(set);
+        }
+
+        var ends = new JsonArray();
+        foreach (AnimationBeat<GrappleEndpointFrame, NoAnimationCue>.Frame beat in end)
+            ends.Add(pictures.Of(GrappleSheets.EndpointFrame(beat.Shown)));
+        return new JsonObject
+        {
+            ["spacing"] = GrappleBeamDefinitions.Rendering.SegmentSpacing,
+            ["picture_updates"] = rope[0].Duration,
+            ["first_picture_updates"] = GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay,
+            ["rope"] = sets,
+            ["rope_of_angle"] = setOfAngle,
+            ["end"] = ends,
+            ["end_updates"] = end[0].Duration,
+            ["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY },
+        };
+    }
+
     /// <summary>The data file of the timeline of one of the puffs and splashes Samus raises.</summary>
     internal static string SamusParticleFile(SamusParticleKind kind) => $"samus/effects/{EngineSheets.FileName(kind.ToString())}.json";
 

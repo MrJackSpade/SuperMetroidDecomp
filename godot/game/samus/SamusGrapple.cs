@@ -1,10 +1,12 @@
 using Engine.Actors;
+using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -25,6 +27,13 @@ namespace Game;
 /// that only stops it gives the line up only if it is the last substep's, so a thin wall crossed within an update
 /// does not stop it. A line given up while reaching out ends on the update after, when its end is heard. While it is
 /// out her beams' colours are those of the beams its data names, and her own again as it ends.
+/// <para>
+/// It is shown by the cartridge's own pictures, in her colours: a chain of the line's pictures from where it leaves
+/// her toward its end, one for every so many pixels of its counted length and at least one, each showing the
+/// picture before its neighbour's in a pattern that steps on as one; and its end's picture at its end, stepping
+/// through its own. Which set of the line's pictures shows is by the line's angle. Nothing of it shows on the
+/// update it is given up or let go.
+/// </para>
 /// </remarks>
 public partial class SamusGrapple : Node2D
 {
@@ -55,10 +64,6 @@ public partial class SamusGrapple : Node2D
     /// <summary>The beams whose colours her beams' colours show while the line is out, as her colours name them.</summary>
     [Export]
     public string FiringBeams { get; set; } = "ice";
-
-    /// <summary>The colour the line is drawn in.</summary>
-    [Export]
-    public Color Colour { get; set; } = new(0.4f, 0.8f, 1f);
 
     private enum Phase
     {
@@ -96,6 +101,29 @@ public partial class SamusGrapple : Node2D
     private Block? _heldBlock;
     private GrappleSwingRules? _swing;
 
+    /// <summary>
+    /// The line's pictures: how many pixels of its length each stands for, the updates each picture of its pattern
+    /// shows and its first, the sets of its pictures with the set each angle step shows, its end's pictures and the
+    /// updates each shows, and where a picture's corner lies from its middle.
+    /// </summary>
+    private sealed record LinePictures(
+        int Spacing, int PictureUpdates, int FirstPictureUpdates, IReadOnlyList<IReadOnlyList<string>> Rope, IReadOnlyList<int> RopeOfAngle,
+        IReadOnlyList<string> End, int EndUpdates, Vector2I Offset);
+
+    private LinePictures? _line;
+    private readonly List<ActorVisual> _links = [];
+    private ActorVisual? _end;
+
+    /// <summary>Where the line's pattern and its end's pictures stand, and the updates each has left.</summary>
+    private int _ropePicture;
+    private int _ropeLeft;
+    private int _endPicture;
+    private int _endLeft;
+
+    /// <summary>The line's angle step and its length as whoever holds her by it last gave them, for its pictures.</summary>
+    private int _lineAngle;
+    private int _lineLength;
+
     /// <summary>Whether the line is out: reaching, given up and not yet ended, or latched.</summary>
     public bool IsOut => _phase != Phase.Inactive;
 
@@ -122,7 +150,20 @@ public partial class SamusGrapple : Node2D
         Damage = data.Int("damage");
         FiringBeams = data.Text("firing_beams");
         _swing = GrappleSwingRules.Read(data.Get("swing"));
+        DataNode line = data.Get("line");
+        _line = new LinePictures(
+            line.Int("spacing"), line.Int("picture_updates"), line.Int("first_picture_updates"),
+            [.. line.List("rope").Select(set => (IReadOnlyList<string>)[.. set.Items().Select(picture => picture.AsText())])],
+            [.. line.List("rope_of_angle").Select(set => set.AsInt())],
+            [.. line.List("end").Select(picture => picture.AsText())], line.Int("end_updates"),
+            new Vector2I(line.Get("offset").Int("x"), line.Get("offset").Int("y")));
     }
+
+    /// <summary>
+    /// The line's angle step, clockwise from straight up as her place lies from what holds it, and its length, as
+    /// the state that holds her by it has them: its pictures go by these.
+    /// </summary>
+    public void ShowLineAs(int angleStep, int length) => (_lineAngle, _lineLength) = (Turns.Wrap(angleStep), length);
 
     /// <summary>Fires the line the way <paramref name="samus"/> aims, if it is not already out. It begins to reach out on the next update.</summary>
     public void Fire(Samus samus)
@@ -137,6 +178,12 @@ public partial class SamusGrapple : Node2D
         _length = 0;
         _phase = Phase.Firing;
         _stepSpent = true;
+
+        // Its pictures start over: the pattern's first holds an update longer than the rest, as the first drawing
+        // of a line only takes the pattern up. Its angle is that of her place from where it is headed.
+        if (_line is { } line)
+            (_ropePicture, _ropeLeft, _endPicture, _endLeft) = (0, line.FirstPictureUpdates, 0, line.EndUpdates);
+        ShowLineAs(GrapplingState.AngleOf(-_across, -_down), 0);
         samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons", priority: SoundPriority.WhenIdle);
 
         // Its firing, like a beam shot's, takes back the asking again of a charge's sound.
@@ -159,7 +206,6 @@ public partial class SamusGrapple : Node2D
             _samus.Room.Terrain.LetGoOf(_heldBlock);
         _heldBlock = null;
         _phase = Phase.Inactive;
-        QueueRedraw();
     }
 
     /// <summary>
@@ -169,11 +215,17 @@ public partial class SamusGrapple : Node2D
     /// </summary>
     public void Step(Samus samus)
     {
+        StepLine(samus);
+        ShowLine(samus);
+    }
+
+    /// <summary>Plays the line's own update.</summary>
+    private void StepLine(Samus samus)
+    {
         // The update a line is fired on only begins it, and one let go on this update ends on the next.
         if (_stepSpent)
         {
             _stepSpent = false;
-            QueueRedraw();
             return;
         }
 
@@ -188,8 +240,6 @@ public partial class SamusGrapple : Node2D
                 // A block that has broken away holds nothing.
                 if (_heldBlock is { Broken: true })
                     Release();
-                else
-                    QueueRedraw();
                 return;
         }
 
@@ -205,6 +255,8 @@ public partial class SamusGrapple : Node2D
             GiveUp();
             return;
         }
+
+        _lineLength = _length;
 
         // What can be latched, or is hurt by the line, is looked for at its end as it stands, before the end moves.
         Room room = samus.Room;
@@ -255,7 +307,6 @@ public partial class SamusGrapple : Node2D
         // Only the block at the last substep's end gives the line up.
         if (stopped)
             GiveUp();
-        QueueRedraw();
     }
 
     /// <summary>
@@ -268,14 +319,12 @@ public partial class SamusGrapple : Node2D
             return;
         _tip = Anchor;
         (_phase, _stepSpent) = (Phase.CancelPending, true);
-        QueueRedraw();
     }
 
     /// <summary>Gives up a line that is reaching out: it stays as it is for this update and ends on the next.</summary>
     private void GiveUp()
     {
         _phase = Phase.CancelPending;
-        QueueRedraw();
     }
 
     /// <summary>Takes hold of something and hands Samus to her swing.</summary>
@@ -294,24 +343,84 @@ public partial class SamusGrapple : Node2D
         // crouches.
         if (samus.State is GrabbedState)
         {
-            QueueRedraw();
             return;
         }
 
         bool swings = !samus.Velocity.Y.IsZero || _down < 0;
         samus.ChangeState(swings ? new GrapplingState() : new GrappleLockedState(samus.State is CrouchingState));
-        QueueRedraw();
     }
 
-    /// <inheritdoc/>
-    public override void _Draw()
+    /// <summary>
+    /// Shows the line as it stands once its update is played. Reaching out or holding, its end's pictures step on;
+    /// and with any length the line's pattern steps on and its pictures are laid from where it leaves her toward its
+    /// end, a spacing apart along the way from the one to the other, the part of a pixel kept from one to the next.
+    /// Given up or let go, nothing of it shows.
+    /// </summary>
+    private void ShowLine(Samus samus)
     {
-        if (!IsOut || _samus is null)
+        if (_line is not { } line)
             return;
-        PixelPosition end = IsLatched ? Anchor : _tip;
-        PixelOffset toMuzzle = _samus.GrapplePoint - _samus.Position;
-        var from = new Vector2(toMuzzle.X.ToDisplay(), toMuzzle.Y.ToDisplay());
-        PixelOffset toEnd = end - _samus.Position;
-        DrawLine(from, new Vector2(toEnd.X.ToDisplay(), toEnd.Y.ToDisplay()), Colour, 2);
+        int links = 0;
+        bool shown = _phase is Phase.Firing or Phase.Latched;
+        if (shown)
+        {
+            if (--_endLeft == 0)
+                (_endPicture, _endLeft) = ((_endPicture + 1) % line.End.Count, line.EndUpdates);
+            shown = _lineLength > 0;
+        }
+
+        if (shown)
+        {
+            IReadOnlyList<string> pictures = line.Rope[line.RopeOfAngle[_lineAngle]];
+            if (--_ropeLeft == 0)
+                (_ropePicture, _ropeLeft) = ((_ropePicture + 1) % pictures.Count, line.PictureUpdates);
+            PixelPosition from = samus.GrapplePoint, end = IsLatched ? Anchor : _tip;
+            int toward = GrapplingState.AngleOf(end.X.Whole - from.X.Whole, end.Y.Whole - from.Y.Whole);
+            long across = (long)CartridgeAngles.SignedSine(toward) * line.Spacing * 256;
+            long down = (long)CartridgeAngles.SignedSine(toward - Turns.PerTurn / 4) * line.Spacing * 256;
+            long x = (long)from.X.Whole * Pixels.FractionsPerPixel, y = (long)from.Y.Whole * Pixels.FractionsPerPixel;
+            links = Math.Max(1, _lineLength / line.Spacing);
+            for (int link = 0; link < links; link++)
+            {
+                // Each link beyond the one by her shows the picture before its neighbour's.
+                int picture = ((_ropePicture - link) % pictures.Count + pictures.Count) % pictures.Count;
+                Place(samus, LinkAt(samus, link, line), pictures[picture], (int)Math.Floor((double)x / Pixels.FractionsPerPixel), (int)Math.Floor((double)y / Pixels.FractionsPerPixel));
+                x += across;
+                y += down;
+            }
+
+            Place(samus, _end ??= NewPicture(samus, "End", line), line.End[_endPicture], end.X.Whole, end.Y.Whole);
+        }
+        else
+        {
+            _end?.Show("");
+        }
+
+        for (int link = links; link < _links.Count; link++)
+            _links[link].Show("");
+    }
+
+    /// <summary>The picture of the line's link of a number, made the first time it is wanted.</summary>
+    private ActorVisual LinkAt(Samus samus, int link, LinePictures line)
+    {
+        while (_links.Count <= link)
+            _links.Add(NewPicture(samus, $"Link{_links.Count + 1}", line));
+        return _links[link];
+    }
+
+    private ActorVisual NewPicture(Samus samus, string name, LinePictures line)
+    {
+        var picture = new ActorVisual { Name = name, PictureOffset = line.Offset };
+        AddChild(picture);
+        picture.Bind(samus.Room.Content);
+        return picture;
+    }
+
+    /// <summary>Shows a picture of the line with its middle at a place in the room, in her colours.</summary>
+    private static void Place(Samus samus, ActorVisual picture, string path, int x, int y)
+    {
+        picture.Show(path);
+        picture.GlobalPosition = samus.GlobalPosition + new Vector2(x - samus.Position.X.Whole, y - samus.Position.Y.Whole);
+        samus.Colours.ShowOn(picture);
     }
 }

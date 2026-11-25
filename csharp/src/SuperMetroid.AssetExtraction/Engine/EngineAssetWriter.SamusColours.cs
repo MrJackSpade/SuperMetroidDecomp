@@ -40,6 +40,7 @@ public sealed partial class EngineAssetWriter
     private void WriteSamusColours()
     {
         string deathSheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusDeath];
+        string grappleSheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.Grapple];
         var shades = new JsonObject();
 
         // The name a colouring is written under; it is written the first time it is named.
@@ -51,6 +52,10 @@ public sealed partial class EngineAssetWriter
             var places = new Dictionary<string, IReadOnlyList<string>> { [SamusBodyPlace] = [SamusBodySheet] };
             if (_sheets.HasShade(SpriteFamily, deathSheet, shade.Key))
                 places[SamusDeathPlace] = [deathSheet];
+
+            // The grapple beam's own pictures are hers too, and take her colourings where their sheet has them.
+            if (_sheets.HasShade(SpriteFamily, grappleSheet, shade.Key))
+                places[SamusGrapplePlace] = [grappleSheet];
             shades[name] = ShadeChange(shade.Key, SpriteFamily, places);
             return name;
         }

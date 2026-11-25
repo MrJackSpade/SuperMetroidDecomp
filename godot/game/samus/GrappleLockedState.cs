@@ -50,8 +50,10 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
         // took hold, a long line shortened; she is put there, less where the line leaves a standing body.
         int length = grapple.Length >= rules.LongLine ? grapple.Length - rules.LongLineShortening : grapple.Length;
         PixelOffset hanging = owner.Position - grapple.Anchor;
-        PixelPosition end = GrapplingState.EndOfLine(rules, grapple.Anchor, GrapplingState.AngleOf(hanging.X.Whole, hanging.Y.Whole), length);
+        int angle = GrapplingState.AngleOf(hanging.X.Whole, hanging.Y.Whole);
+        PixelPosition end = GrapplingState.EndOfLine(rules, grapple.Anchor, angle, length);
         owner.Position = end - samus.StandingGrappleOrigin;
+        grapple.ShowLineAs(angle, length);
     }
 
     /// <inheritdoc/>

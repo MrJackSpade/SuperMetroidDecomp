@@ -23,9 +23,12 @@ public readonly partial record struct FadeLevel
     /// <summary>How many steps the fade takes from its start to its end.</summary>
     public int Steps { get; }
 
+    /// <summary>How the fade's colours move as its steps are taken (#3036): its share of the way unless it names the cartridge's gradual colour change.</summary>
+    public FadeArithmetic Arithmetic { get; init; }
+
     /// <summary>Whether the fade has taken every step: it shows where it ends.</summary>
     public bool IsComplete => Step == Steps;
 
     /// <inheritdoc />
-    public override string ToString() => $"{Step}/{Steps}";
+    public override string ToString() => Arithmetic == FadeArithmetic.Proportional ? $"{Step}/{Steps}" : $"{Step}/{Steps} {Arithmetic}";
 }

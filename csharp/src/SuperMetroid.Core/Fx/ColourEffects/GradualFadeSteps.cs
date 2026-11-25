@@ -59,15 +59,21 @@ internal sealed partial class GradualFadeSteps
         return false;
     }
 
+    /// <summary>
+    /// How far the steps taken have come, in the cartridge's gradual colour change (#3036): the fades on the shared counter
+    /// all run <c>Advance_GradualColorChange_ofAllPalettes</c>.
+    /// </summary>
+    private FadeLevel Level => new(Shown.Moved, Shown.Length) { Arithmetic = FadeArithmetic.GradualColourChange };
+
     /// <summary>What the steps taken show of a colour fading toward <paramref name="goal"/>.</summary>
-    internal ColourFade Toward(RgbColor goal) => new(goal, GradualFadeDirection.Toward, new FadeLevel(Shown.Moved, Shown.Length));
+    internal ColourFade Toward(RgbColor goal) => new(goal, GradualFadeDirection.Toward, Level);
 
     /// <summary>What the steps taken show of a colour fading in from <paramref name="start"/>.</summary>
-    internal ColourFade From(RgbColor start) => new(start, GradualFadeDirection.From, new FadeLevel(Shown.Moved, Shown.Length));
+    internal ColourFade From(RgbColor start) => new(start, GradualFadeDirection.From, Level);
 
     /// <summary>
     /// The fade from <paramref name="from"/> to <paramref name="to"/> a picture shows as far as the steps taken (#2289): the
     /// HUD's and the escape timer's door shades, which keep their lit colours.
     /// </summary>
-    internal PictureShadeFade Between(PictureShading from, PictureShading to) => new(from, to, new FadeLevel(Shown.Moved, Shown.Length));
+    internal PictureShadeFade Between(PictureShading from, PictureShading to) => new(from, to, Level);
 }

@@ -4,8 +4,9 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
-/// How the backend shows a fade (#2289, #2294, #2563): each channel's colour step (<see cref="FadeLevelColour"/>) moves by the
-/// fade's part of the way, truncated to a whole step, so every colour a fade shows is one the game shows: a door's fades,
+/// How the backend shows a fade (#2289, #2294, #2563, #3036): each channel's colour step (<see cref="FadeLevelColour"/>) moves by the
+/// fade's part of the way, truncated to a whole step, or as the cartridge's gradual colour change moves it for a fade that
+/// names it (<see cref="GradualColourChange"/>), so every colour a fade shows is one the game shows: a door's fades,
 /// the death fade, the time-up whiteout, a picture's fades between its shadings, the opening's crossfade and a white wash.
 /// </summary>
 internal sealed class D3D11ColourBlend : IColourBlend
@@ -23,7 +24,14 @@ internal sealed class D3D11ColourBlend : IColourBlend
     {
         FadeLevelColour start = FadeLevelColour.Of(from);
         FadeLevelColour end = FadeLevelColour.Of(to);
-        return start.Map((channel, step) => step + ((end[channel] - step) * progress.Step / progress.Steps)).ToColour();
+        return progress.Arithmetic switch
+        {
+            FadeArithmetic.Proportional =>
+                start.Map((channel, step) => step + ((end[channel] - step) * progress.Step / progress.Steps)).ToColour(),
+            FadeArithmetic.GradualColourChange =>
+                start.Map((channel, step) => GradualColourChange.Channel(step, end[channel], progress.Step, progress.Steps)).ToColour(),
+            _ => throw new ArgumentOutOfRangeException(nameof(progress), progress.Arithmetic, "Undefined fade arithmetic."),
+        };
     }
 
     /// <inheritdoc />

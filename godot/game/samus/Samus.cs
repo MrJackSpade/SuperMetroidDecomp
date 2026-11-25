@@ -1161,15 +1161,19 @@ public partial class Samus : Player
         _knockbackCarried = Countdown.Over;
         if (State is RefillingFromReservesState)
             return;
+        // A state that holds a knockback off still has it waiting: it begins once she is out of that state, if its
+        // time has not run out by then.
+        bool takesKnockback = State.InControl || State.HoldsOffInterruptions;
         if (!hit.Carries(HitKind.Hazard))
         {
-            base.OnHurt(hit, from);
+            if (takesKnockback)
+                KnockBack(from);
             return;
         }
 
         // A spike's hurt has its own lengths.
         BeInvincibleFor(HazardInvincibleUpdates);
-        if (State.InControl)
+        if (takesKnockback)
             KnockBack(from, HazardKnockbackUpdates);
     }
 

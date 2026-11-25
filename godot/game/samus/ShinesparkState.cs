@@ -67,6 +67,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
+    public override bool HoldsOffInterruptions => true;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

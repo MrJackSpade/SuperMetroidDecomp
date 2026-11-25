@@ -88,6 +88,9 @@ public sealed class DrainedState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
+    public override bool HoldsOffInterruptions => true;
+
     /// <summary>Puts her in a pose.</summary>
     public void Put(Pose pose)
     {

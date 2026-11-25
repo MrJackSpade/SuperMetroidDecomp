@@ -935,7 +935,11 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   visuals.
 - **Does not:** read or write another enemy's state, depend on its place in any list, or reach into the player. If
   two enemies must cooperate, one owns the other as a child, or they share a link set when the room places them.
-- **An enemy's turn.** The room steps each enemy in view once an update. Its timers move on; then, unless it could
+- **Which enemies take a turn.** One that is always active, or frozen, does. Any other does while its middle lies
+  within the view widened as the game's definition says (`EnemyTurnMarginAcross`, `EnemyTurnMarginAbove`,
+  `EnemyTurnMarginBelow`), and to either side by the enemy's own half-width besides; the edges count as within.
+  This game's are nothing across, eight pixels above and twenty-four below, which is the cartridge's window.
+- **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
   and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then
   its touch against the player (not while frozen). Then it behaves and its timeline moves on, unless a status or

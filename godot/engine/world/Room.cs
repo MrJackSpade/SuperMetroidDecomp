@@ -31,10 +31,6 @@ public partial class Room : Node2D
     [Export]
     public Godot.Collections.Array<RoomVersion> Versions { get; set; } = [];
 
-    /// <summary>How far outside the view an enemy may be, in pixels, and still be active.</summary>
-    [Export]
-    public int ActiveMargin { get; set; } = 64;
-
     /// <summary>
     /// How many updates a status lasts in this room, by the status's name, in place of what the hit that gave it says.
     /// A status not listed lasts as long as the hit says.
@@ -670,14 +666,21 @@ public partial class Room : Node2D
         _arriving.Clear();
     }
 
-    /// <summary>Whether an enemy is close enough to the view to be active.</summary>
+    /// <summary>
+    /// Whether an enemy takes its turn this update: one that is always active or frozen does, and otherwise one whose
+    /// middle lies within the view widened as the game's definition says, and to either side by the enemy's own
+    /// half-width besides. The edges count as within.
+    /// </summary>
     private bool IsActive(Enemy enemy)
     {
-        if (enemy.AlwaysActive)
+        if (enemy.AlwaysActive || enemy.IsFrozen)
             return true;
         PixelRect view = Session.Camera.View;
-        var active = new PixelRect(view.Left - ActiveMargin, view.Top - ActiveMargin, view.Width + ActiveMargin * 2, view.Height + ActiveMargin * 2);
-        return active.Contains(enemy.Position.X.Whole, enemy.Position.Y.Whole);
+        GameDefinition game = Session.Definition;
+        int across = enemy.BodyHalfWidth + game.EnemyTurnMarginAcross;
+        int x = enemy.Position.X.Whole, y = enemy.Position.Y.Whole;
+        return x >= view.Left - across && x <= view.Left + view.Width + across &&
+            y >= view.Top - game.EnemyTurnMarginAbove && y <= view.Top + view.Height + game.EnemyTurnMarginBelow;
     }
 
     /// <summary>Makes something part of the room: registers its colliders, lists it, and tells it it has entered.</summary>

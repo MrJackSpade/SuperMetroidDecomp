@@ -730,6 +730,21 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             Touch(part);
     }
 
+    /// <summary>
+    /// Half the width of the enemy's body: of its first hurtbox, or failing any of its first hitbox; nothing where
+    /// it has neither.
+    /// </summary>
+    public int BodyHalfWidth
+    {
+        get
+        {
+            var parts = EntityNode.CollidersOf(this).ToList();
+            Collider? body = parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hurtbox)
+                ?? parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hitbox);
+            return body is null ? 0 : body.RoomRect.Width / 2;
+        }
+    }
+
     /// <summary>The part of the enemy that overlaps the player's body, if one does: a hitbox, or failing any hitboxes a hurtbox.</summary>
     protected Collider? PartTouchingPlayer()
     {

@@ -150,6 +150,21 @@ public partial class GameDefinition : Resource
     public int ClosedScreenDrift { get; set; } = 2;
 
     /// <summary>
+    /// How far to either side of the view an enemy's middle may lie, beyond the enemy's own half-width, and the
+    /// enemy still take its turn, in pixels.
+    /// </summary>
+    [Export]
+    public int EnemyTurnMarginAcross { get; set; } = 64;
+
+    /// <summary>How far above the view an enemy's middle may lie and the enemy still take its turn, in pixels.</summary>
+    [Export]
+    public int EnemyTurnMarginAbove { get; set; } = 64;
+
+    /// <summary>How far below the view an enemy's middle may lie and the enemy still take its turn, in pixels.</summary>
+    [Export]
+    public int EnemyTurnMarginBelow { get; set; } = 64;
+
+    /// <summary>
     /// Makes what keeps how each screen of the room being played lets the view in. The engine's plain keeper, which
     /// knows the room's own screens and nothing else, unless the game needs another.
     /// </summary>

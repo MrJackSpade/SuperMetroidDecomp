@@ -24,6 +24,9 @@ public partial class PirateClaw : Projectile, IHasValues
     [Export, DataValue("sink")]
     public int Sink { get; set; } = 1;
 
+    /// <summary>The speeds a returning claw counts through before it starts again from rest.</summary>
+    private static readonly Pixels SpeedSpan = Pixels.FromWhole(256);
+
     private Facing _thrown;
     private Pixels _speed;
     private bool _comingBack;
@@ -53,7 +56,10 @@ public partial class PirateClaw : Projectile, IHasValues
         Pixels change = Pixels.FromNumber(SpeedChange);
         if (_comingBack)
         {
+            // The cartridge counts the speed within 256 pixels an update: one past that starts again from rest.
             _speed += change;
+            if (_speed >= SpeedSpan)
+                _speed -= SpeedSpan;
         }
         else
         {

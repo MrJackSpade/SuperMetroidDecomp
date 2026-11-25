@@ -14,11 +14,13 @@ namespace Engine.World;
 /// Its look is a data file:
 /// <code>
 /// { "timeline": { "steps": [ { "picture": "effects/{graphics}/rain_0.png", "updates": 10 } ], "loops_to": 0 },
-///   "drift": { "x": 0, "y": 6 }, "winds": [ -6, 6, -4, 4 ], "follows_room": 0, "blend": "add", "behind": false }
+///   "drift": { "x": 0, "y": 6 }, "winds": [ -6, 6, -4, 4 ], "winds_from": 2, "follows_room": 0, "blend": "add",
+///   "behind": false }
 /// </code>
 /// "timeline" gives its pictures in turn, each tiled across the view. "drift" is how far they move each update, across
-/// and down; "winds", when given, are drifts across of which the room's chance picks one as the room is set up, added
-/// to the drift. "follows_room" is how much of the camera's movement moves the pictures on the screen, from none (they
+/// and down; "winds", when given, are drifts across, a power of two of them, of which one is added to the drift as
+/// the room is set up: the one counted by the binary digits of the number the room's chance last drew, starting
+/// "winds_from" digits up from its lowest. No number is drawn for it. "follows_room" is how much of the camera's movement moves the pictures on the screen, from none (they
 /// stay with the screen) to all (they stay with the room). "blend" is "add" for pictures that brighten what is under
 /// them, "subtract" for ones that darken it, and "mix" for ones that cover it. "behind" puts them behind the room's
 /// terrain and what stands in it, over only the backdrop.
@@ -50,9 +52,13 @@ public partial class OverlayEffect : RoomEffect
         if (look.Has("winds"))
         {
             IReadOnlyList<DataNode> winds = look.List("winds");
-            if (winds.Count == 0)
-                throw look.Problem("names winds and lists none");
-            _drift.X += winds[room.Session.Random.NextBelow(winds.Count)].AsPixels().ToDisplay();
+            int digits = System.Numerics.BitOperations.Log2((uint)Math.Max(1, winds.Count));
+            if (winds.Count == 0 || 1 << digits != winds.Count)
+                throw look.Problem("names winds and lists none, or a number of them that is not a power of two");
+
+            // The wind is read from the number last drawn and draws none: what is only for show never moves the
+            // room's chance on.
+            _drift.X += winds[room.Session.Random.Last.Part(look.Int("winds_from"), digits)].AsPixels().ToDisplay();
         }
 
         _followsRoom = look.Distance("follows_room").ToDisplay();

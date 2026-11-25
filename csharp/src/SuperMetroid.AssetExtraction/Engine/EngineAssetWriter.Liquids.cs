@@ -301,6 +301,7 @@ public sealed partial class EngineAssetWriter
             foreach (RainWind wind in Enum.GetValues<RainWind>())
                 winds.Add(-AtmosphereDrift.RainHorizontalVelocity(wind).Pixels);
             look["winds"] = winds;
+            look["winds_from"] = SuperMetroid.Core.Compatibility.RainWindRandomRoll.Wind.Shift;
         }
 
         return look;

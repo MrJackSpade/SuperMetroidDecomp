@@ -153,21 +153,35 @@ public partial class SamusVisual : Node2D
     }
 
     /// <summary>
-    /// Leaves and moves her echoes. At full speed one of the two is left where she is every few updates, turn about.
-    /// When she slows they close on her from behind, drawing level as they come, and are gone as they reach her. They
-    /// are shown by the visuals "Echo1" and "Echo2", if her scene has them.
+    /// Leaves and moves her echoes. At full speed one of the two is left where she is every few updates, turn about,
+    /// and while a shinespark flies, where she stood before it moved her. When she slows they close on her from behind,
+    /// drawing level as they come, and are gone as they reach her. A shinespark's launch and its crash take them away.
+    /// They are shown by the visuals "Echo1" and "Echo2", if her scene has them.
     /// </summary>
     private void StepEchoes(Samus samus, ActorVisual picture)
     {
         bool boosting = samus.IsBoosting && samus.State is not ShinesparkState;
-        if (samus.State is ShinesparkState)
+        // Timed by the play time's frames within its second, not by the clock.
+        bool due = samus.Room.Session.Progress.PlayUpdates % PlayUpdatesEachSecond % EchoEvery == 0;
+        if (samus.State is ShinesparkState { IsWindingUp: false } spark)
         {
-            (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
+            if (spark.FlownFrom is not { } from)
+            {
+                (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
+            }
+            else if (due)
+            {
+                _echoes[_nextEcho] = from;
+                _nextEcho = 1 - _nextEcho;
+            }
+        }
+        else if (samus.State is ShinesparkState && _echoesLeaving == 0)
+        {
+            // Winding up, echoes that are not closing on her stay where they were left.
         }
         else if (boosting && _echoesLeaving == 0)
         {
-            // Timed by the play time's frames within its second, not by the clock.
-            if (samus.Room.Session.Progress.PlayUpdates % PlayUpdatesEachSecond % EchoEvery == 0)
+            if (due)
             {
                 _echoes[_nextEcho] = samus.Position;
                 _nextEcho = 1 - _nextEcho;

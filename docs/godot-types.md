@@ -1009,6 +1009,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The view's measure of her last move across** (`Camera.Speed`) is one pixel whenever the session's game starts
   afresh and its player is a new one (`GameSession.BeginAgain`, `Camera.TakePlayerAsNew`): what reads it before
   the view next follows a move, as a kicked Yard does, reads that.
+- **How far a spin's pictures have got** is counted by her, not asked of her visual (`Samus.CountSpin`, as her
+  update ends, where the visual steps the same pictures): how many updates she has been in a spin, and how many
+  since a wall jump began, through the spin state it lets go into. A wall jump shows its launch and then, chosen
+  once as the launch runs out by what is switched on and whether her head is under a liquid, the plain spin, the
+  space jump's or the screw attack's (`WallJumpLook`: "wall_jump_spinning", "wall_jump_space",
+  "wall_jump_screw"). Her spin's sound to ask for again (`SpinSound`) and the screw attack's glow go by these.
 - **A crystal flash's blast is its power bomb's.** A power bomb whose blast ends tells her and waits; if a
   crystal flash begins she keeps the bomb, which goes on holding its place among her power bombs, and as the
   flash's rise is done the same bomb plays the flash's own blast from where she has risen to
@@ -1024,10 +1030,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
 - **Her colour step** (`Samus.StepColours`) runs once an update, after she has moved and just before she is
   shown, and not while a suit is being put on or she is dying. What colours her takes its turn there in the
-  cartridge's order, and one that takes her colours keeps those after it from theirs: the charge's colours (a full
+  cartridge's order, and one that takes her colours keeps those after it from theirs: her suit's colours where a
+  change of pose or a lost run asked for them; the charge's colours (a full
   charge's pulse, a charged shot's flash, a hyper shot's glow; the update a shot's glow ends shows her suit and
-  passes over the shine's turn), the stored shine's and the shinespark's glow, then the flash of whatever drains
-  her (`SetDrainFlash`), then a hurt's flash. Counts that the
+  passes over the turns of what glows), the screw attack's and the speed booster's glow, which share one place in
+  their colourings, the stored shine's and the shinespark's glow, then the flash of whatever drains her
+  (`SetDrainFlash`), then a hurt's flash. Counts that the
   cartridge keeps in its colour step are kept there and nowhere else, so they stand still on an update the step
   does not run: the stored shine's time with its sound, and the count of a hurt's flash, which a knockback or
   energy found lost after she is shown starts, a flying shinespark holds, and which times her hurt's sound and

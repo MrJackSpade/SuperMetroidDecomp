@@ -51,6 +51,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
 
     private readonly Start _start;
 
+    /// <summary>Whether this is the spin a wall jump goes into: it began out of one.</summary>
+    public bool IsOfWallJump => _start is Start.AfterWallJump or Start.Turning;
+
+    /// <summary>Whether it shows the pictures in which it is ready to jump off a wall.</summary>
+    public bool IsReadyForWall => _ready.IsRunning;
+
     /// <summary>Whether the spin has settled enough to look for a wall to jump from: see <see cref="Unasked"/>.</summary>
     private bool _looksForWalls;
 

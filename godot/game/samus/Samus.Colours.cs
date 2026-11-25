@@ -39,6 +39,10 @@ public partial class Samus
     [Export, DataValue("spark_hurt_flash_count")]
     public int SparkHurtFlashCount { get; set; } = 8;
 
+    /// <summary>How many updates after a boost begins the speed booster's glow may first show a colouring.</summary>
+    [Export, DataValue("speed_glow_first_wait")]
+    public int SpeedGlowFirstWait { get; set; } = 1;
+
     /// <summary>How many updates a shinespark's glow lasts from its windup's start.</summary>
     [Export, DataValue("spark_windup_glow_updates")]
     public int SparkWindupGlowUpdates { get; set; } = 60;
@@ -85,6 +89,21 @@ public partial class Samus
 
     /// <summary>Where the shine's glow stands in its colourings; the stored shine's and the shinespark's each start it over.</summary>
     private int _shineGlowPlace;
+
+    /// <summary>Whether her suit's colours have been asked for, to be shown as her next colour step begins.</summary>
+    private bool _suitColoursDue;
+
+    /// <summary>
+    /// Where her body's glow stands, which the screw attack's glow and the speed booster's share: the step shown
+    /// next, in whichever of the two last moved it on.
+    /// </summary>
+    private int _bodyGlowPlace;
+
+    /// <summary>Whether the speed booster's glow was the last to move that place on; otherwise the screw attack's.</summary>
+    private bool _bodyGlowIsSpeed;
+
+    /// <summary>How many more updates the speed booster's glow holds the colouring it shows.</summary>
+    private int _bodyGlowLeft = 1;
 
     /// <summary>Where the pulse of a full charge stands in its colourings; it starts over whenever she is not fully charged.</summary>
     private int _chargePulsePlace;
@@ -179,8 +198,19 @@ public partial class Samus
     {
         if (State is CollectingSuitState or DyingState)
             return;
+
+        // Her suit's colours, where a change of pose or a lost run asked for them, show first: what glows shows over them.
+        if (_suitColoursDue)
+        {
+            _suitColoursDue = false;
+            ShowSuitColours();
+        }
+
         if (!StepChargeColouring())
+        {
+            StepBodyGlow();
             StepShineColouring();
+        }
         if (StepDrainFlash())
             return;
         StepHurtFlash();
@@ -220,6 +250,77 @@ public partial class Samus
         if (shade is not null)
             Colours.ShowSuit(shade);
         return false;
+    }
+
+    /// <summary>Starts her body's glow over from its first colouring, the speed booster's next colouring so many updates off.</summary>
+    private void RestartBodyGlow(int wait) => (_bodyGlowPlace, _bodyGlowIsSpeed, _bodyGlowLeft) = (0, false, wait);
+
+    /// <summary>
+    /// The screw attack's glow and the speed booster's, which share one place in their colourings. Neither runs while
+    /// the shine's, a crystal flash's or the X-ray scope's colouring has her, nor with her feet in a liquid without
+    /// the gravity suit. In a spin with the screw attack on, the glow's place starts over while the spin shows its
+    /// first picture, her suit's colours show while it shows itself ready to jump off a wall, and otherwise the
+    /// screw attack's next colouring shows on every update; a wall jump does the same from where its spin begins,
+    /// and nothing before. At full boost otherwise the speed booster's next colouring shows as the one before runs
+    /// out, going on from where the place stands and resting on its brightest.
+    /// </summary>
+    private void StepBodyGlow()
+    {
+        if (_shineColouring != ShineColouring.None || _crystalFlashColouring != CrystalFlashColouring.None || State is XrayState)
+            return;
+        if (!Inventory.IsOn(Equipment.GravitySuit) && FeetAreInLiquid)
+            return;
+        bool screw = Inventory.IsOn(Equipment.ScrewAttack);
+        bool wallJump = State is WallJumpingState or SpinJumpingState { IsOfWallJump: true } && _wallJumpUpdates >= 0;
+        if (wallJump)
+        {
+            if (!screw)
+                return;
+            if (_wallJumpUpdates < WallJumpLaunchUpdates)
+                (_bodyGlowPlace, _bodyGlowIsSpeed) = (0, false);
+            else
+                ShowNextScrewShade();
+            return;
+        }
+
+        if (State is SpinJumpingState spin && screw)
+        {
+            if (_spinUpdates < SpinStartUpdates)
+                (_bodyGlowPlace, _bodyGlowIsSpeed) = (0, false);
+            else if (spin.IsReadyForWall)
+                ShowSuitColours();
+            else
+                ShowNextScrewShade();
+            return;
+        }
+
+        if (!IsBoosting || --_bodyGlowLeft > 0)
+            return;
+        SamusGlow speed = Colours.Glow($"speed_booster_rising_{SuitWorn}");
+        if (!_bodyGlowIsSpeed)
+        {
+            _bodyGlowPlace = Math.Min(Colours.Glow($"screw_attack_{SuitWorn}").GoesOnAt(_bodyGlowPlace), speed.Steps.Count - 1);
+            _bodyGlowIsSpeed = true;
+        }
+
+        if (speed.NextStep(ref _bodyGlowPlace) is not { } step)
+            return;
+        _bodyGlowLeft = step.Updates;
+        Colours.ShowSuit(step.Shade);
+    }
+
+    /// <summary>Shows the screw attack's next colouring, in the suit she wears, going on from where her body's glow stands.</summary>
+    private void ShowNextScrewShade()
+    {
+        SamusGlow screw = Colours.Glow($"screw_attack_{SuitWorn}");
+        if (_bodyGlowIsSpeed)
+        {
+            _bodyGlowPlace = Math.Min(Colours.Glow($"speed_booster_rising_{SuitWorn}").GoesOnAt(_bodyGlowPlace), screw.Steps.Count - 1);
+            _bodyGlowIsSpeed = false;
+        }
+
+        if (screw.Next(ref _bodyGlowPlace) is { } shade)
+            Colours.ShowSuit(shade);
     }
 
     /// <summary>
@@ -325,9 +426,9 @@ public partial class Samus
             return;
         }
 
-        if (State is SpinJumpingState spin)
-            Room.Session.Sounds.Request(spin.ShownSound, channel: "samus", priority: SoundPriority.High);
-        else if (State is not WallJumpingState && ChargeIsSounding && Input.IsHeld(GameAction.Attack))
+        if (SpinSound is { } spinSound)
+            Room.Session.Sounds.Request(spinSound, channel: "samus", priority: SoundPriority.High);
+        else if (ChargeIsSounding && Input.IsHeld(GameAction.Attack))
             _chargingSoundArmed = true;
     }
 

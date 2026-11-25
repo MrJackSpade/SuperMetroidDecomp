@@ -375,11 +375,11 @@ public partial class Samus : Player
     /// <summary>As a blast ends, the sounds it turned away are asked for again.</summary>
     private void ResumeSoundsAfterBlast()
     {
-        // The blast turned every sound away, so as it ends her spin's sound is asked for again, or else a charge's
-        // that had begun to sound. A wall jump asks for neither here: which of the spin's sounds is its own is not kept.
-        if (State is SpinJumpingState spin)
-            Room.Session.Sounds.Request(spin.ShownSound, channel: "samus", priority: SoundPriority.High);
-        else if (State is not WallJumpingState && ChargeIsSounding)
+        // The blast turned every sound away, so as it ends her spin's sound is asked for again, a wall jump's too, or
+        // else a charge's that had begun to sound.
+        if (SpinSound is { } spinSound)
+            Room.Session.Sounds.Request(spinSound, channel: "samus", priority: SoundPriority.High);
+        else if (ChargeIsSounding)
             Room.Session.Sounds.Request(Sounds.ChargingResumed, channel: "weapons", priority: SoundPriority.High);
     }
 
@@ -751,6 +751,14 @@ public partial class Samus : Player
         if (to is KnockedBackState)
             _hurtFlash = 1;
 
+        // With the screw attack on, leaving a spin or a wall jump, and jumping off a wall out of a spin, ask for her
+        // suit's colours back at her colour step.
+        if (Inventory.IsOn(Equipment.ScrewAttack) && from is SpinJumpingState or WallJumpingState
+            && (to is WallJumpingState ? from is SpinJumpingState : to is not SpinJumpingState))
+        {
+            _suitColoursDue = true;
+        }
+
         // Crouching out of a run at full boost stores a shine.
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
             StoreShine();
@@ -910,6 +918,7 @@ public partial class Samus : Player
         // Her run's speed stays until her next move looks at it, as the cartridge's does.
         EndBoost();
         EndMomentum();
+        RestartBodyGlow(1);
         GetNodeOrNull<SamusVisual>("Visual")?.ClearEchoes();
     }
 
@@ -1178,6 +1187,9 @@ public partial class Samus : Player
     private void LetLooseSpecialAttack(string beam)
     {
         Inventory.Spend(Amounts.PowerBombs, 1);
+
+        // The attack let loose asks for her suit's colours back at her colour step.
+        _suitColoursDue = true;
         ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]));
         ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail)) : shot;
         var lights = new SpecialAttack[4];
@@ -1429,6 +1441,9 @@ public partial class Samus : Player
             return;
         _boostStage = 0;
         _stridesLeft = BoostStrideCounts[0];
+
+        // A boost begun starts her body's glow over, its first colouring a moment off.
+        RestartBodyGlow(SpeedGlowFirstWait);
     }
 
     /// <inheritdoc/>
@@ -1436,6 +1451,10 @@ public partial class Samus : Player
     {
         if (State is not ShinesparkState)
             EndBoost();
+
+        // A run's momentum lost starts her body's glow over and asks for her suit's colours at her colour step.
+        RestartBodyGlow(1);
+        _suitColoursDue = true;
     }
 
     /// <summary>The engine's gravity, except that her fall stops gaining speed once its whole pixels reach the limit, as the original's does.</summary>
@@ -1534,7 +1553,9 @@ public partial class Samus : Player
                 FallFromRest();
         }
 
-        // Her colour step, just before she is shown: the stored shine's time and sound are its own.
+        // Her spin is counted on, and then her colour step, just before she is shown: the stored shine's time and
+        // sound are its own.
+        CountSpin();
         StepColours();
         _crystalFlashColouring = _crystalFlashColouring switch
         {

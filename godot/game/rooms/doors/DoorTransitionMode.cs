@@ -306,8 +306,8 @@ public partial class DoorTransitionMode : GameMode
 
                     // Sounds are let in again, and the spin's, stopped as the door was entered, is asked for anew.
                     CartridgeSounds.Of(Session).DoorTurnsSoundsAway = false;
-                    if (samus.State is SpinJumpingState spin)
-                        Session.Sounds.Request(spin.ShownSound, channel: "samus", priority: SoundPriority.High);
+                    if (samus.SpinSound is { } spinSound)
+                        Session.Sounds.Request(spinSound, channel: "samus", priority: SoundPriority.High);
                     return _playing;
                 }
 

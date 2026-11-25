@@ -26,10 +26,6 @@ namespace Game;
 /// </remarks>
 public partial class SamusVisual : Node2D
 {
-    /// <summary>The tint while she is boosting.</summary>
-    [Export]
-    public Color BoostTint { get; set; } = new(1.0f, 1.3f, 1.6f);
-
     /// <summary>How many colours the glow of the hyper beam runs through before it comes round.</summary>
     [Export]
     public int GlowSteps { get; set; } = 12;
@@ -130,7 +126,6 @@ public partial class SamusVisual : Node2D
         StepEchoes(samus, picture);
         picture.Tint(
             samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
-            : samus.IsBoosting && samus.State is not ShinesparkState ? BoostTint
             : Colors.White);
     }
 

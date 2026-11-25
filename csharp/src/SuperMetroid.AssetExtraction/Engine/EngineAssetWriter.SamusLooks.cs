@@ -243,8 +243,12 @@ public sealed partial class EngineAssetWriter
         Look("falling", "diagonal_up", P.FallingAimDiagonalUpRightPose, P.FallingAimDiagonalUpLeftPose);
         Look("falling", "diagonal_down", P.FallingAimDiagonalDownRightPose, P.FallingAimDiagonalDownLeftPose);
 
-        // The kick off the wall alone: the spin that follows is the spin jump's.
+        // The kick off the wall, and each of the spins it goes into once the kick has been shown: the Godot game
+        // chooses among them as the old pose's own cue does.
         Look("wall_jumping", null, P.WallJumpRightPose, P.WallJumpLeftPose, from: Seg.Launch, oneSegment: true);
+        Look("wall_jump_spinning", null, P.WallJumpRightPose, P.WallJumpLeftPose, from: Seg.OrdinarySpin, oneSegment: true);
+        Look("wall_jump_space", null, P.WallJumpRightPose, P.WallJumpLeftPose, from: Seg.SpaceJumpSpin, oneSegment: true);
+        Look("wall_jump_screw", null, P.WallJumpRightPose, P.WallJumpLeftPose, from: Seg.ScrewAttackSpin, oneSegment: true);
         Look("spin_jumping", null, P.SpinJumpRightPose, P.SpinJumpLeftPose);
         Look("space_jumping", null, P.SpaceJumpRightPose, P.SpaceJumpLeftPose);
         Look("screw_attacking", null, P.ScrewAttackRightPose, P.ScrewAttackLeftPose);
@@ -338,6 +342,9 @@ public sealed partial class EngineAssetWriter
 
         // A wall jump lands as a spin does.
         Passing("wall_jumping", "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
+        Passing("wall_jump_spinning", "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
+        Passing("wall_jump_space", "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
+        Passing("wall_jump_screw", "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
 
         Passing("standing", "crouching", P.CrouchingTransitionRightPose, P.CrouchingTransitionLeftPose);
         Passing("crouching", "standing", P.StandingTransitionRightPose, P.StandingTransitionLeftPose);

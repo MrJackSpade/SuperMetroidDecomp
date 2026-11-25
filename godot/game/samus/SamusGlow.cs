@@ -39,7 +39,13 @@ public sealed record SamusGlow(IReadOnlyList<SamusGlowStep> Steps, int? LoopsFro
     /// the steps' own lengths: the place is moved past it. Null once a glow that ends has ended. A place kept in one
     /// glow goes on in another of as many steps, as her glow in one suit goes on from where it stood in another.
     /// </summary>
-    public string? Next(ref int place)
+    public string? Next(ref int place) => NextStep(ref place)?.Shade;
+
+    /// <summary>
+    /// The step that follows <paramref name="place"/>, which is moved past it: for something that holds each
+    /// colouring for its own updates and keeps the place itself. Null once a glow that ends has ended.
+    /// </summary>
+    public SamusGlowStep? NextStep(ref int place)
     {
         if (place >= Steps.Count)
         {
@@ -48,6 +54,12 @@ public sealed record SamusGlow(IReadOnlyList<SamusGlowStep> Steps, int? LoopsFro
             place = from;
         }
 
-        return Steps[place++].Shade;
+        return Steps[place++];
     }
+
+    /// <summary>
+    /// The step a place kept in this glow stands at, for another glow to go on from: the step it would show next, the
+    /// one it goes back to where it has passed its last, or its last where it ends there.
+    /// </summary>
+    public int GoesOnAt(int place) => place < Steps.Count ? place : LoopsFrom ?? Steps.Count - 1;
 }

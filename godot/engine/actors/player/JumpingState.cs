@@ -54,6 +54,9 @@ public sealed class JumpingState : PlayerState
     /// <exception cref="InvalidOperationException">The jump was given no stance and has not begun.</exception>
     public AirStance Stance => _stance ?? throw new InvalidOperationException("The jump has no stance before it begins.");
 
+    /// <summary>How the arm is held in the stance the jump is in: at rest before it has one.</summary>
+    public AirArm Arm => _stance?.Arm ?? AirArm.AtRest;
+
     /// <summary>Whether the player took up another stance within the jump on this update.</summary>
     public bool TookUpStance { get; private set; }
 

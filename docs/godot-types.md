@@ -1056,7 +1056,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   energy found lost after she is shown starts, a flying shinespark holds, and which times her hurt's sound and
   the asking again of the sound the hurt cut short. A family not yet moved here is a ticket, not a tint to copy.
   Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
-  equipment; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
+  equipment; aiming level, a look may have pictures for how her arm is held (`Samus.HoldName`: `moving` in a
+  jump steering the way she faces, `arm_out` with the attack held in the air or once held in a run); a turn in the
+  air is `air_turning_jump` or `air_turning_fall`; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
   `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.
 - **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
   `shot_heights` of her look (and of her look and aim where an aim has its own). In the morph ball what she lays is

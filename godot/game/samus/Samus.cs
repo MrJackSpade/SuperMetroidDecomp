@@ -644,7 +644,7 @@ public partial class Samus : Player
             !aims.TryGetValue(AimName(Aim), out Vector2I offset))
             return base.MuzzlePoint;
         string look = SamusLooks.Of(this);
-        int height = _shotHeights.TryGetValue($"{look}_{AimName(Aim)}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
+        int height = _shotHeights.TryGetValue($"{look}_{HoldName}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
         return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
     }
 
@@ -1588,6 +1588,7 @@ public partial class Samus : Player
             CrystalFlashColouring.Ending => CrystalFlashColouring.None,
             _ => _crystalFlashColouring,
         };
+        KeepRunningArm();
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
 
         // Once she is dying the cartridge no longer shows her the usual way, so nothing is looked at after she is shown,
@@ -1702,6 +1703,31 @@ public partial class Samus : Player
         _warningOfLowEnergy = low;
         Room.Session.Sounds.Request(low ? Sounds.LowEnergy : Sounds.RoomStop, channel: "warning");
     }
+
+    /// <summary>Whether she runs with her arm held out: the attack was held in a run aiming level, and the run has aimed level since.</summary>
+    private bool _runsArmOut;
+
+    /// <summary>
+    /// The name of how she holds her weapon, for her looks and the heights her shots leave from: her aim's, or,
+    /// aiming level, how her arm is held where that has pictures of its own. In a jump steering the way she faces it
+    /// is "moving"; in a jump or a fall with the attack held, or once it has been held in a run, "arm_out".
+    /// </summary>
+    internal string HoldName => Aim != Aim.Forward
+        ? AimName(Aim)
+        : State switch
+        {
+            JumpingState { Arm: AirArm.Forward } => "moving",
+            JumpingState { Arm: AirArm.Out } or FallingState { Arm: AirArm.Out } => "arm_out",
+            RunningState when _runsArmOut => "arm_out",
+            _ => AimName(Aim),
+        };
+
+    /// <summary>
+    /// Keeps whether she runs with her arm held out, as the cartridge's running poses do: the attack held with her
+    /// aim level takes the pose up, and it is kept, whether or not the attack is still held, until the run ends or
+    /// aims another way.
+    /// </summary>
+    private void KeepRunningArm() => _runsArmOut = State is RunningState && Aim == Aim.Forward && (_runsArmOut || Input.IsHeld(GameAction.Attack));
 
     /// <summary>The name an aim has in her data file.</summary>
     internal static string AimName(Aim aim) => aim switch

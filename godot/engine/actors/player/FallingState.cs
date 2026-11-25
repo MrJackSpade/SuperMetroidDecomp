@@ -10,6 +10,9 @@ public sealed class FallingState : PlayerState
     private AirStance? _stance;
     private AirStance _stanceAsked;
 
+    /// <summary>How the arm is held in the stance the fall is in: at rest before it has one.</summary>
+    public AirArm Arm => _stance?.Arm ?? AirArm.AtRest;
+
     private readonly bool _offFloor;
 
     /// <summary>A fall.</summary>

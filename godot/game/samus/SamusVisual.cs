@@ -264,7 +264,7 @@ public partial class SamusVisual : Node2D
     private static string TimelineFor(Samus samus, string look)
     {
         string facing = samus.Facing == Facing.Right ? "right" : "left";
-        string aim = Samus.AimName(samus.Aim);
+        string aim = samus.HoldName;
         string[] candidates = [$"{look}_{facing}_{aim}", $"{look}_{facing}", look];
 
         // Wearing the varia or the gravity suit, a look that has a timeline of its own for that shows it: she faces

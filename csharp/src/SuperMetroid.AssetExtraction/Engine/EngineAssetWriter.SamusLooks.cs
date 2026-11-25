@@ -219,6 +219,9 @@ public sealed partial class EngineAssetWriter
         Look("running", "diagonal_up", P.RunningAimDiagonalUpRightPose, P.RunningAimDiagonalUpLeftPose);
         Look("running", "diagonal_down", P.RunningAimDiagonalDownRightPose, P.RunningAimDiagonalDownLeftPose);
 
+        // Running with her arm held out, once the attack has been held in a run aiming level.
+        Look("running", "arm_out", P.MovingRightGunExtendedPose, P.MovingLeftGunExtendedPose);
+
         // The Godot Samus, like the old turning poses, faces the way she turns to from the turn's start.
         Look("turning", null, P.TurningLeftToRightPose, P.TurningRightToLeftPose);
         Look("turning", "up", P.TurningLeftToRightAimUpPose, P.TurningRightToLeftAimUpPose);
@@ -237,11 +240,30 @@ public sealed partial class EngineAssetWriter
         Look("jumping", "diagonal_up", P.NormalJumpAimDiagonalUpRightPose, P.NormalJumpAimDiagonalUpLeftPose);
         Look("jumping", "diagonal_down", P.NormalJumpAimDiagonalDownRightPose, P.NormalJumpAimDiagonalDownLeftPose);
 
+        // Aiming level in a jump: steering the way she faces, and with her arm held out.
+        Look("jumping", "moving", P.NormalJumpForwardRightPose, P.NormalJumpForwardLeftPose);
+        Look("jumping", "arm_out", P.NormalJumpGunExtendedRightPose, P.NormalJumpGunExtendedLeftPose);
+
         Look("falling", null, P.FallingRightPose, P.FallingLeftPose);
         Look("falling", "up", P.FallingAimUpRightPose, P.FallingAimUpLeftPose);
         Look("falling", "down", P.FallingAimDownRightPose, P.FallingAimDownLeftPose);
         Look("falling", "diagonal_up", P.FallingAimDiagonalUpRightPose, P.FallingAimDiagonalUpLeftPose);
         Look("falling", "diagonal_down", P.FallingAimDiagonalDownRightPose, P.FallingAimDiagonalDownLeftPose);
+        Look("falling", "arm_out", P.FallingGunExtendedRightPose, P.FallingGunExtendedLeftPose);
+
+        // Turning in the air, out of a jump and out of a fall. She faces the new way from the turn's start, so the
+        // pose that turns to the right is the right-facing look. A turn made aiming diagonally down shows the turn
+        // that aims straight down, as the old choice of poses has it, and there is none aiming diagonally down.
+        Look("air_turning_jump", null, P.TurningLeftToRightJumpPose, P.TurningRightToLeftJumpPose);
+        Look("air_turning_jump", "up", P.TurningLeftToRightJumpAimUpPose, P.TurningRightToLeftJumpAimUpPose);
+        Look("air_turning_jump", "down", P.TurningLeftToRightJumpAimDownPose, P.TurningRightToLeftJumpAimDownPose);
+        Look("air_turning_jump", "diagonal_up", P.TurningLeftToRightJumpAimDiagonalUpPose, P.TurningRightToLeftJumpAimDiagonalUpPose);
+        Look("air_turning_jump", "diagonal_down", P.TurningLeftToRightJumpAimDownPose, P.TurningRightToLeftJumpAimDownPose);
+        Look("air_turning_fall", null, P.TurningLeftToRightFallingPose, P.TurningRightToLeftFallingPose);
+        Look("air_turning_fall", "up", P.TurningLeftToRightFallingAimUpPose, P.TurningRightToLeftFallingAimUpPose);
+        Look("air_turning_fall", "down", P.TurningLeftToRightFallingAimDownPose, P.TurningRightToLeftFallingAimDownPose);
+        Look("air_turning_fall", "diagonal_up", P.TurningLeftToRightFallingAimDiagonalUpPose, P.TurningRightToLeftFallingAimDiagonalUpPose);
+        Look("air_turning_fall", "diagonal_down", P.TurningLeftToRightFallingAimDownPose, P.TurningRightToLeftFallingAimDownPose);
 
         // The kick off the wall, and each of the spins it goes into once the kick has been shown: the Godot game
         // chooses among them as the old pose's own cue does.

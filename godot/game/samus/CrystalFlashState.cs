@@ -97,7 +97,8 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         if (_kind < Ammunition.Length)
         {
             owner.Inventory.Lose(Ammunition[_kind], 1);
-            owner.Inventory.Add(Amounts.Energy, samus.CrystalFlashEnergyEach);
+            // What her energy has no room for goes to her reserves, as her ship's refill does.
+            EnergyRestore.Give(owner.Inventory, samus.CrystalFlashEnergyEach);
             _usedOfKind++;
             if (_usedOfKind >= samus.CrystalFlashAmmunition)
             {

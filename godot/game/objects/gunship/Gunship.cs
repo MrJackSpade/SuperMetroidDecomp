@@ -413,9 +413,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
         Inventory inventory = samus.Inventory;
 
         // Her energy takes its two; what of them it has no room for goes to her reserves, on the same update.
-        int taken = inventory.Add(Inventory.Energy, RefillEach);
-        if (inventory.IsFull(Inventory.Energy))
-            inventory.Add(Amounts.ReserveEnergy, RefillEach - taken);
+        EnergyRestore.Give(inventory, RefillEach);
         bool shortOfAny = !inventory.IsFull(Inventory.Energy) || !inventory.IsFull(Amounts.ReserveEnergy);
         foreach (string amount in new[] { Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs })
         {

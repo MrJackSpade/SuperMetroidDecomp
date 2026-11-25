@@ -1012,7 +1012,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   turning in 256ths of an angle step. She is put at the line's end each update, by the way the line runs and the
   way she faces; nothing moves her body through the room, and the ground is met only at the points along the
   line the swing tests. Its numbers and the places of her body are data (`GrappleSwingRules`, the group "swing"
-  of the grapple's values).
+  of the grapple's values). A line that takes hold swings her when she was moving up or down or it was fired
+  upward, and otherwise holds her in place as she stands or crouches (`GrappleLockedState`); let go of a swing she
+  flies by a movement of its own (`GrappleReleasedState`), begun on the update she lets go. The line itself
+  (`SamusGrapple`) reaches out in tested substeps and ends on the update after it is given up or let go.
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a

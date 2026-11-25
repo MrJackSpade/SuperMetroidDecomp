@@ -269,6 +269,15 @@ public sealed partial class EngineAssetWriter
         Look("shinespark_vertical", null, P.ShinesparkVerticalRightPose, P.ShinesparkVerticalLeftPose);
         Look("shinespark_diagonal", null, P.ShinesparkDiagonalRightPose, P.ShinesparkDiagonalLeftPose);
 
+        // Held in place by the grapple's line, standing or crouched. A line fired straight down holds her in the
+        // down-left pose whichever way she faces, crouched or not, as the old table of connections has it.
+        Look("grapple_standing", null, P.GrappleStandingRightPose, P.GrappleStandingLeftPose);
+        Look("grapple_standing", "diagonal_down", P.GrappleStandingDownRightPose, P.GrappleStandingDownLeftPose);
+        Look("grapple_standing", "down", P.GrappleStandingDownLeftPose, P.GrappleStandingDownLeftPose);
+        Look("grapple_crouching", null, P.GrappleCrouchingRightPose, P.GrappleCrouchingLeftPose);
+        Look("grapple_crouching", "diagonal_down", P.GrappleCrouchingDownRightPose, P.GrappleCrouchingDownLeftPose);
+        Look("grapple_crouching", "down", P.GrappleStandingDownLeftPose, P.GrappleStandingDownLeftPose);
+
         // Swinging, she is shown one of so many ways by the way the line runs from her.
         for (int way = 0; way < GrappleSwingDirection.Count; way++)
         {

@@ -620,6 +620,16 @@ public partial class Samus : Player
     public PixelPosition GrapplePoint => Origin(_grappleOrigins);
 
     /// <summary>
+    /// Where the grapple's line leaves a standing body from its place, for the way she faces and aims, with nothing
+    /// taken off for how high her pose holds her: what a line that holds her in place puts her by.
+    /// </summary>
+    public PixelOffset StandingGrappleOrigin =>
+        _grappleOrigins.TryGetValue("standing", out var facings) && facings.TryGetValue(Facing == Facing.Right ? "right" : "left", out var aims) &&
+        aims.TryGetValue(AimName(Aim), out Vector2I offset)
+            ? PixelOffset.FromWhole(offset.X, offset.Y)
+            : throw new InvalidOperationException($"Samus's data gives the grapple no place to leave a standing body aiming {AimName(Aim)}.");
+
+    /// <summary>
     /// The place of <paramref name="origins"/> for how she stands, faces and aims, raised by how high her pose holds her
     /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up.
     /// </summary>

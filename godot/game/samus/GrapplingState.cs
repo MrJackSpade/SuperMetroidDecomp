@@ -332,6 +332,18 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         return PixelPosition.FromWhole(_anchor.X.Whole + across * distance / 256, _anchor.Y.Whole + down * distance / 256);
     }
 
+    /// <summary>
+    /// Where the end of a line of a length lies, at an angle step from what holds it, what holds it put within its
+    /// block where the line leaves it: for a connection that does not swing.
+    /// </summary>
+    internal static PixelPosition EndOfLine(GrappleSwingRules rules, PixelPosition anchor, int step, int length)
+    {
+        int across = CartridgeAngles.SignedSine(step), down = CartridgeAngles.SignedSine(step - Turns.PerTurn / 4);
+        return PixelPosition.FromWhole(
+            BlockStart(anchor.X.Whole) + (across < 0 ? rules.AnchorTowardNegative : rules.AnchorTowardPositive) + across * length / 256,
+            BlockStart(anchor.Y.Whole) + (down < 0 ? rules.AnchorTowardNegative : rules.AnchorTowardPositive) + down * length / 256);
+    }
+
     /// <summary>Where the block a pixel lies in starts.</summary>
     private static int BlockStart(int pixel) => pixel & ~15;
 
@@ -399,7 +411,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// from what holds the line, as the cartridge reckons it an eighth of a turn at a time: from the nearer straight
     /// direction, turned by the shorter side over the longer read evenly across the eighth, what is over dropped.
     /// </summary>
-    private static int AngleOf(int across, int down)
+    internal static int AngleOf(int across, int down)
     {
         int wide = Math.Abs(across), tall = Math.Abs(down);
         if (wide == 0 && tall == 0)

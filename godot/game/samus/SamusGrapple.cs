@@ -280,9 +280,18 @@ public partial class SamusGrapple : Node2D
         if (block is not null)
             samus.Room.Terrain.LatchedOnto(block);
         samus.Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons");
-        // Seized, she holds the line but hangs where she is held; otherwise she swings from it.
-        if (samus.State is not GrabbedState)
-            samus.ChangeState(new GrapplingState());
+        // Seized, she holds the line but hangs where she is held. Otherwise the way the line was fired and what she
+        // was doing say whether she swings from it or is held in place: moving up or down she always swings; else
+        // she swings only from a line fired upward, and one fired level or downward holds her as she stands or
+        // crouches.
+        if (samus.State is GrabbedState)
+        {
+            QueueRedraw();
+            return;
+        }
+
+        bool swings = !samus.Velocity.Y.IsZero || _down < 0;
+        samus.ChangeState(swings ? new GrapplingState() : new GrappleLockedState(samus.State is CrouchingState));
         QueueRedraw();
     }
 

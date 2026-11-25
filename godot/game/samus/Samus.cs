@@ -703,6 +703,9 @@ public partial class Samus : Player
     /// <summary>The name of the liquid she breathes bubbles in.</summary>
     private const string WaterName = "water";
 
+    /// <summary>The name of a room's heat among what does her ongoing damage.</summary>
+    private const string HeatName = "heat";
+
     /// <summary>Up, down and her two angle actions aim.</summary>
     public override bool AimIsHeld => base.AimIsHeld || Input.IsHeld(Actions.AngleUp) || Input.IsHeld(Actions.AngleDown);
 
@@ -1348,12 +1351,18 @@ public partial class Samus : Player
     protected override int OngoingPointsTaken(int hundredths) =>
         _energyFraction.Take(hundredths, SuitDivisor, Inventory.Amount(Inventory.Energy));
 
-    /// <inheritdoc/>
-    protected override void OnRoomDamage()
+    /// <summary>
+    /// Each thing of the room that burns her asks for the sound of her energy counting down, on the clock's cadence,
+    /// while she has energy enough: its heat at the usual priority, and a liquid at the one that gives way sooner. In
+    /// a liquid that burns in a heated room both ask, as on the cartridge.
+    /// </summary>
+    protected override void OnRoomDamage(string source)
     {
         if (RoomDamageSound.Length > 0 && RoomDamageSoundEvery > 0 && Room.Session.Clock.Updates % RoomDamageSoundEvery == 0
             && Inventory.Amount(Inventory.Energy) >= RoomDamageSoundLeastEnergy)
-            Room.Session.Sounds.Request(RoomDamageSound, channel: "samus", priority: SoundPriority.Low);
+        {
+            Room.Session.Sounds.Request(RoomDamageSound, channel: "samus", priority: source == HeatName ? SoundPriority.Normal : SoundPriority.Low);
+        }
     }
 
     /// <summary>What her suit divides damage by.</summary>

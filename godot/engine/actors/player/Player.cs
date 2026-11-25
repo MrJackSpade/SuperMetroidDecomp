@@ -1797,13 +1797,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         {
             if (Room.Liquid is { } liquid && source == liquid.Type.Name && Inventory.IsAnyOn(liquid.Type.DamageCancelledBy))
                 continue;
-            if (!IsCancelled(source))
-                fromRoom += amount;
+            if (IsCancelled(source))
+                continue;
+            fromRoom += amount;
+            if (amount > 0)
+                OnRoomDamage(source);
         }
 
         hundredths += fromRoom;
-        if (fromRoom > 0)
-            OnRoomDamage();
 
         int blockHit = 0;
         foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
@@ -1836,8 +1837,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         return points;
     }
 
-    /// <summary>Called on each update the room itself does the player ongoing damage: its heat, or its liquid. The engine's player does nothing.</summary>
-    protected virtual void OnRoomDamage()
+    /// <summary>
+    /// Called on each update for each thing of the room itself that does the player ongoing damage, its heat or its
+    /// liquid, in the order the room names them. The engine's player does nothing.
+    /// </summary>
+    /// <param name="source">What does the damage, by the name it is cancelled by.</param>
+    protected virtual void OnRoomDamage(string source)
     {
     }
 

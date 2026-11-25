@@ -818,13 +818,15 @@ public partial class Room : Node2D
     /// <summary>The ongoing damage the room does at <paramref name="point"/> this update, each amount with its source's name.</summary>
     public IEnumerable<(string Source, int Hundredths)> OngoingDamageAt(PixelPosition point)
     {
-        if (Liquid is not null && Liquid.Type.DamageHundredths > 0 && Liquid.IsSubmerged(point))
-            yield return (Liquid.Type.Name, Liquid.Type.DamageHundredths);
+        // The room's effects first, which take their turn before anything in the room acts, and then its liquid.
         foreach (RoomEffect effect in _roomEffects)
         {
             if (effect.IsActive && effect.DamageHundredths > 0)
                 yield return (effect.EffectName, effect.DamageHundredths);
         }
+
+        if (Liquid is not null && Liquid.Type.DamageHundredths > 0 && Liquid.IsSubmerged(point))
+            yield return (Liquid.Type.Name, Liquid.Type.DamageHundredths);
     }
 
     /// <summary>How hard the room is shaking right now; zero when it is still.</summary>

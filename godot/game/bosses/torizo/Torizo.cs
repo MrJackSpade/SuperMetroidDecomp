@@ -5,6 +5,7 @@ using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -775,8 +776,7 @@ public partial class Torizo : Enemy
                 Random.Draw();
                 Random.Draw();
                 int heading = (FacesRight ? 96 : 160) + Random.Draw().Part(1, 4) - 8;
-                Pixels speed = Shot("eye_beam").Speed;
-                var beam = (TorizoEyeBeam)Fire("eye_beam", Position + Ahead(PixelOffset.FromWhole(20, -30)), new PixelVelocity(Turns.Sine(heading, speed), -Turns.Cosine(heading, speed)));
+                var beam = (TorizoEyeBeam)Fire("eye_beam", Position + Ahead(PixelOffset.FromWhole(20, -30)), AlongHeading(Shot("eye_beam").Speed, heading));
                 beam.FiredBy(this);
                 break;
 
@@ -964,9 +964,23 @@ public partial class Torizo : Enemy
         int form = Random.Draw().Part(2, 3) % 3;
         RandomDraw draw = Random.Draw();
         int heading = _turning ? draw.Part(1, 8) : (FacesRight ? 32 : 224) + draw.Part(0, 4) - 8;
-        Pixels speed = Pixels.FromWhole(1);
-        Fire($"drool_{form}", Position + Ahead(PixelOffset.FromWhole(8, -5)), new PixelVelocity(Turns.Sine(heading, speed), -Turns.Cosine(heading, speed)));
+        Fire($"drool_{form}", Position + Ahead(PixelOffset.FromWhole(8, -5)), AlongHeading(Pixels.FromWhole(1), heading));
     }
+
+    /// <summary>
+    /// A speed split along a heading that points up at nothing and turns clockwise, as the cartridge splits it: each way
+    /// is the speed in 256ths of a pixel times the coarse sine, cut off toward nothing.
+    /// </summary>
+    private static PixelVelocity AlongHeading(Pixels speed, int heading)
+    {
+        int speedIn256ths = speed.Whole * 256 + speed.Fraction / 256;
+        return new PixelVelocity(
+            From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, heading)),
+            From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, heading - Turns.PerTurn / 4)));
+    }
+
+    /// <summary>A distance counted in 256ths of a pixel.</summary>
+    private static Pixels From256ths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
 
     /// <summary>Spews something ahead of it, up and forward, with chance nudging its speed each way.</summary>
     private Projectile SpewOrb(string shot, PixelOffset from, Pixels across, Pixels up)

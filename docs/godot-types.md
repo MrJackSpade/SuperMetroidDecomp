@@ -1536,7 +1536,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Hazard`: the Samus-eating plants; Ceres steam (its reach follows its plume by its timeline's cues, and each
   vent waits a different, chance length before it first blows).
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
-  (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`.
+  (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`. The Dachora's
+  glows, of speed and of the shine, are frames of changes of its pictures' colours, which its data lists
+  (`glow_colours`).
 - The Tourian entrance statue is a plain node holding the pictures its hall's sequence
   shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, each with a state

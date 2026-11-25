@@ -142,7 +142,11 @@ public partial class Diver : Enemy
     private void Dive()
     {
         Collider body = Body ?? throw new InvalidOperationException($"The diver \"{Name}\" has no body collider.");
-        if (!Room.Mover.IsFree(body.RoomRect.MovedBy(0, _diveStep), this, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall }))
+        // Like the cartridge's, it looks only at the row its bottom edge would end in, and a slope there is no ground
+        // to it: it dives through slopes, and through anything that would stand between here and that row.
+        PixelRect moved = body.RoomRect.MovedBy(0, _diveStep);
+        var bottomEdge = new PixelRect(moved.Left, moved.Top + moved.Height - 1, moved.Width, 1);
+        if (!Room.Mover.IsFree(bottomEdge, this, MoveOptions.Plain with { Slopes = SlopeTreatment.Ignore }))
         {
             _burrowing = Countdown.Of(BurrowUpdates);
             _doing = Doing.Burrowing;

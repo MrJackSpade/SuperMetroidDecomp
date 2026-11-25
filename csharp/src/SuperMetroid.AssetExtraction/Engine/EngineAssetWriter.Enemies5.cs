@@ -41,7 +41,9 @@ public sealed partial class EngineAssetWriter
             .Write();
 
         // The Holtz: it has one swoop, takes a moment to land, and its flames only show or hide, always as far below it.
+        // Unlike the Geruta, it shows its idle on every update it stays perched.
         Enemy("enemies/holtz.json", "Swooper", EnemyDefinitionId.Holtz).BodyColliders(Ordinary)
+            .Value("idles_whenever_perched", true)
             .Value("reach", RioLaunchDefinitions.LowerNorfairTriggerDistance)
             .Value("across_speed", EngineNames.Number(RioLaunchDefinitions.LowerNorfairXVelocity))
             .Value("dive_speed", EngineNames.Number(RioLaunchDefinitions.LowerNorfairYVelocity))

@@ -34,6 +34,32 @@ public sealed partial class EngineAssetWriter
         return _sheets.Cut(_tree, GameInstallationLayout.EnemySheetDirectoryName, folder, [.. named]);
     }
 
+    /// <summary>
+    /// The colours one shade of an old enemy's sheet shows changed, as the engine reads one place's change of colours:
+    /// every colour the shade changes as the sheet's pictures have it, with the colour the shade shows for it, each as
+    /// six hexadecimal digits.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The shade changes more colours than a thing shows changed at once, or changes a colour in one region of the
+    /// pictures only, which pictures cut from an enemy's sheet have no map of.
+    /// </exception>
+    private JsonObject EnemySheetSwaps(string sheet, string shade)
+    {
+        static string Written(int colour) => colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+        IReadOnlyList<ShadeSwap> swaps = _sheets.ShadeSwaps(GameInstallationLayout.EnemySheetDirectoryName, sheet, shade);
+        if (swaps.Count > MostSwapsShown)
+            throw new InvalidDataException($"The shade {shade} changes {swaps.Count} colours of {sheet}; a thing shows at most {MostSwapsShown} changed at once.");
+        var written = new JsonObject();
+        foreach (ShadeSwap swap in swaps)
+        {
+            if (swap.Region != ShadeSwap.Everywhere)
+                throw new InvalidDataException($"The shade {shade} changes a colour of {sheet} in one region of its pictures only, and pictures cut from an enemy's sheet have no map of regions.");
+            written[Written(swap.From)] = Written(swap.To);
+        }
+
+        return written;
+    }
+
     /// <summary>The picture of one frame among pictures cut from old enemies' sheets; none for the frame that shows nothing.</summary>
     private static string PictureOf(EngineSheetPictures pictures, EnemyFrameId frame) =>
         frame == EnemyFrameId.PointAtOrigin ? "" : pictures.Of(EnemySheetDefinitions.FrameName(frame));

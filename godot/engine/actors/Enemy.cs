@@ -82,6 +82,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private Countdown _unhittable = Countdown.Over;
     private Countdown _statusLeft = Countdown.Over;
     private Countdown _flash = Countdown.Over;
+
+    /// <summary>Whether a hit's hurt still holds it: from the hit until its flash has run down far enough.</summary>
+    private bool _hurt;
     private TimelinePlayer? _animation;
     private readonly Dictionary<string, ShotType> _shots = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _statusSounds = new(StringComparer.Ordinal);
@@ -253,8 +256,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Updates++;
         bool unhittableAtStart = _unhittable.IsRunning;
         _unhittable = _unhittable.Stepped();
-        bool wasFlashing = _flash.IsRunning;
-        _flash = _flash.Stepped();
         if (Status.Length > 0)
         {
             _statusLeft = _statusLeft.Stepped();
@@ -276,15 +277,25 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 return;
         }
 
-        if (!IsFrozen && !(StunnedWhileHurt && wasFlashing))
+        // A hurt stops its behaviour from the turn the hit lands on.
+        if (!IsFrozen && !(StunnedWhileHurt && _hurt))
         {
             Behave();
             if (!IsDead)
                 StepAnimation();
         }
 
-        if (!IsDead)
-            ShowLook();
+        if (IsDead)
+            return;
+        ShowLook();
+
+        // The flash runs down once the turn has been played and shown, and the hurt ends while some of it is left.
+        if (_flash.IsRunning)
+        {
+            _flash = _flash.Stepped();
+            if (_flash.Remaining < Math.Max(1, Room.Session.Definition.EnemyHurtEndsAtFlashLeft))
+                _hurt = false;
+        }
     }
 
     /// <summary>This enemy's own behaviour for one update.</summary>
@@ -417,6 +428,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         health.Take(damage);
         _unhittable = Countdown.Of(reaction.UnhittableUpdates);
         _flash = Countdown.Of(HurtFlashUpdates);
+        _hurt = true;
         WasJustHurt = true;
         if (!IsFrozen)
             Sound(_hurtSound);

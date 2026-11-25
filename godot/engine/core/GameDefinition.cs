@@ -165,6 +165,13 @@ public partial class GameDefinition : Resource
     public int EnemyTurnMarginBelow { get; set; } = 64;
 
     /// <summary>
+    /// How many updates of an enemy's hurt flash are still to come when the hurt stops holding its behaviour. None:
+    /// the hurt lasts as long as the flash.
+    /// </summary>
+    [Export]
+    public int EnemyHurtEndsAtFlashLeft { get; set; }
+
+    /// <summary>
     /// Makes what keeps how each screen of the room being played lets the view in. The engine's plain keeper, which
     /// knows the room's own screens and nothing else, unless the game needs another.
     /// </summary>

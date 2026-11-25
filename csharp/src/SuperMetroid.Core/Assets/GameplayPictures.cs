@@ -35,7 +35,7 @@ public enum GameplayPictures
 
     /// <summary>
     /// The escape timer's sprite pictures, which a door's fade keeps partly lit as it keeps the HUD's: a display fade that
-    /// spares the HUD spares them too, and the door shades them instead.
+    /// spares the background's pictures spares them too, and the door shades them instead.
     /// </summary>
     EscapeTimer,
 }

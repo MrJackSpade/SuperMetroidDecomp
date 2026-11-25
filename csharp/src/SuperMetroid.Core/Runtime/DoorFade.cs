@@ -7,10 +7,11 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// The colours a door's fades show (#1512): the room being left fades to black, stays dark while the door loads and
-/// scrolls, and the room being entered fades in from black. The fade is one fade of the whole display, which every picture
-/// and every shaded sprite draw, Samus's among them, shows after its own shading; the HUD and the escape timer are spared
-/// it and fade as far toward their dark shades instead (#2289), which keep the HUD's minimap and highlighted item lit, and
-/// between two common rooms its item and minimap backgrounds. Samus's beams and visor stay lit through the room's fade in (#2093): her beams from
+/// scrolls, and the room being entered fades in from black. The fade is one fade of the whole display, which every shaded
+/// sprite draw, Samus's among them, shows after its own shading; the background's pictures and the escape timer are spared
+/// it and fade as far toward their dark shades instead (#2289, #3036), which keep the background colours of the HUD's
+/// minimap and highlighted item lit, and between two common rooms its item and minimap backgrounds: wherever the room's
+/// own pictures show those colours, its doors among them, they stay lit through the door's scroll as the HUD does. Samus's beams and visor stay lit through the room's fade in (#2093): her beams from
 /// the room's load, which the fade in starts with, and her visor, which shows the door's completion green, once the door
 /// has opened.
 /// </summary>
@@ -56,10 +57,12 @@ internal sealed partial class DoorFade(SamusColours samusColours) : IGameplaySha
         Ensure.NotNull(frame);
         if (Stage is not DoorFadeStage.Running running)
             return;
-        frame.Fade(new GameplayDisplayFade(running.DisplayEffect, GameplayFadeSpares.Hud, running.LitOnSamus(samusColours)));
-        // The HUD and the escape timer fade between their own colours and their dark shades, which keep their lit colours,
-        // as far as the display's fade has come (#2289).
-        running.Shade(frame, GameplayPictures.Hud, betweenCommonRooms ? DoorFadeShades.HudDarkBetweenCommonRooms : DoorFadeShades.HudDark);
+        frame.Fade(new GameplayDisplayFade(running.DisplayEffect, GameplayFadeSpares.Backgrounds, running.LitOnSamus(samusColours)));
+        // The background's pictures and the escape timer fade between their own colours and their dark shades, which keep
+        // their lit colours, as far as the display's fade has come (#2289, #3036).
+        PictureShade dark = betweenCommonRooms ? DoorFadeShades.BackgroundDarkBetweenCommonRooms : DoorFadeShades.BackgroundDark;
+        foreach (GameplayPictures pictures in GameplayPictureDefinitions.Backgrounds)
+            running.Shade(frame, pictures, dark);
         running.Shade(frame, GameplayPictures.EscapeTimer, DoorFadeShades.EscapeTimerDark);
     }
 }

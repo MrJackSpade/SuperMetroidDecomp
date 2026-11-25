@@ -280,12 +280,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             case ProjectileSettings.MetBy.Destroyed:
                 // One that leaves something when shot down rolls for it as an enemy would.
                 if (_settings.Drops is { } drops)
-                {
-                    Inventory inventory = room.Player.Inventory;
-                    string? drop = drops.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
-                    if (drop is not null)
-                        room.Spawn(Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position));
-                }
+                    Pickup.Dropped(room, drops, Position);
 
                 End(room);
                 return HitResult.Destroyed;
@@ -605,8 +600,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         if (_settings.EndingBurst.Length > 0)
         {
             Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, PixelVelocity.Zero, Side, _launcher, Hit.Source);
-            room.Spawn(burst);
-            LeftOnEnding?.Invoke(burst);
+            if (room.Spawn(burst))
+                LeftOnEnding?.Invoke(burst);
         }
 
         if (_settings.EndingSound.Length > 0)

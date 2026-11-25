@@ -1,4 +1,5 @@
 using Engine.Actors.Components;
+using Engine.Content;
 using Engine.Shared;
 using Engine.World;
 using Godot;
@@ -95,7 +96,8 @@ public partial class Remains : Node2D, IRoomEntity
         }
 
         LeaveDrop(room);
-        room.Remove(this);
+        if (!room.IsLeaving(this))
+            room.Remove(this);
     }
 
     /// <summary>Leaves the drop, once, and hands what takes the destroyed thing's place to the room.</summary>
@@ -105,7 +107,18 @@ public partial class Remains : Node2D, IRoomEntity
             return;
         _dropped = true;
         _visual?.Show("");
-        Pickup? pickup = Pickup.Dropped(room, _drops, Position);
+
+        // The drop is rolled wherever the remains lie, and the pickup takes the place they held. Remains in a place
+        // the game says leaves no drop have rolled for nothing.
+        Inventory inventory = room.Player.Inventory;
+        string? drop = _drops.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
+        Pickup? pickup = null;
+        if (drop is not null && (room.PlaceOf(this) is not { } place || room.Session.Definition.RemainsLeaveDrop(place)))
+        {
+            pickup = Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position);
+            room.SpawnInPlaceOf(this, pickup);
+        }
+
         if (_replacement is { } replacement)
         {
             _replacement = null;

@@ -60,6 +60,9 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>The room's scroll cells are the cartridge's fifty, which outlive each room.</summary>
     public override Engine.World.IScrollCells CreateScrollCells(GameSession session) => new Compatibility.KeptScrollCells(session);
 
+    /// <summary>The cartridge's death explosion in the first of the enemies' places never becomes a pickup, though its drop is rolled.</summary>
+    public override bool RemainsLeaveDrop(int place) => place != 0;
+
     /// <summary>Samus's speed is read against its limits as the cartridge reads it.</summary>
     public override Engine.Actors.ISpeedReadings CreateSpeedReadings() => new Compatibility.CartridgeSpeedReadings();
 

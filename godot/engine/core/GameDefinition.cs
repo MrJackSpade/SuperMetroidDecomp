@@ -164,6 +164,20 @@ public partial class GameDefinition : Resource
     [Export]
     public int EnemyTurnMarginBelow { get; set; } = 64;
 
+    /// <summary>
+    /// How many places a room keeps for what its enemies launch and leave behind, their shots, the remains of the
+    /// destroyed and the pickups dropped: each holds one, a thing takes the highest free and is not made when all are
+    /// held, and they take their turns from the highest place down. Nothing for a room that keeps no count of them.
+    /// </summary>
+    [Export]
+    public int EnemyPlaces { get; set; }
+
+    /// <summary>
+    /// Whether remains holding the place numbered <paramref name="place"/>, counted from none, leave the drop they
+    /// have rolled, in a room that keeps a count of such places. They do, unless the game says otherwise.
+    /// </summary>
+    public virtual bool RemainsLeaveDrop(int place) => true;
+
     /// <summary>How many updates the session's clock counts before it comes round to zero; nothing for a clock that never does.</summary>
     [Export]
     public int ClockPeriod { get; set; }

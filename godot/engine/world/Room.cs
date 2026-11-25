@@ -56,6 +56,9 @@ public partial class Room : Node2D
     private readonly List<Effect> _effects = [];
     private readonly List<Remains> _remains = [];
 
+    /// <summary>The places of what the enemies launch and leave behind, which decide whether each is made and when it takes its turn.</summary>
+    private Places _places = new(0);
+
     /// <summary>Things waiting to be added to the room: each once what it waits for has gone, and then after its count of updates.</summary>
     private readonly List<(Node2D Node, List<Node> After, int Updates)> _arriving = [];
     private readonly List<RoomObject> _objects = [];
@@ -157,6 +160,7 @@ public partial class Room : Node2D
         _session = session;
         _player = player;
         _gone.Clear();
+        _places = new Places(session.Definition.EnemyPlaces);
         EnemiesKilled = 0;
         Entry = entry;
         ShownTurn = null;
@@ -222,6 +226,8 @@ public partial class Room : Node2D
                 case global::Engine.World.Terrain:
                     break;
                 case IRoomEntity entity:
+                    if (HoldsPlace(entity) && !_places.TryTake(entity))
+                        throw new InvalidOperationException($"The room \"{Name}\" places more of what enemies launch and leave than it has places for: \"{child.Name}\" has none.");
                     Join(entity);
                     break;
                 case RoomExit exit:
@@ -322,26 +328,7 @@ public partial class Room : Node2D
         }
 
         if (!stopped.HasFlag(Stopped.Projectiles))
-        {
-            foreach (Projectile projectile in _projectiles.ToList())
-            {
-                if (projectile.Side != HitSide.Player && !_leaving.Contains(projectile))
-                    projectile.Step();
-            }
-
-            foreach (Pickup pickup in _pickups.ToList())
-            {
-                if (!_leaving.Contains(pickup))
-                    pickup.Step();
-            }
-
-            // After the pickups, so that a drop the remains leave is first stepped in the update after it appears.
-            foreach (Remains remains in _remains.ToList())
-            {
-                if (!_leaving.Contains(remains))
-                    remains.Step();
-            }
-        }
+            StepWhatEnemiesLaunched();
 
         if (!stopped.HasFlag(Stopped.Room))
         {
@@ -407,9 +394,9 @@ public partial class Room : Node2D
         // the room's objects have played. The player says first whether any is tried at all.
         if (!stopped.HasFlag(Stopped.Projectiles) && Player.BeginEnemyShots())
         {
-            foreach (Projectile projectile in _projectiles.ToList())
+            foreach (Projectile projectile in EnemyShotsInTurn())
             {
-                if (projectile.Side == HitSide.Enemies && !_leaving.Contains(projectile))
+                if (!_leaving.Contains(projectile))
                     projectile.MeetTargetsWhereItStands();
             }
 
@@ -421,7 +408,7 @@ public partial class Room : Node2D
         if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDead && Player.State is not DyingState)
         {
             var shots = _projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList();
-            foreach (Projectile enemyShot in _projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
+            foreach (Projectile enemyShot in EnemyShotsInTurn())
             {
                 if (_leaving.Contains(enemyShot))
                     continue;
@@ -544,13 +531,7 @@ public partial class Room : Node2D
         }
 
         if (enemyProjectiles)
-        {
-            foreach (Projectile projectile in _projectiles.ToList())
-            {
-                if (projectile.Side != HitSide.Player && !_leaving.Contains(projectile))
-                    projectile.Step();
-            }
-        }
+            StepWhatEnemiesLaunched(shotsOnly: true);
 
         if (objects)
             StepObjects();
@@ -580,6 +561,67 @@ public partial class Room : Node2D
             }
         }
     }
+
+    /// <summary>
+    /// What the enemies have launched and left takes its turns: first every projectile not the player's that holds no
+    /// place, in the order launched, and then whatever holds a place, their shots, the remains of the destroyed and
+    /// the pickups, in the order of the places. What takes the place of something that has just had its turn, as a
+    /// pickup takes that of the remains that leave it, waits for the next update.
+    /// </summary>
+    /// <param name="shotsOnly">Whether only the projectiles take a turn.</param>
+    private void StepWhatEnemiesLaunched(bool shotsOnly = false)
+    {
+        foreach (Projectile projectile in _projectiles.ToList())
+        {
+            if (projectile.Side != HitSide.Player && !HoldsPlace(projectile) && !_leaving.Contains(projectile))
+                projectile.Step();
+        }
+
+        // What took a place over since the last turns were taken has waited its update.
+        _takenOver.Clear();
+        var turned = new HashSet<IRoomEntity>();
+        _places.TakeTurns(thing =>
+        {
+            if (_leaving.Contains(thing) || _takenOver.Contains(thing) || !turned.Add(thing))
+                return;
+            switch (thing)
+            {
+                case Projectile projectile:
+                    projectile.Step();
+                    break;
+                case Pickup pickup when !shotsOnly:
+                    pickup.Step();
+                    break;
+                case Remains remains when !shotsOnly:
+                    remains.Step();
+                    break;
+            }
+        });
+        _takenOver.Clear();
+    }
+
+    /// <summary>What has taken over a place during the turns being taken, and so waits for the next update's.</summary>
+    private readonly HashSet<IRoomEntity> _takenOver = [];
+
+    /// <summary>
+    /// Whether something holds one of the room's places for what the enemies launch and leave: a pickup, the remains
+    /// of the destroyed, and a projectile that is not the player's unless its settings say it holds none.
+    /// </summary>
+    private static bool HoldsPlace(IRoomEntity entity) =>
+        entity is Pickup or Remains or Projectile { Side: not HitSide.Player, Settings.HoldsPlace: true };
+
+    /// <summary>Whether the room has a place free for something more the enemies launch or leave.</summary>
+    public bool HasFreePlace => _places.HasFree;
+
+    /// <summary>The place something the enemies launched or left holds in the room, counted from none; null when it holds none.</summary>
+    public int? PlaceOf(IRoomEntity entity) => _places.PlaceOf(entity);
+
+    /// <summary>The enemies' projectiles in the order they are tried: those that hold no place, in the order launched, and then those that do, in the order of their places.</summary>
+    private List<Projectile> EnemyShotsInTurn() =>
+    [
+        .. _projectiles.Where(projectile => projectile.Side == HitSide.Enemies && !HoldsPlace(projectile)),
+        .. _places.Held().OfType<Projectile>().Where(projectile => projectile.Side == HitSide.Enemies),
+    ];
 
     /// <summary>The room's objects take their turns, all but those that act with the enemies.</summary>
     private void StepObjects()
@@ -627,11 +669,37 @@ public partial class Room : Node2D
         }
     }
 
-    /// <summary>Adds something to the room while it is being played. It first takes part in the phase after the one it was added in.</summary>
-    public void Spawn(Node2D node)
+    /// <summary>
+    /// Adds something to the room while it is being played. It first takes part in the phase after the one it was added
+    /// in. Something that holds one of the places of what the enemies launch and leave is not added when the room has
+    /// none free: it is done with, and this returns false.
+    /// </summary>
+    public bool Spawn(Node2D node)
     {
         if (node is not IRoomEntity entity)
             throw new ArgumentException($"A {node.GetType().Name} is not something that lives in a room.", nameof(node));
+        if (HoldsPlace(entity) && !_places.TryTake(entity))
+        {
+            node.QueueFree();
+            return false;
+        }
+
+        AddChild(node);
+        Join(entity);
+        return true;
+    }
+
+    /// <summary>
+    /// Adds something to the room in the place of <paramref name="leaving"/>, which is taken out of the room: what is
+    /// added holds the place the other held, and waits for the next update for its first turn.
+    /// </summary>
+    public void SpawnInPlaceOf(IRoomEntity leaving, Node2D node)
+    {
+        if (node is not IRoomEntity entity)
+            throw new ArgumentException($"A {node.GetType().Name} is not something that lives in a room.", nameof(node));
+        _places.HandOver(leaving, entity);
+        _takenOver.Add(entity);
+        Remove(leaving);
         AddChild(node);
         Join(entity);
     }
@@ -643,6 +711,9 @@ public partial class Room : Node2D
     {
         if (!_leaving.Contains(entity))
             _leaving.Add(entity);
+
+        // The place it held is free at once, for whatever is made next.
+        _places.Free(entity);
     }
 
     /// <summary>Whether something has been taken out of the room during this update.</summary>

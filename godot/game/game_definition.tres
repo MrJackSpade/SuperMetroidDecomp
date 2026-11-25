@@ -14,6 +14,7 @@ ViewRestsShortBy = 1
 EnemyTurnMarginAcross = 0
 EnemyTurnMarginAbove = 8
 EnemyTurnMarginBelow = 24
+EnemyPlaces = 18
 EnemyHurtEndsAtFlashLeft = 8
 ClockPeriod = 65536
 ShortClockPeriod = 256

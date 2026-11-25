@@ -374,8 +374,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         ShotType type = Shot(shot);
         Projectile projectile = type.Launch(at, velocity, HitSide.Enemies, this, this);
-        Room.Spawn(projectile);
-        if (type.Sound.Length > 0)
+
+        // With no place free in the room the shot is not fired: what is returned is in no room, and is done with.
+        if (Room.Spawn(projectile) && type.Sound.Length > 0)
             Room.Session.Sounds.Request(type.Sound, channel: "enemies");
         return projectile;
     }

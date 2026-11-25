@@ -65,6 +65,10 @@ public partial class Pickup : Node2D, IRoomEntity
     {
         ArgumentNullException.ThrowIfNull(room);
         ArgumentNullException.ThrowIfNull(table);
+
+        // With no place free for it the drop is not made, and not rolled either.
+        if (!room.HasFreePlace)
+            return null;
         Inventory inventory = room.Player.Inventory;
         string? drop = table.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
         if (drop is null)

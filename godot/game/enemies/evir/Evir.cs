@@ -70,7 +70,8 @@ public partial class Evir : Enemy
         _spit = scene.Instantiate<EvirSpit>();
         _spit.Holder = this;
         _spit.Position = Grip;
-        Room.Spawn(_spit);
+        if (!Room.Spawn(_spit))
+            _spit = null;
     }
 
     /// <inheritdoc/>

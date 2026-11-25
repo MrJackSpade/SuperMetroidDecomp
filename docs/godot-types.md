@@ -1093,6 +1093,19 @@ turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, e
   the enemy that takes its place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
   not under it. An enemy with no death to play leaves its drop at once.
 
+**Places for what enemies launch and leave.** A room may keep a count of places (`GameDefinition.EnemyPlaces`;
+none, unless the game says) for the enemies' shots, the remains of the destroyed and the pickups dropped. Each
+holds one place while it is in play; a projectile of the enemies' holds one unless its data says it holds none
+(`"holds_place": false`). A thing takes the highest free place, and with none free it is not made (`Room.Spawn`
+says so): a shot is not fired, a death leaves no remains, and a drop made outright is neither made nor rolled.
+They take their turns from the highest place down, each place asked as its turn comes, so what takes a lower
+place during the turns has its turn among them and what takes a higher one waits an update; the enemies' shots
+are tried against the player, and the player's shots against them, in the same order. A place is free the moment
+what held it is taken out of play. The pickup remains leave takes the place they held (`Room.SpawnInPlaceOf`)
+and waits an update for its first turn; the game may say that remains in some place leave no drop though they
+roll for it (`GameDefinition.RemainsLeaveDrop`). This game keeps eighteen places, and its remains in the first
+leave none, as the cartridge's death explosion in its first place never becomes a pickup.
+
 **A shot meets what is solid and hittable.** A projectile that reaches something solid that is not terrain, such as
 a door's cap or a frozen enemy, delivers its hit to what is there before the solid stops it. Terrain stops it first.
 

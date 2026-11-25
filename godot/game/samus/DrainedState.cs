@@ -117,6 +117,9 @@ public sealed class DrainedState : PlayerState, ISamusLook
             if (inventory.Owns(beam))
                 inventory.Switch(beam, false);
         }
+
+        // The gift takes back the asking again of a charge's sound, as a beam shot does.
+        (samus as Samus)?.ForgetChargingSoundResume();
     }
 
     /// <inheritdoc/>

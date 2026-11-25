@@ -79,6 +79,9 @@ public partial class SamusGrapple : Node2D
         _reached = Pixels.Zero;
         _extending = true;
         samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons", priority: SoundPriority.WhenIdle);
+
+        // Its firing, like a beam shot's, takes back the asking again of a charge's sound.
+        samus.ForgetChargingSoundResume();
     }
 
     /// <summary>Lets go of whatever the line holds and draws it in. Its end is heard whenever it was out, latched or not.</summary>

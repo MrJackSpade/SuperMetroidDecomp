@@ -165,6 +165,9 @@ public partial class Samus
     /// <summary>A shot of hers starts a glow of her suit: a charged shot's flash, or a hyper shot's glow. It takes the place of one still playing.</summary>
     private void BeginShotGlow(string glow) => _shotGlow = new SamusGlowPlay(Colours.Glow(glow));
 
+    /// <summary>The grapple beam's firing, like a beam shot, and the gift of the hyper beam take back the asking again of a charge's sound.</summary>
+    public void ForgetChargingSoundResume() => _chargingSoundArmed = false;
+
     /// <summary>
     /// What boards an elevator with her ends a shot's glow and starts the charge's pulse over, leaving her colours as
     /// they are, as the cartridge clears her shots there.

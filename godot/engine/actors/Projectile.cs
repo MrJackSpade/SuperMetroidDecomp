@@ -190,7 +190,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                 return;
             }
 
-            _visual?.Show(_timeline.Current);
+            // The picture is that of the step this update fell in: it changes on the update the step's cues come.
+            _visual?.Show(_timeline.Shown);
         }
 
         // Shot down, it holds still and only meets what is where it lies.

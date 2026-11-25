@@ -122,7 +122,7 @@ public partial class Pickup : Node2D, IRoomEntity
         if (_timeline is not null)
         {
             _timeline.Step();
-            _visual?.Show(_timeline.Current);
+            _visual?.Show(_timeline.Shown);
         }
     }
 

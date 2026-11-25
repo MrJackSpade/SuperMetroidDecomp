@@ -91,7 +91,7 @@ public partial class Remains : Node2D, IRoomEntity
         if (!player.IsOver)
         {
             if (!_dropped)
-                _visual?.Show(player.Current);
+                _visual?.Show(player.Shown);
             return;
         }
 

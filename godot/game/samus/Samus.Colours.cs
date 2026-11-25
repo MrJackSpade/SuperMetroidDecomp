@@ -443,7 +443,8 @@ public partial class Samus
         if (_hurtFlash == 0)
             return;
         int before = _hurtFlash;
-        if (before == HurtFlashSoundCount)
+        // Pinned in a beam, thrown back, her hurt is not heard: the flash still counts and colours her.
+        if (before == HurtFlashSoundCount && State is not DrainedState { Posed: DrainedState.Pose.Pinned })
             Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
         if (before <= HurtFlashColouredCounts)
         {

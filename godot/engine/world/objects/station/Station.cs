@@ -162,7 +162,6 @@ public partial class Station : RoomObject
     private Countdown _resting = Countdown.Over;
     private bool _busy;
     private bool _asking;
-    private bool? _answer;
     private bool _usedThisVisit;
     private TimelinePlayer? _timeline;
 
@@ -178,7 +177,7 @@ public partial class Station : RoomObject
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_busy, _asking, _answer) = (false, false, null);
+        (_busy, _asking) = (false, false);
         (_doneSoundWait, _resting) = (Countdown.Over, Countdown.Over);
         // A game that resumes at a station begins with the player standing in it.
         _usedThisVisit = HowUsed == Use.StandingIn && Room.Entry is { } entry && entry.EntryPoint == (ResumesAt.Length > 0 ? ResumesAt : Name);
@@ -208,22 +207,9 @@ public partial class Station : RoomObject
 
         _resting = _resting.Stepped();
         bool resting = _resting.IsRunning;
+        // A question still up is answered as it hands back, not here.
         if (_asking)
-        {
-            // The room is not stepped while the question is up; by now it has been answered.
-            if (_answer is not { } yes)
-                return;
-            (_asking, _answer) = (false, null);
-            if (!yes)
-            {
-                _usedThisVisit = true;
-                return;
-            }
-
-            Hold(player);
-            BeginWork(WorkingEffect);
             return;
-        }
 
         if (_busy)
         {
@@ -267,9 +253,21 @@ public partial class Station : RoomObject
 
         if (AsksFirst.Length > 0)
         {
-            // The room is not stepped while the question is up, so the player is held only once it is answered yes.
+            // The answer is acted on as the question hands back, in the update that asked it and before the rest of
+            // that update is played: a yes takes hold of the player and begins the work there.
             _asking = true;
-            Room.Session.RequestQuestion(AsksFirst, answer => _answer = answer);
+            Room.Session.RequestQuestion(AsksFirst, yes =>
+            {
+                _asking = false;
+                if (!yes)
+                {
+                    _usedThisVisit = true;
+                    return;
+                }
+
+                Hold(Room.Player);
+                BeginWork(effect);
+            });
             return;
         }
 

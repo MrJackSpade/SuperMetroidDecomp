@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Actors.Components;
 using Engine.Shared;
 using Engine.World;
 
@@ -8,7 +9,8 @@ namespace Game;
 /// One of the two echoes of Samus thrown off as a shinespark ends. While she is held where she crashed they circle
 /// her, out and round and back in, doing no harm; then they are let go, and fly straight out from her, hurting what
 /// they pass through, until they have left the screen. One still on the screen when it has flown 256 pixels out is
-/// back on her and flies out again, as the cartridge places it by its distance counted within 256.
+/// back on her and flies out again, as the cartridge places it by its distance counted within 256. It has no picture
+/// of its own: it repeats the whole picture her body last showed, in her colours, and only on the clock's odd updates.
 /// </summary>
 public partial class ShinesparkEcho : Projectile
 {
@@ -18,6 +20,7 @@ public partial class ShinesparkEcho : Projectile
     private int _angle;
     private int _radius;
     private bool _flying;
+    private ActorVisual? _picture;
 
     /// <summary>What the first echo leaves its height to on each update it flies; none for the second.</summary>
     private Compatibility.CrashOrbitTravel? _leavesHeightTo;
@@ -38,9 +41,21 @@ public partial class ShinesparkEcho : Projectile
     protected override bool DeliversHitNow => _flying && base.DeliversHitNow;
 
     /// <inheritdoc/>
+    protected override void OnLaunched(Room room)
+    {
+        _picture = new ActorVisual { Name = "Picture" };
+        AddChild(_picture);
+        _picture.Bind(room.Content);
+    }
+
+    /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {
         Velocity = PixelVelocity.Zero;
+
+        // It is shown as she was last shown, on the clock's odd updates.
+        if (_picture is { } picture && Launcher is Samus shown && shown.GetNodeOrNull<SamusVisual>("Visual") is { } visual)
+            visual.ShowEchoOn(shown, picture, shows: room.Session.Clock.Updates % 2 != 0);
         if (!_flying || Launcher is not Player samus)
             return;
 

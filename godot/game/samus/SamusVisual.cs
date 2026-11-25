@@ -38,10 +38,6 @@ public partial class SamusVisual : Node2D
     [Export]
     public float GlowBrightness { get; set; } = 1.4f;
 
-    /// <summary>The tint of the echoes she leaves behind her at full speed.</summary>
-    [Export]
-    public Color EchoTint { get; set; } = new(1.0f, 1.3f, 1.6f, 0.6f);
-
     /// <summary>How many updates pass between one echo being left and the next, how fast they close on her when she slows, and how fast they draw level.</summary>
     private const int EchoEvery = 4, EchoDepartureSpeed = 8, EchoLevelling = 2;
 
@@ -205,20 +201,27 @@ public partial class SamusVisual : Node2D
                 continue;
             }
 
-            if (_shown is null)
-            {
-                shown.Show("");
-            }
-            else
-            {
-                // An echo is her picture in her colours.
-                shown.Show(_shown);
-                samus.Colours.ShowOn(shown);
-            }
-
-            shown.Tint(EchoTint);
+            ShowEchoOn(samus, shown, shows: true);
             shown.Position = new Vector2(at.X.Whole - samus.Position.X.Whole, at.Y.Whole - samus.Position.Y.Whole);
         }
+    }
+
+    /// <summary>
+    /// Shows on <paramref name="echo"/> the whole picture her body last showed, in her colours: an echo of her repeats
+    /// that and nothing of its own. It shows nothing when told not to, or before she has been shown.
+    /// </summary>
+    public void ShowEchoOn(Samus samus, ActorVisual echo, bool shows)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        ArgumentNullException.ThrowIfNull(echo);
+        if (_shown is null || !shows)
+        {
+            echo.Show("");
+            return;
+        }
+
+        echo.Show(_shown);
+        samus.Colours.ShowOn(echo);
     }
 
     /// <summary>Takes her echoes away at once, as switching the speed booster off on the pause screen does.</summary>

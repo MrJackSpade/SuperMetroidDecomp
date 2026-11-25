@@ -677,6 +677,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `cinematics/ceres_destruction.json` | `game/cinematics/CeresDestruction.cs` |
 | `cinematics/ending.json` | `game/cinematics/Ending.cs` |
 | `cinematics/intro.json` | `game/cinematics/Intro.cs` |
+| `cinematics/intro_mother_brain_room_lights.json` | `game/cinematics/intro_mother_brain_room.tscn` |
 | `colours/{graphics}/beacon_flashing.json` | `game/rooms/brinstar/caterpillar.tscn`, `game/rooms/brinstar/red_tower.tscn`, `game/rooms/brinstar/warehouse_energy_tank.tscn` and 3 more |
 | `colours/{graphics}/brinstar_blue_background_spores.json` | `game/rooms/brinstar/etecoon_energy_tank.tscn`, `game/rooms/brinstar/etecoon_super.tscn`, `game/rooms/brinstar/green_brinstar_main_shaft.tscn` and 3 more |
 | `colours/{graphics}/brinstar_red_background_glow.json` | `game/rooms/brinstar/caterpillar.tscn`, `game/rooms/brinstar/hellway.tscn`, `game/rooms/brinstar/red_tower.tscn` |

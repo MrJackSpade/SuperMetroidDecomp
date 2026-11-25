@@ -179,6 +179,15 @@ public sealed partial class EngineAssetWriter
         WriteIntroRoom(
             "cinematics/intro_mother_brain_room.json", IntroScenePage.MotherBrainRoom, IntroMotherBrainCollisionDefinitions.Columns,
             IntroMotherBrainCollisionDefinitions.RoomRows, IntroMotherBrainCollision.CreateCollision());
+
+        // The lights behind the fight, shown on that room's pictures: the colours each of their frames changes on the
+        // sheet the room's picture was cut from.
+        var lit = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+        {
+            ["cinematics/intro_mother_brain_room"] = [SpriteSheetDefinitions.FileNames[SpriteSheetId.IntroScenePictures]],
+        };
+        _tree.WriteData("cinematics/intro_mother_brain_room_lights.json",
+            ColourSteps(IntroCinematicDefinitions.FightLights, shade => ShadeChange(shade, SpriteFamily, lit)));
         WriteIntroRoom(
             "cinematics/intro_discovery_room.json", IntroScenePage.BabyDiscoveryRoom, IntroBabyDiscoveryCollisionDefinitions.Columns,
             IntroBabyDiscoveryCollisionDefinitions.RoomRows, IntroBabyDiscoveryCollision.CreateCollision());

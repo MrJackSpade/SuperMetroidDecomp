@@ -257,6 +257,10 @@ public partial class Intro : Cinematic
                 if (!StepCrossfade(toScene: true))
                     break;
                 ClearWords();
+
+                // A flashback's lights come on once it has come in.
+                foreach (Engine.World.ColourEffect lights in _room?.GetChildren().OfType<Engine.World.ColourEffect>() ?? [])
+                    lights.Triggered("start");
                 _phase = Phase.Scene;
                 break;
 

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="2"]
 [ext_resource type="PackedScene" path="res://game/cinematics/intro_mother_brain.tscn" id="3"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="4"]
 
 [node name="IntroMotherBrainRoom" type="Node2D"]
 script = ExtResource("1")
@@ -19,3 +20,10 @@ position = Vector2(155, 115)
 
 [node name="MotherBrain" parent="." instance=ExtResource("3")]
 position = Vector2(56, 111)
+
+[node name="FightLights" type="Node2D" parent="."]
+script = ExtResource("4")
+EffectName = "fight_lights"
+StepsFile = "cinematics/intro_mother_brain_room_lights.json"
+OnBackdrops = false
+StartsActive = false

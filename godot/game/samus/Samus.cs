@@ -632,12 +632,18 @@ public partial class Samus : Player
             StoreShine();
 
         // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
-        // over and above what the taller body of the jump takes. Her arm is as it was before this update's input, as
-        // the old pose she jumped from was.
-        if (from is CrouchingState && to is JumpingState && _aimAtUpdateStart == Aim.Forward)
+        // once the taller body of the jump has been fitted. Her arm is as it was before this update's input, as the
+        // old pose she jumped from was.
+        if (from is CrouchingState && to is JumpingState)
         {
-            int taller = HalfHeightOf(FormOr(Jumping)) - HalfHeight;
-            Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
+            // The jump's taller body is fitted first, her feet where they were; with no room for it she stays crouched.
+            if (!TrySetForm(FormOr(Jumping)))
+                return from;
+
+            // Then she is lifted as she is, whatever is above her: a plain change of where she is, which the view
+            // follows as it follows a move.
+            if (_aimAtUpdateStart == Aim.Forward)
+                Position += PixelOffset.FromWhole(0, -CrouchJumpLift);
         }
 
         // A fresh press of the attack on the update a jump's pose is taken up, or changed, hands the shot to the
@@ -656,11 +662,6 @@ public partial class Samus : Player
             else if (jump.FromGround)
             {
                 Aim = FirstJumpAim(from);
-            }
-            else if (from is SpinJumpingState or WallJumpingState && !CanTakeForm(FormOr(Jumping), aroundMiddle: true))
-            {
-                // With no room to straighten out, the spin or the wall jump goes on as it was, as the cartridge has it.
-                return from;
             }
             else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
                 CanTakeForm(FormOr(Jumping), aroundMiddle: true))

@@ -57,6 +57,19 @@ public sealed class JumpingState : PlayerState
     /// <summary>Whether the player took up another stance within the jump on this update.</summary>
     public bool TookUpStance { get; private set; }
 
+    /// <summary>
+    /// A jump from the ground is entered in the jump's full form; one that carries on, in the form of the aim its
+    /// stance has, or the player's own aim when it was given no stance.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner)
+    {
+        if (!_keepsSpeed)
+            return new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true);
+        Aim aim = _stance is { } given ? given.Aim : owner.Aim;
+        string form = aim == Aim.Down && owner.Forms.ContainsKey(Player.AimingDown) ? Player.AimingDown : owner.FormOr(Player.Jumping);
+        return new FormAsked(form, AroundMiddle: true);
+    }
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
@@ -67,14 +80,12 @@ public sealed class JumpingState : PlayerState
             else
                 _stance = AirStance.Of(owner, forwardCounts: true);
             _stanceAsked = Stance;
-            owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
             owner.SteerAfresh();
             return;
         }
 
         _stance = new AirStance(owner.Aim);
         _stanceAsked = Stance;
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         owner.Rise(owner.LaunchSpeed(offWall: false));
         _gathering = Countdown.Of(owner.InMedium("jump_start_updates", owner.JumpStartUpdates));
     }

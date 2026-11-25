@@ -123,14 +123,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     }
 
     /// <summary>
-    /// Straightens her out into a jump in <paramref name="stance"/> where the jump's taller body has room. Where it
-    /// has none she spins on as she was, as the cartridge leaves a spin that cannot grow into the pose asked for.
+    /// Straightens her out into a jump in <paramref name="stance"/>. The jump names the form of its stance, which is
+    /// fitted before the jump is entered: with room for it she straightens out; stopped one way with no room the
+    /// other she spins on as she was, as the cartridge leaves a spin that cannot grow into the pose asked for; and
+    /// with no room above or below she is put in the crouch, as the cartridge puts her.
     /// </summary>
-    private PlayerState Straightened(Player owner, AirStance stance)
-    {
-        string form = stance.Aim == Aim.Down && owner.Forms.ContainsKey(Player.AimingDown) ? Player.AimingDown : owner.FormOr(Player.Jumping);
-        return owner.TrySetForm(form, aroundMiddle: true) ? new JumpingState(stance) : this;
-    }
+    private static PlayerState Straightened(AirStance stance) => new JumpingState(stance);
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
@@ -144,25 +142,25 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
 
         // Straightened out, she is in a jump once this update is done.
         if (input.WasPressed(GameAction.Attack))
-            return Straightened(owner, new AirStance(Aim.Forward, AirArm.Out));
+            return Straightened(new AirStance(Aim.Forward, AirArm.Out));
         if (attack && up)
-            return Straightened(owner, new AirStance(Aim.Up));
+            return Straightened(new AirStance(Aim.Up));
         if (attack && down)
-            return Straightened(owner, new AirStance(Aim.Down));
+            return Straightened(new AirStance(Aim.Down));
         if (attack && angleUp)
-            return Straightened(owner, new AirStance(Aim.DiagonalUp));
+            return Straightened(new AirStance(Aim.DiagonalUp));
         if (attack && angleDown)
-            return Straightened(owner, new AirStance(Aim.DiagonalDown));
+            return Straightened(new AirStance(Aim.DiagonalDown));
         if (forward && input.IsHeld(GameAction.Jump))
             return Spinning(owner);
         if (up)
-            return Straightened(owner, new AirStance(Aim.Up));
+            return Straightened(new AirStance(Aim.Up));
         if (angleUp)
-            return Straightened(owner, new AirStance(Aim.DiagonalUp));
+            return Straightened(new AirStance(Aim.DiagonalUp));
         if (angleDown)
-            return Straightened(owner, new AirStance(Aim.DiagonalDown));
+            return Straightened(new AirStance(Aim.DiagonalDown));
         if (down)
-            return Straightened(owner, new AirStance(Aim.Down));
+            return Straightened(new AirStance(Aim.Down));
         if (forward)
             return Spinning(owner);
         if (!backward)

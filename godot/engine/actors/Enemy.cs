@@ -309,14 +309,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
         if (IsDead)
             return;
-        ShowLook();
 
-        // The flash runs down once the turn has been played and shown, and the hurt ends while some of it is left.
-        // A hurt with no flash at all ends with the turn it began on.
+        // The flash runs down once the turn has been played, and the hurt ends while some of it is left. A hurt with
+        // no flash at all ends with the turn it began on.
         if (_flash.IsRunning)
             _flash = _flash.Stepped();
         if (_hurt && _flash.Remaining < Math.Max(1, Room.Session.Definition.EnemyHurtEndsAtFlashLeft))
             _hurt = false;
+
+        // It is shown as it stands once its turn is over.
+        ShowLook();
     }
 
     /// <summary>This enemy's own behaviour for one update.</summary>
@@ -766,7 +768,40 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (Visual is null)
             return;
-        Visual.Tint(IsFrozen ? FrozenTint : _flash.IsRunning && _flash.Remaining % 2 == 0 ? HurtTint : RestingTint);
+        Visual.Tint(ShowsFrozenLook ? FrozenTint : ShowsHurtFlash ? HurtTint : RestingTint);
+    }
+
+    /// <summary>
+    /// Whether the picture of this update shows the enemy's hurt flash: while the flash still runs once the turn
+    /// has counted it down, on the passes the game's definition gives the flash, by the count of the enemies'
+    /// passes as it stands once this pass is counted. An enemy that shows its hurt its own way, and not by the
+    /// flash every enemy shares, says so here.
+    /// </summary>
+    protected virtual bool ShowsHurtFlash
+    {
+        get
+        {
+            if (!_flash.IsRunning)
+                return false;
+            int each = Room.Session.Definition.EnemyFlashPassesEachWay;
+            return each == 0 || (Room.Session.EnemyPasses + 1) % (2 * each) >= each;
+        }
+    }
+
+    /// <summary>
+    /// Whether the picture of this update shows the frozen look: steadily while as many updates of the freeze are
+    /// left as the game's definition says, and then on so many updates in turn, by the updates left.
+    /// </summary>
+    private bool ShowsFrozenLook
+    {
+        get
+        {
+            if (!IsFrozen)
+                return false;
+            int each = Room.Session.Definition.FrozenLookBlinkUpdatesEachWay;
+            return each == 0 || _statusLeft.Remaining >= Room.Session.Definition.FrozenLookSteadyUpdates
+                || _statusLeft.Remaining % (2 * each) >= each;
+        }
     }
 
     /// <summary>The tint the enemy is shown with when nothing has happened to it. An enemy that glows says so here.</summary>

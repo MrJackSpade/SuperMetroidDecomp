@@ -483,6 +483,9 @@ public partial class Kraid : Enemy
         return false;
     }
 
+    /// <summary>He shows his hurt by his own colours alone, not by the flash every enemy shares.</summary>
+    protected override bool ShowsHurtFlash => false;
+
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {

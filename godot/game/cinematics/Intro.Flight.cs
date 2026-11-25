@@ -189,7 +189,8 @@ public partial class Intro
         gunship.Picture = Data().Text("rear_floor");
         gunship.Setup(Session.Content, new Vector2I(256, 224));
         Node2D sprites = _flightSprites ?? throw NotEntered();
-        foreach (DataNode thing in Data().List("rear_view"))
+        // The data lists what is seen from the nearest to the farthest; the farthest is laid down first.
+        foreach (DataNode thing in Data().List("rear_view").Reverse())
         {
             string name = thing.Text("name");
             CinematicSprite seen = Sprite(name, name);

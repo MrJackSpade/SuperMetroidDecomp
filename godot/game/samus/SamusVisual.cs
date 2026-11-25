@@ -57,6 +57,9 @@ public partial class SamusVisual : Node2D
     /// <summary>How many updates pass between one echo being left and the next, how fast they close on her when she slows, and how fast they draw level.</summary>
     private const int EchoEvery = 4, EchoDepartureSpeed = 8, EchoLevelling = 2;
 
+    /// <summary>How many updates of play make a second of the play time.</summary>
+    private const int PlayUpdatesEachSecond = 60;
+
     private TimelinePlayer? _player;
     private string _playing = "";
     private string _look = "";
@@ -162,7 +165,8 @@ public partial class SamusVisual : Node2D
         }
         else if (boosting && _echoesLeaving == 0)
         {
-            if (samus.Room.Session.Clock.Updates % EchoEvery == 0)
+            // Timed by the play time's frames within its second, not by the clock.
+            if (samus.Room.Session.Progress.PlayUpdates % PlayUpdatesEachSecond % EchoEvery == 0)
             {
                 _echoes[_nextEcho] = samus.Position;
                 _nextEcho = 1 - _nextEcho;

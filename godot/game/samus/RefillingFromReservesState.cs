@@ -7,7 +7,7 @@ namespace Game;
 
 /// <summary>
 /// Being refilled from the reserve tanks after her energy ran out: energy comes back a little each update until she
-/// is full or the tanks are empty. She neither moves nor can be hit meanwhile, and everything else in the room waits.
+/// is full, which empties the tanks of what is left, or the tanks are empty. She neither moves nor can be hit meanwhile, and everything else in the room waits.
 /// </summary>
 public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISamusLook
 {
@@ -43,6 +43,9 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
             return owner.StateAtRest();
         inventory.Spend(Amounts.ReserveEnergy, given);
         inventory.Add(Amounts.Energy, given);
+        // Once she is full, whatever is left in the tanks is lost.
+        if (inventory.Amount(Amounts.Energy) >= inventory.Capacity(Amounts.Energy))
+            inventory.Spend(Amounts.ReserveEnergy, inventory.Amount(Amounts.ReserveEnergy));
         if (owner.Room.Session.Clock.IsEvery(8))
             owner.Room.Session.Sounds.Request(Sounds.EnergyRefill, channel: "samus", priority: SoundPriority.Low);
         return null;

@@ -837,22 +837,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
 
-    /// <summary>Pushes the player at <paramref name="velocity"/> for <paramref name="updates"/> updates.</summary>
-    public void Push(PixelVelocity velocity, int updates) => ChangeState(new PushedState(velocity, updates));
-
     /// <summary>Holds the player at a station until released.</summary>
     /// <param name="facingOut">Whether the player turns to face out of the screen while held.</param>
     public void UseStation(bool facingOut = false) => ChangeState(new UsingStationState { FacingOut = facingOut });
 
-    /// <summary>Takes control from the player for a scripted sequence, until released.</summary>
-    public ScriptedState Script()
-    {
-        var scripted = new ScriptedState();
-        ChangeState(scripted);
-        return scripted;
-    }
-
-    /// <summary>Gives the player back control after being held, pushed, at a station or scripted.</summary>
+    /// <summary>Gives the player back control after being held or at a station.</summary>
     public void Release() => ChangeState(StateAtRest());
 
     /// <summary>

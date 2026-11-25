@@ -76,31 +76,6 @@ public sealed class MovementChecks
     }
 
     [Check]
-    public void AWaveFlightRisesAndFallsAboutItsLine()
-    {
-        using var world = new StandInWorld(Boxed).StartAt(40, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Flyer", StartsFacing = Facing.Right }, 60, 48);
-        world.Setup();
-        var flight = new WaveFlight { Speed = Pixels.FromWhole(1), WaveSize = Pixels.FromWhole(10), WaveStep = 8 };
-
-        Pixels lowest = enemy.Position.Y, highest = enemy.Position.Y;
-        for (int update = 0; update < 32; update++)
-        {
-            flight.Step(enemy);
-            if (enemy.Position.Y > lowest)
-                lowest = enemy.Position.Y;
-            if (enemy.Position.Y < highest)
-                highest = enemy.Position.Y;
-        }
-
-        Expect.Equal(Pixels.FromWhole(92), enemy.Position.X);
-        Expect.True(lowest >= Pixels.FromWhole(57) && lowest <= Pixels.FromWhole(58));
-        Expect.True(highest <= Pixels.FromWhole(39) && highest >= Pixels.FromWhole(38));
-        // After one full wave it is back on its line.
-        Expect.Equal(Pixels.FromWhole(48), enemy.Position.Y);
-    }
-
-    [Check]
     public void ADiveWaitsForItsTargetThenDropsToTheFloor()
     {
         using var world = new StandInWorld(Boxed).StartAt(40, 80);
@@ -117,23 +92,6 @@ public sealed class MovementChecks
             landed = dive.Step(enemy, PixelPosition.FromWhole(195, 80)).HitFloor;
         Expect.True(landed);
         Expect.Equal(Pixels.FromWhole(72), enemy.Position.Y);
-    }
-
-    [Check]
-    public void HomingInClosesOnItsTarget()
-    {
-        using var world = new StandInWorld(Boxed).StartAt(40, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Seeker" }, 200, 40);
-        world.Setup();
-        var home = new HomeIn();
-        PixelPosition target = PixelPosition.FromWhole(60, 60);
-
-        Pixels before = (enemy.Position.X - target.X).Abs();
-        for (int update = 0; update < 60; update++)
-            home.Step(enemy, target);
-
-        Expect.True((enemy.Position.X - target.X).Abs() < before);
-        Expect.True(enemy.Velocity.X.Abs() <= home.TopSpeed);
     }
 
     [Check]

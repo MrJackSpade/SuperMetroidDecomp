@@ -288,7 +288,6 @@ it settled, and new code follows them.
 | `PixelRect` | Integer rectangle | A collider's shape. |
 | `Facing`, `Aim` | Left or right; where a weapon points | Plain enums used by every actor. No per-actor direction enums. |
 | `Countdown` | A timer in updates | Counts down, reports when it ends. |
-| `WrappingCounter` | A counter that wraps | Wraps by itself at its own limit. Used only where the wrap is something the player can observe. |
 | `GameRandom` | The gameplay random generator | One per session. Cosmetics never use it. It draws from an `IRandomSequence`: the engine's plain one by default, or one the `GameDefinition` supplies when a game's outcomes must follow a particular sequence. |
 | `GameAction`, `GameInput` | An action by name; one update's input | The engine names its standard actions; a game adds its own by name. A `GameInput` says which actions are held and which were newly pressed, and whether anything at all is held or was pressed; it can be given on without one action, for something that must not see it. |
 | `GameClock` | The count of updates played that count | One per session. Anything that acts "every N updates" reads it. Nothing keeps its own global counter. An update counts unless the mode that played it says otherwise (`GameMode.CountsOnClock`): a message box's updates do not, the one that hands back among them, so what is timed by the clock stands still with what the message covers. A game that starts over within a session starts the count over (`Restart`). The count may come round to zero after a number of updates the game's definition gives (`ClockPeriod`; never, unless it says). Beside it runs a second, short count of the same updates (`ShortUpdates`, with its own `ShortClockPeriod`), which a game may start over by itself (`RestartShort`): this game's door does on every update from placing Samus for the next room's load to finishing its scroll, so that what is timed by the short count begins together in the next room. To tell one update from another, whatever the clock counts, there is the session's `UpdateNumber`. What is timed by the enemies' passes and not by the clock reads the session's `EnemyPasses`: one for each update of a room, held still or not, and one for each update of a passage between rooms on which the enemies take their turns; kept from room to room and started over with the game. |
@@ -542,7 +541,6 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `Hazard` | Hurting or grabbing the player on contact, without being killable. Its data's timelines show it at rest, holding and letting go; one that holds by its timeline bites on that timeline's cues, and one whose reach changes as it is shown says so by cues ("area:left:top:width:height", "safe"). | The `Hit` or ongoing damage it does (and whether its contact is a hit even when it does no damage), or its hold: for how long, whether at one place, what each bite takes, and how long the player is safe after; the most updates it waits, by chance, before it first appears. |
 | `BossEncounter` | Changing the music, starting the boss, and recording the defeat in `Progress`. | Which boss; remembered as. |
 | `Creature` | A harmless animal that moves by its own behaviour and cannot be hurt. The base shows the timelines its data names, passes it their cues, and moves it through terrain. | — |
-| `Scenery` | A fixture that reacts visibly to the player or events, with no effect on play beyond an optional solid body. | — |
 | `Gunship` (this game's) | Landing, taking off, saving and refilling. Its question of saving, answered yes, is followed by the sound of saving, a wait and its message of having saved before its hatch opens again. | — |
 
 Every kind here is the engine's except `Gunship`.
@@ -625,7 +623,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
 | `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its surface moves as an update opens, before anything acts; its pictures play on with the room's effects. Its type names the splash of something crossing its surface and the sounds of going under and of coming out, which the player leaves as their feet do. It may wait a set time before it moves once told, and may have a tide that lifts and lowers its surface. It draws itself across the view as its type says, and says whether its pictures drift. | Apply physics or damage. The player and enemies ask it and act on the answer. |
-| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. It is stepped early in an update, before the player and the enemies act, so that what it is told during an update it first shows in the next; the earthquake alone is stepped late, after the enemies and room objects that may start it, and shows a shake on the update it is started in. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
+| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. It is stepped early in an update, before the player and the enemies act, so that what it is told during an update it first shows in the next; the earthquake alone is stepped late, after the enemies and room objects that may start it, and shows a shake on the update it is started in. The engine provides the base, the earthquake (side to side, up and down, or corner to corner) and `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. A layer may lie at a place in the room, fill only a band of it, and drift by itself, which is how a sky's bands of cloud are made. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
 | `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |
 | `Camera` | The view onto the room. A room is a grid of screens, 256 pixels each way, each closed to the view, open, or open with the view aligned to its top (`ScreenScroll`). Each update, once everything has moved, the view follows the player by how far they moved and a pixel more, toward keeping them at the place in the view the room gives (`Room.PlayerInView` by the way the view leads, `ViewAboveWhileRising`, `ViewAboveOtherwise`); it is stopped by the room's edges and by closed screens, and on an update the player did not move a whole pixel it drifts clear of a closed screen by itself. Its place has a fraction of a pixel. It can be placed (`Place`), moved by a script (`MoveTo`), told where the player is to be taken to have stood (`TakePlayerToHaveStoodAtX`, `...Y`: a door's passage tells it where its scroll left her, and the player tells it whenever a change of form moves the middle of their body, so crouching, curling up, standing up and landing are not followed as moves), made to follow slowly (`TrackSlowly`), and kept at or below a height (`ViewFloor`). A room may hold the view at one place instead (`Room.ViewHeld`, `ViewHeldAt`). One per session. | Affect play. |
@@ -657,8 +655,8 @@ in `engine/actors/player/`.
 - **Manages:** turning input into movement and actions, moving with the shared `Mover`, firing, taking a `Hit`,
   collecting pickups and items, and applying to itself what the room reports.
 - **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, changing
-  posture, turning, jumping, falling, turning in the air, wall jumping, knocked back, held, pushed, using
-  a station, scripted, dying.
+  posture, turning, jumping, falling, turning in the air, wall jumping, knocked back, held, using
+  a station, dying.
 - **Standard mechanics are properties of the controller**, switched and tuned by the game, not code the game
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
@@ -689,7 +687,7 @@ in `engine/actors/player/`.
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`
   is for whatever takes the player over at once (a hold, a script, a station) and drops an interruption that was
   waiting. The player keeps the state they last moved as (`MovedAs`), for whoever must know what they were doing
-  through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, at a station, scripted or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state may say the player meets no exit by
+  through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, at a station or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state may say the player meets no exit by
   overlapping it (`MeetsExits`); whoever moves the player then takes them through one (`Room.EnterExit`).
 - **The update has two parts, with the enemies between them.** In the first (`BeginUpdate`) weapons fire, from the
   state, the place and the aim the last update left the player in, and then the input is asked. The room steps the
@@ -1009,13 +1007,10 @@ decides what to do about it.
 | --- | --- |
 | Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. It can feel for its surface some way ahead of itself, so that it meets a corner early; its owner can ask which way it presses. |
 | Hop | Jumping in arcs, with settings for height, distance and the wait between. |
-| Wave flight | Travelling in a direction while rising and falling in a wave. |
 | Dive | Waiting, then dropping or swooping at a target and returning or not. |
 | Patrol | Walking or flying back and forth, turning at walls or edges. |
-| Home in | Steering toward a target at a limited turn rate. |
 | Orbit | Circling a point or another thing at a set radius and speed. |
 | Bounce | Travelling straight and reflecting off what it meets. |
-| Follow path | Moving along a set path. Platforms use this one too. |
 | Pursuit | Working out the speed of a flier drawn toward a place: harder the farther off, turned about sharply when going the wrong way, more sharply when well out of view. The flier moves itself. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
@@ -1316,10 +1311,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   vent waits a different, chance length before it first blows).
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
   (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`.
-- `Scenery`: none placed. The Tourian entrance statue is a plain node holding the pictures its hall's sequence
+- The Tourian entrance statue is a plain node holding the pictures its hall's sequence
   shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
-  (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, because each has a state
-  machine no setting of `Scenery` gives; the face blocks and the corpses are enemies.
+  (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, each with a state
+  machine of its own; the face blocks and the corpses are enemies.
 
 ### Terrain
 
@@ -1333,7 +1328,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 
 - `Liquid`: water, lava, acid, including the rising acid of the escape.
 - `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect`, each with a look (heat with
-  ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
+  ongoing damage as well); the earthquake is the engine's. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
@@ -1410,7 +1405,9 @@ Doors and elevators were first built from the general kinds alone. Full parity w
 through a door and an elevator's ride update for update, which those kinds cannot say, so each is now a kind of this
 game's own (`Door` with its `DoorTransitionMode`, and `Elevator` with its `ElevatorJourney`). The engine's `Carrier`, which
 the elevators and the tube were first built from, was removed with its player state once nothing used it: the engine
-keeps no kind that no game uses.
+keeps no kind that nothing uses. For the same reason the movements of following a path, homing in and flying in a
+wave, the wrapping counter, the tint effect, the scenery object and the player's pushed and scripted states were
+removed: a kind is built when something needs it.
 
 **Why, and extending it.** This section is the worked example of sections 0 and 2 applied to the whole game, so
 that placing a thing is looking it up, not deciding. It was built from the old code's lists of names, not from

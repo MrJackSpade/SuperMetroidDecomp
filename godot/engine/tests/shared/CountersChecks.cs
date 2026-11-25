@@ -18,22 +18,6 @@ public sealed class CountersChecks
     }
 
     [Check]
-    public void AWrappingCounterWrapsAtBothEnds()
-    {
-        var counter = new WrappingCounter(2, 4);
-        Expect.Equal(0, counter.Plus(2).Value);
-        Expect.Equal(3, counter.Plus(-3).Value);
-        Expect.Equal(2, counter.Plus(8).Value);
-    }
-
-    [Check]
-    public void AWrappingCounterRefusesAValueItCannotHold()
-    {
-        Expect.Throws<ArgumentOutOfRangeException>(() => new WrappingCounter(4, 4));
-        Expect.Throws<ArgumentOutOfRangeException>(() => new WrappingCounter(0, 0));
-    }
-
-    [Check]
     public void TheSameSeedGivesTheSameDraws()
     {
         var first = new GameRandom(new PlainRandomSequence(12345));

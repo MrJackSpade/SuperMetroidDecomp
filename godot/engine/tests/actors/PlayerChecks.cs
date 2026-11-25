@@ -230,17 +230,6 @@ public sealed class PlayerChecks
     }
 
     [Check]
-    public void APushMovesThePlayerForItsLengthAndThenGivesControlBack()
-    {
-        using var world = new StandInWorld(OpenRoom).StartAt(100, 80).Setup();
-        world.Player.Push(new PixelVelocity(Pixels.FromWhole(-2), Pixels.Zero), 10);
-        world.Step(10, GameAction.Right);
-        Expect.Equal(Pixels.FromWhole(80), world.Player.Position.X);
-        world.Step(1);
-        Expect.True(world.Player.State.InControl);
-    }
-
-    [Check]
     public void TheInventoryKeepsAmountsWithinTheirCapacity()
     {
         var inventory = new Inventory();

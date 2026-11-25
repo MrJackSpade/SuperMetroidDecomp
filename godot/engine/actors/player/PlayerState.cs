@@ -57,7 +57,7 @@ public abstract class PlayerState : State<Player>
     public virtual bool InControl => true;
 
     /// <summary>
-    /// Whether the player is in another's hands in this state: held, at a station, scripted or dying. A move
+    /// Whether the player is in another's hands in this state: held, at a station or dying. A move
     /// of their own that takes them out of control, as a knockback does, is not that. What a game runs only while
     /// the player plays, as a countdown, reads it.
     /// </summary>

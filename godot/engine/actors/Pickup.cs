@@ -7,7 +7,7 @@ namespace Engine.Actors;
 
 /// <summary>
 /// A temporary drop lying in a room. It gives itself to the player when they touch it, and is gone when its time runs
-/// out. It records nothing in progress; a permanent upgrade is an item, not a pickup.
+/// out; taken or run out, the place it held is held a pause longer (<see cref="Room.HoldPlaceOf"/>). It records nothing in progress; a permanent upgrade is an item, not a pickup.
 /// </summary>
 public partial class Pickup : Node2D, IRoomEntity
 {
@@ -75,7 +75,13 @@ public partial class Pickup : Node2D, IRoomEntity
         Inventory inventory = room.Player.Inventory;
         string? drop = table.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
         if (drop is null)
+        {
+            // A drop that comes to nothing still holds the place found for it, for the pause of a spent drop.
+            if (room.Session.Definition.SpentDropUpdates > 0)
+                room.Spawn(Effect.HoldingPlace(at, room.Session.Definition.SpentDropUpdates));
             return null;
+        }
+
         Pickup pickup = Of(PickupType.Read(room.Content.ReadData(drop)), at);
         room.Spawn(pickup);
         return pickup;
@@ -90,7 +96,7 @@ public partial class Pickup : Node2D, IRoomEntity
         Type.GiveTo(room.Player.Inventory);
         if (Type.Sound.Length > 0)
             room.Session.Sounds.Request(Type.Sound, channel: "pickups");
-        room.Remove(this);
+        room.HoldPlaceOf(this, Position);
     }
 
     /// <summary>
@@ -103,7 +109,7 @@ public partial class Pickup : Node2D, IRoomEntity
         _left = _left.Stepped();
         if (_left.IsOver)
         {
-            room.Remove(this);
+            room.HoldPlaceOf(this, Position);
             return;
         }
 

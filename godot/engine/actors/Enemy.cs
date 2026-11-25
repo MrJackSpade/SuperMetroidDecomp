@@ -94,7 +94,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private string _dudEffect = "";
     private string _dudSound = "";
     private Enemy? _replacement;
-    private int _respawnUpdates = 64;
     private string _deathEffect = "";
     private readonly List<(HitKind Kind, string Effect)> _deathEffectsByKind = [];
     private Hit? _destroyedBy;
@@ -225,7 +224,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 _deathEffectsByKind.Add((new HitKind(kind), effect.AsText()));
         }
 
-        _respawnUpdates = data.Has("respawn_updates") ? data.Int("respawn_updates") : 64;
         _statusSounds.Clear();
         if (data.Has("status_sounds"))
         {
@@ -555,14 +553,14 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         {
             var remains = Remains.Of(FrameTimeline.Read(Room.Content.ReadData(death)), Position, _drops);
             if (replacement is not null)
-                remains.ReplaceWith(replacement, _respawnUpdates);
+                remains.ReplaceWith(replacement, Room.Session.Definition.SpentDropUpdates);
             Room.Spawn(remains);
         }
         else
         {
             Pickup? pickup = Drop(_drops, Position);
             if (replacement is not null)
-                Room.SpawnLater(replacement, pickup is null ? [] : [pickup], _respawnUpdates);
+                Room.SpawnLater(replacement, pickup is null ? [] : [pickup], Room.Session.Definition.SpentDropUpdates);
         }
 
         OnDied();

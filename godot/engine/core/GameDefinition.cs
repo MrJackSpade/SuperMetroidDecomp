@@ -222,6 +222,13 @@ public partial class GameDefinition : Resource
     public int ShotMeetingSquare { get; set; }
 
     /// <summary>
+    /// How many updates the place of a spent drop goes on being held, by something that shows nothing: a pickup
+    /// taken or run out, a drop that came to nothing. What takes a destroyed thing's place arrives as it ends.
+    /// </summary>
+    [Export]
+    public int SpentDropUpdates { get; set; }
+
+    /// <summary>
     /// Whether a status an enemy is in still lasts, apart from its time: it does, unless the game has something that
     /// ends a status early. Each enemy in a status asks on its turn.
     /// </summary>

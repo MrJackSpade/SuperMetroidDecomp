@@ -118,6 +118,11 @@ public partial class Remains : Node2D, IRoomEntity
             pickup = Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position);
             room.SpawnInPlaceOf(this, pickup);
         }
+        else
+        {
+            // Remains that leave nothing go on holding their place for the pause of a spent drop.
+            room.HoldPlaceOf(this, Position);
+        }
 
         if (_replacement is { } replacement)
         {

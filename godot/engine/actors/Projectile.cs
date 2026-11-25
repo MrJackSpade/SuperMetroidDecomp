@@ -676,6 +676,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 else
                     room.SpawnInPlaceOf(this, pickup);
             }
+            else
+            {
+                // What rolls nothing goes on holding the place for the pause of a spent drop.
+                room.HoldPlaceOf(this, Position);
+            }
         }
 
         OnEnded(room);

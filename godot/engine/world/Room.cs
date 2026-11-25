@@ -720,6 +720,20 @@ public partial class Room : Node2D
     }
 
     /// <summary>
+    /// Takes a spent drop out of the room and has the place it held go on being held, for the pause the game's
+    /// definition gives (<see cref="GameDefinition.SpentDropUpdates"/>), by something that shows nothing. With no
+    /// pause it is only taken out.
+    /// </summary>
+    public void HoldPlaceOf(IRoomEntity spent, PixelPosition at)
+    {
+        int updates = Session.Definition.SpentDropUpdates;
+        if (updates > 0 && PlaceOf(spent) is not null)
+            SpawnInPlaceOf(spent, Effect.HoldingPlace(at, updates));
+        else
+            Remove(spent);
+    }
+
+    /// <summary>
     /// Takes something out of the room. It is out of play at once, and is gone from the room at the end of the update.
     /// </summary>
     public void Remove(IRoomEntity entity)

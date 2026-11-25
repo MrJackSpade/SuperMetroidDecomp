@@ -41,6 +41,13 @@ public partial class Effect : Node2D, IRoomEntity
         return new Effect { _timeline = timeline, Position = at, Name = "Effect", HoldsPlace = holdsPlace };
     }
 
+    /// <summary>
+    /// Something that shows nothing for <paramref name="updates"/> updates at <paramref name="at"/> and holds one of
+    /// the room's places for what its enemies launch and leave meanwhile: what a spent drop leaves in its place.
+    /// </summary>
+    public static Effect HoldingPlace(PixelPosition at, int updates) =>
+        Of(new FrameTimeline([new TimelineStep("", updates, [])], null), at, holdsPlace: true);
+
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 

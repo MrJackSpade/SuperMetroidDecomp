@@ -1243,7 +1243,10 @@ place during the turns has its turn among them and what takes a higher one waits
 are tried against the player, and the player's shots against them, in the same order. A place is free the moment
 what held it is taken out of play. The pickup remains leave takes the place they held (`Room.SpawnInPlaceOf`)
 and waits an update for its first turn; the game may say that remains in some place leave no drop though they
-roll for it (`GameDefinition.RemainsLeaveDrop`). This game keeps eighteen places, and its remains in the first
+roll for it (`GameDefinition.RemainsLeaveDrop`). A spent drop goes on holding its place: when a pickup is taken or
+runs out, when remains leave nothing, and when a drop made outright rolls nothing, something that shows nothing
+holds the place for `GameDefinition.SpentDropUpdates` more updates (`Room.HoldPlaceOf`, `Effect.HoldingPlace`), and
+what takes a destroyed enemy's place arrives as that pause ends. This game keeps eighteen places, and its remains in the first
 leave none, as the cartridge's death explosion in its first place never becomes a pickup.
 
 **A shot meets what is solid and hittable.** A projectile that reaches something solid that is not terrain, such as

@@ -413,7 +413,9 @@ select, options, game over, time up, and one per cinematic.
 
 - **Laid over, or replacing.** A mode says which mode it is laid over (`Keeps`). That mode stays on screen, is not
   stepped, and is told when control comes back (`Resume`). Any other hand-over ends the mode that finished, and
-  everything it was laid over. A new mode may be handed to already laid over a mode that has not had control
+  everything it was laid over. The player lasts the session: one standing in a room that goes with a mode ended so
+  is taken out of the room first (`Room.Teardown`), as on leaving any room, and goes on to whatever room comes
+  next, as Samus does from Ceres to her landing; a player the session has already replaced goes with its room. A new mode may be handed to already laid over a mode that has not had control
   either, as this game's arrival is over the play its load made: each is put on screen and enters on that update,
   from the one at the bottom up, the mode handed to last.
 - **Play beneath another mode.** A mode laid over play that lets play go on beneath it for a while plays it by

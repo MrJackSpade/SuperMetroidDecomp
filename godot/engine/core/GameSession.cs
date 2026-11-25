@@ -342,6 +342,15 @@ public sealed class GameSession
                     done.Add(mode);
             }
 
+            // The player lasts the session. One standing in a room that goes with a mode done with is taken out of
+            // it first, as on leaving any room, to go on to whatever room comes next; a player the session has already
+            // replaced goes with its room.
+            if (_player is not null && GodotObject.IsInstanceValid(_player) && _player.GetParent() is Room left
+                && done.Any(mode => mode.IsAncestorOf(left)))
+            {
+                left.Teardown();
+            }
+
             foreach (GameMode mode in done)
             {
                 _host.RemoveChild(mode);

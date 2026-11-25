@@ -113,11 +113,16 @@ public partial class Intro : Cinematic
         _data = Session.Content.ReadData(DataFile);
         _timelines = TimelineSet.ReadFrom(_data);
 
-        var scenes = new CanvasLayer { Name = "Scenes", Layer = 1 };
-        AddChild(scenes);
+        // The colour behind the scenes lies on a layer of its own beneath them. A room shown in a scene draws its
+        // tiles and what lies behind it at depths below everything else of its layer, and a colour laid in the same
+        // layer would hide them.
+        var behind = new CanvasLayer { Name = "Backdrop", Layer = 0 };
+        AddChild(behind);
         var black = new ColorRect { Name = "Black", Color = new Color(_data.Text("backdrop")) };
         black.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        scenes.AddChild(black);
+        behind.AddChild(black);
+        var scenes = new CanvasLayer { Name = "Scenes", Layer = 1 };
+        AddChild(scenes);
         _sceneRoot = new Node2D { Name = "Scene", Modulate = new Color(1, 1, 1, 0) };
         scenes.AddChild(_sceneRoot);
 

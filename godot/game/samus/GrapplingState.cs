@@ -355,7 +355,8 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// </summary>
     private PlayerState LetGo(Player owner, SamusGrapple? grapple, GrappleSwingRules rules)
     {
-        grapple?.Release();
+        // The line itself ends on the update after this one, as the cartridge's teardown does.
+        grapple?.EndOnNextUpdate();
         if (_turning == 0 && _angle == HalfTurn)
         {
             owner.Velocity = PixelVelocity.Zero;

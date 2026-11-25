@@ -89,8 +89,8 @@ public partial class SamusGrapple : Node2D
     /// <summary>The line's length as it is counted while it reaches out.</summary>
     private int _length;
 
-    /// <summary>Whether the line was fired on this update, which only begins it.</summary>
-    private bool _begunNow;
+    /// <summary>Whether this update's step of the line is already spent: by its firing, which only begins it, or by its being let go.</summary>
+    private bool _stepSpent;
     private ILatchable? _held;
     private Block? _heldBlock;
     private GrappleSwingRules? _swing;
@@ -135,7 +135,7 @@ public partial class SamusGrapple : Node2D
         _reached = PixelOffset.Zero;
         _length = 0;
         _phase = Phase.Firing;
-        _begunNow = true;
+        _stepSpent = true;
         samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons", priority: SoundPriority.WhenIdle);
 
         // Its firing, like a beam shot's, takes back the asking again of a charge's sound.
@@ -168,10 +168,10 @@ public partial class SamusGrapple : Node2D
     /// </summary>
     public void Step(Samus samus)
     {
-        // The update a line is fired on only begins it.
-        if (_begunNow)
+        // The update a line is fired on only begins it, and one let go on this update ends on the next.
+        if (_stepSpent)
         {
-            _begunNow = false;
+            _stepSpent = false;
             QueueRedraw();
             return;
         }
@@ -247,6 +247,19 @@ public partial class SamusGrapple : Node2D
         // Only the block at the last substep's end gives the line up.
         if (stopped)
             GiveUp();
+        QueueRedraw();
+    }
+
+    /// <summary>
+    /// Lets go as her swing ends, by her letting go or by a drop: the line stays as it is for this update, still
+    /// holding what it held, and ends on the next, when its end is heard and her beams' colours are her own again.
+    /// </summary>
+    public void EndOnNextUpdate()
+    {
+        if (!IsOut)
+            return;
+        _tip = Anchor;
+        (_phase, _stepSpent) = (Phase.CancelPending, true);
         QueueRedraw();
     }
 

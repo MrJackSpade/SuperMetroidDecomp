@@ -133,7 +133,11 @@ internal static partial class EngineTimelines
                             pending.AddRange(reached.Split(And));
                         break;
                     case AnimationBeat<TFrame, TEvent>.HeldFrame held:
-                        // The animation rests here: a step that comes round to itself.
+                        // The animation rests here: a step that comes round to itself. What was raised before the
+                        // held frame is reached once, as the frame first shows, on a step of its own before the
+                        // rest; on the resting step it would be reached again every time that came round.
+                        if (pending.Count > 0)
+                            Add(picture(held.Shown), 1);
                         Add(picture(held.Shown), 1);
                         restsOn = steps.Count - 1;
                         return false;

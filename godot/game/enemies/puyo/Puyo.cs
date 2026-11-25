@@ -190,9 +190,9 @@ public partial class Puyo : Enemy
         {
             if (rising)
             {
-                // Meeting a ceiling, it turns back for its next hop only while Samus is charging her beam, which is
-                // when the original's leftover value says so.
-                _turnBack = Room.Player.Weapons.ChargedFor > 0 ? Facing.Opposite() : null;
+                // Meeting a ceiling, it turns back for its next hop: on the cartridge that hangs on what was last
+                // drawn, which in every update of play says to turn back.
+                _turnBack = Facing.Opposite();
                 BeginDrop();
             }
             else

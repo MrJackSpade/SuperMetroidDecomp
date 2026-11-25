@@ -74,6 +74,11 @@ public partial class MotherBrainGlassShard : Projectile, IHasValues
         RandomDraw roll = random.Draw();
         if (roll.Part(5, 1) != 0 || roll.Part(10, 1) != 0)
             return;
+
+        // With no place free among what the room's enemies launch and leave there is no sparkle, and no number is
+        // drawn for where it would have lain.
+        if (!room.HasFreePlace)
+            return;
         int bits = BitOperations.Log2((uint)SparkleSpread);
         int across = random.Draw().Part(0, bits) - SparkleCentre, down = random.Draw().Part(0, bits) - SparkleCentre;
         room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(SparkleEffect)), Position + PixelOffset.FromWhole(across, down)));

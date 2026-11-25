@@ -1042,6 +1042,10 @@ public partial class Samus : Player
         for (int part = 0; part < lights.Length; part++)
         {
             lights[part].Begin(part, Facing == Facing.Right, lights);
+
+            // The leading pair become the trailing pair's shot as they start to fall, as the cartridge's do.
+            if (part < 2 && !ReferenceEquals(trailing, shot))
+                lights[part].FallsAs = trailing;
             Room.Spawn(lights[part]);
         }
 

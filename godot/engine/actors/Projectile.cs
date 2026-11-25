@@ -264,6 +264,24 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     }
 
     /// <summary>
+    /// Makes the projectile a shot of another type from now on, where it is and going as it goes: its hit's damage
+    /// and kinds, its size and its timeline or picture become that type's. Its side, whoever launched it and how it
+    /// otherwise behaves stay.
+    /// </summary>
+    protected void BecomeShotOf(ShotType type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        _hit = new Hit(type.Damage, Hit.Side, [.. type.Kinds]) { Source = Hit.Source, Direction = Hit.Direction };
+        (_width, _height) = (type.Settings.Width, type.Settings.Height);
+        if (_hurtbox is not null)
+            _hurtbox.Rect = new PixelRect(-_width / 2, -_height / 2, _width, _height);
+        if (type.Settings.Timeline.Length > 0)
+            PlayTimeline(type.Settings.Timeline);
+        else if (type.Settings.Picture.Length > 0)
+            _visual?.Show(Named(type.Settings.Picture));
+    }
+
+    /// <summary>
     /// Called for each cue the projectile's timeline reaches, but a cue of its size, which the projectile takes itself.
     /// A projectile of its own class acts on its cues here.
     /// </summary>

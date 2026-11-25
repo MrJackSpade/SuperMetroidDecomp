@@ -248,10 +248,18 @@ public partial class SpecialAttack : Projectile
             partner._partnerSpentOn = room.Session.UpdateNumber;
     }
 
+    /// <summary>
+    /// The shot a leading light becomes as it starts to fall: the trailing pair's, an uncharged shot with its own
+    /// harm and pictures. Null for a light that falls as it is.
+    /// </summary>
+    public ShotType? FallsAs { get; set; }
+
     private void BeginFall()
     {
         Position += PixelOffset.FromWhole(_part < 2 ? 16 : -16, 0);
         _stage = Stage.Last;
+        if (FallsAs is { } echo)
+            BecomeShotOf(echo);
     }
 
     private void StepWave(Room room, Player samus)

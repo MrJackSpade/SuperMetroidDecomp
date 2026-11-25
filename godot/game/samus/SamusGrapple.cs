@@ -57,6 +57,14 @@ public partial class SamusGrapple : Node2D
     /// <summary>Where the line holds, when latched.</summary>
     public PixelPosition Anchor => _held?.LatchPoint ?? _tip;
 
+    /// <summary>How far the line had reached out, in whole pixels, when it took hold.</summary>
+    public int Length => _length.Whole;
+
+    private GrappleSwingRules? _swing;
+
+    /// <summary>The numbers of the swing a latched line holds her in.</summary>
+    public GrappleSwingRules Swing => _swing ?? throw new InvalidOperationException("The grapple beam's values were not read.");
+
     /// <summary>Reads the grapple's values from the group of Samus's data file that gives them.</summary>
     public void ReadValues(DataNode data)
     {
@@ -64,6 +72,7 @@ public partial class SamusGrapple : Node2D
         DiagonalExtendSpeed = data.Distance("extend_diagonal_speed").ToNumber();
         Reach = data.Int("reach");
         Damage = data.Int("damage");
+        _swing = GrappleSwingRules.Read(data.Get("swing"));
     }
 
     /// <summary>Fires the line the way <paramref name="samus"/> aims, if it is not already out.</summary>

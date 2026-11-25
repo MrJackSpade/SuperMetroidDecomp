@@ -143,7 +143,6 @@ public sealed partial class EngineAssetWriter
             // A bomb jump thrown to one side goes by speeds of its own, the same in every medium.
             moves["bomb_jumping"] = Moves(SamusHorizontalSpeedDefinitions.DiagonalBombJump);
             bool liquid = medium != SamusLiquidMedium.Air;
-            int share = liquid ? GrappleBeamDefinitions.Physics.SubmergedShare : 1;
 
             // In a liquid every picture of her animations is held longer, so the changes they time last longer.
             var updates = new JsonObject();
@@ -173,13 +172,6 @@ public sealed partial class EngineAssetWriter
                         ? SamusVerticalMotionDefinitions.SpaceJumpLiquidMinimumFallingSpeed
                         : SamusVerticalMotionDefinitions.SpaceJumpAirMinimumFallingSpeed),
                     ["space_jump_most_fall"] = Number(SamusVerticalMotionDefinitions.SpaceJumpFallingSpeedLimit),
-
-                    // The swing's pull and push are in steps of a turn an update; under a liquid she takes a share of each.
-                    ["grapple_swing_pull"] = Steps(GrappleBeamDefinitions.Physics.GravityMagnitude) / share,
-                    ["grapple_swing_push"] = Steps(GrappleBeamDefinitions.Physics.DirectionInputMagnitude) / share,
-                    ["grapple_reel_speed"] = GrappleBeamDefinitions.Swing.RopeLengthStep,
-                    ["grapple_shortest_line"] = GrappleBeamDefinitions.Swing.ShortestRope,
-                    ["grapple_longest_line"] = GrappleBeamDefinitions.Swing.LongestLetOutRope,
                 },
             };
         }
@@ -395,6 +387,51 @@ public sealed partial class EngineAssetWriter
             ["extend_diagonal_speed"] = GrappleFiringDefinitions.DiagonalSpeed.Pixels,
             ["reach"] = GrappleBeamDefinitions.Physics.FiringCancelLength,
             ["damage"] = EngineReactions.GrappleHitDamage,
+
+            // The swing's own numbers: its speeds of turning in 256ths of an angle step an update, its lengths in pixels.
+            ["swing"] = new JsonObject
+            {
+                ["gravity"] = GrappleBeamDefinitions.Physics.GravityMagnitude.FractionsOfStep,
+                ["push"] = GrappleBeamDefinitions.Physics.DirectionInputMagnitude.FractionsOfStep,
+                ["correction"] = GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude.FractionsOfStep,
+                ["most_turning"] = GrappleBeamDefinitions.Physics.MaximumAngularVelocity.FractionsOfStep,
+                ["jump_kick"] = GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.FractionsOfStep,
+                ["kick_decay"] = GrappleBeamDefinitions.Physics.JumpImpulseDecay.FractionsOfStep,
+                ["still_kick"] = GrappleBeamDefinitions.Physics.MotionlessPumpKick.FractionsOfStep,
+                ["resting_turning"] = GrappleBeamDefinitions.Physics.RestingAngularVelocity.FractionsOfStep,
+                ["submerged_share"] = GrappleBeamDefinitions.Physics.SubmergedShare,
+                ["submerged_turn_share"] = GrappleBeamDefinitions.Physics.SubmergedSwingShare,
+                ["submerged_turn_parts"] = GrappleBeamDefinitions.Physics.SubmergedSwingParts,
+                ["upper_share"] = GrappleBeamDefinitions.Physics.UpperQuadrantShare,
+                ["bounce_updates"] = GrappleBeamDefinitions.Physics.CollisionBounceFrames,
+                ["length_step"] = GrappleBeamDefinitions.Swing.RopeLengthStep,
+                ["shortest"] = GrappleBeamDefinitions.Swing.ShortestRope,
+                ["longest_let_out"] = GrappleBeamDefinitions.Swing.LongestLetOutRope,
+                ["length_cap"] = GrappleBeamDefinitions.Swing.RopeLengthCap,
+                ["shortening_probe"] = GrappleBeamDefinitions.Swing.ShorteningProbeOffset,
+                ["lengthening_probe"] = GrappleBeamDefinitions.Swing.LengtheningProbeOffset,
+                ["body_point_spacing"] = GrappleBeamDefinitions.Swing.BodyPointSpacing,
+                ["body_points"] = GrappleBeamDefinitions.Swing.BodyPointCount,
+                ["stopping_points"] = GrappleBeamDefinitions.Swing.StoppingPointsNearHand,
+                ["anchor_toward_positive"] = GrappleBeamDefinitions.Swing.AnchorBiasTowardPositive,
+                ["anchor_toward_negative"] = GrappleBeamDefinitions.Swing.AnchorBiasTowardNegative,
+                ["release_lead"] = GrappleBeamDefinitions.Physics.ReleaseLeadSteps,
+                ["release_lead_per_step"] = GrappleBeamDefinitions.Physics.ReleaseLeadStepsPerSwingStep,
+                ["retraction"] = GrappleBeamDefinitions.Physics.InitialConnectionRetraction,
+                ["long_line"] = GrappleBeamDefinitions.Connection.LongRope,
+                ["long_line_shortening"] = GrappleBeamDefinitions.Connection.LongRopeShortening,
+                ["fast_turning"] = GrappleSlowScrollDefinitions.FastSwingAngularSpeed.FractionsOfStep,
+                ["body_left"] = EngineNames.List(GrappleSwingDirection.All.Select(way =>
+                {
+                    Offset16<RoomPixels> place = GrappleBodyPlacements.Offset(way, SamusFacingDirection.Left);
+                    return (JsonNode)new JsonObject { ["x"] = place.X, ["y"] = place.Y };
+                })),
+                ["body_right"] = EngineNames.List(GrappleSwingDirection.All.Select(way =>
+                {
+                    Offset16<RoomPixels> place = GrappleBodyPlacements.Offset(way, SamusFacingDirection.Right);
+                    return (JsonNode)new JsonObject { ["x"] = place.X, ["y"] = place.Y };
+                })),
+            },
         });
         var specialAttacks = new JsonObject();
         foreach ((SamusBeamFlags beam, SamusComboKind kind) in SamusComboDefinitions.KindsOfSingleBeams)

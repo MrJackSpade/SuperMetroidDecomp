@@ -1007,6 +1007,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
   next update; the speed boost's is at work from the update after she reaches full boost.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
+- **Her swing on the grapple beam** (`GrapplingState`) is the cartridge's, not a weight on a string: a line of a set
+  length turning about what holds it, its angle counted clockwise from straight up in 65536ths of a turn and its
+  turning in 256ths of an angle step. She is put at the line's end each update, by the way the line runs and the
+  way she faces; nothing moves her body through the room, and the ground is met only at the points along the
+  line the swing tests. Its numbers and the places of her body are data (`GrappleSwingRules`, the group "swing"
+  of the grapple's values).
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a

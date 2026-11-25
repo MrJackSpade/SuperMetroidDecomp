@@ -2,67 +2,92 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
+using Game.Compatibility;
 using Game.Data;
 
 namespace Game;
 
 /// <summary>
-/// Swinging on the grapple beam: she hangs from where the line holds and swings like a weight on a string. Steering
-/// pushes the swing; up and down draw the line in and let it out. Letting go of the attack lets go of the line, and
-/// she flies off with the speed the swing had.
+/// Swinging on the grapple beam, as the cartridge swings her. She hangs from the end of a line of a set length that
+/// turns about what holds it, and is put where the line's end is: nothing moves her body through the room. The
+/// line's angle is counted clockwise from straight up in 65536ths of a turn, 256 to an angle step, and its turning
+/// in 256ths of a step an update.
+/// <list type="bullet">
+/// <item>A fresh press of up draws the line in and one of down lets it out, a few pixels an update from then on,
+/// tried a pixel at a time against the ground at her hand's end or her feet's; the line draws itself in from the
+/// moment it takes hold.</item>
+/// <item>In the lower half of the turn a held direction pushes the swing, and kicks a still one hanging straight
+/// down into motion.</item>
+/// <item>Gravity is by quarter of the turn, not by the sine: whole in the lower two, a share in the upper two, and
+/// none hanging straight down, where a slow swing stops. A small correction is added when the swing turns against
+/// the side she hangs on.</item>
+/// <item>The turn of an update is tried an angle step at a time against the ground at points along her body. A
+/// strike leaves her in the middle of the last step that was clear and turns the swing back at half its speed, or
+/// stops it when the line is at its shortest and the strike is by her hand; for a while after a bounce a fresh press
+/// of the jump adds a kick the way the swing turns.</item>
+/// <item>Under a liquid without the gravity suit the swing takes a share of gravity, of the push and of the kick,
+/// and turns through a share of its speed. Whether she is under one is looked at after each update, for the next.</item>
+/// </list>
+/// Letting go of the attack, or losing what the line held, lets go: hanging still and straight down she drops, and
+/// otherwise she flies off at twice the swing's speed along the line's own direction, facing the way it turned.
 /// </summary>
 public sealed class GrapplingState : PlayerState, ISamusLook
 {
-    /// <summary>How many parts one angle step of 256 to the turn is divided into, for a smooth swing.</summary>
+    /// <summary>How many parts an angle step is divided into.</summary>
     private const int Parts = 256;
 
+    /// <summary>The angle steps of a quarter, a half and three quarters of a turn, in parts.</summary>
+    private const int QuarterTurn = Turns.PerTurn / 4 * Parts, HalfTurn = Turns.PerTurn / 2 * Parts, ThreeQuarterTurn = 3 * QuarterTurn;
+
+    /// <summary>The parts in a whole turn.</summary>
+    private const int WholeTurn = Turns.PerTurn * Parts;
+
     /// <summary>
-    /// While the swing turns a quarter of a step an update or faster, either way, the view follows her three pixels an
-    /// update toward keeping her between 96 and 160 across it and 112 and 144 down it, as the cartridge's does.
+    /// While the swing turns fast, either way, the view follows her three pixels an update toward keeping her between
+    /// 96 and 160 across it and 112 and 144 down it, as the cartridge's does.
     /// </summary>
     private static readonly SlowFollowing FastSwingView = new(3, new PixelRect(96, 112, 64, 32));
 
+    private GrappleSwingRules? _rules;
+
+    /// <summary>The line's angle, clockwise from straight up, in parts of a step: none through a whole turn less one.</summary>
+    private int _angle;
+
+    /// <summary>How fast the angle changes each update, in parts of a step.</summary>
+    private int _turning;
+
+    /// <summary>What a held direction, gravity and the correction add to the turning on this update, and the jump's kick.</summary>
+    private int _pushing;
+    private int _pulling;
+    private int _correcting;
+    private int _kick;
+
+    /// <summary>How long the line is, and how its length changes each update.</summary>
+    private int _length;
+    private int _lengthChange;
+
+    /// <summary>The updates left of a bounce off the ground, in which the jump adds its kick.</summary>
+    private int _bounceLeft;
+
+    /// <summary>Whether she was under a liquid, without the gravity suit, when last looked at.</summary>
+    private bool _submerged;
+
+    /// <summary>What holds the line, put within its block where the line leaves it.</summary>
+    private PixelPosition _anchor;
+
     /// <inheritdoc/>
-    public override SlowFollowing? ViewFollowsSlowly(Player owner) => Math.Abs(_turning) >= Parts / 4 ? FastSwingView : null;
-
-    /// <summary>The name, in each medium's speeds, of the pull that swings her back toward hanging straight down.</summary>
-    public const string SwingPull = "grapple_swing_pull";
-
-    /// <summary>The name, in each medium's speeds, of the push steering gives her swing.</summary>
-    public const string SwingPush = "grapple_swing_push";
-
-    /// <summary>The name, in each medium's speeds, of how fast the line is drawn in and let out.</summary>
-    public const string ReelSpeed = "grapple_reel_speed";
-
-    /// <summary>The name, in each medium's speeds, of the shortest the line is drawn in to.</summary>
-    public const string ShortestLine = "grapple_shortest_line";
-
-    /// <summary>The name, in each medium's speeds, of the longest the line is let out to.</summary>
-    public const string LongestLine = "grapple_longest_line";
-
-    /// <summary>Where on its arc she is: the angle from hanging straight down, clockwise seen from the front, in parts of a step.</summary>
-    private long _angle;
-
-    /// <summary>How fast the angle is changing each update.</summary>
-    private long _turning;
-
-    /// <summary>How long the line is.</summary>
-    private Pixels _length;
+    public override SlowFollowing? ViewFollowsSlowly(Player owner) =>
+        _rules is { } rules && Math.Abs(_turning) >= rules.FastTurning ? FastSwingView : null;
 
     /// <inheritdoc/>
     public string Look
     {
         get
         {
-            // She is shown one of thirty-two ways by the way the line runs from her: straight down is the first of
-            // them and straight up, as she hangs, the seventeenth, counted round by way of the line running to her left.
-            // The way is the one nearest the whole step the line's angle lies in, however far round she has swung:
-            // the same number facing either way, as the cartridge takes it from the angle alone.
-            long step = Math.DivRem(128 * Parts - _angle + Parts * 4, Parts, out long part);
-            if (part < 0)
-                step--;
-            long way = ((step % Turns.PerTurn + Turns.PerTurn) % Turns.PerTurn) / 8;
-            return $"grappling_{way}";
+            // She is shown one of so many ways by the way the line runs: the way nearest the whole step its angle lies
+            // in, counted round from straight up, the same number facing either way.
+            int ways = _rules?.BodyLeft.Count ?? 32;
+            return $"grappling_{Way(ways)}";
         }
     }
 
@@ -77,15 +102,23 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     {
         var samus = (Samus)owner;
         SamusGrapple grapple = samus.Grapple ?? throw new InvalidOperationException("Samus is swinging with no grapple beam.");
+        GrappleSwingRules rules = _rules = grapple.Swing;
         owner.LoseMomentum();
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
-        PixelOffset hanging = owner.Position - grapple.Anchor;
-        long across = hanging.X.Whole, down = hanging.Y.Whole;
-        _length = Pixels.FromWhole(WholeRoot(across * across + down * down));
-        _angle = AngleOf(across, down);
-        // The speed she had along the arc carries into the swing.
-        _turning = _length.Whole == 0 ? 0 : owner.Velocity.X.Whole * Parts * 40 / Math.Max(1, _length.Whole);
+
+        // The angle is that of where she was when the line took hold, a whole step; a long line is shortened; and
+        // the line begins to draw itself in. Her speeds are cleared.
+        _anchor = grapple.Anchor;
+        PixelOffset hanging = owner.Position - _anchor;
+        _angle = AngleOf(hanging.X.Whole, hanging.Y.Whole) * Parts;
+        _length = grapple.Length;
+        if (_length >= rules.LongLine)
+            _length -= rules.LongLineShortening;
+        (_turning, _pushing, _pulling, _correcting, _kick, _bounceLeft) = (0, 0, 0, 0, 0, 0);
+        _lengthChange = rules.Retraction;
+        _submerged = IsSubmerged(owner);
         owner.Velocity = PixelVelocity.Zero;
+        PlaceFromLine(owner, rules);
     }
 
     /// <inheritdoc/>
@@ -93,104 +126,291 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     {
         var samus = (Samus)owner;
         SamusGrapple? grapple = samus.Grapple;
+        GrappleSwingRules rules = _rules ?? throw new InvalidOperationException("Samus swings before her swing was begun.");
         if (grapple is null || !grapple.IsLatched || !owner.Input.IsHeld(GameAction.Attack) || samus.Selected != Equipment.GrappleBeam)
-            return LetGo(owner, grapple);
+            return LetGo(owner, grapple, rules);
 
-        PlayerMedium medium = owner.Medium;
-        int reel = (owner.Input.IsHeld(GameAction.Down) ? 1 : 0) - (owner.Input.IsHeld(GameAction.Up) ? 1 : 0);
-        if (reel != 0)
-        {
-            Pixels length = _length + medium.Speed(ReelSpeed) * reel;
-            Pixels shortest = medium.Speed(ShortestLine), longest = medium.Speed(LongestLine);
-            _length = length < shortest ? shortest : length > longest ? longest : length;
-        }
+        // What holds the line may have moved; the line's end is reckoned from it afresh.
+        _anchor = grapple.Anchor;
+        TakeInput(owner, rules);
+        ChangeLength(owner, rules);
+        ReckonGravity(rules);
 
-        // The pull is strongest with the line level and nothing hanging straight down, as a weight on a string.
-        long pull = Sine(_angle, medium.Speed(SwingPull));
-        long push = FractionsOf(medium.Speed(SwingPush)) * owner.Intent;
-        _turning += (-pull - push) * Parts / Pixels.FractionsPerPixel;
-        _angle += _turning;
+        // The turning takes the push and gravity, and the correction where it turns against the side she hangs on:
+        // turning back with the angle in the first half of the turn, or on with it in the second.
+        int turning = _turning + _pushing + _pulling;
+        if ((turning < 0) != (_angle >= HalfTurn))
+            turning += _correcting;
+        _turning = Math.Clamp(turning, -rules.MostTurning, rules.MostTurning);
 
-        PixelPosition anchor = grapple.Anchor;
-        var target = new PixelPosition(
-            anchor.X + FromFractions(Sine(_angle, _length)),
-            anchor.Y + FromFractions(Sine(_angle + 64 * Parts, _length)));
-        PixelOffset move = target - owner.Position;
-        MoveOptions swing = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
-        bool stopped = owner.Room.Mover.MoveAcross(owner.Body, move.X, swing).Blocked;
-        stopped |= owner.Room.Mover.MoveDown(owner.Body, move.Y, swing).Blocked;
-        if (stopped)
-        {
-            // Meeting something solid turns the swing back with half its speed, from where she actually is.
-            PixelOffset hanging = owner.Position - anchor;
-            _angle = AngleOf(hanging.X.Whole, hanging.Y.Whole);
-            _turning = -_turning / 2;
-        }
-
-        if (!move.X.IsZero)
-            owner.Facing = move.X.IsNegative ? Facing.Left : Facing.Right;
-        owner.Velocity = new PixelVelocity(move.X, move.Y);
+        // A fresh press of the jump while a bounce lasts kicks the way the swing turns; a still swing takes none.
+        if (_bounceLeft > 0 && owner.Input.WasPressed(GameAction.Jump))
+            _kick = Math.Sign(_turning) * (_submerged ? rules.JumpKick / rules.SubmergedShare : rules.JumpKick);
+        Turn(owner, rules);
+        PlaceFromLine(owner, rules);
+        _submerged = IsSubmerged(owner);
         return null;
     }
 
-    /// <summary>Lets go of the line: she flies off with the speed the swing had.</summary>
-    private static PlayerState LetGo(Player owner, SamusGrapple? grapple)
+    /// <summary>
+    /// The line's length changes on a fresh press of up or down, and stays changing; a held direction pushes the
+    /// swing only through the lower half of the turn.
+    /// </summary>
+    private void TakeInput(Player owner, GrappleSwingRules rules)
     {
-        grapple?.Release();
-        return owner.IsOnGround ? new StandingState() : owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();
+        if (owner.Input.WasPressed(GameAction.Up))
+        {
+            if (_length != 0)
+                _lengthChange = -rules.LengthStep;
+        }
+        else if (owner.Input.WasPressed(GameAction.Down))
+        {
+            if (_length < rules.LengthCap)
+                _lengthChange = rules.LengthStep;
+            else
+                _length = rules.LengthCap;
+        }
+
+        _pushing = 0;
+        if (_angle < QuarterTurn || _angle >= ThreeQuarterTurn)
+            return;
+        int push = _submerged ? rules.Push / rules.SubmergedShare : rules.Push;
+        bool still = HangsStraightDown && _turning == 0;
+        if (owner.Input.IsHeld(GameAction.Left))
+        {
+            if (still)
+                _turning = rules.StillKick;
+            _pushing = push;
+        }
+        else if (owner.Input.IsHeld(GameAction.Right))
+        {
+            if (still)
+                _turning = -rules.StillKick;
+            _pushing = -push;
+        }
     }
 
-    /// <summary>The angle, in parts of a step from hanging straight down, of a point hanging <paramref name="across"/> and <paramref name="down"/> from the anchor.</summary>
-    private static long AngleOf(long across, long down)
+    /// <summary>
+    /// Walks the line's length toward what its change asks, a pixel at a time, testing her hand's end when it shortens
+    /// and her feet's when it lengthens, and keeps the last length that fitted. A bound reached ends the change; a
+    /// strike leaves it, to be tried again on the next update.
+    /// </summary>
+    private void ChangeLength(Player owner, GrappleSwingRules rules)
     {
-        // The step whose direction lies closest to the point's: whole numbers only, so every machine agrees.
-        Pixels size = Pixels.FromWhole(4096);
-        long best = 0, bestAlong = long.MinValue;
-        for (int step = 0; step < Turns.PerTurn; step++)
+        if (_lengthChange == 0)
+            return;
+        int target = _length + _lengthChange, direction, probe;
+        if (_lengthChange < 0)
         {
-            long along = across * Turns.Sine(step, size).Whole + down * Turns.Cosine(step, size).Whole;
-            if (along > bestAlong)
+            (direction, probe) = (-1, rules.ShorteningProbe);
+            if (target < rules.Shortest)
+                (target, _lengthChange) = (rules.Shortest, 0);
+        }
+        else
+        {
+            (direction, probe) = (1, rules.LengtheningProbe);
+            if (target >= rules.LongestLetOut)
+                (target, _lengthChange) = (rules.LongestLetOut, 0);
+        }
+
+        int length = _length;
+        while (length != target)
+        {
+            int candidate = length + direction;
+            if (Strikes(owner, PointAt(rules, WholeStep, candidate + probe)))
+                break;
+            length = candidate;
+        }
+
+        _length = length;
+    }
+
+    /// <summary>
+    /// Gravity and the correction for this update, by the quarter of the turn the angle lies in: whole below the
+    /// level of what holds the line and a share above it, each swinging her back toward hanging straight down, where
+    /// there is neither and a slow swing stops. Under a liquid gravity is a share of itself first.
+    /// </summary>
+    private void ReckonGravity(GrappleSwingRules rules)
+    {
+        int gravity = _submerged ? rules.Gravity / rules.SubmergedShare : rules.Gravity;
+        int correction = rules.Correction;
+        if (_angle >= ThreeQuarterTurn)
+        {
+            (_correcting, _pulling) = (-(correction / rules.UpperShare), -(gravity / rules.UpperShare));
+        }
+        else if (_angle >= HalfTurn)
+        {
+            if (HangsStraightDown)
             {
-                bestAlong = along;
-                best = step;
+                (_correcting, _pulling) = (0, 0);
+                if (Math.Abs(_turning) < rules.RestingTurning)
+                    _turning = 0;
+            }
+            else
+            {
+                (_correcting, _pulling) = (-correction, -gravity);
             }
         }
-
-        return best * Parts;
+        else if (_angle >= QuarterTurn)
+        {
+            (_correcting, _pulling) = (correction, gravity);
+        }
+        else
+        {
+            (_correcting, _pulling) = (correction / rules.UpperShare, gravity / rules.UpperShare);
+        }
     }
 
-    /// <summary>The whole number nearest below the square root of <paramref name="value"/>.</summary>
-    private static int WholeRoot(long value)
+    /// <summary>
+    /// Turns the line by this update's turning and kick, an angle step at a time, testing the points along her body
+    /// at each step. A strike leaves the angle in the middle of the last step that was clear: on the shortest line, by
+    /// her hand, the swing stops; otherwise it turns back at half its speed and the jump's kick may be added for a
+    /// while. With nothing struck the whole turn is kept, a bounce ages and the kick dies away.
+    /// </summary>
+    private void Turn(Player owner, GrappleSwingRules rules)
     {
-        long root = 0;
-        for (long bit = 1L << 30; bit > 0; bit >>= 1)
+        int combined = _turning + _kick;
+        int turn = _submerged ? combined * rules.SubmergedTurnShare / rules.SubmergedTurnParts : combined;
+        if (turn == 0)
+            return;
+        int target = Wrapped(_angle + turn);
+        int targetStep = target / Parts, safe = WholeStep, way = Math.Sign(combined);
+        while (safe != targetStep)
         {
-            if ((root + bit) * (root + bit) <= value)
-                root += bit;
+            int candidate = Turns.Wrap(safe + way);
+            if (StruckPoint(owner, rules, candidate) is { } struck)
+            {
+                _angle = safe * Parts + Parts / 2;
+                if (_length == rules.Shortest && struck < rules.StoppingPoints)
+                {
+                    (_turning, _kick) = (0, 0);
+                }
+                else
+                {
+                    _bounceLeft = rules.BounceUpdates;
+                    (_turning, _kick) = (ReversedAtHalf(_turning), ReversedAtHalf(_kick));
+                }
+
+                return;
+            }
+
+            safe = candidate;
         }
 
-        return (int)root;
+        _angle = target;
+        if (_bounceLeft > 0)
+            _bounceLeft--;
+        _kick = _kick < 0 ? Math.Min(0, _kick + rules.KickDecay) : Math.Max(0, _kick - rules.KickDecay);
     }
 
-    /// <summary><paramref name="size"/> times the sine of an angle given in parts of a step, in fractions of a pixel, smoothed between whole steps.</summary>
-    private static long Sine(long angle, Pixels size)
+    /// <summary>Half a speed the other way, the half rounded toward below nothing before it is turned about.</summary>
+    private static int ReversedAtHalf(int speed) => -(int)Math.Floor(speed / 2.0);
+
+    /// <summary>Which of the points along her body, counted from her hand, first strikes the ground with the line at an angle step; none when all are clear.</summary>
+    private int? StruckPoint(Player owner, GrappleSwingRules rules, int step)
     {
-        long step = Math.DivRem(angle, Parts, out long part);
-        if (part < 0)
+        for (int point = 0; point < rules.BodyPoints; point++)
         {
-            part += Parts;
-            step--;
+            if (Strikes(owner, PointAt(rules, step, _length + (point + 1) * rules.BodyPointSpacing)))
+                return point;
         }
 
-        long here = FractionsOf(Turns.Sine((int)(step % Turns.PerTurn), size));
-        long next = FractionsOf(Turns.Sine((int)((step + 1) % Turns.PerTurn), size));
-        return here + (next - here) * part / Parts;
+        return null;
     }
 
-    /// <summary>A distance as a count of fractions of a pixel.</summary>
-    private static long FractionsOf(Pixels distance) => (long)distance.Whole * Pixels.FractionsPerPixel + distance.Fraction;
+    /// <summary>
+    /// The point a distance along the line's direction at an angle step, from what holds the line. What holds it is
+    /// first put within its block where the line leaves it, a pixel nearer the block's start on an axis the line runs
+    /// back along, and stays there.
+    /// </summary>
+    private PixelPosition PointAt(GrappleSwingRules rules, int step, int distance)
+    {
+        int across = CartridgeAngles.SignedSine(step), down = CartridgeAngles.SignedSine(step - Turns.PerTurn / 4);
+        _anchor = PixelPosition.FromWhole(
+            BlockStart(_anchor.X.Whole) + (across < 0 ? rules.AnchorTowardNegative : rules.AnchorTowardPositive),
+            BlockStart(_anchor.Y.Whole) + (down < 0 ? rules.AnchorTowardNegative : rules.AnchorTowardPositive));
+        return PixelPosition.FromWhole(_anchor.X.Whole + across * distance / 256, _anchor.Y.Whole + down * distance / 256);
+    }
 
-    /// <summary>A distance from a count of fractions of a pixel.</summary>
+    /// <summary>Where the block a pixel lies in starts.</summary>
+    private static int BlockStart(int pixel) => pixel & ~15;
+
+    /// <summary>Whether the block at a point stops the swing: anything solid does, a slope as a wall.</summary>
+    private static bool Strikes(Player owner, PixelPosition point) =>
+        owner.Room.Terrain.IsSolidIn(new PixelRect(point.X.Whole, point.Y.Whole, 1, 1), SlopeTreatment.Wall);
+
+    /// <summary>Puts her where the line's end is: at the line's length from what holds it, and from there by the way the line runs and the way she faces.</summary>
+    private void PlaceFromLine(Player owner, GrappleSwingRules rules)
+    {
+        PixelPosition end = PointAt(rules, WholeStep, _length);
+        IReadOnlyList<PixelOffset> places = owner.Facing == Facing.Left ? rules.BodyLeft : rules.BodyRight;
+        owner.Position = end + places[Way(places.Count)];
+    }
+
+    /// <summary>
+    /// Lets go of the line. Hanging still and exactly straight down she drops, her speeds cleared. Otherwise she
+    /// flies off at twice the swing's speed: down by the sine of the line's angle, and across by the sine of the
+    /// angle a quarter turn back, less a few steps for each whole step of the swing's speed, facing left when the
+    /// swing turned on and right when it turned back.
+    /// </summary>
+    private PlayerState LetGo(Player owner, SamusGrapple? grapple, GrappleSwingRules rules)
+    {
+        grapple?.Release();
+        if (_turning == 0 && _angle == HalfTurn)
+        {
+            owner.Velocity = PixelVelocity.Zero;
+            return owner.StateAtRest();
+        }
+
+        int twice = _turning * 2;
+        long down = (long)CartridgeAngles.SignedSine(WholeStep) * twice;
+        int wholeSteps = Math.Abs(_turning) / Parts;
+        int lead = rules.ReleaseLead - rules.ReleaseLeadPerStep * wholeSteps;
+        long across = Math.Abs((long)CartridgeAngles.SignedSine(Turns.Wrap(WholeStep - lead)) * twice);
+        owner.Facing = _turning >= 0 ? Facing.Left : Facing.Right;
+        owner.Velocity = new PixelVelocity(FromFractions(owner.Facing == Facing.Left ? -across : across), FromFractions(down));
+        return down < 0 ? new JumpingState(keepsSpeed: true) : new FallingState();
+    }
+
+    /// <summary>Whether a liquid slows her swing: she is in one without the suit that lets her move freely in it.</summary>
+    private static bool IsSubmerged(Player owner) => owner.IsHinderedByLiquid;
+
+    /// <summary>The whole angle step the line's angle lies in.</summary>
+    private int WholeStep => _angle / Parts;
+
+    /// <summary>Whether the line's angle lies in the step of hanging straight down.</summary>
+    private bool HangsStraightDown => WholeStep == Turns.PerTurn / 2;
+
+    /// <summary>Which of <paramref name="ways"/> evenly spaced ways, counted round from straight up, lies nearest the line's whole step: one halfway between two is the later.</summary>
+    private int Way(int ways) => (WholeStep * ways + Turns.PerTurn / 2) / Turns.PerTurn % ways;
+
+    private static int Wrapped(int angle) => ((angle % WholeTurn) + WholeTurn) % WholeTurn;
+
+    /// <summary>
+    /// The angle step, clockwise from straight up, of a point <paramref name="across"/> and <paramref name="down"/>
+    /// from what holds the line, as the cartridge reckons it an eighth of a turn at a time: from the nearer straight
+    /// direction, turned by the shorter side over the longer read evenly across the eighth, what is over dropped.
+    /// </summary>
+    private static int AngleOf(int across, int down)
+    {
+        int wide = Math.Abs(across), tall = Math.Abs(down);
+        if (wide == 0 && tall == 0)
+            return 0;
+        const int eighth = Turns.PerTurn / 8;
+        bool leanSameWay = (across < 0) == (down < 0);
+        if (tall < wide)
+        {
+            int steps = tall * eighth / wide;
+            int level = across < 0 ? 3 * Turns.PerTurn / 4 : Turns.PerTurn / 4;
+            return Turns.Wrap(level + (leanSameWay ? steps : -steps));
+        }
+
+        int turned = wide * eighth / tall;
+        int upright = down < 0 ? 0 : Turns.PerTurn / 2;
+        return Turns.Wrap(upright + (leanSameWay ? -turned : turned));
+    }
+
+    /// <summary>A distance from a count of 65536ths of a pixel.</summary>
     private static Pixels FromFractions(long fractions)
     {
         long whole = Math.DivRem(fractions, Pixels.FractionsPerPixel, out long fraction);

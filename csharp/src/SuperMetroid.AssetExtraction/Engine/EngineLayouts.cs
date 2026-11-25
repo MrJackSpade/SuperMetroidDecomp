@@ -68,6 +68,26 @@ internal sealed partial class EngineLayouts
         _content = content;
     }
 
+    /// <summary>What a heavy spike does in the layout being written; null where the layout is shown both with its area's power and without.</summary>
+    private int? _heavySpikesHurt = SpikeHazardDefinitions.HeavySpikeDamage;
+
+    /// <summary>
+    /// What a solid heavy spike does in one state of a room. The cartridge's heavy spikes do nothing in an area whose
+    /// machinery has no power until its boss is beaten, which is the room's state until the one chosen once that boss
+    /// is dead. A room of such an area with no state of its own for the boss's death is shown both ways by the one
+    /// layout, which cannot say either: null.
+    /// </summary>
+    private static int? HeavySpikeDamageIn(RoomDefinition room, RoomStateSettings state)
+    {
+        if (!AreaIds.Of(room.Area).PoweredFromBossDefeat)
+            return SpikeHazardDefinitions.HeavySpikeDamage;
+        RoomStateChoice choice = RoomStateSelectionDefinitions.Choices[room];
+        RoomStateCondition powered = RoomStateCondition.BossDead(DefeatedBosses.AreaBoss);
+        if (!choice.Branches.Any(branch => branch.Condition == powered))
+            return null;
+        return choice.Branches.Any(branch => branch.Condition == powered && ReferenceEquals(branch.State, state)) ? SpikeHazardDefinitions.HeavySpikeDamage : 0;
+    }
+
     /// <summary>Every state of every room, with its room.</summary>
     internal static IEnumerable<(RoomDefinition Room, RoomStateSettings State)> States()
     {
@@ -132,7 +152,12 @@ internal sealed partial class EngineLayouts
     /// <param name="Collision">What kind of block it becomes.</param>
     /// <param name="Block">The block of the room's graphics it shows; none for one that shows nothing.</param>
     /// <param name="Mirroring">How that block is mirrored.</param>
-    internal readonly partial record struct PatchCell(int Across, int Down, RoomCollisionType Collision, int? Block, BlockMirroring Mirroring);
+    /// <param name="Behavior">
+    /// What the block does from then on, where the change writes that with its kind; none for a change that gives
+    /// the block its kind and leaves what the level says it does.
+    /// </param>
+    internal readonly partial record struct PatchCell(
+        int Across, int Down, RoomCollisionType Collision, int? Block, BlockMirroring Mirroring, RoomBlockBehavior? Behavior = null);
 
     /// <summary>
     /// Gives the layout of one state of a room a named patch: the blocks a change to the room leaves, over the
@@ -147,6 +172,7 @@ internal sealed partial class EngineLayouts
             ? built
             : throw new InvalidDataException($"The layout {path} has not been built, and is given the patch {name}.");
         _moving = MovedIn(state);
+        _heavySpikesHurt = HeavySpikeDamageIn(room, state);
         // Later blocks of a change lie over earlier ones.
         var last = new Dictionary<(int Across, int Down), PatchCell>();
         foreach (PatchCell cell in cells)
@@ -172,8 +198,8 @@ internal sealed partial class EngineLayouts
 
                 RoomBlockAppearance appearance = cell.Block is int block ? RoomBlockAppearance.Of(block).WithMirroring(cell.Mirroring) : RoomBlockAppearance.Nothing;
                 // As in the old game, a change gives a block its kind and its picture and leaves what the level says
-                // the block there does: its slope, its reaction.
-                RoomBlockBehavior behavior = layout.Level.Behaviors[y * layout.Level.Size.X + x].In(room.Area);
+                // the block there does, its slope, its reaction, unless it writes that too.
+                RoomBlockBehavior behavior = cell.Behavior ?? layout.Level.Behaviors[y * layout.Level.Size.X + x].In(room.Area);
                 row.Append(Letter(layout, Tile(new RoomTerrainBlock(appearance, cell.Collision), behavior, underElevator: false, layout.Tileset), path));
             }
 
@@ -374,6 +400,7 @@ internal sealed partial class EngineLayouts
         InstalledRoomLevel level = _levels.Get(state.Level);
         string tileset = state.GraphicsSet.ToString();
         _moving = MovedIn(state);
+        _heavySpikesHurt = HeavySpikeDamageIn(room, state);
         WriteLevelBackground(state, level, tileset);
         Dictionary<int, JsonObject> placed = PlacedTiles(state, level, tileset, path);
         string placedAs = string.Join('|', placed.OrderBy(tile => tile.Key).Select(tile => $"{tile.Key}:{tile.Value.ToJsonString()}"));
@@ -654,6 +681,10 @@ internal sealed partial class EngineLayouts
                     return null;
                 int damage = spike switch
                 {
+                    // An area whose machinery has no power until its boss is beaten has harmless heavy spikes until
+                    // then, as the Wrecked Ship's are before Phantoon: they are plain blocks of their kind.
+                    SpikeReaction.HeavySpike when solid => _heavySpikesHurt
+                        ?? throw new InvalidDataException("A heavy spike lies in a layout that is shown both with its area's power and without it."),
                     SpikeReaction.HeavySpike => SpikeHazardDefinitions.HeavySpikeDamage,
                     SpikeReaction.LightSpike or SpikeReaction.TurretSpike => SpikeHazardDefinitions.LightSpikeDamage,
                     SpikeReaction.DamagingSpikeAir when !solid => SpikeHazardDefinitions.LightSpikeDamage,

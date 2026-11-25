@@ -120,26 +120,28 @@ public sealed partial class EngineAssetWriter
 
                 case ChozoStatueSite.WreckedShip:
                 {
-                    // Its way: the old game clears a run of blocks and then makes two blocks the slope down, which the
-                    // level says they are; shutting it, it fills the run in and makes the two solid again. Both keep
-                    // each block's picture.
+                    // Its way: the old game clears a run of blocks and then makes two blocks the slope down, writing
+                    // each its slope; shutting it, it fills the run in and makes the two spike blocks with no
+                    // behaviour of their own, which a spike block reads as a heavy spike. Both keep each block's picture.
                     Position16<RoomBlocks> origin = ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock;
                     Position16<RoomBlocks> first = ChozoStatueRoomDefinitions.FirstSlopeBlock, second = first + Offset16<RoomBlocks>.OneRight;
                     foreach ((RoomDefinition room, RoomStateSettings state) in everyState)
                     {
-                        EngineLayouts.PatchCell Slope(Position16<RoomBlocks> block, RoomCollisionType kind) =>
-                            Layouts.Kept(state, origin, block.X - origin.X, block.Y - origin.Y, kind);
+                        EngineLayouts.PatchCell Written(Position16<RoomBlocks> block, RoomCollisionType kind, RoomBlockBehavior does) =>
+                            Layouts.Kept(state, origin, block.X - origin.X, block.Y - origin.Y, kind) with { Behavior = does };
                         List<EngineLayouts.PatchCell> open =
                         [
                             .. Layouts.PatchCells(directory, Drawn(ChozoStatueDraw.ClearSlopeAccess)),
-                            Slope(first, RoomCollisionType.Slope), Slope(second, RoomCollisionType.Slope),
+                            Written(first, RoomCollisionType.Slope, ChozoStatueRoomDefinitions.FirstSlopeBehavior),
+                            Written(second, RoomCollisionType.Slope, ChozoStatueRoomDefinitions.SecondSlopeBehavior),
                         ];
                         Layouts.Patch(room, state, ChozoWayOpenPatch, origin, open);
                         Layouts.Patch(room, state, ChozoWayShutPatch, origin,
                         [
                             .. Layouts.PatchCells(directory, Drawn(ChozoStatueDraw.BlockSlopeAccess)),
-                            // The old game makes these two spikes that do nothing a spike does: they are solid.
-                            Slope(first, RoomCollisionType.SolidBlock), Slope(second, RoomCollisionType.SolidBlock),
+                            // Heavy spikes: they hurt once the ship has power, and are plain solid blocks before.
+                            Written(first, RoomCollisionType.SpikeBlock, RoomBlockBehavior.None),
+                            Written(second, RoomCollisionType.SpikeBlock, RoomBlockBehavior.None),
                         ]);
 
                         // What its feet break through: the block a foot comes down in, wherever the block below it

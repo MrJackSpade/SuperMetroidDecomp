@@ -208,6 +208,11 @@ reproducing a reported bug.
   reported defect. Never add whole-game validation as an individual ticket's goal
   or per-fix gate. Scope confirmation to the changed contract and reported property;
   do not turn unspecified "remaining acceptance" into an agent-owned test campaign.
+- Running the Godot game headless to reproduce a bug the owner has specifically reported
+  is allowed, as a standing rule. The owner's words: "you may create a standing rule that
+  running a headless instance for a bug I've specifically reported is allowed". It covers
+  the reported bug and confirming its fix, not looking for others; a one-off probe written
+  for it is not committed.
 - Source inspection and compiler/type-boundary work needed to implement the
   requested task remain appropriate. They do not authorize a test-driven search
   for additional work. Mark implemented player-facing fixes

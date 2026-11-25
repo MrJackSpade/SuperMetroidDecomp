@@ -775,16 +775,16 @@ internal static class LookupStream3Verification
         ];
         int targetPaletteBase = rom.ReadCartridgeWord(0x82e1f5) - 18;
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
-        // The HUD's door fade shades (#1512, #2289) black every HUD ink but those the door keeps lit: an ink a shade leaves
-        // out is one the native copy writes into the fade's target.
-        const int hudInks = 32;
-        IReadOnlyList<SheetShade> hudShades = DoorFadeHudShades.Of();
+        // The background's door fade shades (#1512, #2289, #3036) black every background ink but those the door keeps lit:
+        // an ink a shade leaves out is one the native copy writes into the fade's target.
+        const int backgroundInks = 128;
+        IReadOnlyList<SheetShade> backgroundShades = DoorFadeBackgroundShades.Of();
         int[] KeptBy(PictureShade shade) =>
-            [.. Enumerable.Range(0, hudInks).Except(hudShades.Single(hud => hud.Shade == shade).Inks)];
-        int[] keptByEveryDoor = KeptBy(DoorFadeShades.HudDark);
-        int[] keptBetweenCommonRooms = [.. KeptBy(DoorFadeShades.HudDarkBetweenCommonRooms).Except(keptByEveryDoor)];
-        AssertTrue(hudShades.All(hud => hud.Colours.All(colour => colour == RgbColor.Black)),
-            "stream 3 door fades' dark HUD shades black every ink they fade");
+            [.. Enumerable.Range(0, backgroundInks).Except(backgroundShades.Single(dark => dark.Shade == shade).Inks)];
+        int[] keptByEveryDoor = KeptBy(DoorFadeShades.BackgroundDark);
+        int[] keptBetweenCommonRooms = [.. KeptBy(DoorFadeShades.BackgroundDarkBetweenCommonRooms).Except(keptByEveryDoor)];
+        AssertTrue(backgroundShades.All(dark => dark.Colours.All(colour => colour == RgbColor.Black)),
+            "stream 3 door fades' dark background shades black every ink they fade");
         // The first two copies keep the HUD's colours, the third the escape timer's, checked below.
         for (int group = 0; group < 2; group++)
         {
@@ -955,11 +955,11 @@ internal static class LookupStream3Verification
                 $"escape timer door shade {shade.Shade} fades every colour of the timer's row but the kept ones");
         }
 
-        // A door fade's step: the display fades with the HUD spared, and the door shades the HUD and the escape timer.
+        // A door fade's step: the display fades with the background spared, and the door shades it and the escape timer.
         PictureShade step = DoorFadeShades.EscapeTimerDark;
         var shadings = Enum.GetValues<GameplayPictures>().ToDictionary(pictures => pictures,
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Shaded(step) : PictureShading.Standard);
-        var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), GameplayFadeSpares.Hud);
+        var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), GameplayFadeSpares.Backgrounds);
         var gameplay = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
         PictureShading timer = gameplay.OfGroupShaded(PictureShading.Standard, GameplayPictures.EscapeTimer);
         AssertTrue(timer.Shades.SequenceEqual([step]) && timer.Effects.IsEmpty,

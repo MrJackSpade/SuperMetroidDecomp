@@ -76,6 +76,8 @@ internal static class EnemyEntityStates
             return held54;
         if (entity is global::SuperMetroid.Core.Enemies.Dragon.DragonEntity entity56 && entity56.State is T held56)
             return held56;
+        if (entity is global::SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleEntity nuclearWaffle && nuclearWaffle.State is T heldNuclearWaffle)
+            return heldNuclearWaffle;
         if (entity is global::SuperMetroid.Core.Enemies.Evir.EvirBodyEntity entity60 && entity60.State is T held60)
             return held60;
         if (entity is global::SuperMetroid.Core.Enemies.Evir.EvirSpitEntity entity61 && entity61.State is T held61)

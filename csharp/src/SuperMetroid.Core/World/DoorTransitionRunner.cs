@@ -28,6 +28,8 @@ internal sealed partial class DoorTransitionRunner
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Draws each update's random number.</summary>
     private readonly SharedGameState _system;
+    /// <summary>Whether time is frozen, which holds the room effect's overlay still.</summary>
+    private readonly GameplayTimeFreeze _freeze;
 
     /// <summary>Captures the runtime services used by the door's setup and its wait updates.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
@@ -40,6 +42,7 @@ internal sealed partial class DoorTransitionRunner
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
         _system = dependencies.System;
+        _freeze = dependencies.Freeze;
     }
 
     /// <summary>
@@ -65,7 +68,15 @@ internal sealed partial class DoorTransitionRunner
     {
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceEffectsAndRandom(room, samus);
+        StepEffectDisplay(room);
     }
+
+    /// <summary>
+    /// Runs the room effect's overlay display for one update of the door (#3047), as the cartridge's HDMA handler runs it at
+    /// the top of each update while its HDMA objects are enabled: through the room left's waits and fade out, and through
+    /// the room entered's updates from its animated tiles' step on.
+    /// </summary>
+    internal void StepEffectDisplay(RoomScope room) => Ensure.NotNull(room).StepEffectDisplayDuringDoor(_freeze.TimeIsFrozen);
 
     /// <summary>The enemy and draw pass shared by the source door's waits and the fades.</summary>
     /// <param name="enemyProjectiles">

@@ -41,7 +41,7 @@ public sealed partial record GameplayShading
     public PictureShading Of(GameplayPictures pictures)
     {
         PictureShading own = shadings[pictures];
-        return Fade is not { } fade || fade.SparesHud && GameplayPictureDefinitions.SparedByHudSparingFade.Contains(pictures)
+        return Fade is not { } fade || fade.SparesBackgrounds && GameplayPictureDefinitions.SparedByBackgroundSparingFade.Contains(pictures)
             ? own : own.With(fade.Effect);
     }
 

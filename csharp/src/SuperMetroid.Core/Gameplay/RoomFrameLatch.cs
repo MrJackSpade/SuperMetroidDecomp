@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -23,4 +24,12 @@ public abstract partial record RoomFrameLatch(
     RoomFxOverlayRenderSnapshot? RoomFxOverlay,
     RoomEffectOverlay EffectOverlay,
     MorphBallEyeBeamCone? MorphBallEyeBeam,
-    GameplayLatchedTints Tints) : GameplayDisplayLatch(Hud);
+    GameplayLatchedTints Tints) : GameplayDisplayLatch(Hud)
+{
+    /// <summary>
+    /// The frame's colours, latched with its scene (#3036): the room's shading under the display's fades and Samus's own
+    /// colours on the sprite draws the boundary made visible, as the cartridge uploads an update's colours in the NMI that
+    /// uploads its sprites and scrolls.
+    /// </summary>
+    public required FramePaint Colours { get; init; }
+}

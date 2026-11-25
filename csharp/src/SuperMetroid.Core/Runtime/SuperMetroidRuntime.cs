@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Runtime;
 /// input and advances the frame counters; the update's gameplay then runs. Tools and viewers
 /// step one update at a time through the same boundary.
 /// </remarks>
-internal sealed partial class SuperMetroidRuntime
+internal sealed partial class SuperMetroidRuntime : IFrameColourLatch
 {
     /// <summary>The liquid wave and statue descent each update advances before its random number is drawn.</summary>
     internal LiquidWaveAndStatueDescent LiquidWaveAndStatueDescent { get; }
@@ -224,15 +224,15 @@ internal sealed partial class SuperMetroidRuntime
         Assists = new ActiveAssists(Player, System, assists);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, System = System, Assists = Assists, Freeze = Freeze };
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud });
-        ScreenLayers = new GameplayScreenLayers(Room);
+        ScreenLayers = new GameplayScreenLayers();
         Xray = new XrayReveal(BackgroundScroll, System, artwork.XrayRevealVisuals);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(PlayerActions, PlayerButtons, Options, Clock), Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Colours = this, Input = new AcceptedFrameInput(PlayerActions, PlayerButtons, Options, Clock), Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, PlayerActions = PlayerActions, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { EscapeTimer = EscapeTimer, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player});
         LiquidWaveAndStatueDescent = new LiquidWaveAndStatueDescent(Freeze, System, LiquidWaveAndStatueDescentOrder);
-        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, System = System});
+        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, System = System, Freeze = Freeze});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, System);
         RoomObjectVisuals = new RoomObjectVisuals(artwork.RoomObjects);
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, ScrollCellsPastRoomScreens = artwork.ScrollCellsPastRoomScreens, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance, SamusInitialization = SamusInitialization });
@@ -1136,8 +1136,8 @@ internal sealed partial class SuperMetroidRuntime
 
     /// <summary>
     /// Publishes the gameplay display at the end of an update: the most recent frame-boundary
-    /// latch, the display state read while the frame is shown (the door transition's layers
-    /// and the screen effects), and the frame's colours. Publishing never advances
+    /// latch and the colours latched with it (#3036), and the display state read while the frame is shown
+    /// (the door transition's layers and the screen effects). Publishing never advances
     /// simulation, and the result shares no storage with it.
     /// </summary>
     /// <param name="loaded">The runtime's loaded room, from which every gameplay frame is shown.</param>
@@ -1159,15 +1159,16 @@ internal sealed partial class SuperMetroidRuntime
             MessageBoxLayer.Capture(MessageBox, room.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(samus, LatestGameplayFrame?.XrayBeamStep));
-        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(room, samus),
-            Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
+        return new(Display.Latched, frameEnd);
     }
 
     /// <summary>
-    /// The published frame's gameplay shading (#1512): the room's shading, with the door's fade and the death sequence's
-    /// or the fade-out's over all of it.
+    /// The frame's colours as the frame boundary latches them with its scene (#1512, #3036): the room's shading, with the
+    /// door's fade and the death sequence's or the fade-out's over all of it, and Samus's own colours on the sprite draws
+    /// the boundary makes visible.
     /// </summary>
-    private GameplayShading PublishShading(RoomScope room, SamusState samus) => room.Shading(DisplayFades(samus));
+    FramePaint IFrameColourLatch.LatchColours(RoomScope room, SpriteFrameBuffer shownSprites) =>
+        new(Ensure.NotNull(room).Shading(DisplayFades(Player.Samus)), Player.Colours.ShadeOwnDraws(Ensure.NotNull(shownSprites).Draws));
 
     /// <summary>The fades of the whole display the frame shows over the room's shading, in the order they are laid.</summary>
     private IEnumerable<IGameplayShadingSource> DisplayFades(SamusState samus)

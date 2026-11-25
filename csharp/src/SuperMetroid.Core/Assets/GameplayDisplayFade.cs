@@ -36,10 +36,10 @@ public sealed partial record GameplayDisplayFade(ColourEffect Effect, GameplayFa
     public ColourEffect Effect { get; } = Ensure.NotNull(Effect);
 
     /// <summary>
-    /// Whether the HUD's pictures keep their own colours, because the import shades the steps of a fade that keeps some of
-    /// them lit, as a door's does.
+    /// Whether the background's pictures keep their own colours, because the import shades the steps of a fade that keeps
+    /// some of their colours lit, as a door's does (#3036).
     /// </summary>
-    public bool SparesHud => Spares == GameplayFadeSpares.Hud;
+    public bool SparesBackgrounds => Spares == GameplayFadeSpares.Backgrounds;
 
     /// <summary>Whether Samus's draws keep their own colours, as the death fade keeps her lit.</summary>
     public bool SparesSamus => Spares == GameplayFadeSpares.Samus;

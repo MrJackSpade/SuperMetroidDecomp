@@ -112,17 +112,17 @@ internal static class RgbColorDomainVerification
             advanced.Advance();
         var late = new GradualFadeSteps(lastStep: 13, advanced);
         AssertTrue(!late.Step(), "a fade started on counter value ten takes its first step");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(0, 13)), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(0, 13) { Arithmetic = FadeArithmetic.GradualColourChange }), late.Toward(RgbColor.Black),
             "its first step shows the colours it starts from");
         AssertTrue(!late.Step(), "it takes its second step on counter value eleven");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(1, 13)), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(1, 13) { Arithmetic = FadeArithmetic.GradualColourChange }), late.Toward(RgbColor.Black),
             "its second step moves one of its thirteen parts, whatever value the counter took");
         AssertTrue(!late.Step() && !late.Step(), "it steps on counter values twelve and thirteen");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(3, 13)), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(3, 13) { Arithmetic = FadeArithmetic.GradualColourChange }), late.Toward(RgbColor.Black),
             "four steps have moved three parts");
         AssertTrue(late.Step(), "the shared counter past the fade's last step completes it, on its fifth call");
         AssertEqual(0, advanced.Step, "the completing fade resets the shared counter");
-        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(13, 13)), late.Toward(RgbColor.Black),
+        AssertEqual(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(13, 13) { Arithmetic = FadeArithmetic.GradualColourChange }), late.Toward(RgbColor.Black),
             "a completed fade shows its goal");
 
         Console.WriteLine("RgbColor domain: all 32768 words, levels, off-scale rejection, plain channel bounds, level fades, and CGRAM agree.");

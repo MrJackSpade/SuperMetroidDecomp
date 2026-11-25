@@ -225,6 +225,14 @@ public partial class Room : Node2D
         }
         if (ViewHeld)
             Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
+
+        // The room's own pictures are ready before anything enters, so that what enters may change their colours.
+        foreach (Backdrop backdrop in GetChildren().OfType<Backdrop>())
+        {
+            backdrop.Setup(Content, new Vector2I(_terrain.WidthInPixels, _terrain.HeightInPixels));
+            _backdrops.Add(backdrop);
+        }
+
         foreach (Node child in GetChildren())
         {
             switch (child)
@@ -258,10 +266,6 @@ public partial class Room : Node2D
                 case RoomEffect effect:
                     effect.Setup(this);
                     _roomEffects.Add(effect);
-                    break;
-                case Backdrop backdrop:
-                    backdrop.Setup(Content, new Vector2I(_terrain.WidthInPixels, _terrain.HeightInPixels));
-                    _backdrops.Add(backdrop);
                     break;
                 case RoomSequence sequence:
                     _sequences.Add(sequence);
@@ -843,7 +847,7 @@ public partial class Room : Node2D
     {
         ArgumentNullException.ThrowIfNull(change);
         change.ShowOn(Terrain, source);
-        foreach (Backdrop backdrop in GetChildren().OfType<Backdrop>())
+        foreach (Backdrop backdrop in _backdrops)
             change.ShowOn(backdrop, source);
     }
 

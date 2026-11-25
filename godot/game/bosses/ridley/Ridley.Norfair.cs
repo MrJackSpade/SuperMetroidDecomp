@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -18,6 +19,9 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// As well as what both fights share it plays "death_roar_left" and "death_roar_right". Its data lists
+/// "arena_colours", the changes of colours of the room's own pictures: "hidden", shown from the moment it is set up,
+/// and the steps of the "reveal", the first shown on the first update of its roar's hold and each for
+/// "arena_reveal_step_updates"; the last stays. It lists
 /// "health_bands", lowest first, each for health "below" a number, with how hard it flies when it hovers
 /// ("hover_divisor") and lunges ("grab_divisor"), the "look" its pictures have, and its four "pogo" launches, each
 /// with its speed "across" and "up" and the speed it gains each update rising ("rise_gain") and falling
@@ -39,6 +43,17 @@ public partial class Ridley
     /// <summary>How many updates the room takes to come out of the dark as it roars.</summary>
     [Export, DataValue("arena_reveal_updates")]
     public int ArenaRevealUpdates { get; set; } = 46;
+
+    /// <summary>How many updates each step of the room's coming out of the dark shows.</summary>
+    [Export, DataValue("arena_reveal_step_updates")]
+    public int ArenaRevealStepUpdates { get; set; } = 3;
+
+    /// <summary>The name the arena's colours are changed under.</summary>
+    private const string ArenaColours = "RidleyArena";
+
+    /// <summary>The arena's own pictures hidden in black, and each step of their coming out of the dark.</summary>
+    private ColourChange _arenaHidden = ColourChange.None;
+    private readonly List<ColourChange> _arenaReveal = [];
 
     /// <summary>Below this health it no longer waits for Samus to be low in the room to bounce.</summary>
     [Export, DataValue("wounded_health")]
@@ -153,6 +168,10 @@ public partial class Ridley
     /// <summary>Reads what only its fight in Norfair needs.</summary>
     private void ReadNorfairValues(DataNode data)
     {
+        DataNode arena = data.Get("arena_colours");
+        _arenaHidden = ColourChange.Read(arena.Get("hidden"));
+        _arenaReveal.Clear();
+        _arenaReveal.AddRange(arena.List("reveal").Select(ColourChange.Read));
         _bands.Clear();
         foreach (DataNode band in data.List("health_bands"))
         {
@@ -187,6 +206,9 @@ public partial class Ridley
         Facing = Facing.Right;
         PlayFacing("standing");
         _band = _bands[^1];
+
+        // Its arena is hidden in black from the moment it is set up, so through the door's passage too.
+        Room.Recolour(ArenaColours, _arenaHidden);
     }
 
     /// <inheritdoc/>
@@ -195,6 +217,10 @@ public partial class Ridley
     /// <summary>Whether it may take off yet in Norfair: once the room has come out of the dark.</summary>
     private bool NorfairMayTakeOff()
     {
+        // A step of the room's colours shows on the first update of the hold and on every few after it.
+        int held = ArenaRevealUpdates - _revealLeft;
+        if (held % ArenaRevealStepUpdates == 0 && held / ArenaRevealStepUpdates < _arenaReveal.Count)
+            Room.Recolour(ArenaColours, _arenaReveal[held / ArenaRevealStepUpdates]);
         if (--_revealLeft > 0)
             return false;
         // The lava rises as the room comes out of the dark.

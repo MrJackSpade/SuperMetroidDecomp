@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
@@ -60,6 +62,20 @@ public sealed partial class EngineAssetWriter
             places[BackdropPath(state, state.Background!)] = backdrop;
         else if (state.Background is null)
             places[EngineLayouts.LevelBackgroundPath(state, set)] = blocks;
+    }
+
+    /// <summary>The places the states of the rooms that place <paramref name="enemy"/> show pictures of their own from, each with its sheet.</summary>
+    /// <exception cref="InvalidDataException">No room places the enemy.</exception>
+    private static SortedDictionary<string, string> RoomPlacesOf(EnemyDefinitionId enemy)
+    {
+        var places = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach ((RoomDefinition _, RoomStateSettings state) in EngineLayouts.States())
+        {
+            if (state.EnemyPopulation.Placements.Span.Any(placed => placed.DefinitionId == enemy))
+                AddRoomPlaces(places, state);
+        }
+
+        return places.Count > 0 ? places : throw new InvalidDataException($"No room places {enemy}.");
     }
 
     /// <summary>

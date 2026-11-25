@@ -390,8 +390,17 @@ public sealed partial class EngineAssetWriter
         }
 
         static JsonObject Field(RandomSampleField field) => new() { ["from"] = field.Shift, ["digits"] = field.Width };
+        // Its arena's colours: hidden in black as it arrives, and each step of its coming out of the dark laid over that.
+        SortedDictionary<string, string> arena = RoomPlacesOf(EnemyDefinitionId.Ridley);
+        string hiddenArena = RidleyShades.NorfairHidden.Key;
+        ridley.Group("arena_colours", new JsonObject
+        {
+            ["hidden"] = ShadeChange(hiddenArena, arena),
+            ["reveal"] = EngineNames.List(RidleyFadeDefinitions.ArenaReveal.Images.Select(image => (JsonNode)ShadeChange($"{hiddenArena}+{RidleyShades.Fade(image).Key}", arena))),
+        });
         ridley
             .Value("arena_reveal_updates", NorfairRidleyRevealDefinitions.RevealStepCount * NorfairRidleyRevealDefinitions.RevealStepUpdates + NorfairRidleyRevealDefinitions.BeforeFirstStepUpdates)
+            .Value("arena_reveal_step_updates", NorfairRidleyRevealDefinitions.RevealStepUpdates)
             .Value("wounded_health", NorfairRidleyMotionDefinitions.WoundedAttackHealth)
             .Value("death_lunges", RidleyLungeDefinitions.DeathLungeLimit)
             .Value("dust_effect", DustFile(DustExplosionAnimation.SmallDustCloud))
@@ -461,16 +470,7 @@ public sealed partial class EngineAssetWriter
         }
 
         // The colours its retreat gives the chamber, on the pictures of each state of a room that places it.
-        var chamber = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        foreach ((var _, var state) in EngineLayouts.States())
-        {
-            if (state.EnemyPopulation.Placements.Span.Any(placed => placed.DefinitionId == EnemyDefinitionId.RidleyCeres))
-                AddRoomPlaces(chamber, state);
-        }
-
-        if (chamber.Count == 0)
-            throw new InvalidDataException("No room places Ridley's fight aboard Ceres.");
-        ridley.Group("retreat_colours", ShadeChange($"{RidleyShades.RetreatRoom.Key}+{RidleyShades.RetreatShared.Key}", chamber));
+        ridley.Group("retreat_colours", ShadeChange($"{RidleyShades.RetreatRoom.Key}+{RidleyShades.RetreatShared.Key}", RoomPlacesOf(EnemyDefinitionId.RidleyCeres)));
 
         ridley
             .Timeline("baby_idle", Baby(CeresRidleyBabyScene.SilentAnimation))

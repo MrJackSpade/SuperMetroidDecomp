@@ -11,7 +11,7 @@ namespace Game;
 /// <summary>
 /// What colours her. Once an update, after she has moved and just before she is shown, each of her glows moves on
 /// while what makes it glow holds, and the colouring her suit shows is chosen from what she is doing: the first that
-/// holds of the flash of whatever drains her, a hurt's flash, the shine's glow, the screw attack's glow, the speed
+/// holds of a drained Samus's glow in the hyper beam's colours, the flash of whatever drains her, a hurt's flash, the shine's glow, the screw attack's glow, the speed
 /// booster's, a shot's glow and a full charge's pulse; with none, the colours of the suit she wears. Nothing sets her
 /// suit's colouring anywhere else while she is played. The count of a hurt's flash lives here with the sounds it times.
 /// </summary>
@@ -189,6 +189,7 @@ public partial class Samus
             return;
         }
 
+        string? drained = State is DrainedState { Glows: true } glowing ? DrainedGlowShade(glowing.GlowStep) : null;
         string? hurt = StepHurtFlash(suit);
         string? drain = DrainFlashShade(suit);
         string? shine = ShineGlowShade();
@@ -197,8 +198,18 @@ public partial class Samus
         string? shot = ShotGlowShade();
         string? pulse = ChargePulseShade();
         bool dulled = !Inventory.IsOn(Equipment.GravitySuit) && FeetAreInLiquid;
-        Colours.ShowSuit(drain ?? hurt ?? shine ?? (dulled ? null : screw ?? speed) ?? shot ?? pulse ?? suit);
+        Colours.ShowSuit(drained ?? drain ?? hurt ?? shine ?? (dulled ? null : screw ?? speed) ?? shot ?? pulse ?? suit);
         StepCrystalFlashColouring();
+    }
+
+    /// <summary>
+    /// The colouring a drained Samus shows while she glows: the hyper beam's colourings, one for each step of her
+    /// glow, round and round. How long each is held is the drained state's to say.
+    /// </summary>
+    private string DrainedGlowShade(int step)
+    {
+        IReadOnlyList<SamusGlowStep> steps = Colours.Glow("hyper_beam_rainbow").Steps;
+        return steps[step % steps.Count].Shade;
     }
 
     /// <summary>

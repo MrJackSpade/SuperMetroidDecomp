@@ -1052,7 +1052,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
 - **What colours her is chosen once an update** (`Samus.StepColours`), after she has moved and just before she
   is shown, from what she is doing, and set nowhere else while she is played. Each of her glows moves on while
-  what makes it glow holds, and her suit shows the first that holds of: the flash of whatever drains her
+  what makes it glow holds, and her suit shows the first that holds of: a drained Samus's glow in the hyper
+  beam's colours (`DrainedState.Glows`), the flash of whatever drains her
   (`SetDrainFlash`), a hurt's flash, the shine's glow (the shinespark's, or the stored shine's), the screw
   attack's glow, the speed booster's, a shot's glow (a charged shot's flash, a hyper shot's glow) and a full
   charge's pulse; with none, the colours of the suit she wears, which is also all she shows while a suit is

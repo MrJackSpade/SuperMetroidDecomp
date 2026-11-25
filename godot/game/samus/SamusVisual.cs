@@ -27,18 +27,6 @@ namespace Game;
 /// </remarks>
 public partial class SamusVisual : Node2D
 {
-    /// <summary>How many colours the glow of the hyper beam runs through before it comes round.</summary>
-    [Export]
-    public int GlowSteps { get; set; } = 12;
-
-    /// <summary>How strongly that glow colours her, from none to wholly.</summary>
-    [Export]
-    public float GlowStrength { get; set; } = 0.6f;
-
-    /// <summary>How bright that glow is.</summary>
-    [Export]
-    public float GlowBrightness { get; set; } = 1.4f;
-
     /// <summary>How many updates pass between one echo being left and the next, how fast they close on her when she slows, and how fast they draw level.</summary>
     private const int EchoEvery = 4, EchoDepartureSpeed = 8, EchoLevelling = 2;
 
@@ -123,9 +111,6 @@ public partial class SamusVisual : Node2D
         // is thrown back or reads as holding a shine.
         picture.SetShown(!samus.IsInvincible || samus.Room.Session.Clock.Updates % 2 == 0 || samus.State is KnockedBackState || samus.ReadsAsHoldingShine);
         StepEchoes(samus, picture);
-        picture.Tint(
-            samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
-            : Colors.White);
     }
 
     /// <summary>Gives her pictures where they are loaded from. Called as she enters a room.</summary>
@@ -244,9 +229,6 @@ public partial class SamusVisual : Node2D
     /// <summary>Takes her echoes away at once, as switching the speed booster off on the pause screen does.</summary>
     public void ClearEchoes() => (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
 
-    /// <summary>The colour of one step of the glow that runs through every colour.</summary>
-    private Color GlowTint(int step) =>
-        Color.FromHsv((float)(step % GlowSteps) / GlowSteps, GlowStrength, 1f) * new Color(GlowBrightness, GlowBrightness, GlowBrightness);
 
     /// <summary>The name of the timeline that shows her now, or empty when her data has none for it.</summary>
     private static string TimelineFor(Samus samus, string look)

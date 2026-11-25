@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Godot;
 
 namespace Game.Enemies;
@@ -55,6 +56,9 @@ public partial class KraidNail : Enemy
     private bool _away = true;
     private bool _kraidHadGrown;
 
+    /// <summary>The colours of Kraid's parts last shown on it.</summary>
+    private ColourChange? _colours;
+
     /// <summary>Whether it started from the far left this time.</summary>
     public bool StartedFarLeft { get; private set; }
 
@@ -95,8 +99,18 @@ public partial class KraidNail : Enemy
     /// <inheritdoc/>
     protected override void OnTouchedPlayer() => Die();
 
-    /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step) => Kraid.Shaded(step.Picture, _kraid?.Shade ?? "");
+    /// <summary>
+    /// Shows it in the colours of Kraid's parts at once, in place of those it showed before. A change is worked out for
+    /// it by the picture it shows, so while it shows none it is shown none.
+    /// </summary>
+    public void ShowColours(ColourChange colours)
+    {
+        ArgumentNullException.ThrowIfNull(colours);
+        if (Visual is not { } visual || visual.Picture.Length == 0 || ReferenceEquals(_colours, colours))
+            return;
+        colours.ShowOn(visual, nameof(Kraid));
+        _colours = colours;
+    }
 
     /// <inheritdoc/>
     protected override void Behave()

@@ -1400,8 +1400,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   drifting while it bursts and leaves its drop as the burst ends);
   Fake Kraid; Kraid (its head, arm and foot are visuals of the one enemy; where shots meet its mouth, head and the
   ledges of its body, and where its arm touches, are `ColliderPoses` taken as its head and arm change picture; how
-  hurt it is, the flash of a hit in the mouth and its dying are sets of its pictures; what it does to its room, the
-  ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
+  hurt it is, the flash of a hit in the mouth and its dying are changes of the colours of its one set of pictures,
+  which its spikes and nails show with its arm and foot, and its eyes' own colours are shown over them; what it does
+  to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
   its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
   screens it keeps the view from until it has grown are `CameraZone`s it opens); Crocomire
   (its tongue is a visual; the pieces of it a shot or Samus meets are ten hurtboxes its `ColliderPoses` place for

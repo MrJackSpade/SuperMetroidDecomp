@@ -25,16 +25,25 @@ public sealed partial class EngineAssetWriter
     /// <summary>The names of the patches a room where Kraid has been beaten begins with: its ceiling and its spikes gone.</summary>
     private const string KraidCeilingClearPatch = "ceiling_clear", KraidSpikesClearPatch = "spikes_clear";
 
-    /// <summary>The name of the set of Kraid's pictures that shows it as hurt as one of its bands of health is.</summary>
-    private static string KraidHealthSet(KraidHealthBand band) => "_" + EngineSheets.FileName(band.Key);
+    /// <summary>
+    /// The colours a shade of Kraid's shows changed on the pictures of the places given, each with the sheets its
+    /// pictures were cut from, as one change.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The change holds in one region of the pictures only, and the pictures cut from the sheets have no map of regions.</exception>
+    private JsonObject KraidShadeChange(string shade, string family, IReadOnlyDictionary<string, IReadOnlyList<string>> places)
+    {
+        JsonObject change = ShadeChange(shade, family, places);
+        foreach (KeyValuePair<string, JsonNode?> place in change)
+        {
+            foreach (KeyValuePair<string, JsonNode?> colour in place.Value!.AsObject())
+            {
+                if (colour.Key.Contains('/', StringComparison.Ordinal))
+                    throw new InvalidDataException($"The shade {shade} changes the colour {colour.Key} of Kraid's pictures in {place.Key} in one region of them only, and its pictures have no map of regions.");
+            }
+        }
 
-    /// <summary>The set of Kraid's pictures that shows the flash of a hit in its mouth, and the set of its body's that shows it dying.</summary>
-    private const string KraidHurtSet = "_hurt", KraidDeathSet = "_dying";
-
-    /// <summary>Every set of Kraid's and its parts' pictures but its own colours: each band of health, and the flash.</summary>
-    private static IEnumerable<(string Set, string Shade)> KraidPartSets() => KraidHealthBandDefinitions.HighestFirst
-        .Select(band => (KraidHealthSet(band), KraidShades.Health(band).Key))
-        .Append((KraidHurtSet, KraidShades.HurtFlash.Key));
+        return change;
+    }
 
     /// <summary>The installed frame, and the kinds of block it makes, of something the old Kraid draws into its room.</summary>
     private static (string Frame, RoomBlockShape Shape) KraidDrawn(RoomObjectDraw draw) => draw switch
@@ -100,13 +109,19 @@ public sealed partial class EngineAssetWriter
             TerrainChangeAt(states, name, cleared.Block, KraidRoomMutationDefinitions.Changes[cleared.RoomObject], directory, KraidDrawn, leaves: name);
         }
 
-        // Its body and head, from the sheet of its body, in each set of its colours and in those it dies in.
+        // The spikes of its belly and its nails. Both nails are drawn from the first one's sheet.
+        string lintKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.KraidLintTop);
+        string nailKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.KraidFirstNail);
+        EngineEnemy lint = Enemy("bosses/kraid_lint.json", "KraidLint", EnemyDefinitionId.KraidLintTop);
+        (string File, EnemyDefinitionId Id)[] nailFiles =
+        [
+            ("bosses/kraid_nail.json", EnemyDefinitionId.KraidFirstNail), ("bosses/kraid_second_nail.json", EnemyDefinitionId.KraidSecondNail),
+        ];
+        (EngineEnemy Nail, EnemyDefinitionId Id)[] nails = [.. nailFiles.Select(file => (Enemy(file.File, "KraidNail", file.Id, nailKey), file.Id))];
+
+        // Its body and head, from the sheet of its body.
         const string bodyFolder = "body";
         IReadOnlyDictionary<string, EngineBodyFrame> body = _sheets.CutBossBody(_tree, _installation.ContentDirectory, $"{kraid.Folder}/{bodyFolder}", "Kraid");
-        foreach ((string set, string shade) in KraidPartSets().Append((KraidDeathSet, KraidShades.DeathArm.Key)))
-            _sheets.CutBossBody(_tree, _installation.ContentDirectory, $"{kraid.Folder}{set}/{bodyFolder}", "Kraid", shade);
-        foreach ((string set, string shade) in KraidPartSets())
-            kraid.ShadedSetOf(set, shade, armKey, footKey);
         JsonObject Offset(EngineBodyFrame frame) => new() { ["x"] = frame.OffsetX - kraid.Pictures.OffsetX, ["y"] = frame.OffsetY - kraid.Pictures.OffsetY };
 
         EngineBodyFrame trunk = body[KraidBodyFrameNames.Body];
@@ -241,6 +256,24 @@ public sealed partial class EngineAssetWriter
         for (int step = 0; step <= FadeLevelColour.FullLevel; step++)
             channelSteps.Add(FadeLevelColour.Grey(step).ToColour().Red);
 
+        // Its other colours, how hurt it is, the flash of a hit in its mouth and its dying, are changes of the colours
+        // of its one set of pictures: of its body and head, cut from the sheet of its body, and of its parts, its arm,
+        // its foot, its spikes and its nails, each cut from sheets of their own.
+        const string bodyFamily = GameInstallationLayout.BossBodySheetDirectoryName, partFamily = GameInstallationLayout.EnemySheetDirectoryName;
+        var bodyPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+        {
+            [$"{kraid.Folder}/{bodyFolder}"] = [_sheets.SheetNamed(bodyFamily, BossBodySheetPrefix + "Kraid")],
+        };
+        var partPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+        {
+            [kraid.Folder] = [_sheets.EnemySheet(armKey), _sheets.EnemySheet(footKey)],
+            [lint.Folder] = [_sheets.EnemySheet(lintKey)],
+        };
+        foreach ((EngineEnemy nail, EnemyDefinitionId _) in nails)
+            partPlaces[nail.Folder] = [_sheets.EnemySheet(nailKey)];
+        JsonObject BodyColours(string shade) => KraidShadeChange(shade, bodyFamily, bodyPlaces);
+        JsonObject PartColours(string shade) => KraidShadeChange(shade, partFamily, partPlaces);
+
         kraid.Group("reactions", EngineReactions.Of(hurtInMouth))
             .Value("rise_wait_updates", KraidArenaDefinitions.RiseWaitUpdates)
             .Value("lunge_delay_updates", KraidArenaDefinitions.LungeDelayUpdates)
@@ -257,8 +290,6 @@ public sealed partial class EngineAssetWriter
             .Value("mouth_dud_effect", EffectFile(RoomEffectActorKind.DudShot))
             .Value("dud_sound", EngineNames.Sound(SamusSound.DudShot))
             .Value("rock_sound", EngineNames.Sound(KraidSoundDefinitions.RockSpit))
-            .Value("hurt_shade", KraidHurtSet)
-            .Value("death_shade", KraidDeathSet)
             .Group("head_poses", KraidHeadPoses(mouths, kraid.Definition.Radius))
             .Group("arm_poses", KraidArmPoses())
             .Group("foot_poses", KraidFootPoses())
@@ -291,11 +322,18 @@ public sealed partial class EngineAssetWriter
             .Group("health_shades", EngineNames.List(KraidHealthBandDefinitions.HighestFirst.Select(band => (JsonNode)new JsonObject
             {
                 ["health"] = band.MinimumEighths is { } eighths ? KraidHealthThresholds.Eighths(kraid.Definition.Health, eighths) : 0,
-                ["shade"] = KraidHealthSet(band),
+                ["body"] = BodyColours(KraidShades.Health(band).Key),
+                ["parts"] = PartColours(KraidShades.Health(band).Key),
                 ["eyes"] = KraidEyes(eyes.Of(band)),
             })))
-            // Every set of its body's pictures has its eyes in the colours of its most hurt band; its eyes' colours
-            // are shown in their place.
+            .Group("hurt_colours", new JsonObject
+            {
+                ["body"] = BodyColours(KraidShades.HurtFlash.Key),
+                ["parts"] = PartColours(KraidShades.HurtFlash.Key),
+            })
+            .Group("death_colours", BodyColours(KraidShades.DeathArm.Key))
+            // Every shade of its body shows its eyes in the colours of its most hurt band; its eyes' colours are shown
+            // in their place.
             .Group("eye_colours", new JsonObject
             {
                 ["pictured"] = KraidEyes(eyes.Shaded),
@@ -309,7 +347,6 @@ public sealed partial class EngineAssetWriter
                     .OfType<AnimationBeat<KraidHurtFlashShade, NoAnimationCue>.Frame>()
                     .Select(shown => (JsonNode)new JsonObject { ["hurt"] = shown.Shown == KraidHurtFlashShade.HurtColours, ["updates"] = shown.Duration })),
             })
-            .PictureSets("{shade}")
             .Write();
 
         // Its rocks: those from its mouth and the floor drift across as they fall, and those from the ceiling fall straight.
@@ -328,8 +365,8 @@ public sealed partial class EngineAssetWriter
         _tree.WriteData("bosses/kraid_rock.json", RockData("KraidRock", KraidRockLaunchDefinitions.RockGravity, KraidRockLaunchDefinitions.RockDrift, KraidRockLaunchDefinitions.RockDriftRestart));
         _tree.WriteData("bosses/kraid_ceiling_rock.json", RockData("KraidRock", KraidRockLaunchDefinitions.CeilingRockGravity, SignedEightEight.Zero, KraidRockLaunchDefinitions.RockDriftRestart));
 
-        // The spikes of its belly, which share its colours.
-        EngineEnemy lint = Enemy("bosses/kraid_lint.json", "KraidLint", EnemyDefinitionId.KraidLintTop).BodyColliders("Body", "Solid")
+        // The spikes of its belly, which show the colours of its parts.
+        lint.BodyColliders("Body", "Solid")
             .Value("emerge_pixels", KraidArenaDefinitions.LintEmergePixels)
             .Value("charge_updates", KraidArenaDefinitions.LintChargeUpdates)
             .Value("fire_speed", EngineNames.Number(-KraidPlatformMovement.FiringDisplacement))
@@ -337,24 +374,16 @@ public sealed partial class EngineAssetWriter
             .Value("return_x", KraidArenaDefinitions.LintReturnX)
             .Value("reload_updates", KraidArenaDefinitions.LintReloadUpdates)
             .Value("fire_sound", EngineNames.Sound(KraidSoundDefinitions.LintFire))
-            .Value("point_x", KraidContactDefinitions.LintLeadingEdge)
-            .PictureSets("{shade}");
+            .Value("point_x", KraidContactDefinitions.LintLeadingEdge);
         lint.Timeline("budding", EngineTimelines.Of(KraidAnimations.Segments, KraidAnimations.StartingWith(KraidPartSegment.LintInitial), pose => lint.Picture(pose.Picture), PartCue))
             .Timeline("grown", EngineTimelines.Of(KraidAnimations.Segments, KraidAnimations.StartingWith(KraidPartSegment.LintPostGrowth), pose => lint.Picture(pose.Picture), PartCue));
-        string lintKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.KraidLintTop);
-        foreach ((string set, string shade) in KraidPartSets())
-            lint.ShadedSetOf(set, shade, lintKey);
         lint.Write();
 
-        // Its nails. Both are drawn from the first one's sheet; only the first leaves anything when it is shot.
-        string nailKey = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.KraidFirstNail);
+        // Its nails, which show the colours of its parts; only the first leaves anything when it is shot.
         int pastLedges = _installation.LoadBossAndIntroOverreads().KraidNailPastLedges.LeftOffset;
-        foreach ((string file, EnemyDefinitionId id) in new[]
-                 {
-                     ("bosses/kraid_nail.json", EnemyDefinitionId.KraidFirstNail), ("bosses/kraid_second_nail.json", EnemyDefinitionId.KraidSecondNail),
-                 })
+        foreach ((EngineEnemy nail, EnemyDefinitionId id) in nails)
         {
-            EngineEnemy nail = Enemy(file, "KraidNail", id, nailKey).BodyColliders("Body", "Hurtbox")
+            nail.BodyColliders("Body", "Hurtbox")
                 .Value("launch_delay", KraidArenaDefinitions.NailLaunchDelayUpdates)
                 .Value("below_arm", KraidArenaDefinitions.NailLaunchBelowArm)
                 // It sets off as far left of Kraid's place as Kraid's half-width and its own.
@@ -364,11 +393,8 @@ public sealed partial class EngineAssetWriter
                 {
                     ["top"] = ledge.Top,
                     ["left"] = ledge.Left,
-                })))
-                .PictureSets("{shade}");
+                })));
             nail.Timeline("spinning", EngineTimelines.Of(KraidAnimations.Segments, KraidAnimations.StartingWith(KraidPartSegment.NailLoop), pose => nail.Picture(pose.Picture), PartCue));
-            foreach ((string set, string shade) in KraidPartSets())
-                nail.ShadedSetOf(set, shade, nailKey);
             nail.Write();
         }
     }

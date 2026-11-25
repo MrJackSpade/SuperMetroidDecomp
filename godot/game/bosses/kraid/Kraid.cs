@@ -4,6 +4,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Core;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -38,14 +39,16 @@ namespace Game.Enemies;
 /// and "death_spikes", the crumbling of the spikes as it dies (<see cref="PatchSequence"/>); "walks", for each place
 /// it may stand the places it may walk to next, each with a "weight", a "to" and how many "updates" it then thinks;
 /// "spit", where its rocks leave it from, how fast they rise and the eight speeds across that chance picks from;
-/// "health_shades", most health first, the set of its pictures it shows at each least "health" and the colours of its
-/// "eyes" there; "eye_colours", the colours every set of its body's pictures has its eyes in ("pictured"), which its
-/// eyes' colours are shown in place of, its eyes' colours in the flash of a hit ("hurt"), and the "steps" a channel of
-/// a colour moves through as its eyes glow and dim, darkest first; and "hurt_flash", the "wait" and then the steps,
-/// each so many "updates" and "hurt" or not, of the flash a hit in the mouth sets off. Each colour is six hexadecimal
-/// digits, red, green and blue. A picture's path holds "{shade}" where the set's name goes. Its
-/// shots are "spit_rock", "rising_rock", "rising_rock_small" and "ceiling_rock". All its places are in the room's own
-/// pixels.</para>
+/// "health_shades", most health first, the changes of the colours of its body and head ("body") and of its parts
+/// ("parts") it shows at each least "health" (<see cref="ColourChange"/>), and the colours of its "eyes" there;
+/// "hurt_colours", the same two changes for the flash of a hit in the mouth; "death_colours", the change of its body's
+/// and head's colours as it dies; "eye_colours", the colours each of those changes but the last shows its eyes in
+/// ("pictured"), which its eyes' colours are shown in place of, its eyes' colours in the flash of a hit ("hurt"), and
+/// the "steps" a channel of a colour moves through as its eyes glow and dim, darkest first; and "hurt_flash", the
+/// "wait" and then the steps, each so many "updates" and "hurt" or not, of the flash a hit in the mouth sets off. Each
+/// colour is six hexadecimal digits, red, green and blue. It has one set of pictures, its room's own colours, and its
+/// parts' change is shown on its arm, its foot, and the spikes and nails of its room. Its shots are "spit_rock",
+/// "rising_rock", "rising_rock_small" and "ceiling_rock". All its places are in the room's own pixels.</para>
 /// </remarks>
 public partial class Kraid : Enemy
 {
@@ -136,14 +139,6 @@ public partial class Kraid : Enemy
     /// <summary>The sound of a shot that does it no harm, by name.</summary>
     [Export, DataValue("dud_sound")]
     public string DudSound { get; set; } = "";
-
-    /// <summary>The set of its pictures that shows it flashing from a hit in the mouth.</summary>
-    [Export, DataValue("hurt_shade")]
-    public string HurtShade { get; set; } = "";
-
-    /// <summary>The set of its body's pictures that shows it dying.</summary>
-    [Export, DataValue("death_shade")]
-    public string DeathShade { get; set; } = "";
 
     /// <summary>The sound of a rock flying, and of its rumbling as it sinks, by name.</summary>
     [Export, DataValue("rock_sound")]
@@ -242,8 +237,22 @@ public partial class Kraid : Enemy
     /// <summary>The name its eyes' colours are shown under.</summary>
     private const string EyeColours = "KraidEyes";
 
+    /// <summary>The name the colours of its body, head and parts are shown under.</summary>
+    private const string OwnColours = "KraidColours";
+
     private readonly List<(int From, int Left)> _bodyEdge = [];
-    private readonly List<(int Health, string Shade, EyeColour[] Eyes)> _healthShades = [];
+
+    /// <summary>Most health first, the colours of its body and head and of its parts at each least health, and of its eyes there.</summary>
+    private readonly List<(int Health, ColourChange Body, ColourChange Parts, EyeColour[] Eyes)> _healthShades = [];
+
+    /// <summary>The colours of its body and head, and of its parts, in the flash of a hit; and of its body and head as it dies.</summary>
+    private ColourChange _hurtBody = ColourChange.None, _hurtParts = ColourChange.None, _deathColours = ColourChange.None;
+
+    /// <summary>The colours its body and head, and its parts, show while it lives; none, its room's own.</summary>
+    private ColourChange _bodyColours = ColourChange.None, _partColours = ColourChange.None;
+
+    /// <summary>For each of its visuals, the colours last shown on it.</summary>
+    private readonly Dictionary<ActorVisual, ColourChange> _shownColours = [];
     private readonly List<int> _channelSteps = [];
     private EyeColour[] _picturedEyes = [];
     private EyeColour[] _hurtEyes = [];
@@ -260,7 +269,9 @@ public partial class Kraid : Enemy
     private int _hurtFlashWait;
     private int _flashStep = -1;
     private int _flashLeft;
-    private bool _flashShowsHurt;
+
+    /// <summary>Whether it still shows its room's own colours, as it does until its flash first shows a frame or its health is gone.</summary>
+    private bool _inRoomColours;
     private readonly List<Crumble> _ceilingRocks = [];
     private readonly List<Crumble> _sinkCrumbles = [];
     private readonly Dictionary<int, List<Walk>> _walks = [];
@@ -307,12 +318,6 @@ public partial class Kraid : Enemy
     /// <summary>Whether it has begun to rise to its full height: its spikes are out of sight from then until each next comes out.</summary>
     public bool HasBegunGrowing { get; private set; }
 
-    /// <summary>The set of its pictures its parts show: how hurt it is, or the flash of a hit in the mouth.</summary>
-    public string Shade { get; private set; } = "";
-
-    /// <summary>A picture's path with the name of a set of its pictures put where the path leaves room for one.</summary>
-    public static string Shaded(string picture, string shade) => picture.Replace("{shade}", shade, StringComparison.Ordinal);
-
     /// <summary>The left edge of its body, in the room's pixels, at a height in the room.</summary>
     public int LeftEdgeAt(int y)
     {
@@ -347,9 +352,13 @@ public partial class Kraid : Enemy
         _picturedEyes = ReadEyes(eyeColours, "pictured");
         _hurtEyes = ReadEyes(eyeColours, "hurt");
         _healthShades.Clear();
-        _healthShades.AddRange(data.List("health_shades").Select(band => (band.Int("health"), band.Text("shade"), ReadEyes(band, "eyes"))));
+        _healthShades.AddRange(data.List("health_shades").Select(band =>
+            (band.Int("health"), ColourChange.Read(band.Get("body")), ColourChange.Read(band.Get("parts")), ReadEyes(band, "eyes"))));
         if (_healthShades.Count == 0)
             throw data.Problem("must give at least one of its health shades");
+        DataNode hurt = data.Get("hurt_colours");
+        (_hurtBody, _hurtParts) = (ColourChange.Read(hurt.Get("body")), ColourChange.Read(hurt.Get("parts")));
+        _deathColours = ColourChange.Read(data.Get("death_colours"));
         if (_hurtEyes.Length != _picturedEyes.Length || _healthShades.Any(band => band.Eyes.Length != _picturedEyes.Length))
             throw data.Problem("must give the colours of each of its eyes, as many as its pictures have, wherever it gives its eyes' colours");
         DataNode flash = data.Get("hurt_flash");
@@ -416,10 +425,13 @@ public partial class Kraid : Enemy
         return result;
     }
 
-    /// <summary>A hit in the mouth, harmful or not, sets its colours flashing and marks an opening yet to come.</summary>
+    /// <summary>
+    /// A hit in the mouth, harmful or not, sets its colours flashing from the start, keeping those it shows until the
+    /// flash's first frame, and marks an opening yet to come.
+    /// </summary>
     private void MarkMouthHit()
     {
-        (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
+        (_flashStep, _flashLeft) = (0, _hurtFlashWait);
         if (_mouthReopens > 0)
             _mouthReopenMarked = true;
     }
@@ -511,14 +523,16 @@ public partial class Kraid : Enemy
         ShowMouth("closed", 0);
         // Its mouth and body let every shot through while it rises.
         _headPoses?.TakeNone();
-        Shade = BandShade().Shade;
-        // Its eyes start in the colours of its band.
+        // It shows its room's own colours, with none of its eyes' own, until its flash first shows a frame or its
+        // health is gone; its eyes start in the colours of its band all the same.
+        _inRoomColours = true;
+        (_bodyColours, _partColours) = (ColourChange.None, ColourChange.None);
         _eyes = [.. BandShade().Eyes];
-        ShowEyes();
         if (GetNodeOrNull<ActorVisual>("Arm") is { } arm)
             arm.Position = new Vector2(0, -44);
         if (GetNodeOrNull<ActorVisual>("Foot") is { } foot)
             foot.Position = new Vector2(0, 100);
+        ShowColours();
     }
 
     /// <inheritdoc/>
@@ -692,7 +706,7 @@ public partial class Kraid : Enemy
             case Fight.UnglowEye:
                 // Its eyes dim a step an update toward its band's colours, and it roars on the update it finds them there.
                 bool dimmed = DimEyes(BandShade().Eyes);
-                ShowEyes();
+                ShowColours();
                 if (!dimmed)
                     break;
                 _fight = Fight.MouthOpenReaction;
@@ -1163,7 +1177,7 @@ public partial class Kraid : Enemy
             _eyes[eye] = _eyes[eye] with { Red = Math.Min(_eyes[eye].Red + 1, brightest), Green = Math.Min(_eyes[eye].Green + 1, brightest) };
         if (_eyes.All(eye => eye.Red == brightest && eye.Green == brightest))
             _fight = Fight.UnglowEye;
-        ShowEyes();
+        ShowColours();
     }
 
     /// <summary>
@@ -1186,14 +1200,67 @@ public partial class Kraid : Enemy
     }
 
     /// <summary>
-    /// Shows its eyes' colours on its body and head in place of those their pictures have its eyes in; dying, its body
-    /// and head show their pictures' own.
+    /// Shows the colours it is in on its body, head, arm and foot at once, and its parts' on the spikes and nails of
+    /// its room; over its body's and head's, its eyes' colours, save in its room's own colours and as it dies. A change
+    /// is worked out for a visual by the pictures it shows, so one that shows none yet is shown it once it does.
     /// </summary>
-    private void ShowEyes()
+    private void ShowColours()
     {
-        ColourSwap[] swaps = IsFinished ? [] : [.. _picturedEyes.Select((pictured, eye) => new ColourSwap(ColourOf(pictured), ColourOf(_eyes[eye])))];
-        Visual?.Recolour(EyeColours, swaps);
-        GetNodeOrNull<ActorVisual>("Head")?.Recolour(EyeColours, swaps);
+        ColourChange body = IsFinished ? _deathColours : _bodyColours;
+        bool eyesShown = !IsFinished && !_inRoomColours;
+        foreach (ActorVisual visual in new[] { Visual, GetNodeOrNull<ActorVisual>("Head") }.OfType<ActorVisual>())
+        {
+            if (visual.Picture.Length == 0)
+                continue;
+            ShowOn(visual, body);
+            // Its eyes' colours are asked for after its body's, and so are shown over them.
+            visual.Recolour(EyeColours, eyesShown ? EyeSwaps(body.On(visual)) : []);
+        }
+
+        foreach (string part in new[] { "Arm", "Foot" })
+        {
+            if (GetNodeOrNull<ActorVisual>(part) is { } visual && visual.Picture.Length > 0)
+                ShowOn(visual, _partColours);
+        }
+
+        foreach (KraidLint lint in Room.Enemies.OfType<KraidLint>())
+            lint.ShowColours(_partColours);
+        foreach (KraidNail nail in Room.Enemies.OfType<KraidNail>())
+            nail.ShowColours(_partColours);
+    }
+
+    /// <summary>Shows a change of colours on one of its visuals, in place of the one shown there before.</summary>
+    private void ShowOn(ActorVisual visual, ColourChange colours)
+    {
+        if (_shownColours.TryGetValue(visual, out ColourChange? shown) && ReferenceEquals(shown, colours))
+            return;
+        colours.ShowOn(visual, OwnColours);
+        _shownColours[visual] = colours;
+    }
+
+    /// <summary>
+    /// Its eyes' colours as swaps over <paramref name="shown"/>, the colours its body's change shows on a visual: every
+    /// colour that change shows as one its eyes are pictured in, and that colour itself where the change leaves it, is
+    /// shown as that eye is now.
+    /// </summary>
+    private ColourSwap[] EyeSwaps(IReadOnlyList<ColourSwap> shown)
+    {
+        static bool Same(Color one, Color other) => one.R8 == other.R8 && one.G8 == other.G8 && one.B8 == other.B8;
+        var swaps = new List<ColourSwap>();
+        for (int eye = 0; eye < _eyes.Length; eye++)
+        {
+            Color pictured = ColourOf(_picturedEyes[eye]), now = ColourOf(_eyes[eye]);
+            foreach (ColourSwap swap in shown)
+            {
+                if (Same(swap.To, pictured))
+                    swaps.Add(new ColourSwap(swap.From, now, swap.Region));
+            }
+
+            if (!shown.Any(swap => Same(swap.From, pictured)))
+                swaps.Add(new ColourSwap(pictured, now));
+        }
+
+        return [.. swaps];
     }
 
     /// <summary>A colour of its eyes as it is shown.</summary>
@@ -1235,10 +1302,10 @@ public partial class Kraid : Enemy
         (_headPoses ?? throw new InvalidOperationException("Kraid's data has not been read.")).Take(mouth);
     }
 
-    /// <summary>The set of its pictures that shows it as hurt as it is, and the colours of its eyes there.</summary>
-    private (int Health, string Shade, EyeColour[] Eyes) BandShade()
+    /// <summary>The colours of its body and head and of its parts as hurt as it is, and the colours of its eyes there.</summary>
+    private (int Health, ColourChange Body, ColourChange Parts, EyeColour[] Eyes) BandShade()
     {
-        foreach ((int Health, string Shade, EyeColour[] Eyes) band in _healthShades)
+        foreach ((int Health, ColourChange Body, ColourChange Parts, EyeColour[] Eyes) band in _healthShades)
         {
             if (Health.Current >= band.Health)
                 return band;
@@ -1248,41 +1315,44 @@ public partial class Kraid : Enemy
     }
 
     /// <summary>
-    /// Moves the flash of a hit in the mouth on, and settles which set of its pictures it shows. Each time the flash
-    /// shows other colours its eyes take that set's colours at once, as they do on every update once its health is gone.
+    /// Moves the flash of a hit in the mouth on. Only as the flash shows a frame does it take the colours of that
+    /// frame, or of its band as hurt as it is then, its eyes with them, as it does on every update once its health is
+    /// gone; between, it keeps the colours it last took, and until the first such time it shows its room's own.
     /// </summary>
     private void StepColours()
     {
         if (Health.IsEmpty)
         {
             // Dying, it flashes no more.
-            (_flashStep, _flashShowsHurt) = (-1, false);
-            _eyes = [.. BandShade().Eyes];
+            _flashStep = -1;
+            ShowFlashColours(hurt: false);
         }
         else if (_flashStep >= 0 && --_flashLeft <= 0)
         {
+            bool hurt = false;
             if (_flashStep < _hurtFlash.Count)
-                (_flashShowsHurt, _flashLeft) = _hurtFlash[_flashStep++];
+                (hurt, _flashLeft) = _hurtFlash[_flashStep++];
             else
-                (_flashStep, _flashShowsHurt) = (-1, false);
-            _eyes = [.. _flashShowsHurt ? _hurtEyes : BandShade().Eyes];
+                _flashStep = -1;
+            ShowFlashColours(hurt);
         }
 
-        Shade = _flashShowsHurt ? HurtShade : BandShade().Shade;
-        ShowEyes();
+        ShowColours();
     }
 
-    /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step) => Shaded(step.Picture, BodyShade);
+    /// <summary>Takes the colours of the flash of a hit, or of its band as hurt as it is, and its eyes those colours' own.</summary>
+    private void ShowFlashColours(bool hurt)
+    {
+        _inRoomColours = false;
+        (_bodyColours, _partColours) = hurt ? (_hurtBody, _hurtParts) : (BandShade().Body, BandShade().Parts);
+        _eyes = [.. hurt ? _hurtEyes : BandShade().Eyes];
+    }
 
-    /// <summary>The set of its pictures its body and head show: as its parts do, until it is dying.</summary>
-    private string BodyShade => IsFinished ? DeathShade : Shade;
-
-    /// <summary>Shows one of its parts as its timeline has it, in the colours it is in.</summary>
+    /// <summary>Shows one of its parts as its timeline has it.</summary>
     private void ShowPart(string part)
     {
         TimelineStep step = _parts[part].Current;
-        GetNodeOrNull<ActorVisual>(part)?.Show(step with { Picture = Shaded(step.Picture, part == "Head" ? BodyShade : Shade) });
+        GetNodeOrNull<ActorVisual>(part)?.Show(step);
     }
 
     /// <summary>Sets the depth in the room one of its parts is drawn at.</summary>

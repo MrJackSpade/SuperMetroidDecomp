@@ -19,7 +19,8 @@ namespace Game;
 /// <remarks>
 /// Reaching out, it goes as the cartridge's does. The update it is fired on only begins it. On each update after, with
 /// the attack still held, its length is counted on by a set amount, and at its reach it is given up; what can be
-/// latched or is hurt by it is looked for at its end as it stands; then its end moves in equal substeps, a quarter of
+/// latched or is hurt by it is looked for at its end as it stands, and an enemy it neither holds nor destroys stops
+/// it there; then its end moves in equal substeps, a quarter of
 /// its speed each, and the block at the end is asked after each: one that holds the line takes it at once, but one
 /// that only stops it gives the line up only if it is the last substep's, so a thin wall crossed within an update
 /// does not stop it. A line given up while reaching out ends on the update after, when its end is heard. While it is
@@ -219,7 +220,14 @@ public partial class SamusGrapple : Node2D
             return;
         }
 
-        room.DeliverHit(hit, around, from: samus);
+        // An enemy the line neither holds nor destroys stops it there: the line is given up before its end moves.
+        // One it destroys, and anything that takes no notice of it, lets it go on.
+        if (room.DeliverHit(hit, around, from: samus).Any(struck =>
+                struck.Target is Enemy && struck.Result is HitResult.Absorbed or HitResult.Dud or HitResult.TurnedBack))
+        {
+            GiveUp();
+            return;
+        }
 
         // The end moves a quarter of the line's speed at a time, the part of a pixel kept from one to the next.
         bool diagonal = _across != 0 && _down != 0;

@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -38,14 +39,15 @@ public partial class TorizoSuperMissile : CuedProjectile
         switch (cue[0])
         {
             case "aim":
-                // The aim is kept to the half of the circle on the side named, by turning it right about if need be.
-                PixelOffset toSamus = room.Player.Position - Position;
-                int aim = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
-                int kept = Turns.Wrap(aim + Turns.PerTurn / 4) % (Turns.PerTurn / 2) - Turns.PerTurn / 4;
-                if (cue[1] == "left")
-                    kept += Turns.PerTurn / 2;
-                Pixels speed = Pixels.FromWhole(ThrowSpeed);
-                Speed = new PixelVelocity(Turns.Cosine(kept, speed), Turns.Sine(kept, speed));
+                // The aim is kept to the half of the circle on the side named, by turning it right about if need be. As
+                // the cartridge counts an angle: none right, a quarter turn up.
+                int aim = CartridgeAngles.AimAngle(room.Player.Position.X.Whole - Position.X.Whole, room.Player.Position.Y.Whole - Position.Y.Whole);
+                int fromUp = Turns.Wrap(Turns.PerTurn / 4 - aim) % (Turns.PerTurn / 2);
+                int kept = Turns.PerTurn / 4 - (cue[1] == "left" ? fromUp + Turns.PerTurn / 2 : fromUp);
+                int speedIn256ths = ThrowSpeed * 256;
+                Speed = new PixelVelocity(
+                    From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, kept + Turns.PerTurn / 4)),
+                    From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, kept + Turns.PerTurn / 2)));
                 break;
             case "throw":
                 _thrown = true;
@@ -80,4 +82,7 @@ public partial class TorizoSuperMissile : CuedProjectile
         if (IsRunaway(Speed.Y))
             Leave(room);
     }
+
+    /// <summary>A distance counted in 256ths of a pixel.</summary>
+    private static Pixels From256ths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
 }

@@ -115,6 +115,9 @@ public static class Sounds
     /// <summary>A small enemy being destroyed.</summary>
     public const string EnemyKilled = "enemy_enemy_killed";
 
+    /// <summary>Samus's body striking an enemy.</summary>
+    public const string EnemyContactKill = "enemy_contact_kill";
+
     /// <summary>An enemy being frozen.</summary>
     public const string EnemyFrozen = "room_enemy_frozen";
 
@@ -162,6 +165,6 @@ public static class Sounds
         CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
         BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
         BigExplosion, MenuMove, MenuAccept, Typing, SamusStop, SpinJumpStop, EnemyStop, RoomStop, PowerBombExplosion,
-        SpeedBoosterStop, ChargingResumed,
+        SpeedBoosterStop, ChargingResumed, EnemyContactKill,
     ];
 }

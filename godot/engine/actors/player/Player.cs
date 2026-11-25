@@ -1681,7 +1681,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         foreach (BodyPower power in _bodyPowers)
         {
             if (power.IsActive && toucher.TakeHit(power.Hit with { Source = this }, hurtbox) is HitResult.Hurt or HitResult.Destroyed)
+            {
+                OnBodyPowerHarmed(power, toucher);
                 return true;
+            }
         }
 
         return false;
@@ -1697,9 +1700,21 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             PixelRect body = BodyRect;
             var reach = new PixelRect(body.Left - 1, body.Top - 1, body.Width + 2, body.Height + 2);
             Hit hit = power.Hit with { Source = this };
-            Room.DeliverHit(hit, reach, from: this);
+            foreach ((IHittable target, HitResult result) in Room.DeliverHit(hit, reach, from: this))
+            {
+                if (result is HitResult.Hurt or HitResult.Destroyed)
+                    OnBodyPowerHarmed(power, target);
+            }
+
             Room.Terrain.TakeHit(hit, reach);
         }
+    }
+
+    /// <summary>Called each time an active body power's hit has hurt or destroyed something. The engine's player does nothing.</summary>
+    /// <param name="power">The power whose hit it was.</param>
+    /// <param name="target">What it harmed.</param>
+    protected virtual void OnBodyPowerHarmed(BodyPower power, IHittable target)
+    {
     }
 
     /// <summary>

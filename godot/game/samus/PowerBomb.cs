@@ -132,7 +132,8 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
                 lately.Add(reached);
         }
 
-        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, blast, from: Launcher, skipping: lately))
+        // An enemy the blast harms makes no cry, as on the cartridge.
+        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit with { Quiet = true }, blast, from: Launcher, skipping: lately))
         {
             if (result != HitResult.Ignored)
                 _reachedAt[target] = _blastUpdate;

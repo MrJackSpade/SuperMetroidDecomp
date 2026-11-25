@@ -33,6 +33,9 @@ public sealed record Hit
     /// <summary>Which way the hit was travelling, for knocking its target back; zero when it has no direction.</summary>
     public PixelOffset Direction { get; init; }
 
+    /// <summary>Whether what it harms makes no cry of its own, as under a blast or a blow that has its own sound.</summary>
+    public bool Quiet { get; init; }
+
     /// <summary>Whatever delivered the hit, when its target needs to know.</summary>
     public object? Source { get; init; }
 

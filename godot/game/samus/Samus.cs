@@ -396,7 +396,8 @@ public partial class Samus : Player
         {
             foreach ((string name, DataNode power) in data.Get("body_powers").Entries())
             {
-                var made = new BodyPower(name, power.Int("damage"), [.. power.List("kinds").Select(kind => new HitKind(kind.AsText()))]);
+                // An enemy her body harms makes no cry: the blow has a sound of its own (OnBodyPowerHarmed).
+                var made = new BodyPower(name, power.Int("damage"), [.. power.List("kinds").Select(kind => new HitKind(kind.AsText()))]) { Quiet = true };
                 _powers[name] = made;
                 AddBodyPower(made);
             }
@@ -1219,6 +1220,19 @@ public partial class Samus : Player
         if (State is not RefillingFromReservesState)
             ChangeState(new RefillingFromReservesState());
         return true;
+    }
+
+    /// <summary>
+    /// Her body's blow on an enemy asks for the contact's sound, only when no sound of the enemies' waits, on every
+    /// blow that harms; and being her attack on it, it ends whatever invincibility a hurt had left her, as the
+    /// cartridge's does.
+    /// </summary>
+    protected override void OnBodyPowerHarmed(BodyPower power, IHittable target)
+    {
+        if (target is not Enemy)
+            return;
+        Room.Session.Sounds.Request(Sounds.EnemyContactKill, channel: "enemies", priority: SoundPriority.WhenIdle);
+        BeInvincibleFor(0);
     }
 
     /// <inheritdoc/>

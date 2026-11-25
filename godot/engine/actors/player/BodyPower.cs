@@ -20,7 +20,14 @@ public sealed class BodyPower
     public string Name { get; }
 
     /// <summary>The hit the player's body delivers while the power is active.</summary>
-    public Hit Hit { get; }
+    public Hit Hit { get; private init; }
+
+    /// <summary>Whether what the power's hit harms makes no cry of its own.</summary>
+    public bool Quiet
+    {
+        get => Hit.Quiet;
+        init => Hit = Hit with { Quiet = value };
+    }
 
     /// <summary>Whether the power is active.</summary>
     public bool IsActive { get; set; }

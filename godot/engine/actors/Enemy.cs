@@ -458,7 +458,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _flash = Countdown.Of(HurtFlashUpdates);
         _hurt = true;
         WasJustHurt = true;
-        if (!IsFrozen)
+        if (!IsFrozen && !hit.Quiet)
             Sound(_hurtSound);
         if (health.IsEmpty)
         {

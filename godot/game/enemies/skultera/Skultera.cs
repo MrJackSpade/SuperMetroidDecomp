@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -71,8 +72,8 @@ public partial class Skultera : Enemy
         _lastBob = bob;
     }
 
-    /// <summary>How far below its line the wave puts it now, in whole pixels.</summary>
-    private int Bob() => -Turns.Sine(_angle, Pixels.FromWhole(Radius), Turns.Fineness.Coarse).Whole;
+    /// <summary>How far below its line the wave puts it now, in whole pixels: the cartridge's short product a half turn on.</summary>
+    private int Bob() => CartridgeAngles.CircleSine(_angle + Turns.PerTurn / 2, Radius).Whole;
 
     /// <summary>Starts it turning to swim the other way.</summary>
     private void BeginTurn()

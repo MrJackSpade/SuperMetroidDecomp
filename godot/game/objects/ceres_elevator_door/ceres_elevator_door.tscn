@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="3"]
 
 [node name="CeresElevatorDoor" type="Node2D"]
+z_index = 10
 script = ExtResource("1")
 DataFile = "objects/ceres_elevator_door.json"
 

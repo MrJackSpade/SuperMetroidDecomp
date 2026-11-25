@@ -81,9 +81,6 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     private Pixels _drifted;
     private PixelRect _view;
 
-    /// <summary>Where it is drawn among the room's things: over them, under the overlays.</summary>
-    private const int OverTheRoom = 90;
-
     /// <summary>The liquid's type.</summary>
     public LiquidType Type => _type ?? throw new InvalidOperationException($"The liquid \"{Name}\" has not been set up.");
 
@@ -105,7 +102,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _body = _type.Body is { } body ? new TimelinePlayer(body) : null;
         _drifted = Pixels.Zero;
         Material = new CanvasItemMaterial { BlendMode = _type.Blend };
-        ZIndex = OverTheRoom;
+        ZIndex = RoomDepth.Liquid;
     }
 
     /// <summary>Puts where the surface lies at a height at once, in pixels down from the room's top; it goes on from there to where it was heading.</summary>

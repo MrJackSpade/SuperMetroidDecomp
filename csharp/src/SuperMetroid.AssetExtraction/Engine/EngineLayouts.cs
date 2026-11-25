@@ -733,6 +733,23 @@ internal sealed partial class EngineLayouts
         if (EngineRoomObjects.NamedBlockRegions(_sheets, tileset, EngineRoomObjects.BlockFrame(block),
                 mirroring.HasFlag(BlockMirroring.Horizontal), mirroring.HasFlag(BlockMirroring.Vertical)) is { } regions)
             _tree.WriteRegionMap(path, Block, Block, regions);
+        WriteFront(path, tileset, EngineRoomObjects.BlockFrame(block), mirroring);
         return path;
+    }
+
+    /// <summary>
+    /// Writes, beside a tile's picture, the part of it that lies in front of the things standing in a room, where it
+    /// has one, with that part's map of regions where the set's sheet tells regions apart. The tile's own picture
+    /// stays whole: the part is drawn again over what stands in the room.
+    /// </summary>
+    private void WriteFront(string path, string tileset, string frame, BlockMirroring mirroring)
+    {
+        bool across = mirroring.HasFlag(BlockMirroring.Horizontal), down = mirroring.HasFlag(BlockMirroring.Vertical);
+        if (EngineRoomObjects.NamedBlockFrontPixels(_sheets, tileset, frame, across, down) is not { } pixels)
+            return;
+        string front = EngineAssetTree.FrontPath(path);
+        _tree.WritePicture(front, Block, Block, pixels);
+        if (EngineRoomObjects.NamedBlockFrontRegions(_sheets, tileset, frame, across, down) is { } regions)
+            _tree.WriteRegionMap(front, Block, Block, regions);
     }
 }

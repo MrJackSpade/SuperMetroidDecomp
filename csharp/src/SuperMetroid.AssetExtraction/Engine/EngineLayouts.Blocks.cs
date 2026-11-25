@@ -111,6 +111,7 @@ internal sealed partial class EngineLayouts
                 if (EngineRoomObjects.NamedBlockRegions(_sheets, tileset, frame,
                         mirroring.HasFlag(BlockMirroring.Horizontal), mirroring.HasFlag(BlockMirroring.Vertical)) is { } regions)
                     _tree.WriteRegionMap(path, Block, Block, regions);
+                WriteFront(path, tileset, frame, mirroring);
             }
 
             pictures.Add(path);

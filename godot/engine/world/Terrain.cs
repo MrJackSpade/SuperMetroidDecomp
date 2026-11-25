@@ -104,7 +104,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         _replacedBy.Clear();
         _blocks.Clear();
         RebuildBlocks();
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>Puts a named patch of the layout in place. Applying one already applied changes nothing.</summary>
@@ -127,7 +127,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
         _replacedBy[name] = replaced;
         RebuildBlocks();
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>Takes a named patch back, restoring the tiles it replaced. Taking back one not applied changes nothing.</summary>
@@ -143,7 +143,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         }
 
         RebuildBlocks();
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>Whether the layout has a patch of a name.</summary>
@@ -390,7 +390,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         }
 
         if (broken.Count > 0)
-            QueueRedraw();
+            Redraw();
         return broken;
     }
 
@@ -418,7 +418,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         if (block.Type.Contact != BlockContact.LatchOnce || block.Broken || block.Type.LatchedUpdates > 0)
             return;
         block.Break();
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals, through this update.</summary>
@@ -426,7 +426,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     {
         foreach (Block block in BlocksIn(area).Where(block => block.Hidden && block.Type.RevealedBySight))
             block.SeeBySight();
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>
@@ -442,7 +442,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         if (_tiles[row][column].SeenPicture is null)
             return false;
         if (!_seenTiles.ContainsKey((row, column)))
-            QueueRedraw();
+            Redraw();
         _seenTiles[(row, column)] = 2;
         return true;
     }
@@ -475,7 +475,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         }
 
         if (changed)
-            QueueRedraw();
+            Redraw();
     }
 
     /// <summary>The sounds of the blocks that broke since this was last asked, each once.</summary>
@@ -578,18 +578,63 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         {
             for (int column = 0; column < _tiles[row].Length; column++)
             {
-                TileDefinition tile = _tiles[row][column];
-                // A block is drawn at every tile it covers, as it is now.
-                string picture = tile.SeenPicture is { } seen && _seenTiles.ContainsKey((row, column)) ? seen : tile.PictureAt(_updates);
-                if (_blockAt[row][column] is { } block)
-                {
-                    int part = (row - block.Rect.Top / size) * (block.Rect.Width / size) + column - block.Rect.Left / size;
-                    picture = block.PictureNow(picture, part);
-                }
-
+                string picture = PictureShownAt(row, column);
                 if (picture.Length > 0)
                     DrawTexture(_content.LoadTexture(picture), new Vector2(column * size, row * size));
             }
         }
+    }
+
+    /// <summary>
+    /// Draws, on <paramref name="front"/>, the part of every tile's picture that lies in front of the things standing
+    /// in the room, for the tiles whose picture has such a part beside it.
+    /// </summary>
+    internal void DrawFront(CanvasItem front)
+    {
+        if (_layout is null || _content is null)
+            return;
+        int size = TileSize;
+        for (int row = 0; row < _tiles.Length; row++)
+        {
+            for (int column = 0; column < _tiles[row].Length; column++)
+            {
+                string picture = PictureShownAt(row, column);
+                if (picture.Length > 0 && _content.LoadFrontOf(picture) is { } part)
+                    front.DrawTexture(part, new Vector2(column * size, row * size));
+            }
+        }
+    }
+
+    /// <summary>The picture the tile at a row and column shows now; empty for one that shows nothing.</summary>
+    private string PictureShownAt(int row, int column)
+    {
+        TileDefinition tile = _tiles[row][column];
+        string picture = tile.SeenPicture is { } seen && _seenTiles.ContainsKey((row, column)) ? seen : tile.PictureAt(_updates);
+
+        // A block is drawn at every tile it covers, as it is now.
+        if (_blockAt[row][column] is { } block)
+        {
+            int size = TileSize;
+            int part = (row - block.Rect.Top / size) * (block.Rect.Width / size) + column - block.Rect.Left / size;
+            picture = block.PictureNow(picture, part);
+        }
+
+        return picture;
+    }
+
+    /// <summary>The part of its tiles in front of the room's things, made the first time a layout is loaded.</summary>
+    private TerrainFront? _front;
+
+    /// <summary>Has the tiles drawn again, both the part behind the room's things and the part in front of them.</summary>
+    private void Redraw()
+    {
+        QueueRedraw();
+        if (_front is null)
+        {
+            _front = new TerrainFront { Name = "Front", Of = this, ZIndex = RoomDepth.TilesInFront, UseParentMaterial = true };
+            AddChild(_front, forceReadableName: false, InternalMode.Back);
+        }
+
+        _front.QueueRedraw();
     }
 }

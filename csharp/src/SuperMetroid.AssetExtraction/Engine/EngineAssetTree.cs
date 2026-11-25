@@ -41,6 +41,14 @@ internal sealed partial class EngineAssetTree
         Write(path, RgbaPng.Encode(new Extent16<ImagePixels>(width, height), pixels, _buffers));
     }
 
+    /// <summary>
+    /// The path of the part of the picture at <paramref name="picture"/> that lies in front of the things standing in a
+    /// room, which lies beside it: a picture of a room's tiles has one where some of it is drawn over what stands there.
+    /// </summary>
+    internal static string FrontPath(string picture) => picture.EndsWith(".png", StringComparison.Ordinal)
+        ? picture[..^4] + ".front.png"
+        : throw new ArgumentException($"A front part lies beside a picture, which {picture} is not.", nameof(picture));
+
     /// <summary>The most regions a picture's map of regions tells apart.</summary>
     internal const int MostRegions = 256;
 

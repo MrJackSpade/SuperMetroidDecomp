@@ -29,10 +29,6 @@ public partial class OverlayEffect : RoomEffect
     [Export(PropertyHint.File)]
     public string LookFile { get; set; } = "";
 
-    /// <summary>Where it is drawn among the room's things when it lies over them, and when behind them.</summary>
-    private const int OverTheRoom = 100;
-    private const int BehindTheRoom = -1;
-
     private ContentLibrary? _content;
     private TimelinePlayer? _player;
     private Vector2 _drift;
@@ -61,7 +57,7 @@ public partial class OverlayEffect : RoomEffect
 
         _followsRoom = look.Distance("follows_room").ToDisplay();
         Material = new CanvasItemMaterial { BlendMode = BlendOf(look, look.Text("blend")) };
-        ZIndex = look.Flag("behind") ? BehindTheRoom : OverTheRoom;
+        ZIndex = look.Flag("behind") ? RoomDepth.BehindRoom : RoomDepth.Overlay;
     }
 
     /// <summary>The way of drawing that a look's "blend" names.</summary>

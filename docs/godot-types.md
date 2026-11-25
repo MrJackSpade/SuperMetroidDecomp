@@ -477,6 +477,12 @@ A scene. One per room of the game.
   first part of the player's update; the player's own shots; the enemies; the rest of the player's update; triggers
   and exits; every other projectile, pickups and remains; room objects, terrain, the earthquake and the sequence;
   effects.
+- **Draws at set depths** (`RoomDepth`), from the back: the backdrop; what lies behind the room; the room's tiles
+  and, after them in the order they stand in the room, everything in it; the part of the tiles that lies in front
+  of what stands in the room (`TerrainFront`, which the terrain makes and draws: a tile's picture may have that
+  part beside it, and it is drawn again over the room's things); what a thing puts in front of every tile; the
+  liquid; the overlays. A thing has the depth of the room's things unless it takes another of these, as a boss's
+  head in front of everything does. No thing picks a depth of its own outside them.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 

@@ -89,6 +89,45 @@ internal sealed partial class EngineRoomObjects
         return regions;
     }
 
+    /// <summary>
+    /// The pixels of the part of a named picture of a set of graphics that lies in front of a room's things, a block
+    /// in size and mirrored as asked. Null for a picture with no such part, or whose such part shows nothing.
+    /// </summary>
+    internal static RgbaPixel[]? NamedBlockFrontPixels(EngineSheets sheets, string graphicsSet, string frame, bool mirroredAcross, bool mirroredDown)
+    {
+        const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
+        RgbaPixel[]? front = sheets.FramePixels(family, graphicsSet, $"{frame}^front", Block, Block);
+        if (front is null || Array.TrueForAll(front, pixel => pixel.A == 0))
+            return null;
+        var pixels = new RgbaPixel[Block * Block];
+        for (int y = 0; y < Block; y++)
+        {
+            for (int x = 0; x < Block; x++)
+                pixels[y * Block + x] = front[(mirroredDown ? Block - 1 - y : y) * Block + (mirroredAcross ? Block - 1 - x : x)];
+        }
+
+        return pixels;
+    }
+
+    /// <summary>
+    /// The region of each pixel of the part <see cref="NamedBlockFrontPixels"/> gives. Null for a set whose sheet
+    /// tells no regions apart, and for a picture with no such part.
+    /// </summary>
+    internal static int[]? NamedBlockFrontRegions(EngineSheets sheets, string graphicsSet, string frame, bool mirroredAcross, bool mirroredDown)
+    {
+        const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
+        if (!sheets.HasRegions(family, graphicsSet) || sheets.FrameRegions(family, graphicsSet, $"{frame}^front", Block, Block) is not { } front)
+            return null;
+        var regions = new int[Block * Block];
+        for (int y = 0; y < Block; y++)
+        {
+            for (int x = 0; x < Block; x++)
+                regions[y * Block + x] = front[(mirroredDown ? Block - 1 - y : y) * Block + (mirroredAcross ? Block - 1 - x : x)];
+        }
+
+        return regions;
+    }
+
     /// <summary>The name on a set's sheet of the picture of the block numbered <paramref name="block"/>.</summary>
     internal static string BlockFrame(int block) => $"block {block}";
 

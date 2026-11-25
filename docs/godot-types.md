@@ -1236,6 +1236,11 @@ turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, e
   gives itself to the player on contact and expires. It records nothing in `Progress`.
 - An `Effect` is a short-lived visual. It owns its position and animation. It does not collide, deal damage, change
   gameplay state or use `GameRandom`. Its timeline's cues may ask for sounds, and may change how it drifts.
+  Being left is the first update of its first picture, and it shows the step each update belongs to
+  (`TimelinePlayer.Shown`), so a later picture and the cues that come with it come together; one that does not
+  loop is gone on the update after its last. The room gives the effects their turns as the enemies' pass ends, and
+  not while the enemies are held still; one left later in an update first takes a turn on the next. An effect that
+  holds a place takes its turn as the update ends.
 - `Remains` are what a destroyed enemy leaves where it died, when its data names a death to play: the timeline of
   that death, which may differ by the kind of hit that destroyed it. The enemy itself is gone at once. The remains
   play the death, asking for the sounds its cues name and scattering the effects they name, placed by `GameRandom`;

@@ -60,15 +60,34 @@ public partial class Effect : Node2D, IRoomEntity
         _visual = new ActorVisual { PictureOffset = PictureOffset };
         AddChild(_visual);
         _visual.Bind(room.Content);
-        _visual.Show(_player.Current);
+
+        // Being left is the first update of its first picture: what comes with that picture comes now.
+        Play(room, _player);
+        _visual.Show(_player.Shown);
     }
 
-    /// <summary>Plays one update of the effect's timeline; when a timeline that does not loop ends, the effect is gone.</summary>
+    /// <summary>
+    /// Plays one update of the effect's timeline. One whose timeline does not loop is gone on the update after its
+    /// last picture's last, showing nothing then.
+    /// </summary>
     internal void Step()
     {
         Room room = _room ?? throw new InvalidOperationException("The effect is not in a room.");
         TimelinePlayer player = _player ?? throw new InvalidOperationException("The effect is not in a room.");
         Position += Velocity.OverOneUpdate;
+        if (player.IsOver)
+        {
+            room.Remove(this);
+            return;
+        }
+
+        Play(room, player);
+        _visual?.Show(player.Shown);
+    }
+
+    /// <summary>Moves its timeline on an update and acts on the cues reached.</summary>
+    private void Play(Room room, TimelinePlayer player)
+    {
         foreach (string cue in player.Step())
         {
             if (cue.StartsWith("sound:", StringComparison.Ordinal))
@@ -76,14 +95,6 @@ public partial class Effect : Node2D, IRoomEntity
             else if (cue.StartsWith("drift:", StringComparison.Ordinal))
                 Velocity = DriftOf(cue);
         }
-
-        if (player.IsOver)
-        {
-            room.Remove(this);
-            return;
-        }
-
-        _visual?.Show(player.Current);
     }
 
     /// <summary>Reads the velocity a "drift:" cue names.</summary>

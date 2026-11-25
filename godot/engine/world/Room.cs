@@ -317,7 +317,13 @@ public partial class Room : Node2D
         }
 
         if (!stopped.HasFlag(Stopped.Enemies))
+        {
             StepEnemyPass();
+
+            // What has been left to be seen takes its turn as the enemies' pass ends, and stands still when they do.
+            // An effect left later in the update first takes a turn on the next.
+            StepEffects(holdingPlaces: false);
+        }
 
         // The pass is counted whether or not the enemies were held still through it.
         Session.CountEnemyPass();
@@ -492,11 +498,8 @@ public partial class Room : Node2D
                 effect.Step(this);
         }
 
-        foreach (Effect effect in _effects.ToList())
-        {
-            if (!_leaving.Contains(effect))
-                effect.Step();
-        }
+        // An effect that holds one of the places of what the enemies launch takes its turn here, as the update ends.
+        StepEffects(holdingPlaces: true);
 
         RemoveLeaving();
         AddArriving();
@@ -564,17 +567,26 @@ public partial class Room : Node2D
 
         // What has been left to be seen plays on with the enemies; an effect that holds one of the places of what
         // the enemies launch waits and goes on with their projectiles.
-        foreach (Effect effect in _effects.ToList())
-        {
-            if ((effect.HoldsPlace ? enemyProjectiles : enemies) && !_leaving.Contains(effect))
-                effect.Step();
-        }
+        if (enemies)
+            StepEffects(holdingPlaces: false);
+        if (enemyProjectiles)
+            StepEffects(holdingPlaces: true);
 
         if (objects)
             StepObjects();
         RemoveLeaving();
         AddArriving();
         ShowAll();
+    }
+
+    /// <summary>The effects take their turns, in the order they were left: those that hold a place, or the rest.</summary>
+    private void StepEffects(bool holdingPlaces)
+    {
+        foreach (Effect effect in _effects.ToList())
+        {
+            if (effect.HoldsPlace == holdingPlaces && !_leaving.Contains(effect))
+                effect.Step();
+        }
     }
 
     /// <summary>

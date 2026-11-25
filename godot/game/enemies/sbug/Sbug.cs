@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -100,11 +101,19 @@ public partial class Sbug : Enemy
                     }
                 }
 
-                // Its heading turns upward as it grows, so up is the sine taken backward.
-                Pixels speed = Pixels.FromWhole(Speed);
-                Position += new PixelOffset(
-                    Turns.Sine(heading + Turns.PerTurn / 4, speed, Turns.Fineness.Coarse),
-                    Turns.Sine(heading + Turns.PerTurn / 2, speed, Turns.Fineness.Coarse));
+                // Its heading turns upward as it grows, so down is the sine a half turn on. As on the cartridge, a
+                // zigzag leg moves by the short product and a straight run by the fine share of its speed.
+                if (Runs == Run.ZigZag)
+                {
+                    Position += new PixelOffset(
+                        CartridgeAngles.CircleSine(heading + Turns.PerTurn / 4, Speed),
+                        CartridgeAngles.CircleSine(heading + Turns.PerTurn / 2, Speed));
+                }
+                else
+                {
+                    Position += CartridgeAngles.VelocityAlong(heading, Speed).OverOneUpdate;
+                }
+
                 return;
 
             default:

@@ -282,6 +282,24 @@ public sealed class Mover
     private static void Place(ICollisionOwner owner, Pixels at, bool across) =>
         owner.Position = across ? owner.Position with { X = at } : owner.Position with { Y = at };
 
+    /// <summary>
+    /// Tries a move across without making it: reports what the move would report, and where it would leave the body,
+    /// with the owner put back exactly where it was.
+    /// </summary>
+    /// <param name="body">The body the move is tried for.</param>
+    /// <param name="distance">How far the move would go, rightward when positive.</param>
+    /// <param name="options">The ways the move differs from the plain one.</param>
+    /// <param name="rest">Where the move would have left the owner.</param>
+    public MoveResult TryAcross(Collider body, Pixels distance, MoveOptions options, out PixelPosition rest)
+    {
+        ICollisionOwner owner = body.CollisionOwner;
+        PixelPosition before = owner.Position;
+        MoveResult result = MoveAcross(body, distance, options);
+        rest = owner.Position;
+        owner.Position = before;
+        return result;
+    }
+
     /// <summary>Whether <paramref name="body"/> rests on terrain or a solid: the pixel row below it is not free.</summary>
     public bool IsOnGround(Collider body, MoveOptions options) =>
         FindObstacle(body.RoomRect.MovedBy(0, 1), body.CollisionOwner, options).Found;

@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
 using Game.Data;
@@ -256,12 +257,39 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         var samus = (Samus)owner;
         bool ready = _ready.IsRunning;
         _ready = _ready.Stepped();
-        if (!_looksForWalls || !owner.MayWallJump || WallJumpingState.WallInReach(owner) is null)
+        if (!_looksForWalls || !owner.MayWallJump || FeelForWall(owner) is not { } gap)
             return false;
+
+        // Ready, a fresh press of the jump launches her if the wall is nearer than her reach; something solid found
+        // at her reach's very end is felt but not jumped from.
         if (ready)
-            return owner.JumpPressed;
+            return owner.JumpPressed && gap < owner.WallJumpReach;
         _ready = Countdown.Of(samus.InMedium("wall_jump_ready_updates", samus.WallJumpReadyUpdates));
         return false;
+    }
+
+    /// <summary>
+    /// Feels for a wall as the cartridge does: by trying a move of her reach to the side away from the direction
+    /// held, to the right when left is held and otherwise to the left when right is. Returns the whole pixels
+    /// between her and what would stop that move, or null when nothing would or no direction is held. The trying
+    /// leaves her where she is but for her part of a pixel: terrain that would stop her leaves it across as a stop
+    /// against it would, and a solid she lies exactly against takes it away up and down.
+    /// </summary>
+    private static int? FeelForWall(Player owner)
+    {
+        bool left = owner.Input.IsHeld(GameAction.Left);
+        if (!left && !owner.Input.IsHeld(GameAction.Right))
+            return null;
+        Facing side = left ? Facing.Right : Facing.Left;
+        MoveResult tried = owner.Room.Mover.TryAcross(
+            owner.Body, side.Toward(Pixels.FromWhole(owner.WallJumpReach)), owner.BodyMoves, out PixelPosition rest);
+        if (!tried.Blocked)
+            return null;
+        if (tried.BlockedByTerrain)
+            owner.Position = owner.Position with { X = owner.Position.X.WithFraction(rest.X.Fraction) };
+        else
+            owner.Position = owner.Position with { Y = owner.Position.Y.WithFraction(rest.Y.Fraction) };
+        return Math.Abs(tried.Moved.Whole);
     }
 
     /// <summary>

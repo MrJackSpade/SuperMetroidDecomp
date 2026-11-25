@@ -224,7 +224,7 @@ internal sealed partial class SuperMetroidRuntime
         Assists = new ActiveAssists(Player, System, assists);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, System = System, Assists = Assists, Freeze = Freeze };
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud });
-        ScreenLayers = new GameplayScreenLayers(Room);
+        ScreenLayers = new GameplayScreenLayers();
         Xray = new XrayReveal(BackgroundScroll, System, artwork.XrayRevealVisuals);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(PlayerActions, PlayerButtons, Options, Clock), Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll);

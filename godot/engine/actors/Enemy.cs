@@ -351,7 +351,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         Playing = name;
         _animation = new TimelinePlayer(Timelines.Get(name));
-        Visual?.Show(PictureOf(_animation.Shown));
+        ShowStep(_animation.Shown);
     }
 
     /// <summary>
@@ -380,7 +380,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         Playing = mark.Name;
         _animation = TimelinePlayer.Resuming(Timelines.Get(mark.Name), mark.Step, mark.CuesPassed);
-        Visual?.Show(PictureOf(_animation.Shown));
+        ShowStep(_animation.Shown);
     }
 
     /// <summary>
@@ -388,6 +388,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// depend on something more, such as what state its body is in, says which here.
     /// </summary>
     protected virtual string PictureOf(TimelineStep step) => step.Picture;
+
+    /// <summary>
+    /// Shows a step of its timeline on its own visual: the picture it shows for the step, where the step puts its
+    /// picture. A timeline that places its own pictures is shown where it places them.
+    /// </summary>
+    private void ShowStep(TimelineStep step) => Visual?.Show(step with { Picture = PictureOf(step) });
 
     /// <summary>
     /// Called for each cue the enemy's timeline reaches that is the enemy's own. The base acts on three itself:
@@ -757,7 +763,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         }
 
         // The picture is that of the step this update fell in: it changes on the update the step's cues come.
-        Visual?.Show(PictureOf(_animation.Shown));
+        ShowStep(_animation.Shown);
     }
 
     /// <summary>How many times in one update its timelines may start one another before that is taken for a mistake in them.</summary>

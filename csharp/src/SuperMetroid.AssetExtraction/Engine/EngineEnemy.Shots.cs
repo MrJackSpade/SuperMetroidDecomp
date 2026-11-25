@@ -48,7 +48,7 @@ internal sealed partial class EngineEnemy
     /// </summary>
     internal string SpawnedTimeline<TSegment, TEvent, TBeat, TShown>(
         string name, AnimationSegmentPlay<TSegment, EnemyProjectileFrameId, TEvent, TBeat, TShown> segments, Animation<TSegment> animation,
-        Func<TEvent, string?> cue)
+        Func<TEvent, string?> cue, string? shade = null)
         where TSegment : struct
         where TEvent : notnull
         where TBeat : class, IAnimationBeat<EnemyProjectileFrameId, TEvent>
@@ -56,29 +56,34 @@ internal sealed partial class EngineEnemy
     {
         (List<IAnimationBeat<EnemyProjectileFrameId, TEvent>> lead, List<IAnimationBeat<EnemyProjectileFrameId, TEvent>>? cycle) =
             EngineTimelines.Played(segments, animation);
-        return SpawnedTimeline(name, lead, cycle, cue);
+        return SpawnedTimeline(name, lead, cycle, cue, shade);
     }
 
     /// <summary>Writes the timeline of something it launches from the beats it plays once and then, where it does, over and over.</summary>
     internal string SpawnedTimeline<TEvent>(
         string name, IReadOnlyList<IAnimationBeat<EnemyProjectileFrameId, TEvent>> lead, IReadOnlyList<IAnimationBeat<EnemyProjectileFrameId, TEvent>>? cycle,
-        Func<TEvent, string?> cue)
+        Func<TEvent, string?> cue, string? shade = null)
         where TEvent : notnull =>
-        SpawnedTimelineAt($"{Folder}/{name}.json", lead, cycle, EnemySheetDefinitions.ProjectileFrameName, cue);
+        SpawnedTimelineAt($"{Folder}/{name}.json", lead, cycle, EnemySheetDefinitions.ProjectileFrameName, cue, shade);
 
     /// <summary>
     /// Writes a timeline of pictures from the sheets of what it spawns to a data file of any name, cutting the
-    /// pictures into a folder named as the file is, and returns the file.
+    /// pictures into a folder named as the file is, and returns the file. With a <paramref name="shade"/> the
+    /// pictures are cut as that shade of their sheet shows them: what the old game draws in a look of its own, as the
+    /// projectiles' shared colours, and not in its sheet's own.
     /// </summary>
     internal string SpawnedTimelineAt<TFrame, TEvent>(
         string file, IReadOnlyList<IAnimationBeat<TFrame, TEvent>> lead, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> frameName,
-        Func<TEvent, string?> cue)
+        Func<TEvent, string?> cue, string? shade = null)
         where TFrame : struct
         where TEvent : notnull
     {
         IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue)
             .Select(frame => frameName(frame!.Value));
-        EngineSheetPictures pictures = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], EnemyDefinitionIdKeys.Installed.Of(_id), frames);
+        string folder = file[..file.LastIndexOf('.')], spawner = EnemyDefinitionIdKeys.Installed.Of(_id);
+        EngineSheetPictures pictures = shade is null
+            ? _sheets.CutSpawned(_tree, folder, spawner, frames)
+            : _sheets.CutSpawnedShade(_tree, folder, spawner, frames, shade);
         JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(frameName(frame)), cue);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
         _tree.WriteData(file, timeline);

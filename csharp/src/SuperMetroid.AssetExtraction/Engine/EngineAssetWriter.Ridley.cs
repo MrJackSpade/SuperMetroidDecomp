@@ -283,8 +283,10 @@ public sealed partial class EngineAssetWriter
             RidleyFireballCue.Delete => "end",
             _ => throw new InvalidDataException($"Ridley's fire raises {cue}, which this does not know."),
         };
+        // The old game draws his fireballs and every flame of them in the projectiles' shared colours, not their sheet's own.
         string Timeline(string name, RidleyFireballSegment segment) =>
-            ridley.SpawnedTimeline(name, RidleyFireballAnimations.Segments, RidleyFireballAnimations.StartingAt[segment], Cue);
+            ridley.SpawnedTimeline(name, RidleyFireballAnimations.Segments, RidleyFireballAnimations.StartingAt[segment], Cue,
+                SuperMetroid.Core.Enemies.Drawing.EnemyShades.ProjectileLook.Key);
 
         // A shot of its fire, as a file of its own: a flare's is launched by the fireball, and a flame's by the flare.
         string Shot(string name, RoomEnemyProjectileKind kind, string scene, string timeline)

@@ -64,6 +64,7 @@ public partial class OptionsMode : GameMode
     private int _lit;
     private bool _brightening;
     private bool _starting;
+    private bool _cursorHidden;
 
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
@@ -99,6 +100,7 @@ public partial class OptionsMode : GameMode
         layer.AddChild(_list);
         _cursor = CinematicSprite.Of(Session.Content, TimelineSet.ReadFrom(_data).Get("cursor"), PixelPosition.Origin);
         _cursor.Name = "Cursor";
+        _cursor.Visible = false;
         layer.AddChild(_cursor);
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
@@ -125,6 +127,20 @@ public partial class OptionsMode : GameMode
     {
         // Every update of the old options draws a random number before anything else of it.
         Session.OpenUpdate();
+        GameMode next = Play(input);
+        (_cursor ?? throw NotShown()).Visible = CursorShows;
+        return next;
+    }
+
+    /// <summary>
+    /// Whether the cursor shows as the update ends: as in the old game, not while the screen holds black as it is come
+    /// to, while a page turns, or as a game starts.
+    /// </summary>
+    private bool CursorShows => _page != Page.Buttons && _blackUpdates >= ScreenData().Int("entry_black_updates") && !_starting && !_cursorHidden;
+
+    /// <summary>Plays one update of the options, and says the mode to go to.</summary>
+    private GameMode Play(GameInput input)
+    {
         CinematicSprite cursor = _cursor ?? throw NotShown();
 
         // As the old game's options are come to, they hold black a few updates before fading in, the cursor still on
@@ -163,6 +179,9 @@ public partial class OptionsMode : GameMode
         if (!FadeDone)
         {
             StepFade();
+
+            // A page turned shows its cursor again once it has faded in.
+            _cursorHidden &= !FadeDone;
             return this;
         }
 
@@ -191,7 +210,8 @@ public partial class OptionsMode : GameMode
             PlaceCursor();
         if (input.WasPressed(GameAction.Cancel))
         {
-            FadeOutTo(Leave);
+            // The cursor stays on going back to the choice of saved game, as in the old game.
+            FadeOutTo(Leave, cursorShows: true);
             return;
         }
 
@@ -307,12 +327,14 @@ public partial class OptionsMode : GameMode
 
     /// <summary>
     /// Fades the screen out, and then does <paramref name="then"/>: the mode to go to (itself to stay black), or none to
-    /// stay and fade back in.
+    /// stay and fade back in. The cursor is hidden from now until the screen has faded back in, unless
+    /// <paramref name="cursorShows"/>.
     /// </summary>
-    private void FadeOutTo(Func<GameMode?> then)
+    private void FadeOutTo(Func<GameMode?> then, bool cursorShows = false)
     {
         _afterFade = then;
         _brightening = false;
+        _cursorHidden = !cursorShows;
     }
 
     /// <summary>Whether the fade begun last has reached full brightness, or black.</summary>
@@ -366,7 +388,6 @@ public partial class OptionsMode : GameMode
         picture.Visible = page != Page.Buttons;
         ChoiceList list = _list ?? throw NotShown();
         list.Visible = page == Page.Buttons;
-        (_cursor ?? throw NotShown()).Visible = page != Page.Buttons;
         string heading;
         switch (page)
         {

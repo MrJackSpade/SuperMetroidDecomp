@@ -87,6 +87,17 @@ public partial class MotherBrainRing : Projectile, IHasValues
             }
         }
 
+        // The ring tests for Samus itself, as the cartridge's does: it does not ask whether a hit a moment ago has made
+        // her safe, nor whether the room is trying shots against her at all, and lands on her all the same, knocking
+        // her away from where it is.
+        if (room.Player is Samus samus && Area.Overlaps(samus.Hurtbox.RoomRect))
+        {
+            bool rightOfIt = samus.Position.X.Whole >= Position.X.Whole;
+            samus.TakeHitRegardless(Hit with { Direction = PixelOffset.FromWhole(rightOfIt ? 1 : -1, 0) });
+            End(room);
+            return;
+        }
+
         int across = Position.X.Whole, down = Position.Y.Whole;
         int inView = across - room.Session.Camera.View.Left;
         if (down < Top || down >= Floor || across < 0 || inView < 0 || inView >= ViewRight)

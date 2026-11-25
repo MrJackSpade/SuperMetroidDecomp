@@ -368,7 +368,22 @@ public partial class Samus : Player
     protected internal override void EndEnemyShots() => _shotsLand = false;
 
     /// <summary>Every shot that overlaps her on one update lands: the first does not make her shrug off the rest.</summary>
-    protected override bool ShrugsOff(Hit hit) => !_shotsLand && base.ShrugsOff(hit);
+    protected override bool ShrugsOff(Hit hit) => !_shotsLand && !_landsRegardless && base.ShrugsOff(hit);
+
+    private bool _landsRegardless;
+
+    /// <summary>
+    /// Lands a hit on her whether or not a hit a moment ago has made her safe: the few things of the cartridge that
+    /// test for her themselves and do not ask, as Mother Brain's rings. She is hurt, safe afresh and knocked back as
+    /// by any hit.
+    /// </summary>
+    public HitResult TakeHitRegardless(Hit hit)
+    {
+        _landsRegardless = true;
+        HitResult result = TakeHit(hit, Hurtbox);
+        _landsRegardless = false;
+        return result;
+    }
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)

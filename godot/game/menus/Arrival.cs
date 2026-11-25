@@ -31,7 +31,7 @@ public partial class Arrival : GameMode
     private readonly bool _savesFirstArrival;
     private int _waitsLeft;
     private int _faded;
-    private ScreenFade? _black;
+    private bool _begun;
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     /// <summary>
@@ -60,9 +60,9 @@ public partial class Arrival : GameMode
     /// <inheritdoc/>
     protected override void Enter()
     {
-        _black = new ScreenFade { Name = "Black", Layer = 20 };
-        AddChild(_black);
-        _black.Cover(Levels, Levels);
+        // The black is the screen's own darkness, which this brings up level by level.
+        Session.Darkness.Show(Session.Darkness.Levels);
+        _begun = true;
 
         // Play, made beneath this, has its room and its player set up by now: the game is saved as it stands.
         if (_savesFirstArrival)
@@ -72,7 +72,9 @@ public partial class Arrival : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        ScreenFade black = _black ?? throw new InvalidOperationException("The arrival has not begun.");
+        if (!_begun)
+            throw new InvalidOperationException("The arrival has not begun.");
+        ScreenDarkness darkness = Session.Darkness;
         if (_waitsLeft > 0)
         {
             _waitsLeft--;
@@ -84,8 +86,17 @@ public partial class Arrival : GameMode
         _closing = ClosingSoundWork.Usual;
         if (_playing.PlayBeneath(input, BeneathTheFade) is { } other)
             throw new InvalidOperationException($"Play beneath the arrival's fade handed over to {other.GetType().Name}; nothing play leads to is followed while the screen comes up.");
-        black.Cover(Levels - _faded / UpdatesALevel, Levels);
+        int dark = Levels - _faded / UpdatesALevel;
         _faded++;
-        return _faded < Levels * UpdatesALevel ? this : _playing;
+        if (_faded < Levels * UpdatesALevel)
+        {
+            darkness.Show(dark);
+            return this;
+        }
+
+        // The last level is seen through this update, and play is its own from the next, fully lit, its fade at no pace.
+        darkness.SetPace(0, 0);
+        darkness.ShowThenLeave(dark, 0);
+        return _playing;
     }
 }

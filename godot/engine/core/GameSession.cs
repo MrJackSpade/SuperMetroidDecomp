@@ -47,8 +47,22 @@ public sealed class GameSession
             LowerRest = Camera.Screen - viewHeight - definition.ViewRestsShortBy,
             ClosedScreenDrift = definition.ClosedScreenDrift,
         };
+        Darkness = new ScreenDarkness(host, definition.ScreenDarknessLevels);
         Mode = definition.CreateFirstMode();
         Show(Mode);
+        Darkness.DrawWhile(KeepsPlay(Mode));
+    }
+
+    /// <summary>Whether <paramref name="mode"/> is play, or keeps play beneath it.</summary>
+    private static bool KeepsPlay(GameMode mode)
+    {
+        for (GameMode? kept = mode; kept is not null; kept = kept.Keeps)
+        {
+            if (kept is PlayingMode)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>The game being played.</summary>
@@ -121,6 +135,9 @@ public sealed class GameSession
 
         // The view's measure of how far the player last moved across starts again with the new player.
         Camera.TakePlayerAsNew();
+
+        // The screen is fully lit again, its fade at no pace, whatever the game before left it.
+        Darkness.Restart(0, 0);
         _messages.Clear();
         SaveRequested = null;
         foreach (ISessionService service in Services)
@@ -143,6 +160,12 @@ public sealed class GameSession
 
     /// <summary>The view onto the room being played.</summary>
     public Camera Camera { get; }
+
+    /// <summary>
+    /// How dark the screen is beneath whatever shows play. It is the session's, so it outlasts whichever mode set it;
+    /// it is drawn only while play is on screen or kept beneath the mode in control.
+    /// </summary>
+    public ScreenDarkness Darkness { get; }
 
     /// <summary>
     /// Opens an update: each session service that opens one plays its part (<see cref="IUpdateOpener"/>). A room opens
@@ -277,6 +300,7 @@ public sealed class GameSession
         // What of the sounds' own work the update does is the mode's to say: the music's turn as it begins, and
         // what closes it once the mode has played it.
         Sounds.OpenUpdate(Mode.GivesMusicItsTurn);
+        Darkness.OpenUpdate();
         GameMode next = Mode.Step(input)
             ?? throw new InvalidOperationException($"{Mode.GetType().Name} named no mode to be in control next.");
         ClosingSoundWork closing = Mode.SoundWorkAtClose;
@@ -316,6 +340,8 @@ public sealed class GameSession
                         Show(kept[index]);
                 }
             }
+
+            Darkness.DrawWhile(KeepsPlay(Mode));
         }
 
         Sounds.CloseUpdate(closing);

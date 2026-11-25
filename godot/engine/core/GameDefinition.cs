@@ -155,6 +155,10 @@ public partial class GameDefinition : Resource
     [Export]
     public int ClosedScreenDrift { get; set; } = 2;
 
+    /// <summary>How many levels the screen beneath play goes from fully lit to black in (<see cref="Ui.ScreenDarkness"/>).</summary>
+    [Export]
+    public int ScreenDarknessLevels { get; set; } = 15;
+
     /// <summary>
     /// How far to either side of the view an enemy's middle may lie, beyond the enemy's own half-width, and the
     /// enemy still take its turn, in pixels.

@@ -119,7 +119,6 @@ public partial class PauseScreen : GameMode
     private PageTurn _turn;
     private Lit _lit;
     private int _levels;
-    private int _dark;
     private int _pageDark;
     private int _fadeWaitLeft;
     private Vector2I _here;
@@ -156,7 +155,11 @@ public partial class PauseScreen : GameMode
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
         _levels = _data.Get("fade").Int("levels");
-        BeginFade(dark: 0);
+        _fade.Cover(0, _levels);
+
+        // The darkening goes on from however dark the screen was left, at the pause's own pace from here.
+        int wait = _data.Get("fade").Int("wait");
+        Session.Darkness.SetPace(wait, wait);
         _phase = Phase.Darkening;
     }
 
@@ -180,11 +183,17 @@ public partial class PauseScreen : GameMode
         {
             case Phase.Darkening:
             {
-                if (_playing.PlayBeneath(input, BeneathThePause) is { } next)
-                    return next;
-                if (SavedBeneath)
+                // The darkening takes its step whatever the update of play began, and the screen is left that dark:
+                // through the refill that takes the update from the pause, or the door or the time up it is handed to.
+                GameMode? next = _playing.PlayBeneath(input, BeneathThePause);
+                bool black = StepFade(darker: true);
+                if (SavedBeneath && next is null)
                     return _playing;
-                if (StepFade(darker: true))
+                if (black)
+                    Session.Darkness.SetPace(0, 0);
+                if (next is not null)
+                    return next;
+                if (black)
                     _phase = Phase.Preparing;
                 return this;
             }
@@ -194,7 +203,7 @@ public partial class PauseScreen : GameMode
                 _playing.Room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 Session.Sounds.StopAll();
                 Prepare();
-                BeginFade(dark: _levels);
+                BeginFade(dark: Session.Darkness.Levels);
                 _phase = Phase.FadingIn;
                 return this;
 
@@ -230,17 +239,20 @@ public partial class PauseScreen : GameMode
                 // Resuming disarms an elevator's door and leaves its ride as it stands: a ride down that reaches its
                 // door disarmed begins the door's passage without the wait.
                 ElevatorJourney.Of(Session).Disarm();
-                BeginFade(dark: _levels);
+                BeginFade(dark: Session.Darkness.Levels);
                 _phase = Phase.Brightening;
                 return this;
 
             case Phase.Brightening:
             {
-                if (_playing.PlayBeneath(input, BeneathThePause) is { } next)
+                // The brightening takes its step too, whatever the update of play began.
+                GameMode? next = _playing.PlayBeneath(input, BeneathThePause);
+                bool lit = StepFade(darker: false);
+                if (lit)
+                    Session.Darkness.SetPace(0, 0);
+                if (next is not null)
                     return next;
-                if (SavedBeneath)
-                    return _playing;
-                return StepFade(darker: false) ? _playing : this;
+                return lit || SavedBeneath ? _playing : this;
             }
 
             default:
@@ -249,31 +261,13 @@ public partial class PauseScreen : GameMode
     }
 
     /// <summary>Sets the screen so dark, with the wait before the first step of the fade from there.</summary>
-    private void BeginFade(int dark)
-    {
-        (_dark, _fadeWaitLeft) = (dark, Data().Get("fade").Int("wait"));
-        ShowDarkness();
-    }
+    private void BeginFade(int dark) => Session.Darkness.Restart(dark, Data().Get("fade").Int("wait"));
 
     /// <summary>Plays one update of the fade of the whole screen, a level at a time after its wait, and says whether it is done.</summary>
-    private bool StepFade(bool darker)
-    {
-        if (_fadeWaitLeft > 0)
-        {
-            _fadeWaitLeft--;
-        }
-        else
-        {
-            _fadeWaitLeft = Data().Get("fade").Int("wait");
-            _dark = Math.Clamp(_dark + (darker ? 1 : -1), 0, _levels);
-            ShowDarkness();
-        }
+    private bool StepFade(bool darker) => darker ? Session.Darkness.Darken() : Session.Darkness.Brighten();
 
-        return _dark == (darker ? _levels : 0);
-    }
-
-    /// <summary>Shows the screen as dark as the fade of the whole screen and the turn of a page have it, whichever is darker.</summary>
-    private void ShowDarkness() => (_fade ?? throw NotShown()).Cover(Math.Max(_dark, _pageDark), _levels);
+    /// <summary>Shows the page as dark as its turn has it. The whole screen's darkness is the session's, drawn over it.</summary>
+    private void ShowDarkness() => (_fade ?? throw NotShown()).Cover(_pageDark, _levels);
 
     /// <summary>Builds the pause screen under the black, on its map page, and puts the strip across the top of play over it.</summary>
     private void Prepare()

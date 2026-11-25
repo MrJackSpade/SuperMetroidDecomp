@@ -19,9 +19,6 @@ namespace Game;
 /// </remarks>
 public partial class TimeUpMode : GameMode
 {
-    /// <summary>How many levels the white screen goes black in, one each update.</summary>
-    private const int BlackOutLevels = 15;
-
     /// <summary>
     /// The terms play goes on beneath the white-out on, as the cartridge has it: Samus with no energy left does not
     /// begin to die, though her reserves may still save her; the pause is refused; and nothing of the escape's takes
@@ -30,8 +27,9 @@ public partial class TimeUpMode : GameMode
     private static readonly PlayTerms BeneathTheWhiteOut = new() { PlayerMayDie = false, MayPause = false, ServicesMayTakeOver = false };
 
     private readonly PlayingMode _playing;
-    private ScreenFade? _black;
-    private int _dark;
+
+    /// <summary>Whether the white-out is done and the screen is going black, a level an update from however dark it stood.</summary>
+    private bool _blackingOut;
 
     /// <summary>Time running out on <paramref name="playing"/>.</summary>
     public TimeUpMode(PlayingMode playing)
@@ -47,7 +45,7 @@ public partial class TimeUpMode : GameMode
     public override GameMode Step(GameInput input)
     {
         Escape escape = Session.Service<Escape>();
-        if (_black is null)
+        if (!_blackingOut)
         {
             // A whole update of play, and then the white-out's step, which it takes whatever the update led to.
             GameMode? next = _playing.PlayBeneath(input, BeneathTheWhiteOut);
@@ -62,9 +60,9 @@ public partial class TimeUpMode : GameMode
                 return _playing;
             if (whitened)
             {
-                _black = new ScreenFade { Name = "BlackOut", Colour = Colors.Black, Layer = 20 };
-                AddChild(_black);
-                _black.Cover(0, BlackOutLevels);
+                // The fade to black is the screen's own darkness, a level every update from where it stands.
+                Session.Darkness.SetPace(0, 0);
+                _blackingOut = true;
             }
 
             return this;
@@ -73,10 +71,9 @@ public partial class TimeUpMode : GameMode
         // The fade to black plays nothing: on each of its updates the liquid and the statues still move, and then
         // the update's random number is drawn.
         _playing.Room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
-        _dark++;
-        _black.Cover(_dark, BlackOutLevels);
-        if (_dark < BlackOutLevels)
+        if (!Session.Darkness.Darken())
             return this;
+        Session.Darkness.SetPace(0, 0);
 
         // On the update it reaches black the countdown is stopped, every library is told to stop, which no number of
         // sounds waiting turns away, and what follows begins.

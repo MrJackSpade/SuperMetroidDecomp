@@ -285,6 +285,9 @@ public partial class DoorTransitionMode : GameMode
                 if (ElevatorJourney.Of(Session).DoorArmed && samus.State is not RidingElevatorState)
                     samus.ChangeState(new RidingElevatorState());
                 room.ShowNow();
+
+                // A door forces the screen fully lit before the room beyond fades in, however dark a pause's fade left it.
+                Session.Darkness.Show(0);
                 _fadeSteps = 0;
                 _stage = Stage.FadingIn;
                 break;

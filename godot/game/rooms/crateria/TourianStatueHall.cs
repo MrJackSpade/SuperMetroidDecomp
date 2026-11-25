@@ -139,6 +139,9 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     private int _soundTurn;
     private bool _begun;
 
+    /// <summary>The hall begins as its room is set up, as the cartridge's does: what it clears, opens and shows is so before the first update.</summary>
+    protected override void OnStarted() => Begin(Room);
+
     /// <summary>The statue's sinking, which reads the random number as the update before left it.</summary>
     public void StepOpening(Room room)
     {

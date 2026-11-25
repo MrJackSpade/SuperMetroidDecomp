@@ -47,9 +47,15 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     /// </summary>
     public virtual bool PlaysBeforeView => false;
 
+    private Room? _room;
+
+    /// <summary>The room the sequence is of, from the room's setting up on.</summary>
+    protected Room Room => _room ?? throw new InvalidOperationException($"The sequence \"{Name}\" is in no room that has been set up.");
+
     /// <summary>Puts the sequence at its start, and starts it if its condition says so.</summary>
     internal void Setup(Room room)
     {
+        _room = room;
         IsRunning = false;
         Elapsed = 0;
         if ((StartsWhen is not null && StartsWhen.IsTrue(room)) || (StartsAtEntry.Length > 0 && room.Entry?.EntryPoint == StartsAtEntry))

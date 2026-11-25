@@ -58,7 +58,7 @@ public partial class SuperMetroid : GameDefinition
         exit is Door door ? new DoorTransitionMode(playing, door) : base.CreateRoomTransition(playing, exit);
 
     /// <summary>The room's scroll cells are the cartridge's fifty, which outlive each room.</summary>
-    public override Engine.World.IScrollCells CreateScrollCells() => new Compatibility.KeptScrollCells();
+    public override Engine.World.IScrollCells CreateScrollCells(GameSession session) => new Compatibility.KeptScrollCells(session);
 
     /// <summary>Samus's speed is read against its limits as the cartridge reads it.</summary>
     public override Engine.Actors.ISpeedReadings CreateSpeedReadings() => new Compatibility.CartridgeSpeedReadings();

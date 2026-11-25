@@ -38,7 +38,7 @@ public sealed class GameSession
         Options = options;
         Random = new GameRandom(definition.CreateRandomSequence());
         Services = definition.CreateServices();
-        ScrollCells = definition.CreateScrollCells();
+        ScrollCells = definition.CreateScrollCells(this);
         Clock = new GameClock(definition.ClockPeriod, definition.ShortClockPeriod);
         Sounds = new SoundRequests(definition.CreateSoundFlow(content));
         int viewHeight = ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32();

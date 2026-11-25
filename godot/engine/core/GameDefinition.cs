@@ -186,10 +186,10 @@ public partial class GameDefinition : Resource
     public virtual bool StatusLasts(GameSession session, string status) => true;
 
     /// <summary>
-    /// Makes what keeps how each screen of the room being played lets the view in. The engine's plain keeper, which
-    /// knows the room's own screens and nothing else, unless the game needs another.
+    /// Makes what keeps how each screen of the room being played lets the view in, for <paramref name="session"/>. The
+    /// engine's plain keeper, which knows the room's own screens and nothing else, unless the game needs another.
     /// </summary>
-    public virtual IScrollCells CreateScrollCells() => new RoomScrollCells();
+    public virtual IScrollCells CreateScrollCells(GameSession session) => new RoomScrollCells();
 
     /// <summary>
     /// Makes what decides how the sounds and music asked for come to be heard. The engine's plain flow, where

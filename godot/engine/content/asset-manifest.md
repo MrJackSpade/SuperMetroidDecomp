@@ -55,7 +55,6 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/torizo_egg.json` | `TorizoEgg` | bounce_drag, hatch_updates, quickening |
 | `bosses/torizo_eye_beam.json` | `TorizoEyeBeam` |  |
-| `bosses/torizo_fragment.json` | `TorizoFragment` | gravity |
 | `bosses/torizo_orb.json` | `TorizoOrb` | bounce_drag, bounces, gravity |
 | `bosses/torizo_shot.json` | `CuedProjectile` |  |
 | `bosses/torizo_sonic_boom.json` | `TorizoSonicBoom` | quickening |

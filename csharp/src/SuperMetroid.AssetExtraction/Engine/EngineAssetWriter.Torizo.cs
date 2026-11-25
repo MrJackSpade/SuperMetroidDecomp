@@ -626,7 +626,6 @@ public sealed partial class EngineAssetWriter
 
         // Each piece it throws: where it breaks off, and the shot that is the piece.
         EnemyProjectileDefinition piece = EnemyProjectileDefinitionCatalog.Definitions[RoomEnemyProjectileKind.BombTorizoStatueBreaking];
-        TorizoProjectileData("bosses/torizo_fragment.json", "TorizoFragment", [], ("gravity", EngineNames.Number(BombTorizoStatueFragmentDefinitions.Acceleration)));
         var fragments = new JsonObject();
         foreach ((BombTorizoStatueFragment fragment, BombTorizoStatueFragmentDefinition thrown) in BombTorizoStatueFragmentDefinitions.Fragments)
         {

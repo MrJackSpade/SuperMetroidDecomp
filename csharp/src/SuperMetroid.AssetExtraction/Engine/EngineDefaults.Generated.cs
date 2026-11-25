@@ -308,7 +308,6 @@ internal static partial class EngineDefaults
         ["Torizo"] = [("start_timeline", "\"\""), ("awakening_timeline", "\"\""), ("start_look", "\"\""), ("start_tint", "\"\""), ("fade_steps", "16"), ("gut_health", "350"), ("face_health", "100"), ("first_attack_missiles", "5"), ("turn_delay", "72"), ("orbs_per_burst", "3"), ("orb_speed_across", "1.5625"), ("orb_speed_up", "1.625"), ("close_in_front", "32"), ("close_behind", "56"), ("eggs_health", "1928"), ("stagger_health", "10800"), ("space_jump_updates", "360"), ("repeated_jump_steps", "8"), ("landing_shake_strength", "2"), ("death_drops", "16")],
         ["TorizoDrool"] = [("gravity", "0.0625"), ("drag", "0.015625"), ("drift", "0.01171875")],
         ["TorizoEgg"] = [("hatch_updates", "67"), ("quickening", "0.1875"), ("bounce_drag", "0.125")],
-        ["TorizoFragment"] = [("gravity", "0.0625")],
         ["TorizoOrb"] = [("gravity", "0.0703125"), ("bounces", "false"), ("bounce_drag", "0.25")],
         ["TorizoSonicBoom"] = [("quickening", "0.0625")],
         ["TorizoSuperMissile"] = [("throw_speed", "4"), ("gravity", "0.0625")],

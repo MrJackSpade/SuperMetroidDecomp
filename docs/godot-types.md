@@ -663,7 +663,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
   is an `IOpeningStep` as well: the room calls that part as the update opens, while the sequence is running, and
   the rest where every sequence is stepped. One that holds part of the room still while it plays says so
   (`Stops`), as a ride that moves a player whose own update must not run; play adds that to what the player's
-  state holds still. What must hold from the first moment, before any update is played, is done as it starts (`OnStarted`), as the room is set up for one that starts by itself. One that moves the player for the view to follow on the same update plays before the view does (`PlaysBeforeView`); every other plays after. One that moves the player has the room test its exits again (`Room.MeetExits`), since the
+  state holds still. What must hold from the first moment, before any update is played, is done as it starts (`OnStarted`), as the room is set up for one that starts by itself; it knows its room from then on (`Room`). One that moves the player for the view to follow on the same update plays before the view does (`PlaysBeforeView`); every other plays after. One that moves the player has the room test its exits again (`Room.MeetExits`), since the
   room's own test came earlier in the update.
 - **Does not:** hold behaviour that belongs to an object in the room, or exist outside its room.
 
@@ -1134,6 +1134,10 @@ turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, e
   on the death's "drop" cue, or as it ends, they roll the enemy's `DropTable` and leave the pickup; and they hand
   the enemy that takes its place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
   not under it. An enemy with no death to play leaves its drop at once.
+
+**A projectile may become a shot of another type** where it is and going as it goes (`Projectile.BecomeShotOf`):
+its hit's damage and kinds, its size and its timeline or picture become that type's. The spazer attack's leading
+lights become the trailing pair's shot so as they start to fall.
 
 **A projectile shot down** is gone at once, leaving what it drops, unless its data gives it an end to play
 (`"shot_timeline"`). Then it stays what it is and where it is while that plays: it holds still, stops shots no

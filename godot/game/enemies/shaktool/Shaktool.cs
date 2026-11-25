@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -261,9 +262,10 @@ public partial class Shaktool : Enemy
         }
 
         _straightening = false;
-        // The chain now aims a quarter turn on from where its far saw lies from the near one.
-        PixelOffset apart = _at[Parts - 1] - _at[0];
-        int bearing = (Turns.AngleOf(apart.X.Whole, apart.Y.Whole) + Turns.PerTurn / 4) * StepParts;
+        // The chain now aims a quarter turn on from where its far saw lies from the near one: the cartridge's aim
+        // between their whole pixels, which counts up from right, turned to count clockwise from up.
+        int aim = CartridgeAngles.AimAngle(_at[Parts - 1].X.Whole - _at[0].X.Whole, _at[Parts - 1].Y.Whole - _at[0].Y.Whole);
+        int bearing = Turns.Wrap(Turns.PerTurn / 4 - aim) * StepParts;
         _target = Wrapped(bearing + (_clockwise ? TurnParts / 4 : -TurnParts / 4));
         for (int part = Parts - 1; part >= 0; part--)
         {
@@ -316,12 +318,19 @@ public partial class Shaktool : Enemy
         }
     }
 
-    /// <summary>Moves a part a pixel the way an angle points: straight up at nothing, turning clockwise.</summary>
+    /// <summary>
+    /// Moves a part a pixel the way an angle points: straight up at nothing, turning clockwise. As on the cartridge, a
+    /// pixel along the sine across and along the sine a quarter turn behind down, in 256ths of a pixel.
+    /// </summary>
     private void Nudge(int part, int angle)
     {
-        Pixels one = Pixels.FromWhole(1);
-        _at[part] += new PixelOffset(Turns.Sine(angle, one), Turns.Sine(angle - Turns.PerTurn / 4, one));
+        _at[part] += new PixelOffset(
+            FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, angle)),
+            FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, angle - Turns.PerTurn / 4)));
     }
+
+    /// <summary>A distance given in 256ths of a pixel.</summary>
+    private static Pixels FromTwoFiftySixths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 0xFF) << 8);
 
     /// <summary>Moves the parts' pictures on, and puts them, their colliders and the enemy itself where they are.</summary>
     private void ShowParts()

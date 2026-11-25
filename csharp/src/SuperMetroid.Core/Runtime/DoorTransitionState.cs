@@ -149,6 +149,7 @@ internal sealed partial class DoorTransitionState
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 // Each colour step is one update, with its own effects and random draw.
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 if (transition.FadeSteps.Step())
                 {
                     runtime.DoorFade.Darken();
@@ -285,6 +286,7 @@ internal sealed partial class DoorTransitionState
                 // transition gives them one explicit step before polling the music queue.
                 BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 loaded.StepAnimatedTilesDuringDoor(samus, runtime.System);
                 transition.Enter(new DoorTransitionPhase.Running.WaitForMusicQueue());
                 break;
@@ -292,6 +294,7 @@ internal sealed partial class DoorTransitionState
             case DoorTransitionPhase.Running.WaitForMusicQueue:
                 BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 if (!audio.HasQueuedMusic)
                 {
                     transition.Enter(new DoorTransitionPhase.Running.FinishDoorOpeningScroll());
@@ -307,6 +310,7 @@ internal sealed partial class DoorTransitionState
             case DoorTransitionPhase.Running.FinishDoorOpeningScroll:
                 BeginDestinationFrame(runtime, loaded, controllerInput, blank: false);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 // Samus's nudges off the screen's edges and an elevator door's control setup apply only once the
                 // opening scroll has finished and the music is queued, not during the visible scroll.
                 runtime.RoomLoader.FinishDoorOpeningScroll(transition.Scroll, loaded);
@@ -319,6 +323,7 @@ internal sealed partial class DoorTransitionState
             case DoorTransitionPhase.Running.FadeInDestinationRoom:
                 BeginDestinationFrame(runtime, loaded, controllerInput, blank: false);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
                 loaded.StepAnimatedTilesDuringDoor(samus, runtime.System);

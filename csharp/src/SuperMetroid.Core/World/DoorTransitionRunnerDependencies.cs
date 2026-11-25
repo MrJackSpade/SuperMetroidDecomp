@@ -30,4 +30,7 @@ internal sealed partial record DoorTransitionRunnerDependencies
 
     /// <summary>The session's shared game state: the defeated bosses the door's setup reads and each update's random number.</summary>
     public required SharedGameState System { get; init; }
+
+    /// <summary>Whether time is frozen, which holds the room effect's overlay still.</summary>
+    public required GameplayTimeFreeze Freeze { get; init; }
 }

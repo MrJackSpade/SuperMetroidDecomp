@@ -166,6 +166,12 @@ internal sealed partial record RoomScope
     }
 
     /// <summary>
+    /// Runs the cartridge's HDMA objects of the room's effect for one update of a door's transition (#3047): its overlay
+    /// placed against the camera and moved on, where the cartridge's HDMA handler runs during the door.
+    /// </summary>
+    internal void StepEffectDisplayDuringDoor(bool timeIsFrozen) => FxOverlay.StepDisplayDuringDoor(Camera.PixelPosition, timeIsFrozen);
+
+    /// <summary>
     /// The room's gameplay shading (#1512): each owner of a colour effect names the shades and effects its state shows,
     /// each later one showing over the earlier: the room's colour effects and the effect overlay colours, then its
     /// bosses', then <paramref name="shownOver"/>, the display's fades, over all of them.

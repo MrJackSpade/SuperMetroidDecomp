@@ -159,6 +159,32 @@ public sealed partial class EngineAssetWriter
         for (int band = 0; band < bands.Count; band++)
             _sheets.CutShade(_tree, family, folder + "_health_" + band.ToString(CultureInfo.InvariantCulture), sheet, DraygonShades.Health(bands[band]).Key);
 
+        // The colours its tail and arms show: its opening's, and from its first hurt on its own laid over them.
+        string tailSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonTail));
+        string armsSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonArms));
+        JsonObject PartSwaps(string partSheet, string shade)
+        {
+            IReadOnlyList<ShadeSwap> swaps = _sheets.ShadeSwaps(GameInstallationLayout.EnemySheetDirectoryName, partSheet, shade);
+            if (swaps.Count > MostSwapsShown)
+                throw new InvalidDataException($"The shade {shade} changes {swaps.Count} colours of {partSheet}; a thing shows at most {MostSwapsShown} changed at once.");
+            var written = new JsonObject();
+            foreach (ShadeSwap swap in swaps)
+            {
+                if (swap.Region != ShadeSwap.Everywhere)
+                    throw new InvalidDataException($"The shade {shade} changes a colour of {partSheet} in one region of its pictures only, and Draygon's tail and arms have no map of regions.");
+                written[swap.From.ToString("x6", CultureInfo.InvariantCulture)] = swap.To.ToString("x6", CultureInfo.InvariantCulture);
+            }
+
+            return written;
+        }
+
+        JsonObject PartColours(string shade) => new() { ["Tail"] = PartSwaps(tailSheet, shade), ["Arms"] = PartSwaps(armsSheet, shade) };
+        var partColours = new JsonObject
+        {
+            ["opening"] = PartColours(DraygonShades.Intro.Key),
+            ["fought"] = PartColours($"{DraygonShades.Intro.Key}+{DraygonShades.Sprite.Key}"),
+        };
+
         static JsonObject Field(RandomSampleField field) => new() { ["from"] = field.Shift, ["digits"] = field.Width };
 
         // Its brood: those that dance before the fight, and those that bury it. The Godot Draygon counts a heading
@@ -220,6 +246,7 @@ public sealed partial class EngineAssetWriter
             .Value("smoke_effect", Effect(RoomEffectActorKind.BigDustCloud))
             .Group("facing_colliders", new JsonObject { ["left"] = left, ["right"] = right })
             .Group("health_bands", EngineNames.List(bands.Select(band => band.MinimumHealth)))
+            .Group("part_colours", partColours)
             .Group("intro_dance", EngineNames.List(DraygonIntroDanceDefinitions.TracedPath.Select(step => (JsonNode)new JsonObject { ["x"] = (int)step.X, ["y"] = (int)step.Y })))
             .Group("intro_dancer_delays", EngineNames.List(DraygonIntroDanceDefinitions.DancerStartDelays))
             .Group("burial_brood", buriers)

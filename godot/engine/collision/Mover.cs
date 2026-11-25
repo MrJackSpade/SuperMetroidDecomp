@@ -383,11 +383,15 @@ public sealed class Mover
     {
         if (options.StoppedByTerrain && _world.Terrain.IsSolidIn(rect, options.Slopes))
             return new Obstacle(true, null);
-        if (options.StoppedBySolids)
+        if (!options.StoppedByTerrain && !options.StoppedBySolids)
+            return new Obstacle(false, null);
+
+        // A solid that stands as part of the room is met with the terrain: by what the terrain stops, whether or not
+        // other solids stop it, and not by what only other solids stop.
+        foreach (Collider solid in _world.Overlapping(rect, ColliderRole.Solid, except: owner))
         {
-            IReadOnlyList<Collider> solids = _world.Overlapping(rect, ColliderRole.Solid, except: owner);
-            if (solids.Count > 0)
-                return new Obstacle(true, solids[0]);
+            if (solid.StandsAsTerrain ? options.StoppedByTerrain : options.StoppedBySolids)
+                return new Obstacle(true, solid);
         }
 
         return new Obstacle(false, null);

@@ -30,9 +30,9 @@ public sealed record MoveOptions
     /// </summary>
     public bool TriesFromRight { get; init; }
 
-    /// <summary>Whether solid colliders stop the move.</summary>
+    /// <summary>Whether solid colliders stop the move, other than those that stand as part of the room.</summary>
     public bool StoppedBySolids { get; init; } = true;
 
-    /// <summary>Whether terrain stops the move.</summary>
+    /// <summary>Whether terrain stops the move, and with it the solid colliders that stand as part of the room (<see cref="Collider.StandsAsTerrain"/>).</summary>
     public bool StoppedByTerrain { get; init; } = true;
 }

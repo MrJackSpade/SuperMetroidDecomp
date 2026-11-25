@@ -86,10 +86,20 @@ public partial class Pickup : Node2D, IRoomEntity
         room.Remove(this);
     }
 
-    /// <summary>Plays one update: the pickup is collected if the player touches it, and otherwise ages.</summary>
+    /// <summary>
+    /// Plays one update: the pickup ages first, and is gone on the update its time ends, touched or not; otherwise it
+    /// is collected if the player touches it.
+    /// </summary>
     internal void Step()
     {
         Room room = _room ?? throw new InvalidOperationException("The pickup is not in a room.");
+        _left = _left.Stepped();
+        if (_left.IsOver)
+        {
+            room.Remove(this);
+            return;
+        }
+
         if (Area.Overlaps(room.Player.BodyRect))
         {
             Collect();
@@ -101,10 +111,6 @@ public partial class Pickup : Node2D, IRoomEntity
             _timeline.Step();
             _visual?.Show(_timeline.Current);
         }
-
-        _left = _left.Stepped();
-        if (_left.IsOver)
-            room.Remove(this);
     }
 
     /// <inheritdoc/>

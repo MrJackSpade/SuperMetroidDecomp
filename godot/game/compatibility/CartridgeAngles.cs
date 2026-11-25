@@ -12,7 +12,7 @@ namespace Game.Compatibility;
 /// Nothing here is kept from one call to the next. An enemy uses the member its own cartridge code uses: the same
 /// enemy may take a fine sine for its step and the short product for where it circles.
 /// </remarks>
-public static class CartridgeAngles
+public static partial class CartridgeAngles
 {
     private const int HalfTurn = 128, QuarterTurn = 64;
 

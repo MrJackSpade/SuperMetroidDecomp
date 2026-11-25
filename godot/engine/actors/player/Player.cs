@@ -345,6 +345,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void Land(Pixels speed)
     {
         LandingSpeed = speed;
+        _cameDown = true;
         FallFromRest();
         ComeToRest();
         ArmJumpBuffer();
@@ -437,9 +438,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>
     /// How the player's body meets terrain: stopped by terrain and solids, held up by sloped ground under its middle
     /// column where the slope's tile says it holds things so, and climbing such ground as steeply as the player can,
-    /// on the ground and in the air alike. Every move and test of the player's body uses it.
+    /// on the ground and in the air alike. Every move and test of the player's body uses it. The game's definition may
+    /// say more of how its player's body is moved (<see cref="Core.GameDefinition.BodyMoves"/>).
     /// </summary>
-    public MoveOptions BodyMoves => MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel };
+    public MoveOptions BodyMoves =>
+        Room.Session.Definition.BodyMoves(MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel });
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
@@ -474,7 +477,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// The speed the player last came down onto ground at, for a landing that is not on their feet. A state that
     /// brings the player down some other way than <see cref="Land"/> says so here.
     /// </summary>
-    public void CameDownAt(Pixels speed) => LandingSpeed = speed;
+    public void CameDownAt(Pixels speed)
+    {
+        LandingSpeed = speed;
+        _cameDown = true;
+    }
 
     /// <summary>Whether the player's feet are in a liquid that hinders them.</summary>
     public bool IsHinderedByLiquid => HinderingLiquid(Feet) is not null;
@@ -688,16 +695,29 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (State is DyingState)
             return;
         bool onGround = IsOnGround;
-        if (onGround)
+
+        // A body whose moves are tried every pixel of the way stands on the ground it rests on, and has landed when
+        // it has come to rest on ground it was not on. One tried only where its moves end may lie on the ground an
+        // update before the move that stops on it: that one stands on the terrain that stopped a move down of its
+        // own on this update, and has landed when the state it is in says it came down.
+        bool triedWhereItEnds = BodyMoves.Tries == WayTried.WhereItEnds;
+        if (triedWhereItEnds ? _groundStoppedMove : onGround)
             Room.Terrain.StandOn(BodyRect);
-        if (onGround && !_wasOnGround)
+        if (triedWhereItEnds ? _cameDown : onGround && !_wasOnGround)
             OnLanded();
         LandingSpeed = Pixels.Zero;
+        (_cameDown, _groundStoppedMove) = (false, false);
         _wasOnGround = onGround;
         BeMovedByBlocks();
         Splash();
         TakeOngoingDamage();
     }
+
+    /// <summary>Whether a state said, on this update, that the player came down onto ground.</summary>
+    private bool _cameDown;
+
+    /// <summary>Whether terrain stopped a move down of the player's own on this update.</summary>
+    private bool _groundStoppedMove;
 
     /// <summary>Whether the player's feet were on the ground, and in the room's liquid, at the end of the last update.</summary>
     private bool _wasOnGround = true;
@@ -1234,11 +1254,15 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public MoveResult MoveAcross(bool byDashAlone = false)
     {
         MoveOptions options = BodyMoves;
-        Pixels distance = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
-        _reachAcross = distance.Abs();
-        distance = OverSlopes(distance);
+        Pixels reach = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
+        _reachAcross = reach.Abs();
+        Pixels distance = OverSlopes(reach);
         ClearWay(distance, Pixels.Zero);
-        MoveResult result = Room.Mover.MoveAcross(Body, distance, options);
+
+        // The slopes take their share of how far the player goes, not of how far ahead the move is tried.
+        MoveResult result = Room.Mover.MoveAcross(Body, distance, options, triedAs: reach);
+        if (result.PutOnSlope)
+            _putOnSlope = true;
         OnBodyMoved(across: true, distance, result.Moved);
         if (result.Blocked)
             StopAcross();
@@ -1267,15 +1291,36 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         Pixels distance = InLiquid(Velocity.Y);
         ClearWay(Pixels.Zero, distance);
-        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
-        OnBodyMoved(across: false, distance, result.Moved);
+        MoveResult result = MoveDownBy(distance);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
     }
 
+    /// <summary>
+    /// Moves the player down by a distance, upward when it is negative, whatever their speed: every move of their
+    /// own up or down is one of these. A move of some distance that no solid stopped ends the hold sloped ground had
+    /// taken of them.
+    /// </summary>
+    public MoveResult MoveDownBy(Pixels distance)
+    {
+        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
+        if (!distance.IsZero && result.BlockedBy is null)
+            _putOnSlope = false;
+        if (result.BlockedByTerrain && !distance.IsNegative)
+            _groundStoppedMove = true;
+        OnBodyMoved(across: false, distance, result.Moved);
+        return result;
+    }
+
     /// <summary>How far the player last set out to move across, before any slope took its share.</summary>
     private Pixels _reachAcross;
+
+    /// <summary>
+    /// Whether a move across has put the player where sloped ground holds them under their middle, and no move up or
+    /// down has been made since. Only a body whose moves are tried where they end is ever put so.
+    /// </summary>
+    private bool _putOnSlope;
 
     /// <summary>
     /// Presses a player on the ground down onto it once they have moved across: down by as far as they set out to move
@@ -1287,10 +1332,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         if (StandsInBlockThatHoldsUp())
             return true;
-        Pixels distance = _reachAcross + Pixels.FromWhole(1);
-        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
-        OnBodyMoved(across: false, distance, result.Moved);
-        return result.Blocked;
+
+        // One whom sloped ground has just taken hold of is pressed down one pixel only.
+        Pixels distance = _putOnSlope ? Pixels.FromWhole(1) : _reachAcross + Pixels.FromWhole(1);
+        return MoveDownBy(distance).Blocked;
     }
 
     /// <summary>
@@ -1331,8 +1376,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Pixels distance = InLiquid(Velocity.Y);
         Fall();
         ClearWay(Pixels.Zero, distance);
-        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
-        OnBodyMoved(across: false, distance, result.Moved);
+        MoveResult result = MoveDownBy(distance);
         if (result.Blocked && !keepsSpeedWhenStopped)
             FallFromRest();
         return result;

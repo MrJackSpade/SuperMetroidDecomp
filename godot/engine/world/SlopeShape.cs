@@ -46,6 +46,9 @@ public sealed class SlopeShape
     /// <summary>How many columns the shape has: a tile's width in pixels.</summary>
     public int Columns => _solid.Length;
 
+    /// <summary>How many pixels of a column are solid, the columns counted from the tile's left.</summary>
+    public int SolidAt(int column) => _solid[column];
+
     /// <summary>
     /// Whether any solid pixel lies in the given columns and rows of the tile, both counted from the tile's top-left and
     /// each range ending just past its last column or row.

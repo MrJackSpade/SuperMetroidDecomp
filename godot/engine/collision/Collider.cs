@@ -26,6 +26,14 @@ public partial class Collider : Node2D
     [Export]
     public bool Enabled { get; set; } = true;
 
+    /// <summary>
+    /// Whether a solid collider stands as part of the room, as a wall does. A move tried only where it ends meets
+    /// such a solid as it meets terrain: by the body's leading edge alone, and resting against it at the end of its
+    /// pixel. It meets any other solid as a thing in its way. To a move that tries every pixel the two are alike.
+    /// </summary>
+    [Export]
+    public bool StandsAsTerrain { get; set; }
+
     /// <summary>Which part of its owner this is, where the owner tells its parts apart; otherwise empty.</summary>
     [Export]
     public string Part { get; set; } = "";

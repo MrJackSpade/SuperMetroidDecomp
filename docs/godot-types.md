@@ -153,6 +153,11 @@ something that leaves the room.
   which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
   their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
   under it.
+  Samus's body is moved as the cartridge moves it (`SuperMetroid.BodyMoves`): each move is tried only where it
+  would end (section 7, "How much of its way a move tries"), so she keeps her part of a pixel beside what she has
+  not yet run into, rests at the far end of her pixel on the ground and against a wall to her right, passes what a
+  fast move steps over, is not stopped by a frozen enemy she is already inside, and is put on a slope's surface
+  under her middle however steep the step.
   `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll
   layout loads all fifty (its own screens and what the layout's load writes after them, from
   `rooms/scroll_layouts.json`), a room with none writes only its own, and the camera reads the cells past a room's
@@ -1126,6 +1131,41 @@ state machine, or one actor reaching into another.
 | --- | --- | --- |
 | `CollisionWorld` | One per room. Knows every registered `Collider` and the `Terrain`; answers overlap questions in a stable order. | Decide what an overlap means. |
 | `Collider`, `Mover` | See components. | |
+
+**How much of its way a move tries** is an option on the call (`MoveOptions.Tries`, a `WayTried`). The plain move
+tries every pixel of the way: it stops flush against the first thing it comes to, at the start of the pixel it stops
+in, and never carries part of a pixel into what stopped it. A move tried only where it ends (`WhereItEnds`) is the
+other way:
+
+- Solids are tried first. The first registered that the body would overlap where the move is tried, and does not
+  overlap already, stops it: the body goes the whole pixels between them and keeps its part of a pixel, losing its
+  part of a pixel up and down when it lies exactly against the solid. The move is tried one pixel beyond the one it
+  reaches, unless it ends exactly on a pixel. Terrain is then not tried. A move up or down asks after solids even
+  when it goes nowhere.
+- Otherwise only the terrain the body's leading edge would end in stops the move (`ITerrainShape.StopsEdge`): what
+  lies on the way, short of the end, is passed, and a move that ends beside something, part of a pixel short of it,
+  is not stopped. The tiles the edge would lie in are tried in turn from its top or left end, and the first that
+  stops the move decides. Stopped, the body rests against that tile, never further back than where it began: at
+  the far end of its pixel when it was going right or down, at the pixel's start going left or up. A move so
+  stopped went whole pixels.
+- A solid that stands as part of the room, as a wall does (`Collider.StandsAsTerrain`), is met as terrain is and
+  not as a thing in the way: by the leading edge alone, the body resting against it at the end of its pixel. This
+  game's door caps, gates, gate switches, item shells and stations stand so, having been blocks of the cartridge's
+  rooms; what was an enemy there, frozen or solid, does not.
+- Sloped ground that holds things up by their middle stops no move across. A move across may be tried as going
+  further than it goes (`triedAs`), as one the ground lets only a share of through is. Once it has moved, or tried
+  to, the body is put where such a slope's surface is under its middle, however far (`MoveResult.PutOnSlope`): up
+  out of a floor its feet have sunk into, then down from a ceiling its head is in or against. Down, such a floor
+  stops only the body's middle column, and stops a move that would end resting exactly on it as well; the body then
+  goes the whole pixels of its move, less what the slope takes back, and keeps its part of a pixel. Up, such a
+  ceiling stops the middle column and the body does not move at all. A floor of the kind stops no rise and a
+  ceiling no fall.
+
+The game says which way its player's body is moved (`GameDefinition.BodyMoves`; the engine's player is moved the
+plain way). The player's own code then reads only what a move reports: a player moved the second way has landed
+when ground stopped a fall, not when they come to lie on it, stands on the terrain that stopped a move down of
+their own, and, once a slope has taken hold of them, is pressed to the ground one pixel only until they next move
+up or down.
 
 **Why, and extending it.** Collision finds; owners decide. That is why there is one mover and one overlap query for
 everything, with differences as options on the call. A new need (a new way of treating slopes, a new edge rule) is

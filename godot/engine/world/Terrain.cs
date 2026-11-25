@@ -186,6 +186,133 @@ public partial class Terrain : Node2D, ITerrainShape
     }
 
     /// <inheritdoc/>
+    public EdgeStop StopsEdge(PixelRect edge, int across, int down, SlopeTreatment slopes)
+    {
+        if (edge.IsEmpty)
+            return EdgeStop.None;
+        int size = TileSize;
+        if (down != 0)
+        {
+            int y = edge.Top, row = TileOf(y, size), top = row * size;
+            int middle = edge.Left + edge.Width / 2;
+            for (int column = TileOf(edge.Left, size); column <= TileOf(edge.Right - 1, size); column++)
+            {
+                SlopeShape? slope = SlopeOrSolidAt(row, column, out bool solid);
+                if (solid)
+                    return new EdgeStop(true, down > 0 ? y - top + 1 : top + size - y, false);
+                if (slope is null || slopes == SlopeTreatment.Ignore || (slope.HoldsMiddle && slopes == SlopeTreatment.IgnoreMiddleHeld))
+                    continue;
+                int left = column * size;
+                if (slope.HoldsMiddle && slopes == SlopeTreatment.ClimbUnderMiddle)
+                {
+                    // Only the body's middle column meets such a slope; a floor stops only a move down and a ceiling
+                    // only a move up, and each stops a move that would end resting exactly against it as well.
+                    if (TileOf(middle, size) != column)
+                        continue;
+                    int solidPixels = slope.SolidAt(middle - left);
+                    if (down > 0 && !slope.FromTop && y >= top + size - solidPixels - 1)
+                        return new EdgeStop(true, y - (top + size - solidPixels - 1), true);
+                    if (down < 0 && slope.FromTop && y <= top + solidPixels)
+                        return new EdgeStop(true, null, true);
+                    continue;
+                }
+
+                int first = Math.Max(edge.Left, left) - left, end = Math.Min(edge.Right, left + size) - left;
+                if (slope.IsSolidIn(first, end, y - top, y - top + 1))
+                    return new EdgeStop(true, BackOutOf(slope, first, end, y - top, y - top + 1, 0, down), false);
+            }
+
+            return EdgeStop.None;
+        }
+
+        int x = edge.Left, tileColumn = TileOf(x, size), tileLeft = tileColumn * size;
+        for (int row = TileOf(edge.Top, size); row <= TileOf(edge.Bottom - 1, size); row++)
+        {
+            SlopeShape? slope = SlopeOrSolidAt(row, tileColumn, out bool solid);
+            if (solid)
+                return new EdgeStop(true, across > 0 ? x - tileLeft + 1 : tileLeft + size - x, false);
+
+            // Sloped ground that holds things up by their middle stops no move across it.
+            if (slope is null || slopes == SlopeTreatment.Ignore ||
+                (slope.HoldsMiddle && slopes is SlopeTreatment.IgnoreMiddleHeld or SlopeTreatment.ClimbUnderMiddle))
+                continue;
+            int top = row * size;
+            int first = Math.Max(edge.Top, top) - top, end = Math.Min(edge.Bottom, top + size) - top;
+            if (slope.IsSolidIn(x - tileLeft, x - tileLeft + 1, first, end))
+                return new EdgeStop(true, BackOutOf(slope, x - tileLeft, x - tileLeft + 1, first, end, across, 0), false);
+        }
+
+        return EdgeStop.None;
+    }
+
+    /// <inheritdoc/>
+    public int? SlopeRestRow(int x, int y, bool ceiling)
+    {
+        if (x < 0 || y < 0 || x >= WidthInPixels || y >= HeightInPixels)
+            return null;
+        int size = TileSize, row = y / size, column = x / size;
+        if (SlopeOrSolidAt(row, column, out _) is not { HoldsMiddle: true } slope || slope.FromTop != ceiling)
+            return null;
+        int solidPixels = slope.SolidAt(x - column * size);
+        return ceiling ? row * size + solidPixels : row * size + size - solidPixels - 1;
+    }
+
+    /// <summary>The tile row or column a pixel row or column lies in, counted on beyond the room's first for a pixel before it.</summary>
+    private static int TileOf(int pixel, int size) => pixel >= 0 ? pixel / size : -((-pixel + size - 1) / size);
+
+    /// <summary>
+    /// What stands at a tile for a move tried where it ends: its shape when it is sloped ground, and whether it is
+    /// solid all through, as a solid tile, an intact solid block and everything beyond the room are.
+    /// </summary>
+    private SlopeShape? SlopeOrSolidAt(int row, int column, out bool solid)
+    {
+        solid = false;
+        if (row < 0 || column < 0 || row >= Layout.Rows || column >= Layout.Columns)
+        {
+            solid = true;
+            return null;
+        }
+
+        if (_blockAt[row][column] is { } block)
+        {
+            solid = block.IsSolid;
+            return null;
+        }
+
+        TileDefinition tile = _tiles[row][column];
+        switch (tile.Kind)
+        {
+            case TileKind.Empty:
+            case TileKind.Block:
+                return null;
+            case TileKind.Solid:
+                solid = true;
+                return null;
+            case TileKind.Slope:
+                return tile.Slope ?? throw new InvalidOperationException("A slope tile has no shape.");
+            default:
+                throw new InvalidOperationException($"Undefined tile kind {tile.Kind}.");
+        }
+    }
+
+    /// <summary>
+    /// How many pixels back, against the way of a move, a strip lying in a sloped tile's solid part comes clear of
+    /// it, or out of the tile. The strip is given in the tile's own columns and rows, each range ending just past its
+    /// last.
+    /// </summary>
+    private static int BackOutOf(SlopeShape slope, int firstColumn, int endColumn, int firstRow, int endRow, int across, int down)
+    {
+        int size = slope.Columns;
+        for (int back = 1; ; back++)
+        {
+            int column = firstColumn - across * back, columnEnd = endColumn - across * back;
+            int row = firstRow - down * back, rowEnd = endRow - down * back;
+            if (column < 0 || columnEnd > size || row < 0 || rowEnd > size || !slope.IsSolidIn(column, columnEnd, row, rowEnd))
+                return back;
+        }
+    }
+
+    /// <inheritdoc/>
     public bool HasSlopeIn(PixelRect rect)
     {
         if (rect.IsEmpty)

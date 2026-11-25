@@ -21,6 +21,9 @@ public sealed record MoveOptions
     /// </summary>
     public int FollowGroundDown { get; init; }
 
+    /// <summary>How much of its way the move tries against what could stop it.</summary>
+    public WayTried Tries { get; init; } = WayTried.EveryPixel;
+
     /// <summary>Whether solid colliders stop the move.</summary>
     public bool StoppedBySolids { get; init; } = true;
 

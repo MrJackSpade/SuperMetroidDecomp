@@ -9,6 +9,12 @@ namespace Engine.Collision;
 /// <param name="BlockedBy">The solid collider that stopped it, when one did.</param>
 public readonly record struct MoveResult(Pixels Moved, bool Blocked, bool BlockedByTerrain, Collider? BlockedBy)
 {
+    /// <summary>
+    /// Whether a move across ended with the body put where sloped ground holds it under its middle: lifted out of a
+    /// floor, or brought down from a ceiling it was in or against. Only a move tried where it ends says so.
+    /// </summary>
+    public bool PutOnSlope { get; init; }
+
     /// <summary>A move that went the whole way.</summary>
     public static MoveResult Free(Pixels moved) => new(moved, false, false, null);
 }

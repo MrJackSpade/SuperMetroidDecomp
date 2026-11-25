@@ -239,4 +239,10 @@ public partial class GameDefinition : Resource
     /// needs a particular one.
     /// </summary>
     public virtual ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
+
+    /// <summary>
+    /// How the player's body is moved through a room: as <paramref name="plain"/> says, which is how the engine's
+    /// player moves, unless the game needs its player's moves tried or stopped some other way.
+    /// </summary>
+    public virtual Collision.MoveOptions BodyMoves(Collision.MoveOptions plain) => plain;
 }

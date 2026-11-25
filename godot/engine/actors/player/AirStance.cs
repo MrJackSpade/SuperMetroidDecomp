@@ -67,7 +67,11 @@ public readonly record struct AirStance(Aim Aim, AirArm Arm)
     {
         bool falling = !owner.Velocity.Y.IsNegative;
         MoveResult down = owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
-        if (falling && (down.Blocked || owner.IsOnGround))
+
+        // A body whose moves are tried only where they end has landed only when ground stopped its move: it may come
+        // to lie on the ground an update before that.
+        bool landed = down.Blocked || (owner.BodyMoves.Tries == WayTried.EveryPixel && owner.IsOnGround);
+        if (falling && landed)
         {
             owner.Land(owner.Velocity.Y);
             return new StandingState(owner.SettlingUpdatesAfter(from));

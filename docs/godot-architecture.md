@@ -235,8 +235,9 @@ rotation. That is small enough to own.
   player, enemies and projectiles all use it.
 - Any actor may have a solid collider. A solid blocks the player and can be stood on, and when a solid moves, the
   mover carries what stands on it. Platforms, frozen enemies and anything else stood on work this one way.
-- Differences between movers are options on the call (how slopes are treated, which direction tiles are scanned),
-  not separate movement routines per kind of actor.
+- Differences between movers are options on the call (how slopes are treated, how much of the way is tried), not
+  separate movement routines per kind of actor. The plain move tries every pixel of its way; a move may instead be
+  tried only where it would end, which is how the cartridge moves Samus (type system, section 7).
 
 **Overlaps**
 

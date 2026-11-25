@@ -62,4 +62,12 @@ public partial class SuperMetroid : GameDefinition
 
     /// <summary>Samus's speed is read against its limits as the cartridge reads it.</summary>
     public override Engine.Actors.ISpeedReadings CreateSpeedReadings() => new Compatibility.CartridgeSpeedReadings();
+
+    /// <summary>
+    /// Samus's moves are tried as the cartridge tries them: only where each would end, so that she keeps her part of
+    /// a pixel beside what she has not yet run into, rests at the far end of her pixel on the ground and against a
+    /// wall to her right, passes what a fast move steps over, and is put on a slope's surface under her middle.
+    /// </summary>
+    public override Engine.Collision.MoveOptions BodyMoves(Engine.Collision.MoveOptions plain) =>
+        plain with { Tries = Engine.Collision.WayTried.WhereItEnds };
 }

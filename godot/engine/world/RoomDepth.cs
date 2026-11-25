@@ -28,6 +28,9 @@ public static class RoomDepth
     /// <summary>Everything standing in the room, in the order it stands there: the depth a thing has unless it says otherwise.</summary>
     public const int Things = 0;
 
+    /// <summary>In front of everything standing in the room at its own depth: what the player passes behind, as a door's shutter.</summary>
+    public const int InFrontOfThings = 10;
+
     /// <summary>The part of the room's tiles that lies in front of the things standing in it.</summary>
     public const int TilesInFront = 20;
 

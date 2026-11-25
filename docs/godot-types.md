@@ -514,7 +514,8 @@ A scene. One per room of the game.
   (a layout may give one as its "backdrop"; the terrain spreads it behind everything, and it changes colour with
   the tiles); the backdrop; what lies behind the room; the room's tiles; what a thing shows behind everything
   standing in the room (a larva circling behind the player, a shot told to go behind); everything in the room, in the
-  order it stands there; the part of the tiles that lies in front
+  order it stands there; what the player passes behind (`InFrontOfThings`, as a Ceres door's shutter); the part of
+  the tiles that lies in front
   of what stands in the room (`TerrainFront`, which the terrain makes and draws: a tile's picture may have that
   part beside it, and it is drawn again over the room's things); what a thing puts in front of every tile; the
   liquid; the overlays. A thing has the depth of the room's things unless it takes another of these, as a boss's

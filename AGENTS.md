@@ -52,7 +52,12 @@
   2. "Cleanliness of code, and idiomatic design"
   3. "Parity of presentation."
 
-  A higher one wins over a lower one. Presentation is never matched at the cost of clean,
+  A higher one wins over a lower one. In doubt between the first two, the second is the
+  default. The owner's words: "when in doubt favor 2 over 1. 1 is more important, but failures
+  of 1 can be identified by tests. So clean code and idiomatic design should be the default
+  unless you have a reason to believe gameplay parity will break, because once tests are
+  implemented all gameplay gaps will be identified, but cleanliness and idiomatic design can
+  NOT be identified with tests." Presentation is never matched at the cost of clean,
   idiomatic code: "You can't have idiomatic design if you're trying to port archaic design
   patterns." A change made for parity of implementation or of look, that play does not need
   and that makes the code less clean or less idiomatic, is reverted, by a ticket of its own.

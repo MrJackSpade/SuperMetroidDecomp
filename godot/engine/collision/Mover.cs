@@ -150,11 +150,11 @@ public sealed class Mover
             result = new MoveResult(Pixels.FromWhole(step * met.Gap), true, false, met.Solid);
         }
         else if (!tried.IsZero && options.StoppedByTerrain &&
-            StopByTerrain(body, start, tried, step, options, across, out PixelRect? tile) is { } rest)
+            StopByTerrain(body, start, tried, step, options, across, out PixelRect? tile, out bool putsOnSlope) is { } rest)
         {
             // A stopped move went whole pixels: where within its pixel the stop leaves the body is no part of it.
             Place(owner, rest, across);
-            result = new MoveResult(Pixels.FromWhole(rest.Whole - start.Whole), true, true, null) { StoppedByTile = tile };
+            result = new MoveResult(Pixels.FromWhole(rest.Whole - start.Whole), true, true, null) { StoppedByTile = tile, PutOnSlope = putsOnSlope };
         }
         else
         {
@@ -164,14 +164,14 @@ public sealed class Mover
 
         // Having moved across, or tried to, the body is put where sloped ground holds it under its middle.
         bool put = across && options.Slopes == SlopeTreatment.ClimbUnderMiddle && RestUnderMiddle(body);
-        return result with { PutOnSlope = put };
+        return result with { PutOnSlope = put || result.PutOnSlope };
     }
 
     /// <summary>
     /// Where terrain leaves a body whose move is tried only where it ends, along the axis of the move; null when the
     /// terrain its leading edge would end in does not stop it.
     /// </summary>
-    private Pixels? StopByTerrain(Collider body, Pixels start, Pixels tried, int step, MoveOptions options, bool across, out PixelRect? stoppedBy)
+    private Pixels? StopByTerrain(Collider body, Pixels start, Pixels tried, int step, MoveOptions options, bool across, out PixelRect? stoppedBy, out bool putsOnSlope)
     {
         int shift = (start + tried).Whole - start.Whole;
         PixelRect here = body.RoomRect;
@@ -180,6 +180,7 @@ public sealed class Mover
             : new PixelRect(here.Left, (step < 0 ? here.Top : here.Bottom - 1) + shift, here.Width, 1);
         EdgeStop stop = _world.Terrain.StopsEdge(edge, across ? step : 0, across ? 0 : step, options.Slopes, options.TriesFromRight);
         stoppedBy = stop.Tile;
+        putsOnSlope = stop.PutsOnSlope;
 
         // A solid that stands as part of the room stops the edge as a tile of terrain would, and is met with the
         // terrain: by a move the terrain stops, whether or not other solids stop it.

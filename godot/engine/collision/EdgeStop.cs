@@ -20,6 +20,12 @@ public readonly record struct EdgeStop(bool Stopped, int? Back, bool KeepsFracti
     /// <summary>The tile of terrain that stopped the move, in room pixels; null when none did, or what stopped it is no tile.</summary>
     public PixelRect? Tile { get; init; }
 
+    /// <summary>
+    /// Whether the stop leaves the body held by sloped or stepped ground, as a move down onto a step does: the body's
+    /// owner then presses down to it by a pixel, not by its reach.
+    /// </summary>
+    public bool PutsOnSlope { get; init; }
+
     /// <summary>Nothing stops the move.</summary>
     public static EdgeStop None => default;
 }

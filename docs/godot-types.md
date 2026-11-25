@@ -1195,6 +1195,12 @@ state machine, or one actor reaching into another.
 | `CollisionWorld` | One per room. Knows every registered `Collider` and the `Terrain`; answers overlap questions in a stable order. | Decide what an overlap means. |
 | `Collider`, `Mover` | See components. | |
 
+**A sloped tile cut in steps** (`SlopeShape.Step`, a layout's "step" on the tile; this game's half and quarter
+blocks are cut in steps of eight) stops a move tried only where it ends at the start of the step it would have
+ended in, whatever lies in the step before, so a move long enough to end in the far half of such a tile rests
+there, as on the cartridge; and a move down that it stops leaves the body held as sloped ground holds it, so its
+owner presses down to it by a pixel. A shape with no step is met pixel by pixel.
+
 **How much of its way a move tries** is an option on the call (`MoveOptions.Tries`, a `WayTried`). The plain move
 tries every pixel of the way: it stops flush against the first thing it comes to, at the start of the pixel it stops
 in, and never carries part of a pixel into what stopped it. A move tried only where it ends (`WhereItEnds`) is the

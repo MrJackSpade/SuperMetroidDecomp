@@ -471,6 +471,8 @@ internal sealed partial class EngineLayouts
                 // The old sloped shapes hold Samus up by her middle column alone; the square ones are steps and walls.
                 if (behavior.Slope.IsNonSquare)
                     tile["holds"] = "middle";
+                else
+                    tile["step"] = Block / 2;
 
                 // A floor's slope lets only a share of a move across it through, counted in 256ths.
                 int share = behavior.Slope.Shape.GroundedSpeedShare.TwoHundredFiftySixths;

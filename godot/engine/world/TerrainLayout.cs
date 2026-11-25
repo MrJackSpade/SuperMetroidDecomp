@@ -152,7 +152,10 @@ public sealed class TerrainLayout
                 bool holdsMiddle = tile.Has("holds");
                 if (holdsMiddle && tile.Text("holds") != "middle")
                     throw tile.Get("holds").Problem("must be \"middle\", for a slope that holds things up by their middle, or be left out");
-                return new TileDefinition(kind, new SlopeShape(solid, fromTop, share, holdsMiddle), "", 1, 1, picture);
+                int step = tile.Has("step") ? tile.Int("step") : 1;
+                if (step < 1 || step > tileSize)
+                    throw tile.Get("step").Problem($"must be 1 through {tileSize}, the pixels of each step the shape is cut in");
+                return new TileDefinition(kind, new SlopeShape(solid, fromTop, share, holdsMiddle, step), "", 1, 1, picture);
             case TileKind.Block:
                 int width = tile.Has("width") ? tile.Int("width") : 1;
                 int height = tile.Has("height") ? tile.Int("height") : 1;

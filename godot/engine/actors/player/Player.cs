@@ -1379,6 +1379,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
         if (!distance.IsZero && result.BlockedBy is null)
             _putOnSlope = false;
+        if (result.PutOnSlope)
+            _putOnSlope = true;
         if (result.BlockedByTerrain && !distance.IsNegative)
             (_groundStoppedMove, _stoppedOnTile) = (true, result.StoppedByTile);
         OnBodyMoved(across: false, distance, result.Moved);

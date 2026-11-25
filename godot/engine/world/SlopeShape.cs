@@ -16,8 +16,12 @@ public sealed class SlopeShape
     /// <param name="groundShare">How much of a move across it the slope lets through, in 256ths; 256 is all of it.</param>
     /// <param name="holdsMiddle">Whether the slope holds things up by their middle, for movers that ask for slopes to be treated so.</param>
     /// <exception cref="ArgumentOutOfRangeException">The share is not 1 through 256.</exception>
-    public SlopeShape(IReadOnlyList<int> solid, bool fromTop, int groundShare = WholeShare, bool holdsMiddle = false)
+    /// <param name="step">The size of the steps the solid part is cut in, in pixels; 1 for a shape met pixel by pixel.</param>
+    public SlopeShape(IReadOnlyList<int> solid, bool fromTop, int groundShare = WholeShare, bool holdsMiddle = false, int step = 1)
     {
+        if (step < 1 || step > solid.Count)
+            throw new ArgumentOutOfRangeException(nameof(step), step, $"A shape's step is 1 through {solid.Count} pixels.");
+        Step = step;
         HoldsMiddle = holdsMiddle;
         if (solid.Any(pixels => pixels < 0 || pixels > solid.Count))
             throw new ArgumentException($"Each column of a slope holds 0 through {solid.Count} solid pixels.", nameof(solid));
@@ -33,6 +37,13 @@ public sealed class SlopeShape
     /// its body meets this slope. A slope that does not is a step or a wall, and meets the whole body.
     /// </summary>
     public bool HoldsMiddle { get; }
+
+    /// <summary>
+    /// The size of the steps the solid part is cut in, in pixels, counted from the tile's left and top: a move tried
+    /// only where it ends, and stopped by the shape, comes to rest at the start of the step it would have ended in,
+    /// whatever lies in the step before. 1 for a shape met pixel by pixel, which a stopped move rests flush against.
+    /// </summary>
+    public int Step { get; }
 
     /// <summary>The parts in the whole of a move: a slope's share is counted in these.</summary>
     public const int WholeShare = 256;

@@ -232,7 +232,12 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
                 int first = Math.Max(edge.Left, left) - left, end = Math.Min(edge.Right, left + size) - left;
                 if (slope.IsSolidIn(first, end, y - top, y - top + 1))
-                    return new EdgeStop(true, BackOutOf(slope, first, end, y - top, y - top + 1, 0, down), false) { Tile = tile };
+                {
+                    // A shape cut in steps stops the move at the start of the step it would have ended in, and a move
+                    // down onto it leaves the body held as sloped ground holds it.
+                    int back = slope.Step > 1 ? BackToStep(slope.Step, y - top, down) : BackOutOf(slope, first, end, y - top, y - top + 1, 0, down);
+                    return new EdgeStop(true, back, false) { Tile = tile, PutsOnSlope = down > 0 && slope.Step > 1 };
+                }
             }
 
             return EdgeStop.None;
@@ -252,7 +257,10 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             int top = row * size;
             int first = Math.Max(edge.Top, top) - top, end = Math.Min(edge.Bottom, top + size) - top;
             if (slope.IsSolidIn(x - tileLeft, x - tileLeft + 1, first, end))
-                return new EdgeStop(true, BackOutOf(slope, x - tileLeft, x - tileLeft + 1, first, end, across, 0), false) { Tile = new PixelRect(tileLeft, top, size, size) };
+            {
+                int back = slope.Step > 1 ? BackToStep(slope.Step, x - tileLeft, across) : BackOutOf(slope, x - tileLeft, x - tileLeft + 1, first, end, across, 0);
+                return new EdgeStop(true, back, false) { Tile = new PixelRect(tileLeft, top, size, size) };
+            }
         }
 
         return EdgeStop.None;
@@ -324,6 +332,13 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
                 return back;
         }
     }
+
+    /// <summary>
+    /// How many pixels back, against the way of a move, an edge lying in a shape cut in steps comes to the start of
+    /// the step it lies in: one past the step's first pixel on the side the move came from. <paramref name="at"/> is
+    /// the edge's pixel within the tile along the move.
+    /// </summary>
+    private static int BackToStep(int step, int at, int way) => way > 0 ? at % step + 1 : step - at % step;
 
     /// <inheritdoc/>
     public bool HasSlopeIn(PixelRect rect)

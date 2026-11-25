@@ -5,6 +5,7 @@ using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -365,10 +366,10 @@ public partial class Draygon : Enemy
 
         // A goop leaves from by its tail, somewhere between straight down and straight ahead.
         PixelPosition from = PixelPosition.FromWhole(Position.X.Whole + (_pass == Facing.Right ? 24 : -28), Position.Y.Whole - 16);
+        // As the cartridge counts an angle: none right, a quarter turn up.
         int scatter = Random.Draw().Part(0, 6);
-        int angle = (_pass == Facing.Right ? Turns.PerTurn / 4 : Turns.PerTurn / 2) - scatter;
-        Pixels speed = Shot("goop").Speed;
-        Fire("goop", from, new PixelVelocity(Turns.Cosine(angle, speed), Turns.Sine(angle, speed)));
+        int angle = (_pass == Facing.Right ? 3 * Turns.PerTurn / 4 : Turns.PerTurn / 2) + scatter;
+        Fire("goop", from, CartridgeAngles.VelocityAlong(angle, WholePixels(Shot("goop").Speed)));
     }
 
     /// <summary>Whether its wall cannons fire during what it is doing now.</summary>
@@ -608,8 +609,8 @@ public partial class Draygon : Enemy
 
                 // It winds upward in a widening spiral, four times as wide as it is tall.
                 Position = PixelPosition.FromWhole(
-                    256 + Turns.Sine(_spiralAngle + Turns.PerTurn / 4, Pixels.FromWhole(_spiralRadius.Whole), Turns.Fineness.Coarse).Whole,
-                    _spiralY.Whole + Turns.Sine(_spiralAngle + Turns.PerTurn / 2, Pixels.FromWhole(_spiralRadius.Whole / 4), Turns.Fineness.Coarse).Whole);
+                    256 + CartridgeAngles.CircleCosine(_spiralAngle, _spiralRadius.Whole).Whole,
+                    _spiralY.Whole + CartridgeAngles.CircleSine(_spiralAngle + Turns.PerTurn / 2, _spiralRadius.Whole / 4).Whole);
                 if (Updates % 8 == 0 && FoamEffect.Length > 0)
                     LeaveEffect(FoamEffect, Mouth);
                 _spiralRadius += Pixels.FromNumber(0.125);
@@ -674,12 +675,14 @@ public partial class Draygon : Enemy
                 if (Updates % 16 == 0 && FoamEffect.Length > 0)
                     LeaveEffect(FoamEffect, Mouth);
                 // It drifts toward where it will lie, aiming by quarters of a block.
-                Drift(Turns.AngleOf(256 / 4 - Position.X.Whole / 4, 480 / 4 - Position.Y.Whole / 4), 1);
+                Drift(CartridgeAngles.AimAngle(256 / 4 - Position.X.Whole / 4, 480 / 4 - Position.Y.Whole / 4), 1);
                 if (Math.Abs(Position.X.Whole - 256) >= 4 || Math.Abs(Position.Y.Whole - 480) >= 4)
                     break;
                 foreach (Burier one in _buriers)
                 {
-                    var drift = new PixelOffset(Turns.Cosine(one.Heading, Pixels.FromWhole(1)), Turns.Sine(one.Heading, Pixels.FromWhole(1)));
+                    // Its heading is the way it drifts, from the right through down; the cartridge drifts it back along
+                    // the opposite heading, counted from the right through up.
+                    PixelOffset drift = -CartridgeAngles.VelocityAlong(Turns.PerTurn / 2 - one.Heading, 1).OverOneUpdate;
                     _burying.Add((LeaveEffect(one.Effect, PixelPosition.FromWhole(one.X, one.Y)), drift));
                 }
 
@@ -795,7 +798,7 @@ public partial class Draygon : Enemy
     {
         Position = new PixelPosition(
             Position.X + _acrossSpeed,
-            Pixels.FromWhole(SwimLineY + Turns.Sine(_goopAngle + Turns.PerTurn / 4, Pixels.FromWhole(32), Turns.Fineness.Coarse).Whole));
+            Pixels.FromWhole(SwimLineY + CartridgeAngles.CircleCosine(_goopAngle, 32).Whole));
         _goopAngle = Turns.Wrap(_goopAngle + 1);
     }
 
@@ -812,13 +815,16 @@ public partial class Draygon : Enemy
     /// <summary>Moves it straight toward a place at a speed.</summary>
     private void MoveToward(PixelPosition target, int speed)
     {
-        PixelOffset to = target - Position;
-        Drift(Turns.AngleOf(to.X.Whole, to.Y.Whole), speed);
+        Drift(CartridgeAngles.AimAngle(target.X.Whole - Position.X.Whole, target.Y.Whole - Position.Y.Whole), speed);
     }
 
-    /// <summary>Moves it along a bearing at a speed.</summary>
-    private void Drift(int bearing, int speed) =>
-        Position += new PixelOffset(Turns.Cosine(bearing, Pixels.FromWhole(speed)), Turns.Sine(bearing, Pixels.FromWhole(speed)));
+    /// <summary>Moves it along a bearing, as the cartridge counts an angle, at a whole number of pixels an update.</summary>
+    private void Drift(int bearing, int speed) => Position += CartridgeAngles.VelocityAlong(bearing, speed).OverOneUpdate;
+
+    /// <summary>A speed that is a whole number of pixels, as the cartridge splits one along an angle.</summary>
+    private static int WholePixels(Pixels speed) => speed.Fraction == 0
+        ? speed.Whole
+        : throw new InvalidOperationException($"Draygon's shot speed {speed} is not a whole number of pixels.");
 
     /// <summary>Where its mouth is.</summary>
     private PixelPosition Mouth => Position + PixelOffset.FromWhole(Facing == Facing.Right ? 32 : -32, -16);

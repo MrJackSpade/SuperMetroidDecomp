@@ -21,6 +21,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>The scene of the eye's spit, which is a projectile of a class of its own.</summary>
     private const string EyeDoorSpitScene = "res://game/enemies/eye_door/eye_door_spit.tscn";
 
+    /// <summary>The scene of a drop of the eye's sweat.</summary>
+    private const string EyeDoorSweatScene = "res://game/enemies/eye_door/eye_door_sweat.tscn";
+
     /// <summary>
     /// Writes the eye of an eye door. The old game made it of the room's own blocks, so its pictures are written for
     /// every set of graphics; it faces left or right, and one path with the side's name left open names both.
@@ -256,10 +259,14 @@ public sealed partial class EngineAssetWriter
         JsonObject spitProjectile = Projectile(spit, fired);
         // It moves itself, and meets terrain its own way.
         spitProjectile["meeting_terrain"] = "passes_through";
+        // Its sweat moves itself too: a wall only stops its way across, and it ends, with its splash, only where it
+        // comes down onto terrain. Ending on Samus it leaves nothing.
         JsonObject sweatProjectile = Projectile(sweat, falling);
-        sweatProjectile["motion"] = "falling";
-        sweatProjectile["acceleration"] = EngineNames.Number(EyeDoorEffectDefinitions.SweatGravity);
-        sweatProjectile["ending_effect"] = splash;
+        sweatProjectile["meeting_terrain"] = "passes_through";
+        new EngineObjectFile(_tree, "enemies/eye_door_sweat.json", "EyeDoorSweat")
+            .Value("gravity", EngineNames.Number(EyeDoorEffectDefinitions.SweatGravity))
+            .Value("splash_effect", splash)
+            .Write();
 
         if (EyeDoorEffectDefinitions.LeftSweatLaunch.Y != EyeDoorEffectDefinitions.RightSweatLaunch.Y)
             throw new InvalidDataException("The eye door's sweat falls at one speed to the left and another to the right.");
@@ -291,7 +298,7 @@ public sealed partial class EngineAssetWriter
             .Group("shots", new JsonObject
             {
                 ["spit"] = new JsonObject { ["damage"] = spit.Damage, ["scene"] = EyeDoorSpitScene, ["projectile"] = spitProjectile },
-                ["sweat"] = new JsonObject { ["damage"] = sweat.Damage, ["projectile"] = sweatProjectile },
+                ["sweat"] = new JsonObject { ["damage"] = sweat.Damage, ["scene"] = EyeDoorSweatScene, ["projectile"] = sweatProjectile },
             })
             .Collider("Hurtbox", left * EngineRoomObjects.Block, top * EngineRoomObjects.Block, columns * EngineRoomObjects.Block, rows * EngineRoomObjects.Block)
             .Timeline("closed", Sequence(EyeDoorSequenceDefinitions.Closed, 0))

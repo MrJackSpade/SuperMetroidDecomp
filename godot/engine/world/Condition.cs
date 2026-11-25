@@ -4,8 +4,11 @@ namespace Engine.World;
 
 /// <summary>
 /// A yes-or-no question about the game's state, held as data. Barriers, placed things, room versions, triggers and
-/// boss encounters hold conditions; nothing writes its own check of the game's state.
+/// boss encounters hold conditions; nothing writes its own check of the game's state. It is made in the editor
+/// too, as the kinds of node that hold one and are shown there are (a backdrop, a liquid, a trigger): a node made in
+/// the editor cannot be given a condition that is not.
 /// </summary>
+[Tool]
 [GlobalClass]
 public partial class Condition : Resource
 {

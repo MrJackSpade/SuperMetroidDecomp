@@ -31,6 +31,12 @@ public static class RoomDepth
     /// <summary>In front of everything standing in the room at its own depth: what the player passes behind, as a door's shutter.</summary>
     public const int InFrontOfThings = 10;
 
+    /// <summary>
+    /// The part of the picture behind the room that lies in front of the things standing in it, which a backdrop
+    /// draws again there: behind the tiles' own such part.
+    /// </summary>
+    public const int BackdropInFront = 15;
+
     /// <summary>The part of the room's tiles that lies in front of the things standing in it.</summary>
     public const int TilesInFront = 20;
 

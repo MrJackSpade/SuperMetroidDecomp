@@ -432,16 +432,6 @@ internal sealed partial class EngineLayouts
                     : placed.TryGetValue(cell, out JsonObject? put)
                         ? put
                         : Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
-
-                // A room the cartridge shows as a turning floor shows nothing of its level's blocks: the floor is the
-                // one plane it draws there, and the blocks are only stood on and run into.
-                if (state.TurningFloor != RoomTurningFloor.None && (tile.ContainsKey("picture") || tile.ContainsKey("pictures")))
-                {
-                    tile = (JsonObject)tile.DeepClone();
-                    tile.Remove("picture");
-                    tile.Remove("pictures");
-                }
-
                 row.Append(Letter(layout, tile, path));
             }
 

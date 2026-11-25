@@ -515,6 +515,10 @@ A scene. One per room of the game.
   the tiles); the backdrop; what lies behind the room; the room's tiles; what a thing shows behind everything
   standing in the room (a larva circling behind the player, a shot told to go behind); everything in the room, in the
   order it stands there; what the player passes behind (`InFrontOfThings`, as a Ceres door's shutter); the part of
+  the backdrop's picture that lies in front of what stands in the room (`BackdropInFront`: a backdrop's picture may
+  have that part beside it as a tile's may, the backdrop makes a `BackdropFront` and draws it again there, and so
+  it covers the room's things and the tiles behind them, as the cartridge's background does where its blocks are
+  drawn in front); the part of
   the tiles that lies in front
   of what stands in the room (`TerrainFront`, which the terrain makes and draws: a tile's picture may have that
   part beside it, and it is drawn again over the room's things); what a thing puts in front of every tile; the
@@ -1593,7 +1597,11 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
-  elevator shaft are `TurningFloor`s.
+  elevator shaft are `TurningFloor`s. What a level draws behind itself is one picture, with the part of it the
+  cartridge draws in front of the room's things beside it: Ridley's room on Ceres is all that part, over tiles
+  that are black all over. The floor he flies off over is put away until he flies, and while he does `CeresGetaway`
+  gives it the depth in front of the room's tiles (`RoomDepth.BehindThings`), where the cartridge shows it in
+  their place.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.
 - Room versions: every case where the old code had more than one "state" of a room.
 

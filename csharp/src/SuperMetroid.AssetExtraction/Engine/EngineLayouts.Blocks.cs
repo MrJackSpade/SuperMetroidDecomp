@@ -129,7 +129,9 @@ internal sealed partial class EngineLayouts
     /// <summary>
     /// Writes what a level draws behind itself as one picture, for a state whose room has no picture of its own behind
     /// it: every block of the level's background, where it lies. A level that draws nothing there gets a picture of
-    /// one clear block, which shows as nothing.
+    /// one clear block, which shows as nothing. The part of those blocks that lies in front of what stands in the
+    /// room is written beside the picture as a tile's is, where any block has one: the cartridge draws that part of
+    /// its background over the things in the room and over the part of the room's own blocks that lies behind them.
     /// </summary>
     private void WriteLevelBackground(RoomStateSettings state, InstalledRoomLevel level, string tileset)
     {
@@ -143,7 +145,9 @@ internal sealed partial class EngineLayouts
 
         // Where the set's sheet tells regions apart, the picture has its map of them, put together as it is.
         int[]? canvasRegions = _sheets.HasRegions(GameInstallationLayout.RoomBlockSheetDirectoryName, tileset) ? new int[width * height] : null;
-        bool any = false;
+        var front = new RgbaPixel[width * height];
+        int[]? frontRegions = canvasRegions is null ? null : new int[width * height];
+        bool any = false, anyInFront = false;
         for (int cell = 0; cell < level.Background.Length; cell++)
         {
             RoomBlockAppearance shown = level.Background[cell];
@@ -157,6 +161,22 @@ internal sealed partial class EngineLayouts
             int left = cell % level.Size.X * Block, top = cell / level.Size.X * Block;
             for (int y = 0; y < Block; y++)
                 pixels.AsSpan(y * Block, Block).CopyTo(canvas.AsSpan((top + y) * width + left, Block));
+            if (EngineRoomObjects.NamedBlockFrontPixels(_sheets, tileset, EngineRoomObjects.BlockFrame(shown.Block),
+                    shown.Mirroring.HasFlag(BlockMirroring.Horizontal), shown.Mirroring.HasFlag(BlockMirroring.Vertical)) is { } part)
+            {
+                anyInFront = true;
+                for (int y = 0; y < Block; y++)
+                    part.AsSpan(y * Block, Block).CopyTo(front.AsSpan((top + y) * width + left, Block));
+                if (frontRegions is not null)
+                {
+                    int[] partRegions = EngineRoomObjects.NamedBlockFrontRegions(_sheets, tileset, EngineRoomObjects.BlockFrame(shown.Block),
+                            shown.Mirroring.HasFlag(BlockMirroring.Horizontal), shown.Mirroring.HasFlag(BlockMirroring.Vertical))
+                        ?? throw new InvalidDataException($"The block {shown.Block} of the graphics {tileset} has a part in front and no regions for it.");
+                    for (int y = 0; y < Block; y++)
+                        partRegions.AsSpan(y * Block, Block).CopyTo(frontRegions.AsSpan((top + y) * width + left, Block));
+                }
+            }
+
             if (canvasRegions is null)
                 continue;
             int[] regions = EngineRoomObjects.NamedBlockRegions(_sheets, tileset, EngineRoomObjects.BlockFrame(shown.Block),
@@ -171,6 +191,13 @@ internal sealed partial class EngineLayouts
             _tree.WritePicture(path, width, height, canvas);
             if (canvasRegions is not null)
                 _tree.WriteRegionMap(path, width, height, canvasRegions);
+            if (anyInFront)
+            {
+                string frontPath = EngineAssetTree.FrontPath(path);
+                _tree.WritePicture(frontPath, width, height, front);
+                if (frontRegions is not null)
+                    _tree.WriteRegionMap(frontPath, width, height, frontRegions);
+            }
         }
         else
         {

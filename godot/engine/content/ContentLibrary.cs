@@ -98,15 +98,18 @@ public sealed class ContentLibrary
         return texture;
     }
 
-    /// <summary>What the front part of a picture of a room's tiles is named: the picture's own name with this in place of its ending.</summary>
+    /// <summary>
+    /// What the front part of a picture of a room's tiles, or of what lies behind a room, is named: the picture's
+    /// own name with this in place of its ending.
+    /// </summary>
     public const string FrontEnding = ".front.png";
 
     private readonly Dictionary<string, Texture2D?> _fronts = new(StringComparer.Ordinal);
 
     /// <summary>
     /// The part of the picture at <paramref name="path"/> that lies in front of the things standing in a room, as a
-    /// texture, or null for a picture with none: a picture of a room's tiles has that part beside it, named as it
-    /// is with <see cref="FrontEnding"/> for its ending. Looked for once.
+    /// texture, or null for a picture with none: a picture of a room's tiles, or of what lies behind a room, has
+    /// that part beside it, named as it is with <see cref="FrontEnding"/> for its ending. Looked for once.
     /// </summary>
     public Texture2D? LoadFrontOf(string path)
     {

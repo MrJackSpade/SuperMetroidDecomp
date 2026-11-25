@@ -538,7 +538,8 @@ public partial class Room : Node2D
     /// <summary>
     /// Plays the parts of an update a passage between rooms asks for, with the player and the view left where they
     /// are: the terrain's own changes, the enemies, the enemies' projectiles, the room's objects, each only when
-    /// asked. What left or arrived is settled and everything is shown where it stands.
+    /// asked. The effects go on with the enemies, and those that hold a place with the enemies' projectiles. What
+    /// left or arrived is settled and everything is shown where it stands.
     /// </summary>
     public void StepForTransition(bool terrain = false, bool enemies = false, bool enemyProjectiles = false, bool objects = false)
     {
@@ -557,6 +558,14 @@ public partial class Room : Node2D
 
         if (enemyProjectiles)
             StepWhatEnemiesLaunched(shotsOnly: true);
+
+        // What has been left to be seen plays on with the enemies; an effect that holds one of the places of what
+        // the enemies launch waits and goes on with their projectiles.
+        foreach (Effect effect in _effects.ToList())
+        {
+            if ((effect.HoldsPlace ? enemyProjectiles : enemies) && !_leaving.Contains(effect))
+                effect.Step();
+        }
 
         if (objects)
             StepObjects();

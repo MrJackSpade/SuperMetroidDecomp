@@ -56,7 +56,11 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         {
             // She is shown one of thirty-two ways by the way the line runs from her: straight down is the first of
             // them and straight up, as she hangs, the seventeenth, counted round by way of the line running to her left.
-            long step = (128 * Parts - _angle + Parts * 4) / Parts;
+            // The way is the one nearest the whole step the line's angle lies in, however far round she has swung:
+            // the same number facing either way, as the cartridge takes it from the angle alone.
+            long step = Math.DivRem(128 * Parts - _angle + Parts * 4, Parts, out long part);
+            if (part < 0)
+                step--;
             long way = ((step % Turns.PerTurn + Turns.PerTurn) % Turns.PerTurn) / 8;
             return $"grappling_{way}";
         }

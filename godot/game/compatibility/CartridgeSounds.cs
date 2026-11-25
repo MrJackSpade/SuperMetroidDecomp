@@ -131,6 +131,28 @@ public sealed class CartridgeSounds : ISoundFlow
     /// <summary>Music is never turned away.</summary>
     public void AskMusic(string music, int wait) => _music.AskMusic(music, wait);
 
+    /// <summary>How many of the music's turns a fanfare is given before silence is asked for behind it.</summary>
+    private const int FanfareTurns = 360;
+
+    /// <summary>
+    /// The cartridge's fanfare: the piece playing is remembered and everything waiting in the music's queue forgotten;
+    /// then the fanfare is asked for, silence once it has had its turns, and the remembered piece behind that. The
+    /// music comes back by that count, whatever becomes of the message the fanfare came with.
+    /// </summary>
+    public void AskFanfare(string fanfare)
+    {
+        string playing = _music.Playing;
+        _music.Clear();
+        _music.AskMusic(fanfare, 0);
+        _music.AskMusic("", FanfareTurns);
+        _music.AskMusic(playing, 0);
+    }
+
+    /// <summary>The fanfare's own count brings the music back: a message's closing does nothing to it.</summary>
+    public void EndFanfare()
+    {
+    }
+
     /// <summary>
     /// Asks for the set of music <paramref name="set"/> to be loaded, behind the music waiting. Loading it stops
     /// the music.

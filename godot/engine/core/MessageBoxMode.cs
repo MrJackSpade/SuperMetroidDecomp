@@ -99,7 +99,6 @@ public partial class MessageBoxMode : GameMode
     /// </summary>
     public bool FollowsAnother { get; init; }
 
-    private string _musicBefore = "";
     private int _shownFor;
     private Phase _phase;
     private int _wait;
@@ -162,10 +161,7 @@ public partial class MessageBoxMode : GameMode
 
         ShowMessage();
         if (Fanfare.Length > 0)
-        {
-            _musicBefore = Session.Sounds.Music;
-            Session.Sounds.RequestMusic(Fanfare);
-        }
+            Session.Sounds.RequestFanfare(Fanfare);
     }
 
     /// <summary>
@@ -395,11 +391,11 @@ public partial class MessageBoxMode : GameMode
         return this;
     }
 
-    /// <summary>Brings back the music there was before the message's fanfare.</summary>
+    /// <summary>Says the message's fanfare has had its time: a flow that has not brought the music back by its own count does so.</summary>
     private void RestoreMusic()
     {
         if (Fanfare.Length > 0)
-            Session.Sounds.RequestMusic(_musicBefore);
+            Session.Sounds.EndFanfare();
     }
 
     /// <summary>

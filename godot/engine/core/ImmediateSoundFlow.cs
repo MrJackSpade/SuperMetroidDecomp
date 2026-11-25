@@ -52,6 +52,25 @@ public sealed class ImmediateSoundFlow : ISoundFlow
         _music.Enqueue((music, wait));
     }
 
+    /// <summary>The music there was before a fanfare that has not yet given way to it; null with no fanfare playing.</summary>
+    private string? _musicBeforeFanfare;
+
+    /// <summary>The fanfare takes the music's place at once, and the music there was comes back once what it was for is over.</summary>
+    public void AskFanfare(string fanfare)
+    {
+        _musicBeforeFanfare = Music;
+        AskMusic(fanfare, 0);
+    }
+
+    /// <inheritdoc/>
+    public void EndFanfare()
+    {
+        if (_musicBeforeFanfare is not { } before)
+            return;
+        _musicBeforeFanfare = null;
+        AskMusic(before, 0);
+    }
+
     /// <summary>The room's music is asked for at once, unless its version keeps whatever is playing.</summary>
     public void EnterRoom(Room room)
     {

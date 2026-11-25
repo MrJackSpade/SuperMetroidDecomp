@@ -77,6 +77,19 @@ public sealed class SoundRequests
         Flow.AskMusic(music, wait);
     }
 
+    /// <summary>
+    /// Asks for a fanfare: a piece heard in the music's place, after which the music there was comes back, when the
+    /// session's flow says.
+    /// </summary>
+    public void RequestFanfare(string fanfare)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fanfare);
+        Flow.AskFanfare(fanfare);
+    }
+
+    /// <summary>Says that what a fanfare was asked for is over, as its message closes.</summary>
+    public void EndFanfare() => Flow.EndFanfare();
+
     /// <summary>Asks for the music of a room being set up to be played. The room asks, once its version is chosen.</summary>
     public void EnterRoom(Room room)
     {

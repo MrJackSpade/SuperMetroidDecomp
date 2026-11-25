@@ -29,6 +29,20 @@ public interface ISoundFlow
     /// <summary>Asks for every sound to stop, with the priority of a sound asked for.</summary>
     void AskSilence(SoundPriority priority);
 
+    /// <summary>
+    /// Asks for a fanfare: a piece heard in the music's place, after which the music there was comes back. When it
+    /// comes back is the flow's to say: by a count of its own, or once what the fanfare was for is over
+    /// (<see cref="EndFanfare"/>).
+    /// </summary>
+    /// <param name="fanfare">The fanfare, by name.</param>
+    void AskFanfare(string fanfare);
+
+    /// <summary>
+    /// Says that what a fanfare was asked for is over, as its message closes. A flow that brings the music back by a
+    /// count of its own does nothing here.
+    /// </summary>
+    void EndFanfare();
+
     /// <summary>Asks for the music to become <paramref name="music"/>, empty for silence, after a wait.</summary>
     /// <param name="music">The music, by name.</param>
     /// <param name="wait">How many updates it waits before it plays, once its turn has come; none for the shortest wait there is.</param>

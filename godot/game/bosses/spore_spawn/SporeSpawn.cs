@@ -162,6 +162,9 @@ public partial class SporeSpawn : Enemy
     private bool _coreTakesShots;
     private TimelinePlayer? _stalk;
 
+    /// <summary>Where each link of its stalk was last placed, in the room.</summary>
+    private readonly (int X, int Y)[] _stalkPlaces = new (int X, int Y)[StalkLinks];
+
     /// <inheritdoc/>
     /// <remarks>Shots pass it from its death until it hardens; the husk turns them away.</remarks>
     public override bool IsHitBy(HitSide side) => (Husk || _hardened || !_dying) && base.IsHitBy(side);
@@ -211,6 +214,7 @@ public partial class SporeSpawn : Enemy
             Play("husk");
             if (Solid is { } shell)
                 shell.Enabled = true;
+            PlaceStalk();
             ShowParts();
             // A room where it has been beaten, and the husk in it, are in the colours of its last step of hardening
             // from the moment it is set up, so through the door's passage too.
@@ -224,6 +228,7 @@ public partial class SporeSpawn : Enemy
         Position -= PixelOffset.FromWhole(0, StartRise);
         for (int emitter = 0; emitter < Emitters; emitter++)
             _emitterPlayers[emitter] = new TimelinePlayer(Timelines.Get("emitter_closed"));
+        PlaceStalk();
         ShowParts();
     }
 
@@ -407,7 +412,9 @@ public partial class SporeSpawn : Enemy
     {
         switch (_moving)
         {
+            // While it lowers itself or swings, its stalk is placed before it moves, so it trails it by an update.
             case Moving.Descending:
+                PlaceStalk();
                 Position += PixelOffset.FromWhole(0, DescentSpeed);
                 if (Position.Y.Whole >= _centre.Y.Whole)
                     Play("fight_started", restart: true);
@@ -415,6 +422,7 @@ public partial class SporeSpawn : Enemy
                 break;
 
             case Moving.Swinging:
+                PlaceStalk();
                 // Across it swings once for every twice it swings up and down: a figure of eight.
                 int behind = Turns.Wrap(_angle - Turns.PerTurn / 4);
                 Position = PixelPosition.FromWhole(
@@ -432,6 +440,8 @@ public partial class SporeSpawn : Enemy
                 Position += new PixelOffset(Velocity.X, Velocity.Y);
                 if (Math.Abs(Position.X.Whole - _centre.X.Whole) < 8 && Math.Abs(Position.Y.Whole - _centre.Y.Whole) < 8)
                     _moving = Moving.Idle;
+                // Drifting home as it dies, its stalk follows it in the same update.
+                PlaceStalk();
                 if (Room.Session.Clock.Updates % 16 == 0 && CeilingDustEffect.Length > 0)
                 {
                     RandomDraw draw = Random.Draw();
@@ -484,27 +494,26 @@ public partial class SporeSpawn : Enemy
         }
     }
 
-    /// <summary>
-    /// Puts its stalk and its emitters where they are, and lets go the spore of any emitter that has opened. The links
-    /// of its stalk run from the ceiling to where it is now: the first at the ceiling, the others a quarter, a half and
-    /// three quarters of the way from the stalk's bend.
-    /// </summary>
+    /// <summary>Places the links of its stalk between the ceiling and where it is now: the first at the ceiling, the others a quarter, a half and three quarters of the way from the stalk's bend.</summary>
+    private void PlaceStalk()
+    {
+        (int X, int Y) anchor = (_centre.X.Whole, _centre.Y.Whole - StalkAnchorAbove);
+        int across = Position.X.Whole - anchor.X, down = Position.Y.Whole - StalkBodyGap - anchor.Y;
+        _stalkPlaces[0] = (_centre.X.Whole, _centre.Y.Whole - CeilingAbove);
+        _stalkPlaces[1] = (anchor.X + across / 4, anchor.Y + down / 4);
+        _stalkPlaces[2] = (anchor.X + across / 2, anchor.Y + down / 2);
+        _stalkPlaces[3] = (anchor.X + across / 4 + across / 2, anchor.Y + down / 4 + down / 2);
+    }
+
+    /// <summary>Shows its stalk where it was last placed and its emitters where they are, and lets go the spore of any emitter that has opened.</summary>
     private void ShowParts()
     {
         _stalk?.Step();
-        (int X, int Y) anchor = (_centre.X.Whole, _centre.Y.Whole - StalkAnchorAbove);
-        int across = Position.X.Whole - anchor.X, down = Position.Y.Whole - StalkBodyGap - anchor.Y;
         for (int link = 0; link < StalkLinks; link++)
         {
             if (_stalk is null || GetNodeOrNull<ActorVisual>($"Stalk{link + 1}") is not { } visual)
                 continue;
-            (int x, int y) = link switch
-            {
-                0 => (_centre.X.Whole, _centre.Y.Whole - CeilingAbove),
-                1 => (anchor.X + across / 4, anchor.Y + down / 4),
-                2 => (anchor.X + across / 2, anchor.Y + down / 2),
-                _ => (anchor.X + across / 4 + across / 2, anchor.Y + down / 4 + down / 2),
-            };
+            (int x, int y) = _stalkPlaces[link];
             visual.Position = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
             visual.Show(_stalk.Current);
         }

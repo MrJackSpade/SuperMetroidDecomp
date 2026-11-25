@@ -139,7 +139,7 @@ public partial class Yard : Enemy
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        // The speed down a kick gives it, which is upward and so below nought, by how fast Samus was running, in whole pixels an update.
+        // The speed down a kick gives it, which is upward and so below nought, by the whole pixels of the camera's last measure of Samus's movement across.
         _kicks.Clear();
         _kicks.AddRange(data.List("kick_speeds").Select(speed => speed.AsPixels()));
         if (_kicks.Count == 0)
@@ -222,12 +222,13 @@ public partial class Yard : Enemy
         bool shrugsOff = _mood == Mood.Angry && _doing != Doing.Still && towardIt;
         if (!shrugsOff && (_doing == Doing.Airborne || samus.HasMomentum))
         {
-            // Kicked: it flies off the way Samus faces, higher the faster she was going.
+            // Kicked: it flies off the way Samus faces. Its speed across is not hers but the camera's last measure of
+            // how far she moved across, a pixel more, fraction and all, taken before this update's view follows her;
+            // the whole pixels of that measure choose how high it flies.
             _mood = Mood.Kicked;
             TakeOff();
-            Pixels speed = samus.Velocity.X.Abs();
-            Pixels across = speed + Pixels.FromWhole(1);
-            _flight = new PixelVelocity(samus.Facing == Facing.Left ? Reversed(across) : across, _kicks[Math.Min(speed.Whole, _kicks.Count - 1)]);
+            Pixels across = Room.Session.Camera.Speed.X;
+            _flight = new PixelVelocity(samus.Facing == Facing.Left ? Reversed(across) : across, _kicks[Math.Min(across.Whole, _kicks.Count - 1)]);
             Sound(BounceSound);
             return;
         }

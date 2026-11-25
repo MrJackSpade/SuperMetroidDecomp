@@ -181,8 +181,9 @@ public sealed class Mover
         EdgeStop stop = _world.Terrain.StopsEdge(edge, across ? step : 0, across ? 0 : step, options.Slopes, options.TriesFromRight);
         stoppedBy = stop.Tile;
 
-        // A solid that stands as part of the room stops the edge as a tile of terrain would.
-        if (!stop.Stopped && options.StoppedBySolids)
+        // A solid that stands as part of the room stops the edge as a tile of terrain would, and is met with the
+        // terrain: by a move the terrain stops, whether or not other solids stop it.
+        if (!stop.Stopped)
         {
             foreach (Collider solid in _world.Overlapping(edge, ColliderRole.Solid, except: body.CollisionOwner))
             {
@@ -299,6 +300,29 @@ public sealed class Mover
         MoveResult result = MoveAcross(body, distance, options);
         rest = owner.Position;
         owner.Position = before;
+        return result;
+    }
+
+    /// <summary>
+    /// Tries a move down, upward when negative, without making it: reports what the move would report, and where it
+    /// would leave the body, with the owner put back exactly where it was.
+    /// </summary>
+    /// <param name="body">The body the move is tried for.</param>
+    /// <param name="distance">How far the move would go, downward when positive.</param>
+    /// <param name="options">The ways the move differs from the plain one.</param>
+    /// <param name="rest">Where the move would have left the owner.</param>
+    /// <param name="shapedAs">The rectangle the body is taken to have for the try, about its owner's place; its own when null.</param>
+    public MoveResult TryDown(Collider body, Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null)
+    {
+        ICollisionOwner owner = body.CollisionOwner;
+        PixelPosition before = owner.Position;
+        PixelRect shape = body.Rect;
+        if (shapedAs is { } other)
+            body.Rect = other;
+        MoveResult result = MoveDown(body, distance, options);
+        rest = owner.Position;
+        owner.Position = before;
+        body.Rect = shape;
         return result;
     }
 

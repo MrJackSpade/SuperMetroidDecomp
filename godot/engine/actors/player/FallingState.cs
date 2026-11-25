@@ -17,9 +17,11 @@ public sealed class FallingState : PlayerState
     public FallingState(bool offFloor = false) => _offFloor = offFloor;
 
     /// <inheritdoc/>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(AirStance.FormFor(owner, Player.Falling), AroundMiddle: true);
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(AirStance.FormFor(owner, Player.Falling), aroundMiddle: true);
         if (_offFloor && !owner.IsRising)
             owner.FallFromRest();
         owner.SteerAfresh();

@@ -34,9 +34,11 @@ public sealed class CrawlingState : PlayerState
     public override bool CanAttack => true;
 
     /// <inheritdoc/>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Crawling);
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(Player.Crawling);
         // One adrift takes the low form as on the ground: its first move finds no floor and it falls from rest.
         _airborne = owner.IsRising || (!owner.IsAdrift && !owner.IsOnGround);
     }

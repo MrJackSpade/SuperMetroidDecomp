@@ -581,7 +581,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             _hurtbox = EntityNode.ColliderOf(this, ColliderRole.Hurtbox) ?? AddCollider("Hurtbox", ColliderRole.Hurtbox);
             ApplyForm(Standing);
             PublishForm();
-            _states = new StateMachine<Player>(this, new StandingState());
+            _states = new StateMachine<Player>(this, new StandingState(), Admit);
             OnReady();
         }
 
@@ -1025,28 +1025,74 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public string FormOr(string form) => Forms.ContainsKey(form) ? form : Standing;
 
     /// <summary>
-    /// Changes the body's form, if the new form fits. On the ground the feet stay where they are; in the air, or when
-    /// <paramref name="aroundMiddle"/> is asked for, the middle of the body does, or failing that the feet, or failing
-    /// that the head. Returns whether the form changed.
+    /// Changes the body's form, if the new form fits (<see cref="FitForm"/>), and returns whether the player is in
+    /// it. For a change in the midst of a state; the form a state is entered in is the state's to name
+    /// (<see cref="PlayerState.EntersIn"/>).
     /// </summary>
     public bool TrySetForm(string form, bool aroundMiddle = false)
     {
         if (form == Form)
             return true;
-        if (PlaceInForm(form, aroundMiddle) is not { } place)
-            return false;
 
-        // A change of form that moves the middle of the body is not a move of the player's: the view takes them to
-        // have stood where the change leaves them, and follows nothing of this update's way down.
-        if (place.Y.Whole != Position.Y.Whole)
-            Room.Session.Camera.TakePlayerToHaveStoodAtY(place.Y.Whole);
-        Position = place;
-        ApplyForm(form);
-        return true;
+        // A fitting that answers with another form is taken only where a state is being entered (Admit): here, in
+        // the midst of a state, the player stays as they are.
+        FormFit fit = FitForm(form, aroundMiddle);
+        if (fit.Form is not null && fit.Form != form)
+            return false;
+        return TakeFit(fit) == form;
     }
 
     /// <summary>Whether the body could take <paramref name="form"/> where it is, as <see cref="TrySetForm"/> would place it.</summary>
-    public bool CanTakeForm(string form, bool aroundMiddle = false) => form == Form || PlaceInForm(form, aroundMiddle) is not null;
+    public bool CanTakeForm(string form, bool aroundMiddle = false) => form == Form || FitForm(form, aroundMiddle).Form == form;
+
+    /// <summary>
+    /// Fits <paramref name="form"/> to the body where it is, changing nothing: the form taken, where that leaves the
+    /// player, and whether the view takes them to have stood there. The engine's own fitting takes the first place
+    /// the form fits: on the ground with the feet where they are; in the air, or when <paramref name="aroundMiddle"/>
+    /// is asked for, with the middle of the body where it is, or failing that the feet, or failing that the head;
+    /// and with no such place the player stays as they are. A game whose player fits its forms another way, or is put
+    /// in another form when one does not fit, fits them here.
+    /// </summary>
+    protected virtual FormFit FitForm(string form, bool aroundMiddle) =>
+        PlaceInForm(form, aroundMiddle) is { } place
+            ? new FormFit(form, place, place.Y.Whole != Position.Y.Whole)
+            : new FormFit(null, Position, false);
+
+    /// <summary>Puts the player where a fitting leaves them, in the form it gives, and returns that form: null when they stay in the form they have.</summary>
+    private string? TakeFit(FormFit fit)
+    {
+        // A change of form that moves the middle of the body is not a move of the player's: the view takes them to
+        // have stood where the change leaves them, and follows nothing of this update's way down.
+        if (fit.StoodThere)
+            Room.Session.Camera.TakePlayerToHaveStoodAtY(fit.Place.Y.Whole);
+        Position = fit.Place;
+        if (fit.Form is { } taken)
+            ApplyForm(taken);
+        return fit.Form;
+    }
+
+    /// <summary>
+    /// The state the player enters when <paramref name="asked"/> is asked for (<see cref="PlayerState.EntersIn"/>).
+    /// A state that names the form it is entered in has that form fitted first: fitted, it is entered; not fitted,
+    /// the player stays in the state they are in; answered with another form, the player is in the state that goes
+    /// with that form, or stays in the one they are in when it is of that kind already.
+    /// </summary>
+    private State<Player> Admit(State<Player> asked)
+    {
+        if (asked is not PlayerState state || state.EntersIn(this) is not { } wants || wants.Form == Form)
+            return asked;
+        string? taken = TakeFit(FitForm(wants.Form, wants.AroundMiddle));
+        if (taken == wants.Form)
+            return asked;
+        if (taken is null)
+            return States.Current;
+        PlayerState instead = StateFor(taken);
+        return States.Current.GetType() == instead.GetType() ? States.Current : instead;
+    }
+
+    /// <summary>The state that goes with a form the player was put in when the form a state asked for did not fit.</summary>
+    protected virtual PlayerState StateFor(string form) =>
+        form == Crouching ? new CrouchingState() : form == Crawling ? new CrawlingState() : StateAtRest();
 
     /// <summary>Where the player would be in another form: the first place the form fits, or null when it fits nowhere.</summary>
     private PixelPosition? PlaceInForm(string form, bool aroundMiddle)

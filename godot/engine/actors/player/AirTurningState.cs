@@ -30,10 +30,13 @@ public sealed class AirTurningState : PlayerState
     public override bool HoldsOffInterruptions => true;
 
     /// <inheritdoc/>
+    public override FormAsked? EntersIn(Player owner) =>
+        // A turn is made in the full form of the jump or the fall; with no room for that form there is no turn.
+        new FormAsked(owner.FormOr(FromJump ? Player.Jumping : Player.Falling), AroundMiddle: true);
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        // A turn is made in the full form of the jump or the fall, where it fits.
-        owner.TrySetForm(owner.FormOr(FromJump ? Player.Jumping : Player.Falling), aroundMiddle: true);
         owner.TurnAround();
         _left = Countdown.Of(owner.InMedium("turn_updates", owner.TurnUpdates));
     }

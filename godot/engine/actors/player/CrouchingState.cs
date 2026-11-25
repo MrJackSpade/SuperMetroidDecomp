@@ -10,7 +10,7 @@ namespace Engine.Actors;
 public sealed class CrouchingState : PlayerState
 {
     /// <inheritdoc/>
-    public override void Enter(Player owner) => owner.TrySetForm(Player.Crouching);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Crouching);
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)

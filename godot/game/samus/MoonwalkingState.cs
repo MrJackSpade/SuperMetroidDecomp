@@ -19,7 +19,7 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
     public string Look => "moonwalking";
 
     /// <inheritdoc/>
-    public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing);
 
     /// <summary>The way she walks: against the way she faces.</summary>
     private static int Backward(Player owner) => owner.Facing == Facing.Right ? -1 : 1;

@@ -157,7 +157,12 @@ something that leaves the room.
   would end (section 7, "How much of its way a move tries"), so she keeps her part of a pixel beside what she has
   not yet run into, rests at the far end of her pixel on the ground and against a wall to her right, passes what a
   fast move steps over, is not stopped by a frozen enemy she is already inside, and is put on a slope's surface
-  under her middle however steep the step.
+  under her middle however steep the step. A taller form is fitted the cartridge's way too (`Samus.FitForm`, in
+  `Samus.Forms.cs`): the body she has feels for the growth above and below with moves that are tried and not made
+  (`Mover.TryDown`), for something solid and then, apart, for the blocks, a growth of half a block or more in two
+  goes; with nothing either way she grows about her middle; stopped one way she is moved the other by what the
+  growth lacks, or stays as she is when there is no room for that; stopped both ways she is put in the crouch, or
+  stays the ball. The tries leave her the part of a pixel a stopped move would have.
   `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll
   layout loads all fifty (its own screens and what the layout's load writes after them, from
   `rooms/scroll_layouts.json`), a room with none writes only its own, and the camera reads the cells past a room's
@@ -713,7 +718,7 @@ in `engine/actors/player/`.
   and first moves on the next, so a jump asked for while running still runs that update and rises on the next. A
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`
   is for whatever takes the player over at once (a hold, a script, a station) and drops an interruption that was
-  waiting. A change of form moves the middle of the body at once, but the body and the hurtbox keep the shape they had until the player's next update begins, so whatever meets the player in between (the room's exits, the enemies' shots, pickups, objects) meets the body they had. The player keeps the state they last moved as (`MovedAs`), for whoever must know what they were doing
+  waiting. A state names the form it is entered in (`PlayerState.EntersIn`), and the form is fitted before anything of the state is entered (`Player.FitForm`): fitted, the player is put where the fitting leaves them and the state is entered; not fitted, they stay in the state they were in and nothing of the new one happens; and where the fitting answers with another form (a game's own fitting may: a body with no room to stand is put in a crouch) they are in the state that goes with that form instead (`Player.StateFor`). The state machine asks its owner what it makes of each state before leaving the current one (`StateMachine`'s `admits`). A form changed in the midst of a state is asked for by `TrySetForm`, which says whether it was taken and takes no other form in its place. The engine's own fitting takes the first place the form fits, with the feet where they are on the ground, and about the middle, then the feet, then the head in the air. A change of form moves the middle of the body at once, but the body and the hurtbox keep the shape they had until the player's next update begins, so whatever meets the player in between (the room's exits, the enemies' shots, pickups, objects) meets the body they had. The player keeps the state they last moved as (`MovedAs`), for whoever must know what they were doing
   through the latest movement whatever they have become since. A state says whether the player is in another's hands in it (`InAnothersHands`: held, at a station or dying, and not a knockback or any move of their own), which whatever runs only while the player plays reads. A state says what of the player the room's triggers are tried against (`TriggerReach`: their body, unless it says otherwise, or nothing). A state may say the player meets no exit by
   overlapping it (`MeetsExits`); whoever moves the player then takes them through one (`Room.EnterExit`).
 - **The update has two parts, with the enemies between them.** In the first (`BeginUpdate`) weapons fire, from the
@@ -1149,7 +1154,7 @@ drawn where the timeline's offset puts it; one shown by a lone picture has it ce
 | `Collider` | A rectangle with a role: body, hurtbox, hitbox or solid. Holds no behaviour. |
 | `Mover` | Moving a body through terrain and solids, one axis at a time, carrying what stands on a moving solid, and reporting what stopped it. |
 | `Health` | Current and maximum health, and reporting when it runs out. |
-| `StateMachine`, `State` (base) | One current state; each state holds its own data and names what it changes to. |
+| `StateMachine`, `State` (base) | One current state; each state holds its own data and names what it changes to. An owner with a say in what it enters is asked what it makes of each state before the current one is left: it gives the state asked for, another in its place, or the current one when it stays as it is. |
 | `TimelinePlayer` | Stepping a `FrameTimeline` once per update when its owner says, and reporting the step and any cue reached. The owner acts on the cue. |
 | `ActorVisual` | Showing the frame gameplay selects, hurt flashes, glows, colour changes and dissolves. It can show its picture row by row, each row naming the row of the picture drawn there. Never advances gameplay. |
 | `RowCrumble` | Working out which rows of a picture show where as it crumbles away from the bottom up, after an optional wait. An `ActorVisual` shows them. |

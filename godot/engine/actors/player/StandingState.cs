@@ -23,7 +23,7 @@ public sealed class StandingState : PlayerState
     public bool MovedSettling { get; private set; }
 
     /// <inheritdoc/>
-    public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing);
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)

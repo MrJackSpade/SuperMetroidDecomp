@@ -15,7 +15,7 @@ namespace Game;
 public sealed class WallStoppedState : PlayerState
 {
     /// <inheritdoc/>
-    public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing);
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)

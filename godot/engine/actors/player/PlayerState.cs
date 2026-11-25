@@ -57,6 +57,15 @@ public abstract class PlayerState : State<Player>
     public virtual bool InControl => true;
 
     /// <summary>
+    /// The form the player is in for this state, taken as the state is entered; null for a state that takes them in
+    /// the form they have. The player fits the form before anything of the state is entered
+    /// (<see cref="Player.FitForm"/>): where it fits they are put where the fitting leaves them and the state is
+    /// entered; where it does not they stay in the state they were in, and nothing of this one happens; and where the
+    /// fitting answers with another form they are put in the state that goes with that form instead.
+    /// </summary>
+    public virtual FormAsked? EntersIn(Player owner) => null;
+
+    /// <summary>
     /// Whether the player is in another's hands in this state: held, at a station or dying. A move
     /// of their own that takes them out of control, as a knockback does, is not that. What a game runs only while
     /// the player plays, as a countdown, reads it.

@@ -83,9 +83,11 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     };
 
     /// <inheritdoc/>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Samus.Spinning), AroundMiddle: true);
+
+    /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(owner.FormOr(Samus.Spinning), aroundMiddle: true);
         bool swamped = owner.IsWhollyInLiquid;
         bool screw = !swamped && owner.Inventory.IsOn(Equipment.ScrewAttack), space = !swamped && owner.Inventory.IsOn(Equipment.SpaceJump);
         Look = screw ? "screw_attacking" : space ? "space_jumping" : "spin_jumping";

@@ -89,6 +89,19 @@ public static class Turns
     /// <summary>An angle brought into 0 through one step short of a full turn.</summary>
     public static int Wrap(int angle) => ((angle % PerTurn) + PerTurn) % PerTurn;
 
+    /// <summary>
+    /// The sine of a step of the first half turn as a share of <paramref name="peak"/>, what is finer than one of the
+    /// peak's parts dropped: for a game whose own table of sines is counted another way than these.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The step is not one of the half turn's, or the peak is below nothing.</exception>
+    public static int HalfWave(int step, int peak)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(peak);
+        if ((uint)step >= PerTurn / 2)
+            throw new ArgumentOutOfRangeException(nameof(step), step, "A half turn has steps 0 to 127.");
+        return (int)(peak * UnitHalfWave(step));
+    }
+
     /// <summary>The fine sine of an angle in 65536ths, signed.</summary>
     private static long FineSigned(int angle)
     {

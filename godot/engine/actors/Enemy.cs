@@ -287,7 +287,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 _statusLeft = _statusLeft.Stepped();
         }
 
-        if (!heldByHurt && !heldByStatus && !IsFrozen)
+        if (heldByHurt)
+        {
+            WhileHurt();
+        }
+        else if (!heldByStatus && !IsFrozen)
         {
             Behave();
             if (!IsDead)
@@ -309,6 +313,14 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>This enemy's own behaviour for one update.</summary>
     protected abstract void Behave();
+
+    /// <summary>
+    /// Called in its behaviour's place on each turn a hurt holds the behaviour off: what of the enemy goes on while
+    /// its body flashes. Nothing, unless the enemy says otherwise.
+    /// </summary>
+    protected virtual void WhileHurt()
+    {
+    }
 
     /// <summary>Shows the timeline named <paramref name="name"/> from its start. Naming the one showing changes nothing unless <paramref name="restart"/> is asked for.</summary>
     protected void Play(string name, bool restart = false)
@@ -402,6 +414,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>Makes the enemy flash for <paramref name="updates"/> updates, as a hit that hurt it does.</summary>
     protected void FlashFor(int updates) => _flash = Countdown.Of(updates);
+
+    /// <summary>
+    /// Makes the enemy hurt with no hit, flashing for <paramref name="updates"/> updates: whatever a hurt holds off
+    /// is held off from its next turn, as after a hit that hurt it.
+    /// </summary>
+    protected void BeHurtFor(int updates) => (_flash, _hurt) = (Countdown.Of(updates), true);
 
     /// <inheritdoc/>
     public virtual HitResult TakeHit(Hit hit, Collider part)

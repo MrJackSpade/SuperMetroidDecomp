@@ -555,7 +555,7 @@ public partial class Draygon : Enemy
                 break;
 
             case Phase.Carry:
-                if (Shocked(samus))
+                if (TakesCurrent(samus))
                     break;
                 if (Math.Abs(Position.X.Whole - 256) < 2 && Math.Abs(Position.Y.Whole - 384) < 2)
                 {
@@ -569,7 +569,7 @@ public partial class Draygon : Enemy
                 break;
 
             case Phase.Flail:
-                if (Shocked(samus))
+                if (TakesCurrent(samus))
                     break;
                 if (Random.Last.Part(0, 8) == 0)
                 {
@@ -828,21 +828,29 @@ public partial class Draygon : Enemy
     }
 
     /// <summary>
-    /// While Samus, held, has her grapple beam on a live wire, the current runs through it: it is hurt on every eighth
-    /// update, and does nothing else. Returns whether that is so.
+    /// While it carries Samus or winds upward with her and she has her grapple beam on a live wire, the current runs
+    /// through it: it is made hurt, flashing as long as a shot makes it (its own flash and eight updates more, on the
+    /// cartridge as here), and does nothing else on that update. The current's harm is done while it is hurt (<see cref="WhileHurt"/>). Returns whether that is so.
     /// </summary>
-    private bool Shocked(Player samus)
+    private bool TakesCurrent(Player samus)
     {
         if (samus is not Samus { Grapple.IsLatched: true })
             return false;
-        if (Updates % 8 == 0)
-        {
-            Health.Take(Math.Min(GrappleShockDamage, Health.Current));
-            if (Health.IsEmpty)
-                BeginDeath();
-        }
-
+        BeHurtFor(HurtFlashUpdates);
         return true;
+    }
+
+    /// <summary>
+    /// Hurt, by the current or by anything else, it takes the current's harm on every eighth update of its own while
+    /// Samus's grapple beam is on a live wire, as the cartridge deals the shock in its hurt's own behaviour.
+    /// </summary>
+    protected override void WhileHurt()
+    {
+        if (Room.Player is not Samus { Grapple.IsLatched: true } || Updates % 8 != 0)
+            return;
+        Health.Take(Math.Min(GrappleShockDamage, Health.Current));
+        if (Health.IsEmpty)
+            BeginDeath();
     }
 
     /// <summary>Starts its death: it lets Samus go and drifts down to where it will lie.</summary>

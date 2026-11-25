@@ -1162,6 +1162,7 @@ drawn where the timeline's offset puts it; one shown by a lone picture has it ce
 | `Collider` | A rectangle with a role: body, hurtbox, hitbox or solid. Holds no behaviour. |
 | `Mover` | Moving a body through terrain and solids, one axis at a time, carrying what stands on a moving solid, and reporting what stopped it. |
 | `Health` | Current and maximum health, and reporting when it runs out. |
+| `Enemy`'s turn while hurt | A hurt holds an enemy's behaviour and its timeline off while it flashes, where its data says it is stunned so. What of it goes on meanwhile it does in `WhileHurt`, called in the behaviour's place on those turns: parts of it that are things of their own on the cartridge, or what its hurt itself does (Draygon takes the current of Samus's grapple there). An enemy may make itself hurt with no hit (`BeHurtFor`). |
 | `StateMachine`, `State` (base) | One current state; each state holds its own data and names what it changes to. An owner with a say in what it enters is asked what it makes of each state before the current one is left: it gives the state asked for, another in its place, or the current one when it stays as it is. |
 | `TimelinePlayer` | Stepping a `FrameTimeline` once per update when its owner says, and reporting the step and any cue reached. The owner acts on the cue. |
 | `ActorVisual` | Showing the frame gameplay selects, hurt flashes, glows, colour changes and dissolves. It can show its picture row by row, each row naming the row of the picture drawn there. Never advances gameplay. |

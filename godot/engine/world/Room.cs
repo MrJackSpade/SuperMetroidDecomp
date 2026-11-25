@@ -229,6 +229,9 @@ public partial class Room : Node2D
         // The room's own pictures are ready before anything enters, so that what enters may change their colours.
         foreach (Backdrop backdrop in GetChildren().OfType<Backdrop>())
         {
+            // A backdrop lies behind everything else in its room, wherever it comes among the room's things. The
+            // depth is the room's to give: a backdrop a screen shows by itself, as the title's floor, has none.
+            backdrop.ZIndex = RoomDepth.Backdrop;
             backdrop.Setup(Content, new Vector2I(_terrain.WidthInPixels, _terrain.HeightInPixels));
             _backdrops.Add(backdrop);
         }

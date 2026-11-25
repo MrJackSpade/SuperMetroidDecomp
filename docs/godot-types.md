@@ -517,7 +517,9 @@ A scene. One per room of the game.
   of what stands in the room (`TerrainFront`, which the terrain makes and draws: a tile's picture may have that
   part beside it, and it is drawn again over the room's things); what a thing puts in front of every tile; the
   liquid; the overlays. A thing has the depth of the room's things unless it takes another of these, as a boss's
-  head in front of everything does. No thing picks a depth of its own outside them.
+  head in front of everything does. No thing picks a depth of its own outside them. A backdrop's depth is given
+  by its room as the room sets it up: a backdrop shown by a screen with no room (the title's floor, the opening's
+  flight, Ceres's destruction, the ending) has none, and is drawn in its place among that screen's own things.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 

@@ -66,8 +66,6 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     internal virtual void Setup(ContentLibrary content, Vector2I roomSize)
     {
         _roomSize = roomSize;
-        // A backdrop lies behind everything else in its room, wherever it comes among the room's things.
-        ZIndex = RoomDepth.Backdrop;
         _texture = Picture.Length > 0 ? content.LoadTexture(Picture) : null;
         _pictureNamed = Picture.Length > 0 ? content.Named(Picture) : "";
         QueueRedraw();

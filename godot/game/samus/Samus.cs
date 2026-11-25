@@ -672,7 +672,7 @@ public partial class Samus : Player
         MoveResult step = Room.Mover.MoveAcross(Body, headed.Toward(Pixels.FromWhole(1)), BodyMoves);
         if (!step.Blocked)
             return to;
-        return from is StandingState ? from : new StandingState();
+        return from is StandingState or WallStoppedState ? from : new StandingState();
     }
 
     /// <summary>
@@ -689,6 +689,9 @@ public partial class Samus : Player
             : Input.IsHeld(Actions.AngleDown) ? Aim.DiagonalDown
             : Aim.Forward;
     }
+
+    /// <summary>A wall she runs into leaves her in the wall-stop pose, whose input is asked in its own order.</summary>
+    protected internal override PlayerState StoppedByWall() => new WallStoppedState();
 
     /// <summary>
     /// Whether taking up <paramref name="stance"/> in a jump spends a stored shine on a shinespark: aiming level with
@@ -813,6 +816,14 @@ public partial class Samus : Player
                     return new XrayState();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)
                     grapple.Fire(this);
+                return null;
+
+            case WallStoppedState:
+                // Stopped against a wall she may still look through the scope or fire the grapple.
+                if (Selected == Equipment.XrayScope && input.IsHeld(Actions.Run))
+                    return new XrayState();
+                if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } againstWall)
+                    againstWall.Fire(this);
                 return null;
 
             case TurningState { Crouched: false }:

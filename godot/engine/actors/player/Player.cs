@@ -834,6 +834,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates, once they have next moved.</summary>
     public void KnockBack(Facing from, int updates) => Interrupt(new KnockedBackState(from.Opposite(), updates));
 
+    /// <summary>
+    /// The state a runner is in once a wall has stopped them: standing, unless the game has a state of its own for it.
+    /// </summary>
+    protected internal virtual PlayerState StoppedByWall() => new StandingState();
+
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
 

@@ -243,12 +243,13 @@ public partial class Station : RoomObject
     }
 
     /// <summary>
-    /// Which side of the station the player is running against, or null when they are not: on the ground, running
-    /// towards it and stopped by it, aiming straight ahead.
+    /// Which side of the station the player is running against, or null when they are not: on the ground, having
+    /// run towards it through this update's movement and been stopped by it, aiming straight ahead. What they
+    /// moved as is asked, since being stopped has already put them in another state.
     /// </summary>
     private Facing? SideRunAgainst(Player player)
     {
-        if (player.State is not RunningState || player.Aim != Aim.Forward)
+        if (player.MovedAs is not RunningState || player.Aim != Aim.Forward)
             return null;
         PixelRect area = Area, body = player.BodyRect;
         if (body.Bottom <= area.Top || area.Bottom <= body.Top)

@@ -45,7 +45,7 @@ public sealed class RunningState : PlayerState
             return new FallingState(offFloor: true);
 
         // A wall has already brought everything across to rest: the runner stands against it.
-        return across.Blocked ? new StandingState() : null;
+        return across.Blocked ? owner.StoppedByWall() : null;
     }
 
     /// <summary>

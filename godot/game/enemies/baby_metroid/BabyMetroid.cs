@@ -313,6 +313,8 @@ public partial class BabyMetroid : Enemy
                 return false;
 
             case Doing.BeginDrainingSamus:
+                // Clamped on, it has her flash for as long as it drains her.
+                (samus as Samus)?.SetDrainFlash(true);
                 _doing = Doing.DrainSamus;
                 return true;
 
@@ -402,6 +404,10 @@ public partial class BabyMetroid : Enemy
             Velocity = PixelVelocity.Zero;
             Play("finish_draining", restart: true);
             (_feeding, _cries) = (false, false);
+
+            // Her flash ends, and as she is let fall her suit's colours show.
+            (samus as Samus)?.SetDrainFlash(false);
+            (samus as Samus)?.ShowSuitColours();
             samus.ChangeState(new DrainedState(DrainedState.Pose.Kneeling, canStand: false));
             Room.Session.Sounds.RequestMusic(AfterwardMusic);
             return;

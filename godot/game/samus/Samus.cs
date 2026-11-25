@@ -888,6 +888,28 @@ public partial class Samus : Player
     /// <summary>Ends her boost.</summary>
     public void EndBoost() => _boostStage = -1;
 
+    /// <summary>
+    /// What the cartridge puts right about her as a pause ends, whatever was switched on or off on its pages. Her
+    /// suit's colours show, in place of whatever coloured her. With the speed booster switched on, a run that has its
+    /// momentum and no boost begun begins one; with it switched off her boost and her run's momentum end and her
+    /// echoes are gone at once.
+    /// </summary>
+    public void ReconcileAfterPause()
+    {
+        ShowSuitColours();
+        if (Inventory.IsOn(Equipment.SpeedBooster))
+        {
+            if (HasMomentum && _boostStage < 0)
+                OnMomentumBegan();
+            return;
+        }
+
+        // Her run's speed stays until her next move looks at it, as the cartridge's does.
+        EndBoost();
+        EndMomentum();
+        GetNodeOrNull<SamusVisual>("Visual")?.ClearEchoes();
+    }
+
     /// <inheritdoc/>
     protected override void BeforeMoving()
     {

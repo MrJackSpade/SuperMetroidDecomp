@@ -226,6 +226,9 @@ public partial class SamusVisual : Node2D
         }
     }
 
+    /// <summary>Takes her echoes away at once, as switching the speed booster off on the pause screen does.</summary>
+    public void ClearEchoes() => (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
+
     /// <summary>The colour of one step of the glow that runs through every colour.</summary>
     private Color GlowTint(int step) =>
         Color.FromHsv((float)(step % GlowSteps) / GlowSteps, GlowStrength, 1f) * new Color(GlowBrightness, GlowBrightness, GlowBrightness);

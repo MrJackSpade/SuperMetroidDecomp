@@ -338,6 +338,8 @@ public partial class PauseScreen : GameMode
     /// <summary>Takes the pause screen away under the black, and puts the strip across the top of play back where it was.</summary>
     private void Restore()
     {
+        // What the pages switched on or off is put right about her before play shows again.
+        (Session.Player as global::Game.Samus)?.ReconcileAfterPause();
         if (_playing.Hud is { } hud)
             hud.Layer = _hudLayer;
         CanvasLayer layer = _layer ?? throw NotShown();

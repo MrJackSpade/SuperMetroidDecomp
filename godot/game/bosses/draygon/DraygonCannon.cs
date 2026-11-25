@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -68,8 +69,15 @@ public partial class DraygonCannon : Enemy, ILatchable
     /// <summary>Fires at Samus a shot that appears at <paramref name="from"/>, if it is whole.</summary>
     public void FireAtSamusFrom(PixelPosition from)
     {
-        if (!IsBroken)
-            FireAtPlayer("shot", from);
+        if (IsBroken)
+            return;
+
+        // Aimed and split along its aim as the cartridge does, at a whole number of pixels an update.
+        int aim = CartridgeAngles.AimAngle(Target.X.Whole - from.X.Whole, Target.Y.Whole - from.Y.Whole);
+        Pixels speed = Shot("shot").Speed;
+        if (speed.Fraction != 0)
+            throw new InvalidOperationException($"The Draygon cannon's shot speed {speed} is not a whole number of pixels.");
+        Fire("shot", from, CartridgeAngles.VelocityAlong(aim, speed.Whole));
     }
 
     /// <inheritdoc/>

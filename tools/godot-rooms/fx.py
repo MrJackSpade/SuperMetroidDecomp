@@ -102,6 +102,10 @@ def effect_things(effect: dict, room: legacy.Room, ctx) -> tuple[list[Placed], l
         if effect['drifts']:
             properties['Drifts'] = 'true'
 
+        # Water held back from her until something of the room lets it in: the glass tube does, once it is broken.
+        if effect['held_back']:
+            properties['HeldBack'] = 'true'
+
         # A liquid given a level to go to and no speed stays where it is.
         moves = target is not None and number(effect['speed']).lstrip('-') not in ('0', '0.0')
         rises = moves and target < start

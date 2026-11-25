@@ -206,6 +206,7 @@ Target = NodePath("../Screen0x1")
 script = ExtResource("10")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_teal.json"
+HeldBack = true
 LowSurface = 16
 HighSurface = 16
 TideReach = 8

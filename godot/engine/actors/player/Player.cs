@@ -488,7 +488,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>Whether the player's feet are in the room's liquid, whatever their equipment makes of it.</summary>
-    public bool FeetAreInLiquid => Room.Liquid is { } liquid && IsUnder(liquid, Feet);
+    public bool FeetAreInLiquid => Room.Liquid is { } liquid && IsIn(liquid, Feet);
+
+    /// <summary>Whether a point of the player is in a liquid the player meets: one held back, as behind glass, is not met (<see cref="Liquid.IsMet"/>).</summary>
+    private static bool IsIn(Liquid liquid, PixelPosition point) => liquid.IsMet && IsUnder(liquid, point);
 
     /// <summary>
     /// The speed the player last came down onto ground at, for a landing that is not on their feet. A state that
@@ -760,7 +763,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private void Splash()
     {
         Liquid? liquid = Room.Liquid;
-        bool inLiquid = liquid is not null && IsUnder(liquid, Feet);
+        bool inLiquid = liquid is not null && IsIn(liquid, Feet);
         bool crossed = _feetWereInLiquid is bool before && before != inLiquid;
         _feetWereInLiquid = inLiquid;
         if (!crossed || liquid is null)
@@ -1601,7 +1604,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private Liquid? HinderingLiquid(PixelPosition point)
     {
         Liquid? liquid = Room.Liquid;
-        return liquid is not null && IsUnder(liquid, point) && !Inventory.IsAnyOn(liquid.Type.SlowingCancelledBy) ? liquid : null;
+        return liquid is not null && IsIn(liquid, point) && !Inventory.IsAnyOn(liquid.Type.SlowingCancelledBy) ? liquid : null;
     }
 
     /// <summary>Works out the medium the player is in.</summary>

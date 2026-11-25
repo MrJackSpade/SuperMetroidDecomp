@@ -106,6 +106,7 @@ public partial class GlassTube : RoomObject, IHittable
         if (Room.Session.Progress.Has(StoryEvents.MaridiaTubeBroken))
         {
             // It was broken before: it is open, and the water is in.
+            Room.Liquid?.LetIn();
             Room.Terrain.ApplyPatch(OpenPatch);
             Tell();
             Room.Remove(this);
@@ -174,6 +175,7 @@ public partial class GlassTube : RoomObject, IHittable
                 if (--_timer > 0)
                     break;
                 Room.Session.Progress.Record(StoryEvents.MaridiaTubeBroken);
+                Room.Liquid?.LetIn();
                 Tell();
                 if (samus.State is HeldState)
                     samus.Release();

@@ -38,6 +38,21 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     [Export]
     public Condition? PresentWhen { get; set; }
 
+    /// <summary>
+    /// Whether it is held back from the player as its room is set up: it is there, moves and is drawn, and the player
+    /// moves as though it were not, as behind glass, until something of the room lets it in (<see cref="LetIn"/>).
+    /// </summary>
+    [Export]
+    public bool HeldBack { get; set; }
+
+    private bool _letIn;
+
+    /// <summary>Whether the player meets it: it is not held back, or has been let in.</summary>
+    public bool IsMet => !HeldBack || _letIn;
+
+    /// <summary>Lets a liquid that was held back at the player, for as long as the room lasts.</summary>
+    public void LetIn() => _letIn = true;
+
     /// <summary>How many updates it waits, once told to rise or fall, before it starts to.</summary>
     [Export]
     public int MoveDelay { get; set; }

@@ -3,49 +3,129 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
-/// <summary>What a shade of a sheet does as swaps of one colour for another, for a thing that shows a shade by changing colours where it is drawn.</summary>
+/// <summary>
+/// One colour a shade changes: the colour as the sheet's pictures have it, the region of the pictures it is changed
+/// in, and what the shade shows it as, each colour as red, green and blue in one number.
+/// </summary>
+/// <param name="From">The colour as the pictures have it.</param>
+/// <param name="Region">The region the change holds in; <see cref="Everywhere"/> where it holds wherever the colour is drawn.</param>
+/// <param name="To">The colour the shade shows.</param>
+internal readonly partial record struct ShadeSwap(int From, int Region, int To)
+{
+    /// <summary>The region of a change that holds wherever its colour is drawn.</summary>
+    internal const int Everywhere = -1;
+}
+
+/// <summary>
+/// What a shade of a sheet does as swaps of one colour for another, for a thing that shows a shade by changing colours
+/// where it is drawn, and the regions of a sheet's pictures such a thing has to tell apart.
+/// </summary>
 internal sealed partial class EngineSheets
 {
+    private readonly Dictionary<(string Family, string Sheet), Dictionary<int, SortedSet<int>>> _regionsDrawn = [];
+
     /// <summary>
-    /// The colours one shade of a sheet changes, each as the sheet's pictures have it and as the shade shows it, as
-    /// red, green and blue in one number. A colour the shade leaves as it is is left out.
+    /// The colours one shade of a sheet changes. A colour the shade shows alike in every region of the sheet's
+    /// pictures that draws it is one swap that holds everywhere; a colour it changes in one region and leaves, or
+    /// shows otherwise, in another is a swap for each region it changes. A colour the shade leaves as it is, or that
+    /// no picture of the sheet draws, is left out.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The installation has no such sheet or shade; or the shade cannot be shown by swapping colours: it shows one colour
-    /// of the sheet as two, or changes a colour in one part of the sheet's pictures that another part also has and keeps.
-    /// </exception>
-    internal IReadOnlyDictionary<int, int> ShadeSwaps(string family, string sheet, string shade)
+    /// <exception cref="InvalidDataException">The installation has no such sheet or shade.</exception>
+    internal IReadOnlyList<ShadeSwap> ShadeSwaps(string family, string sheet, string shade)
     {
         InstalledSheetDocument document = Document(family, sheet);
-        var swaps = new SortedDictionary<int, int>();
-        var regionsChanged = new Dictionary<int, HashSet<int>>();
+        Dictionary<int, SortedSet<int>> drawn = RegionsDrawn(family, sheet, document);
+        var changed = new SortedDictionary<int, SortedDictionary<int, int>>();
         foreach (((int colour, int region), RgbaPixel shown) in ShadeOf(sheet, document, shade))
         {
             int to = (shown.R << 16) | (shown.G << 8) | shown.B;
-            if (swaps.TryGetValue(colour, out int other) && other != to)
-                throw new InvalidDataException($"The shade {shade} of the sheet {sheet} shows the colour #{colour:x6} as #{other:x6} in one part and #{to:x6} in another: a swap of colours cannot tell them apart.");
-            swaps[colour] = to;
-            if (!regionsChanged.TryGetValue(colour, out HashSet<int>? regions))
-                regionsChanged[colour] = regions = [];
-            regions.Add(region);
+            if (to == colour || !drawn.TryGetValue(colour, out SortedSet<int>? regions) || !regions.Contains(region))
+                continue;
+            if (!changed.TryGetValue(colour, out SortedDictionary<int, int>? byRegion))
+                changed[colour] = byRegion = [];
+            byRegion[region] = to;
         }
 
-        // A colour the shade changes must not also be drawn in a part of the sheet the shade leaves alone.
-        if (!_images.TryGetValue((family, sheet), out SpriteImagePixels? image))
-            _images[(family, sheet)] = image = _store.Assemble(sheet, document);
+        var swaps = new List<ShadeSwap>();
+        foreach ((int colour, SortedDictionary<int, int> byRegion) in changed)
+        {
+            int first = byRegion.Values.First();
+            if (byRegion.Count == drawn[colour].Count && byRegion.Values.All(to => to == first))
+            {
+                swaps.Add(new ShadeSwap(colour, ShadeSwap.Everywhere, first));
+                continue;
+            }
+
+            foreach ((int region, int to) in byRegion)
+                swaps.Add(new ShadeSwap(colour, region, to));
+        }
+
+        return swaps;
+    }
+
+    /// <summary>Whether a sheet tells any of its pixels apart by region: some pixel lies in a region other than the first.</summary>
+    /// <exception cref="InvalidDataException">The installation has no such sheet.</exception>
+    internal bool HasRegions(string family, string sheet) =>
+        RegionsDrawn(family, sheet, Document(family, sheet)).Values.Any(regions => regions.Max > 0);
+
+    /// <summary>
+    /// The region of each pixel of one frame of a sheet, row by row, where the frame is of the size given; null where
+    /// the sheet has no such frame or the frame shows nothing.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The family has no such sheet, or the frame is of another size.</exception>
+    internal int[]? FrameRegions(string family, string sheet, string frame, int width, int height)
+    {
+        InstalledSheetDocument document = Document(family, sheet);
+        if (!document.Frames.TryGetValue(frame, out InstalledSheetFrameDocument? placed) || placed.Picture is null)
+            return null;
+        if (placed.Size.X != width || placed.Size.Y != height)
+            throw new InvalidDataException($"The frame {frame} of the sheet {sheet} is {placed.Size.X} by {placed.Size.Y}, not {width} by {height}.");
+        var regions = new int[width * height];
+        if (ImageOf(family, sheet, document).RecolourRegions is { } held)
+        {
+            for (int y = 0; y < height; y++)
+                held.AsSpan((placed.Corner.Y + y) * document.Size.X + placed.Corner.X, width).CopyTo(regions.AsSpan(y * width, width));
+        }
+
+        return regions;
+    }
+
+    /// <summary>The region of each pixel of one frame of a sheet, row by row, whatever its size.</summary>
+    /// <exception cref="InvalidDataException">The sheet has no such frame, or the frame shows nothing.</exception>
+    internal int[] FrameRegions(string family, string sheet, string frame)
+    {
+        InstalledSheetDocument document = Document(family, sheet);
+        if (!document.Frames.TryGetValue(frame, out InstalledSheetFrameDocument? placed) || placed.Picture is null)
+            throw new InvalidDataException($"The sheet {sheet} has no picture for the frame {frame}.");
+        return FrameRegions(family, sheet, frame, placed.Size.X, placed.Size.Y)!;
+    }
+
+    /// <summary>The regions each colour of a sheet is drawn in, over all of the sheet's pixels.</summary>
+    private Dictionary<int, SortedSet<int>> RegionsDrawn(string family, string sheet, InstalledSheetDocument document)
+    {
+        if (_regionsDrawn.TryGetValue((family, sheet), out Dictionary<int, SortedSet<int>>? known))
+            return known;
+        SpriteImagePixels image = ImageOf(family, sheet, document);
+        var drawn = new Dictionary<int, SortedSet<int>>();
         for (int pixel = 0; pixel < image.Pixels.Length; pixel++)
         {
-            RgbaPixel drawn = image.Pixels[pixel];
-            if (drawn.A == 0)
+            RgbaPixel shown = image.Pixels[pixel];
+            if (shown.A == 0)
                 continue;
-            int colour = (drawn.R << 16) | (drawn.G << 8) | drawn.B;
-            int region = image.RecolourRegions is { } placed ? placed[pixel] : 0;
-            if (regionsChanged.TryGetValue(colour, out HashSet<int>? changed) && !changed.Contains(region))
-                throw new InvalidDataException($"The shade {shade} of the sheet {sheet} changes the colour #{colour:x6} in one part of its pictures and leaves it in another: a swap of colours cannot tell them apart.");
+            int colour = (shown.R << 16) | (shown.G << 8) | shown.B;
+            if (!drawn.TryGetValue(colour, out SortedSet<int>? regions))
+                drawn[colour] = regions = [];
+            regions.Add(image.RecolourRegions is { } placed ? placed[pixel] : 0);
         }
 
-        foreach (int same in swaps.Where(swap => swap.Key == swap.Value).Select(swap => swap.Key).ToArray())
-            swaps.Remove(same);
-        return swaps;
+        return _regionsDrawn[(family, sheet)] = drawn;
+    }
+
+    /// <summary>A sheet's whole image, put together once.</summary>
+    private SpriteImagePixels ImageOf(string family, string sheet, InstalledSheetDocument document)
+    {
+        if (!_images.TryGetValue((family, sheet), out SpriteImagePixels? image))
+            _images[(family, sheet)] = image = _store.Assemble(sheet, document);
+        return image;
     }
 }

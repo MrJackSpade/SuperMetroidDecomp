@@ -41,6 +41,38 @@ internal sealed partial class EngineAssetTree
         Write(path, RgbaPng.Encode(new Extent16<ImagePixels>(width, height), pixels, _buffers));
     }
 
+    /// <summary>The most regions a picture's map of regions tells apart.</summary>
+    internal const int MostRegions = 256;
+
+    /// <summary>The path of the map of regions that lies beside the picture at <paramref name="picture"/>.</summary>
+    internal static string RegionMapPath(string picture) => picture.EndsWith(".png", StringComparison.Ordinal)
+        ? picture[..^4] + ".regions.png"
+        : throw new ArgumentException($"A map of regions lies beside a picture, which {picture} is not.", nameof(picture));
+
+    /// <summary>
+    /// Writes the map of regions of the picture at <paramref name="picture"/>, beside it: a picture of the same size
+    /// in greys, each pixel as far from white as the number of the region the picture's pixel there lies in, so the
+    /// first region is white. What changes a picture's colours where it is drawn reads it to tell apart two parts of
+    /// the picture that have one colour and are changed differently.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A region's number is not one a map can hold.</exception>
+    internal void WriteRegionMap(string picture, int width, int height, ReadOnlySpan<int> regions)
+    {
+        if (regions.Length != width * height)
+            throw new ArgumentException($"The picture {picture} is {width} by {height} but has {regions.Length} regions.", nameof(regions));
+        var pixels = new RgbaPixel[regions.Length];
+        for (int pixel = 0; pixel < regions.Length; pixel++)
+        {
+            int region = regions[pixel];
+            if (region < 0 || region >= MostRegions)
+                throw new InvalidDataException($"The picture {picture} has a pixel in the region {region}; a map of regions holds 0 through {MostRegions - 1}.");
+            byte grey = (byte)(MostRegions - 1 - region);
+            pixels[pixel] = new RgbaPixel(grey, grey, grey, 255);
+        }
+
+        WritePicture(RegionMapPath(picture), width, height, pixels);
+    }
+
     /// <summary>Writes a data file.</summary>
     /// <exception cref="InvalidOperationException">Different data was already written at the path.</exception>
     internal void WriteData(string path, JsonObject data)

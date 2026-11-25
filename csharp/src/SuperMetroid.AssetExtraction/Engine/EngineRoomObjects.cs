@@ -61,6 +61,38 @@ internal sealed partial class EngineRoomObjects
     }
 
     /// <summary>
+    /// The region of each pixel of a named picture of a set of graphics, a block in size and mirrored as asked, as
+    /// <see cref="BlockPixels"/> lays its part in front over its part behind. Null for a set whose sheet tells no
+    /// regions apart, and for a picture the set does not draw.
+    /// </summary>
+    internal static int[]? NamedBlockRegions(EngineSheets sheets, string graphicsSet, string frame, bool mirroredAcross, bool mirroredDown)
+    {
+        const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
+        if (!sheets.HasRegions(family, graphicsSet))
+            return null;
+        RgbaPixel[]? behind = sheets.FramePixels(family, graphicsSet, frame, Block, Block);
+        RgbaPixel[]? front = sheets.FramePixels(family, graphicsSet, $"{frame}^front", Block, Block);
+        if (behind is null && front is null)
+            return null;
+        int[]? behindRegions = sheets.FrameRegions(family, graphicsSet, frame, Block, Block);
+        int[]? frontRegions = sheets.FrameRegions(family, graphicsSet, $"{frame}^front", Block, Block);
+        var regions = new int[Block * Block];
+        for (int y = 0; y < Block; y++)
+        {
+            for (int x = 0; x < Block; x++)
+            {
+                int from = (mirroredDown ? Block - 1 - y : y) * Block + (mirroredAcross ? Block - 1 - x : x);
+                regions[y * Block + x] = front is not null && front[from].A != 0 ? frontRegions![from] : behind is not null ? behindRegions![from] : 0;
+            }
+        }
+
+        return regions;
+    }
+
+    /// <summary>The name on a set's sheet of the picture of the block numbered <paramref name="block"/>.</summary>
+    internal static string BlockFrame(int block) => $"block {block}";
+
+    /// <summary>
     /// Writes one named picture of the sets of graphics, a block in size, for every set that has it, under
     /// <paramref name="folder"/>, and returns the one path that names them all. Not every set has every such picture:
     /// an item's own is only in the sets of the rooms that hold the item.

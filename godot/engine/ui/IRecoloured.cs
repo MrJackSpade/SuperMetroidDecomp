@@ -16,4 +16,11 @@ public interface IRecoloured
     /// <param name="source">Who asks: the name the change is kept under.</param>
     /// <param name="swaps">The colours changed, and what each is shown as.</param>
     void Recolour(string source, IReadOnlyList<ColourSwap> swaps);
+
+    /// <summary>
+    /// Whether any picture it shows is the picture at <paramref name="place"/>, or lies in the folder that names: a
+    /// change of colours written for the pictures of one place is shown only on what shows pictures from it.
+    /// </summary>
+    /// <param name="place">A picture's path within the assets tree, or a folder of pictures.</param>
+    bool ShowsPicturesIn(string place);
 }

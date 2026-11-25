@@ -1236,7 +1236,7 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `AudioDirector` | `engine/audio/` | Playing the music a room or event asks for and the sounds the session's `ISoundFlow` has started, each on its channel's player. | Affect gameplay by its timing. |
 | `InputSampler` | `engine/input/` | Producing one `GameInput` of actions per update from the player's devices and bindings, or from a recorded demo. | Let anything else read devices. |
 | `ContentLibrary` | `engine/content/` | Loading art, audio, layouts and data files, by their path in the assets tree. | Read the ROM or reference the extractor. |
-| `Recolouring`, `IRecoloured` | `engine/ui/` | Showing something drawn with some of its colours changed. A thing that can be recoloured (`ActorVisual`, `Terrain`, `Backdrop`) is told by whoever changes colours which colours to show as which (`ColourSwap`), under that one's own name, so several may change different colours of the same pictures at once and each takes back only its own. The change is made by a shader where the pictures are drawn, which swaps exact colours: no picture is kept twice for it. | Decide which colours change, or when. |
+| `Recolouring`, `IRecoloured` | `engine/ui/` | Showing something drawn with some of its colours changed. A thing that can be recoloured (`ActorVisual`, `Terrain`, `Backdrop`) is told by whoever changes colours which colours to show as which (`ColourSwap`), under that one's own name, so several may change different colours of the same pictures at once and each takes back only its own. The change is made by a shader where the pictures are drawn, which swaps exact colours: no picture is kept twice for it. A swap may hold in one region of a picture only, which the shader reads from the picture's map of regions; and each thing says which places it shows pictures from, so a change written for one place's pictures is shown only there. | Decide which colours change, or when. |
 
 **Assets.** Everything of this game that can live in an external file does. They come from the player's ROM, are
 never committed and never shipped, and producing them is the asset extractor's job and no part of the Godot
@@ -1258,9 +1258,12 @@ project.
   within the assets tree, on the component that shows or plays it.
 - **Colours that change are changed by a shader.** A glow, a flicker, a flash or a fade that changes some colours
   of a picture and leaves its shapes is a list of colours each shown as another (`ColourSwap`), handed to what
-  draws the picture (`IRecoloured`); its data names each colour as the picture has it and as it is shown. A
-  picture is kept again in other colours only where a swap of colours cannot show the change: where one colour of
-  the picture would have to become two.
+  draws the picture (`IRecoloured`); its data names each colour as the picture has it and as it is shown, place
+  by place, since two sets of pictures may have one colour and change it differently. Where one colour of a
+  picture has to become two (the cartridge drew the two parts from different rows of its palette), the picture
+  has a map of regions beside it (`name.regions.png`: greys, a region as far from white as its number), which
+  `ContentLibrary.LoadTexture` draws the picture with and the shader reads, and the swap names the region. No
+  picture is kept again in other colours for a change of colours.
 - `ContentLibrary` is the one place that turns a path into a texture, a sound, a layout or values, and the one
   place that knows which build it is in: an editor build reads `res://assets/`; an exported build reads the
   installed folder.

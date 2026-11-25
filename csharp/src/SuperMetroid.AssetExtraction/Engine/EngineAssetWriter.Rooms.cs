@@ -114,6 +114,8 @@ public sealed partial class EngineAssetWriter
                 continue;
             (RgbaPixel[] pixels, int width, int height) = _sheets.FrameShown(RoomBlockFamily, sheet, RoomBackgroundImage.FrameName);
             _tree.WritePicture(BackdropPath(state, state.Background!), width, height, pixels);
+            if (_sheets.HasRegions(RoomBlockFamily, sheet))
+                _tree.WriteRegionMap(BackdropPath(state, state.Background!), width, height, _sheets.FrameRegions(RoomBlockFamily, sheet, RoomBackgroundImage.FrameName));
         }
     }
 }

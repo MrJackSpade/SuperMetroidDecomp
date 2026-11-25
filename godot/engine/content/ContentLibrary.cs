@@ -76,18 +76,38 @@ public sealed class ContentLibrary
     /// <summary>The data file at <paramref name="path"/>.</summary>
     public DataNode ReadData(string path) => DataNode.Parse(path, ReadText(path));
 
-    /// <summary>The picture at <paramref name="path"/>, as a texture. A picture is loaded once and shared.</summary>
+    /// <summary>What a picture's map of regions is named: the picture's own name with this in place of its ending.</summary>
+    public const string RegionMapEnding = ".regions.png";
+
+    /// <summary>
+    /// The picture at <paramref name="path"/>, as a texture. A picture is loaded once and shared. A picture with a map
+    /// of regions beside it (the same name ending <see cref="RegionMapEnding"/>: greys, each pixel as far from white
+    /// as the number of the region the picture's pixel there lies in) is a texture drawn with that map as its
+    /// specular texture, which whatever changes its colours region by region reads (<see cref="Ui.Recolouring"/>).
+    /// </summary>
     public Texture2D LoadTexture(string path)
     {
         path = ForSet(path);
         if (_textures.TryGetValue(path, out Texture2D? loaded))
             return loaded;
-        Image image = Image.LoadFromFile(RequireFile(path))
-            ?? throw new ContentException(path, "is not a picture the game can read.");
-        ImageTexture texture = ImageTexture.CreateFromImage(image);
+        Texture2D texture = ReadPicture(path);
+        string regions = Path.ChangeExtension(path, null) + RegionMapEnding;
+        if (!path.EndsWith(RegionMapEnding, StringComparison.Ordinal) && Has(regions))
+            texture = new CanvasTexture { DiffuseTexture = texture, SpecularTexture = ReadPicture(regions) };
         _textures[path] = texture;
         return texture;
     }
+
+    /// <summary>The picture file at <paramref name="path"/>, read as a texture.</summary>
+    private ImageTexture ReadPicture(string path)
+    {
+        Image image = Image.LoadFromFile(RequireFile(path))
+            ?? throw new ContentException(path, "is not a picture the game can read.");
+        return ImageTexture.CreateFromImage(image);
+    }
+
+    /// <summary>A path as this library reads it: with its set of graphics put where the path leaves the set to be named.</summary>
+    public string Named(string path) => ForSet(path);
 
     /// <summary>The sound at <paramref name="path"/>.</summary>
     public AudioStream LoadSound(string path) =>

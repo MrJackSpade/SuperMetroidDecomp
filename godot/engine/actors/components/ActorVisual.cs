@@ -17,6 +17,10 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
     /// <inheritdoc/>
     public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
 
+    /// <summary>Whether the picture it is showing is at <paramref name="place"/> or in the folder that names.</summary>
+    public bool ShowsPicturesIn(string place) =>
+        Picture.Length > 0 && _content is { } content && Ui.Recolouring.LiesIn(content.Named(Picture), place);
+
     /// <summary>The picture shown before gameplay selects one, as a path within the assets tree; empty for none.</summary>
     [Export(PropertyHint.File)]
     public string Picture { get; set; } = "";

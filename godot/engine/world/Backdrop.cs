@@ -16,6 +16,12 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     /// <inheritdoc/>
     public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
 
+    /// <summary>The picture it shows as its room's content names it, with the room's set of graphics put in; empty before it is set up or with no picture.</summary>
+    private string _pictureNamed = "";
+
+    /// <inheritdoc/>
+    public bool ShowsPicturesIn(string place) => _pictureNamed.Length > 0 && Ui.Recolouring.LiesIn(_pictureNamed, place);
+
     /// <summary>The layer's picture, as a path within the assets tree.</summary>
     [Export(PropertyHint.File)]
     public string Picture { get; set; } = "";
@@ -66,6 +72,7 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
         // A backdrop lies behind everything else in its room, wherever it comes among the room's things.
         ZIndex = BehindTheRoom;
         _texture = Picture.Length > 0 ? content.LoadTexture(Picture) : null;
+        _pictureNamed = Picture.Length > 0 ? content.Named(Picture) : "";
         QueueRedraw();
     }
 

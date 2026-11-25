@@ -730,6 +730,9 @@ internal sealed partial class EngineLayouts
         if (EngineRoomObjects.BlockPixels(_sheets, tileset, block, mirroring.HasFlag(BlockMirroring.Horizontal), mirroring.HasFlag(BlockMirroring.Vertical)) is not { } pixels)
             return null;
         _tree.WritePicture(path, Block, Block, pixels);
+        if (EngineRoomObjects.NamedBlockRegions(_sheets, tileset, EngineRoomObjects.BlockFrame(block),
+                mirroring.HasFlag(BlockMirroring.Horizontal), mirroring.HasFlag(BlockMirroring.Vertical)) is { } regions)
+            _tree.WriteRegionMap(path, Block, Block, regions);
         return path;
     }
 }

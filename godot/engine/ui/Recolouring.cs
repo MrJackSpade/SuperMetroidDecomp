@@ -7,6 +7,8 @@ namespace Engine.Ui;
 /// The changed colours of one drawn thing: what each source has asked to be shown as what, and the shader that shows
 /// it. A thing that can be recoloured keeps one and hands its own drawing to it. The shader swaps exact colours, so a
 /// picture's shapes are untouched and nothing is drawn twice; with nothing asked for the thing has no shader at all.
+/// A swap may be of one region of a picture only: the shader reads the region of each pixel from the picture's map
+/// of regions, which a picture that has one is drawn with (<see cref="Content.ContentLibrary.LoadTexture"/>).
 /// </summary>
 /// <remarks>
 /// Where two sources change the same colour, the one that asked first is shown. A thing shows at most
@@ -22,15 +24,22 @@ public sealed class Recolouring
         uniform int swap_count = 0;
         uniform vec3 swap_from[64];
         uniform vec3 swap_to[64];
+        uniform int swap_region[64];
         varying vec4 tint;
         void vertex() {
             tint = COLOR;
         }
         void fragment() {
             vec4 shown = texture(TEXTURE, UV);
+            // A picture's map of regions is drawn with it as its specular texture: a region is as far from white as
+            // its number.
+            int region = int(round((1.0 - texture(SPECULAR_SHININESS_TEXTURE, UV).r) * 255.0));
             for (int i = 0; i < 64; i++) {
                 if (i >= swap_count) {
                     break;
+                }
+                if (swap_region[i] >= 0 && swap_region[i] != region) {
+                    continue;
                 }
                 vec3 apart = abs(shown.rgb - swap_from[i]);
                 if (max(apart.r, max(apart.g, apart.b)) < 0.002) {
@@ -57,6 +66,10 @@ public sealed class Recolouring
         ArgumentNullException.ThrowIfNull(item);
         _item = item;
     }
+
+    /// <summary>Whether the picture at <paramref name="picture"/> is <paramref name="place"/> or lies in the folder that names.</summary>
+    public static bool LiesIn(string picture, string place) =>
+        picture == place || picture.StartsWith(place + "/", StringComparison.Ordinal);
 
     /// <summary>Whether any colour is shown changed.</summary>
     public bool IsChanged => _asked.Count > 0;
@@ -101,6 +114,7 @@ public sealed class Recolouring
 
         var from = new Vector3[MostSwaps];
         var to = new Vector3[MostSwaps];
+        var region = new int[MostSwaps];
         int count = 0;
         foreach ((string source, IReadOnlyList<ColourSwap> swaps) in _asked)
         {
@@ -110,6 +124,7 @@ public sealed class Recolouring
                     throw new InvalidOperationException($"\"{_item.Name}\" is asked to show more than {MostSwaps} colours changed at once; the last asked for is one of \"{source}\".");
                 from[count] = new Vector3(swap.From.R, swap.From.G, swap.From.B);
                 to[count] = new Vector3(swap.To.R, swap.To.G, swap.To.B);
+                region[count] = swap.Region;
                 count++;
             }
         }
@@ -118,6 +133,7 @@ public sealed class Recolouring
         _material.SetShaderParameter("swap_count", count);
         _material.SetShaderParameter("swap_from", from);
         _material.SetShaderParameter("swap_to", to);
+        _material.SetShaderParameter("swap_region", region);
         if (!ReferenceEquals(_item.Material, _material))
             _item.Material = _material;
     }

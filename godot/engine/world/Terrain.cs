@@ -19,6 +19,10 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     /// <inheritdoc/>
     public void Recolour(string source, IReadOnlyList<ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
 
+    /// <inheritdoc/>
+    public bool ShowsPicturesIn(string place) =>
+        _content is { } content && _tiles.Any(row => row.Any(tile => tile.Picture.Length > 0 && Ui.Recolouring.LiesIn(content.Named(tile.Picture), place)));
+
     /// <summary>The layout's data file, as a path within the assets tree.</summary>
     [Export(PropertyHint.File)]
     public string LayoutFile { get; set; } = "";

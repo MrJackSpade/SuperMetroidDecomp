@@ -26,23 +26,28 @@ public sealed partial class EngineAssetWriter
     /// <exception cref="InvalidDataException">An effect cannot be shown by swapping colours on one of its sheets, or two of its sheets disagree about a colour.</exception>
     private void WriteRoomColourEffects()
     {
-        // The sheets an effect shows on in one set of graphics: the set's blocks, and each picture behind a room that runs it.
-        var shownOn = new SortedDictionary<(string Set, ColourEffectId Effect), SortedSet<string>>();
+        // Where an effect shows in one set of graphics, each place with the sheet its pictures were cut from: the
+        // folder of the set's blocks, and each picture behind a room that runs it, whether a picture of its own or
+        // one put together from the set's blocks.
+        var shownOn = new SortedDictionary<(string Set, ColourEffectId Effect), SortedDictionary<string, string>>();
         foreach ((RoomDefinition _, RoomStateSettings state) in EngineLayouts.States())
         {
             foreach (ColourEffectId effect in (state.Fx?.Effects ?? []).SelectMany(record => record.ColourEffects))
             {
                 if (!ColourEffectRoomColourDefinitions.RoomColours.Contains(ColourEffectAnimations.Definition(effect).Colours))
                     continue;
-                if (!shownOn.TryGetValue((GraphicsFolder(state), effect), out SortedSet<string>? sheets))
-                    shownOn[(GraphicsFolder(state), effect)] = sheets = new SortedSet<string>(StringComparer.Ordinal) { state.GraphicsSet.ToString() };
+                string set = GraphicsFolder(state), blocks = state.GraphicsSet.ToString();
+                if (!shownOn.TryGetValue((set, effect), out SortedDictionary<string, string>? places))
+                    shownOn[(set, effect)] = places = new SortedDictionary<string, string>(StringComparer.Ordinal) { [$"tiles/{set}"] = blocks };
                 if (BackdropSheet(state) is { } backdrop)
-                    sheets.Add(backdrop);
+                    places[BackdropPath(state, state.Background!)] = backdrop;
+                else if (state.Background is null)
+                    places[EngineLayouts.LevelBackgroundPath(state, set)] = blocks;
             }
         }
 
-        foreach (((string set, ColourEffectId effect), SortedSet<string> sheets) in shownOn)
-            _tree.WriteData(ColourStepsPath(set, effect), ColourSteps(effect, sheets));
+        foreach (((string set, ColourEffectId effect), SortedDictionary<string, string> places) in shownOn)
+            _tree.WriteData(ColourStepsPath(set, effect), ColourSteps(effect, places));
     }
 
     /// <summary>
@@ -50,7 +55,7 @@ public sealed partial class EngineAssetWriter
     /// long as the frame shows, with the sound the animation asks for as the frame comes; a part of the animation
     /// played several times over is written out as often.
     /// </summary>
-    private JsonObject ColourSteps(ColourEffectId effect, IEnumerable<string> sheets)
+    private JsonObject ColourSteps(ColourEffectId effect, IReadOnlyDictionary<string, string> places)
     {
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
         Animation<ColourEffectSegment> animation = definition.Frames.Played;
@@ -71,7 +76,7 @@ public sealed partial class EngineAssetWriter
                             var step = new JsonObject
                             {
                                 ["updates"] = shown.Duration,
-                                ["colours"] = ColoursShown(definition.Colours, new ColourEffectFrame(effect, shown.Shown), sheets),
+                                ["colours"] = ColoursShown(definition.Colours, new ColourEffectFrame(effect, shown.Shown), places),
                             };
                             if (sound is not null)
                                 step["sound"] = sound;
@@ -101,28 +106,34 @@ public sealed partial class EngineAssetWriter
         return data;
     }
 
+    /// <summary>The most colours a thing drawn in the engine shows changed at once (its <c>Recolouring.MostSwaps</c>).</summary>
+    private const int MostSwapsShown = 64;
+
     /// <summary>
-    /// The colours one frame of a colour effect shows changed on the sheets given, each as the sheets' pictures have it
-    /// and as the frame shows it, written as six hexadecimal digits.
+    /// The colours one frame of a colour effect shows changed, place by place: for each place, every colour the frame
+    /// changes as the place's pictures have it, with the colour the frame shows for it, written as six hexadecimal
+    /// digits. A colour changed only in one region of the pictures is written with the region's number after a
+    /// stroke, as the pictures' maps of regions number it. A place the frame changes nothing in is left out.
     /// </summary>
-    /// <exception cref="InvalidDataException">Two sheets show one colour as two under the frame.</exception>
-    private JsonObject ColoursShown(ColourEffectColours colours, ColourEffectFrame frame, IEnumerable<string> sheets)
+    /// <exception cref="InvalidDataException">The frame changes more colours in one place than a thing can show changed at once.</exception>
+    private JsonObject ColoursShown(ColourEffectColours colours, ColourEffectFrame frame, IReadOnlyDictionary<string, string> places)
     {
+        static string Written(int colour) => colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
         string shade = ColourEffectShades.Of(colours, frame).Key;
-        var shown = new SortedDictionary<int, int>();
-        foreach (string sheet in sheets)
+        var written = new JsonObject();
+        foreach ((string place, string sheet) in places)
         {
-            foreach ((int from, int to) in _sheets.ShadeSwaps(RoomBlockFamily, sheet, shade))
-            {
-                if (shown.TryGetValue(from, out int other) && other != to)
-                    throw new InvalidDataException($"The shade {shade} shows the colour #{from:x6} as #{other:x6} on one sheet and #{to:x6} on {sheet}.");
-                shown[from] = to;
-            }
+            IReadOnlyList<ShadeSwap> swaps = _sheets.ShadeSwaps(RoomBlockFamily, sheet, shade);
+            if (swaps.Count > MostSwapsShown)
+                throw new InvalidDataException($"The shade {shade} changes {swaps.Count} colours of {place}; a thing shows at most {MostSwapsShown} changed at once.");
+            if (swaps.Count == 0)
+                continue;
+            var changed = new JsonObject();
+            foreach (ShadeSwap swap in swaps)
+                changed[swap.Region == ShadeSwap.Everywhere ? Written(swap.From) : $"{Written(swap.From)}/{swap.Region}"] = Written(swap.To);
+            written[place] = changed;
         }
 
-        var written = new JsonObject();
-        foreach ((int from, int to) in shown)
-            written[from.ToString("x6", System.Globalization.CultureInfo.InvariantCulture)] = to.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
         return written;
     }
 }

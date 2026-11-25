@@ -108,6 +108,9 @@ internal sealed partial class EngineLayouts
                 RgbaPixel[] pixels = NamedBlockPixels(tileset, frame, mirroring)
                     ?? throw new InvalidDataException($"The graphics {tileset} have no picture named {frame}.");
                 _tree.WritePicture(path, Block, Block, pixels);
+                if (EngineRoomObjects.NamedBlockRegions(_sheets, tileset, frame,
+                        mirroring.HasFlag(BlockMirroring.Horizontal), mirroring.HasFlag(BlockMirroring.Vertical)) is { } regions)
+                    _tree.WriteRegionMap(path, Block, Block, regions);
             }
 
             pictures.Add(path);
@@ -136,6 +139,9 @@ internal sealed partial class EngineLayouts
             return;
         int width = level.Size.X * Block, height = level.Size.Y * Block;
         var canvas = new RgbaPixel[width * height];
+
+        // Where the set's sheet tells regions apart, the picture has its map of them, put together as it is.
+        int[]? canvasRegions = _sheets.HasRegions(GameInstallationLayout.RoomBlockSheetDirectoryName, tileset) ? new int[width * height] : null;
         bool any = false;
         for (int cell = 0; cell < level.Background.Length; cell++)
         {
@@ -150,12 +156,27 @@ internal sealed partial class EngineLayouts
             int left = cell % level.Size.X * Block, top = cell / level.Size.X * Block;
             for (int y = 0; y < Block; y++)
                 pixels.AsSpan(y * Block, Block).CopyTo(canvas.AsSpan((top + y) * width + left, Block));
+            if (canvasRegions is null)
+                continue;
+            int[] regions = EngineRoomObjects.NamedBlockRegions(_sheets, tileset, EngineRoomObjects.BlockFrame(shown.Block),
+                    shown.Mirroring.HasFlag(BlockMirroring.Horizontal), shown.Mirroring.HasFlag(BlockMirroring.Vertical))
+                ?? throw new InvalidDataException($"The block {shown.Block} of the graphics {tileset} has a picture and no regions.");
+            for (int y = 0; y < Block; y++)
+                regions.AsSpan(y * Block, Block).CopyTo(canvasRegions.AsSpan((top + y) * width + left, Block));
         }
 
         if (any)
+        {
             _tree.WritePicture(path, width, height, canvas);
+            if (canvasRegions is not null)
+                _tree.WriteRegionMap(path, width, height, canvasRegions);
+        }
         else
+        {
             _tree.WritePicture(path, Block, Block, new RgbaPixel[Block * Block]);
+            if (canvasRegions is not null)
+                _tree.WriteRegionMap(path, Block, Block, new int[Block * Block]);
+        }
     }
 
     /// <summary>

@@ -12,7 +12,9 @@ namespace Game;
 /// One of Samus's power bombs: it lies where it was laid until its fuse runs out, and then its blast spreads out from
 /// it as an oval wider than it is tall. On every update of the blast its hit lands on everything the blast reaches
 /// that it has not hit lately, and on the blocks along the border of its reach; so what stays inside a blast long
-/// enough is hit twice.
+/// enough is hit twice. An enemy is reached by its middle, as the cartridge's sweep of the enemies reaches it; a
+/// door or gate only as the border of the reach passes over it, as the cartridge's react to the blocks the blast
+/// bombs; anything else by the rectangle of the reach.
 /// </summary>
 /// <remarks>
 /// Its data gives how far the blast reaches across on each of its updates, one after another, from the update after
@@ -49,6 +51,13 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     /// <summary>The colour the blast is drawn in.</summary>
     [Export]
     public Color Colour { get; set; } = new(1f, 1f, 0.6f, 0.6f);
+
+    /// <summary>
+    /// How far the blast reaches across, for the rest of an update's sweep of the enemies, once it has killed one that
+    /// comes back: the cartridge's sweep keeps its reach across where a death leaves that enemy's mark of coming back,
+    /// which is this much, or nothing for an enemy that stays dead.
+    /// </summary>
+    private const int ReachAfterRespawningKill = 1 << 14;
 
     private readonly Dictionary<IHittable, int> _reachedAt = [];
     private int _blastUpdate;
@@ -133,7 +142,32 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
         }
 
         // An enemy the blast harms makes no cry, as on the cartridge.
-        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit with { Quiet = true }, blast, from: Launcher, skipping: lately))
+        Hit hit = Hit with { Quiet = true };
+
+        // The enemies are swept in the reverse of the order they take their turns in. One is reached when its middle
+        // lies nearer than the reach both across and up and down, and from then on takes its turns however far from
+        // the view it is. A kill changes the reach across for the rest of this update's sweep.
+        foreach (Enemy enemy in room.Enemies.Reverse().ToList())
+        {
+            if (enemy.IsDead || lately.Contains(enemy) || !enemy.IsHitBy(hit.Side))
+                continue;
+            if (Math.Abs(Position.X.Whole - enemy.Position.X.Whole) >= across || Math.Abs(Position.Y.Whole - enemy.Position.Y.Whole) >= down)
+                continue;
+            Collider? hurtbox = EntityNode.CollidersOf(enemy).FirstOrDefault(collider => collider.Enabled && collider.Role == ColliderRole.Hurtbox);
+            if (hurtbox is null)
+                continue;
+            HitResult result = enemy.TakeHit(hit, hurtbox);
+            if (result == HitResult.Ignored)
+                continue;
+            _reachedAt[enemy] = _blastUpdate;
+            enemy.AlwaysActive = true;
+            if (result == HitResult.Destroyed)
+                across = enemy.RespawnsWhenKilled ? ReachAfterRespawningKill : 0;
+        }
+
+        // What is neither an enemy nor a door or gate is reached by the rectangle of the reach.
+        foreach ((IHittable target, HitResult result) in room.DeliverHit(
+            hit, blast, from: Launcher, skipping: lately, landsOn: target => target is not (Enemy or Engine.World.Objects.Barrier)))
         {
             if (result != HitResult.Ignored)
                 _reachedAt[target] = _blastUpdate;
@@ -155,18 +189,25 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
         int top = Math.Max(0, Position.Y.Whole - down) / tile;
         int bottom = Math.Min(terrain.HeightInPixels / tile - 1, (Position.Y.Whole + down) / tile);
         for (int column = left; column <= right; column++)
-            StrikeTile(terrain, column, top);
+            StrikeTile(room, column, top);
         for (int row = top; row <= bottom; row++)
-            StrikeTile(terrain, left, row);
+            StrikeTile(room, left, row);
         for (int column = left; column <= right; column++)
-            StrikeTile(terrain, column, bottom);
+            StrikeTile(room, column, bottom);
         for (int row = top; row <= bottom; row++)
-            StrikeTile(terrain, right, row);
+            StrikeTile(room, right, row);
     }
 
-    /// <summary>Lands the blast's hit on whatever block covers the tile at <paramref name="column"/>, <paramref name="row"/>.</summary>
-    private void StrikeTile(Terrain terrain, int column, int row) =>
-        terrain.TakeHit(Hit, new PixelRect(column * terrain.TileSize, row * terrain.TileSize, 1, 1));
+    /// <summary>
+    /// Lands the blast's hit on whatever block covers the tile at <paramref name="column"/>, <paramref name="row"/>, and
+    /// on a door or gate that stands in that tile, which the cartridge's blast reaches only so.
+    /// </summary>
+    private void StrikeTile(Room room, int column, int row)
+    {
+        int tile = room.Terrain.TileSize;
+        room.Terrain.TakeHit(Hit, new PixelRect(column * tile, row * tile, 1, 1));
+        room.DeliverHit(Hit, new PixelRect(column * tile, row * tile, tile, tile), from: Launcher, landsOn: target => target is Engine.World.Objects.Barrier);
+    }
 
     /// <inheritdoc/>
     public override void _Draw()

@@ -166,6 +166,12 @@ public partial class Samus
     private void BeginShotGlow(string glow) => _shotGlow = new SamusGlowPlay(Colours.Glow(glow));
 
     /// <summary>
+    /// What boards an elevator with her ends a shot's glow and starts the charge's pulse over, leaving her colours as
+    /// they are, as the cartridge clears her shots there.
+    /// </summary>
+    public void ForgetShotGlow() => (_shotGlow, _chargePulsePlace) = (null, 0);
+
+    /// <summary>
     /// A charged spin's touch on an enemy uses its charge up, as the cartridge does before it asks whether the touch
     /// harms: the charge is let go, its pulse starts over and her suit's colours show at once.
     /// </summary>

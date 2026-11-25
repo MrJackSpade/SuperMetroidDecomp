@@ -556,6 +556,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             _body = EntityNode.ColliderOf(this, ColliderRole.Body) ?? AddCollider("Body", ColliderRole.Body);
             _hurtbox = EntityNode.ColliderOf(this, ColliderRole.Hurtbox) ?? AddCollider("Hurtbox", ColliderRole.Hurtbox);
             ApplyForm(Standing);
+            PublishForm();
             _states = new StateMachine<Player>(this, new StandingState());
             OnReady();
         }
@@ -625,6 +626,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         _medium = null;
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
+
+        // The form taken since the last update began gives the body its shape only now.
+        PublishForm();
         if (IsDead)
             return;
 
@@ -1446,12 +1450,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The body's rectangle in a form, from the player's place at its middle.</summary>
     private PixelRect BodyRectFor(string form) => new(-HalfWidth, -HalfHeightOf(form), HalfWidth * 2, HalfHeightOf(form) * 2);
 
-    /// <summary>Puts the body and the hurtbox in a form's shape.</summary>
-    private void ApplyForm(string form)
+    /// <summary>
+    /// Takes a form. The body and the hurtbox keep the shape they had for the rest of the update: the form's own
+    /// shape is theirs from the player's next update on (<see cref="PublishForm"/>), so whatever meets the player
+    /// before then meets the body they had.
+    /// </summary>
+    private void ApplyForm(string form) => Form = form;
+
+    /// <summary>Puts the body and the hurtbox in the shape of the form the player is in.</summary>
+    private void PublishForm()
     {
-        Form = form;
-        Body.Rect = BodyRectFor(form);
-        Hurtbox.Rect = BodyRectFor(form);
+        Body.Rect = BodyRectFor(Form);
+        Hurtbox.Rect = BodyRectFor(Form);
     }
 
     /// <summary>Adds a collider the player's scene did not supply.</summary>

@@ -141,6 +141,15 @@ public sealed partial class EngineAssetWriter
         // Typed letters glow and settle; the font is the colour they settle to.
         _sheets.WriteFont(_tree, folder + "/narration_font.json", SpriteSheetId.IntroNarrationPictures, NarrationGlyphs(), null, IntroShades.Glow(IntroTextGlowStep.All[^1]).Key);
 
+        // The colourings a letter glows through before it settles, brightest first, each its own font.
+        var glowFonts = new JsonArray();
+        foreach (IntroTextGlowStep step in IntroTextGlowStep.All.SkipLast(1))
+        {
+            string glowFont = $"{folder}/narration_font_glow_{step.Step}.json";
+            _sheets.WriteFont(_tree, glowFont, SpriteSheetId.IntroNarrationPictures, NarrationGlyphs(), null, IntroShades.Glow(step).Key);
+            glowFonts.Add(glowFont);
+        }
+
         _tree.WriteData("cinematics/demos/intro_mother_brain.json", Flashback(
             DemoInputRecordings.Of(DemoSignallingRecordingId.IntroMotherBrainFlashback).Recording, IntroMotherBrainRoomScene));
         _tree.WriteData("cinematics/demos/intro_discovery_run.json", Flashback(DemoInputRecordings.Of(DemoInputRecordingId.IntroBabyDiscoveryRunningLeft), IntroDiscoveryRoomScene));
@@ -157,6 +166,10 @@ public sealed partial class EngineAssetWriter
             ["typing_sound"] = EngineNames.Sound(IntroCinematicDefinitions.Sounds.Typewriter),
             ["pages"] = pages,
             ["subtitled_languages"] = new JsonArray(Languages[1]),
+            ["glow_fonts"] = glowFonts,
+            // How long a letter shows each colouring of its glow: the old game's five updates, which is also how
+            // long it takes to type the next.
+            ["glow_step_updates"] = 5,
             ["mother_brain_demo"] = "cinematics/demos/intro_mother_brain.json",
             ["discovery_run_demo"] = "cinematics/demos/intro_discovery_run.json",
             ["discovery_look_demo"] = "cinematics/demos/intro_discovery_look.json",

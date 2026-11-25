@@ -82,6 +82,13 @@ public partial class Intro : Cinematic
     private Node2D? _narration;
     private Sprite2D? _card;
     private PixelText? _words;
+
+    /// <summary>The fonts of a typed letter's glow, brightest first, and how many updates each shows for.</summary>
+    private readonly List<PixelFont> _glowFonts = [];
+    private int _glowStepUpdates;
+
+    /// <summary>The letters still glowing, each laid over its place in the page's words, with how many updates it has glowed.</summary>
+    private readonly List<(PixelText Letter, int Age)> _glowing = [];
     private PixelPosition _wordsAt;
     private int _cell;
     private CinematicSprite? _eye;
@@ -131,6 +138,9 @@ public partial class Intro : Cinematic
         (_wordsAt, _cell) = (PixelPosition.FromWhole(wordsAt.Int("x"), wordsAt.Int("y")), font.Cell.X);
         _words = new PixelText { Name = "Words", Font = font, Position = new Vector2(wordsAt.Int("x"), wordsAt.Int("y")), VisibleCharacters = 0 };
         _narration.AddChild(_words);
+        _glowFonts.Clear();
+        _glowFonts.AddRange(_data.List("glow_fonts").Select(glow => PixelFont.Read(Session.Content, glow.AsText())));
+        _glowStepUpdates = _data.Int("glow_step_updates");
         _caret = CinematicSprite.Of(Session.Content, _timelines.Get("caret"), _wordsAt);
         _caret.Name = "Caret";
         _narration.AddChild(_caret);
@@ -321,6 +331,7 @@ public partial class Intro : Cinematic
         _page = page;
         _text = Session.Text.Get(entry.Text("text"));
         (_typed, _letterWait, _pageFinished, _finalHold, _awaitingSecondSubtitle, _subtitleHold) = (0, 2, false, 0, false, 0);
+        ClearGlows();
         PixelText words = _words ?? throw NotEntered();
         words.Text = _text;
         words.VisibleCharacters = 0;
@@ -339,8 +350,45 @@ public partial class Intro : Cinematic
             (_eye ?? throw NotEntered()).Play(_timelines.Get("eye_closing"));
     }
 
-    /// <summary>Plays one update of the page: her eye, the caret, and the next letter when it is due.</summary>
+    /// <summary>Plays one update of the page: her eye, the caret, the next letter when it is due, and the glow of the letters lately typed.</summary>
     private void StepNarration()
+    {
+        TypeNarration();
+        StepGlows();
+    }
+
+    /// <summary>
+    /// A typed letter glows before it settles: it shows each of its glow's colourings for a while, brightest first,
+    /// from the update it is typed on, and then the colour the page's words are in.
+    /// </summary>
+    private void StepGlows()
+    {
+        for (int index = _glowing.Count - 1; index >= 0; index--)
+        {
+            (PixelText letter, int age) = _glowing[index];
+            int step = age / _glowStepUpdates;
+            if (step >= _glowFonts.Count)
+            {
+                letter.QueueFree();
+                _glowing.RemoveAt(index);
+                continue;
+            }
+
+            letter.Font = _glowFonts[step];
+            _glowing[index] = (letter, age + 1);
+        }
+    }
+
+    /// <summary>Takes away every letter's glow, as a page's words go.</summary>
+    private void ClearGlows()
+    {
+        foreach ((PixelText letter, _) in _glowing)
+            letter.QueueFree();
+        _glowing.Clear();
+    }
+
+    /// <summary>Her eye, the caret, and the next letter when it is due.</summary>
+    private void TypeNarration()
     {
         (_eye ?? throw NotEntered()).Step();
         CinematicSprite caret = _caret ?? throw NotEntered();
@@ -367,6 +415,15 @@ public partial class Intro : Cinematic
             return;
         _letterWait = LetterUpdates;
         char letter = _text[_typed];
+        if (!char.IsWhiteSpace(letter) && _glowFonts.Count > 0)
+        {
+            // The letter is laid over its place in the page's words, in its glow's colourings, until it settles.
+            PixelPosition cell = CellOf(_typed);
+            var glowing = new PixelText { Name = "Glow", Font = _glowFonts[0], Text = letter.ToString(), Position = new Vector2(cell.X.Whole, cell.Y.Whole) };
+            (_narration ?? throw NotEntered()).AddChild(glowing);
+            _glowing.Add((glowing, 0));
+        }
+
         _typed++;
 
         // Going on to the next line takes no time of its own.
@@ -444,6 +501,7 @@ public partial class Intro : Cinematic
     {
         PixelText words = _words ?? throw NotEntered();
         (_text, _typed, words.Text, words.VisibleCharacters) = ("", 0, "", 0);
+        ClearGlows();
     }
 
     /// <summary>Where the cell of the letter at an index of the page's words is on the screen.</summary>

@@ -139,8 +139,13 @@ public partial class PlayingMode : GameMode, IRoomPlay
         return (_terms.PlayerMayDie && !_leadsElsewhere, _terms.PlayerMayBeSaved);
     }
 
-    /// <summary>Whether this update's input asks for the pause and play may give it.</summary>
-    private bool PauseIsAsked() => _terms.MayPause && _input.WasPressed(GameAction.Pause) && Session.Player.State.InControl;
+    /// <summary>
+    /// Whether this update's input asks for the pause and play may give it: the player is in control, has entered no
+    /// exit on this update, which is gone through instead, and the game lets the pause be asked for here.
+    /// </summary>
+    private bool PauseIsAsked() =>
+        _terms.MayPause && _input.WasPressed(GameAction.Pause) && Session.Player.State.InControl && Room.ExitEntered is null &&
+        Session.Definition.PauseMayBeAsked(Session, Room);
 
     /// <summary>Plays one update of play on the terms given, and returns the mode in control next.</summary>
     private GameMode Play(GameInput input, PlayTerms terms)
@@ -229,11 +234,11 @@ public partial class PlayingMode : GameMode, IRoomPlay
         if (NextMessage(input, followsAnother: false) is { } box)
             return box;
 
-        // The pause comes before an exit entered on the same update, which is still entered when play comes back.
-        if (!saved && PauseIsAsked())
-            return Session.Definition.CreatePauseMode(this);
+        // An exit entered is gone through, and the pause is not given on the update that entered it.
         if (Room.ExitEntered is { } exit)
             return Session.Definition.CreateRoomTransition(this, exit);
+        if (!saved && PauseIsAsked())
+            return Session.Definition.CreatePauseMode(this);
         return this;
     }
 

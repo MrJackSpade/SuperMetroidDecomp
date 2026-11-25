@@ -117,6 +117,12 @@ public partial class GameDefinition : Resource
     /// <summary>Makes the mode laid over play when the player pauses.</summary>
     public virtual GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
 
+    /// <summary>
+    /// Whether the pause may be asked for on this update of play in <paramref name="room"/>, over and above what play
+    /// itself asks of the player. Always, unless a game says otherwise.
+    /// </summary>
+    public virtual bool PauseMayBeAsked(GameSession session, World.Room room) => true;
+
     /// <summary>Makes the mode a new game begins in. The engine's is play in the first room; a game with something to show first says so.</summary>
     public virtual GameMode CreateModeForNewGame() => new PlayingMode();
 

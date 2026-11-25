@@ -411,7 +411,9 @@ select, options, game over, time up, and one per cinematic.
   such an update takes the update from the mode laid over (`Room.EnergySettled`), which hands back to play.
 - **One thing follows from an update.** Where more than one thing would take play elsewhere on the same update,
   the order is: a save from having no energy, which takes the place of everything else the update began; a
-  session service's mode; a message; the pause; an exit entered, which is still entered when play comes back. A
+  session service's mode; a message; an exit entered; the pause, which is not given on an update that entered an
+  exit, nor where the game says the pause is not to be asked for (`GameDefinition.PauseMayBeAsked`: this game's
+  not on Ceres, nor while a power bomb's blast is under way). A
   player with no energy does not begin to die on an update that is going elsewhere (a service wants control,
   the pause is asked for, an exit was entered): they are asked again on a later update, and the update that
   withheld it does not count toward the play time.

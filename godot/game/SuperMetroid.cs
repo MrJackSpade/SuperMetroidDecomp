@@ -25,6 +25,10 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>Pausing brings up the map and equipment screens.</summary>
     public override GameMode CreatePauseMode(PlayingMode playing) => new PauseScreen(playing);
 
+    /// <summary>The pause is not asked for on Ceres, nor while a power bomb's blast is under way, as on the cartridge.</summary>
+    public override bool PauseMayBeAsked(GameSession session, Engine.World.Room room) =>
+        room.Area != Data.Areas.Ceres && !Compatibility.CartridgeSounds.Of(session).PowerBombExploding;
+
     /// <summary>A new game begins with the opening.</summary>
     public override GameMode CreateModeForNewGame() => new Intro();
 

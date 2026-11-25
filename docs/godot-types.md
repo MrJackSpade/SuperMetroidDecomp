@@ -1020,7 +1020,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   shows is set by what colours her and stays until something sets another, whatever she wears. Every colouring,
   her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`
   with every glow (`SamusGlow`: the colourings it shows in turn, each for so many updates, and the step it goes
-  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); `SamusVisual` shows her colouring on her picture and her echoes. Nothing tints her for a colouring her
+  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); `SamusVisual` shows her colouring on her picture and her echoes. A suit put on shows its colours as it is collected, and a pause's end shows the colours of the suit she wears. Nothing tints her for a colouring her
   data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
 - **Her colour step** (`Samus.StepColours`) runs once an update, after she has moved and just before she is
   shown, and not while a suit is being put on or she is dying. What colours her takes its turn there in the

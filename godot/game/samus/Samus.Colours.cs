@@ -65,9 +65,6 @@ public partial class Samus
     /// <summary>Her energy when it was last looked at for a loss, after she was shown.</summary>
     private int _energyAtLastCheck;
 
-    /// <summary>The suit whose colours were last looked at for a change of what she wears.</summary>
-    private string _suitWorn = "";
-
     /// <summary>Which of the shine's two glows colours her.</summary>
     private enum ShineColouring
     {
@@ -111,23 +108,8 @@ public partial class Samus
     private void ReadColours()
     {
         _colours = SamusColours.Read(Room.Content.ReadData(ColoursFile));
-        _suitWorn = SuitWorn;
         ShowSuitColours();
         _energyAtLastCheck = Inventory.Amount(Amounts.Energy);
-    }
-
-    /// <summary>
-    /// A change of the suit she wears shows that suit's colours, as putting one on or off on the pause screen does.
-    /// Collecting one shows them itself.
-    /// </summary>
-    private void ShowSuitIfChanged()
-    {
-        string worn = SuitWorn;
-        if (worn == _suitWorn)
-            return;
-        _suitWorn = worn;
-        if (State is not CollectingSuitState)
-            ShowSuitColours();
     }
 
     /// <summary>The stored shine's glow begins, from its first colouring.</summary>

@@ -947,7 +947,6 @@ public partial class Samus : Player
 
         _woreVaria = varia;
         _woreGravity = gravity;
-        ShowSuitIfChanged();
     }
 
     /// <inheritdoc/>

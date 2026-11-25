@@ -102,7 +102,10 @@ public partial class Bull : Enemy
                 }
 
                 Drift();
-                int off = Math.Abs(Turns.Wrap(AngleToSamus() - _angle + Turns.PerTurn / 2) - Turns.PerTurn / 2);
+                // The cartridge counts the turn the short way round only when Samus's bearing is a half turn or more on
+                // from its heading; one behind its heading it counts as it stands, which may be the long way round.
+                int turn = AngleToSamus() - _angle;
+                int off = turn >= Turns.PerTurn / 2 ? Turns.PerTurn - turn : Math.Abs(turn);
                 if (off >= OffTargetTurn)
                     _doing = Doing.Slowing;
                 return;
@@ -167,6 +170,12 @@ public partial class Bull : Enemy
     private void Drift()
     {
         Pixels half = _speed.Share(1, 2);
-        Position += new PixelOffset(Turns.Cosine(_angle, half), Turns.Sine(_angle, half));
+        Position += new PixelOffset(Reversed(Turns.Cosine(_angle, half)), Reversed(Turns.Sine(_angle, half)));
     }
+
+    /// <summary>
+    /// A step up or left as the cartridge reverses it: one whose size is whole pixels with no fraction goes one 65536th
+    /// of a pixel further.
+    /// </summary>
+    private static Pixels Reversed(Pixels step) => step.IsNegative && step.Fraction == 0 ? step - Pixels.FromParts(0, 1) : step;
 }

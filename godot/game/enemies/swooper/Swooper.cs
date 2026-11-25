@@ -118,7 +118,6 @@ public partial class Swooper : Enemy
                 // The same number picks a fast or a slow swoop.
                 double dive = drawn.Part(2, 1) == 1 ? SlowDiveSpeed : DiveSpeed;
                 Velocity = new PixelVelocity(TowardPlayer.Toward(Pixels.FromNumber(AcrossSpeed)), Pixels.FromNumber(dive));
-                _finished = false;
                 Play("takeoff");
                 _doing = Doing.TakingOff;
                 break;
@@ -151,7 +150,8 @@ public partial class Swooper : Enemy
                     Velocity = Velocity.WithX(-Velocity.X);
                 if (MoveDownBy(Velocity.Y))
                 {
-                    _finished = false;
+                    // An animation's finish is kept until it is taken, through the landing: one its climb's start gave
+                    // ends a landing at once.
                     if (Timelines.Has("land"))
                     {
                         Play("land");
@@ -192,7 +192,6 @@ public partial class Swooper : Enemy
     private void BeginClimb()
     {
         Velocity = Velocity.WithY(-Pixels.FromNumber(ReturnSpeed));
-        _finished = false;
         Play("climb_start");
         _doing = Doing.Climbing;
         Sound(ReturnSound);

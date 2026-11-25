@@ -74,7 +74,6 @@ public partial class Rio : Enemy
                 if (Math.Abs(Target.X.Whole - Position.X.Whole) >= Reach)
                     return;
                 Velocity = new PixelVelocity(TowardPlayer.Toward(Pixels.FromNumber(AcrossSpeed)), Pixels.FromNumber(DiveSpeed));
-                _finished = false;
                 Play("swoop_start");
                 _doing = Doing.Swooping;
                 Sound(DiveSound);
@@ -132,7 +131,8 @@ public partial class Rio : Enemy
                     Velocity = Velocity.WithX(-Velocity.X);
                 if (MoveDownBy(Velocity.Y))
                 {
-                    _finished = false;
+                    // An animation's finish is kept until it is taken: one its swoop's opening gave after a wall or the
+                    // floor turned it back ends its landing at once.
                     Play("land");
                     _doing = Doing.Landing;
                 }
@@ -146,6 +146,7 @@ public partial class Rio : Enemy
             case Doing.Landing:
                 if (!_finished)
                     return;
+                _finished = false;
                 Play("hover");
                 _doing = Doing.Waiting;
                 return;

@@ -264,7 +264,8 @@ public partial class NinjaPirate : Enemy
 
             case Doing.Dive:
                 Position += PixelOffset.FromWhole(right ? DiveStep : -DiveStep, 0);
-                bool landed = MoveDownBy(_diveSpeed);
+                // The cartridge falls by the speed's whole pixels and counts its 256ths of a pixel only as 65536ths.
+                bool landed = MoveDownBy(Pixels.FromParts(_diveSpeed.Whole, _diveSpeed.Fraction / 256));
                 if (!landed)
                 {
                     _diveSpeed -= diveChange;

@@ -95,8 +95,10 @@ public partial class Diver : Enemy
             case Doing.Hanging:
                 if ((Target.X.Whole - Position.X.Whole) is var across && Math.Abs(across) >= Reach)
                     return;
-                // How fast it will dive is settled as it starts to wind up, from how far below it Samus is then.
-                _diveStep = DistancePerSpeed > 0 ? Math.Max(0, Target.Y.Whole - Position.Y.Whole) / DistancePerSpeed + DiveSpeed : DiveSpeed;
+                // How fast it will dive is settled as it starts to wind up, from how far below it Samus is then. The
+                // cartridge counts that distance within 65536 and never asks which is lower, so a Samus above it reads
+                // as far below, and its first step of the dive would pass the room's bottom.
+                _diveStep = DistancePerSpeed > 0 ? ((Target.Y.Whole - Position.Y.Whole) & 0xFFFF) / DistancePerSpeed + DiveSpeed : DiveSpeed;
                 _ready = false;
                 Play("windup");
                 _doing = Doing.WindingUp;

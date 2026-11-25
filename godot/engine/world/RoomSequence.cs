@@ -41,6 +41,12 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     /// </summary>
     public virtual Stopped Stops => Stopped.Nothing;
 
+    /// <summary>
+    /// Whether the sequence plays before the view follows the player, and not after: one that moves the player so
+    /// that the view follows the move on the same update says so.
+    /// </summary>
+    public virtual bool PlaysBeforeView => false;
+
     /// <summary>Puts the sequence at its start, and starts it if its condition says so.</summary>
     internal void Setup(Room room)
     {
@@ -57,6 +63,15 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
             return;
         IsRunning = true;
         Elapsed = 0;
+        OnStarted();
+    }
+
+    /// <summary>
+    /// Called as the sequence starts, before its first update is played: as its room is set up, for one that starts
+    /// by itself, with the player already in the room. What must hold from the first moment is done here.
+    /// </summary>
+    protected virtual void OnStarted()
+    {
     }
 
     /// <summary>Plays the sequence's part of the opening of an update, if it is running and has one.</summary>

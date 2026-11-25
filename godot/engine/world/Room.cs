@@ -442,11 +442,24 @@ public partial class Room : Node2D
 
         // The view follows the player before the room's sequences play, so they see where it now is; the shaking
         // comes after them, once all that may start it has run.
+        // A sequence that moves the player for the view to follow plays first.
+        if (!stopped.HasFlag(Stopped.Room))
+        {
+            foreach (RoomSequence sequence in _sequences)
+            {
+                if (sequence.PlaysBeforeView)
+                    sequence.Step(this);
+            }
+        }
+
         Follow(frozen: stopped.HasFlag(Stopped.Room));
         if (!stopped.HasFlag(Stopped.Room))
         {
             foreach (RoomSequence sequence in _sequences)
-                sequence.Step(this);
+            {
+                if (!sequence.PlaysBeforeView)
+                    sequence.Step(this);
+            }
         }
 
         // Only now is a player with no energy left asked what follows: they die, unless the update has also taken

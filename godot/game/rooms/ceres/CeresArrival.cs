@@ -30,6 +30,12 @@ public partial class CeresArrival : RoomSequence
     /// <summary>How far below her the pad is, how far down the room the platform is, and where she is set down.</summary>
     private const int PadBelow = 28, PlatformY = 97, LandingY = 72;
 
+    /// <summary>She faces forward on the pad from the moment the room is set up, before any update of hers is played.</summary>
+    protected override void OnStarted() => ((Room)GetParent()).Player.ChangeState(new FacingForwardState());
+
+    /// <summary>She is lowered before the view follows her, so it follows each pixel on the update it is made.</summary>
+    public override bool PlaysBeforeView => true;
+
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
@@ -37,7 +43,6 @@ public partial class CeresArrival : RoomSequence
         ActorVisual pad = Part("Pad"), platform = Part("Platform");
         if (elapsed == 0)
         {
-            samus.ChangeState(new FacingForwardState());
             pad.Bind(room.Content);
             platform.Bind(room.Content);
             _pad = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(PadTimeline)));
@@ -53,11 +58,11 @@ public partial class CeresArrival : RoomSequence
         platform.Show(platformLook.Current);
         padLook.Step();
         platformLook.Step();
+        // The pad is put under where she stands before she is lowered; the wait's last update is the first that lowers her.
         pad.Position = new Vector2(samus.Position.X.Whole, samus.Position.Y.Whole + PadBelow);
-        if (elapsed < WaitUpdates)
+        if (elapsed < WaitUpdates - 1)
             return false;
         samus.Position = new PixelPosition(samus.Position.X, samus.Position.Y + Pixels.FromWhole(1));
-        pad.Position = new Vector2(samus.Position.X.Whole, samus.Position.Y.Whole + PadBelow);
         if (samus.Position.Y.Whole <= LandingY)
             return false;
         samus.Position = new PixelPosition(samus.Position.X, Pixels.FromWhole(LandingY));

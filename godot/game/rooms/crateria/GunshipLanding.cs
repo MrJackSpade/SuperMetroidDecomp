@@ -12,12 +12,12 @@ public partial class GunshipLanding : RoomSequence
     [Export]
     public NodePath Gunship { get; set; } = new();
 
-    /// <inheritdoc/>
-    protected override bool Play(Room room, int elapsed)
-    {
+    /// <summary>The ship is told as the room is set up, so Samus is aboard it before any update of hers is played.</summary>
+    protected override void OnStarted() =>
         (GetNode(Gunship) as ITriggerTarget
             ?? throw new InvalidOperationException($"The landing \"{Name}\" is to tell \"{Gunship}\" to land, but that is nothing that can be told."))
             .Triggered("land");
-        return true;
-    }
+
+    /// <inheritdoc/>
+    protected override bool Play(Room room, int elapsed) => true;
 }

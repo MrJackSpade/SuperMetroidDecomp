@@ -616,7 +616,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
   is an `IOpeningStep` as well: the room calls that part as the update opens, while the sequence is running, and
   the rest where every sequence is stepped. One that holds part of the room still while it plays says so
   (`Stops`), as a ride that moves a player whose own update must not run; play adds that to what the player's
-  state holds still. One that moves the player has the room test its exits again (`Room.MeetExits`), since the
+  state holds still. What must hold from the first moment, before any update is played, is done as it starts (`OnStarted`), as the room is set up for one that starts by itself. One that moves the player for the view to follow on the same update plays before the view does (`PlaysBeforeView`); every other plays after. One that moves the player has the room test its exits again (`Room.MeetExits`), since the
   room's own test came earlier in the update.
 - **Does not:** hold behaviour that belongs to an object in the room, or exist outside its room.
 

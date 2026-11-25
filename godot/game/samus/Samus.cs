@@ -1142,7 +1142,9 @@ public partial class Samus : Player
     /// </summary>
     private void ChooseItem()
     {
-        if (!State.InControl && State is not XrayState)
+        // Only what locks her input stops the choice on the cartridge. A knockback, a shinespark and a crystal flash
+        // lock her pose's input and not her input as a whole, so the choice is still taken in them.
+        if (!State.InControl && State is not (XrayState or KnockedBackState or ShinesparkState or CrystalFlashState))
             return;
         if (Input.WasPressed(Actions.ItemCancel))
         {

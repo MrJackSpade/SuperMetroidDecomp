@@ -232,6 +232,9 @@ public sealed partial class EngineAssetWriter
             ["cooldown"] = SamusProjectileCooldowns.Read(plain, BeamShotCooldowns.Shot.Uncharged),
             ["held_cooldown"] = SamusProjectileCooldowns.Read(plain, BeamShotCooldowns.Shot.HeldFire),
             ["max_live"] = SamusProjectileSystem.PlaceCount,
+            // Beams and missiles share the five places: a beam takes one however many projectiles show it.
+            ["pool"] = "shots",
+            ["places"] = 1,
             ["charge_updates"] = BeamChargeDefinitions.FullyChargedCounter,
             ["charge_needs"] = "charge_beam",
             ["part_charge_fires"] = true,
@@ -353,7 +356,10 @@ public sealed partial class EngineAssetWriter
             ["diagonal_speed"] = EngineNames.Number(SamusProjectileMotionDefinitions.MissileIgnitionSpeed),
             ["inherits_speed"] = true,
             ["cooldown"] = super ? SamusProjectileCooldownDefinitions.SuperMissileShot : SamusProjectileCooldownDefinitions.MissileShot,
-            ["max_live"] = super ? SuperMissileDefinitions.AdmissionLimit / 2 : SamusProjectileSystem.PlaceCount,
+            // A super missile takes a second place for its unseen link: none is fired with four places held.
+            ["max_live"] = SamusProjectileSystem.PlaceCount,
+            ["pool"] = "shots",
+            ["places"] = super ? SamusProjectileSystem.PlaceCount - SuperMissileDefinitions.AdmissionLimit + 1 : 1,
             ["costs"] = super ? "super_missiles" : "missiles",
             ["cost"] = 1,
             ["sound"] = EngineNames.Sound(super ? SamusProjectileSoundRoutingDefinitions.SuperMissileRequest : SamusProjectileSoundRoutingDefinitions.MissileRequest),

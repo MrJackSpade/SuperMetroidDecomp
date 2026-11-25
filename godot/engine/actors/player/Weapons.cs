@@ -14,6 +14,52 @@ public sealed class Weapons
 {
     private readonly List<WeaponStats> _weapons = [];
     private readonly Dictionary<string, List<Projectile>> _live = new(StringComparer.Ordinal);
+
+    /// <summary>What holds places in the weapons' pools: each firing, or each projectile, with what it left on ending.</summary>
+    private readonly List<Held> _held = [];
+
+    /// <summary>Places of a pool held by a firing or a projectile: until all its projectiles have ended and what they left is gone.</summary>
+    private sealed class Held(string pool, int places)
+    {
+        public string Pool { get; } = pool;
+
+        public int Places { get; } = places;
+
+        public List<Projectile> Shots { get; } = [];
+
+        public List<Node> Left { get; } = [];
+
+        public bool StillHolds =>
+            Shots.Any(shot => GodotObject.IsInstanceValid(shot) && !shot.HasEnded) || Left.Any(GodotObject.IsInstanceValid);
+    }
+
+    /// <summary>How many places of <paramref name="pool"/> are held.</summary>
+    public int PlacesHeld(string pool) => _held.Where(held => held.Pool == pool && held.StillHolds).Sum(held => held.Places);
+
+    /// <summary>Has <paramref name="projectiles"/> hold places of <paramref name="weapon"/>'s pool: together, or each its own.</summary>
+    private void HoldPlaces(WeaponStats weapon, IReadOnlyList<Projectile> projectiles)
+    {
+        if (weapon.PlacesTaken > 0)
+        {
+            var together = new Held(weapon.Pool, weapon.PlacesTaken);
+            foreach (Projectile projectile in projectiles)
+            {
+                together.Shots.Add(projectile);
+                projectile.LeftOnEnding += together.Left.Add;
+            }
+
+            _held.Add(together);
+            return;
+        }
+
+        foreach (Projectile projectile in projectiles)
+        {
+            var alone = new Held(weapon.Pool, 1);
+            alone.Shots.Add(projectile);
+            projectile.LeftOnEnding += alone.Left.Add;
+            _held.Add(alone);
+        }
+    }
     private Countdown _cooldown = Countdown.Over;
     private int _selected;
     private int _chargedFor;
@@ -38,6 +84,9 @@ public sealed class Weapons
     public void Add(WeaponStats weapon)
     {
         ArgumentNullException.ThrowIfNull(weapon);
+        if (_weapons.FirstOrDefault(other => other.Pool == weapon.Pool && other.MaxLive != weapon.MaxLive) is { } other)
+            throw new InvalidOperationException(
+                $"The weapons \"{other.Name}\" and \"{weapon.Name}\" share the pool \"{weapon.Pool}\" and give it {other.MaxLive} and {weapon.MaxLive} places.");
         _weapons.Add(weapon);
     }
 
@@ -164,7 +213,8 @@ public sealed class Weapons
     {
         _cooldown = _cooldown.Stepped();
         foreach (List<Projectile> live in _live.Values)
-            live.RemoveAll(shot => shot.HasEnded || !GodotObject.IsInstanceValid(shot));
+            live.RemoveAll(shot => !GodotObject.IsInstanceValid(shot) || shot.HasEnded);
+        _held.RemoveAll(held => !held.StillHolds);
     }
 
     /// <summary>Whether the player can use a weapon: they have its equipment switched on.</summary>
@@ -184,7 +234,8 @@ public sealed class Weapons
         if (!_live.TryGetValue(weapon.Name, out List<Projectile>? live))
             _live[weapon.Name] = live = [];
         IReadOnlyList<WeaponShot> shots = weapon.ShotsFor(player.Inventory, charged);
-        if (weapon.MaxLive > 0 && live.Count + shots.Count > weapon.MaxLive)
+        int places = weapon.PlacesTaken > 0 ? weapon.PlacesTaken : shots.Count;
+        if (weapon.MaxLive > 0 && PlacesHeld(weapon.Pool) + places > weapon.MaxLive)
             return false;
         if (weapon.Cost > 0 && !player.Inventory.Spend(weapon.Costs, weapon.Cost))
             return false;
@@ -196,6 +247,7 @@ public sealed class Weapons
             velocity = velocity.WithX(velocity.X + player.SpeedAcross);
         Hit hit = weapon.HitFor(player.Inventory, charged) with { Direction = velocity.OverOneUpdate, Source = player };
 
+        var launched = new List<Projectile>();
         foreach (WeaponShot shot in shots)
         {
             // A shot's projectiles start side by side across its line of travel.
@@ -206,7 +258,10 @@ public sealed class Weapons
             projectile.Launch(hit, player.MuzzlePoint + side, velocity, shot.Projectile, player);
             player.Room.Spawn(projectile);
             live.Add(projectile);
+            launched.Add(projectile);
         }
+
+        HoldPlaces(weapon, launched);
 
         string sound = weapon.SoundFor(player.Inventory, charged);
         if (sound.Length > 0)
@@ -232,6 +287,7 @@ public sealed class Weapons
         projectile.Launch(hit, at, velocity, settings, player);
         player.Room.Spawn(projectile);
         live.Add(projectile);
+        HoldPlaces(weapon, [projectile]);
         return projectile;
     }
 

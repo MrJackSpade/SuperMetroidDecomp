@@ -593,14 +593,30 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         if (HasEnded)
             return;
         if (_settings.EndingEffect.Length > 0)
-            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), Position));
+        {
+            Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), Position);
+            room.Spawn(effect);
+            LeftOnEnding?.Invoke(effect);
+        }
+
         if (_settings.EndingBurst.Length > 0)
-            room.Spawn(ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, PixelVelocity.Zero, Side, _launcher, Hit.Source));
+        {
+            Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, PixelVelocity.Zero, Side, _launcher, Hit.Source);
+            room.Spawn(burst);
+            LeftOnEnding?.Invoke(burst);
+        }
+
         if (_settings.EndingSound.Length > 0)
             room.Session.Sounds.Request(_settings.EndingSound);
         OnEnded(room);
         Leave(room);
     }
+
+    /// <summary>
+    /// Told of each thing the projectile leaves in the room as it ends, its effect and its burst: for whoever counts
+    /// the projectile as out until what it left is gone too.
+    /// </summary>
+    public event Action<Node>? LeftOnEnding;
 
     /// <summary>Called as the projectile ends, after it has left what its settings say it leaves.</summary>
     protected virtual void OnEnded(Room room)

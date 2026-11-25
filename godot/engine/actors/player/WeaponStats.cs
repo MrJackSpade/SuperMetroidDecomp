@@ -19,6 +19,12 @@ namespace Engine.Actors;
 /// while the attack stays held, whenever the cooldown allows, and waits that long after such a shot; with
 /// "repeats_every" it fires every so many held updates instead.
 /// </para>
+/// <para>
+/// "max_live" is how many places there are for its shots out at once. Weapons that give the same "pool" share those
+/// places. With "places" one firing takes that many of them together, however many projectiles it launches;
+/// without, each projectile takes one of its own. A place is given up once the projectile has ended and what it left
+/// on ending is gone.
+/// </para>
 /// <code>
 /// {
 ///   "name": "beam", "damage": 20, "kinds": ["beam"], "speed": 4, "diagonal_speed": 2.668, "cooldown": 15, "max_live": 5,
@@ -71,8 +77,23 @@ public sealed class WeaponStats
     /// <summary>Whether letting the attack go before a full charge fires a plain shot.</summary>
     public bool PartChargeFires { get; private init; }
 
-    /// <summary>How many of its shots may be live at once; zero for no limit.</summary>
+    /// <summary>
+    /// How many places its pool has for shots that are out at once; zero for no limit. A shot is out until every
+    /// projectile of it has ended and what each left on ending, its effect or its burst, is gone too.
+    /// </summary>
     public int MaxLive { get; private init; }
+
+    /// <summary>
+    /// The name of the pool its shots take their places in. Weapons that name the same pool share its places, and must
+    /// give it the same number of them; a weapon that names none has a pool of its own.
+    /// </summary>
+    public string Pool { get; private init; } = "";
+
+    /// <summary>
+    /// How many of the pool's places one firing takes, however many projectiles it launches; zero when each
+    /// projectile takes a place of its own and gives it up by itself.
+    /// </summary>
+    public int PlacesTaken { get; private init; }
 
     /// <summary>The inventory amount a shot costs, by name; empty when it costs nothing.</summary>
     public string Costs { get; private init; } = "";
@@ -136,6 +157,8 @@ public sealed class WeaponStats
             HeldCooldown = data.Has("held_cooldown") ? data.Int("held_cooldown") : 0,
             PartChargeFires = data.Has("part_charge_fires") && data.Flag("part_charge_fires"),
             MaxLive = data.Has("max_live") ? data.Int("max_live") : 0,
+            Pool = data.Has("pool") ? data.Text("pool") : data.Text("name"),
+            PlacesTaken = data.Has("places") ? data.Int("places") : 0,
             Costs = data.Has("costs") ? data.Text("costs") : "",
             Cost = data.Has("cost") ? data.Int("cost") : 0,
             Requires = data.Has("requires") ? data.Text("requires") : "",
@@ -155,7 +178,7 @@ public sealed class WeaponStats
             Variants = data.Has("variants") ? data.List("variants").Select(variant => WeaponVariant.Read(variant, projectile)).ToList() : [],
             Projectile = projectile,
         };
-        if (stats.Damage < 0 || stats.Cooldown < 0 || stats.MaxLive < 0 || stats.Cost < 0 || stats.Kinds.Count == 0 || stats.RepeatsEvery < 0 ||
+        if (stats.Damage < 0 || stats.Cooldown < 0 || stats.MaxLive < 0 || stats.PlacesTaken < 0 || stats.Cost < 0 || stats.Kinds.Count == 0 || stats.RepeatsEvery < 0 ||
             stats.HeldCooldown < 0)
             throw data.Problem("gives a negative number, or a weapon whose hit carries no kind");
         return stats;

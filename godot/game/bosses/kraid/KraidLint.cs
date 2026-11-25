@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
@@ -83,6 +84,9 @@ public partial class KraidLint : Enemy
     private bool _begun;
     private bool _hiddenForGrowth;
 
+    /// <summary>The colours of Kraid's parts last shown on it.</summary>
+    private ColourChange? _colours;
+
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => false;
 
@@ -99,8 +103,18 @@ public partial class KraidLint : Enemy
         // Its point hurts by its own rule; the rest of it is only a platform.
     }
 
-    /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step) => Kraid.Shaded(step.Picture, _kraid?.Shade ?? "");
+    /// <summary>
+    /// Shows it in the colours of Kraid's parts at once, in place of those it showed before. A change is worked out for
+    /// it by the picture it shows, so while it shows none it is shown none.
+    /// </summary>
+    public void ShowColours(ColourChange colours)
+    {
+        ArgumentNullException.ThrowIfNull(colours);
+        if (Visual is not { } visual || visual.Picture.Length == 0 || ReferenceEquals(_colours, colours))
+            return;
+        colours.ShowOn(visual, nameof(Kraid));
+        _colours = colours;
+    }
 
     /// <inheritdoc/>
     protected override void Behave()

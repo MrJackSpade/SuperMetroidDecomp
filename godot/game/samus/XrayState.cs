@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Input;
+using Engine.Shared;
 using Engine.World;
 using Game.Data;
 
@@ -20,6 +21,12 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
 
     private string _stance = "xray_standing";
 
+    /// <summary>How many more updates the scope takes to open, in which the run action is not looked at.</summary>
+    private Countdown _opening = Countdown.Over;
+
+    /// <summary>Once the run action has been found let go, how many more updates she is held; none while the scope is not closing.</summary>
+    private int? _closing;
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -36,6 +43,7 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
         owner.StopAcross();
         _stance = owner.Form == Player.Crouching ? "xray_crouching" : "xray_standing";
         Look = LookAt(samus, 0);
+        (_opening, _closing) = (Countdown.Of(samus.XrayWarmUpUpdates), null);
         samus.Xray?.Open(samus);
         // The X-ray's colouring of her ends a stored shine, as it ends a crystal flash's.
         samus.SpendShine();
@@ -46,14 +54,40 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
     public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
-        // Only letting go of the run ends it; choosing another item meanwhile does not, as on the cartridge.
-        if (!owner.Input.IsHeld(Actions.Run) || !owner.IsOnGround)
-            return owner.Form == Player.Crouching ? new CrouchingState() : owner.StateAtRest();
+        if (!owner.IsOnGround)
+            return AtRest(owner);
+
+        // While it opens the run action is not looked at, so a scope taken up is held at least that long.
+        if (_opening.IsRunning)
+        {
+            _opening = _opening.Stepped();
+            return null;
+        }
+
+        // Closing, she and the room are held its updates more, and the update after them lets go.
+        if (_closing is { } left)
+        {
+            if (left == 0)
+                return AtRest(owner);
+            _closing = left - 1;
+            return null;
+        }
+
+        // Only letting go of the run ends it; choosing another item meanwhile does not.
+        if (!owner.Input.IsHeld(Actions.Run))
+        {
+            _closing = samus.XrayClosingUpdates;
+            return null;
+        }
+
         int swing = (owner.Input.IsHeld(GameAction.Down) ? 1 : 0) - (owner.Input.IsHeld(GameAction.Up) ? 1 : 0);
         samus.Xray?.Look(samus, swing);
         Look = LookAt(samus, samus.Xray?.Swing ?? 0);
         return null;
     }
+
+    /// <summary>The state she is left in as the scope lets go: crouched if she crouched, else at rest.</summary>
+    private static PlayerState AtRest(Player owner) => owner.Form == Player.Crouching ? new CrouchingState() : owner.StateAtRest();
 
     /// <summary>
     /// Her look with the scope swung so far from level: her head is held one of five ways, changing where the scope's

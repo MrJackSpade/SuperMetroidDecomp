@@ -330,6 +330,8 @@ public sealed partial class EngineAssetWriter
             .Value("charged_spin_updates", BeamChargeDefinitions.FullyChargedCounter)
             .Value("xray_widening_step", Steps(XrayScopeDefinitions.Cone.WideningStep))
             .Value("xray_widest_half_width", WholeSteps(XrayScopeDefinitions.Cone.WidestHalfWidth))
+            .Value("xray_warm_up_updates", SuperMetroid.Core.Compatibility.XrayWarmUp.Updates)
+            .Value("xray_closing_updates", SuperMetroid.Core.Compatibility.XrayClosing.Updates)
             .Value("xray_aim_bands", EngineNames.List(
             [
                 WholeSteps(XrayScopeDefinitions.AnimationAngles.RightRaisedFrom), WholeSteps(XrayScopeDefinitions.AnimationAngles.RightLevelFrom),

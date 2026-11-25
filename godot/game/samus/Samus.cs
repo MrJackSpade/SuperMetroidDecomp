@@ -252,6 +252,14 @@ public partial class Samus : Player
     [Export, DataValue("xray_aim_bands")]
     public int[] XrayAimBands { get; set; } = [];
 
+    /// <summary>How many updates the X-ray scope takes to open, in which the run action is not looked at.</summary>
+    [Export, DataValue("xray_warm_up_updates")]
+    public int XrayWarmUpUpdates { get; set; } = 8;
+
+    /// <summary>How many more updates the X-ray scope holds her and the room once the run action is found let go; the update after them lets go.</summary>
+    [Export, DataValue("xray_closing_updates")]
+    public int XrayClosingUpdates { get; set; } = 2;
+
     /// <summary>The widest the X-ray scope's cone opens to each side of its middle, in 256ths of a turn.</summary>
     [Export, DataValue("xray_widest_half_width")]
     public int XrayWidestHalfWidth { get; set; } = 10;

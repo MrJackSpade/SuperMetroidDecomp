@@ -35,13 +35,17 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>After a death comes the game over screen.</summary>
     public override GameMode CreateModeAfterDeath() => new Menus.GameOverMode();
 
-    /// <summary>This game adds the escape countdown, the random number the cartridge drew every frame, and which of the title's demos is due.</summary>
+    /// <summary>
+    /// This game adds the escape countdown, the random number the cartridge drew every frame, which of the title's
+    /// demos is due, the elevator's journey, and what was held on the pause screen from one pause to the next.
+    /// </summary>
     public override IReadOnlyList<ISessionService> CreateServices() =>
     [
         new Escape(),
         new Compatibility.FrameRandom(_random ?? throw new InvalidOperationException("The session's services were asked for before its random numbers.")),
         new Menus.DemoSchedule(),
         new ElevatorJourney(),
+        new PauseHeldButtons(),
     ];
 
     /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>

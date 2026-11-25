@@ -128,9 +128,8 @@ public partial class PauseScreen : GameMode
     private int _lookLeft;
     private int _selectorLook;
     private int _selectorLeft;
-    private HashSet<GameAction> _heldBefore = [];
-    private HashSet<GameAction> _repeating = [];
-    private int? _repeatWait;
+    /// <summary>The held buttons that repeat on this update, which the game keeps from one pause to the next.</summary>
+    private IReadOnlySet<GameAction> _repeating => Session.Service<PauseHeldButtons>().Repeating;
 
     private bool _showsMap = true;
     private string _chosen = "";
@@ -392,17 +391,7 @@ public partial class PauseScreen : GameMode
     /// Works out which of the actions held count as repeating this update: those held, and not newly pressed, once
     /// what is held so has stayed the same for more updates than the delay, and on every update after until it changes.
     /// </summary>
-    private void StepHeldRepeat(GameInput input)
-    {
-        HashSet<GameAction> held = [.. GameAction.Standard.Concat(Actions.All).Where(action => input.IsHeld(action) && !input.WasPressed(action))];
-        bool unchanged = held.SetEquals(_heldBefore);
-        _heldBefore = held;
-        if (!unchanged)
-            _repeatWait = null;
-        else if ((_repeatWait ??= Data().Int("held_repeat_delay") + 1) > 0)
-            _repeatWait--;
-        _repeating = _repeatWait == 0 ? held : [];
-    }
+    private void StepHeldRepeat(GameInput input) => Session.Service<PauseHeldButtons>().Take(input, Data().Int("held_repeat_delay"));
 
     /// <summary>Whether pause, held long enough, leaves the screen; the buttons then show only the way out lit.</summary>
     private bool Leaves()

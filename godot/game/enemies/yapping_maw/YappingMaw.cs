@@ -231,8 +231,9 @@ public partial class YappingMaw : Enemy
         _cooldown = GrabCooldown;
         string side = _way == "right" ? "right" : _way == "left" ? "left" : "straight";
         Play(Oriented($"cooldown_{side}"), restart: true);
-        // Drawn back from a strike straight across, or by one that strikes downward, Samus is brought along at once.
-        if (_holds && (StrikesDown || side != "straight"))
+        // Only one that strikes downward and bit straight across brings Samus along on the update it draws back; any
+        // other leaves her where it last held her until its next update.
+        if (_holds && StrikesDown && side != "straight")
             HoldSamus();
     }
 

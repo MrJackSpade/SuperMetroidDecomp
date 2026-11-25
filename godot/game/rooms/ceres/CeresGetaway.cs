@@ -214,6 +214,9 @@ public partial class CeresGetaway : RoomSequence
         (_capsule, _wings, _alarm, _typedFor) = (0, 0, -1, 0);
         TurningFloor floor = FloorOf();
         floor.Visible = true;
+
+        // While the floor turns it is all that is seen of the room: the picture the room rests on is put away.
+        ShowRestingPictures(room, floor, shown: false);
         if (CapsulePictures.Count > 0)
             floor.ShowPart("Capsule", CapsulePictures[0]);
         if (WingPictures.Count > 0)
@@ -227,8 +230,9 @@ public partial class CeresGetaway : RoomSequence
         TurningFloor floor = FloorOf();
         if (_flown == FlightUpdates)
         {
-            // He is gone: the floor is put away and the station's last moments begin.
+            // He is gone: the floor is put away, the room's own picture is back, and the station's last moments begin.
             floor.Visible = false;
+            ShowRestingPictures(room, floor, shown: true);
             (_stage, _wait) = (Stage.BeforeWarning, 7);
             return;
         }
@@ -281,6 +285,16 @@ public partial class CeresGetaway : RoomSequence
         }
 
         throw new ArgumentOutOfRangeException(nameof(update), update, "The flight has no such update.");
+    }
+
+    /// <summary>Shows or puts away the pictures behind the room other than the floor he flies off over.</summary>
+    private static void ShowRestingPictures(Room room, TurningFloor floor, bool shown)
+    {
+        foreach (Backdrop resting in room.GetChildren().OfType<Backdrop>())
+        {
+            if (resting != floor)
+                resting.Visible = shown;
+        }
     }
 
     private void ShowFloor(TurningFloor floor, int size)

@@ -733,7 +733,7 @@ def ceres_elevator_door(p, index, listed):
 def ceres_ridley_room_door(p, index, listed):
     # It shows itself shutting as Samus comes in, and is held shut until Ridley has gone.
     return Placed(O + 'ceres_door/ceres_door.tscn', 'RidleyRoomDoor', {
-        'DataFile': quoted('objects/ceres_ridley_room_door.json'), 'HeldShutBy': 'fact:ceres_ridley_escaped'}, enemy=False)
+        'DataFile': quoted('objects/ceres_ridley_room_door.json'), 'HeldShutBy': 'fact:ceres_ridley_defeated'}, enemy=False)
 
 
 @rule('RidleyCeres')

@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -43,11 +43,6 @@ script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
 
-[sub_resource type="Resource" id="r6"]
-script = ExtResource("1")
-Kind = 0
-About = "ceres_ridley_escaped"
-
 [node name="CeresRidley" type="Node2D"]
 script = ExtResource("3")
 Area = "ceres"
@@ -85,7 +80,7 @@ PresentWhen = SubResource("r5")
 [node name="RidleyRoomDoor" parent="." instance=ExtResource("7")]
 position = Vector2(16, 127)
 DataFile = "objects/ceres_ridley_room_door.json"
-HeldShutBy = SubResource("r6")
+HeldShutBy = SubResource("r1")
 TurnsWithEnemies = true
 
 [node name="Backdrop" type="Node2D" parent="."]
@@ -109,6 +104,7 @@ PresentWhen = SubResource("r5")
 script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_ridley_floor.png"
+visible = false
 
 [node name="Capsule" type="Node2D" parent="Floor"]
 script = ExtResource("12")

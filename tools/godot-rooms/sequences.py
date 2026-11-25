@@ -181,7 +181,8 @@ class Sequences:
                 'StartsWhen': ctx.fact('ceres_self_destruct_started'),
                 'LightPiece': quoted('effects/ceres_debris_light.json'), 'DarkPiece': quoted('effects/ceres_debris_dark.json')}))
         if state.main == 'CeresRidleyGetaway':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png')}, at=(0, 0), enemy=False,
+            # The floor he flies off over is put away until he does: the room rests on its own picture.
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png'), 'visible': 'false'}, at=(0, 0), enemy=False,
                            children=[('Capsule', VISUAL, {'position': f'Vector2{FLOOR_CAPSULE_AT}'}),
                                      ('Wings', VISUAL, {'position': f'Vector2{FLOOR_WINGS_AT}'})])
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {

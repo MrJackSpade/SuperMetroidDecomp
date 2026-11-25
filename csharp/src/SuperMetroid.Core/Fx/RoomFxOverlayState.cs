@@ -382,6 +382,18 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
+    /// Passes the effect's own block animation (lava, acid, rain or spores) once, selecting the frame its pictures show: the
+    /// cartridge's animated tiles object of the effect, which its animated tiles handler steps with the room's others,
+    /// during a door's transition as in play (#3037).
+    /// </summary>
+    internal void StepAnimation(ArtworkFrameSelections frames)
+    {
+        Ensure.NotNull(frames);
+        if (effectOverlayAnimation is not null)
+            BlockAnimationLoops.Pass(effectOverlayAnimation, frames);
+    }
+
+    /// <summary>
     /// Runs the active effect's step for one update and its overlay's block animation. A liquid's surface is where
     /// its motion pass (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>), which runs earlier in the update, left it.
     /// </summary>
@@ -399,8 +411,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         // The shared block animations run independently of the liquid motion's
         // per-frame step. In particular, lava and acid select the animation frame their pictures
         // show here, before the surface step that follows.
-        if (effectOverlayAnimation is not null)
-            BlockAnimationLoops.Pass(effectOverlayAnimation, frames);
+        StepAnimation(frames);
 
         if (Motion.IsStopped && HasMovingLiquid)
             return;

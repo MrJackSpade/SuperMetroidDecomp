@@ -285,7 +285,7 @@ internal sealed partial class DoorTransitionState
                 // transition gives them one explicit step before polling the music queue.
                 BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
-                loaded.StepBlockAnimations(samus, runtime.System);
+                loaded.StepAnimatedTilesDuringDoor(samus, runtime.System);
                 transition.Enter(new DoorTransitionPhase.Running.WaitForMusicQueue());
                 break;
 
@@ -321,7 +321,7 @@ internal sealed partial class DoorTransitionState
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
-                loaded.StepBlockAnimations(samus, runtime.System);
+                loaded.StepAnimatedTilesDuringDoor(samus, runtime.System);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, loaded, samus);
                 transition.Enter(new DoorTransitionPhase.Running.FadeInDestinationRoom());
                 // The destination fades in toward the colours its owners show, which enemy scripts running

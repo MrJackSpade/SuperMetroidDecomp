@@ -173,6 +173,13 @@ public partial class GameDefinition : Resource
     public int EnemyPlaces { get; set; }
 
     /// <summary>
+    /// The most updates of play the play time counts, where it stops and stays; nothing for a play time that counts
+    /// on without end.
+    /// </summary>
+    [Export]
+    public long MostPlayUpdates { get; set; }
+
+    /// <summary>
     /// Whether remains holding the place numbered <paramref name="place"/>, counted from none, leave the drop they
     /// have rolled, in a room that keeps a count of such places. They do, unless the game says otherwise.
     /// </summary>

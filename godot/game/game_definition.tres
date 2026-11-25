@@ -15,6 +15,7 @@ EnemyTurnMarginAcross = 0
 EnemyTurnMarginAbove = 8
 EnemyTurnMarginBelow = 24
 EnemyPlaces = 18
+MostPlayUpdates = 21599999
 EnemyHurtEndsAtFlashLeft = 8
 ClockPeriod = 65536
 ShortClockPeriod = 256

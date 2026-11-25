@@ -25,8 +25,15 @@ public sealed class Progress
     /// <summary>Whether a map cell has been explored.</summary>
     public bool IsExplored(string area, int column, int row) => _explored.Contains((area, column, row));
 
-    /// <summary>Counts one more update of play.</summary>
-    public void CountPlayUpdate() => PlayUpdates++;
+    /// <summary>
+    /// Counts one more update of play, unless <paramref name="most"/> have been counted already, when the play time
+    /// stays where it is; no limit when <paramref name="most"/> is nothing.
+    /// </summary>
+    public void CountPlayUpdate(long most)
+    {
+        if (most <= 0 || PlayUpdates < most)
+            PlayUpdates++;
+    }
 
     /// <summary>Sets how many updates of play have been recorded, as loading a save does.</summary>
     public void RestorePlayUpdates(long updates)

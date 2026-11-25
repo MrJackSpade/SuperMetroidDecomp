@@ -201,7 +201,7 @@ public partial class PlayingMode : GameMode, IRoomPlay
     {
         // An update that withheld what follows from the player's energy running out does not count toward the play time.
         if (Room.EnergySettled != EmptyEnergy.Withheld)
-            Session.Progress.CountPlayUpdate();
+            Session.Progress.CountPlayUpdate(Session.Definition.MostPlayUpdates);
 
         if (Session.TakeSaveRequest() is { } save)
         {

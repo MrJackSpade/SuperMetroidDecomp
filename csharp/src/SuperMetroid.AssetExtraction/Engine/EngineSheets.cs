@@ -115,7 +115,7 @@ internal sealed partial class EngineSheets
     /// only in the few rooms that need them.
     /// </summary>
     /// <exception cref="InvalidDataException">No sheet holds the picture.</exception>
-    private string SheetHolding(string spawner, string frame)
+    internal string SheetHolding(string spawner, string frame)
     {
         // The old game's point at the thing's place is its picture of nothing, and is on no sheet.
         if (frame == SuperMetroid.Core.Enemies.Artwork.EnemySheetDefinitions.EffectActorFrameName(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.PointAtOrigin))

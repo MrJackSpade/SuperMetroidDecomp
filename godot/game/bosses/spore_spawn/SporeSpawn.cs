@@ -4,6 +4,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -22,24 +23,29 @@ namespace Game.Enemies;
 /// Their cues are "movement:&lt;idle|descending|moving|setup_death|dying&gt;"; "sway:&lt;radius&gt;:&lt;steps&gt;",
 /// which sets how wide it swings and how many angle steps a swing turns each update, backwards when below nothing;
 /// "spores:&lt;on|off&gt;"; "pose:&lt;name&gt;", which puts its parts where its data's "poses" have them under that
-/// name (<see cref="ColliderPoses"/>); "shade:&lt;name&gt;", which shows it in the set of its pictures of that name;
-/// "widen", "reopen", "harden", "drops", "hardening_dust" and "dying_explosion". "ceiling_crumble" is the change to
-/// the terrain that brings the ceiling above it down as it dies (<see cref="PatchSequence"/>).
+/// name (<see cref="ColliderPoses"/>); "shade:&lt;name&gt;", which shows it, its stalk and the room's own pictures in
+/// the colours "hardening_colours" gives that step of its hardening; "widen", "reopen", "harden", "drops",
+/// "hardening_dust" and "dying_explosion". "ceiling_crumble" is the change to the terrain that brings the ceiling above
+/// it down as it dies (<see cref="PatchSequence"/>).
 /// <code>
 /// "poses": { "spore_spawn_ajar": { "core_takes_shots": true,
 ///            "colliders": { "UpperShell": { "left": -45, "top": -38, "width": 89, "height": 29 }, "Core": { ... } } } },
-/// "health_shades": [ { "health": 770, "shade": "_health_unhurt" }, { "health": 0, "shade": "_health_nearly_dead" } ],
+/// "health_shades": [ { "health": 770, "body": { ... }, "stalk": { ... } }, { "health": 0, "body": { ... }, "stalk": { ... } } ],
+/// "hardening_colours": [ { "shade": "hardening_0", "body": { ... }, "stalk": { ... }, "room": { ... } } ],
 /// "emitters": [ { "x": -96, "y": -104, "drift": "right" } ]
 /// </code>
 /// Its hurtboxes are "UpperShell", "LowerShell", "Core" and "Crown", and a shot that reaches several meets the first of
 /// them in that order. Only "Core" can be hurt, and only in a pose that says so; every other part turns shots away. A
-/// pose that does not name a part leaves it switched off. "health_shades" lists, most health first, the set of its
-/// pictures it shows from the first hurt of an opening on, by the least health it is shown at; a picture's path holds
-/// "{shade}" where the set's name goes. The visuals "Stalk1" through "Stalk4" are its stalk, ceiling end first, shown by
-/// the timeline "stalk" in its own colours, and "Emitter1" through "Emitter4" the places in the ceiling its spores
-/// come from, playing "emitter_closed" and "emitter_release", whose cue "spore" lets the spore go. "emitters" gives
-/// each one's place from where Spore Spawn hangs and the way its spores first drift. Its stalk and emitters go on
-/// while it flashes hurt. Its shot is "spore".
+/// pose that does not name a part leaves it switched off. "health_shades" lists, most health first, the changes of the
+/// colours of its body ("body") and its stalk ("stalk") it shows from the first hurt of an opening on, by the least
+/// health each is shown at (<see cref="ColourChange"/>); a step of its hardening ("hardening_colours") changes them in
+/// place of that, and the room's own pictures ("room") with them. A room where it has been beaten is shown in the
+/// colours of the last step of its hardening from the moment it is set up. The visuals "Stalk1" through "Stalk4" are
+/// its stalk, ceiling end first, shown by the timeline "stalk" in its colours, and "Emitter1" through "Emitter4" the
+/// places in the ceiling its spores come from, playing "emitter_closed" and "emitter_release", whose cue "spore" lets
+/// the spore go; an emitter keeps the colours the fight began in. "emitters" gives each one's place from where Spore
+/// Spawn hangs and the way its spores first drift. Its stalk and emitters go on while it flashes hurt. Its shot is
+/// "spore".
 /// </remarks>
 public partial class SporeSpawn : Enemy
 {
@@ -136,7 +142,13 @@ public partial class SporeSpawn : Enemy
     private readonly Dictionary<string, bool> _coreTakesShotsIn = new(StringComparer.Ordinal);
     private ColliderPoses? _poses;
     private PatchSequence? _ceilingCrumble;
-    private readonly List<(int Health, string Shade)> _healthShades = [];
+
+    /// <summary>The colours of its body and its stalk as hurt as it may be, most health first, by the least health each is shown at.</summary>
+    private readonly List<(int Health, ColourChange Body, ColourChange Stalk)> _healthShades = [];
+
+    /// <summary>Each step of its hardening, in turn: the step's name, and its body, its stalk and the room's own pictures in its colours.</summary>
+    private readonly List<(string Shade, ColourChange Body, ColourChange Stalk, ColourChange Room)> _hardening = [];
+
     private Moving _moving;
     private PixelPosition _centre;
     private int _angle;
@@ -147,7 +159,6 @@ public partial class SporeSpawn : Enemy
     private bool _dying;
     private bool _hardened;
     private bool _coreTakesShots;
-    private string _shade = "";
     private TimelinePlayer? _stalk;
 
     /// <summary>Where each link of its stalk was last placed, in the room.</summary>
@@ -179,7 +190,13 @@ public partial class SporeSpawn : Enemy
         _ceilingCrumble = PatchSequence.Read(data.Get("ceiling_crumble"));
 
         _healthShades.Clear();
-        _healthShades.AddRange(data.List("health_shades").Select(shade => (shade.Int("health"), shade.Text("shade"))));
+        _healthShades.AddRange(data.List("health_shades").Select(shade =>
+            (shade.Int("health"), ColourChange.Read(shade.Get("body")), ColourChange.Read(shade.Get("stalk")))));
+        _hardening.Clear();
+        _hardening.AddRange(data.List("hardening_colours").Select(step => (step.Text("shade"),
+            ColourChange.Read(step.Get("body")), ColourChange.Read(step.Get("stalk")), ColourChange.Read(step.Get("room")))));
+        if (_hardening.Count == 0)
+            throw data.Problem("must list the steps of its hardening");
     }
 
     /// <inheritdoc/>
@@ -198,6 +215,9 @@ public partial class SporeSpawn : Enemy
                 shell.Enabled = true;
             PlaceStalk();
             ShowParts();
+            // A room where it has been beaten, and the husk in it, are in the colours of its last step of hardening
+            // from the moment it is set up, so through the door's passage too.
+            ShowHardening(_hardening[^1].Shade);
             return;
         }
 
@@ -210,12 +230,6 @@ public partial class SporeSpawn : Enemy
         PlaceStalk();
         ShowParts();
     }
-
-    /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step) => Shaded(step.Picture, _shade);
-
-    /// <summary>A picture's path with the name of a set of its pictures put where the path leaves room for one.</summary>
-    private static string Shaded(string picture, string shade) => picture.Replace("{shade}", shade, StringComparison.Ordinal);
 
     /// <inheritdoc/>
     protected override Reaction ReactionTo(Hit hit, Collider part)
@@ -246,16 +260,15 @@ public partial class SporeSpawn : Enemy
         // The first hurt of each opening shuts it, sends it swinging the other way and shows how hurt it now is.
         _turn = -_turn;
         _hurtThisOpening = true;
-        foreach ((int health, string shade) in _healthShades)
+        Play("close_and_move", restart: true);
+        foreach ((int health, ColourChange body, ColourChange stalk) in _healthShades)
         {
             if (Health.Current >= health)
             {
-                _shade = shade;
+                ShowColours(body, stalk);
                 break;
             }
         }
-
-        Play("close_and_move", restart: true);
     }
 
     /// <inheritdoc/>
@@ -319,7 +332,7 @@ public partial class SporeSpawn : Enemy
                 TakePose(parts[1]);
                 break;
             case "shade":
-                _shade = parts[1];
+                ShowHardening(parts[1]);
                 break;
             case "widen":
                 if (_radius < WidenedSwayLimit)
@@ -352,6 +365,37 @@ public partial class SporeSpawn : Enemy
                 break;
             default:
                 throw new InvalidOperationException($"Spore Spawn's timeline \"{Playing}\" gives the cue \"{cue}\", which it does not know.");
+        }
+    }
+
+    /// <summary>
+    /// Shows it, its stalk and the room's own pictures, its level and its background, in the colours of a step of its
+    /// hardening, at once.
+    /// </summary>
+    private void ShowHardening(string shade)
+    {
+        foreach ((string name, ColourChange body, ColourChange stalk, ColourChange room) in _hardening)
+        {
+            if (name == shade)
+            {
+                ShowColours(body, stalk);
+                Room.Recolour(nameof(SporeSpawn), room);
+                return;
+            }
+        }
+
+        throw new InvalidOperationException($"Spore Spawn has no step of its hardening named \"{shade}\".");
+    }
+
+    /// <summary>Shows its body and its stalk in other colours at once, in place of those it showed them in before.</summary>
+    private void ShowColours(ColourChange body, ColourChange stalk)
+    {
+        if (Visual is { } shown)
+            body.ShowOn(shown, nameof(SporeSpawn));
+        for (int link = 0; link < StalkLinks; link++)
+        {
+            if (GetNodeOrNull<ActorVisual>($"Stalk{link + 1}") is { } visual)
+                stalk.ShowOn(visual, nameof(SporeSpawn));
         }
     }
 
@@ -471,8 +515,7 @@ public partial class SporeSpawn : Enemy
                 continue;
             (int x, int y) = _stalkPlaces[link];
             visual.Position = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
-            // Its stalk is in its own colours.
-            visual.Show(_stalk.Current with { Picture = Shaded(_stalk.Current.Picture, _shade) });
+            visual.Show(_stalk.Current);
         }
 
         for (int emitter = 0; emitter < Emitters; emitter++)
@@ -492,7 +535,7 @@ public partial class SporeSpawn : Enemy
 
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
             // An emitter keeps the colours the fight began in.
-            visual.Show(player.Current with { Picture = Shaded(player.Current.Picture, "") });
+            visual.Show(player.Current);
         }
     }
 }

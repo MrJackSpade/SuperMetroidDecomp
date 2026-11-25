@@ -199,6 +199,13 @@ public sealed record ProjectileSettings
     /// <summary>The sound asked for as it ends, by name; empty for none.</summary>
     public string EndingSound { get; init; } = "";
 
+    /// <summary>
+    /// The data file of the timeline it plays itself when a shot destroys it, where it is; empty for one that is
+    /// gone at once. While it plays the projectile holds still, stops shots no longer, harms what it touches and ends
+    /// on it; what it drops is left as the timeline ends, in the place it held.
+    /// </summary>
+    public string ShotTimeline { get; init; } = "";
+
     /// <summary>What it may leave when a shot destroys it; null for one that leaves nothing.</summary>
     public DropTable? Drops { get; init; }
 
@@ -240,6 +247,7 @@ public sealed record ProjectileSettings
             Timeline = data.Has("timeline") ? data.Text("timeline") : "",
             FallingTimeline = data.Has("falling_timeline") ? data.Text("falling_timeline") : "",
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
+            ShotTimeline = data.Has("shot_timeline") ? data.Text("shot_timeline") : "",
             EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
             EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",
             Drops = data.Has("drops") ? DropTable.Read(data.Get("drops")) : null,

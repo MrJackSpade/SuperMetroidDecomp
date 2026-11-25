@@ -447,12 +447,13 @@ public sealed partial class EngineAssetWriter
             ("bounce_drag", EngineNames.Number(TorizoMotionDefinitions.GoldenOrbBounceDrag)));
         Timeline("orb_left", TorizoProjectileSegment.ChozoOrbMovingLeft, startsHarmless: Harmless(orbKind));
         Timeline("orb_right", TorizoProjectileSegment.ChozoOrbMovingRight, startsHarmless: Harmless(orbKind));
-        // Shot down, it bursts as an effect, which neither stops nor harms anything.
+        // Shot down, it bursts where it is: the burst is the orb still, which stops shots no longer, harms to the touch,
+        // and leaves what it drops once it is over.
         string orbShot = EffectOfTorizoShot($"{folder}/orb_shot.json", spawner, TorizoProjectileSegment.ChozoOrbShot);
         torizo.Shot("orb", orbKind, (_, shot, projectile) =>
         {
             Thrown(shot, projectile, $"{orbPrefix}orb.tscn", $"{folder}/orb_{{side}}.json");
-            projectile["ending_effect"] = orbShot;
+            projectile["shot_timeline"] = orbShot;
             if (Drops(EnemyDrops.Rolling(golden ? TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances : TorizoChozoOrbDefinitions.BombTorizoOrbDropChances)) is { } drops)
                 projectile["drops"] = drops;
         });

@@ -172,6 +172,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                     return;
             }
 
+            if (_timeline.IsOver && _shotDown)
+            {
+                FinishShotDown(room);
+                return;
+            }
+
             if (_timeline.IsOver && _settings.LastsUpdates == 0)
             {
                 End(room);
@@ -179,6 +185,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             }
 
             _visual?.Show(_timeline.Current);
+        }
+
+        // Shot down, it holds still and only meets what is where it lies.
+        if (_shotDown)
+        {
+            Velocity = PixelVelocity.Zero;
+            Travel(room);
+            return;
         }
 
         if (Age <= _settings.LaunchDelayUpdates)
@@ -263,13 +277,23 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     }
 
     /// <inheritdoc/>
-    public virtual bool IsHitBy(HitSide side) => _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded;
+    public virtual bool IsHitBy(HitSide side) =>
+        _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded && !_shotDown;
 
     /// <summary>
     /// Whether the projectile delivers its hit at the moment. Its settings say whether it ever does; a projectile of
     /// its own class that is harmless for part of its life says when here.
     /// </summary>
     protected virtual bool DeliversHitNow => _settings.DeliversHit;
+
+    /// <summary>Whether it was shot down and is playing its end out where it is.</summary>
+    private bool _shotDown;
+
+    /// <summary>Whether it harms what it meets now: shot down, it does, whatever its settings said of it.</summary>
+    private bool HarmsNow => _shotDown || DeliversHitNow;
+
+    /// <summary>How it meets its target now: shot down, it ends on it, whatever its settings said of it.</summary>
+    private ProjectileSettings.Target MeetsTargetAs => _shotDown ? ProjectileSettings.Target.Ends : _settings.MeetingTarget;
 
     /// <inheritdoc/>
     public virtual HitResult TakeHit(Hit hit, Collider part)
@@ -278,6 +302,17 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         switch (_settings.MetByShot)
         {
             case ProjectileSettings.MetBy.Destroyed:
+                // One with an end of its own to play when shot down stays where it is and plays it: it holds still,
+                // stops shots no longer, harms what it touches and ends on it, and leaves what it drops as that end
+                // is over, in the place it held.
+                if (_settings.ShotTimeline.Length > 0)
+                {
+                    _shotDown = true;
+                    Velocity = PixelVelocity.Zero;
+                    PlayTimeline(_settings.ShotTimeline);
+                    return HitResult.Destroyed;
+                }
+
                 // One that leaves something when shot down rolls for it as an enemy would.
                 if (_settings.Drops is { } drops)
                     Pickup.Dropped(room, drops, Position);
@@ -403,7 +438,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         Position = next;
         PixelRect area = Area;
         bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
-        bool hitsTerrain = DeliversHitNow &&
+        bool hitsTerrain = HarmsNow &&
             _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
 
         if (passes && hitsTerrain)
@@ -422,7 +457,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         // all have moved. The player's shot meets what it comes upon as it moves, but for enemies and their shots:
         // each enemy tries the shots against itself in its own turn, and the room tries them against the enemies'
         // shots once all have moved.
-        if (!DeliversHitNow || Side == HitSide.Enemies)
+        if (!HarmsNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
         if (!MeetTargets(room, area, target => target is not Enemy and not Projectile))
             return false;
@@ -435,7 +470,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// </summary>
     internal void MeetShot(Projectile enemyShot)
     {
-        if (!HasEnded && !enemyShot.HasEnded && DeliversHitNow && Side == HitSide.Player)
+        if (!HasEnded && !enemyShot.HasEnded && HarmsNow && Side == HitSide.Player)
             MeetTargets(Room, Area, target => ReferenceEquals(target, enemyShot));
     }
 
@@ -445,7 +480,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// </summary>
     internal void MeetEnemy(Enemy enemy)
     {
-        if (!HasEnded && DeliversHitNow && Side == HitSide.Player)
+        if (!HasEnded && HarmsNow && Side == HitSide.Player)
             MeetTargets(Room, Area, target => ReferenceEquals(target, enemy));
     }
 
@@ -455,7 +490,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// </summary>
     internal void MeetTargetsWhereItStands()
     {
-        if (!HasEnded && DeliversHitNow)
+        if (!HasEnded && HarmsNow)
             MeetTargets(Room, Area, landsOn: null);
     }
 
@@ -499,13 +534,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                     return false;
                 case HitResult.Hurt:
                 case HitResult.Destroyed:
-                    if (_settings.MeetingTarget == ProjectileSettings.Target.Ends)
+                    if (MeetsTargetAs == ProjectileSettings.Target.Ends)
                     {
                         End(room);
                         return false;
                     }
 
-                    if (_settings.MeetingTarget == ProjectileSettings.Target.PassesThrough)
+                    if (MeetsTargetAs == ProjectileSettings.Target.PassesThrough)
                         _alreadyHurt.Add(target);
                     break;
                 default:
@@ -583,6 +618,31 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// <summary>Called for each target the projectile's hit landed on, with what the hit did.</summary>
     protected virtual void OnMetTarget(Room room, IHittable target, HitResult result)
     {
+    }
+
+    /// <summary>
+    /// Ends a projectile that was shot down, once its end has played out: what it drops is rolled and left where it
+    /// lies, in the place it held among what the room's enemies launch and leave, and it is gone with nothing else
+    /// left behind.
+    /// </summary>
+    private void FinishShotDown(Room room)
+    {
+        if (_settings.Drops is { } drops)
+        {
+            Inventory inventory = room.Player.Inventory;
+            string? drop = drops.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
+            if (drop is not null)
+            {
+                Pickup pickup = Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position);
+                if (room.PlaceOf(this) is null)
+                    room.Spawn(pickup);
+                else
+                    room.SpawnInPlaceOf(this, pickup);
+            }
+        }
+
+        OnEnded(room);
+        Leave(room);
     }
 
     /// <summary>Ends the projectile where it is, leaving its ending effect, burst and sound if it has them.</summary>

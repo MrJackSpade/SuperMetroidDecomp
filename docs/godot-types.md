@@ -1125,6 +1125,11 @@ turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, e
   the enemy that takes its place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
   not under it. An enemy with no death to play leaves its drop at once.
 
+**A projectile shot down** is gone at once, leaving what it drops, unless its data gives it an end to play
+(`"shot_timeline"`). Then it stays what it is and where it is while that plays: it holds still, stops shots no
+longer, harms what it touches whatever its data said of it and ends on it; and as the timeline ends what it drops
+is rolled and left in the place it held. Phantoon's flames and the Torizos' orbs end so.
+
 **Places for what enemies launch and leave.** A room may keep a count of places (`GameDefinition.EnemyPlaces`;
 none, unless the game says) for the enemies' shots, the remains of the destroyed and the pickups dropped. Each
 holds one place while it is in play; a projectile of the enemies' holds one unless its data says it holds none

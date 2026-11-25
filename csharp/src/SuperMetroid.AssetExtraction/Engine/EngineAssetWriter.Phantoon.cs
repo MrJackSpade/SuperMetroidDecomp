@@ -154,7 +154,8 @@ public sealed partial class EngineAssetWriter
             || PhantoonArenaDefinitions.CasualLaterBounceSpeed != PhantoonArenaDefinitions.CasualRiseSpeed + SignedEightEight.FromPixels(2))
             throw new InvalidDataException("A flame of Phantoon's does not bounce a pixel slower each time, as the Godot flame does.");
 
-        // A flame Samus's shot puts out dies down where it is, and may leave something.
+        // A flame Samus's shot puts out dies down where it is, still a flame to the touch, and may leave something once
+        // it has died down.
         (List<IAnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>> dying, List<IAnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>>? dyingCycle) =
             EngineTimelines.Played(PhantoonFlameAnimations.Segments, PhantoonFlameAnimations.StartingWith(PhantoonFlameSegment.Dying));
         string putOut = phantoon.SpawnedTimelineAt($"{phantoon.Folder}/flame_put_out.json", dying, dyingCycle, EnemySheetDefinitions.ProjectileFrameName,
@@ -165,7 +166,7 @@ public sealed partial class EngineAssetWriter
                 projectile["timeline"] = burning;
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
                 projectile["meeting_terrain"] = "passes_through";
-                projectile["ending_effect"] = putOut;
+                projectile["shot_timeline"] = putOut;
                 if (Drops(EnemyDrops.Rolling(PhantoonFlameSpawnDefinitions.ShotFlameDropChances)) is { } drops)
                     projectile["drops"] = drops;
             })

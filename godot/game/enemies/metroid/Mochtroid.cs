@@ -63,7 +63,7 @@ public partial class Mochtroid : Enemy
             return;
         }
 
-        if (Room.Session.Clock.Updates % FeedingSoundEvery == FeedingSoundEvery - 1
+        if (Room.Session.EnemyPasses % FeedingSoundEvery == FeedingSoundEvery - 1
             && samus.Inventory.Amount(Inventory.Energy) >= FeedingSoundLeastEnergy)
             Sound(FeedingSound);
         if (_biteIn > 0)

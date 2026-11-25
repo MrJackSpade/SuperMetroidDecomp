@@ -323,7 +323,7 @@ public partial class MotherBrainBaby : Enemy
             case Phase.HealSamus:
                 Position = samus.Position + shake + OnSamus;
                 Inventory inventory = samus.Inventory;
-                if (inventory.Amount(Inventory.Energy) >= 81 && Room.Session.Clock.Updates % 8 == 0 && HealSound.Length > 0)
+                if (inventory.Amount(Inventory.Energy) >= 81 && Room.Session.EnemyPasses % 8 == 0 && HealSound.Length > 0)
                     Room.Session.Sounds.Request(HealSound, channel: "pickups", priority: SoundPriority.Low);
                 inventory.Add(Inventory.Energy, 1);
                 if (!inventory.IsFull(Inventory.Energy))

@@ -113,6 +113,7 @@ public sealed class GameSession
     public void BeginAgain()
     {
         Progress = new Progress();
+        EnemyPasses = 0;
         // A player left in a room went with the room; one that is in no room is done with here.
         if (_player is not null && GodotObject.IsInstanceValid(_player) && _player.GetParent() is null)
             _player.Free();
@@ -231,6 +232,16 @@ public sealed class GameSession
 
     /// <summary>The mode in control.</summary>
     public GameMode Mode { get; private set; }
+
+    /// <summary>
+    /// How many passes the rooms' enemies have had since the game was last begun: one for each update of a room, and
+    /// one for each update of a passage between rooms on which the enemies take their turns. It is kept from room to
+    /// room, and read by what is timed by the enemies' passes and not by the clock.
+    /// </summary>
+    public long EnemyPasses { get; private set; }
+
+    /// <summary>Counts an enemies' pass that has just ended. The room does this.</summary>
+    internal void CountEnemyPass() => EnemyPasses++;
 
     /// <summary>
     /// The number of the update being played, counted from the session's start whatever the clock counts: for telling

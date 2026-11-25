@@ -136,7 +136,7 @@ public partial class DeadTorizo : Enemy
     {
         if (DustEffect.Length > 0)
             LeaveEffect(DustEffect, PixelPosition.FromWhole(DustPlace.X + Random.Last.Part(0, 5), DustPlace.Y));
-        if (Room.Session.Clock.Updates % 8 == 0)
+        if (Room.Session.EnemyPasses % 8 == 0)
             Sound(DustSound);
     }
 

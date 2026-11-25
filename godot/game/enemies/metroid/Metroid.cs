@@ -173,7 +173,7 @@ public partial class Metroid : Enemy
 
         if (_moving != Moving.Escaping)
         {
-            if (Room.Session.Clock.Updates % FeedingSoundEvery == FeedingSoundEvery - 1
+            if (Room.Session.EnemyPasses % FeedingSoundEvery == FeedingSoundEvery - 1
                 && samus.Inventory.Amount(Inventory.Energy) >= FeedingSoundLeastEnergy)
                 Sound(FeedingSound);
             samus.AddOngoingDamage("metroid", DrainHundredths);

@@ -569,7 +569,7 @@ public partial class MotherBrain : ITriggerTarget
         _rot.Step(() =>
         {
             Leave(CorpseDustEffect, _head + PixelOffset.FromWhole(-16 + Random.Last.Part(0, 5), 16));
-            if (Room.Session.Clock.Updates % 8 == 0)
+            if (Room.Session.EnemyPasses % 8 == 0)
                 Sound(CorpseDustSound);
         });
         GetNodeOrNull<ActorVisual>("Head")?.ShowRows(_rot.Rows);

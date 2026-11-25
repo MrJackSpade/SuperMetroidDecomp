@@ -314,7 +314,7 @@ public partial class Beetom : Enemy
             return;
         }
 
-        if (Room.Session.Clock.Updates % FeedingSoundEvery == FeedingSoundEvery - 1
+        if (Room.Session.EnemyPasses % FeedingSoundEvery == FeedingSoundEvery - 1
             && Room.Player.Inventory.Amount(Inventory.Energy) >= FeedingSoundLeastEnergy)
             Sound(FeedingSound);
         if (Updates % BiteEvery == BiteEvery - 1)

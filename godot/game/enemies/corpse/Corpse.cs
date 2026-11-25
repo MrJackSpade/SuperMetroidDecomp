@@ -94,7 +94,7 @@ public partial class Corpse : Enemy
         int spread = roll.Part(1, 1) * 2 + roll.Part(3, 2) * 8;
         if (DustEffect.Length > 0)
             LeaveEffect(DustEffect, Position + PixelOffset.FromWhole(DustFrom.X + spread, DustFrom.Y));
-        if (Room.Session.Clock.Updates % 8 == 0)
+        if (Room.Session.EnemyPasses % 8 == 0)
             Sound(DustSound);
     }
 }

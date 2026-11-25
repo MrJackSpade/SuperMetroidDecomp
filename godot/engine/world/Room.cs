@@ -297,6 +297,9 @@ public partial class Room : Node2D
             }
         }
 
+        // The pass is counted whether or not the enemies were held still through it.
+        Session.CountEnemyPass();
+
         if (!stopped.HasFlag(Stopped.Player))
         {
             Player.FinishUpdate();
@@ -495,6 +498,8 @@ public partial class Room : Node2D
                 if (!_leaving.Contains(enemy) && IsActive(enemy))
                     enemy.Step();
             }
+
+            Session.CountEnemyPass();
         }
 
         if (enemyProjectiles)

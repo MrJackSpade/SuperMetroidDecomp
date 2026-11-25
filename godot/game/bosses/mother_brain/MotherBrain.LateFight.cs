@@ -529,7 +529,7 @@ public partial class MotherBrain
         int energy = inventory.Amount(Inventory.Energy);
         int taken = inventory.IsOn(Equipment.VariaSuit) ? 1 : 2;
         inventory.Lose(Inventory.Energy, Math.Min(energy, taken));
-        if (Room.Session.Clock.Updates % 4 == 0)
+        if (Room.Session.EnemyPasses % 4 == 0)
         {
             inventory.Lose(Amounts.Missiles, Math.Min(1, inventory.Amount(Amounts.Missiles)));
             inventory.Lose(Amounts.SuperMissiles, Math.Min(1, inventory.Amount(Amounts.SuperMissiles)));

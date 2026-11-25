@@ -240,8 +240,13 @@ public partial class Station : RoomObject
         string effect;
         if (HowUsed == Use.StandingIn)
         {
-            if (_usedThisVisit || player.State is not StandingState || !Area.Contains(player.Position.X.Whole, player.Position.Y.Whole))
+            // Only one who stands plainly is taken: not settling from a landing, and aiming straight ahead.
+            if (_usedThisVisit || player.State is not StandingState { IsSettling: false } || player.Aim != Aim.Forward
+                || !Area.Contains(player.Position.X.Whole, player.Position.Y.Whole))
+            {
                 return;
+            }
+
             effect = WorkingEffect;
         }
         else

@@ -710,6 +710,9 @@ public partial class Samus : Player
     /// <summary>A wall she runs into leaves her in the wall-stop pose, whose input is asked in its own order.</summary>
     protected internal override PlayerState StoppedByWall() => new WallStoppedState();
 
+    /// <summary>She has run into a wall once she moves in the wall-stop pose: from the update after the wall stopped her.</summary>
+    public override bool MovedAgainstWall => MovedAs is WallStoppedState;
+
     /// <summary>
     /// Whether taking up <paramref name="stance"/> in a jump spends a stored shine on a shinespark: aiming level with
     /// her arm at rest, aiming up, or aiming diagonally up.

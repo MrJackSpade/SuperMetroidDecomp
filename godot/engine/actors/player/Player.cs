@@ -843,6 +843,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     protected internal virtual PlayerState StoppedByWall() => new StandingState();
 
+    /// <summary>
+    /// Whether the player moved through the latest update as one who has run into a wall: running, for the engine's
+    /// player, whom the wall stopped on that update; a game with a state of its own for it says when that state
+    /// moved. What is used by being run against asks this.
+    /// </summary>
+    public virtual bool MovedAgainstWall => MovedAs is RunningState;
+
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
 

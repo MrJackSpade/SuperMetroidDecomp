@@ -243,20 +243,20 @@ public partial class Station : RoomObject
     }
 
     /// <summary>
-    /// Which side of the station the player is running against, or null when they are not: on the ground, having
-    /// run towards it through this update's movement and been stopped by it, aiming straight ahead. What they
-    /// moved as is asked, since being stopped has already put them in another state.
+    /// Which side of the station the player has run against, or null when they have not: on the ground, having
+    /// moved through this update as one who has run into a wall (<see cref="Player.MovedAgainstWall"/>), facing the
+    /// station and against it, aiming straight ahead.
     /// </summary>
     private Facing? SideRunAgainst(Player player)
     {
-        if (player.MovedAs is not RunningState || player.Aim != Aim.Forward)
+        if (!player.MovedAgainstWall || player.Aim != Aim.Forward)
             return null;
         PixelRect area = Area, body = player.BodyRect;
         if (body.Bottom <= area.Top || area.Bottom <= body.Top)
             return null;
-        if (body.Right == area.Left && player.Facing == Facing.Right && player.Intent > 0)
+        if (body.Right == area.Left && player.Facing == Facing.Right)
             return Facing.Left;
-        if (body.Left == area.Right && player.Facing == Facing.Left && player.Intent < 0)
+        if (body.Left == area.Right && player.Facing == Facing.Left)
             return Facing.Right;
         return null;
     }

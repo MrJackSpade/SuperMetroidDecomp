@@ -118,6 +118,9 @@ public sealed class GameSession
         if (_player is not null && GodotObject.IsInstanceValid(_player) && _player.GetParent() is null)
             _player.Free();
         _player = null;
+
+        // The view's measure of how far the player last moved across starts again with the new player.
+        Camera.TakePlayerAsNew();
         _messages.Clear();
         SaveRequested = null;
         foreach (ISessionService service in Services)

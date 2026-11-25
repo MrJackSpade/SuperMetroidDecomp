@@ -74,6 +74,12 @@ public sealed class Camera
     /// <summary>How far the view moves in an update across and down: how far the player last moved each way, and a pixel more.</summary>
     public PixelVelocity Speed { get; private set; }
 
+    /// <summary>
+    /// A player made anew is taken to have moved nothing across: the measure of the player's last move across is the
+    /// one pixel more alone, until the view next follows a move. The measure down stays as it was.
+    /// </summary>
+    public void TakePlayerAsNew() => Speed = Speed.WithX(Pixels.FromWhole(1));
+
     /// <summary>Takes up a room: its screens, and what says how each lets the view in.</summary>
     public void EnterRoom(IScrollCells cells, int columns, int rows)
     {

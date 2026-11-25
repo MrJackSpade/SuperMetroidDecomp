@@ -46,7 +46,12 @@ public partial class GameLoad : GameMode
     public static GameLoad OfLanding(string room, string entryPoint)
     {
         ArgumentException.ThrowIfNullOrEmpty(room);
-        return new(_ => new Arrival(new PlayingMode(room, entryPoint), Arrival.LandingWaits));
+        return new(session =>
+        {
+            // She is set up anew for the landing, which starts the view's measure of her last move across again.
+            session.Camera.TakePlayerAsNew();
+            return new Arrival(new PlayingMode(room, entryPoint), Arrival.LandingWaits);
+        });
     }
 
     /// <inheritdoc/>

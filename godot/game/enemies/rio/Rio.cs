@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -118,10 +119,12 @@ public partial class Rio : Enemy
                     return;
                 }
 
-                PixelOffset toSamus = Target - Position;
-                int angle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
-                Pixels one = Pixels.FromWhole(1);
-                Velocity = new PixelVelocity(Turns.Cosine(angle, one), Turns.Sine(angle, one));
+                // As the cartridge has it: the aim between whole pixels, counting up from right, and a pixel along its
+                // sine across and along its sine a quarter turn on down, in 256ths of a pixel.
+                int aim = CartridgeAngles.AimAngle(Target.X.Whole - Position.X.Whole, Target.Y.Whole - Position.Y.Whole);
+                Velocity = new PixelVelocity(
+                    FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, aim)),
+                    FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, aim + 64)));
                 MoveAcrossBy(Velocity.X);
                 MoveDownBy(Velocity.Y);
                 return;
@@ -155,4 +158,7 @@ public partial class Rio : Enemy
                 throw new InvalidOperationException($"Undefined Rio stage {_doing}.");
         }
     }
+
+    /// <summary>A distance given in 256ths of a pixel.</summary>
+    private static Pixels FromTwoFiftySixths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 0xFF) << 8);
 }

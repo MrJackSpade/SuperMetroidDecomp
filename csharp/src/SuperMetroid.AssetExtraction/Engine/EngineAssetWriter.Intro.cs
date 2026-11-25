@@ -248,6 +248,13 @@ public sealed partial class EngineAssetWriter
         foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
             pieces.Add(shell.Of(CinematicSpriteSheet.FrameName(CinematicSpriteFamily.IntroEggEffect, ShellPose(fragment))));
 
+        // The two pieces of shell that start highest fall past their curve, by steps the cartridge reads from the data
+        // after it.
+        SuperMetroid.Core.Compatibility.ShellFragmentFallPastCurve pastCurve = _installation.LoadBossAndIntroOverreads().ShellFragmentFallPastCurve;
+        var fallPastCurve = new JsonArray();
+        for (int step = 0; step < pastCurve.Updates; step++)
+            fallPastCurve.Add(EngineNames.Number(pastCurve.Step(step)));
+
         string slime = folder + "/slime.json", splash = folder + "/slime_splash.json";
         _tree.WriteData(slime, SpriteTimeline(
             IntroEggEffectAnimations.Effects.Segments, IntroEggEffectAnimations.Effects.StartingWith(IntroEggEffectAnimation.SlimeDrop), SpriteSheetId.IntroSprites,
@@ -263,6 +270,8 @@ public sealed partial class EngineAssetWriter
             .Value("slime_splash", splash)
             .Group("shell", pieces)
             .Group("shell_offset", At(shell.OffsetX, shell.OffsetY))
+            .Group("shell_curve_updates", IntroEggMotionDefinitions.FragmentCurveFrames)
+            .Group("shell_fall_past_curve", fallPastCurve)
             .Timeline("intact", Discovery(IntroBabyAnimation.Egg, "intact"))
             .Timeline("hatching", Discovery(IntroBabyAnimation.EggHatching, "hatching"))
             .Timeline("baby", Discovery(IntroBabyAnimation.ConfusedBaby, "baby"))

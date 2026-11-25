@@ -5,6 +5,7 @@ using Engine.Content;
 using Engine.Core;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -608,9 +609,16 @@ public partial class MotherBrainBaby : Enemy
         int turned = _heading - turn;
         int ahead = ((turned - target) % full + full + full / 2) % full - full / 2;
         _heading = ahead >= 0 ? ((turned % full) + full) % full : target;
+        // Each part is the speed in 256ths of a pixel along the heading's coarse sine, as the cartridge splits it.
         int angle = Turns.Wrap(_heading >> 8);
-        Velocity = new PixelVelocity(Turns.Sine(angle, _speed), Turns.Cosine(angle, _speed));
+        int speedIn256ths = _speed.Whole * 256 + _speed.Fraction / 256;
+        Velocity = new PixelVelocity(
+            From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, angle)),
+            From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, angle + Turns.PerTurn / 4)));
     }
+
+    /// <summary>A distance from a count of 256ths of a pixel.</summary>
+    private static Pixels From256ths(int count) => Pixels.FromParts(count >> 8, (count & 255) * 256);
 
     /// <summary>Leaves an effect, if it is named.</summary>
     private void Leave(string effect, PixelPosition at)

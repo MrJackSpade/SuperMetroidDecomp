@@ -82,27 +82,11 @@ public partial class Dachora : Creature
     private static readonly Pixels Acceleration = Pixels.FromNumber(1 / 16.0);
     private static readonly Pixels FastestFall = Pixels.FromWhole(10);
 
-    /// <summary>
-    /// Its glow cycle, as the cartridge counts it: the frame of its glow it shows next times 256, plus the updates left
-    /// before it, all one number within 65536, so an update counted off no updates takes one from the frame and a step
-    /// that passes 255 updates carries into the frame.
-    /// </summary>
-    private int _glowCycle;
-
-    /// <summary>The updates one frame of the glow cycle is worth.</summary>
-    private const int GlowUpdatesPerFrame = 256;
-
-    /// <summary>Where a run starts the glow cycle: frame nought, one update away. Only a run that finds it there asks for the speed sound.</summary>
-    private const int RunStartGlow = 1;
-
-    /// <summary>One step of the speed glow, the next frame sixteen updates later; at the end it starts again from its brightest frame.</summary>
-    private const int SpeedGlowStep = GlowUpdatesPerFrame + 16, SpeedGlowEnd = 4 * GlowUpdatesPerFrame + 16, SpeedGlowRestart = 3 * GlowUpdatesPerFrame + 16;
-
-    /// <summary>One step of the shine glow, the next frame; at the end it starts again from frame nought.</summary>
-    private const int ShineGlowStep = GlowUpdatesPerFrame, ShineGlowEnd = 4 * GlowUpdatesPerFrame;
-
     /// <summary>The frames each glow has.</summary>
     private const int GlowFrames = 4;
+
+    /// <summary>The updates each frame of the speed glow shows before the next; it stays on its brightest.</summary>
+    private const int SpeedGlowFrameUpdates = 16;
 
     private Doing _doing;
     private int _timer;
@@ -110,13 +94,16 @@ public partial class Dachora : Creature
     private Pixels _lift;
     private int _echoWait;
 
+    /// <summary>The updates it has glowed for, since its run reached full speed or since it began to gather itself.</summary>
+    private int _glowing;
+
     private string Side => Facing == Facing.Right ? "right" : "left";
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         Facing = StartsFacing;
-        (_doing, _speed, _glowCycle) = (Doing.Waiting, Pixels.Zero, 0);
+        (_doing, _speed) = (Doing.Waiting, Pixels.Zero);
         Play($"idle_{Side}");
     }
 
@@ -138,7 +125,7 @@ public partial class Dachora : Creature
 
             case Doing.Blinking:
                 if (--_timer <= 0)
-                    BeginRun(RunStartGlow);
+                    BeginRun();
                 break;
 
             case Doing.Running:
@@ -171,7 +158,7 @@ public partial class Dachora : Creature
                     break;
                 Facing = Facing.Opposite();
                 Play($"falling_{Side}", restart: true);
-                (_doing, _speed, _glowCycle) = (Doing.Falling, Pixels.Zero, 0);
+                (_doing, _speed) = (Doing.Falling, Pixels.Zero);
                 Tint(Colors.White);
                 Sound(CeilingSound);
                 break;
@@ -180,9 +167,8 @@ public partial class Dachora : Creature
                 _speed += Pixels.FromNumber(Gravity);
                 if (_speed >= FastestFall)
                     _speed = FastestFall;
-                // Landing, it runs on with the glow cycle the ceiling cleared, so that run asks for no speed sound.
                 if (MoveDownBy(_speed))
-                    BeginRun(_glowCycle);
+                    BeginRun();
                 break;
 
             default:
@@ -190,10 +176,10 @@ public partial class Dachora : Creature
         }
     }
 
-    /// <summary>Starts a run from rest, its glow cycle at <paramref name="glowCycle"/>.</summary>
-    private void BeginRun(int glowCycle)
+    /// <summary>Starts a run from rest.</summary>
+    private void BeginRun()
     {
-        (_doing, _speed, _glowCycle) = (Doing.Running, Pixels.Zero, glowCycle);
+        (_doing, _speed, _glowing) = (Doing.Running, Pixels.Zero, 0);
         Play($"running_{Side}", restart: true);
         Tint(Colors.White);
     }
@@ -203,18 +189,11 @@ public partial class Dachora : Creature
     {
         if (_speed >= TopSpeed)
         {
-            // At full speed it glows, as Samus does. The speed sound is asked for on the update that finds the glow
-            // cycle where a run starts it; a run that began with the cycle cleared never finds it there.
-            if (_glowCycle == RunStartGlow)
+            // At full speed it glows, as Samus does, brighter and brighter, and is heard.
+            if (_glowing == 0)
                 Sound(SpeedSound);
-            _glowCycle = (_glowCycle - 1) & 0xFFFF;
-            if (_glowCycle % GlowUpdatesPerFrame == 0)
-            {
-                ShowGlow(shining: false, _glowCycle / GlowUpdatesPerFrame);
-                _glowCycle = (_glowCycle + SpeedGlowStep) & 0xFFFF;
-                if (unchecked((short)(_glowCycle - SpeedGlowEnd)) >= 0)
-                    _glowCycle = SpeedGlowRestart;
-            }
+            ShowGlow(shining: false, Math.Min(_glowing / SpeedGlowFrameUpdates, GlowFrames - 1));
+            _glowing++;
         }
 
         MoveDownBy(Pixels.FromWhole(1), SlopeTreatment.Climb);
@@ -233,17 +212,16 @@ public partial class Dachora : Creature
         {
             if (hitWall)
             {
-                // Turned back by a wall, it runs with the glow cycle cleared.
                 Sound(SpeedStopSound);
                 Facing = Facing.Left;
-                BeginRun(0);
+                BeginRun();
                 return;
             }
 
             if (Position.X.Whole < ShootsUpAt)
                 return;
             Play($"charge_{Side}", restart: true);
-            (_doing, _timer, _speed, _glowCycle) = (Doing.Charging, 60, Pixels.Zero, 0);
+            (_doing, _timer, _speed, _glowing) = (Doing.Charging, 60, Pixels.Zero, 0);
             Position += PixelOffset.FromWhole(0, 8);
             Sound(ChargeSound);
             return;
@@ -252,23 +230,15 @@ public partial class Dachora : Creature
         if (!hitWall && Position.X.Whole >= TurnsBackAt)
             return;
         Facing = Facing.Right;
-        BeginRun(RunStartGlow);
+        BeginRun();
     }
 
-    /// <summary>Shows the shine glow's next frame and steps its cycle on, each update it gathers itself and flies.</summary>
-    private void StepShineGlow()
-    {
-        ShowGlow(shining: true, _glowCycle / GlowUpdatesPerFrame);
-        _glowCycle = (_glowCycle + ShineGlowStep) & 0xFFFF;
-        if (unchecked((short)(_glowCycle - ShineGlowEnd)) >= 0)
-            _glowCycle = 0;
-    }
+    /// <summary>Shows the shine glow's next frame, each update it gathers itself and flies: its frames over and over.</summary>
+    private void StepShineGlow() => ShowGlow(shining: true, _glowing++ % GlowFrames);
 
     /// <summary>It glows: the blue of speed while it runs, the gold of the shinespark while it gathers and flies.</summary>
     private void ShowGlow(bool shining, int frame)
     {
-        if (frame >= GlowFrames)
-            throw new InvalidOperationException($"The Dachora's glow has no frame {frame}.");
         float pulse = 1f + 0.15f * frame;
         Tint(shining ? new Color(pulse * 1.2f, pulse * 1.2f, pulse * 0.8f) : new Color(pulse * 0.9f, pulse, pulse * 1.3f));
     }

@@ -1232,10 +1232,28 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         distance = OverSlopes(distance);
         ClearWay(distance, Pixels.Zero);
         MoveResult result = Room.Mover.MoveAcross(Body, distance, options);
+        OnBodyMoved(across: true, distance, result.Moved);
         if (result.Blocked)
             StopAcross();
         return result;
     }
+
+    /// <summary>
+    /// Called each time the player's own movement has moved their body along one axis: how far it set out to go,
+    /// negative leftward or upward, and how far it went. A game that keeps a record of her moves keeps it here.
+    /// </summary>
+    protected virtual void OnBodyMoved(bool across, Pixels asked, Pixels moved)
+    {
+    }
+
+    /// <summary>
+    /// The speed a shot of <paramref name="weapon"/> leaves at, fired the way given (-1, 0 or 1 across and down) with
+    /// <paramref name="own"/> as its own speed, for a weapon whose shots inherit the player's movement: the engine's
+    /// player adds their speed across to a shot fired the way they are moving. A game with a rule of its own for what
+    /// a shot inherits gives it here.
+    /// </summary>
+    public virtual PixelVelocity ShotVelocity(WeaponStats weapon, PixelVelocity own, int across, int down) =>
+        across != 0 && !SpeedAcross.IsZero && SpeedAcross.IsNegative == across < 0 ? own.WithX(own.X + SpeedAcross) : own;
 
     /// <summary>Moves the player down by their speed, upward when it is negative.</summary>
     public MoveResult MoveDown()
@@ -1243,6 +1261,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Pixels distance = InLiquid(Velocity.Y);
         ClearWay(Pixels.Zero, distance);
         MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
+        OnBodyMoved(across: false, distance, result.Moved);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
@@ -1261,7 +1280,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         if (StandsInBlockThatHoldsUp())
             return true;
-        return Room.Mover.MoveDown(Body, _reachAcross + Pixels.FromWhole(1), BodyMoves).Blocked;
+        Pixels distance = _reachAcross + Pixels.FromWhole(1);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
+        OnBodyMoved(across: false, distance, result.Moved);
+        return result.Blocked;
     }
 
     /// <summary>
@@ -1303,6 +1325,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Fall();
         ClearWay(Pixels.Zero, distance);
         MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
+        OnBodyMoved(across: false, distance, result.Moved);
         if (result.Blocked && !keepsSpeedWhenStopped)
             FallFromRest();
         return result;

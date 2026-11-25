@@ -740,6 +740,9 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeMoving()
     {
+        // Her shots have been fired: the record of her moves that they inherit from starts over before she moves.
+        _shotInheritance.Clear();
+
         // Each update's movement says anew which of her body's powers are at work; they stay so for what touches her
         // afterwards, the enemies of the next update among it. The speed booster's is at work from the update after
         // she reaches full boost.
@@ -1205,6 +1208,18 @@ public partial class Samus : Player
         if (!Inventory.IsOn(Equipment.SpeedBooster))
             return speed;
         return Pixels.FromParts(speed.Whole + DashSpeed.Whole / 2, (speed.Fraction + DashSpeed.Fraction) % Pixels.FractionsPerPixel);
+    }
+
+    private readonly Compatibility.ShotInheritance _shotInheritance = new();
+
+    /// <inheritdoc/>
+    protected override void OnBodyMoved(bool across, Pixels asked, Pixels moved) => _shotInheritance.Record(across, asked, moved);
+
+    /// <summary>A shot of hers inherits of her movement what the cartridge's does, whichever way it is fired.</summary>
+    public override PixelVelocity ShotVelocity(WeaponStats weapon, PixelVelocity own, int across, int down)
+    {
+        Pixels along = across != 0 ? own.X.Abs() : own.Y.Abs();
+        return _shotInheritance.Launch(across, down, along, Room.Session.Camera.Speed.Y);
     }
 
     /// <summary>

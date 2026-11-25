@@ -243,8 +243,8 @@ public sealed class Weapons
         (int across, int down) = player.AimDirection;
         Pixels alongAxis = across != 0 && down != 0 ? weapon.DiagonalSpeed : weapon.Speed;
         var velocity = new PixelVelocity(alongAxis * across, alongAxis * down);
-        if (weapon.InheritsSpeed && across != 0 && !player.SpeedAcross.IsZero && player.SpeedAcross.IsNegative == across < 0)
-            velocity = velocity.WithX(velocity.X + player.SpeedAcross);
+        if (weapon.InheritsSpeed)
+            velocity = player.ShotVelocity(weapon, velocity, across, down);
         Hit hit = weapon.HitFor(player.Inventory, charged) with { Direction = velocity.OverOneUpdate, Source = player };
 
         var launched = new List<Projectile>();

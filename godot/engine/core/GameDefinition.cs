@@ -215,6 +215,13 @@ public partial class GameDefinition : Resource
     public int EnemyHurtEndsAtFlashLeft { get; set; }
 
     /// <summary>
+    /// The side, in pixels, of the squares of a room, counted from its top left corner, in which a shot of the
+    /// player's and a shot of the enemies' must both stand to meet, whatever their sizes.
+    /// </summary>
+    [Export]
+    public int ShotMeetingSquare { get; set; }
+
+    /// <summary>
     /// Whether a status an enemy is in still lasts, apart from its time: it does, unless the game has something that
     /// ends a status early. Each enemy in a status asks on its turn.
     /// </summary>

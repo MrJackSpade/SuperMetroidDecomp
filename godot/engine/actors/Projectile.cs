@@ -484,13 +484,27 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
 
     /// <summary>
     /// Tries the player's shot against one of the enemies' shots, where each stands. The room does this for every
-    /// pair once all have moved and the enemies' shots have been tried against the player.
+    /// pair once all have moved and the enemies' shots have been tried against the player. The two meet when they
+    /// stand in the same square of the room (<see cref="Engine.Core.GameDefinition.ShotMeetingSquare"/>), whatever their sizes.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The game's definition gives the squares no size.</exception>
     internal void MeetShot(Projectile enemyShot)
     {
-        if (!HasEnded && !enemyShot.HasEnded && HarmsNow && Side == HitSide.Player)
-            MeetTargets(Room, Area, target => ReferenceEquals(target, enemyShot));
+        if (HasEnded || enemyShot.HasEnded || !HarmsNow || Side != HitSide.Player)
+            return;
+        int square = Room.Session.Definition.ShotMeetingSquare;
+        if (square <= 0)
+            throw new InvalidOperationException("The game's definition gives no size for the squares in which shots meet.");
+        if (SquareOf(Position.X.Whole, square) == SquareOf(enemyShot.Position.X.Whole, square)
+            && SquareOf(Position.Y.Whole, square) == SquareOf(enemyShot.Position.Y.Whole, square))
+        {
+            // It lands on the other where the other stands: the squares, not the two shapes, decided that they met.
+            MeetTargets(Room, enemyShot.Area, target => ReferenceEquals(target, enemyShot));
+        }
     }
+
+    /// <summary>The square along one axis that holds a whole pixel, counted from the room's corner.</summary>
+    private static int SquareOf(int pixel, int square) => (int)Math.Floor(pixel / (double)square);
 
     /// <summary>
     /// Tries the player's shot against one enemy, where the shot stands. The enemy asks, through the room, in its

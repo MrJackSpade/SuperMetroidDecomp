@@ -1174,6 +1174,8 @@ not lifted from a shared routine.
   enemy's shot: each enemy tries the player's shots against itself in its own turn ("An enemy's turn", above), and
   the room tries the player's shots against the enemies' shots, each of the enemies' in turn against each of the
   player's where they stand, at the end of its update, after the enemies' shots have been tried against the player.
+  The two meet when they stand in the same square of the room, squares of `GameDefinition.ShotMeetingSquare` pixels
+  counted from its top left corner, whatever their sizes: a shot just over a square's edge passes the other by.
   A projectile with a part of its own to play there, after both, is an `IClosingStep` (as one with a part in the
   update's opening is an `IOpeningStep`): this game's power bomb grows its blast as the update opens, strikes the
   terrain along the blast's border in its own step among the player's shots, and lands its hit on what the blast

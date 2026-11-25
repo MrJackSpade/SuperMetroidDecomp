@@ -17,6 +17,7 @@ EnemyTurnMarginBelow = 24
 EnemyPlaces = 18
 MostPlayUpdates = 21599999
 EnemyHurtEndsAtFlashLeft = 8
+ShotMeetingSquare = 32
 ClockPeriod = 65536
 ShortClockPeriod = 256
 FirstRoom = "res://game/rooms/ceres/ceres_elevator.tscn"

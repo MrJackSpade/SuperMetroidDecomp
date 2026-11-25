@@ -46,6 +46,18 @@
   it: the title, the menus, the cinematics, door transitions, message boxes and pauses as
   much as Samus, enemies and rooms; positions, timings, the order things happen in, what
   fires and what is hit, random draws, energy and counts.
+- Parity is of gameplay. The owner's words: "parity with the old code means parity of
+  gameplay, not that all quirks of the game design need to be carried forward". Asked which
+  differences still count as work, the owner chose gameplay only:
+  - What must match is what changes play: where Samus and the enemies are on each update,
+    what fires and what is hit and when, energy and counts, random draws, and the timing of
+    input. That is what would put a recorded movie out of step.
+  - Pictures, colours and sounds are to look and sound right. They need not match the
+    cartridge update for update: its palette steps, the count of a flash, the update a sound
+    is asked for on.
+  - An old mechanism or internal order that changes nothing of play is not reproduced.
+  - A ticket that is only about how something is stepped for the eye or the ear, or about an
+    internal order, is closed or left parked. It is not worked.
 - A known difference is a defect, never an accepted end state. "Close enough", "simplified",
   "the Godot way" and "still different, not fixed" are not outcomes of a piece of work. A
   difference is fixed, or it stays open as a ticket.

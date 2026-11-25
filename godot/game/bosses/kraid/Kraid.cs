@@ -476,6 +476,10 @@ public partial class Kraid : Enemy
         _rise = Rise.Wait;
         _wait = RiseWaitUpdates;
         Visual?.SetShown(false);
+        if (Visual is { } body)
+            body.ZIndex = RoomDepth.Things;
+        // Its head is drawn with its body until it first shows a pose.
+        SetPartDepth("Head", RoomDepth.Things);
         Play("body");
         PlayPart("Arm", "arm_rising_or_sinking");
         PlayPart("Foot", "foot_initial");
@@ -722,7 +726,9 @@ public partial class Kraid : Enemy
                 break;
 
             case Growth.BringInFront:
-                ZIndex = 1;
+                // Its grown body comes in front of what stands in the room, still behind the room's front tiles.
+                if (Visual is { } body)
+                    body.ZIndex = 1;
                 _armHarmless = false;
                 // Its arm meets shots again where its pose has it.
                 if (ArmPoses.Current.Length > 0)
@@ -776,13 +782,16 @@ public partial class Kraid : Enemy
 
             case Death.FadeOut:
                 StepHead();
-                if (++_fade > BackdropFadeSteps)
-                    _death = Death.ShowBody;
+                if (++_fade <= BackdropFadeSteps)
+                    break;
+                // With the room dark its body is drawn behind what stands in the room again, grown or not.
+                _death = Death.ShowBody;
+                if (Visual is { } body)
+                    body.ZIndex = RoomDepth.Things;
                 break;
 
             case Death.ShowBody:
                 StepHead();
-                ZIndex = 0;
                 _death = Death.StartSinking;
                 break;
 
@@ -1193,6 +1202,13 @@ public partial class Kraid : Enemy
         GetNodeOrNull<ActorVisual>(part)?.Show(step with { Picture = Shaded(step.Picture, part == "Head" ? BodyShade : Shade) });
     }
 
+    /// <summary>Sets the depth in the room one of its parts is drawn at.</summary>
+    private void SetPartDepth(string part, int depth)
+    {
+        if (GetNodeOrNull<ActorVisual>(part) is { } visual)
+            visual.ZIndex = depth;
+    }
+
     /// <summary>Moves its head's timeline on by one update.</summary>
     private void StepHead()
     {
@@ -1209,6 +1225,14 @@ public partial class Kraid : Enemy
             return;
         _partPlaying[part] = timeline;
         _parts[part] = new TimelinePlayer(Timelines.Get(timeline));
+        // Its arm and foot are in front of every tile of the room, but behind the room's front tiles while it rises or
+        // sinks; its head, from the first pose its fight shows on, is in front of what stands in the room for good.
+        if (part == "Arm")
+            SetPartDepth(part, timeline == "arm_rising_or_sinking" ? RoomDepth.Things : RoomDepth.InFrontOfRoom);
+        else if (part == "Foot")
+            SetPartDepth(part, timeline == "foot_initial" ? RoomDepth.Things : RoomDepth.InFrontOfRoom);
+        else if (part == "Head" && _stage != Stage.Rising)
+            SetPartDepth(part, RoomDepth.InFrontOfRoom);
         ShowPart(part);
         if (part == "Head")
             _headOver = false;

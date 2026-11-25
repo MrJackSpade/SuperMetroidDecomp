@@ -1,4 +1,5 @@
 using Engine.Shared;
+using Game.Compatibility;
 
 namespace Game.Enemies;
 
@@ -66,10 +67,13 @@ public sealed class RidleyTail
                 State = Swinging.Staggering;
         }
 
+        /// <summary>Its offset is its whole pixels of distance laid along the way it points, each axis rounded down.</summary>
         internal void Place()
         {
-            Pixels reach = Pixels.FromWhole(Distance.Whole);
-            Offset = PixelOffset.FromWhole(Turns.Sine(Pointing, reach).Whole, Turns.Cosine(Pointing, reach).Whole);
+            int reach = Distance.Whole;
+            Offset = PixelOffset.FromWhole(
+                CartridgeAngles.ReachRoundedDown(Pointing, reach),
+                CartridgeAngles.ReachRoundedDown(Pointing + Turns.PerTurn / 4, reach));
         }
     }
 

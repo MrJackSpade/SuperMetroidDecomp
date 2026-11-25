@@ -260,7 +260,6 @@ public partial class Kraid : Enemy
     private int _hurtFlashWait;
     private int _flashStep = -1;
     private int _flashLeft;
-    private bool _flashShowsHurt;
 
     /// <summary>Whether it still shows its room's own colours, as it does until its flash first shows a frame or its health is gone.</summary>
     private bool _inRoomColours;
@@ -419,10 +418,13 @@ public partial class Kraid : Enemy
         return result;
     }
 
-    /// <summary>A hit in the mouth, harmful or not, sets its colours flashing and marks an opening yet to come.</summary>
+    /// <summary>
+    /// A hit in the mouth, harmful or not, sets its colours flashing from the start, keeping those it shows until the
+    /// flash's first frame, and marks an opening yet to come.
+    /// </summary>
     private void MarkMouthHit()
     {
-        (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
+        (_flashStep, _flashLeft) = (0, _hurtFlashWait);
         if (_mouthReopens > 0)
             _mouthReopenMarked = true;
     }
@@ -1253,30 +1255,37 @@ public partial class Kraid : Enemy
     }
 
     /// <summary>
-    /// Moves the flash of a hit in the mouth on, and settles which set of its pictures it shows. Each time the flash
-    /// shows other colours its eyes take that set's colours at once, as they do on every update once its health is gone;
-    /// until the first such time it shows its room's own colours.
+    /// Moves the flash of a hit in the mouth on. Only as the flash shows a frame does it take the colours of that
+    /// frame, or of its band as hurt as it is then, its eyes with them, as it does on every update once its health is
+    /// gone; between, it keeps the colours it last took, and until the first such time it shows its room's own.
     /// </summary>
     private void StepColours()
     {
         if (Health.IsEmpty)
         {
             // Dying, it flashes no more.
-            (_flashStep, _flashShowsHurt, _inRoomColours) = (-1, false, false);
-            _eyes = [.. BandShade().Eyes];
+            _flashStep = -1;
+            ShowFlashColours(hurt: false);
         }
         else if (_flashStep >= 0 && --_flashLeft <= 0)
         {
+            bool hurt = false;
             if (_flashStep < _hurtFlash.Count)
-                (_flashShowsHurt, _flashLeft) = _hurtFlash[_flashStep++];
+                (hurt, _flashLeft) = _hurtFlash[_flashStep++];
             else
-                (_flashStep, _flashShowsHurt) = (-1, false);
-            _inRoomColours = false;
-            _eyes = [.. _flashShowsHurt ? _hurtEyes : BandShade().Eyes];
+                _flashStep = -1;
+            ShowFlashColours(hurt);
         }
 
-        Shade = _inRoomColours ? "" : _flashShowsHurt ? HurtShade : BandShade().Shade;
         ShowEyes();
+    }
+
+    /// <summary>Takes the colours of the flash of a hit, or of its band as hurt as it is, and its eyes those colours' own.</summary>
+    private void ShowFlashColours(bool hurt)
+    {
+        _inRoomColours = false;
+        Shade = hurt ? HurtShade : BandShade().Shade;
+        _eyes = [.. hurt ? _hurtEyes : BandShade().Eyes];
     }
 
     /// <inheritdoc/>

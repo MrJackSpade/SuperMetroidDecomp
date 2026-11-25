@@ -13,7 +13,9 @@ namespace Game.Objects;
 /// <summary>
 /// The glass tube of Maridia. Only a power bomb harms it. Once one has gone off against it, the next thing Samus
 /// does starts it cracking: she is held where she is, the crack spreads, and the tube bursts into shards and
-/// bubbles, shaking the room. From then on it is broken for good and the water is in.
+/// bubbles, shaking the room. From then on it is broken for good and the water is in. Each bubble, and each shard
+/// still on the screen, draws a random number as it begins to sway: the bubbles on the ninth update after the
+/// burst, the shards on the thirty-third.
 /// </summary>
 /// <remarks>
 /// Its data names its pictures "intact", "cracking" and "shattered"; its effects "crack", "bubble" and the ten of its
@@ -86,9 +88,22 @@ public partial class GlassTube : RoomObject, IHittable
         PixelOffset.FromWhole(120, 32), PixelOffset.FromWhole(152, 64), PixelOffset.FromWhole(184, 84),
     ];
 
+    /// <summary>How long after the burst a bubble, and a shard, begins to sway, drawing a number for where its sway starts.</summary>
+    private const int BubbleSwaysAfter = 9, ShardSwaysAfter = 33;
+
+    /// <summary>How long the burst tube stays before it is done.</summary>
+    private const int ShatteredUpdates = 96;
+
+    /// <summary>How far below the top of the view a shard is taken away.</summary>
+    private const int ShardGoneBelowView = 288;
+
     private readonly List<string> _shardEffects = [];
     private Phase _phase;
     private int _timer;
+
+    /// <summary>The shards still flying, each with where it started and how it flies, and how many bubbles were let out.</summary>
+    private readonly List<(Effect Shard, Pixels StartedAtY, Pixels SpeedDown)> _shards = [];
+    private int _bubbles;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -161,17 +176,28 @@ public partial class GlassTube : RoomObject, IHittable
                 if (--_timer > 0)
                     break;
                 Sound(BreakSound);
+                _shards.Clear();
                 for (int shard = 0; shard < Shards.Length; shard++)
-                    Leave(_shardEffects[shard], CrackAt + Shards[shard].From, Shards[shard].Speed);
+                {
+                    if (Leave(_shardEffects[shard], CrackAt + Shards[shard].From, Shards[shard].Speed) is { } flying)
+                        _shards.Add((flying, (Position + CrackAt + Shards[shard].From).Y, Shards[shard].Speed.Y));
+                }
+
+                _bubbles = 0;
                 foreach (PixelOffset bubble in Bubbles)
-                    Leave(BubbleEffect, bubble, new PixelVelocity(Pixels.Zero, Pixels.FromWhole(-5)));
+                {
+                    if (Leave(BubbleEffect, bubble, new PixelVelocity(Pixels.Zero, Pixels.FromWhole(-5))) is not null)
+                        _bubbles++;
+                }
+
                 Room.Shake(1, 64);
                 Room.Terrain.ApplyPatch(OpenPatch);
                 Show(ShatteredPicture);
-                (_phase, _timer) = (Phase.Shattered, 96);
+                (_phase, _timer) = (Phase.Shattered, ShatteredUpdates);
                 break;
 
             case Phase.Shattered:
+                StepPieces(ShatteredUpdates - (_timer - 1));
                 if (--_timer > 0)
                     break;
                 Room.Session.Progress.Record(StoryEvents.MaridiaTubeBroken);
@@ -189,13 +215,47 @@ public partial class GlassTube : RoomObject, IHittable
 
     private static PixelVelocity Speed(double across, double down) => new(Pixels.FromNumber(across), Pixels.FromNumber(down));
 
-    private void Leave(string effect, PixelOffset from, PixelVelocity speed)
+    /// <summary>
+    /// What the pieces do on the update so many after the burst that touches the room's random numbers. A shard that
+    /// has flown far enough below the view is taken away, where its flight has taken it by then; each bubble draws a
+    /// number as it begins to sway, and so does each shard still there when its turn to sway comes.
+    /// </summary>
+    private void StepPieces(int sinceBurst)
+    {
+        if (sinceBurst <= ShardSwaysAfter)
+        {
+            int goneBelow = Room.Session.Camera.Top + ShardGoneBelowView;
+            for (int index = _shards.Count - 1; index >= 0; index--)
+            {
+                (Effect shard, Pixels startedAtY, Pixels speedDown) = _shards[index];
+                if ((startedAtY + speedDown * sinceBurst).Whole < goneBelow)
+                    continue;
+                Room.Remove(shard);
+                _shards.RemoveAt(index);
+            }
+        }
+
+        if (sinceBurst == BubbleSwaysAfter)
+        {
+            for (int bubble = 0; bubble < _bubbles; bubble++)
+                Room.Session.Random.Draw();
+        }
+
+        if (sinceBurst == ShardSwaysAfter)
+        {
+            for (int shard = 0; shard < _shards.Count; shard++)
+                Room.Session.Random.Draw();
+        }
+    }
+
+    private Effect? Leave(string effect, PixelOffset from, PixelVelocity speed)
     {
         if (effect.Length == 0)
-            return;
+            return null;
         Effect left = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), Position + from);
         left.Velocity = speed;
         Room.Spawn(left);
+        return left;
     }
 
     private void Tell()

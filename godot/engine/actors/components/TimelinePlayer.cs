@@ -29,6 +29,7 @@ public sealed class TimelinePlayer
             throw new ArgumentOutOfRangeException(nameof(step), step, "A timeline is picked up at one of its own steps.");
         var player = new TimelinePlayer(timeline);
         player.Begin(step);
+        player.Shown = player.Current;
         player._pendingCues = [.. timeline.Steps[step].Cues.Skip(cuesPassed)];
         return player;
     }
@@ -39,8 +40,17 @@ public sealed class TimelinePlayer
     /// <summary>Which step it is on.</summary>
     public int StepIndex { get; private set; }
 
-    /// <summary>The step it is on.</summary>
+    /// <summary>
+    /// The step it is on: the one the next update falls in. As the last update of a step is played this is already the
+    /// step that follows.
+    /// </summary>
     public TimelineStep Current => Timeline.Steps[StepIndex];
+
+    /// <summary>
+    /// The step the update last played belongs to, and before any has been played the step it starts on. This is what
+    /// is shown: a step's picture comes on the update its cues do, and stays through the step's last update.
+    /// </summary>
+    public TimelineStep Shown { get; private set; } = null!;
 
     /// <summary>Whether a timeline that does not loop has played through its last step.</summary>
     public bool IsOver { get; private set; }
@@ -54,6 +64,7 @@ public sealed class TimelinePlayer
         ArgumentNullException.ThrowIfNull(timeline);
         Timeline = timeline;
         Begin(0);
+        Shown = Current;
         IsOver = false;
     }
 
@@ -67,6 +78,7 @@ public sealed class TimelinePlayer
             return [];
         IReadOnlyList<string> cues = _pendingCues;
         _pendingCues = [];
+        Shown = Current;
         IsAtStepStart = false;
         _updatesLeft--;
         if (_updatesLeft == 0)

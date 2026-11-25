@@ -345,7 +345,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         Playing = name;
         _animation = new TimelinePlayer(Timelines.Get(name));
-        Visual?.Show(PictureOf(_animation.Current));
+        Visual?.Show(PictureOf(_animation.Shown));
     }
 
     /// <summary>
@@ -374,7 +374,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         Playing = mark.Name;
         _animation = TimelinePlayer.Resuming(Timelines.Get(mark.Name), mark.Step, mark.CuesPassed);
-        Visual?.Show(PictureOf(_animation.Current));
+        Visual?.Show(PictureOf(_animation.Shown));
     }
 
     /// <summary>
@@ -750,7 +750,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 break;
         }
 
-        Visual?.Show(PictureOf(_animation.Current));
+        // The picture is that of the step this update fell in: it changes on the update the step's cues come.
+        Visual?.Show(PictureOf(_animation.Shown));
     }
 
     /// <summary>How many times in one update its timelines may start one another before that is taken for a mistake in them.</summary>

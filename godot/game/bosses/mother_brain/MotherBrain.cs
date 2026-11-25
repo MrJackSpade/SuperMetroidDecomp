@@ -463,8 +463,9 @@ public partial class MotherBrain : Enemy, IClosingStep
         {
             if (switches > MostBrainSwitches)
                 throw new InvalidOperationException($"Mother Brain's brain timelines start one another without end, the last of them \"{_headPlaying}\".");
-            shown = playing.Current;
-            foreach (string cue in playing.Step())
+            IReadOnlyList<string> cues = playing.Step();
+            shown = playing.Shown;
+            foreach (string cue in cues)
             {
                 OnHeadCue(cue, samus);
                 if (_headTimeline != playing)

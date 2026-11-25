@@ -7,6 +7,9 @@ namespace Engine.World;
 /// </summary>
 public static class RoomDepth
 {
+    /// <summary>The colour shown wherever nothing of the room is drawn: behind everything.</summary>
+    public const int BackdropColour = -200;
+
     /// <summary>The picture behind the room.</summary>
     public const int Backdrop = -100;
 

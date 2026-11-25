@@ -63,6 +63,21 @@ internal sealed partial class EngineSheets
         return swaps;
     }
 
+    /// <summary>
+    /// The colour a sheet's scene shows where nothing is drawn, as six hexadecimal digits; null for a sheet whose scene
+    /// has no such colour of its own. A room's block sheet has one.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation has no such sheet, or names the colour otherwise than as #rrggbb.</exception>
+    internal string? BackdropOf(string family, string sheet)
+    {
+        if (Document(family, sheet).Backdrop is not { } backdrop)
+            return null;
+        string colour = backdrop.Colour;
+        return colour.Length == 7 && colour[0] == '#' && colour[1..].All(Uri.IsHexDigit)
+            ? colour[1..].ToLowerInvariant()
+            : throw new InvalidDataException($"The sheet {sheet} names its backdrop colour {colour}, which is not written as #rrggbb.");
+    }
+
     /// <summary>Whether a sheet tells any of its pixels apart by region: some pixel lies in a region other than the first.</summary>
     /// <exception cref="InvalidDataException">The installation has no such sheet.</exception>
     internal bool HasRegions(string family, string sheet) =>

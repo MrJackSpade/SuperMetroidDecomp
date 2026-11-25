@@ -479,7 +479,9 @@ A scene. One per room of the game.
   first part of the player's update; the player's own shots; the enemies; the rest of the player's update; triggers
   and exits; every other projectile, pickups and remains; room objects, terrain, the earthquake and the sequence;
   effects.
-- **Draws at set depths** (`RoomDepth`), from the back: the backdrop; what lies behind the room; the room's tiles
+- **Draws at set depths** (`RoomDepth`), from the back: the colour shown wherever nothing of the room is drawn
+  (a layout may give one as its "backdrop"; the terrain spreads it behind everything, and it changes colour with
+  the tiles); the backdrop; what lies behind the room; the room's tiles
   and, after them in the order they stand in the room, everything in it; the part of the tiles that lies in front
   of what stands in the room (`TerrainFront`, which the terrain makes and draws: a tile's picture may have that
   part beside it, and it is drawn again over the room's things); what a thing puts in front of every tile; the

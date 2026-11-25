@@ -101,6 +101,9 @@ internal sealed partial class EngineLayouts
                 ["tiles"] = layout.Legend,
                 ["rows"] = rows,
             };
+            // Where nothing of the room is drawn the cartridge shows the first colour of the set's palette.
+            if (_sheets.BackdropOf(GameInstallationLayout.RoomBlockSheetDirectoryName, layout.Tileset) is { } backdrop)
+                data["backdrop"] = backdrop;
             if (layout.Patches.Count > 0)
                 data["patches"] = layout.Patches;
             _tree.WriteData(path, data);

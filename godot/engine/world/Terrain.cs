@@ -636,5 +636,35 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         }
 
         _front.QueueRedraw();
+        ShowBackdropColour();
+    }
+
+    /// <summary>The colour shown wherever nothing of the room is drawn, where the layout gives one: one pixel of it, spread over the room.</summary>
+    private Sprite2D? _backdropColour;
+
+    /// <summary>
+    /// Shows the layout's backdrop colour behind everything, over the whole of the room, or takes it away for a
+    /// layout that gives none. It is a picture of that one colour, so it takes the terrain's changes of colour with
+    /// the tiles.
+    /// </summary>
+    private void ShowBackdropColour()
+    {
+        if (_layout?.Backdrop is not { } colour)
+        {
+            _backdropColour?.Hide();
+            return;
+        }
+
+        if (_backdropColour is null)
+        {
+            _backdropColour = new Sprite2D { Name = "BackdropColour", Centered = false, ZIndex = RoomDepth.BackdropColour, UseParentMaterial = true };
+            AddChild(_backdropColour, forceReadableName: false, InternalMode.Back);
+        }
+
+        var pixel = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+        pixel.SetPixel(0, 0, colour);
+        _backdropColour.Texture = ImageTexture.CreateFromImage(pixel);
+        _backdropColour.Scale = new Vector2(_tiles.Length == 0 ? 0 : _tiles[0].Length * TileSize, _tiles.Length * TileSize);
+        _backdropColour.Show();
     }
 }

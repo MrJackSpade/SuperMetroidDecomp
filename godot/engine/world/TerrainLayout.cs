@@ -10,6 +10,7 @@ namespace Engine.World;
 /// <code>
 /// {
 ///   "tile_size": 16,
+///   "backdrop": "000000",
 ///   "tiles": {
 ///     ".": { "kind": "empty" },
 ///     "#": { "kind": "solid", "picture": "tiles/rock.png" },
@@ -31,13 +32,20 @@ namespace Engine.World;
 /// </remarks>
 public sealed class TerrainLayout
 {
-    private TerrainLayout(int tileSize, TileDefinition[][] tiles, IReadOnlyDictionary<string, TerrainPatch> patches, string graphics)
+    private TerrainLayout(int tileSize, TileDefinition[][] tiles, IReadOnlyDictionary<string, TerrainPatch> patches, string graphics, Godot.Color? backdrop)
     {
         TileSize = tileSize;
         Tiles = tiles;
         Patches = patches;
         Graphics = graphics;
+        Backdrop = backdrop;
     }
+
+    /// <summary>
+    /// The colour shown wherever nothing of the room is drawn, which its data gives as "backdrop" in six hexadecimal
+    /// digits; null for a layout that gives none, behind which nothing is drawn at all.
+    /// </summary>
+    public Godot.Color? Backdrop { get; }
 
     /// <summary>
     /// The name of the set of graphics the layout is drawn with, which its data gives as "graphics"; empty when it
@@ -108,7 +116,17 @@ public sealed class TerrainLayout
             }
         }
 
-        return new TerrainLayout(tileSize, tiles, patches, data.Has("graphics") ? data.Text("graphics") : "");
+        Godot.Color? backdrop = null;
+        if (data.Has("backdrop"))
+        {
+            string written = data.Text("backdrop");
+            if (written.Length != 6 || !written.All(Uri.IsHexDigit))
+                throw data.Get("backdrop").Problem("is not a colour written as six hexadecimal digits");
+            backdrop = new Godot.Color(
+                Convert.ToInt32(written[..2], 16) / 255f, Convert.ToInt32(written[2..4], 16) / 255f, Convert.ToInt32(written[4..], 16) / 255f);
+        }
+
+        return new TerrainLayout(tileSize, tiles, patches, data.Has("graphics") ? data.Text("graphics") : "", backdrop);
     }
 
     /// <summary>Reads what one letter stands for.</summary>

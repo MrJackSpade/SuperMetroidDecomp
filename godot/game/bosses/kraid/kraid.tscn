@@ -8,13 +8,13 @@
 script = ExtResource("1")
 DataFile = "bosses/kraid.json"
 
-[node name="Foot" type="Node2D" parent="."]
-script = ExtResource("3")
-
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 
 [node name="Head" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Foot" type="Node2D" parent="."]
 script = ExtResource("3")
 
 [node name="Arm" type="Node2D" parent="."]

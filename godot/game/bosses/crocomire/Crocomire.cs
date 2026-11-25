@@ -4,6 +4,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Game.Data;
 using Godot;
 
@@ -38,7 +39,10 @@ namespace Game.Enemies;
 /// "pause", "rise", "wait:&lt;updates&gt;", "melt:&lt;shake&gt;:&lt;half period&gt;" with the "melt_updates" a melt
 /// lasts, "sound:&lt;name&gt;" and "body:&lt;whole or a name in melt_looks&gt;"; "melt_looks", for each melting body
 /// the timeline it shows at or below each height, lowest first; "bridge_fragments", where the pieces of the bridge
-/// fall from, one an update; and "spike_pieces", the pieces the spike wall breaks into.</para>
+/// fall from, one an update; "spike_pieces", the pieces the spike wall breaks into; and "screens", the screens of its
+/// room it shuts and opens: "behind_wall" and "arena", lists of them, "hidden_wall", "bridge_left" and "bridge", each
+/// a column "x" and a row "y", and "bridge_left_shut_from_x", how far across Samus shuts the screen left of the bridge
+/// while it fights.</para>
 /// </remarks>
 public partial class Crocomire : Enemy
 {
@@ -288,6 +292,12 @@ public partial class Crocomire : Enemy
     private readonly Dictionary<string, List<(int FromY, string Timeline)>> _meltLooks = new(StringComparer.Ordinal);
     private readonly List<int> _fragmentXs = [];
     private readonly List<SpikePiece> _spikePieces = [];
+    private readonly List<Vector2I> _behindWallScreens = [];
+    private readonly List<Vector2I> _arenaScreens = [];
+    private Vector2I _hiddenWallScreen;
+    private Vector2I _bridgeLeftScreen;
+    private Vector2I _bridgeScreen;
+    private int _bridgeLeftShutFromX;
     private ColliderPoses? _poses;
     private int _volleyReach = 64;
     private PixelOffset _spitFrom;
@@ -388,7 +398,20 @@ public partial class Crocomire : Enemy
         _spikePieces.Clear();
         _spikePieces.AddRange(pieces.List("pieces").Select(piece =>
             new SpikePiece(piece.Int("depth"), piece.Distance("growth"), piece.Distance("most"), piece.Int("fastest"), piece.Text("sound"))));
+        DataNode screens = data.Get("screens");
+        static Vector2I Screen(DataNode at) => new(at.Int("x"), at.Int("y"));
+        _behindWallScreens.Clear();
+        _behindWallScreens.AddRange(screens.List("behind_wall").Select(Screen));
+        _arenaScreens.Clear();
+        _arenaScreens.AddRange(screens.List("arena").Select(Screen));
+        _hiddenWallScreen = Screen(screens.Get("hidden_wall"));
+        _bridgeLeftScreen = Screen(screens.Get("bridge_left"));
+        _bridgeScreen = Screen(screens.Get("bridge"));
+        _bridgeLeftShutFromX = screens.Int("bridge_left_shut_from_x");
     }
+
+    /// <summary>Sets how one screen of its room lets the view in.</summary>
+    private void WriteScreen(Vector2I screen, ScreenScroll state) => Room.Session.ScrollCells.Write(screen.X, screen.Y, state);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -399,6 +422,9 @@ public partial class Crocomire : Enemy
         {
             _dying = Dying.Corpse;
             Play("dead");
+            // Beaten, its room is open from the left to the screen before the bridge.
+            foreach (Vector2I screen in _arenaScreens)
+                WriteScreen(screen, ScreenScroll.OpenAlignedToTop);
             return;
         }
 
@@ -406,6 +432,9 @@ public partial class Crocomire : Enemy
         Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
         Play("idle_sway");
         _tongue = new TimelinePlayer(Timelines.Get("tongue"));
+        // The screens behind its wall are shut while it lives.
+        foreach (Vector2I screen in _behindWallScreens)
+            WriteScreen(screen, ScreenScroll.Closed);
     }
 
     /// <summary>Gives the room back its own place for Samus in the view.</summary>
@@ -597,13 +626,20 @@ public partial class Crocomire : Enemy
 
         if (_dying == Dying.Fighting)
         {
-            BlockSamus();
             WatchBridge();
+            // While it fights, and on the update the bridge gives way too, the screen left of the bridge is shut once
+            // Samus is far enough across and open to its top before, and the bridge's screen is open to its top.
+            WriteScreen(_bridgeLeftScreen, Room.Player.Position.X.Whole >= _bridgeLeftShutFromX ? ScreenScroll.Closed : ScreenScroll.OpenAlignedToTop);
+            WriteScreen(_bridgeScreen, ScreenScroll.OpenAlignedToTop);
         }
         else
         {
             StepDeath();
         }
+
+        // It keeps Samus from getting past only while it still fights, after the bridge has been watched.
+        if (_dying == Dying.Fighting)
+            BlockSamus();
 
         if (_tongue is not null && GetNodeOrNull<ActorVisual>("Tongue") is { } tongue)
         {
@@ -814,6 +850,8 @@ public partial class Crocomire : Enemy
                     break;
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
+                WriteScreen(_hiddenWallScreen, ScreenScroll.Closed);
+                WriteScreen(_bridgeLeftScreen, ScreenScroll.OpenAlignedToTop);
                 if (SkeletonWallPatch.Length > 0)
                     Room.Terrain.ApplyPatch(SkeletonWallPatch);
                 // Until the fight is won Samus is kept toward the view's right edge, whichever way she faces.
@@ -890,8 +928,15 @@ public partial class Crocomire : Enemy
                 break;
 
             case Dying.Settling:
-                if (_wait == 4 && SpikeWallPatch.Length > 0)
-                    Room.Terrain.ApplyPatch(SpikeWallPatch);
+                if (_wait == 4)
+                {
+                    // The screens from the left to the one before the bridge open with the way on.
+                    foreach (Vector2I screen in _arenaScreens)
+                        WriteScreen(screen, ScreenScroll.OpenAlignedToTop);
+                    if (SpikeWallPatch.Length > 0)
+                        Room.Terrain.ApplyPatch(SpikeWallPatch);
+                }
+
                 if (--_wait > 0)
                     break;
                 if (TensionMusic.Length > 0)
@@ -1039,6 +1084,8 @@ public partial class Crocomire : Enemy
         _dying = Dying.FlowingDownRiver;
         if (TensionMusic.Length > 0)
             Room.Session.Sounds.RequestMusic(TensionMusic);
+        WriteScreen(_bridgeLeftScreen, ScreenScroll.OpenAlignedToTop);
+        WriteScreen(_bridgeScreen, ScreenScroll.OpenAlignedToTop);
         if (BridgeWallPatch.Length > 0)
             Room.Terrain.RevertPatch(BridgeWallPatch);
         ReleaseSamusInView();

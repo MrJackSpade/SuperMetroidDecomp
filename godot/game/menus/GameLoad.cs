@@ -29,11 +29,14 @@ public partial class GameLoad : GameMode
         return new Arrival(new PlayingMode(save.Room, save.EntryPoint), Arrival.OrdinaryWaits);
     });
 
-    /// <summary>A new game, in the game's first room. Whatever came before did with Samus is forgotten: she is as she starts.</summary>
+    /// <summary>
+    /// A new game, in the game's first room. Whatever came before did with Samus is forgotten: she is as she starts.
+    /// The game is saved to the session's slot as it is made, so that it is taken up again at its arrival there.
+    /// </summary>
     public static GameLoad OfNewGame() => new(session =>
     {
         session.BeginAgain();
-        return new Arrival(new PlayingMode(), Arrival.OrdinaryWaits);
+        return new Arrival(new PlayingMode(), Arrival.OrdinaryWaits, savesFirstArrival: true);
     });
 
     /// <summary>

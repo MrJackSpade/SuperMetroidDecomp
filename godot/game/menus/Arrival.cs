@@ -28,18 +28,24 @@ public partial class Arrival : GameMode
     private static readonly PlayTerms BeneathTheFade = new() { PlayerMayDie = false, PlayerMayBeSaved = false, MayPause = false, ServicesMayTakeOver = false };
 
     private readonly PlayingMode _playing;
+    private readonly bool _savesFirstArrival;
     private int _waitsLeft;
     private int _faded;
     private ScreenFade? _black;
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
-    /// <summary>The arrival into <paramref name="playing"/>, the black held for <paramref name="waits"/> updates first.</summary>
-    public Arrival(PlayingMode playing, int waits)
+    /// <summary>
+    /// The arrival into <paramref name="playing"/>, the black held for <paramref name="waits"/> updates first.
+    /// <paramref name="savesFirstArrival"/> says the game is saved as play is made, to resume in the game's first room
+    /// at its first entry point, as a new game's arrival on Ceres is.
+    /// </summary>
+    public Arrival(PlayingMode playing, int waits, bool savesFirstArrival = false)
     {
         ArgumentNullException.ThrowIfNull(playing);
         ArgumentOutOfRangeException.ThrowIfNegative(waits);
         _playing = playing;
         _waitsLeft = waits;
+        _savesFirstArrival = savesFirstArrival;
     }
 
     /// <inheritdoc/>
@@ -57,6 +63,10 @@ public partial class Arrival : GameMode
         _black = new ScreenFade { Name = "Black", Layer = 20 };
         AddChild(_black);
         _black.Cover(Levels, Levels);
+
+        // Play, made beneath this, has its room and its player set up by now: the game is saved as it stands.
+        if (_savesFirstArrival)
+            Session.Saves.Write(Session.Slot, SaveData.Capture(Session, Session.Definition.FirstRoom, Session.Definition.FirstEntryPoint));
     }
 
     /// <inheritdoc/>

@@ -83,7 +83,7 @@ public partial class TimeUpMode : GameMode
         escape.Stop();
         Session.Sounds.StopAll(SoundPriority.Essential);
         return Session.Progress.Has(StoryEvents.EscapeStarted)
-            ? Session.Definition.CreateModeAfterDeath()
+            ? new Menus.DeathBlackOut()
             : new CeresDestruction { SamusAboard = true };
     }
 }

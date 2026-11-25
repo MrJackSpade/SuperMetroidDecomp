@@ -61,6 +61,15 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _ => _across == 0 ? "shinespark_vertical" : _down == 0 ? "shinespark_horizontal" : "shinespark_diagonal",
     };
 
+    /// <summary>Whether she is still winding up.</summary>
+    public bool IsWindingUp => _stage == Stage.WindingUp;
+
+    /// <summary>
+    /// Where she stood before she moved this update, while she flies; none on the update she launches and once she
+    /// has crashed. Her speed echoes are left from here.
+    /// </summary>
+    public PixelPosition? FlownFrom { get; private set; }
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -154,6 +163,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _riseSpeed = Pixels.Zero;
         _riseGain = Pixels.FromNumber(samus.ShinesparkRiseGain);
         _stage = Stage.Flying;
+        FlownFrom = null;
         samus.Room.Session.Sounds.Request(Sounds.Shinespark, channel: "samus", priority: SoundPriority.High);
     }
 
@@ -162,6 +172,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     {
         if (samus.Power(HitKinds.Shinespark) is { } power)
             power.IsActive = true;
+        FlownFrom = samus.Position;
 
         MoveOptions options = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
         Pixels gravity = Pixels.FromNumber(samus.Medium.Gravity);
@@ -195,6 +206,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         if (!stopped && !spent)
             return;
         _stage = Stage.Crashed;
+        FlownFrom = null;
         (_crash, _crashRadius, _crashTravelled) = (Crash.Expanding, 0, 0);
         (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);
         samus.Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");

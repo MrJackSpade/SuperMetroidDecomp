@@ -290,6 +290,16 @@ public sealed partial class EngineAssetWriter
             .Value("spike_wall_breaking_patch", wallBreaking)
             .Value("break_through_patch", breakThrough)
             .Group("poses", poses)
+            // The screens of its room its fight and its death shut and open.
+            .Group("screens", new JsonObject
+            {
+                ["behind_wall"] = EngineNames.List(CrocomireCameraDefinitions.BehindWallScreens.Select(screen => (JsonNode)At(screen.X, screen.Y))),
+                ["arena"] = EngineNames.List(CrocomireCameraDefinitions.ArenaScreens.Select(screen => (JsonNode)At(screen.X, screen.Y))),
+                ["hidden_wall"] = At(CrocomireCameraDefinitions.HiddenWallScreen.X, CrocomireCameraDefinitions.HiddenWallScreen.Y),
+                ["bridge_left"] = At(CrocomireCameraDefinitions.BridgeLeftScreen.X, CrocomireCameraDefinitions.BridgeLeftScreen.Y),
+                ["bridge"] = At(CrocomireCameraDefinitions.BridgeScreen.X, CrocomireCameraDefinitions.BridgeScreen.Y),
+                ["bridge_left_shut_from_x"] = CrocomireCameraDefinitions.BridgeVisibleSamusX,
+            })
             .Group("volley", new JsonObject
             {
                 ["reach"] = CrocomireProjectileDefinitions.AimReachLeft,

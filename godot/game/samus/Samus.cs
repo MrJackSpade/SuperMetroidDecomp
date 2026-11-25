@@ -333,7 +333,11 @@ public partial class Samus : Player
     private CrystalFlashColouring _crystalFlashColouring;
 
     /// <summary>A crystal flash's colouring of her begins.</summary>
-    public void BeginCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.Showing;
+    public void BeginCrystalFlashColouring()
+    {
+        _crystalFlashColouring = CrystalFlashColouring.Showing;
+        (_flashBody, _flashBubble) = (new SamusGlowPlay(Colours.Glow("crystal_flash_body")), new SamusGlowPlay(Colours.Glow("crystal_flash_bubble")));
+    }
 
     /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
     public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
@@ -907,6 +911,7 @@ public partial class Samus : Player
     /// </summary>
     public void ReconcileAfterPause()
     {
+        ShowBeamColours();
         ShowSuitColours();
         if (Inventory.IsOn(Equipment.SpeedBooster))
         {
@@ -959,6 +964,12 @@ public partial class Samus : Player
 
         _woreVaria = varia;
         _woreGravity = gravity;
+
+        // A beam that has just become hers shows the colours of the beams she now has switched on.
+        int beams = BeamsOwned;
+        if (beams > _beamsOwned)
+            ShowBeamColours();
+        _beamsOwned = beams;
     }
 
     /// <inheritdoc/>

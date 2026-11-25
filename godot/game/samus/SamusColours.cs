@@ -6,7 +6,8 @@ using Engine.Ui;
 namespace Game;
 
 /// <summary>
-/// Samus's colours: the colouring her suit shows now, and every colouring and glow her data gives her. Her pictures
+/// Samus's colours: the colouring her suit shows now, the colouring her beams show with what is laid over it, and
+/// every colouring and glow her data gives her. Her pictures
 /// are one set, in their sheet's own colours; each colouring, her suits' own among them, is a change of those colours
 /// shown where she is drawn. Which colouring she shows is hers to keep, as the cartridge keeps her palette: it is set
 /// by what colours her (a suit put on, a hurt, a glow) and stays until something sets another, whatever she wears.
@@ -25,7 +26,11 @@ namespace Game;
 /// "shades" names every colouring and lists, for the pictures of each place, the colours it changes, as any change of
 /// colours is written (<see cref="ColourChange"/>). "glows" names every glow (<see cref="SamusGlow"/>). "starting" is
 /// the colouring she is in before any is set, "suits" the colouring of each suit, "hurt" that of a hurt's flash, and
-/// "drain_flash" the colouring she flashes in each suit while something drains her.
+/// "drain_flash" the colouring she flashes in each suit while something drains her. "starting_beams" is the
+/// colouring her beams' colours are in before any is set, and "beams" that of each set of beams she can have
+/// switched on, named for them: "power", "wave", "spazer_ice_wave". Her pictures draw some of their colours from
+/// her beams', so a colouring of the beams shows on her too, over her suit's; and a colouring laid over the beams'
+/// shows over that, each effect's last colouring in the order they were laid.
 /// </remarks>
 public sealed class SamusColours
 {
@@ -37,6 +42,10 @@ public sealed class SamusColours
     private readonly Dictionary<string, SamusGlow> _glows = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _suits = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _drainFlash = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _beams = new(StringComparer.Ordinal);
+
+    /// <summary>The colourings laid over her beams', in the order they were laid; the last covers the others.</summary>
+    private readonly List<string> _overBeams = [];
 
     /// <summary>What each visual was last shown: which change of hers, and the places it showed pictures from.</summary>
     private readonly Dictionary<ActorVisual, (int Change, string Places)> _shownOn = [];
@@ -61,8 +70,11 @@ public sealed class SamusColours
             _suits[suit] = Known(shade.AsText());
         foreach ((string suit, DataNode shade) in data.Get("drain_flash").Entries())
             _drainFlash[suit] = Known(shade.AsText());
+        foreach ((string beams, DataNode shade) in data.Get("beams").Entries())
+            _beams[beams] = Known(shade.AsText());
         Hurt = Known(data.Text("hurt"));
         Suit = Known(data.Text("starting"));
+        Beams = Known(data.Text("starting_beams"));
     }
 
     /// <summary>Reads her colours from their data file.</summary>
@@ -75,8 +87,37 @@ public sealed class SamusColours
     /// <summary>The colouring her suit shows now, by name.</summary>
     public string Suit { get; private set; }
 
+    /// <summary>The colouring her beams show now, by name.</summary>
+    public string Beams { get; private set; }
+
     /// <summary>The colouring of a hurt's flash.</summary>
     public string Hurt { get; }
+
+    /// <summary>The colouring of the beams named for those switched on: "power" for none, else "spazer", "plasma", "ice" and "wave" in that order with strokes between.</summary>
+    public string BeamsOf(string beams) => _beams.TryGetValue(beams, out string? shade)
+        ? shade
+        : throw new ContentException(_file, $"gives no colouring for the beams \"{beams}\"");
+
+    /// <summary>Shows <paramref name="shade"/> as her beams' colours, in place of the colouring they showed and of whatever was laid over it.</summary>
+    public void ShowBeams(string shade)
+    {
+        Beams = Known(shade);
+        _overBeams.Clear();
+        _change++;
+    }
+
+    /// <summary>Lays <paramref name="shade"/> over her beams' colours, in place of an earlier colouring of the same effect.</summary>
+    public void LayOverBeams(string shade)
+    {
+        Known(shade);
+        string effect = EffectOf(shade);
+        _overBeams.RemoveAll(laid => EffectOf(laid) == effect);
+        _overBeams.Add(shade);
+        _change++;
+    }
+
+    /// <summary>The effect a colouring is a step of: its name without the step's number at its end.</summary>
+    private static string EffectOf(string shade) => shade[..shade.LastIndexOf('_')];
 
     /// <summary>The colouring of the suit named: "power", "varia" or "gravity".</summary>
     public string SuitOf(string suit) => _suits.TryGetValue(suit, out string? shade)
@@ -110,8 +151,14 @@ public sealed class SamusColours
     public void ShowOn(ActorVisual visual)
     {
         ArgumentNullException.ThrowIfNull(visual);
-        (string Place, ColourSwap[] Swaps)[] shown = [.. _shades[Suit].Where(place => visual.ShowsPicturesIn(place.Place))];
-        string places = string.Join('|', shown.Select(place => place.Place));
+        // What was laid last is asked first, so it is the one shown where two change one colour: over her beams'
+        // colours what was laid over them, and her beams' over her suit's.
+        (string Place, ColourSwap[] Swaps)[] shown =
+        [
+            .. ((IEnumerable<string>)_overBeams).Reverse().Append(Beams).Append(Suit)
+                .SelectMany(shade => _shades[shade]).Where(place => visual.ShowsPicturesIn(place.Place)),
+        ];
+        string places = string.Join('|', shown.Select(place => place.Place).Distinct());
         if (_shownOn.TryGetValue(visual, out (int Change, string Places) last) && last == (_change, places))
             return;
         _shownOn[visual] = (_change, places);

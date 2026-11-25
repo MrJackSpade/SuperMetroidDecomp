@@ -1026,7 +1026,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   shows is set by what colours her and stays until something sets another, whatever she wears. Every colouring,
   her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`
   with every glow (`SamusGlow`: the colourings it shows in turn, each for so many updates, and the step it goes
-  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); `SamusVisual` shows her colouring on her picture and her echoes. A suit put on shows its colours as it is collected, and a pause's end shows the colours of the suit she wears. Nothing tints her for a colouring her
+  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); Her beams' colours are a colouring too, for the beams she has switched on, and colourings may be laid over it (a crystal flash's bubble and body): her pictures draw some of their colours from her beams', so these show on her over her suit's. `SamusVisual` shows her colouring on her picture and her echoes. A suit put on shows its colours as it is collected, and a pause's end shows the colours of the suit she wears. Nothing tints her for a colouring her
   data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
 - **Her colour step** (`Samus.StepColours`) runs once an update, after she has moved and just before she is
   shown, and not while a suit is being put on or she is dying. What colours her takes its turn there in the
@@ -1034,8 +1034,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   change of pose or a lost run asked for them; the charge's colours (a full
   charge's pulse, a charged shot's flash, a hyper shot's glow; the update a shot's glow ends shows her suit and
   passes over the turns of what glows), the screw attack's and the speed booster's glow, which share one place in
-  their colourings, the stored shine's and the shinespark's glow, then the flash of whatever drains her
-  (`SetDrainFlash`), then a hurt's flash. Counts that the
+  their colourings, the stored shine's and the shinespark's glow, a crystal flash's colouring of her beams' colours, then the flash
+  of whatever drains her (`SetDrainFlash`), then a hurt's flash. Counts that the
   cartridge keeps in its colour step are kept there and nowhere else, so they stand still on an update the step
   does not run: the stored shine's time with its sound, and the count of a hurt's flash, which a knockback or
   energy found lost after she is shown starts, a flying shinespark holds, and which times her hurt's sound and

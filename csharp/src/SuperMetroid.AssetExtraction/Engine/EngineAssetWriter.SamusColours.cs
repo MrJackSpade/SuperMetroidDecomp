@@ -83,12 +83,19 @@ public sealed partial class EngineAssetWriter
             drainFlash[name] = Shade(SamusShades.FullBodyCycle(SamusFullBodyCycleShades.SpeedBoostShade(suit)));
         }
 
+        // Her beams' colours, for each set of beams she can have switched on, named as the old game names the set.
+        var beams = new JsonObject();
+        foreach (SuperMetroid.Core.Progression.SamusBeamCombination combination in Enum.GetValues<SuperMetroid.Core.Progression.SamusBeamCombination>())
+            beams[EngineSheets.FileName(combination.ToString())] = Shade(SamusShades.Beam(combination));
+
         var glowsWritten = new JsonObject();
         foreach ((string name, JsonObject glow) in glows)
             glowsWritten[name] = glow;
         _tree.WriteData("samus/colours.json", new JsonObject
         {
             ["starting"] = Shade(SamusShades.StartingSuit),
+            ["starting_beams"] = Shade(SamusShades.StartingBeams),
+            ["beams"] = beams,
             ["suits"] = suits,
             ["hurt"] = Shade(SamusShades.Hurt(SamusHurtColorVariant.Hurt)),
             ["drain_flash"] = drainFlash,

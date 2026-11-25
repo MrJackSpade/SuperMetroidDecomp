@@ -120,6 +120,51 @@ public partial class Samus
     /// <summary>The suit whose colours she shows: the gravity suit's before the varia suit's, and the power suit's with neither on.</summary>
     public string SuitWorn => Inventory.IsOn(Equipment.GravitySuit) ? "gravity" : Inventory.IsOn(Equipment.VariaSuit) ? "varia" : "power";
 
+    /// <summary>The beams whose colours her pictures draw on, in the order their colourings are named for them.</summary>
+    private static readonly (string Equipment, string Name)[] ColouredBeams =
+        [(Equipment.Spazer, "spazer"), (Equipment.PlasmaBeam, "plasma"), (Equipment.IceBeam, "ice"), (Equipment.WaveBeam, "wave")];
+
+    /// <summary>How many of those beams she owned when last looked at, to tell one newly hers.</summary>
+    private int _beamsOwned;
+
+    /// <summary>How many of those beams she owns.</summary>
+    private int BeamsOwned => ColouredBeams.Count(beam => Inventory.Owns(beam.Equipment));
+
+    /// <summary>The glows of a crystal flash, each counting its own colourings, while one colours her.</summary>
+    private SamusGlowPlay? _flashBody, _flashBubble;
+
+    /// <summary>
+    /// Shows the colours of the beams she has switched on, in place of whatever coloured her beams and of whatever
+    /// was laid over them: as she is made ready, as a beam becomes hers, as a pause ends and as a crystal flash's
+    /// colouring ends.
+    /// </summary>
+    public void ShowBeamColours()
+    {
+        string[] on = [.. ColouredBeams.Where(beam => Inventory.IsOn(beam.Equipment)).Select(beam => beam.Name)];
+        Colours.ShowBeams(Colours.BeamsOf(on.Length == 0 ? "power" : string.Join('_', on)));
+    }
+
+    /// <summary>
+    /// A crystal flash's colouring, laid over her beams' colours, which her pictures draw on while it lasts: the
+    /// bubble's colourings turn and the body's pulse, each on its own count, the bubble's laid first on an update
+    /// that reaches both. On the update the flash is done the colours of the beams she has switched on show again.
+    /// </summary>
+    private void StepCrystalFlashColouring()
+    {
+        if (_crystalFlashColouring == CrystalFlashColouring.Showing)
+        {
+            if (_flashBubble?.Step() is { } bubble)
+                Colours.LayOverBeams(bubble);
+            if (_flashBody?.Step() is { } body)
+                Colours.LayOverBeams(body);
+        }
+        else if (_crystalFlashColouring == CrystalFlashColouring.EndingNext)
+        {
+            ShowBeamColours();
+            (_flashBody, _flashBubble) = (null, null);
+        }
+    }
+
     /// <summary>Shows the colours of the suit she wears, in place of whatever coloured her.</summary>
     public void ShowSuitColours() => Colours.ShowSuit(Colours.SuitOf(SuitWorn));
 
@@ -128,6 +173,8 @@ public partial class Samus
     {
         _colours = SamusColours.Read(Room.Content.ReadData(ColoursFile));
         ShowSuitColours();
+        ShowBeamColours();
+        _beamsOwned = BeamsOwned;
         _energyAtLastCheck = Inventory.Amount(Amounts.Energy);
     }
 
@@ -210,6 +257,7 @@ public partial class Samus
         {
             StepBodyGlow();
             StepShineColouring();
+            StepCrystalFlashColouring();
         }
         if (StepDrainFlash())
             return;

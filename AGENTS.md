@@ -35,7 +35,11 @@
   Leaving in unused entities during the architectural foundation just pollutes the design
   pattern". When a change leaves an engine kind, state or setting with no user, remove it in
   that change, with its checks, its writer in the extractor and its place in the docs; do
-  not keep it as an offering to some other game.
+  not keep it as an offering to some other game. This covers an engine default behind a
+  virtual that the game always overrides: if the game never reaches the default, it is dead
+  and goes. The owner's words: "The engine at this point should contain no dead
+  functionality at all. In the future it can, but right now its design isn't clear enough
+  to justify vestigial data".
 - The manifesto does not authorize starting Godot work.
 
 ## Full parity with the cartridge is required
@@ -73,10 +77,10 @@
   - An old mechanism or internal order that changes nothing of play is not reproduced.
   - A ticket that is only about how something is stepped for the eye or the ear, or about an
     internal order, is closed or left parked. It is not worked.
-- A known difference is a defect, never an accepted end state. "Close enough", "simplified",
-  "the Godot way" and "still different, not fixed" are not outcomes of a piece of work. A
-  difference is fixed, or it stays open as a ticket.
-- Every difference found gets its own ticket in the `v1.0.0` milestone, whether it was found
+- A known gameplay difference is a defect, never an accepted end state. "Close enough",
+  "simplified", "the Godot way" and "still different, not fixed" are not outcomes of a piece
+  of work. A gameplay difference is fixed, or it stays open as a ticket.
+- Every gameplay difference found gets its own ticket in the `v1.0.0` milestone, whether it was found
   by reading the old code, while building something else, or left behind by the work in
   hand. v1.0.0 is not complete while one is open.
 - When migrating anything, read the old code for it line by line and carry over exactly what
@@ -230,7 +234,6 @@ reproducing a reported bug.
   enhancements on top of the port, widescreen support (#1394) among them, and making the
   asset extractor self-contained (#2910); more complex enhancements go to later `1.x`
   versions.
-- Work is ordered by milestone: take tickets from the earliest open milestone.
 
 ## Issue-fix workflow
 

@@ -117,6 +117,9 @@ internal sealed partial class EngineSheets
     /// <exception cref="InvalidDataException">No sheet holds the picture.</exception>
     private string SheetHolding(string spawner, string frame)
     {
+        // The old game's point at the thing's place is its picture of nothing, and is on no sheet.
+        if (frame == SuperMetroid.Core.Enemies.Artwork.EnemySheetDefinitions.EffectActorFrameName(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.PointAtOrigin))
+            return "";
         if ((SheetOfSpawned(SpawnedLook(spawner), frame) ?? SheetOfSpawned(SharedLookBeside(spawner), frame)
             ?? SheetOfSpawned(SpawnedLook(SharedSpawner), frame) ?? SheetOfSpawned(StandardLook(), frame)) is { } found)
             return found;

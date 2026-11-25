@@ -12,8 +12,10 @@ namespace Game.Enemies;
 /// across; the floor splashes it.
 /// </summary>
 /// <remarks>
-/// Its timeline's cue "launch" sets it moving. The timeline of its splash, which its data names, has the cues "stop",
-/// which holds it still, and "end", which removes it. Its settings let it through terrain, which it meets itself.
+/// Its timeline's cue "launch" sets it moving. The timeline of its splash has the cues "stop", which holds it still,
+/// and "end", which removes it; its data names the splash's file ("splash"), which lies in the folder its own
+/// timeline is in, since each Ki-Hunter's acid is of that Ki-Hunter's colours. Its settings let it through terrain,
+/// which it meets itself.
 /// </remarks>
 public partial class KiHunterAcid : Projectile, IHasValues
 {
@@ -33,9 +35,9 @@ public partial class KiHunterAcid : Projectile, IHasValues
     [Export, DataValue("fastest_fall")]
     public double FastestFall { get; set; } = 2;
 
-    /// <summary>The data file of the timeline of its splash on the floor.</summary>
-    [Export, DataValue("splash_timeline")]
-    public string SplashTimeline { get; set; } = "";
+    /// <summary>The file of the timeline of its splash on the floor, by its name within the folder its own timeline is in.</summary>
+    [Export, DataValue("splash")]
+    public string Splash { get; set; } = "";
 
     private PixelVelocity _launch;
     private bool _flying;
@@ -86,7 +88,7 @@ public partial class KiHunterAcid : Projectile, IHasValues
         {
             _splashed = true;
             Velocity = PixelVelocity.Zero;
-            PlayTimeline(SplashTimeline);
+            PlayTimeline($"{Settings.Timeline[..Settings.Timeline.LastIndexOf('/')]}/{Splash}");
             return;
         }
 

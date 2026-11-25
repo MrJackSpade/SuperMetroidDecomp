@@ -18,8 +18,11 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// <summary>More enemies whose animations tell them what to do next.</summary>
 public sealed partial class EngineAssetWriter
 {
-    /// <summary>The data file of the timeline of a Ki-Hunter's acid splashing on the floor.</summary>
-    private const string AcidSplashFile = "enemies/ki_hunter_acid/splash.json";
+    /// <summary>
+    /// The name of the timeline of a Ki-Hunter's acid splashing on the floor, within the Ki-Hunter's own folder: the
+    /// acid is of its Ki-Hunter's colours, so each has a splash of its own beside its acid's flight.
+    /// </summary>
+    private const string AcidSplashName = "acid_splash";
 
     /// <summary>What an event of a Ki-Hunter's acid becomes: it is launched, it stops, it is gone.</summary>
     private static string? AcidCue(KiHunterAcidSpitCue cue) => cue switch
@@ -49,10 +52,11 @@ public sealed partial class EngineAssetWriter
                     shot["scene"] = "res://game/enemies/ki_hunter/ki_hunter_acid.tscn";
                     hunter.SpawnedTimeline("acid_left", KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt[KiHunterAcidSpitSegment.Left], AcidCue);
                     hunter.SpawnedTimeline("acid_right", KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt[KiHunterAcidSpitSegment.Right], AcidCue);
-                    // Every Ki-Hunter's acid splashes alike, and the one data file of the acid names the splash.
+                    // Every Ki-Hunter's acid splashes alike, in its own colours; the one data file of the acid names
+                    // the splash's file, which lies beside the acid's flight.
                     (List<SuperMetroid.Core.Animation.IAnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>> splash, _) =
                         EngineTimelines.Played(KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt[KiHunterAcidSpitSegment.HitFloor]);
-                    hunter.SpawnedTimelineAt(AcidSplashFile, splash, null, SuperMetroid.Core.Enemies.Artwork.EnemySheetDefinitions.ProjectileFrameName, AcidCue);
+                    hunter.SpawnedTimeline(AcidSplashName, splash, null, AcidCue);
                     projectile["timeline"] = $"{hunter.Folder}/acid_{{side}}.json";
                     projectile["picture_offset"] = EngineEnemy.NoOffset();
                     projectile["meeting_terrain"] = "passes_through";
@@ -61,7 +65,7 @@ public sealed partial class EngineAssetWriter
                     ("launch_shift", KiHunterMotionDefinitions.AcidLaunchShift),
                     ("gravity", EngineNames.Number(KiHunterMotionDefinitions.AcidGravity)),
                     ("fastest_fall", EngineNames.Number(KiHunterMotionDefinitions.AcidFastestFall)),
-                    ("splash_timeline", AcidSplashFile))
+                    ("splash", AcidSplashName + ".json"))
                 .Looks(KiHunterAnimations.Segments, KiHunterAnimations.StartingWith,
                     static (KiHunterCue cue) => cue switch
                     {

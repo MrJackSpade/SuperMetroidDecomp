@@ -69,7 +69,6 @@ public sealed partial class EngineAssetWriter
         writer.WriteSamus();
         writer.WriteRoomPatches();
         writer.WriteBackdrops();
-        writer.WriteRoomColourEffects();
         writer.WriteStatueHall();
         writer.WriteLiquidsAndOverlays();
         writer.WriteCeresFloors();
@@ -89,8 +88,11 @@ public sealed partial class EngineAssetWriter
         writer.WriteScrollLayouts();
         writer.WriteMusicSets();
         writer.WriteWords();
-        // The layouts last: what was written above gave them their patches.
+        // The layouts after everything that gives them their patches.
         layouts.WriteAll();
+
+        // The rooms' colour effects read the rooms' pictures as they were cut, and give nothing to anything else.
+        writer.WriteRoomColourEffects();
     }
 
     /// <summary>

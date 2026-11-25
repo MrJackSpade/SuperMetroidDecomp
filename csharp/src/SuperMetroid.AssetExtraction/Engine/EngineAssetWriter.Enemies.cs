@@ -192,11 +192,11 @@ public sealed partial class EngineAssetWriter
             .Looks(DeadTorizoAnimations.Segments, DeadTorizoAnimations.StartingWith, ("corpse", DeadTorizoSegment.Stationary))
             .Write();
 
-        // The Rippers: the plain one and the jet one fly alike; the grapple one has pictures of its own.
+        // The Rippers: the jet one shows the grapple one's flying, as the cartridge has it; the plain one has its own.
         foreach ((string file, EnemyDefinitionId id, RipperSegment left, RipperSegment right) in new[]
                  {
                      ("ripper", EnemyDefinitionId.Ripper, RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight),
-                     ("jet_ripper", EnemyDefinitionId.JetRipper, RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight),
+                     ("jet_ripper", EnemyDefinitionId.JetRipper, RipperSegment.GrappleRipperMovingLeft, RipperSegment.GrappleRipperMovingRight),
                      ("grapple_ripper", EnemyDefinitionId.GrappleRipper, RipperSegment.GrappleRipperMovingLeft, RipperSegment.GrappleRipperMovingRight),
                  })
         {

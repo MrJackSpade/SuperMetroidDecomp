@@ -264,7 +264,7 @@ public partial class SporeSpawn : Enemy
         _dying = true;
         _sporesHeldBack = false;
         // Its death begins at once, not when the flash of the hit that killed it is over.
-        FlashFor(0);
+        EndHurt();
         foreach (Projectile spore in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
             Room.Remove(spore);
         // The places its spores came from go with them.

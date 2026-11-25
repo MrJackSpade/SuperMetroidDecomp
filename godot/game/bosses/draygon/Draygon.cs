@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
@@ -241,16 +242,7 @@ public partial class Draygon : Enemy
     {
         into.Clear();
         foreach ((string part, DataNode colours) in parts.Entries())
-            into[part] = [.. colours.Entries().Select(swap => new ColourSwap(ReadColour(colours, swap.Key), ReadColour(swap.Value, swap.Value.AsText())))];
-    }
-
-    /// <summary>A colour written as six hexadecimal digits, red, green and blue.</summary>
-    private static Color ReadColour(DataNode where, string text)
-    {
-        if (text.Length != 6 || !text.All(Uri.IsHexDigit))
-            throw where.Problem($"names the colour \"{text}\", which is not six hexadecimal digits");
-        return new Color(
-            Convert.ToInt32(text[..2], 16) / 255f, Convert.ToInt32(text[2..4], 16) / 255f, Convert.ToInt32(text[4..], 16) / 255f);
+            into[part] = ColourChange.ReadSwaps(colours);
     }
 
     /// <summary>Shows its tail and arms with the colours given changed.</summary>

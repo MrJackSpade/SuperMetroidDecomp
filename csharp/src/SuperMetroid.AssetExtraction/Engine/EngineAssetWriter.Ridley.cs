@@ -460,6 +460,18 @@ public sealed partial class EngineAssetWriter
             return timeline;
         }
 
+        // The colours its retreat gives the chamber, on the pictures of each state of a room that places it.
+        var chamber = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach ((var _, var state) in EngineLayouts.States())
+        {
+            if (state.EnemyPopulation.Placements.Span.Any(placed => placed.DefinitionId == EnemyDefinitionId.RidleyCeres))
+                AddRoomPlaces(chamber, state);
+        }
+
+        if (chamber.Count == 0)
+            throw new InvalidDataException("No room places Ridley's fight aboard Ceres.");
+        ridley.Group("retreat_colours", ShadeChange($"{RidleyShades.RetreatRoom.Key}+{RidleyShades.RetreatShared.Key}", chamber));
+
         ridley
             .Timeline("baby_idle", Baby(CeresRidleyBabyScene.SilentAnimation))
             .Timeline("baby_expressive", Baby(CeresRidleyBabyScene.MovingAnimation))

@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -173,7 +174,9 @@ public partial class Ridley : Enemy
             _poseBoxes[picture] = [.. boxes.Items().Select(box => new PixelRect(box.Int("left"), box.Int("top"), box.Int("width"), box.Int("height")))];
         DataNode bounds = data.Get("flight_bounds");
         FlightBounds = new Rect2I(bounds.Int("left"), bounds.Int("top"), bounds.Int("right") - bounds.Int("left"), bounds.Int("bottom") - bounds.Int("top"));
-        if (!OnCeres)
+        if (OnCeres)
+            _retreatColours = ColourChange.Read(data.Get("retreat_colours"));
+        else
             ReadNorfairValues(data);
     }
 

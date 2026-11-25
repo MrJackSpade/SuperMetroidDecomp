@@ -11,7 +11,8 @@ namespace Engine.Ui;
 /// of regions, which a picture that has one is drawn with (<see cref="Content.ContentLibrary.LoadTexture"/>).
 /// </summary>
 /// <remarks>
-/// Where two sources change the same colour, the one that asked first is shown. A thing shows at most
+/// Where two sources change the same colour, the one that asked last is shown, as the last to write a colour of a
+/// palette is. A thing shows at most
 /// <see cref="MostSwaps"/> changed colours at once.
 /// </remarks>
 public sealed class Recolouring
@@ -51,7 +52,7 @@ public sealed class Recolouring
         }
         """;
 
-    /// <summary>What each source asked for, in the order the sources first asked.</summary>
+    /// <summary>What each source asked for, the source that asked last first.</summary>
     private readonly List<(string Source, IReadOnlyList<ColourSwap> Swaps)> _asked = [];
 
     /// <summary>The thing drawn.</summary>
@@ -84,20 +85,14 @@ public sealed class Recolouring
         ArgumentException.ThrowIfNullOrWhiteSpace(source);
         ArgumentNullException.ThrowIfNull(swaps);
         int at = _asked.FindIndex(asked => asked.Source == source);
-        if (swaps.Count == 0)
-        {
-            if (at < 0)
-                return;
+        if (at < 0 && swaps.Count == 0)
+            return;
+        if (at >= 0)
             _asked.RemoveAt(at);
-        }
-        else if (at < 0)
-        {
-            _asked.Add((source, swaps));
-        }
-        else
-        {
-            _asked[at] = (source, swaps);
-        }
+
+        // The shader shows the first change it finds of a colour, so the source asking now goes before the rest.
+        if (swaps.Count > 0)
+            _asked.Insert(0, (source, swaps));
 
         Show();
     }

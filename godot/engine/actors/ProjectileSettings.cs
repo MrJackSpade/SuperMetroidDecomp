@@ -209,12 +209,6 @@ public sealed record ProjectileSettings
     /// <summary>What it may leave when a shot destroys it; null for one that leaves nothing.</summary>
     public DropTable? Drops { get; init; }
 
-    /// <summary>
-    /// Whether a projectile of the enemies' holds one of the room's places for what enemies launch and leave. It does
-    /// unless its data says otherwise, as for one that is part of what launched it and comes and goes with it.
-    /// </summary>
-    public bool HoldsPlace { get; init; } = true;
-
     /// <summary>Reads settings from a data file's group. Anything not given keeps its plain value.</summary>
     public static ProjectileSettings Read(DataNode data)
     {
@@ -251,7 +245,6 @@ public sealed record ProjectileSettings
             EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
             EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",
             Drops = data.Has("drops") ? DropTable.Read(data.Get("drops")) : null,
-            HoldsPlace = !data.Has("holds_place") || data.Flag("holds_place"),
         };
         if (settings.Width <= 0 || settings.Height <= 0 || settings.LastsUpdates < 0)
             throw data.Problem("gives a size that is not positive or a negative lifetime");

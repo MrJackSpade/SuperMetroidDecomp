@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
@@ -18,7 +19,8 @@ namespace Game.Enemies;
 /// As well as what both fights share it plays "ceres_lunge_left", "ceres_lunge_right", "retrieve_baby_left",
 /// "retrieve_baby_right", "fireballing_end_left" and "fireballing_end_right". Its visual "Baby" is the capsule, which
 /// plays "baby_idle" and "baby_expressive"; their cue "reacts" livens it when it is falling, and "cries" has it cry
-/// or, as often as not when it is still, settle.
+/// or, as often as not when it is still, settle. Its data's "retreat_colours" is the change of colours its going
+/// gives the chamber's own pictures, which stays for as long as the room is there.
 /// </remarks>
 public partial class Ridley
 {
@@ -45,6 +47,9 @@ public partial class Ridley
     /// <summary>How many updates each hit makes it flash.</summary>
     [Export, DataValue("hit_flash_updates")]
     public int HitFlashUpdates { get; set; } = 13;
+
+    /// <summary>The colours its going gives the chamber.</summary>
+    private ColourChange _retreatColours = ColourChange.None;
 
     /// <summary>The capsule's cry, by name.</summary>
     [Export, DataValue("baby_cry_sound")]
@@ -332,6 +337,9 @@ public partial class Ridley
                 Velocity = PixelVelocity.Zero;
                 Tail.Action = RidleyTail.Doing.None;
                 _ceresPhase = CeresPhase.Gone;
+
+                // The chamber takes its colours on this update; its own it keeps.
+                Room.Recolour("RidleyRetreat", _retreatColours);
                 foreach (NodePath path in ToldWhenGone)
                     (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Ridley is to tell \"{path}\" that it has gone, but that is nothing that can be told.")).Triggered(GoneMessage);
                 Vanish();

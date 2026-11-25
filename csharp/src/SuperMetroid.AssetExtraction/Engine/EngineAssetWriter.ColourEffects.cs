@@ -36,18 +36,30 @@ public sealed partial class EngineAssetWriter
             {
                 if (!ColourEffectRoomColourDefinitions.RoomColours.Contains(ColourEffectAnimations.Definition(effect).Colours))
                     continue;
-                string set = GraphicsFolder(state), blocks = state.GraphicsSet.ToString();
+                string set = GraphicsFolder(state);
                 if (!shownOn.TryGetValue((set, effect), out SortedDictionary<string, string>? places))
-                    shownOn[(set, effect)] = places = new SortedDictionary<string, string>(StringComparer.Ordinal) { [$"tiles/{set}"] = blocks };
-                if (BackdropSheet(state) is { } backdrop)
-                    places[BackdropPath(state, state.Background!)] = backdrop;
-                else if (state.Background is null)
-                    places[EngineLayouts.LevelBackgroundPath(state, set)] = blocks;
+                    shownOn[(set, effect)] = places = new SortedDictionary<string, string>(StringComparer.Ordinal);
+                AddRoomPlaces(places, state);
             }
         }
 
         foreach (((string set, ColourEffectId effect), SortedDictionary<string, string> places) in shownOn)
             _tree.WriteData(ColourStepsPath(set, effect), ColourSteps(effect, places));
+    }
+
+    /// <summary>
+    /// Adds the places one state of a room shows pictures of its own from, each with the sheet its pictures were cut
+    /// from: the folder of its set's blocks, and the picture behind it, whether a picture of its own or one put
+    /// together from the set's blocks.
+    /// </summary>
+    private static void AddRoomPlaces(IDictionary<string, string> places, RoomStateSettings state)
+    {
+        string set = GraphicsFolder(state), blocks = state.GraphicsSet.ToString();
+        places[$"tiles/{set}"] = blocks;
+        if (BackdropSheet(state) is { } backdrop)
+            places[BackdropPath(state, state.Background!)] = backdrop;
+        else if (state.Background is null)
+            places[EngineLayouts.LevelBackgroundPath(state, set)] = blocks;
     }
 
     /// <summary>
@@ -109,17 +121,23 @@ public sealed partial class EngineAssetWriter
     /// <summary>The most colours a thing drawn in the engine shows changed at once (its <c>Recolouring.MostSwaps</c>).</summary>
     private const int MostSwapsShown = 64;
 
+    /// <summary>The colours one frame of a colour effect shows changed, place by place.</summary>
+    private JsonObject ColoursShown(ColourEffectColours colours, ColourEffectFrame frame, IReadOnlyDictionary<string, string> places) =>
+        ShadeChange(ColourEffectShades.Of(colours, frame).Key, places);
+
     /// <summary>
-    /// The colours one frame of a colour effect shows changed, place by place: for each place, every colour the frame
-    /// changes as the place's pictures have it, with the colour the frame shows for it, written as six hexadecimal
-    /// digits. A colour changed only in one region of the pictures is written with the region's number after a
-    /// stroke, as the pictures' maps of regions number it. A place the frame changes nothing in is left out.
+    /// The colours a shade shows changed, place by place, as the engine reads a change of colours: for each place,
+    /// every colour the shade changes as the place's pictures have it, with the colour the shade shows for it,
+    /// written as six hexadecimal digits. A colour changed only in one region of the pictures is written with the
+    /// region's number after a stroke, as the pictures' maps of regions number it. A place the shade changes nothing
+    /// in is left out.
     /// </summary>
-    /// <exception cref="InvalidDataException">The frame changes more colours in one place than a thing can show changed at once.</exception>
-    private JsonObject ColoursShown(ColourEffectColours colours, ColourEffectFrame frame, IReadOnlyDictionary<string, string> places)
+    /// <param name="shade">The shade, or several with a plus sign between them, a later one laid over an earlier.</param>
+    /// <param name="places">Each place with the sheet its pictures were cut from.</param>
+    /// <exception cref="InvalidDataException">The shade changes more colours in one place than a thing can show changed at once.</exception>
+    private JsonObject ShadeChange(string shade, IReadOnlyDictionary<string, string> places)
     {
         static string Written(int colour) => colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
-        string shade = ColourEffectShades.Of(colours, frame).Key;
         var written = new JsonObject();
         foreach ((string place, string sheet) in places)
         {

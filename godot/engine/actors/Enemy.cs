@@ -309,12 +309,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         ShowLook();
 
         // The flash runs down once the turn has been played and shown, and the hurt ends while some of it is left.
+        // A hurt with no flash at all ends with the turn it began on.
         if (_flash.IsRunning)
-        {
             _flash = _flash.Stepped();
-            if (_flash.Remaining < Math.Max(1, Room.Session.Definition.EnemyHurtEndsAtFlashLeft))
-                _hurt = false;
-        }
+        if (_hurt && _flash.Remaining < Math.Max(1, Room.Session.Definition.EnemyHurtEndsAtFlashLeft))
+            _hurt = false;
     }
 
     /// <summary>This enemy's own behaviour for one update.</summary>
@@ -426,6 +425,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// is held off from its next turn, as after a hit that hurt it.
     /// </summary>
     protected void BeHurtFor(int updates) => (_flash, _hurt) = (Countdown.Of(updates), true);
+
+    /// <summary>Ends its hurt and its flash at once: its behaviour is held off no longer, from the turn this is called on.</summary>
+    protected void EndHurt() => (_flash, _hurt) = (Countdown.Over, false);
 
     /// <inheritdoc/>
     public virtual HitResult TakeHit(Hit hit, Collider part)

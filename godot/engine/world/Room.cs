@@ -4,6 +4,7 @@ using Engine.Content;
 using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
+using Engine.Ui;
 using Godot;
 
 namespace Engine.World;
@@ -593,12 +594,6 @@ public partial class Room : Node2D
     /// <param name="shotsOnly">Whether only the projectiles take a turn.</param>
     private void StepWhatEnemiesLaunched(bool shotsOnly = false)
     {
-        foreach (Projectile projectile in _projectiles.ToList())
-        {
-            if (projectile.Side != HitSide.Player && !HoldsPlace(projectile) && !_leaving.Contains(projectile))
-                projectile.Step();
-        }
-
         // What took a place over since the last turns were taken has waited its update.
         _takenOver.Clear();
         var turned = new HashSet<IRoomEntity>();
@@ -627,10 +622,10 @@ public partial class Room : Node2D
 
     /// <summary>
     /// Whether something holds one of the room's places for what the enemies launch and leave: a pickup, the remains
-    /// of the destroyed, and a projectile that is not the player's unless its settings say it holds none.
+    /// of the destroyed, a projectile that is not the player's, and an effect whose leaver said so.
     /// </summary>
     private static bool HoldsPlace(IRoomEntity entity) =>
-        entity is Pickup or Remains or Projectile { Side: not HitSide.Player, Settings.HoldsPlace: true } or Effect { HoldsPlace: true };
+        entity is Pickup or Remains or Projectile { Side: not HitSide.Player } or Effect { HoldsPlace: true };
 
     /// <summary>Whether the room has a place free for something more the enemies launch or leave.</summary>
     public bool HasFreePlace => _places.HasFree;
@@ -638,12 +633,9 @@ public partial class Room : Node2D
     /// <summary>The place something the enemies launched or left holds in the room, counted from none; null when it holds none.</summary>
     public int? PlaceOf(IRoomEntity entity) => _places.PlaceOf(entity);
 
-    /// <summary>The enemies' projectiles in the order they are tried: those that hold no place, in the order launched, and then those that do, in the order of their places.</summary>
+    /// <summary>The enemies' projectiles in the order they are tried: that of their places.</summary>
     private List<Projectile> EnemyShotsInTurn() =>
-    [
-        .. _projectiles.Where(projectile => projectile.Side == HitSide.Enemies && !HoldsPlace(projectile)),
-        .. _places.Held().OfType<Projectile>().Where(projectile => projectile.Side == HitSide.Enemies),
-    ];
+        [.. _places.Held().OfType<Projectile>().Where(projectile => projectile.Side == HitSide.Enemies)];
 
     /// <summary>The room's objects take their turns, all but those that act with the enemies.</summary>
     private void StepObjects()
@@ -839,6 +831,20 @@ public partial class Room : Node2D
         }
 
         quake.Shake(strength, updates, way);
+    }
+
+    /// <summary>
+    /// Shows a change of colours on the room's own pictures, its terrain and its backdrops, at once, in place of
+    /// whatever <paramref name="source"/> last asked for there: what something does to the room's colours in its own
+    /// turn, or as the room is set up, shown on the update it is done. <see cref="ColourChange.None"/> takes back
+    /// what the source asked for.
+    /// </summary>
+    public void Recolour(string source, ColourChange change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        change.ShowOn(Terrain, source);
+        foreach (Backdrop backdrop in GetChildren().OfType<Backdrop>())
+            change.ShowOn(backdrop, source);
     }
 
     /// <summary>

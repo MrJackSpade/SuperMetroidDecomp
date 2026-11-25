@@ -5,6 +5,7 @@ using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -477,19 +478,33 @@ public partial class Ridley : Enemy
 
     /// <summary>
     /// Aims its next fireball at Samus, within the arc ahead of and below it. Angles here are in 256ths of a turn from
-    /// straight down, growing toward the right.
+    /// straight down, growing toward the right: the cartridge's aim a quarter turn on.
     /// </summary>
     private void AimFireball()
     {
-        PixelOffset toSamus = Room.Player.Position - Muzzle;
-        int angle = Turns.Wrap(Turns.PerTurn / 4 - Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole));
+        // The cartridge aims from whole pixels to whole pixels.
+        PixelPosition samus = Room.Player.Position, muzzle = Muzzle;
+        int angle = Turns.Wrap(CartridgeAngles.AimAngle(samus.X.Whole - muzzle.X.Whole, samus.Y.Whole - muzzle.Y.Whole) + Turns.PerTurn / 4);
         if (Facing == Facing.Left)
             angle = angle is < 64 or >= 235 ? 235 : Math.Max(angle, 176);
         else
             angle = angle is < 21 or >= 192 ? 21 : Math.Min(angle, 80);
-        Pixels speed = Shot("fireball").Speed;
-        _fireballSpeed = new PixelVelocity(Turns.Sine(angle, speed), Turns.Cosine(angle, speed));
+        _fireballSpeed = AlongHeading(In256ths(Shot("fireball").Speed), angle);
     }
+
+    /// <summary>
+    /// A speed in 256ths of a pixel split along a heading from straight down toward the right, as the cartridge splits
+    /// it: across by the heading's sine, down by the sine a quarter turn on.
+    /// </summary>
+    private static PixelVelocity AlongHeading(int speedIn256ths, int heading) => new(
+        From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, heading)),
+        From256ths(CartridgeAngles.SpeedAlong(speedIn256ths, heading + Turns.PerTurn / 4)));
+
+    /// <summary>A distance in the 256ths of a pixel the cartridge holds a speed in, what is finer dropped.</summary>
+    private static int In256ths(Pixels distance) => distance.Whole * 256 + distance.Fraction / 256;
+
+    /// <summary>A distance from a count of 256ths of a pixel.</summary>
+    private static Pixels From256ths(int count) => Pixels.FromParts(count >> 8, (count & 255) * 256);
 
     /// <summary>Starts it on a timeline that has one for each way it faces.</summary>
     private void PlayFacing(string timeline) => Play($"{timeline}_{Side}", restart: true);
@@ -637,8 +652,7 @@ public partial class Ridley : Enemy
         if (clockwise ? difference < 0 : difference >= 0)
             heading = target;
         SwoopHeading = heading;
-        int angle = Turns.Wrap(heading >> 8);
-        Velocity = new PixelVelocity(Turns.Sine(angle, _swoopSpeed), Turns.Cosine(angle, _swoopSpeed));
+        Velocity = AlongHeading(In256ths(_swoopSpeed), Turns.Wrap(heading >> 8));
     }
 
     /// <summary>The heading of its swoop.</summary>
@@ -778,8 +792,10 @@ public partial class Ridley : Enemy
             Math.Abs(shot.Position.Y.Whole - tip.Y.Whole) - shot.Area.Height / 2 < 64);
         if (missile is not null)
             aim = missile.Position;
-        PixelOffset toAim = aim - Tail.Base.Position;
-        Tail.AimWhip(Turns.Wrap(Turns.PerTurn / 4 - Turns.AngleOf(toAim.X.Whole, toAim.Y.Whole)), Facing == Facing.Right, turnsBeyond);
+        // The cartridge aims from whole pixels to whole pixels, a quarter turn on so as to count from straight down.
+        PixelPosition root = Tail.Base.Position;
+        int toward = CartridgeAngles.AimAngle(aim.X.Whole - root.X.Whole, aim.Y.Whole - root.Y.Whole);
+        Tail.AimWhip(Turns.Wrap(toward + Turns.PerTurn / 4), Facing == Facing.Right, turnsBeyond);
     }
 
     /// <summary>Steers the tail, hangs it from the body, shows it, and lets its tip hurt Samus.</summary>

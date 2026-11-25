@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -149,9 +150,16 @@ public partial class MotherBrainGlass : Enemy
         foreach (int across in places)
         {
             int angle = Random.Draw().Part(0, 8);
-            var velocity = new PixelVelocity(Turns.Sine(angle, Pixels.FromWhole(1)), -Turns.Cosine(angle, Pixels.FromWhole(4)));
+            // A pixel an update across by the angle's coarse sine, and four down by its sine a quarter turn back, in
+            // 256ths of a pixel.
+            var velocity = new PixelVelocity(
+                From256ths(CartridgeAngles.SpeedAlong(256, angle)),
+                From256ths(CartridgeAngles.SpeedAlong(4 * 256, angle - Turns.PerTurn / 4)));
             int right = Random.Draw().Part(0, 4) - 8, down = Random.Draw().Part(0, 4) - 8;
             Fire($"shard_{angle * ShardArcs / Turns.PerTurn}", Position + PixelOffset.FromWhole(across + right, ShardDrop + down), velocity);
         }
     }
+
+    /// <summary>A distance from a count of 256ths of a pixel.</summary>
+    private static Pixels From256ths(int count) => Pixels.FromParts(count >> 8, (count & 255) * 256);
 }

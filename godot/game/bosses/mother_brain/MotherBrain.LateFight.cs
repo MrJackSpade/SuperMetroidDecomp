@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -160,7 +161,10 @@ public partial class MotherBrain
     private Drain _drain;
     private Revival _revival;
     private int _beamWidth;
+
+    /// <summary>The way the beam points, in 256ths of a turn from straight down toward the right.</summary>
     private int _beamAngle;
+
     private int _beamExplosionWait;
     private int _nextBeamExplosion;
     private bool _beamSounding;
@@ -438,8 +442,11 @@ public partial class MotherBrain
     /// <summary>Turns the beam toward Samus.</summary>
     private void AimBeam(Player samus)
     {
-        PixelOffset to = samus.Position - (_head + PixelOffset.FromWhole(16, 4));
-        _beamAngle = Turns.AngleOf(to.X.Whole, to.Y.Whole);
+        // The cartridge reads the way to Samus from whole pixels, clockwise from straight up as its grapple beam does,
+        // and counts the beam's angle back from a half turn.
+        PixelPosition from = _head + PixelOffset.FromWhole(16, 4);
+        int bearing = CartridgeAngles.AngleClockwiseFromUp(samus.Position.X.Whole - from.X.Whole, samus.Position.Y.Whole - from.Y.Whole);
+        _beamAngle = Turns.Wrap(Turns.PerTurn / 2 - bearing);
     }
 
     /// <summary>What the beam does every update it fires: its sound, her colours, its aim, and a blast on Samus every few updates.</summary>
@@ -489,7 +496,8 @@ public partial class MotherBrain
         Pixels speed = Pixels.FromWhole(16);
         if (MoveSamusAcross(samus, speed))
             return true;
-        MoveSamusDown(samus, Turns.Sine(_beamAngle, speed));
+        // Down by the push's speed along the beam's sine a quarter turn on, in 256ths of a pixel.
+        MoveSamusDown(samus, From256ths(CartridgeAngles.SpeedAlong(In256ths(speed), _beamAngle + Turns.PerTurn / 4)));
         return false;
     }
 
@@ -564,8 +572,8 @@ public partial class MotherBrain
         int half = _beamWidth / 2 / 2;
         Pixels reach = Pixels.FromWhole(512);
         Vector2 Edge(int angle) => new(
-            mouth.X.Whole + Turns.Cosine(Turns.Wrap(angle), reach).Whole,
-            mouth.Y.Whole + Turns.Sine(Turns.Wrap(angle), reach).Whole);
+            mouth.X.Whole + Turns.Sine(Turns.Wrap(angle), reach).Whole,
+            mouth.Y.Whole + Turns.Cosine(Turns.Wrap(angle), reach).Whole);
         beam.Polygon = [new Vector2(mouth.X.Whole, mouth.Y.Whole), Edge(_beamAngle - half), Edge(_beamAngle + half)];
         beam.Color = Color.FromHsv(_rainbowColour % 12 / 12f, 0.5f, 1f);
     }

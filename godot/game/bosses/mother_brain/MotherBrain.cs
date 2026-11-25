@@ -4,6 +4,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -515,8 +516,9 @@ public partial class MotherBrain : Enemy
         for (int joint = 0; joint < 2; joint++)
             _neck[3 + joint] = _neck[2] + Along(upper, NeckUpperLengths[joint]);
 
-        static PixelOffset Along(int angle, int length) =>
-            PixelOffset.FromWhole(Turns.Sine(angle, Pixels.FromWhole(length)).Whole, Turns.Cosine(angle, Pixels.FromWhole(length)).Whole);
+        // Each axis is the length along the coarse sine, rounded down, as the cartridge lays the joints.
+        static PixelOffset Along(int angle, int length) => PixelOffset.FromWhole(
+            CartridgeAngles.ReachRoundedDown(angle, length), CartridgeAngles.ReachRoundedDown(angle + Turns.PerTurn / 4, length));
     }
 
     /// <summary>Pushes Samus away from whichever part of her she has walked into, and hurts her if she is past the body's front.</summary>

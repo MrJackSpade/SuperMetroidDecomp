@@ -300,6 +300,10 @@ reproducing a reported bug.
       agent; it waits for a batch, or the coordinator makes the change itself.
     - Simple, low-effort boilerplate that has to be done to unblock `high` work may go to an
       Opus agent, when it is more than a few files' worth of work and needs no decisions.
+    - Bulk investigation goes to an Opus agent. The owner's words: "for bulk investigation work, [an] Opus
+      agent should be used when the Coordinator is Fable, as investigations as to the root cause of issues is
+      low risk work that doesn't require any actual design work. The Fable coordinator would still decide how
+      to fix the issue."
     - An edit the coordinator comes to in the course of its own work, it makes itself.
       "Low" describes who may safely make a change, not that every such change needs an agent.
     The coordinator keeps the `high` work for itself. Told to carry on with no ticket named,

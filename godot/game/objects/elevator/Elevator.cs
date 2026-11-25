@@ -14,7 +14,7 @@ namespace Game;
 /// An elevator, update for update as the cartridge's. Samus arms it by standing on the blocks it rests on; a press
 /// of its way on its next turn starts the ride. It then moves each turn with Samus held above it until her own step
 /// down meets the door of its shaft. In the room the ride reaches, the elevator there starts from where rides arrive,
-/// with Samus on it, and comes back to rest before she is let go.
+/// with Samus on it, and comes back to rest before she is let go, still facing forward.
 /// </summary>
 /// <remarks>
 /// It takes its turn among the enemies, and holds still through a door's passage. The ride itself is the session's
@@ -193,7 +193,9 @@ public partial class Elevator : RoomObject
         Sound(RestSound, "objects");
         Position = new PixelPosition(Position.X, Position.Y.WithWhole(_restY));
         Hold(samus);
-        samus.Release();
+
+        // She is let go still facing forward, and stays so until she is turned.
+        samus.ChangeState(new StandingForwardState());
     }
 
     private void MoveBy(double pixels) => Position = new PixelPosition(Position.X, Position.Y + Pixels.FromNumber(pixels));

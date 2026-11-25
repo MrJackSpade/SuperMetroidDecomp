@@ -587,7 +587,9 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
   body first overlaps it; she meets no exit by overlapping it while she rides. The ride itself is the session's
   (`ElevatorJourney`), since it outlasts the room: the door's passage turns a ride that was leaving into one
   arriving, the elevator of the room reached starts from the height rides arrive at with her on it, and after the
-  passage comes back to where it rests, asks for its sound to stop and lets her go. Resuming from the pause
+  passage comes back to where it rests, asks for its sound to stop and lets her go, still in the front view
+  (`StandingForwardState`): there she moves nothing, fires nothing and does not stand at the elevator's door, until
+  right or left is held and turns her that way. Resuming from the pause
   disarms the door and leaves the ride as it stands, so a ride down that reaches its door disarmed begins the
   passage without its wait. A general game's elevator can still be a `Carrier` whose path ends at a `RoomExit`.
 - **Maridia's tube** is a room sequence of its room (`TubeRide`, `game/rooms/maridia/`), one for each end, started

@@ -248,7 +248,7 @@ public partial class Kraid : Enemy
     /// <summary>The colours of its body and head, and of its parts, in the flash of a hit; and of its body and head as it dies.</summary>
     private ColourChange _hurtBody = ColourChange.None, _hurtParts = ColourChange.None, _deathColours = ColourChange.None;
 
-    /// <summary>The colours its body and head, and its parts, show while it lives.</summary>
+    /// <summary>The colours its body and head, and its parts, show while it lives; none, its room's own.</summary>
     private ColourChange _bodyColours = ColourChange.None, _partColours = ColourChange.None;
 
     /// <summary>For each of its visuals, the colours last shown on it.</summary>
@@ -269,7 +269,9 @@ public partial class Kraid : Enemy
     private int _hurtFlashWait;
     private int _flashStep = -1;
     private int _flashLeft;
-    private bool _flashShowsHurt;
+
+    /// <summary>Whether it still shows its room's own colours, as it does until its flash first shows a frame or its health is gone.</summary>
+    private bool _inRoomColours;
     private readonly List<Crumble> _ceilingRocks = [];
     private readonly List<Crumble> _sinkCrumbles = [];
     private readonly Dictionary<int, List<Walk>> _walks = [];
@@ -423,10 +425,13 @@ public partial class Kraid : Enemy
         return result;
     }
 
-    /// <summary>A hit in the mouth, harmful or not, sets its colours flashing and marks an opening yet to come.</summary>
+    /// <summary>
+    /// A hit in the mouth, harmful or not, sets its colours flashing from the start, keeping those it shows until the
+    /// flash's first frame, and marks an opening yet to come.
+    /// </summary>
     private void MarkMouthHit()
     {
-        (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
+        (_flashStep, _flashLeft) = (0, _hurtFlashWait);
         if (_mouthReopens > 0)
             _mouthReopenMarked = true;
     }
@@ -521,9 +526,10 @@ public partial class Kraid : Enemy
         ShowMouth("closed", 0);
         // Its mouth and body let every shot through while it rises.
         _headPoses?.TakeNone();
-        // It starts in the colours of its band, its eyes with them.
-        _flashShowsHurt = false;
-        (_bodyColours, _partColours) = (BandShade().Body, BandShade().Parts);
+        // It shows its room's own colours, with none of its eyes' own, until its flash first shows a frame or its
+        // health is gone; its eyes start in the colours of its band all the same.
+        _inRoomColours = true;
+        (_bodyColours, _partColours) = (ColourChange.None, ColourChange.None);
         _eyes = [.. BandShade().Eyes];
         if (GetNodeOrNull<ActorVisual>("Arm") is { } arm)
             arm.Position = new Vector2(0, -44);
@@ -1198,13 +1204,13 @@ public partial class Kraid : Enemy
 
     /// <summary>
     /// Shows the colours it is in on its body, head, arm and foot at once, and its parts' on the spikes and nails of
-    /// its room; over its body's and head's, its eyes' colours, save as it dies. A change is worked out for a visual
-    /// by the pictures it shows, so one that shows none yet is shown it once it does.
+    /// its room; over its body's and head's, its eyes' colours, save in its room's own colours and as it dies. A change
+    /// is worked out for a visual by the pictures it shows, so one that shows none yet is shown it once it does.
     /// </summary>
     private void ShowColours()
     {
         ColourChange body = IsFinished ? _deathColours : _bodyColours;
-        bool eyesShown = !IsFinished;
+        bool eyesShown = !IsFinished && !_inRoomColours;
         foreach (ActorVisual visual in new[] { Visual, GetNodeOrNull<ActorVisual>("Head") }.OfType<ActorVisual>())
         {
             if (visual.Picture.Length == 0)
@@ -1312,29 +1318,37 @@ public partial class Kraid : Enemy
     }
 
     /// <summary>
-    /// Moves the flash of a hit in the mouth on, and shows its hurt colours while the flash says so and the colours of
-    /// its band as hurt as it is otherwise. Each time the flash shows other colours its eyes take that set's colours at
-    /// once, as they do on every update once its health is gone.
+    /// Moves the flash of a hit in the mouth on. Only as the flash shows a frame does it take the colours of that
+    /// frame, or of its band as hurt as it is then, its eyes with them, as it does on every update once its health is
+    /// gone; between, it keeps the colours it last took, and until the first such time it shows its room's own.
     /// </summary>
     private void StepColours()
     {
         if (Health.IsEmpty)
         {
             // Dying, it flashes no more.
-            (_flashStep, _flashShowsHurt) = (-1, false);
-            _eyes = [.. BandShade().Eyes];
+            _flashStep = -1;
+            ShowFlashColours(hurt: false);
         }
         else if (_flashStep >= 0 && --_flashLeft <= 0)
         {
+            bool hurt = false;
             if (_flashStep < _hurtFlash.Count)
-                (_flashShowsHurt, _flashLeft) = _hurtFlash[_flashStep++];
+                (hurt, _flashLeft) = _hurtFlash[_flashStep++];
             else
-                (_flashStep, _flashShowsHurt) = (-1, false);
-            _eyes = [.. _flashShowsHurt ? _hurtEyes : BandShade().Eyes];
+                _flashStep = -1;
+            ShowFlashColours(hurt);
         }
 
-        (_bodyColours, _partColours) = _flashShowsHurt ? (_hurtBody, _hurtParts) : (BandShade().Body, BandShade().Parts);
         ShowColours();
+    }
+
+    /// <summary>Takes the colours of the flash of a hit, or of its band as hurt as it is, and its eyes those colours' own.</summary>
+    private void ShowFlashColours(bool hurt)
+    {
+        _inRoomColours = false;
+        (_bodyColours, _partColours) = hurt ? (_hurtBody, _hurtParts) : (BandShade().Body, BandShade().Parts);
+        _eyes = [.. hurt ? _hurtEyes : BandShade().Eyes];
     }
 
     /// <summary>Shows one of its parts as its timeline has it.</summary>

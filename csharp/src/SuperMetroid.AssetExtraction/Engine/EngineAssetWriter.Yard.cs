@@ -60,7 +60,7 @@ public sealed partial class EngineAssetWriter
             .Value("falls_at_shake", (int)SuperMissileDefinitions.WallImpactEarthquake.Strength - (int)EarthquakeStrength.Light + 1)
             // Its bounce joins only a queue holding at most two.
             .Value("bounce_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YardBounceSound, SoundRequestPriority.Low))
-            // The speed down a kick gives it, by the whole pixels an update Samus was running at.
+            // The speed down a kick gives it, by the whole pixels of the camera's last measure of Samus's movement across.
             .Group("kick_speeds", EngineNames.List(YardKickDefinitions.Kicks.Select(EngineNames.Number)));
 
         foreach (YardDirection direction in Enum.GetValues<YardDirection>())

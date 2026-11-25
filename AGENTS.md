@@ -30,6 +30,12 @@
 - For Godot work, parity means the same observable results from the same inputs, not the
   same internal order or state (v1.0.0 manifesto, section 4). The recorded movies are off
   limits until the owner opens testing.
+- The engine holds nothing that nothing uses. The owner's words: "At this stage the engine
+  shouldnt have unused resources in it. If generalize carrier doesnt work, then remove it.
+  Leaving in unused entities during the architectural foundation just pollutes the design
+  pattern". When a change leaves an engine kind, state or setting with no user, remove it in
+  that change, with its checks, its writer in the extractor and its place in the docs; do
+  not keep it as an offering to some other game.
 - The manifesto does not authorize starting Godot work.
 
 ## Full parity with the cartridge is required

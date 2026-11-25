@@ -33,7 +33,8 @@ namespace Engine.World;
 /// tiles differ once it is known gives, in place of "intact", "intact_parts": a picture for each tile, row by row.
 /// One that "hides_again" comes back from breaking looking like plain terrain once more. "breaking" is the timeline shown,
 /// at each of its tiles, from the moment it breaks, and "regrowing" the one whose end is the moment it comes back;
-/// "regrows_after" counts from the break to the return and takes in both. "break_sound" is heard as it breaks,
+/// "regrows_after" counts from the break to the return and takes in both. One that "blocks_while_crumbling" goes on
+/// blocking for as long as either timeline's pictures show, and lets things through only between them. "break_sound" is heard as it breaks,
 /// unless the hit that broke it carries a kind "break_sound_by_kind" names, the first listed of them: then that
 /// kind's sound is.
 /// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
@@ -134,6 +135,9 @@ public sealed class BlockType
     /// <summary>Whether it is hidden again when it comes back from breaking.</summary>
     public bool HidesAgain { get; private init; }
 
+    /// <summary>Whether it goes on blocking, broken, for as long as the pictures of its breaking or of its regrowing show.</summary>
+    public bool BlocksWhileCrumbling { get; private init; }
+
     /// <summary>The picture shown while hidden; empty for the pictures of the tiles it lies on.</summary>
     public string HiddenPicture { get; private init; } = "";
 
@@ -184,6 +188,7 @@ public sealed class BlockType
             StoodOnUpdates = data.Has("stood_on_updates") ? data.Int("stood_on_updates") : 0,
             LatchedUpdates = data.Has("latched_updates") ? data.Int("latched_updates") : 0,
             RegrowsAfter = data.Has("regrows_after") ? data.Int("regrows_after") : 0,
+            BlocksWhileCrumbling = data.Has("blocks_while_crumbling") && data.Flag("blocks_while_crumbling"),
             HiddenUntil = Kinds("hidden_until"),
             RevealedBySight = data.Has("revealed_by_sight") && data.Flag("revealed_by_sight"),
             Contact = data.Has("contact") ? data.Get("contact").AsEnum<BlockContact>() : BlockContact.Nothing,

@@ -122,6 +122,12 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <summary>Whether the barrier is open.</summary>
     public bool IsOpen { get; private set; }
 
+    /// <summary>Whether the barrier is open and has finished showing itself opening.</summary>
+    public bool HasOpened => IsOpen && !_opening;
+
+    /// <summary>Whether the barrier's solid part, where it stands, lies over any of <paramref name="area"/>, blocking just now or not.</summary>
+    public bool Covers(PixelRect area) => EntityNode.ColliderOf(this, ColliderRole.Solid) is { } solid && solid.RoomRect.Overlaps(area);
+
     /// <summary>Whether the barrier is held shut by its condition right now.</summary>
     public bool IsSealed => !IsOpen && HeldShutBy is not null && !HeldShutBy.IsTrue(Room);
 
@@ -351,7 +357,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         if (_showing is null)
             return;
-        _showing.Step();
+
+        // A look may say, step by step, whether the barrier stands in the way meanwhile.
+        foreach (string cue in _showing.Step())
+        {
+            if (cue is "passable" or "blocking" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } solid)
+                solid.Enabled = cue == "blocking";
+        }
+
         if (_showingName is "closed" or "sealed")
         {
             // Shut and held shut may look different, and it changes between them as its condition does.

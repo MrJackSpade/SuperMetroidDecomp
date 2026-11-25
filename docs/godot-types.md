@@ -643,7 +643,12 @@ Every kind here is the engine's except `Gunship`.
 | Comes back | Never; when the player has passed; when its room is next set up. | A door cap returns when the room is next set up. |
 | Remembered as | A name; once opened and remembered, it is set up open, or as a plain barrier. | A red door, once opened, is a blue door from then on. |
 | Tells when opened | Things told a word as it opens. | A gate's switch tells its gate to open. |
-| Looks and sounds | From its data: how it shows shut, held shut, hurt, opening, open and closing, and the sounds of opening, closing, a hit that wears it down and a hit while it is held shut. One that shows itself opening goes on blocking until it has, and one held shut as its room is entered may show itself shutting first. | A door cap flashes when a missile wears it down and swings open. |
+| Looks and sounds | From its data: how it shows shut, held shut, hurt, opening, open and closing, and the sounds of opening, closing, a hit that wears it down and a hit while it is held shut. One that shows itself opening goes on blocking until it has, and one held shut as its room is entered may show itself shutting first. A look's
+steps may say whether the barrier stands in the way meanwhile, by the cues "passable" and "blocking" (an item's
+shell is air, then solid, then air as it bursts). An `Item` under a barrier that has not finished opening
+(`Barrier.HasOpened`) can be neither seen nor touched, however passable the barrier is. A `BlockType` that
+`blocks_while_crumbling` goes on blocking, broken, while the pictures of its breaking or regrowing show: the block
+an item is hidden in does, so the item can be reached only between them. | A door cap flashes when a missile wears it down and swings open. |
 
 Door caps, gates, shutters, breakable walls and the shell around a held item are all `Barrier`s.
 

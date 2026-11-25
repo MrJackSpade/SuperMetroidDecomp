@@ -37,7 +37,7 @@ public sealed class Block
     private int _brokenFor;
 
     /// <summary>Whether the block is solid right now.</summary>
-    public bool IsSolid => !Broken && Type.Solid;
+    public bool IsSolid => Type.Solid && (!Broken || (Type.BlocksWhileCrumbling && ShowsChange()));
 
     /// <summary>Shows the block for what it is.</summary>
     internal void Reveal() => Hidden = false;

@@ -103,6 +103,15 @@ public sealed partial class EngineAssetWriter
             return draw == CollectibleDraw.Empty ? "" : RoomObjects.Picture(directory, Frame(draw), "objects/item_shell");
         }
 
+        // As it bursts the shell is in the way only while it shows its burst: the frames of it that show nothing are
+        // air on the cartridge, and the burst's own frame a solid block.
+        static JsonObject Bursting(JsonObject timeline)
+        {
+            foreach (JsonNode? step in timeline["steps"]!.AsArray())
+                step!["cues"] = new JsonArray(step["picture"]!.GetValue<string>().Length == 0 ? "passable" : "blocking");
+            return timeline;
+        }
+
         const int block = EngineRoomObjects.Block;
         var burstBy = new JsonObject();
         foreach (JsonNode? weapon in EngineLayouts.AnyWeapon())
@@ -115,8 +124,8 @@ public sealed partial class EngineAssetWriter
             .Collider("Hurtbox", 0, 0, block, block)
             .Timeline("closed", EngineTimelines.Of(
                 CollectibleSequenceAnimations.Segments, CollectibleSequenceAnimations.OrbPulsing, Orb, static (CollectiblePhase _) => null))
-            .Timeline("opening", EngineTimelines.Of(
-                CollectibleSequenceAnimations.Segments, CollectibleSequenceAnimations.OrbBurst, Orb, static (CollectiblePhase _) => null))
+            .Timeline("opening", Bursting(EngineTimelines.Of(
+                CollectibleSequenceAnimations.Segments, CollectibleSequenceAnimations.OrbBurst, Orb, static (CollectiblePhase _) => null)))
             .Timeline("open", new JsonObject { ["steps"] = new JsonArray(new JsonObject { ["picture"] = "", ["updates"] = 1 }), ["loops_to"] = 0 })
             .Write();
     }

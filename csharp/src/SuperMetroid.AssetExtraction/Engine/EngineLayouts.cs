@@ -232,6 +232,9 @@ internal sealed partial class EngineLayouts
                         ["solid"] = true,
                         ["broken_by"] = AnyWeapon(),
                         ["regrows_after"] = HiddenItemBlockUpdates(),
+
+                        // The pictures of its crumbling and of its coming back are solid blocks on the cartridge.
+                        ["blocks_while_crumbling"] = true,
                         ["breaking"] = HiddenItemBlockLooks(CollectibleSequence.ShotBlockReveal, crumbling),
                         ["regrowing"] = HiddenItemBlockLooks(CollectibleSequence.ShotBlockConceal, crumbling),
                     }, Pictures: crumbling);

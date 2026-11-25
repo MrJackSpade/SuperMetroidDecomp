@@ -30,8 +30,12 @@ public partial class Item : RoomObject
     /// <summary>The pixels the item covers, in the room.</summary>
     public PixelRect Area => PixelRect.Around(Position.X.Whole, Position.Y.Whole, Size.X / 2, Size.Y / 2);
 
-    /// <summary>Whether terrain covers the item, so that it can be neither seen nor touched.</summary>
-    public bool IsCovered => Room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall);
+    /// <summary>
+    /// Whether something covers the item, so that it can be neither seen nor touched: terrain, or a barrier that
+    /// stands over it and has not finished opening, however passable the barrier is as it opens.
+    /// </summary>
+    public bool IsCovered => Room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall)
+        || Room.Objects.OfType<Barrier>().Any(barrier => !barrier.HasOpened && barrier.Covers(Area));
 
     /// <inheritdoc/>
     public override bool MustBeRemembered => true;

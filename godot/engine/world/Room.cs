@@ -417,12 +417,15 @@ public partial class Room : Node2D
             }
         }
 
+        // The view follows the player before the room's sequences play, so they see where it now is; the shaking
+        // comes after them, once all that may start it has run.
+        Follow(frozen: stopped.HasFlag(Stopped.Room));
         if (!stopped.HasFlag(Stopped.Room))
         {
-            foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())
-                quake.Step(this);
             foreach (RoomSequence sequence in _sequences)
                 sequence.Step(this);
+            foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())
+                quake.Step(this);
         }
 
         foreach (Effect effect in _effects.ToList())
@@ -434,7 +437,6 @@ public partial class Room : Node2D
         RemoveLeaving();
         AddArriving();
         MarkExplored();
-        Follow(frozen: stopped.HasFlag(Stopped.Room));
         ShowAll();
     }
 

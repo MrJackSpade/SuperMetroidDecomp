@@ -236,7 +236,8 @@ public partial class Hud : GameHud, IHasValues
         minimap.Centre = new Vector2I(
             room.MapCell.X + samus.Position.X.Whole / room.MapCellSize.X,
             room.MapCell.Y + samus.Position.Y.Whole / room.MapCellSize.Y);
-        minimap.Here = session.Clock.Updates / BlinkUpdates % 2 == 0 ? minimap.Centre : null;
+        // The mark blinks by the short count, which a door's scroll starts over.
+        minimap.Here = session.Clock.ShortUpdates / BlinkUpdates % 2 == 0 ? minimap.Centre : null;
         minimap.Present(area, session.Progress, session.Content);
     }
 }

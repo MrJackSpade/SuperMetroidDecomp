@@ -196,7 +196,8 @@ public partial class MamaTurtle : Enemy
                 return;
 
             case Doing.LeavingShell:
-                if (Room.Session.Clock.Updates % 2 != 0)
+                // Every other update of the short count, which a door's scroll starts over.
+                if (Room.Session.Clock.ShortUpdates % 2 != 0)
                     return;
                 // She shudders up out of the ground a pixel at a time.
                 bool ridden = IsRiddenByPlayer;

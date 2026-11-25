@@ -1149,8 +1149,9 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   that starts another timeline taking effect in the same update; marking its place in a timeline and resuming there;
   judging a hit itself (`TakeHit` can be overridden, part by part); keeping health part by part (`HealthOf` says
   which health a hit on a part is taken from); firing its data's shots; leaving effects and
-  drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time; and asking whether
-  the player rests against its solid.
+  drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time, and, for one that
+  shows its hurt its own way, how much of the flash is left (`HurtFlashLeft`, as this game's Mother Brain times her
+  brain's white and her shake by it); and asking whether the player rests against its solid.
 - **An enemy's own visual** is its `ActorVisual` child named "Visual", wherever it stands among its visuals, so a
   part drawn behind the body can come before it in the scene; with none of that name, its first.
 - **A boss is an `Enemy`.** One scene. Its parts are child nodes with their own hurtboxes, and the boss decides what

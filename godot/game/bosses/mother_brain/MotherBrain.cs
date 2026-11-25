@@ -408,18 +408,22 @@ public partial class MotherBrain : Enemy, IClosingStep
 
         TimelineStep? shown = PlayBrain(samus);
 
-        // Her brain shakes when she is hurt, and for a while when her fight says so.
+        // Her brain shakes when she is hurt, and for a while when her fight says so. A hurt's shake, of her brain and
+        // of her neck, goes by what is left of her flash, two updates to a place; and her brain shows white on the
+        // odd counts of what is left.
+        int flashLeft = HurtFlashLeft;
+        PixelOffset hurtShake = IsFlashing ? ShakeOffsets[flashLeft / 2 % 4] : PixelOffset.FromWhole(0, 0);
         PixelOffset shake = PixelOffset.FromWhole(0, 0);
         if (_brainShake > 0)
             shake = ShakeOffsets[_brainShake-- / 2 % 4];
         else if (IsFlashing)
-            shake = ShakeOffsets[Updates / 2 % 4];
+            shake = hurtShake;
         PixelOffset fromBody = _head + shake - Position;
         if (GetNodeOrNull<ActorVisual>("Head") is { } head)
         {
             head.Position = new Vector2(fromBody.X.Whole, fromBody.Y.Whole);
             head.SetShown(_headShown);
-            head.Tint(IsFlashing && Updates % 2 == 0 ? new Color(2f, 2f, 2f) : _brainDetached ? _headTint : _tint);
+            head.Tint(IsFlashing && flashLeft % 2 == 1 ? new Color(2f, 2f, 2f) : _brainDetached ? _headTint : _tint);
             if (shown is not null)
                 head.Show(shown);
         }
@@ -428,7 +432,7 @@ public partial class MotherBrain : Enemy, IClosingStep
         {
             if (GetNodeOrNull<ActorVisual>($"Neck{joint}") is not { } visual)
                 continue;
-            PixelOffset from = _neck[joint] - Position;
+            PixelOffset from = _neck[joint] + hurtShake - Position;
             visual.Position = new Vector2(from.X.Whole, from.Y.Whole);
             visual.SetShown(_onNeck && Visual is { Visible: true });
             visual.Tint(_tint);

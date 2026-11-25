@@ -148,6 +148,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Whether it is flashing from being hurt.</summary>
     public bool IsFlashing => _flash.IsRunning;
 
+    /// <summary>
+    /// How many updates of its hurt's flash are left, none when it is not flashing: for an enemy that shows its hurt
+    /// its own way and times that by the flash. Asked once its turn is over, it is what the turn left.
+    /// </summary>
+    protected int HurtFlashLeft => _flash.Remaining;
+
     /// <summary>Its timelines, by name.</summary>
     public TimelineSet Timelines { get; private set; } = TimelineSet.None;
 

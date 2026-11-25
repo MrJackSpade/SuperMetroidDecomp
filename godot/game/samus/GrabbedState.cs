@@ -29,6 +29,34 @@ public sealed class GrabbedState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public string Look => "grabbed";
 
+    /// <summary>
+    /// How she holds herself in the grab, by what is held, asked in the cartridge's order: the attack with the way
+    /// she faces and up or down aims diagonally; the attack with the way she faces alone fires; then either angle
+    /// action aims; then the attack alone fires; then any direction is the moving pose; and nothing held is none.
+    /// </summary>
+    public string Hold { get; private set; } = "forward";
+
+    private static string HoldOf(Player owner)
+    {
+        GameInput input = owner.Input;
+        bool attack = input.IsHeld(GameAction.Attack), up = input.IsHeld(GameAction.Up), down = input.IsHeld(GameAction.Down);
+        bool left = input.IsHeld(GameAction.Left), right = input.IsHeld(GameAction.Right);
+        bool outward = owner.Facing == Facing.Right ? right : left;
+        if (attack && outward && up)
+            return "diagonal_up";
+        if (attack && outward && down)
+            return "diagonal_down";
+        if (attack && outward)
+            return "firing";
+        if (input.IsHeld(Actions.AngleUp))
+            return "diagonal_up";
+        if (input.IsHeld(Actions.AngleDown))
+            return "diagonal_down";
+        if (attack)
+            return "firing";
+        return left || right || up || down ? "moving" : "forward";
+    }
+
     /// <inheritdoc/>
     public override bool InControl => false;
 
@@ -49,6 +77,7 @@ public sealed class GrabbedState : PlayerState, ISamusLook
         var samus = (Samus)owner;
         GameInput input = owner.Input;
         owner.AimFromInput();
+        Hold = HoldOf(owner);
 
         // Her grapple beam still works: it holds while the button is held, though she does not swing from it.
         if (samus.Grapple is { } grapple)

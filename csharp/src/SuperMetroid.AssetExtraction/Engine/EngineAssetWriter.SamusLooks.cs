@@ -252,6 +252,9 @@ public sealed partial class EngineAssetWriter
         Look("falling", "diagonal_down", P.FallingAimDiagonalDownRightPose, P.FallingAimDiagonalDownLeftPose);
         Look("falling", "arm_out", P.FallingGunExtendedRightPose, P.FallingGunExtendedLeftPose);
 
+        // A plain fall that has reached its fast-fall speed: the fast fall's picture, then its held one over and over.
+        Look("falling", "fast", P.FallingRightPose, P.FallingLeftPose, from: Seg.FastFall);
+
         // Turning in the air, out of a jump and out of a fall. She faces the new way from the turn's start, so the
         // pose that turns to the right is the right-facing look. A turn made aiming diagonally down shows the turn
         // that aims straight down, as the old choice of poses has it, and there is none aiming diagonally down.
@@ -286,6 +289,8 @@ public sealed partial class EngineAssetWriter
         Look("grabbed", null, P.DraygonGrabbedNeutralRightPose, P.DraygonGrabbedNeutralLeftPose);
         Look("grabbed", "diagonal_up", P.DraygonGrabbedAimUpRightPose, P.DraygonGrabbedAimUpLeftPose);
         Look("grabbed", "diagonal_down", P.DraygonGrabbedAimDownRightPose, P.DraygonGrabbedAimDownLeftPose);
+        Look("grabbed", "firing", P.DraygonGrabbedFiringRightPose, P.DraygonGrabbedFiringLeftPose);
+        Look("grabbed", "moving", P.DraygonGrabbedMovingRightPose, P.DraygonGrabbedMovingLeftPose);
 
         Look("shinespark_windup", null, P.ShinesparkWindupRightPose, P.ShinesparkWindupLeftPose);
         Look("shinespark_horizontal", null, P.ShinesparkHorizontalRightPose, P.ShinesparkHorizontalLeftPose);

@@ -1707,27 +1707,45 @@ public partial class Samus : Player
     /// <summary>Whether she runs with her arm held out: the attack was held in a run aiming level, and the run has aimed level since.</summary>
     private bool _runsArmOut;
 
+    /// <summary>The whole pixels an update a plain fall must reach for its fast-fall pictures to be shown.</summary>
+    [Export, DataValue("fast_fall_look_speed")]
+    public int FastFallLookSpeed { get; set; } = 5;
+
+    /// <summary>Whether a plain fall has reached that speed, and has been a plain fall since.</summary>
+    private bool _fallsFast;
+
     /// <summary>
     /// The name of how she holds her weapon, for her looks and the heights her shots leave from: her aim's, or,
     /// aiming level, how her arm is held where that has pictures of its own. In a jump steering the way she faces it
-    /// is "moving"; in a jump or a fall with the attack held, or once it has been held in a run, "arm_out".
+    /// is "moving"; in a jump or a fall with the attack held, or once it has been held in a run, "arm_out"; in a
+    /// plain fall that has reached its fast-fall speed, "fast". Seized, it is the grab's own.
     /// </summary>
-    internal string HoldName => Aim != Aim.Forward
-        ? AimName(Aim)
-        : State switch
-        {
-            JumpingState { Arm: AirArm.Forward } => "moving",
-            JumpingState { Arm: AirArm.Out } or FallingState { Arm: AirArm.Out } => "arm_out",
-            RunningState when _runsArmOut => "arm_out",
-            _ => AimName(Aim),
-        };
+    internal string HoldName => State is GrabbedState grabbed
+        ? grabbed.Hold
+        : Aim != Aim.Forward
+            ? AimName(Aim)
+            : State switch
+            {
+                JumpingState { Arm: AirArm.Forward } => "moving",
+                JumpingState { Arm: AirArm.Out } or FallingState { Arm: AirArm.Out } => "arm_out",
+                FallingState when _fallsFast => "fast",
+                RunningState when _runsArmOut => "arm_out",
+                _ => AimName(Aim),
+            };
 
     /// <summary>
     /// Keeps whether she runs with her arm held out, as the cartridge's running poses do: the attack held with her
     /// aim level takes the pose up, and it is kept, whether or not the attack is still held, until the run ends or
     /// aims another way.
     /// </summary>
-    private void KeepRunningArm() => _runsArmOut = State is RunningState && Aim == Aim.Forward && (_runsArmOut || Input.IsHeld(GameAction.Attack));
+    private void KeepRunningArm()
+    {
+        _runsArmOut = State is RunningState && Aim == Aim.Forward && (_runsArmOut || Input.IsHeld(GameAction.Attack));
+
+        // A plain fall, her arm at rest and her aim level, takes up its fast-fall pictures once it falls fast enough
+        // and keeps them while it stays a plain fall, as the cartridge's fall does once its animation has got there.
+        _fallsFast = State is FallingState { Arm: AirArm.AtRest } && Aim == Aim.Forward && (_fallsFast || Velocity.Y.Whole >= FastFallLookSpeed);
+    }
 
     /// <summary>The name an aim has in her data file.</summary>
     internal static string AimName(Aim aim) => aim switch

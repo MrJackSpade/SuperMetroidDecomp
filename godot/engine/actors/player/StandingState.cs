@@ -29,6 +29,11 @@ public sealed class StandingState : PlayerState
     public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
+
+        // An aim taken up while settling ends the landing at once: the player stands aiming, and the landing's own
+        // end, with what it gives, never comes.
+        if (_settling.IsRunning && owner.Aim != Shared.Aim.Forward)
+            _settling = Countdown.Over;
         if (owner.JumpPressed)
             return new JumpingState();
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))

@@ -437,7 +437,7 @@ public partial class Samus : Player
         {
             foreach ((string name, DataNode power) in data.Get("body_powers").Entries())
             {
-                // An enemy her body harms makes no cry: the blow has a sound of its own (OnBodyPowerHarmed). And it
+                // An enemy her body harms makes no cry: the blow has a sound of its own (OnBodyPowerLanded). And it
                 // flashes for its own count of updates, without the eight a weapon's hit adds, which its data counts in.
                 var made = new BodyPower(name, power.Int("damage"), [.. power.List("kinds").Select(kind => new HitKind(kind.AsText()))])
                 {
@@ -1040,6 +1040,7 @@ public partial class Samus : Player
 
         Weapons.Select(weapon);
         int liveBefore = Weapons.LiveOf(weapon).Count;
+        bool fullyCharged = Weapons.IsCharged;
         if (_shotHandedNow && weapon == Arsenal.Beam && Weapons.Selected is { } beam && beam.Charges(Inventory))
         {
             // A handed shot makes a beam that charges let its charge go at once, before the hold is asked about: a
@@ -1057,9 +1058,17 @@ public partial class Samus : Player
 
         bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
 
-        // A beam fired takes back the asking again of a charge's sound.
         if (fired && weapon == Arsenal.Beam)
+        {
+            // A beam fired takes back the asking again of a charge's sound.
             _chargingSoundArmed = false;
+
+            // A hyper shot starts the hyper beam's glow of her suit, and a charged shot its flash.
+            if (Inventory.IsOn(Equipment.HyperBeam))
+                BeginShotGlow("hyper_shot_glow");
+            else if (fullyCharged)
+                BeginShotGlow("charged_shot_flash");
+        }
 
         // The charge begins to sound a little way into it, on the weapons' channel, so that the shot's own sound
         // takes its place; a charge that ends without a shot is hushed.
@@ -1295,11 +1304,15 @@ public partial class Samus : Player
     /// <summary>
     /// Her body's blow on an enemy asks for the contact's sound, only when no sound of the enemies' waits, on every
     /// blow that harms; and being her attack on it, it ends whatever invincibility a hurt had left her, as the
-    /// cartridge's does.
+    /// cartridge's does. A charged spin's touch on an enemy spends its charge whether or not it harmed.
     /// </summary>
-    protected override void OnBodyPowerHarmed(BodyPower power, IHittable target)
+    protected override void OnBodyPowerLanded(BodyPower power, IHittable target, HitResult result)
     {
-        if (target is not Enemy)
+        if (target is not Enemy || result == HitResult.Ignored)
+            return;
+        if (power.Name == HitKinds.ChargedSpin)
+            SpendChargedSpin();
+        if (result is not (HitResult.Hurt or HitResult.Destroyed))
             return;
         Room.Session.Sounds.Request(Sounds.EnemyContactKill, channel: "enemies", priority: SoundPriority.WhenIdle);
         BeInvincibleFor(0);

@@ -892,8 +892,8 @@ in `engine/actors/player/`.
 **The body as a weapon.** A body power, while active, makes the player's own body deliver a `Hit` of a named kind
 to whatever it touches: enemies, barriers and blocks alike. The engine knows that a power is active, what hit it
 gives, and that the player takes no contact damage from what that hit kills. The game says what makes each power
-active, whether what a power harms makes no cry (`BodyPower.Quiet`) and shows the hurt for less (`FlashFewer`), and what follows each blow that harms
-(`Player.OnBodyPowerHarmed`: here the contact's sound and the end of her invincibility). Nothing else treats the
+active, whether what a power harms makes no cry (`BodyPower.Quiet`) and shows the hurt for less (`FlashFewer`), and what follows each blow
+(`Player.OnBodyPowerLanded`, told what became of it: here the contact's sound and the end of her invincibility after one that harms, and a charged spin's charge spent by any touch on an enemy). Nothing else treats the
 player's body as an attack. An active power's hit is also delivered to the blocks in
 the way of each move before the player makes it, so the body breaks what it can as it meets it and is not stopped by
 what it breaks.
@@ -1008,12 +1008,14 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   shows is set by what colours her and stays until something sets another, whatever she wears. Every colouring,
   her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`
   with every glow (`SamusGlow`: the colourings it shows in turn, each for so many updates, and the step it goes
-  back to); `SamusVisual` shows her colouring on her picture and her echoes. Nothing tints her for a colouring her
+  back to; `SamusGlowPlay` plays one whose colourings each hold for their updates); `SamusVisual` shows her colouring on her picture and her echoes. Nothing tints her for a colouring her
   data has. What makes her glow keeps its own place in its glow and shows the next colouring in its turn.
 - **Her colour step** (`Samus.StepColours`) runs once an update, after she has moved and just before she is
   shown, and not while a suit is being put on or she is dying. What colours her takes its turn there in the
-  cartridge's order, and one that takes her colours keeps those after it from theirs: the stored shine's and the
-  shinespark's glow, then the flash of whatever drains her (`SetDrainFlash`), then a hurt's flash. Counts that the
+  cartridge's order, and one that takes her colours keeps those after it from theirs: the charge's colours (a full
+  charge's pulse, a charged shot's flash, a hyper shot's glow; the update a shot's glow ends shows her suit and
+  passes over the shine's turn), the stored shine's and the shinespark's glow, then the flash of whatever drains
+  her (`SetDrainFlash`), then a hurt's flash. Counts that the
   cartridge keeps in its colour step are kept there and nowhere else, so they stand still on an update the step
   does not run: the stored shine's time with its sound, and the count of a hurt's flash, which a knockback or
   energy found lost after she is shown starts, a flying shinespark holds, and which times her hurt's sound and

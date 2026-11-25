@@ -30,10 +30,6 @@ public partial class SamusVisual : Node2D
     [Export]
     public Color BoostTint { get; set; } = new(1.0f, 1.3f, 1.6f);
 
-    /// <summary>The tint while her beam is fully charged.</summary>
-    [Export]
-    public Color ChargedTint { get; set; } = new(1.3f, 1.3f, 1.3f);
-
     /// <summary>How many colours the glow of the hyper beam runs through before it comes round.</summary>
     [Export]
     public int GlowSteps { get; set; } = 12;
@@ -135,7 +131,6 @@ public partial class SamusVisual : Node2D
         picture.Tint(
             samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
             : samus.IsBoosting && samus.State is not ShinesparkState ? BoostTint
-            : samus.Weapons.IsCharged ? ChargedTint
             : Colors.White);
     }
 

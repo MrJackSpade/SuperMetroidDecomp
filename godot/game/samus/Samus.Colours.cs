@@ -89,6 +89,12 @@ public partial class Samus
     /// <summary>Where the shine's glow stands in its colourings; the stored shine's and the shinespark's each start it over.</summary>
     private int _shineGlowPlace;
 
+    /// <summary>Where the pulse of a full charge stands in its colourings; it starts over whenever she is not fully charged.</summary>
+    private int _chargePulsePlace;
+
+    /// <summary>The glow a charged shot or a hyper shot started, until the update after its last colouring; none otherwise.</summary>
+    private SamusGlowPlay? _shotGlow;
+
     /// <summary>Whether something that drains her has hold of her, and which colouring its flash shows next.</summary>
     private bool _drainFlashing, _drainFlashShowsSuitNext;
 
@@ -156,22 +162,73 @@ public partial class Samus
     /// <summary>A shinespark's crash ends a hurt's flash.</summary>
     public void EndHurtFlash() => _hurtFlash = 0;
 
+    /// <summary>A shot of hers starts a glow of her suit: a charged shot's flash, or a hyper shot's glow. It takes the place of one still playing.</summary>
+    private void BeginShotGlow(string glow) => _shotGlow = new SamusGlowPlay(Colours.Glow(glow));
+
+    /// <summary>
+    /// A charged spin's touch on an enemy uses its charge up, as the cartridge does before it asks whether the touch
+    /// harms: the charge is let go, its pulse starts over and her suit's colours show at once.
+    /// </summary>
+    private void SpendChargedSpin()
+    {
+        Weapons.DropCharge();
+        _chargePulsePlace = 0;
+        ShowSuitColours();
+    }
+
     /// <summary>Something that drains her takes hold of her, or lets her go: while it holds her she flashes, one colouring an update.</summary>
     public void SetDrainFlash(bool held) => (_drainFlashing, _drainFlashShowsSuitNext) = (held, false);
 
     /// <summary>
     /// Plays her colour step. It does not run while a suit is being put on or she is dying. In the cartridge's order:
-    /// the shine's glow, then the flash of whatever drains her, which keeps a hurt's flash from its turn, then a
-    /// hurt's flash.
+    /// the charge's colours, which on the update a shot's glow ends keep the shine's glow from its turn; the shine's
+    /// glow; then the flash of whatever drains her, which keeps a hurt's flash from its turn; then a hurt's flash.
     /// </summary>
     private void StepColours()
     {
         if (State is CollectingSuitState or DyingState)
             return;
-        StepShineColouring();
+        if (!StepChargeColouring())
+            StepShineColouring();
         if (StepDrainFlash())
             return;
         StepHurtFlash();
+    }
+
+    /// <summary>
+    /// The charge's colours. With no shot's glow playing, a full charge with her grapple beam put away shows the next
+    /// colouring of its pulse on every update, in the suit she wears, the charged spin's own while her body is that
+    /// weapon; short of a full charge, or with the grapple out, the pulse starts over. A shot's glow shows each of
+    /// its colourings for its updates, and on the update after its last her suit's colours come back. Returns whether
+    /// this was that update: nothing else that glows takes its turn on it.
+    /// </summary>
+    private bool StepChargeColouring()
+    {
+        if (_shotGlow is not { } glow)
+        {
+            if (Grapple is { IsOut: true } || Weapons.ChargedFor < ChargedSpinUpdates)
+            {
+                _chargePulsePlace = 0;
+                return false;
+            }
+
+            string pulse = Power(HitKinds.ChargedSpin) is { IsActive: true } ? "pseudo_screw_pulse" : "charged_beam_pulse";
+            if (Colours.Glow($"{pulse}_{SuitWorn}").Next(ref _chargePulsePlace) is { } pulsed)
+                Colours.ShowSuit(pulsed);
+            return false;
+        }
+
+        string? shade = glow.Step();
+        if (glow.HasEnded)
+        {
+            _shotGlow = null;
+            ShowSuitColours();
+            return true;
+        }
+
+        if (shade is not null)
+            Colours.ShowSuit(shade);
+        return false;
     }
 
     /// <summary>

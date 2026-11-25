@@ -20,7 +20,9 @@ namespace Game.Objects;
 /// Its visuals are "Top" and "Bottom", its two halves, which show the pictures its data names "top" and "bottom",
 /// and "Pad", its hatch, which plays the timelines its data names "pad_closed", "pad_opening" and "pad_closing".
 /// Its data also says how far its bottom half lies below its top one and its hatch above it, and lists the
-/// "dust_effects" its engines raise, one for each place they rise from. The hull she stands on is the room's own
+/// "dust_effects" its engines raise, one for each place they rise from. Its lights glow for as long as its room is
+/// there: its data names the steps of that change of colours ("glow"), which it adds to the room's effects as it is
+/// set up and shows on its three visuals. The hull she stands on is the room's own
 /// terrain; where the gunship stands is the place of its top half at rest.
 /// </remarks>
 public partial class Gunship : RoomObject, ITriggerTarget
@@ -52,6 +54,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
     /// <summary>The picture of its top half.</summary>
     [Export, DataValue("top")]
     public string TopPicture { get; set; } = "";
+
+    /// <summary>The steps of its lights' glow, by their data file.</summary>
+    [Export(PropertyHint.File), DataValue("glow")]
+    public string GlowFile { get; set; } = "";
 
     /// <summary>The picture of its bottom half.</summary>
     [Export, DataValue("bottom")]
@@ -169,6 +175,12 @@ public partial class Gunship : RoomObject, ITriggerTarget
         if (GetNodeOrNull<ActorVisual>("Pad") is { } pad)
             pad.Position = new Vector2(0, -PadAboveTop);
         ShowPad(PadClosed);
+
+        // Its lights glow from the room's first update on, among the room's changes of colours.
+        var glow = new ColourEffect { Name = "GunshipGlow", StepsFile = GlowFile, OnTerrain = false, OnBackdrops = false };
+        Room.AddEffect(glow);
+        foreach (ActorVisual piece in GetChildren().OfType<ActorVisual>())
+            glow.ShowOn(piece);
     }
 
     /// <inheritdoc/>

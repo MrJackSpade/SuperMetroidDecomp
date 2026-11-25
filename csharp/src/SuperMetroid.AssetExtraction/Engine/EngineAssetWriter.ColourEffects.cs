@@ -83,7 +83,14 @@ public sealed partial class EngineAssetWriter
     /// long as the frame shows, with the sound the animation asks for as the frame comes; a part of the animation
     /// played several times over is written out as often.
     /// </summary>
-    private JsonObject ColourSteps(ColourEffectId effect, IReadOnlyDictionary<string, string> places)
+    private JsonObject ColourSteps(ColourEffectId effect, IReadOnlyDictionary<string, string> places) =>
+        ColourSteps(effect, shade => ShadeChange(shade, places));
+
+    /// <summary>
+    /// The steps of one colour effect as its animation plays them, the colours of each frame being what
+    /// <paramref name="coloursOf"/> gives for the frame's shade.
+    /// </summary>
+    private static JsonObject ColourSteps(ColourEffectId effect, Func<string, JsonObject> coloursOf)
     {
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
         Animation<ColourEffectSegment> animation = definition.Frames.Played;
@@ -104,7 +111,7 @@ public sealed partial class EngineAssetWriter
                             var step = new JsonObject
                             {
                                 ["updates"] = shown.Duration,
-                                ["colours"] = ColoursShown(definition.Colours, new ColourEffectFrame(effect, shown.Shown), places),
+                                ["colours"] = coloursOf(ColourEffectShades.Of(definition.Colours, new ColourEffectFrame(effect, shown.Shown)).Key),
                             };
                             if (sound is not null)
                                 step["sound"] = sound;
@@ -137,9 +144,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>The most colours a thing drawn in the engine shows changed at once (its <c>Recolouring.MostSwaps</c>).</summary>
     private const int MostSwapsShown = 64;
 
-    /// <summary>The colours one frame of a colour effect shows changed, place by place.</summary>
-    private JsonObject ColoursShown(ColourEffectColours colours, ColourEffectFrame frame, IReadOnlyDictionary<string, string> places) =>
-        ShadeChange(ColourEffectShades.Of(colours, frame).Key, places);
+    /// <summary>The colours a shade shows changed on a room's own pictures, place by place, each place's pictures cut from one sheet of the rooms' blocks.</summary>
+    private JsonObject ShadeChange(string shade, IReadOnlyDictionary<string, string> places) =>
+        ShadeChange(shade, RoomBlockFamily, places.ToDictionary(place => place.Key, place => (IReadOnlyList<string>)[place.Value], StringComparer.Ordinal));
 
     /// <summary>
     /// The colours a shade shows changed, place by place, as the engine reads a change of colours: for each place,
@@ -149,23 +156,38 @@ public sealed partial class EngineAssetWriter
     /// in is left out.
     /// </summary>
     /// <param name="shade">The shade, or several with a plus sign between them, a later one laid over an earlier.</param>
-    /// <param name="places">Each place with the sheet its pictures were cut from.</param>
-    /// <exception cref="InvalidDataException">The shade changes more colours in one place than a thing can show changed at once.</exception>
-    private JsonObject ShadeChange(string shade, IReadOnlyDictionary<string, string> places)
+    /// <param name="family">The family of the sheets.</param>
+    /// <param name="places">Each place with the sheets its pictures were cut from.</param>
+    /// <exception cref="InvalidDataException">
+    /// The shade changes more colours in one place than a thing can show changed at once, or two sheets of one place
+    /// show one colour differently.
+    /// </exception>
+    private JsonObject ShadeChange(string shade, string family, IReadOnlyDictionary<string, IReadOnlyList<string>> places)
     {
         static string Written(int colour) => colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
         var written = new JsonObject();
-        foreach ((string place, string sheet) in places)
+        foreach ((string place, IReadOnlyList<string> sheets) in places.OrderBy(place => place.Key, StringComparer.Ordinal))
         {
-            IReadOnlyList<ShadeSwap> swaps = _sheets.ShadeSwaps(RoomBlockFamily, sheet, shade);
-            if (swaps.Count > MostSwapsShown)
-                throw new InvalidDataException($"The shade {shade} changes {swaps.Count} colours of {place}; a thing shows at most {MostSwapsShown} changed at once.");
-            if (swaps.Count == 0)
+            var changed = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            foreach (string sheet in sheets)
+            {
+                foreach (ShadeSwap swap in _sheets.ShadeSwaps(family, sheet, shade))
+                {
+                    string from = swap.Region == ShadeSwap.Everywhere ? Written(swap.From) : $"{Written(swap.From)}/{swap.Region}";
+                    if (changed.TryGetValue(from, out string? shown) && shown != Written(swap.To))
+                        throw new InvalidDataException($"The shade {shade} shows the colour {from} of {place} as {shown} on one sheet and as {Written(swap.To)} on {sheet}.");
+                    changed[from] = Written(swap.To);
+                }
+            }
+
+            if (changed.Count > MostSwapsShown)
+                throw new InvalidDataException($"The shade {shade} changes {changed.Count} colours of {place}; a thing shows at most {MostSwapsShown} changed at once.");
+            if (changed.Count == 0)
                 continue;
-            var changed = new JsonObject();
-            foreach (ShadeSwap swap in swaps)
-                changed[swap.Region == ShadeSwap.Everywhere ? Written(swap.From) : $"{Written(swap.From)}/{swap.Region}"] = Written(swap.To);
-            written[place] = changed;
+            var colours = new JsonObject();
+            foreach ((string from, string to) in changed)
+                colours[from] = to;
+            written[place] = colours;
         }
 
         return written;

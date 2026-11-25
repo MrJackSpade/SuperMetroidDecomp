@@ -110,8 +110,19 @@ public sealed partial class EngineAssetWriter
             dust.Add(file);
         }
 
+        // Its lights' glow: one of the room's changes of colours, on the pictures of both its sheets.
+        string glow = $"{folder}/glow.json";
+        IReadOnlyList<string> glowSheets =
+        [
+            _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.ShipTop)),
+            _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.ShipBottomEntrance)),
+        ];
+        _tree.WriteData(glow, ColourSteps(GunshipLightDefinitions.Glow, shade => ShadeChange(
+            shade, GameInstallationLayout.EnemySheetDirectoryName, new Dictionary<string, IReadOnlyList<string>> { [folder] = glowSheets })));
+
         new EngineObjectFile(_tree, "objects/gunship.json", "Gunship")
             .PictureOffset(pictures)
+            .Value("glow", glow)
             .Value("top", PictureOf(pictures, Held(GunshipSegment.TopHull)))
             .Value("bottom", PictureOf(pictures, Held(GunshipSegment.BottomHull)))
             .Value("bottom_below_top", GunshipMotionDefinitions.TopHullAboveSamus + GunshipMotionDefinitions.BottomHullBelowSamus)

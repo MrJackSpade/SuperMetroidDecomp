@@ -108,7 +108,7 @@ public partial class SpecialAttack : Projectile
             throw new InvalidOperationException("A special attack belongs to the player who let it loose.");
 
         // A spazer light goes on the update after its partner was spent before it fell, as the cartridge has it.
-        if (_partnerSpentOn is { } spentOn && room.Session.Clock.Updates > spentOn)
+        if (_partnerSpentOn is { } spentOn && room.Session.UpdateNumber > spentOn)
         {
             Leave(room);
             return;
@@ -245,7 +245,7 @@ public partial class SpecialAttack : Projectile
     protected override void OnEnded(Room room)
     {
         if (_partner is { HasEnded: false } partner && _stage != Stage.Last)
-            partner._partnerSpentOn = room.Session.Clock.Updates;
+            partner._partnerSpentOn = room.Session.UpdateNumber;
     }
 
     private void BeginFall()

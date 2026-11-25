@@ -6,8 +6,33 @@ namespace Engine.Shared;
 /// </summary>
 public sealed class GameClock
 {
-    /// <summary>The updates played so far. The first update of a session reads zero.</summary>
+    private readonly long _period;
+    private readonly int _shortPeriod;
+
+    /// <summary>A clock whose counts never come round again.</summary>
+    public GameClock()
+    {
+    }
+
+    /// <summary>
+    /// A clock whose count comes round to zero after <paramref name="period"/> updates, and whose short count after
+    /// <paramref name="shortPeriod"/>; nothing for either means it never does.
+    /// </summary>
+    public GameClock(long period, int shortPeriod)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(period);
+        ArgumentOutOfRangeException.ThrowIfNegative(shortPeriod);
+        (_period, _shortPeriod) = (period, shortPeriod);
+    }
+
+    /// <summary>The updates played so far that count. The first update of a session reads zero.</summary>
     public long Updates { get; private set; }
+
+    /// <summary>
+    /// A second count of the same updates, which a game may start over by itself (<see cref="RestartShort"/>), as a
+    /// passage between rooms does so that what is timed by it in the next room begins together.
+    /// </summary>
+    public int ShortUpdates { get; private set; }
 
     /// <summary>Whether this update is one of every <paramref name="interval"/> updates, counted from the session's first.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The interval is not positive.</exception>
@@ -17,12 +42,19 @@ public sealed class GameClock
         return Updates % interval == 0;
     }
 
-    /// <summary>Moves the clock on by one update. The game loop does this once, at the end of each update.</summary>
-    internal void Advance() => Updates++;
+    /// <summary>Moves the clock on by one update. The game loop does this once, at the end of each update that counts.</summary>
+    internal void Advance()
+    {
+        Updates = _period > 0 ? (Updates + 1) % _period : Updates + 1;
+        ShortUpdates = _shortPeriod > 0 ? (ShortUpdates + 1) % _shortPeriod : ShortUpdates + 1;
+    }
 
     /// <summary>
-    /// Starts the count over, for a game that starts over within a session: the update this is done on reads zero
+    /// Starts both counts over, for a game that starts over within a session: the update this is done on reads zero
     /// from here on, and the next reads one.
     /// </summary>
-    public void Restart() => Updates = 0;
+    public void Restart() => (Updates, ShortUpdates) = (0, 0);
+
+    /// <summary>Starts the short count over by itself: the update this is done on reads zero from here on, and the next reads one.</summary>
+    public void RestartShort() => ShortUpdates = 0;
 }

@@ -164,6 +164,14 @@ public partial class GameDefinition : Resource
     [Export]
     public int EnemyTurnMarginBelow { get; set; } = 64;
 
+    /// <summary>How many updates the session's clock counts before it comes round to zero; nothing for a clock that never does.</summary>
+    [Export]
+    public int ClockPeriod { get; set; }
+
+    /// <summary>How many updates the clock's short count counts before it comes round to zero; nothing for one that never does.</summary>
+    [Export]
+    public int ShortClockPeriod { get; set; }
+
     /// <summary>
     /// How many updates of an enemy's hurt flash are still to come when the hurt stops holding its behaviour. None:
     /// the hurt lasts as long as the flash.

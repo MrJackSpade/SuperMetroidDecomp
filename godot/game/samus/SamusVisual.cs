@@ -30,6 +30,9 @@ public partial class SamusVisual : Node2D
     /// <summary>How many updates pass between one echo being left and the next, how fast they close on her when she slows, and how fast they draw level.</summary>
     private const int EchoEvery = 4, EchoDepartureSpeed = 8, EchoLevelling = 2;
 
+    /// <summary>How many updates of play make a second of the play time.</summary>
+    private const int PlayUpdatesEachSecond = 60;
+
     private TimelinePlayer? _player;
     private string _playing = "";
     private string _look = "";
@@ -121,20 +124,35 @@ public partial class SamusVisual : Node2D
     }
 
     /// <summary>
-    /// Leaves and moves her echoes. At full speed, a shinespark's too, one of the two is left where she is every few
-    /// updates, turn about. When she slows they close on her from behind, drawing level as they come, and are gone as
-    /// they reach her. A shinespark's crash, which ends her speed, takes them away. They are shown by the visuals
-    /// "Echo1" and "Echo2", if her scene has them.
+    /// Leaves and moves her echoes. At full speed one of the two is left where she is every few updates, turn about,
+    /// and while a shinespark flies, where she stood before it moved her. When she slows they close on her from behind,
+    /// drawing level as they come, and are gone as they reach her. A shinespark's launch and its crash take them away.
+    /// They are shown by the visuals "Echo1" and "Echo2", if her scene has them.
     /// </summary>
     private void StepEchoes(Samus samus, ActorVisual picture)
     {
-        if (samus.State is ShinesparkState && !samus.IsBoosting)
+        bool boosting = samus.IsBoosting && samus.State is not ShinesparkState;
+        // Timed by the play time's frames within its second, not by the clock.
+        bool due = samus.Room.Session.Progress.PlayUpdates % PlayUpdatesEachSecond % EchoEvery == 0;
+        if (samus.State is ShinesparkState { IsWindingUp: false } spark)
         {
-            ClearEchoes();
+            if (spark.FlownFrom is not { } from)
+            {
+                (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
+            }
+            else if (due)
+            {
+                _echoes[_nextEcho] = from;
+                _nextEcho = 1 - _nextEcho;
+            }
         }
-        else if (samus.IsBoosting && _echoesLeaving == 0)
+        else if (samus.State is ShinesparkState && _echoesLeaving == 0)
         {
-            if (samus.Room.Session.Clock.Updates % EchoEvery == 0)
+            // Winding up, echoes that are not closing on her stay where they were left.
+        }
+        else if (boosting && _echoesLeaving == 0)
+        {
+            if (due)
             {
                 _echoes[_nextEcho] = samus.Position;
                 _nextEcho = 1 - _nextEcho;

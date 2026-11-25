@@ -61,6 +61,15 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _ => _across == 0 ? "shinespark_vertical" : _down == 0 ? "shinespark_horizontal" : "shinespark_diagonal",
     };
 
+    /// <summary>Whether she is still winding up.</summary>
+    public bool IsWindingUp => _stage == Stage.WindingUp;
+
+    /// <summary>
+    /// Where she stood before she moved this update, while she flies; none on the update she launches and once she
+    /// has crashed. Her speed echoes are left from here.
+    /// </summary>
+    public PixelPosition? FlownFrom { get; private set; }
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -155,6 +164,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _riseSpeed = Pixels.Zero;
         _riseGain = Pixels.FromNumber(samus.ShinesparkRiseGain);
         _stage = Stage.Flying;
+        FlownFrom = null;
         samus.Room.Session.Sounds.Request(Sounds.Shinespark, channel: "samus", priority: SoundPriority.High);
     }
 
@@ -167,6 +177,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // While it flies no hurt colours her or is heard, and its glow is kept going.
         samus.HoldHurtFlashForSpark();
         samus.KeepSparkGlow(samus.SparkGlowUpdates);
+        FlownFrom = samus.Position;
         Pixels gravity = Pixels.FromNumber(samus.Medium.Gravity);
         bool stoppedAcross = false, stoppedDown = false;
         if (_across != 0)
@@ -203,6 +214,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         if (!stopped && !spent)
             return;
         _stage = Stage.Crashed;
+        FlownFrom = null;
 
         // Her boost and her speed end as she crashes. How far the echoes have circled is not started over.
         samus.EndBoost();

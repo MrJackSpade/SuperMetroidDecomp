@@ -30,12 +30,12 @@ public partial class TurningFloor : Backdrop
     {
     }
 
-    /// <summary>Lays the floor level, at its own size, where it stands.</summary>
+    /// <summary>Lays the floor level, at its own size, where it lies in the room (<see cref="Backdrop.LiesAt"/>).</summary>
     public void LayLevel()
     {
         Rotation = 0;
         Scale = Vector2.One;
-        Position = Vector2.Zero;
+        Position = LiesAt;
     }
 
     /// <summary>
@@ -50,8 +50,9 @@ public partial class TurningFloor : Backdrop
         float size = (float)(1 / floorPixelsPerScreenPixel);
         Rotation = (float)radians;
         Scale = new Vector2(size, size);
-        // The centre stays where it is but for the scroll: the floor's corner goes wherever that leaves it.
-        Position = centre - scroll - centre.Rotated((float)radians) * size;
+        // The centre stays where it is but for the scroll: the floor's corner goes wherever that leaves it, from
+        // where the floor lies in the room.
+        Position = LiesAt + centre - scroll - centre.Rotated((float)radians) * size;
     }
 
     /// <summary>Shows a part of the floor, by the name of its visual, with a picture; an empty picture shows nothing.</summary>

@@ -197,7 +197,10 @@ class Sequences:
             if 'Ridley' in named:
                 self.links.append((named['Ridley'], 'ToldWhenGone', [getaway]))
         if state.main == 'CeresElevatorShaft':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png')}, at=(0, 0), enemy=False,
+            # The cartridge shows a room's picture from the row below the view's, and draws what stands in it where
+            # its place says: the shaft, which is all the room's picture, lies a row above the room's own rows, so
+            # the black that hides the landing pad until the platform lands covers its top row.
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png'), 'LiesAt': 'Vector2i(0, -1)'}, at=(0, 0), enemy=False,
                            children=[('Platform', VISUAL, {'position': f'Vector2{FLOOR_PLATFORM_AT}'})])
             self.placed.append(floor)
             if 'ElevatorDoor' in named:

@@ -1597,7 +1597,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
-  elevator shaft are `TurningFloor`s. What a level draws behind itself is one picture, with the part of it the
+  elevator shaft are `TurningFloor`s (a turning floor lies where its `LiesAt` says, level or turned: the shaft's lies
+  a row above the room's own rows, where the cartridge shows a room's picture against what stands in it). What a level draws behind itself is one picture, with the part of it the
   cartridge draws in front of the room's things beside it: Ridley's room on Ceres is all that part, over tiles
   that are black all over. The floor he flies off over is put away until he flies, and while he does `CeresGetaway`
   gives it the depth in front of the room's tiles (`RoomDepth.BehindThings`), where the cartridge shows it in

@@ -97,6 +97,7 @@ PresentWhen = SubResource("r5")
 script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_elevator_shaft.png"
+LiesAt = Vector2i(0, -1)
 
 [node name="Platform" type="Node2D" parent="Floor"]
 script = ExtResource("11")

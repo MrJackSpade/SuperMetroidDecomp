@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -179,7 +180,7 @@ public partial class MorphBallEye : RoomObject
                 Sound(ActivationSound);
                 (_beam, _halfWidth, _widthGrowth, _shade, _light) = (Beam.Widening, 0, 0, 0, 1f);
                 _doing = Doing.Open;
-                LookAt(to);
+                LookAt();
                 break;
 
             case Doing.Open:
@@ -193,7 +194,7 @@ public partial class MorphBallEye : RoomObject
                     break;
                 }
 
-                LookAt(to);
+                LookAt();
                 break;
 
             case Doing.Closing:
@@ -209,10 +210,14 @@ public partial class MorphBallEye : RoomObject
         ShowBeam();
     }
 
-    /// <summary>Turns it to look along the way to Samus.</summary>
-    private void LookAt(PixelOffset to)
+    /// <summary>
+    /// Turns it to look along the way to Samus: the cartridge's aim between whole pixels, which counts up from right,
+    /// taken backward to count clockwise from right as its angle does.
+    /// </summary>
+    private void LookAt()
     {
-        _angle = Turns.AngleOf(to.X.Whole, to.Y.Whole);
+        PixelPosition samus = Room.Player.Position;
+        _angle = Turns.Wrap(-CartridgeAngles.AimAngle(samus.X.Whole - Position.X.Whole, samus.Y.Whole - Position.Y.Whole));
         Show(_aims[Turns.Wrap(_angle) * _aims.Count / Turns.PerTurn]);
     }
 

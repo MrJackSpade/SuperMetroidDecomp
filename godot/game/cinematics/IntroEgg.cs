@@ -15,8 +15,9 @@ namespace Game.Cinematics;
 /// <remarks>
 /// Its data names the timelines of its two visuals, "Egg" and "Baby": "intact", "hatching" (which gives the cues
 /// "burst" and "next_page") and "baby"; the six pictures of its "shell" pieces and where a piece's picture lies from
-/// the piece's place ("shell_offset"); its effects "slime" (which loops) and "slime_splash" by the data files of their
-/// timelines; and its "hatch_sound" and "cry_sound".
+/// the piece's place ("shell_offset"); how many updates a piece of shell's curve covers ("shell_curve_updates") and how
+/// far a piece still falling past it falls on each update after it ("shell_fall_past_curve"); its effects "slime" (which loops)
+/// and "slime_splash" by the data files of their timelines; and its "hatch_sound" and "cry_sound".
 /// </remarks>
 public partial class IntroEgg : RoomObject
 {
@@ -68,7 +69,11 @@ public partial class IntroEgg : RoomObject
     /// <summary>The drops of slime: how far across each flies each update, and whether it is thrown high.</summary>
     private static readonly (double Drift, bool High)[] SlimeDrops = [(-1, true), (-0.5, false), (1, true), (0.5, false)];
 
+    /// <summary>How many updates a piece of shell's curve covers, after which it falls by the steps its data gives.</summary>
+    private int _shellCurveUpdates;
+
     private readonly List<string> _shellPictures = [];
+    private readonly List<Pixels> _shellFallPastCurve = [];
     private (int X, int Y) _shellOffset;
     private readonly List<(Effect Thing, double Drift, bool High, int Age, bool IsSlime)> _thrown = [];
     private TimelineSet _timelines = TimelineSet.None;
@@ -99,6 +104,9 @@ public partial class IntroEgg : RoomObject
         if (_shellPictures.Count != ShellPieces.Length)
             throw data.Problem($"must name {ShellPieces.Length} pieces of shell");
         _shellOffset = (data.Get("shell_offset").Int("x"), data.Get("shell_offset").Int("y"));
+        _shellCurveUpdates = data.Int("shell_curve_updates");
+        _shellFallPastCurve.Clear();
+        _shellFallPastCurve.AddRange(data.List("shell_fall_past_curve").Select(step => step.AsPixels()));
     }
 
     /// <inheritdoc/>
@@ -249,8 +257,10 @@ public partial class IntroEgg : RoomObject
         {
             (Effect thing, double drift, bool high, int age, bool isSlime) = _thrown[index];
             double[] rise = high ? HighThrow : LowThrow;
-            double down = age < rise.Length ? rise[age] : 0.125 * (age - rise.Length);
-            thing.Position += new PixelOffset(Pixels.FromNumber(drift), Pixels.FromNumber(down));
+            Pixels down = age < rise.Length ? Pixels.FromNumber(rise[age])
+                : !isSlime && age >= _shellCurveUpdates ? ShellStepPastCurve(age - _shellCurveUpdates)
+                : Pixels.FromNumber(0.125 * (age - rise.Length));
+            thing.Position += new PixelOffset(Pixels.FromNumber(drift), down);
             if (thing.Position.Y.Whole < LandingY)
             {
                 _thrown[index] = (thing, drift, high, age + 1, isSlime);
@@ -263,6 +273,15 @@ public partial class IntroEgg : RoomObject
             _thrown.RemoveAt(index);
         }
     }
+
+    /// <summary>
+    /// How far a piece of shell falls on an update past the end of its curve: the cartridge reads its steps from the
+    /// data after the curve, which its data file gives.
+    /// </summary>
+    private Pixels ShellStepPastCurve(int updatesPastCurve) =>
+        updatesPastCurve < _shellFallPastCurve.Count
+            ? _shellFallPastCurve[updatesPastCurve]
+            : throw new InvalidOperationException($"A piece of shell is still falling {updatesPastCurve + 1} updates past its curve, which its data gives only {_shellFallPastCurve.Count} steps for.");
 
     private void Cry()
     {

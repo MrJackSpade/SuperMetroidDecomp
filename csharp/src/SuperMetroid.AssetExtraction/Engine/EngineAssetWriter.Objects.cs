@@ -265,6 +265,20 @@ public sealed partial class EngineAssetWriter
             .Value("smoke", DustFile(DustExplosionAnimation.Smoke))
             .Value("explosion_sound", EngineNames.Sound(EnemySound.BigExplosion))
             .Write();
+
+        // Once Ridley has escaped the old game draws the station's doors in other colours. The pictures are written
+        // once, in their sheets' own; the change of colours is written beside them, place by place, and the rooms'
+        // doors are shown it where they are drawn.
+        var doorSheets = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+        {
+            ["objects/ceres_door"] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.CeresDoor))],
+            ["objects/ceres_ridley_room_door"] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.CeresRidleyRoomDoor))],
+            ["objects/ceres_elevator_door"] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.CeresElevatorDoor))],
+        };
+        _tree.WriteData("objects/ceres_doors_escaping.json", new JsonObject
+        {
+            ["colours"] = ShadeChange(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorShades.Escaping.Key, GameInstallationLayout.EnemySheetDirectoryName, doorSheets),
+        });
     }
 
     /// <summary>

@@ -1595,7 +1595,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 
 - `Liquid`: water, lava, acid, including the rising acid of the escape.
 - `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect`, each with a look (heat with
-  ongoing damage as well); the earthquake is the engine's. The
+  ongoing damage as well); the earthquake is the engine's. An overlay is laid over the view by its room whenever
+  the room shows itself (`OverlayEffect.Follow`), so it is there from the moment the room is seen, before the room's
+  effects have had a turn; its pictures and its drift move on as it is stepped. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
@@ -1619,7 +1621,9 @@ warning is laid out and typed (its font, where its words begin, how long a lette
 start are followed at once, how many letters go to a sound, and the pictures of a second wording) is a data file
 named for it under `text/typed/`.
 
-Ceres: the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
+Ceres: the colours its doors take once Ridley has gone (`CeresDoorColours`: given to a room's doors as the room is
+set up, as a change of colours written by the extractor, so a door there while he left keeps its own until the room
+is entered again); the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
 (`CeresGetaway`: he flies off over the turning floor and throws Samus aside, then the self-destruct's warning comes
 up, is typed out and stays up flashing, and the countdown begins); the station shaking once the self-destruct has
 begun (`CeresShaking`); the falling debris (`CeresDebris`); the elevator shaft tilting and the elevator taking Samus

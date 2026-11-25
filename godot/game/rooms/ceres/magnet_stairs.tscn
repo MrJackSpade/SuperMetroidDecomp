@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,8 +8,9 @@
 [ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
 [ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
-[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="10"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresDoorColours.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -35,6 +36,11 @@ Kind = 4
 Parts = Array[ExtResource("1")]([])
 
 [sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 0
+About = "ceres_ridley_escaped"
+
+[sub_resource type="Resource" id="r6"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
@@ -91,44 +97,50 @@ script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.25)
-PresentWhen = SubResource("r5")
+PresentWhen = SubResource("r6")
 
 [node name="Shaking" type="Node" parent="."]
 script = ExtResource("8")
 StartsWhen = SubResource("r4")
 
-[node name="Haze" type="Node2D" parent="."]
+[node name="DoorColours" type="Node" parent="."]
 script = ExtResource("9")
+StartsWhen = SubResource("r5")
+ColoursFile = "objects/ceres_doors_escaping.json"
+Doors = Array[NodePath]([NodePath("../CeresDoor"), NodePath("../CeresDoor2")])
+
+[node name="Haze" type="Node2D" parent="."]
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 LookFile = "effects/ceres_haze.json"
-PresentWhen = SubResource("r5")
+PresentWhen = SubResource("r6")
 
-[node name="Steam" parent="." instance=ExtResource("10")]
+[node name="Steam" parent="." instance=ExtResource("11")]
 position = Vector2(112, 156)
 DataFile = "objects/ceres_steam_up.json"
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
-[node name="Steam2" parent="." instance=ExtResource("10")]
+[node name="Steam2" parent="." instance=ExtResource("11")]
 position = Vector2(194, 176)
 DataFile = "objects/ceres_steam_right.json"
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
-[node name="Steam3" parent="." instance=ExtResource("10")]
+[node name="Steam3" parent="." instance=ExtResource("11")]
 position = Vector2(120, 278)
 DataFile = "objects/ceres_steam_up.json"
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
-[node name="Steam4" parent="." instance=ExtResource("10")]
+[node name="Steam4" parent="." instance=ExtResource("11")]
 position = Vector2(62, 304)
 DataFile = "objects/ceres_steam_left.json"
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
-[node name="Steam5" parent="." instance=ExtResource("10")]
+[node name="Steam5" parent="." instance=ExtResource("11")]
 position = Vector2(136, 404)
 DataFile = "objects/ceres_steam_up.json"
 TurnsWithEnemies = true
@@ -142,7 +154,7 @@ ScrollShare = Vector2(0, 0.75)
 PresentWhen = SubResource("r1")
 
 [node name="Haze2" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 LookFile = "effects/ceres_haze_escape.json"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,7 +8,8 @@
 [ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
 [ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresDoorColours.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -34,6 +35,11 @@ Kind = 4
 Parts = Array[ExtResource("1")]([])
 
 [sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 0
+About = "ceres_ridley_escaped"
+
+[sub_resource type="Resource" id="r6"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
@@ -95,15 +101,21 @@ ScrollShare = Vector2(0.75, 1)
 script = ExtResource("8")
 StartsWhen = SubResource("r4")
 
-[node name="Haze" type="Node2D" parent="."]
+[node name="DoorColours" type="Node" parent="."]
 script = ExtResource("9")
+StartsWhen = SubResource("r5")
+ColoursFile = "objects/ceres_doors_escaping.json"
+Doors = Array[NodePath]([NodePath("../CeresDoor"), NodePath("../CeresDoor2")])
+
+[node name="Haze" type="Node2D" parent="."]
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 LookFile = "effects/ceres_haze.json"
-PresentWhen = SubResource("r5")
+PresentWhen = SubResource("r6")
 
 [node name="Haze2" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 LookFile = "effects/ceres_haze_escape.json"

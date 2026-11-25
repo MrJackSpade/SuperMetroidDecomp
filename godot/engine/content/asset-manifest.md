@@ -750,6 +750,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `menus/title.json` | `game/menus/TitleMode.cs` |
 | `objects/ceres_arrival_pad.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/ceres_arrival_platform.json` | `game/rooms/ceres/ceres_elevator.tscn` |
+| `objects/ceres_doors_escaping.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_rest.json` | `game/objects/station/energy_station.tscn` |

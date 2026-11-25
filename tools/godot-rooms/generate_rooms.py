@@ -570,7 +570,7 @@ class Generator:
                     links[id(placed)].update({'ToldWhenSealed': [arena], 'ToldWhenEscapeBegins': [warning]})
                     placed.properties['EscapeMusic'] = quoted('escape')
             chosen_on = conditional[version][0] if version < len(conditional) else ''
-            played = sequences.Sequences(room, state, chosen_on, ctx, by_name, (room_scene(self.rooms['LandingSite']), 'AtZebesArrival'))
+            played = sequences.Sequences(room, state, chosen_on, ctx, by_name, (room_scene(self.rooms['LandingSite']), 'AtZebesArrival'), things)
             things.extend(played.placed)
             for teller, name, told_things in played.links:
                 links.setdefault(id(teller), {})[name] = told_things

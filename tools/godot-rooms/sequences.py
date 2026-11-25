@@ -92,10 +92,12 @@ def strings(values: list[str]) -> str:
 class Sequences:
     """The sequences and backdrops of one version of a room."""
 
-    def __init__(self, room: legacy.Room, state: legacy.State, chosen_on: str, ctx, named: dict[str, Placed], landing: tuple[str, str]) -> None:
+    def __init__(self, room: legacy.Room, state: legacy.State, chosen_on: str, ctx, named: dict[str, Placed], landing: tuple[str, str],
+                 things: list[Placed]) -> None:
         """
         `chosen_on` is the condition the version is chosen on, empty for the one with none; `named` holds what the
-        version has placed so far, by name; `landing` is the scene and entry point Ceres's elevator leads to.
+        version has placed so far, by name, the first of each name; `landing` is the scene and entry point Ceres's
+        elevator leads to; `things` is everything the version has placed so far.
         """
         self.placed: list[Placed] = []
         self.links: list[tuple[Placed, str, object]] = []
@@ -137,7 +139,7 @@ class Sequences:
                 'StartsWhen': ctx.always(), 'Until': ctx.always(), 'Records': f'PackedStringArray("map revealed: {snake(room.area)}")'}))
 
         if room.area == 'Ceres':
-            self.ceres(state, 'BossDead' in chosen_on, ctx, named, landing)
+            self.ceres(state, 'BossDead' in chosen_on, ctx, named, landing, things)
         if state.main == 'ScrollingSkyLand' and 'Gunship' in named:
             landing_sequence = sequence('crateria/GunshipLanding.cs', 'Landing', {'StartsAtEntry': quoted('AtZebesArrival')})
             departure = sequence('crateria/ZebesDeparture.cs', 'Departure', {})
@@ -168,9 +170,18 @@ class Sequences:
                 self.placed.append(sequence('maridia/TubeRide.cs', name, {
                     'StartsAtEntry': quoted(entry), 'StartSpeed': repr(speed), 'Gain': repr(gain)}))
 
-    def ceres(self, state: legacy.State, ridley_gone: bool, ctx, named: dict[str, Placed], landing: tuple[str, str]) -> None:
+    def ceres(self, state: legacy.State, ridley_gone: bool, ctx, named: dict[str, Placed], landing: tuple[str, str],
+              things: list[Placed]) -> None:
         shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {'StartsWhen': ctx.always()})
         self.placed.append(shaking)
+        doors = [thing for thing in things if thing.name in ('CeresDoor', 'RidleyRoomDoor', 'ElevatorDoor')]
+        if doors:
+            # A door takes its other colours as its room is set up once Ridley has left his: the old door chose
+            # between its two looks as it was made, by whether he had yet escaped.
+            colours = sequence('ceres/CeresDoorColours.cs', 'DoorColours', {
+                'StartsWhen': ctx.fact('ceres_ridley_escaped'), 'ColoursFile': quoted('objects/ceres_doors_escaping.json')})
+            self.placed.append(colours)
+            self.links.append((colours, 'Doors', doors))
         if 'Haze' in state.setup:
             # The haze is one colour while Ridley is on the station and another once he is gone.
             look = 'effects/ceres_haze_escape.json' if ridley_gone else 'effects/ceres_haze.json'
@@ -182,7 +193,9 @@ class Sequences:
                 'LightPiece': quoted('effects/ceres_debris_light.json'), 'DarkPiece': quoted('effects/ceres_debris_dark.json')}))
         if state.main == 'CeresRidleyGetaway':
             # The floor he flies off over is put away until he does: the room rests on its own picture.
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png'), 'visible': 'false'}, at=(0, 0), enemy=False,
+            # Nothing shows beyond its edges: the cartridge's floor for his flight does not come round again, as
+            # the shaft's does.
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png'), 'Repeats': 'false', 'visible': 'false'}, at=(0, 0), enemy=False,
                            children=[('Capsule', VISUAL, {'position': f'Vector2{FLOOR_CAPSULE_AT}'}),
                                      ('Wings', VISUAL, {'position': f'Vector2{FLOOR_WINGS_AT}'})])
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {

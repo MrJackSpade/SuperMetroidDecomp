@@ -56,6 +56,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("forms", ReadByOwner = true)]
     public Godot.Collections.Dictionary<string, int> Forms { get; set; } = new() { [Standing] = 20, [Crouching] = 14, [Crawling] = 7 };
 
+    /// <summary>
+    /// How many pictures each timed change of the player's shows, by the name of the value that gives the change's
+    /// length. A change with none listed lasts the same however the player is slowed.
+    /// </summary>
+    [Export, DataValue("change_pictures", ReadByOwner = true)]
+    public Godot.Collections.Dictionary<string, int> ChangePictures { get; set; } = [];
+
     /// <summary>How the player moves in each medium. One of them is named "air".</summary>
     [Export, DataValue("mediums", ReadByOwner = true)]
     public Godot.Collections.Array<PlayerMedium> Mediums { get; set; } = [];
@@ -263,9 +270,16 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>
     /// How many updates a timed change lasts where the player is now: the length the medium they are in gives for the
-    /// value named <paramref name="name"/>, or failing that <paramref name="updates"/>.
+    /// value named <paramref name="name"/>, or failing that <paramref name="updates"/>. Where the medium gives none,
+    /// as out of any liquid, whatever clings to the player and halves their speed (<see cref="SpeedHalvings"/>)
+    /// holds each picture of the change that many updates longer (<see cref="ChangePictures"/>).
     /// </summary>
-    public int InMedium(string name, int updates) => Medium.Updates.TryGetValue(name, out int own) ? own : updates;
+    public int InMedium(string name, int updates)
+    {
+        if (Medium.Updates.TryGetValue(name, out int own))
+            return own;
+        return SpeedHalvings > 0 && ChangePictures.TryGetValue(name, out int pictures) ? updates + pictures * SpeedHalvings : updates;
+    }
 
     /// <summary>A posture's state, by way of the change into it where that takes time.</summary>
     private static PlayerState Changing(string form, PlayerState then, int updates, bool fallsInAir) =>
@@ -606,6 +620,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Forms = [];
         foreach ((string form, DataNode halfHeight) in data.Get("forms").Entries())
             Forms[form] = halfHeight.AsInt();
+        ChangePictures = [];
+        if (data.Has("change_pictures"))
+        {
+            foreach ((string change, DataNode pictures) in data.Get("change_pictures").Entries())
+                ChangePictures[change] = pictures.AsInt();
+        }
+
         Mediums = [];
         foreach ((string name, DataNode medium) in data.Get("mediums").Entries())
             Mediums.Add(PlayerMedium.Read(name, medium));

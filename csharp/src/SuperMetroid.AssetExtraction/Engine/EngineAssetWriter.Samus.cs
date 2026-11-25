@@ -326,6 +326,11 @@ public sealed partial class EngineAssetWriter
             ["spinning"] = SamusPoseTraits.Of(P.SpinJumpRightPose).VerticalRadius,
             ["facing_forward"] = SamusPoseTraits.Of(P.ForwardFacingPowerSuitPose).VerticalRadius,
         });
+        // How many pictures each of her timed changes shows: a slowdown holds each of them longer out of any liquid.
+        var changePictures = new JsonObject();
+        foreach ((string value, P pose, Seg segment) in SamusTimedChanges)
+            changePictures[value] = SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Count;
+        file.Group("change_pictures", changePictures);
         file.Group("mediums", SamusMediumsWritten());
 
         // How each bomb of a spread is thrown, left to right, in pixels an update, upward and leftward below nought.

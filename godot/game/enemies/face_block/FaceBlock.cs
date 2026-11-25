@@ -1,18 +1,21 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Godot;
 
 namespace Game.Enemies;
 
 /// <summary>
 /// A face block: a carved face in the rock that does nothing until Samus has the Morph Ball. From then on it glows,
-/// and turns its eyes to her the first time she comes near on the side it watches. Nothing touches it.
+/// with the one glow its room's face blocks share (<see cref="FaceBlockGlow"/>), and turns its eyes to her the first
+/// time she comes near on the side it watches. Nothing touches it.
 /// </summary>
 /// <remarks>
-/// Its timelines are "looking_ahead", "samus_left" and "samus_right". The path of each of their pictures holds
-/// "{glow}", which is nothing while the block sleeps and "_glow_0", "_glow_1" and so on, dimmest first, as it glows:
-/// its pictures are kept once for each step of the glow, as the glow recolours the whole face.
+/// Its timelines are "looking_ahead", "samus_left" and "samus_right". Its data lists the glow's levels under "glow",
+/// in the order the glow goes through them and round again: each a change of the colours of its pictures, and of
+/// whatever else shares them, written place by place as any change of colours is. "glow_updates" is how long each
+/// level lasts.
 /// </remarks>
 public partial class FaceBlock : Enemy
 {
@@ -24,35 +27,44 @@ public partial class FaceBlock : Enemy
     [Export, DataValue("wakes_with")]
     public string WakesWith { get; set; } = "";
 
-    /// <summary>How many updates each step of its glow lasts.</summary>
+    /// <summary>How many updates each level of its glow lasts.</summary>
     [Export, DataValue("glow_updates")]
     public int GlowUpdates { get; set; } = 16;
 
-    /// <summary>How many steps its glow has, from dimmest to brightest.</summary>
-    [Export, DataValue("glow_levels")]
-    public int GlowLevels { get; set; } = 4;
-
+    private ColourChange[] _glowLevels = [];
+    private FaceBlockGlow? _glow;
     private bool _looked;
 
     /// <inheritdoc/>
-    protected override void OnEnterRoom() => Play("looking_ahead");
-
-    /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step)
+    public override void ReadValues(DataNode data)
     {
-        if (!IsAwake)
-            return step.Picture.Replace("{glow}", "", StringComparison.Ordinal);
-        // The glow brightens through its steps and dims back again, in step for every face block in the room.
-        int steps = GlowLevels * 2;
-        int now = (int)(Room.Session.Clock.Updates / GlowUpdates % steps);
-        int level = now < GlowLevels ? now : steps - 1 - now;
-        return step.Picture.Replace("{glow}", $"_glow_{level}", StringComparison.Ordinal);
+        base.ReadValues(data);
+        _glowLevels = [.. data.List("glow").Select(ColourChange.Read)];
+    }
+
+    /// <summary>
+    /// Set up, it joins its room's glow, starts it if Samus already has what wakes it, and in any case starts the
+    /// glow's present level over.
+    /// </summary>
+    protected override void OnEnterRoom()
+    {
+        Play("looking_ahead");
+        _looked = false;
+        _glow = FaceBlockGlow.In(Room, _glowLevels, GlowUpdates);
+        if (Visual is { } visual)
+            _glow.Join(visual);
+        if (IsAwake)
+            Glow();
+        _glow.HoldLevelAnew();
     }
 
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (!IsAwake || _looked)
+        if (!IsAwake)
+            return;
+        Glow();
+        if (_looked)
             return;
         if (Math.Abs(Target.Y.Whole - Position.Y.Whole) >= TriggerDistance)
             return;
@@ -64,6 +76,16 @@ public partial class FaceBlock : Enemy
             return;
         Play(side == Facing.Left ? "samus_left" : "samus_right", restart: true);
         _looked = true;
+
+        // Waking starts the glow's present level over.
+        _glow?.HoldLevelAnew();
+    }
+
+    /// <summary>Starts its room's glow, if no block has, and shows the glow's present level.</summary>
+    private void Glow()
+    {
+        if (_glow is { } glow && Visual is { } visual)
+            glow.StartOn(visual);
     }
 
     /// <summary>Whether Samus has what wakes it.</summary>

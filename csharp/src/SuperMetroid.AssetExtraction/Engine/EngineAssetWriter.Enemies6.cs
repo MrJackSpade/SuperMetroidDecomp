@@ -77,18 +77,29 @@ public sealed partial class EngineAssetWriter
             .Looks(WreckedShipGhostAnimations.Segments, WreckedShipGhostAnimations.StartingWith, ("floating", WreckedShipGhostSegment.Floating))
             .Write();
 
-        // The face block: its glow recolours the whole face, so its pictures are kept once as it sleeps and once for
-        // each step of the glow, and its timelines name whichever set the Godot game picks.
+        // The face block: its glow recolours the whole face, a change of its pictures' colours for each level in the
+        // order the glow goes through them, shown too on what shares its colours where that has the level's shade:
+        // the Morph Ball eye.
         EngineEnemy face = Enemy("enemies/face_block.json", "FaceBlock", EnemyDefinitionId.FaceBlock)
             .Value("wakes_with", "morph_ball")
             .Value("glow_updates", FaceBlockGlowDefinitions.FrameDuration)
-            .Value("glow_levels", FaceBlockGlowAnimations.Levels.Count)
-            .PictureSets("{glow}")
             .Looks(BlueBrinstarFaceBlockAnimations.Segments, BlueBrinstarFaceBlockAnimations.StartingWith,
                 ("looking_ahead", BlueBrinstarFaceBlockSegment.LookingAhead), ("samus_left", BlueBrinstarFaceBlockSegment.SamusLeft),
                 ("samus_right", BlueBrinstarFaceBlockSegment.SamusRight));
-        for (int level = 0; level < FaceBlockGlowAnimations.Levels.Count; level++)
-            face.ShadedSet($"_glow_{level}", $"face-block-glow-{FaceBlockGlowAnimations.Levels[level]}/0");
+        const string glowFamily = Installation.GameInstallationLayout.EnemySheetDirectoryName;
+        string faceSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.FaceBlock));
+        string eyeSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MorphBallEye));
+        var glow = new JsonArray();
+        foreach (FaceBlockGlowLevel level in FaceBlockGlowAnimations.Cycle)
+        {
+            string shade = $"face-block-glow-{level}/0";
+            var places = new Dictionary<string, IReadOnlyList<string>> { [face.Folder] = [faceSheet] };
+            if (_sheets.HasShade(glowFamily, eyeSheet, shade))
+                places["objects/morph_ball_eye"] = [eyeSheet];
+            glow.Add(ShadeChange(shade, glowFamily, places));
+        }
+
+        face.Data["glow"] = glow;
         face.Write();
     }
 

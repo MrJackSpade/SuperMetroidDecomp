@@ -27,7 +27,6 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
     private int _rising;
     private int _kind;
     private int _usedOfKind;
-    private Countdown _wait;
 
     /// <summary>
     /// Whether a crystal flash can start, as a power bomb's blast ends where she lies: the angle actions, down and the
@@ -65,7 +64,6 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         samus.SpendShine();
         samus.BeginCrystalFlashColouring();
         _rising = RiseUpdates;
-        _wait = Countdown.Of(samus.CrystalFlashDrainEvery);
     }
 
     /// <summary>A flash taken from her before its rise is done lets the bomb kept for its blast go.</summary>
@@ -92,10 +90,9 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
             return null;
         }
 
-        _wait = _wait.Stepped();
-        if (_wait.IsRunning)
+        // Her ammunition is taken on the clock's cadence: the flash keeps no count of its own.
+        if (samus.CrystalFlashDrainEvery > 0 && owner.Room.Session.Clock.Updates % samus.CrystalFlashDrainEvery != 0)
             return null;
-        _wait = Countdown.Of(samus.CrystalFlashDrainEvery);
 
         if (_kind < Ammunition.Length)
         {

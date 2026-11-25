@@ -18,6 +18,14 @@ try {
         [Console]::Error.WriteLine("Build failed (exit $exit). Full output: $log")
         exit 1
     }
+    # What compiles can still fail in the editor: a class made there ([Tool]) that holds a script type that is not is
+    # handed a placeholder it cannot take. The sources are checked for that, and the build fails on it.
+    & pwsh -NoProfile -File (Join-Path $PSScriptRoot 'check-editor-types.ps1')
+    if ($LASTEXITCODE -ne 0) {
+        [Console]::Error.WriteLine("Build failed: the editor could not load what is listed above.")
+        exit 1
+    }
+
     Write-Output "Build succeeded."
     exit 0
 }

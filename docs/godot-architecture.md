@@ -375,6 +375,11 @@ freely for the look; they are only off limits as a clock or as a source of gamep
 
 - The Godot project is built and run from the command line without opening the editor. `godot/build.ps1` builds it
   and `godot/check.ps1` builds it and then runs its checks; they are the only way the agent builds or checks.
+- The build also fails on what compiles and still cannot load in the editor (`godot/check-editor-types.ps1`, run by
+  `build.ps1`): a class made in the editor (`[Tool]`) whose exported property is of a script type that is not made
+  there. The editor hands such a property a placeholder it cannot take and reports an invalid cast. The owner's rule:
+  "These errors shouldn't be possible in the editor, and should be caught by whatever \"build\" script you're using."
+  A script type held by a `[Tool]` class is marked `[Tool]` as well.
 - The scripts find Godot through the `GODOT4_BIN` environment variable, set at user scope to the Godot .NET
   executable (the main one, not the `_console` launcher, which fails when its path contains a space).
 - Checks run with `--headless`: no window opens and nothing is drawn, so running them does not use the graphics

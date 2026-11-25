@@ -23,8 +23,8 @@ namespace Game.Enemies;
 /// and the steps of the "reveal", the first shown on the first update of its roar's hold and each for
 /// "arena_reveal_step_updates"; the last stays. It lists
 /// "health_bands", lowest first, each for health "below" a number, with how hard it flies when it hovers
-/// ("hover_divisor") and lunges ("grab_divisor"), the "look" its pictures have, and its four "pogo" launches, each
-/// with its speed "across" and "up" and the speed it gains each update rising ("rise_gain") and falling
+/// ("hover_divisor") and lunges ("grab_divisor"), the "colours" of its pictures once it has shown itself, and its
+/// four "pogo" launches, each with its speed "across" and "up" and the speed it gains each update rising ("rise_gain") and falling
 /// ("fall_gain"); the last band, with no "below", is for when it is unhurt. It also lists "death_explosions", the
 /// places from its middle its death's blasts go off in turn, and "breakup", the pieces it breaks into: each an
 /// "effect", where it starts ("x", "y", for when it faces left) or the link of its "tail" it was, and how many
@@ -132,7 +132,7 @@ public partial class Ridley
 
     private sealed record Pogo(Pixels Across, Pixels Up, Pixels RiseGain, Pixels FallGain);
 
-    private sealed record Band(int Below, int HoverDivisor, int GrabDivisor, string Look, IReadOnlyList<Pogo> Pogos);
+    private sealed record Band(int Below, int HoverDivisor, int GrabDivisor, ColourChange Colours, IReadOnlyList<Pogo> Pogos);
 
     private sealed record Piece(string Effect, int X, int Y, int TailLink, int Updates);
 
@@ -178,7 +178,7 @@ public partial class Ridley
             List<Pogo> pogos = [.. band.List("pogo").Select(pogo => new Pogo(pogo.Distance("across"), pogo.Distance("up"), pogo.Distance("rise_gain"), pogo.Distance("fall_gain")))];
             if (pogos.Count != 4)
                 throw band.Problem("must list four pogo launches");
-            _bands.Add(new Band(band.Has("below") ? band.Int("below") : int.MaxValue, band.Int("hover_divisor"), band.Int("grab_divisor"), band.Text("look"), pogos));
+            _bands.Add(new Band(band.Has("below") ? band.Int("below") : int.MaxValue, band.Int("hover_divisor"), band.Int("grab_divisor"), ColourChange.Read(band.Get("colours")), pogos));
         }
 
         if (_bands.Count == 0 || _bands[^1].Below != int.MaxValue)

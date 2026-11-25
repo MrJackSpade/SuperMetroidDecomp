@@ -20,7 +20,8 @@ namespace Game.Enemies;
 /// "retrieve_baby_right", "fireballing_end_left" and "fireballing_end_right". Its visual "Baby" is the capsule, which
 /// plays "baby_idle" and "baby_expressive"; their cue "reacts" livens it when it is falling, and "cries" has it cry
 /// or, as often as not when it is still, settle. Its data's "retreat_colours" is the change of colours its going
-/// gives the chamber's own pictures, which stays for as long as the room is there.
+/// gives the chamber's own pictures, which stays for as long as the room is there; under its "colours", "own" is
+/// the change of its own pictures' colours it shows once it has shown itself.
 /// </remarks>
 public partial class Ridley
 {
@@ -50,6 +51,9 @@ public partial class Ridley
 
     /// <summary>The colours its going gives the chamber.</summary>
     private ColourChange _retreatColours = ColourChange.None;
+
+    /// <summary>Its own colours, once it has shown itself.</summary>
+    private ColourChange _ownColours = ColourChange.None;
 
     /// <summary>The capsule's cry, by name.</summary>
     [Export, DataValue("baby_cry_sound")]

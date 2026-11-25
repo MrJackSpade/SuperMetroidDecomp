@@ -102,7 +102,6 @@ public partial class MotherBrain
     private int _explosionWait;
     private int _nextExplosion;
     private int _nextMural;
-    private int _nextDust;
     private int _greyStep;
     private int _greyWait;
     private bool _flashing;
@@ -382,8 +381,8 @@ public partial class MotherBrain
                     break;
                 if (_ascentDust.Count > 0)
                 {
-                    Leave(Random.Last.Part(8, 1) == 1 ? BigDustEffect : DustEffect, _ascentDust[_nextDust]);
-                    _nextDust = (_nextDust + 1) % _ascentDust.Count;
+                    PixelPosition at = NextBurstOf(_ascentDust);
+                    Leave(Random.Last.Part(8, 1) == 1 ? BigDustEffect : DustEffect, at);
                     Sound(AscentDustSound);
                 }
 

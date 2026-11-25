@@ -61,22 +61,26 @@
   of 1 can be identified by tests. So clean code and idiomatic design should be the default
   unless you have a reason to believe gameplay parity will break, because once tests are
   implemented all gameplay gaps will be identified, but cleanliness and idiomatic design can
-  NOT be identified with tests." Presentation is never matched at the cost of clean,
-  idiomatic code: "You can't have idiomatic design if you're trying to port archaic design
-  patterns." A change made for parity of implementation or of look, that play does not need
-  and that makes the code less clean or less idiomatic, is reverted, by a ticket of its own.
-- Parity is of gameplay. The owner's words: "parity with the old code means parity of
-  gameplay, not that all quirks of the game design need to be carried forward". Asked which
-  differences still count as work, the owner chose gameplay only:
-  - What must match is what changes play: where Samus and the enemies are on each update,
-    what fires and what is hit and when, energy and counts, random draws, and the timing of
-    input. That is what would put a recorded movie out of step.
-  - Pictures, colours and sounds are to look and sound right. They need not match the
-    cartridge update for update: its palette steps, the count of a flash, the update a sound
-    is asked for on.
-  - An old mechanism or internal order that changes nothing of play is not reproduced.
-  - A ticket that is only about how something is stepped for the eye or the ear, or about an
-    internal order, is closed or left parked. It is not worked.
+  NOT be identified with tests."
+- Presentation matters, and a presentation difference is a defect like any other. The order
+  above says only which wins when two of them conflict. The owner's words: "code cleanliness
+  and idiomatic design was more important than presentation. That means that when presentation
+  does something weird, and that weird thing is resolved by making the code quality worse, you
+  don't do that. Not that presentation doesn't matter at all." And: "you are not allowed to
+  close presentation issues unless they lead to weird, unclean, or non-idiomatic design
+  practices. You can't just ... ignore rendering bugs".
+  - Something drawn, coloured, timed or heard differently from the cartridge gets a ticket and
+    is worked, as a difference of play is.
+  - A presentation ticket is closed unworked only when matching the cartridge there would need
+    a weird, unclean or non-idiomatic design, and the ticket says which design that would be
+    and why there is no clean way. "It changes nothing of play" is never a reason to close one.
+  - An old mechanism is not copied to get a look: "You can't have idiomatic design if you're
+    trying to port archaic design patterns." The look is matched in the Godot design, or the
+    ticket is closed for the reason above.
+- The old game's quirks of design are not carried forward for their own sake. The owner's
+  words: "parity with the old code means parity of gameplay, not that all quirks of the game
+  design need to be carried forward". That is about how the old game is built inside, not
+  about what is seen or heard.
 - A known gameplay difference is a defect, never an accepted end state. "Close enough",
   "simplified", "the Godot way" and "still different, not fixed" are not outcomes of a piece
   of work. A gameplay difference is fixed, or it stays open as a ticket.

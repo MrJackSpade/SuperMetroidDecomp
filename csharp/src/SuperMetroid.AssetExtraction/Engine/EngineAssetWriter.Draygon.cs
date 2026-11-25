@@ -162,23 +162,7 @@ public sealed partial class EngineAssetWriter
         // The colours its tail and arms show: its opening's, and from its first hurt on its own laid over them.
         string tailSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonTail));
         string armsSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonArms));
-        JsonObject PartSwaps(string partSheet, string shade)
-        {
-            IReadOnlyList<ShadeSwap> swaps = _sheets.ShadeSwaps(GameInstallationLayout.EnemySheetDirectoryName, partSheet, shade);
-            if (swaps.Count > MostSwapsShown)
-                throw new InvalidDataException($"The shade {shade} changes {swaps.Count} colours of {partSheet}; a thing shows at most {MostSwapsShown} changed at once.");
-            var written = new JsonObject();
-            foreach (ShadeSwap swap in swaps)
-            {
-                if (swap.Region != ShadeSwap.Everywhere)
-                    throw new InvalidDataException($"The shade {shade} changes a colour of {partSheet} in one region of its pictures only, and Draygon's tail and arms have no map of regions.");
-                written[swap.From.ToString("x6", CultureInfo.InvariantCulture)] = swap.To.ToString("x6", CultureInfo.InvariantCulture);
-            }
-
-            return written;
-        }
-
-        JsonObject PartColours(string shade) => new() { ["Tail"] = PartSwaps(tailSheet, shade), ["Arms"] = PartSwaps(armsSheet, shade) };
+        JsonObject PartColours(string shade) => new() { ["Tail"] = EnemySheetSwaps(tailSheet, shade), ["Arms"] = EnemySheetSwaps(armsSheet, shade) };
         var partColours = new JsonObject
         {
             ["opening"] = PartColours(DraygonShades.Intro.Key),

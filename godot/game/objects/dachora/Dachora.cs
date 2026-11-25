@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World.Objects;
 using Godot;
 
@@ -82,11 +83,14 @@ public partial class Dachora : Creature
     private static readonly Pixels Acceleration = Pixels.FromNumber(1 / 16.0);
     private static readonly Pixels FastestFall = Pixels.FromWhole(10);
 
-    /// <summary>The frames each glow has.</summary>
-    private const int GlowFrames = 4;
-
-    /// <summary>The updates each frame of the speed glow shows before the next; it stays on its brightest.</summary>
+    /// <summary>The updates each frame of the speed glow shows before the next; it stays on its last, brightest frame.</summary>
     private const int SpeedGlowFrameUpdates = 16;
+
+    /// <summary>The frames of its speed glow, each the colours of its pictures it shows changed.</summary>
+    private ColourSwap[][] _speedGlow = [];
+
+    /// <summary>The frames of its shine glow, each the colours of its pictures it shows changed.</summary>
+    private ColourSwap[][] _shineGlow = [];
 
     private Doing _doing;
     private int _timer;
@@ -98,6 +102,22 @@ public partial class Dachora : Creature
     private int _glowing;
 
     private string Side => Facing == Facing.Right ? "right" : "left";
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        DataNode glows = data.Get("glow_colours");
+        _speedGlow = ReadGlow(glows, "speed");
+        _shineGlow = ReadGlow(glows, "shine");
+    }
+
+    /// <summary>Reads the frames of one glow, each a group of the colours it changes.</summary>
+    private static ColourSwap[][] ReadGlow(DataNode glows, string name)
+    {
+        ColourSwap[][] frames = [.. glows.List(name).Select(ColourChange.ReadSwaps)];
+        return frames.Length > 0 ? frames : throw glows.Problem($"must give at least one frame of its {name} glow");
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -159,7 +179,7 @@ public partial class Dachora : Creature
                 Facing = Facing.Opposite();
                 Play($"falling_{Side}", restart: true);
                 (_doing, _speed) = (Doing.Falling, Pixels.Zero);
-                Tint(Colors.White);
+                ShowColours([]);
                 Sound(CeilingSound);
                 break;
 
@@ -181,7 +201,7 @@ public partial class Dachora : Creature
     {
         (_doing, _speed, _glowing) = (Doing.Running, Pixels.Zero, 0);
         Play($"running_{Side}", restart: true);
-        Tint(Colors.White);
+        ShowColours([]);
     }
 
     /// <summary>One update of its run: it speeds up, follows the ground, and turns or shoots up where its run ends.</summary>
@@ -189,10 +209,10 @@ public partial class Dachora : Creature
     {
         if (_speed >= TopSpeed)
         {
-            // At full speed it glows, as Samus does, brighter and brighter, and is heard.
+            // At full speed it glows the colours of speed, as Samus does, brighter and brighter, and is heard.
             if (_glowing == 0)
                 Sound(SpeedSound);
-            ShowGlow(shining: false, Math.Min(_glowing / SpeedGlowFrameUpdates, GlowFrames - 1));
+            ShowColours(_speedGlow[Math.Min(_glowing / SpeedGlowFrameUpdates, _speedGlow.Length - 1)]);
             _glowing++;
         }
 
@@ -234,18 +254,12 @@ public partial class Dachora : Creature
     }
 
     /// <summary>Shows the shine glow's next frame, each update it gathers itself and flies: its frames over and over.</summary>
-    private void StepShineGlow() => ShowGlow(shining: true, _glowing++ % GlowFrames);
+    private void StepShineGlow() => ShowColours(_shineGlow[_glowing++ % _shineGlow.Length]);
 
-    /// <summary>It glows: the blue of speed while it runs, the gold of the shinespark while it gathers and flies.</summary>
-    private void ShowGlow(bool shining, int frame)
-    {
-        float pulse = 1f + 0.15f * frame;
-        Tint(shining ? new Color(pulse * 1.2f, pulse * 1.2f, pulse * 0.8f) : new Color(pulse * 0.9f, pulse, pulse * 1.3f));
-    }
-
-    private void Tint(Color colour)
+    /// <summary>Shows its pictures with the colours given changed; none shows them in their own colours.</summary>
+    private void ShowColours(IReadOnlyList<ColourSwap> swaps)
     {
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Tint(colour);
+            visual.Recolour(nameof(Dachora), swaps);
     }
 }

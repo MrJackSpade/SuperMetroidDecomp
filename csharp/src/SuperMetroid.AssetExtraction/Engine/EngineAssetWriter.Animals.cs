@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Spatial;
 using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
@@ -69,7 +70,18 @@ public sealed partial class EngineAssetWriter
             ["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY },
         });
 
+        // Its glows: each frame of its speed's and its shine's colours, as changes of the colours of its pictures.
+        string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Dachora));
+        JsonArray Glow(DachoraColourPhase phase)
+        {
+            var frames = new JsonArray();
+            for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
+                frames.Add(EnemySheetSwaps(sheet, DachoraShades.Of(phase, frame).Key));
+            return frames;
+        }
+
         dachora
+            .Group("glow_colours", new JsonObject { ["speed"] = Glow(DachoraColourPhase.Speed), ["shine"] = Glow(DachoraColourPhase.Shine) })
             .Value("echo_effect", echo)
             .Value("activation_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraActivationSound))
             .Value("speed_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraSpeedBoosterSound))

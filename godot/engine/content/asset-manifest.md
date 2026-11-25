@@ -99,10 +99,10 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/fune.json` | `Fune` | contact_damage, health, mouth_drop |
 | `enemies/gamet.json` | `Gamet` | contact_damage, health, rise_speed |
 | `enemies/geega.json` | `Geega` | contact_damage, emergence_delay, health, speed_curve, swoop_distance, swoop_start_mark, trigger_distance, trigger_height |
-| `enemies/geruta.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, lift, reach, return_sound, return_speed, slow_dive_speed |
+| `enemies/geruta.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, idles_whenever_perched, lift, reach, return_sound, return_speed, slow_dive_speed |
 | `enemies/grapple_ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/hibashi.json` | `Hibashi` | contact_damage, first_wait, half_width, health |
-| `enemies/holtz.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, lift, reach, return_sound, return_speed, slow_dive_speed |
+| `enemies/holtz.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, idles_whenever_perched, lift, reach, return_sound, return_speed, slow_dive_speed |
 | `enemies/jet_ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/kago.json` | `Kago` | contact_damage, health, shake_strength, shake_updates, shake_way |
 | `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, first_sound_after, gravity, health, homing_distance, jump_speed, shortest_wait, sound |

@@ -66,8 +66,10 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>
     /// Samus's moves are tried as the cartridge tries them: only where each would end, so that she keeps her part of
     /// a pixel beside what she has not yet run into, rests at the far end of her pixel on the ground and against a
-    /// wall to her right, passes what a fast move steps over, and is put on a slope's surface under her middle.
+    /// wall to her right, passes what a fast move steps over, and is put on a slope's surface under her middle. The
+    /// blocks under a move up or down are tried from her left on the clock's even updates and from her right on its
+    /// odd ones, as the cartridge's scans alternate.
     /// </summary>
-    public override Engine.Collision.MoveOptions BodyMoves(Engine.Collision.MoveOptions plain) =>
-        plain with { Tries = Engine.Collision.WayTried.WhereItEnds };
+    public override Engine.Collision.MoveOptions BodyMoves(GameSession session, Engine.Collision.MoveOptions plain) =>
+        plain with { Tries = Engine.Collision.WayTried.WhereItEnds, TriesFromRight = session.Clock.Updates % 2 != 0 };
 }

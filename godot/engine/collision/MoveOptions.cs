@@ -24,6 +24,12 @@ public sealed record MoveOptions
     /// <summary>How much of its way the move tries against what could stop it.</summary>
     public WayTried Tries { get; init; } = WayTried.EveryPixel;
 
+    /// <summary>
+    /// For a move up or down tried only where it ends: whether the tiles its leading edge would end in are tried from
+    /// the edge's right end, and not from its left. The first found to stop the move decides where the body rests.
+    /// </summary>
+    public bool TriesFromRight { get; init; }
+
     /// <summary>Whether solid colliders stop the move.</summary>
     public bool StoppedBySolids { get; init; } = true;
 

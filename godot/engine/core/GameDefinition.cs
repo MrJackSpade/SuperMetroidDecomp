@@ -241,8 +241,9 @@ public partial class GameDefinition : Resource
     public virtual ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
 
     /// <summary>
-    /// How the player's body is moved through a room: as <paramref name="plain"/> says, which is how the engine's
-    /// player moves, unless the game needs its player's moves tried or stopped some other way.
+    /// How the player's body is moved through a room on this update of <paramref name="session"/>: as
+    /// <paramref name="plain"/> says, which is how the engine's player moves, unless the game needs its player's moves
+    /// tried or stopped some other way.
     /// </summary>
-    public virtual Collision.MoveOptions BodyMoves(Collision.MoveOptions plain) => plain;
+    public virtual Collision.MoveOptions BodyMoves(GameSession session, Collision.MoveOptions plain) => plain;
 }

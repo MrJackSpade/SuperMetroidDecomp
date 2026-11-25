@@ -458,7 +458,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// say more of how its player's body is moved (<see cref="Core.GameDefinition.BodyMoves"/>).
     /// </summary>
     public MoveOptions BodyMoves =>
-        Room.Session.Definition.BodyMoves(MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel });
+        Room.Session.Definition.BodyMoves(
+            Room.Session, MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel });
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
@@ -718,11 +719,16 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         // own on this update, and has landed when the state it is in says it came down.
         bool triedWhereItEnds = BodyMoves.Tries == WayTried.WhereItEnds;
         if (triedWhereItEnds ? _groundStoppedMove : onGround)
-            Room.Terrain.StandOn(BodyRect);
+        {
+            // Stopped by one tile of the ground, the player stands on that tile alone.
+            PixelRect body = BodyRect;
+            Room.Terrain.StandOn(triedWhereItEnds && _stoppedOnTile is { } tile ? new PixelRect(tile.Left, body.Top, tile.Width, body.Height) : body);
+        }
+
         if (triedWhereItEnds ? _cameDown : onGround && !_wasOnGround)
             OnLanded();
         LandingSpeed = Pixels.Zero;
-        (_cameDown, _groundStoppedMove) = (false, false);
+        (_cameDown, _groundStoppedMove, _stoppedOnTile) = (false, false, null);
         _wasOnGround = onGround;
         BeMovedByBlocks();
         Splash();
@@ -732,8 +738,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether a state said, on this update, that the player came down onto ground.</summary>
     private bool _cameDown;
 
-    /// <summary>Whether terrain stopped a move down of the player's own on this update.</summary>
+    /// <summary>Whether terrain stopped a move down of the player's own on this update, and the tile that last did.</summary>
     private bool _groundStoppedMove;
+    private PixelRect? _stoppedOnTile;
 
     /// <summary>Whether the player's feet were on the ground, and in the room's liquid, at the end of the last update.</summary>
     private bool _wasOnGround = true;
@@ -1325,7 +1332,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (!distance.IsZero && result.BlockedBy is null)
             _putOnSlope = false;
         if (result.BlockedByTerrain && !distance.IsNegative)
-            _groundStoppedMove = true;
+            (_groundStoppedMove, _stoppedOnTile) = (true, result.StoppedByTile);
         OnBodyMoved(across: false, distance, result.Moved);
         return result;
     }

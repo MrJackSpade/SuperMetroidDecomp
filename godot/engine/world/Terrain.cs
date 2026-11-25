@@ -186,7 +186,7 @@ public partial class Terrain : Node2D, ITerrainShape
     }
 
     /// <inheritdoc/>
-    public EdgeStop StopsEdge(PixelRect edge, int across, int down, SlopeTreatment slopes)
+    public EdgeStop StopsEdge(PixelRect edge, int across, int down, SlopeTreatment slopes, bool fromRight = false)
     {
         if (edge.IsEmpty)
             return EdgeStop.None;
@@ -195,14 +195,17 @@ public partial class Terrain : Node2D, ITerrainShape
         {
             int y = edge.Top, row = TileOf(y, size), top = row * size;
             int middle = edge.Left + edge.Width / 2;
-            for (int column = TileOf(edge.Left, size); column <= TileOf(edge.Right - 1, size); column++)
+            int firstColumn = TileOf(edge.Left, size), lastColumn = TileOf(edge.Right - 1, size);
+            for (int offset = 0; offset <= lastColumn - firstColumn; offset++)
             {
+                int column = fromRight ? lastColumn - offset : firstColumn + offset;
+                int left = column * size;
+                var tile = new PixelRect(left, top, size, size);
                 SlopeShape? slope = SlopeOrSolidAt(row, column, out bool solid);
                 if (solid)
-                    return new EdgeStop(true, down > 0 ? y - top + 1 : top + size - y, false);
+                    return new EdgeStop(true, down > 0 ? y - top + 1 : top + size - y, false) { Tile = tile };
                 if (slope is null || slopes == SlopeTreatment.Ignore || (slope.HoldsMiddle && slopes == SlopeTreatment.IgnoreMiddleHeld))
                     continue;
-                int left = column * size;
                 if (slope.HoldsMiddle && slopes == SlopeTreatment.ClimbUnderMiddle)
                 {
                     // Only the body's middle column meets such a slope; a floor stops only a move down and a ceiling
@@ -211,15 +214,15 @@ public partial class Terrain : Node2D, ITerrainShape
                         continue;
                     int solidPixels = slope.SolidAt(middle - left);
                     if (down > 0 && !slope.FromTop && y >= top + size - solidPixels - 1)
-                        return new EdgeStop(true, y - (top + size - solidPixels - 1), true);
+                        return new EdgeStop(true, y - (top + size - solidPixels - 1), true) { Tile = tile };
                     if (down < 0 && slope.FromTop && y <= top + solidPixels)
-                        return new EdgeStop(true, null, true);
+                        return new EdgeStop(true, null, true) { Tile = tile };
                     continue;
                 }
 
                 int first = Math.Max(edge.Left, left) - left, end = Math.Min(edge.Right, left + size) - left;
                 if (slope.IsSolidIn(first, end, y - top, y - top + 1))
-                    return new EdgeStop(true, BackOutOf(slope, first, end, y - top, y - top + 1, 0, down), false);
+                    return new EdgeStop(true, BackOutOf(slope, first, end, y - top, y - top + 1, 0, down), false) { Tile = tile };
             }
 
             return EdgeStop.None;
@@ -230,7 +233,7 @@ public partial class Terrain : Node2D, ITerrainShape
         {
             SlopeShape? slope = SlopeOrSolidAt(row, tileColumn, out bool solid);
             if (solid)
-                return new EdgeStop(true, across > 0 ? x - tileLeft + 1 : tileLeft + size - x, false);
+                return new EdgeStop(true, across > 0 ? x - tileLeft + 1 : tileLeft + size - x, false) { Tile = new PixelRect(tileLeft, row * size, size, size) };
 
             // Sloped ground that holds things up by their middle stops no move across it.
             if (slope is null || slopes == SlopeTreatment.Ignore ||
@@ -239,7 +242,7 @@ public partial class Terrain : Node2D, ITerrainShape
             int top = row * size;
             int first = Math.Max(edge.Top, top) - top, end = Math.Min(edge.Bottom, top + size) - top;
             if (slope.IsSolidIn(x - tileLeft, x - tileLeft + 1, first, end))
-                return new EdgeStop(true, BackOutOf(slope, x - tileLeft, x - tileLeft + 1, first, end, across, 0), false);
+                return new EdgeStop(true, BackOutOf(slope, x - tileLeft, x - tileLeft + 1, first, end, across, 0), false) { Tile = new PixelRect(tileLeft, top, size, size) };
         }
 
         return EdgeStop.None;

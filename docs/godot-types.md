@@ -1154,10 +1154,12 @@ other way:
   when it goes nowhere.
 - Otherwise only the terrain the body's leading edge would end in stops the move (`ITerrainShape.StopsEdge`): what
   lies on the way, short of the end, is passed, and a move that ends beside something, part of a pixel short of it,
-  is not stopped. The tiles the edge would lie in are tried in turn from its top or left end, and the first that
-  stops the move decides. Stopped, the body rests against that tile, never further back than where it began: at
-  the far end of its pixel when it was going right or down, at the pixel's start going left or up. A move so
-  stopped went whole pixels.
+  is not stopped. The tiles the edge would lie in are tried in turn from its top or left end, or for a move up or
+  down from its right end where the call says so (`MoveOptions.TriesFromRight`: this game says so on the clock's
+  odd updates, as the cartridge's scans alternate), and the first that stops the move decides and is reported
+  (`MoveResult.StoppedByTile`), so a player stopped by one tile of the ground stands on that tile alone. Stopped,
+  the body rests against that tile, never further back than where it began: at the far end of its pixel when it
+  was going right or down, at the pixel's start going left or up. A move so stopped went whole pixels.
 - A solid that stands as part of the room, as a wall does (`Collider.StandsAsTerrain`), is met as terrain is and
   not as a thing in the way: by the leading edge alone, the body resting against it at the end of its pixel. This
   game's door caps, gates, gate switches, item shells and stations stand so, having been blocks of the cartridge's

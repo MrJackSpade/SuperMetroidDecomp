@@ -1,3 +1,5 @@
+using Engine.Shared;
+
 namespace Engine.Collision;
 
 /// <summary>
@@ -15,6 +17,9 @@ namespace Engine.Collision;
 /// </param>
 public readonly record struct EdgeStop(bool Stopped, int? Back, bool KeepsFraction)
 {
+    /// <summary>The tile of terrain that stopped the move, in room pixels; null when none did, or what stopped it is no tile.</summary>
+    public PixelRect? Tile { get; init; }
+
     /// <summary>Nothing stops the move.</summary>
     public static EdgeStop None => default;
 }

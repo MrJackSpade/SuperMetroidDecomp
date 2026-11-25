@@ -15,6 +15,12 @@ public readonly record struct MoveResult(Pixels Moved, bool Blocked, bool Blocke
     /// </summary>
     public bool PutOnSlope { get; init; }
 
+    /// <summary>
+    /// The tile of terrain that stopped the move, in room pixels, for a move tried only where it ends that a tile
+    /// stopped; otherwise null.
+    /// </summary>
+    public PixelRect? StoppedByTile { get; init; }
+
     /// <summary>A move that went the whole way.</summary>
     public static MoveResult Free(Pixels moved) => new(moved, false, false, null);
 }

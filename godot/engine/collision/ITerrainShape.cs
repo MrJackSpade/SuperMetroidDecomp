@@ -13,14 +13,15 @@ public interface ITerrainShape
 
     /// <summary>
     /// What the terrain makes of a move tried only where it ends (<see cref="WayTried.WhereItEnds"/>). The tiles
-    /// <paramref name="edge"/> lies in are tried in turn, from its top or its left end, and the first that stops the
-    /// move decides where the body rests.
+    /// <paramref name="edge"/> lies in are tried in turn, from its top or its left end, or for a move up or down from
+    /// its right end when <paramref name="fromRight"/>, and the first that stops the move decides where the body rests.
     /// </summary>
     /// <param name="edge">The strip one pixel thick the body's leading edge would end in.</param>
     /// <param name="across">The way the move goes across: -1 left, 1 right, 0 for a move up or down.</param>
     /// <param name="down">The way the move goes down: -1 up, 1 down, 0 for a move across.</param>
     /// <param name="slopes">How the move treats sloped ground.</param>
-    EdgeStop StopsEdge(PixelRect edge, int across, int down, SlopeTreatment slopes);
+    /// <param name="fromRight">Whether the tiles under a move up or down are tried from the edge's right end.</param>
+    EdgeStop StopsEdge(PixelRect edge, int across, int down, SlopeTreatment slopes, bool fromRight = false);
 
     /// <summary>
     /// The row a pixel in the column <paramref name="x"/> rests in against the sloped ground, of the kind that holds

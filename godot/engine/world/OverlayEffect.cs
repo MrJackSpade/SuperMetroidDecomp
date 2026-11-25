@@ -94,13 +94,14 @@ public partial class OverlayEffect : RoomEffect
         Texture2D texture = _content.LoadTexture(_player.Shown.Picture);
         Vector2 size = texture.GetSize();
 
-        // Tiles cover the view from the first one that reaches into it.
+        // Tiles cover the view from the first one that reaches into it. They are laid in the room's own pixels, which
+        // are the overlay's but for where it is put in the room: the room itself is moved against the screen.
         float startX = _view.Left - Wrap(_view.Left * _followsRoom - _drifted.X, size.X);
         float startY = _view.Top - Wrap(_view.Top * _followsRoom - _drifted.Y, size.Y);
         for (float y = startY; y < _view.Top + _view.Height; y += size.Y)
         {
             for (float x = startX; x < _view.Left + _view.Width; x += size.X)
-                DrawTexture(texture, ToLocal(new Vector2(x, y)));
+                DrawTexture(texture, new Vector2(x, y) - Position);
         }
 
         static float Wrap(float value, float period) => ((value % period) + period) % period;

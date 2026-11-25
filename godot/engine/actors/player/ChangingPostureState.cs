@@ -31,9 +31,6 @@ public sealed class ChangingPostureState : PlayerState
     /// <summary>The state the change leads to.</summary>
     public PlayerState Then { get; }
 
-    /// <summary>The form the player was in as the change began; empty until it has.</summary>
-    public string From { get; private set; } = "";
-
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -43,7 +40,6 @@ public sealed class ChangingPostureState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        From = owner.Form;
         if (_form != Player.Crawling)
         {
             owner.TrySetForm(_form);

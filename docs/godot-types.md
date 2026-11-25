@@ -867,10 +867,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her crouch and her ball.** Crouching out of a run at full boost stores a shine, as the crouch begins; the dash
   then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
   held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
-  press of down while already aiming down, or in a wall jump, curls her up. While she changes out of the ball, the
-  attack held with the way she faces, else with up, else with down, breaks her out into a fall aiming so
-  (`FallingState(AirStance)`, which leaves her speed and steering as they are), where that body fits; on the
-  ground, where she has no speed up or down, that leaves her adrift.
+  press of down while already aiming down, or in a wall jump, curls her up. Nothing she presses is read while she
+  changes into or out of the ball, or crouches down or stands up: the cartridge reads no input in those changes, though
+  its tables list the attack with a direction as breaking out of the change out of the ball.
 - **Her boost** is counted in strides of her run. The stride's ten pictures each last their own updates
   (`run_stride_updates`), or the dash's (`dash_stride_updates`), or, with the speed booster on, those of the stage
   of the boost she is at (`boost_stride_updates`); a run taken up afresh starts the stride again. Each stride

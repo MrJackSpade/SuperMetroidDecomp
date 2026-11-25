@@ -631,11 +631,6 @@ public partial class Samus : Player
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
             StoreShine();
 
-        // The fall she breaks out of the change out of the ball into keeps the speed she has, up and down as well:
-        // on the ground, where she has none, that leaves her adrift.
-        if (from is ChangingPostureState { From: Crawling } && to is FallingState && !IsRising && IsOnGround)
-            Drift();
-
         // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
         // over and above what the taller body of the jump takes. Her arm is as it was before this update's input, as
         // the old pose she jumped from was.
@@ -853,20 +848,6 @@ public partial class Samus : Player
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } againstWall)
                     againstWall.Fire(this);
                 return null;
-
-            case ChangingPostureState { From: Crawling, Then: CrouchingState }:
-                // Leaving the ball, the attack held with the way she faces, else with up, else with down, breaks her
-                // out of the change into a fall aiming so, where that body fits, as the cartridge has it.
-                if (!input.IsHeld(GameAction.Attack))
-                    return null;
-                AirStance? breakOut = input.IsHeld(Facing == Facing.Right ? GameAction.Right : GameAction.Left) ? new AirStance(Aim.Forward, AirArm.Out)
-                    : input.IsHeld(GameAction.Up) ? new AirStance(Aim.Up)
-                    : input.IsHeld(GameAction.Down) ? new AirStance(Aim.Down)
-                    : null;
-                if (breakOut is not { } stance)
-                    return null;
-                string form = stance.Aim == Aim.Down && Forms.ContainsKey(AimingDown) ? AimingDown : FormOr(Falling);
-                return CanTakeForm(form, aroundMiddle: IsRising || !IsOnGround) ? new FallingState(stance) : null;
 
             case TurningState { Crouched: false }:
                 // A turn becomes a spin jump while the jump and the way she now faces are held; a turn begun aiming

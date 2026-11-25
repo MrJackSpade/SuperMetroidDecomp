@@ -30,7 +30,9 @@ namespace Game;
 /// colouring her beams' colours are in before any is set, and "beams" that of each set of beams she can have
 /// switched on, named for them: "power", "wave", "spazer_ice_wave". Her pictures draw some of their colours from
 /// her beams', so a colouring of the beams shows on her too, over her suit's; and a colouring laid over the beams'
-/// shows over that, each effect's last colouring in the order they were laid.
+/// shows over that, each effect's last colouring in the order they were laid. "death" lists the colourings of her
+/// death, step by step: her suit's in each suit ("suits"), those of her body without the suit ("suitless"), which
+/// show over everything else once one is shown, and those her beams' colours whiten through ("whiteout").
 /// </remarks>
 public sealed class SamusColours
 {
@@ -43,6 +45,12 @@ public sealed class SamusColours
     private readonly Dictionary<string, string> _suits = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _drainFlash = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _beams = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string[]> _deathSuits = new(StringComparer.Ordinal);
+    private readonly string[] _deathSuitless;
+    private readonly string[] _deathWhiteout;
+
+    /// <summary>The colouring her body without the suit shows, by name, or null for its own colours.</summary>
+    private string? _suitless;
 
     /// <summary>The colourings laid over her beams', in the order they were laid; the last covers the others.</summary>
     private readonly List<string> _overBeams = [];
@@ -72,6 +80,11 @@ public sealed class SamusColours
             _drainFlash[suit] = Known(shade.AsText());
         foreach ((string beams, DataNode shade) in data.Get("beams").Entries())
             _beams[beams] = Known(shade.AsText());
+        DataNode death = data.Get("death");
+        foreach ((string suit, DataNode steps) in death.Get("suits").Entries())
+            _deathSuits[suit] = [.. steps.Items().Select(shade => Known(shade.AsText()))];
+        _deathSuitless = [.. death.List("suitless").Select(shade => Known(shade.AsText()))];
+        _deathWhiteout = [.. death.List("whiteout").Select(shade => Known(shade.AsText()))];
         Hurt = Known(data.Text("hurt"));
         Suit = Known(data.Text("starting"));
         Beams = Known(data.Text("starting_beams"));
@@ -134,6 +147,28 @@ public sealed class SamusColours
         ? glow
         : throw new ContentException(_file, $"has no glow named \"{name}\"");
 
+    /// <summary>The colouring her suit shows at a step of her death, in the suit named.</summary>
+    public string DeathSuitOf(string suit, int step) => _deathSuits.TryGetValue(suit, out string[]? steps)
+        ? StepOf(steps, step, $"her death's colours in the {suit} suit")
+        : throw new ContentException(_file, $"gives no colourings of her death for the suit \"{suit}\"");
+
+    /// <summary>The colouring her body without the suit shows at a step of her death.</summary>
+    public string DeathSuitlessAt(int step) => StepOf(_deathSuitless, step, "her death's colours without the suit");
+
+    /// <summary>The colouring her beams' colours show at a step of her death's whiteout.</summary>
+    public string DeathWhiteoutAt(int step) => StepOf(_deathWhiteout, step, "her death's whiteout");
+
+    private string StepOf(string[] steps, int step, string what) => step >= 0 && step < steps.Length
+        ? steps[step]
+        : throw new ContentException(_file, $"has no step {step} of {what}");
+
+    /// <summary>Shows <paramref name="shade"/> as the colours of her body without the suit, over everything else she shows.</summary>
+    public void ShowSuitless(string shade)
+    {
+        _suitless = Known(shade);
+        _change++;
+    }
+
     /// <summary>Shows <paramref name="shade"/> as her suit's colours, in place of the colouring it showed.</summary>
     public void ShowSuit(string shade)
     {
@@ -151,11 +186,13 @@ public sealed class SamusColours
     public void ShowOn(ActorVisual visual)
     {
         ArgumentNullException.ThrowIfNull(visual);
-        // What was laid last is asked first, so it is the one shown where two change one colour: over her beams'
-        // colours what was laid over them, and her beams' over her suit's.
+        // What was laid last is asked first, so it is the one shown where two change one colour: the colours of
+        // her body without the suit first, then over her beams' colours what was laid over them, and her beams'
+        // over her suit's.
+        IEnumerable<string> suitless = _suitless is { } bare ? [bare] : [];
         (string Place, ColourSwap[] Swaps)[] shown =
         [
-            .. ((IEnumerable<string>)_overBeams).Reverse().Append(Beams).Append(Suit)
+            .. suitless.Concat(((IEnumerable<string>)_overBeams).Reverse()).Append(Beams).Append(Suit)
                 .SelectMany(shade => _shades[shade]).Where(place => visual.ShowsPicturesIn(place.Place)),
         ];
         string places = string.Join('|', shown.Select(place => place.Place).Distinct());

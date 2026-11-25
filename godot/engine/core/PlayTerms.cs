@@ -21,4 +21,7 @@ public sealed record PlayTerms
 
     /// <summary>Whether a session service may take play over.</summary>
     public bool ServicesMayTakeOver { get; init; } = true;
+
+    /// <summary>Whether the update counts toward the play time.</summary>
+    public bool CountsPlayTime { get; init; } = true;
 }

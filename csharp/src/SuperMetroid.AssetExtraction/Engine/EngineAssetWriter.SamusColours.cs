@@ -88,6 +88,40 @@ public sealed partial class EngineAssetWriter
         foreach (SuperMetroid.Core.Progression.SamusBeamCombination combination in Enum.GetValues<SuperMetroid.Core.Progression.SamusBeamCombination>())
             beams[EngineSheets.FileName(combination.ToString())] = Shade(SamusShades.Beam(combination));
 
+        // Her death's colourings, step by step: her suit's in each suit, those of her body without the suit, and those
+        // her beams' colours whiten through. Each changes the pictures of whichever of her sheets has it.
+        string DeathShade(PictureShade shade)
+        {
+            string name = $"{EngineSheets.FileName(shade.Effect)}_{shade.Step}";
+            if (shades.ContainsKey(name))
+                return name;
+            var places = new Dictionary<string, IReadOnlyList<string>>();
+            if (_sheets.HasShade(SpriteFamily, SamusBodySheet, shade.Key))
+                places[SamusBodyPlace] = [SamusBodySheet];
+            if (_sheets.HasShade(SpriteFamily, deathSheet, shade.Key))
+                places[SamusDeathPlace] = [deathSheet];
+            if (places.Count == 0)
+                throw new InvalidDataException($"Neither of Samus's sheets has the shade {shade.Key} of her death.");
+            shades[name] = ShadeChange(shade.Key, SpriteFamily, places);
+            return name;
+        }
+
+        var deathSuits = new JsonObject();
+        foreach ((string name, SamusSuit suit) in SamusSuits)
+        {
+            var steps = new JsonArray();
+            foreach (SuperMetroid.Core.Samus.Death.SamusDeathShade step in SuperMetroid.Core.Samus.Death.SamusDeathShade.All)
+                steps.Add(DeathShade(SamusShades.DeathSuit(suit, step)));
+            deathSuits[name] = steps;
+        }
+
+        var deathSuitless = new JsonArray();
+        foreach (SuperMetroid.Core.Samus.Death.SamusDeathShade step in SuperMetroid.Core.Samus.Death.SamusDeathShade.All)
+            deathSuitless.Add(DeathShade(SamusShades.DeathSuitless(step)));
+        var deathWhiteout = new JsonArray();
+        foreach (SuperMetroid.Core.Samus.Death.SamusWhiteoutShade step in SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.All)
+            deathWhiteout.Add(DeathShade(SamusShades.DeathWhiteout(step)));
+
         var glowsWritten = new JsonObject();
         foreach ((string name, JsonObject glow) in glows)
             glowsWritten[name] = glow;
@@ -99,6 +133,7 @@ public sealed partial class EngineAssetWriter
             ["suits"] = suits,
             ["hurt"] = Shade(SamusShades.Hurt(SamusHurtColorVariant.Hurt)),
             ["drain_flash"] = drainFlash,
+            ["death"] = new JsonObject { ["suits"] = deathSuits, ["suitless"] = deathSuitless, ["whiteout"] = deathWhiteout },
             ["glows"] = glowsWritten,
             ["shades"] = shades,
         });

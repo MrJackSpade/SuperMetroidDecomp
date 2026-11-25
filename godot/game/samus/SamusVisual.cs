@@ -224,6 +224,35 @@ public partial class SamusVisual : Node2D
         samus.Colours.ShowOn(echo);
     }
 
+    /// <summary>
+    /// Shows her as her death has her, outside play's own update: the step given of one of her timelines, or the
+    /// picture she last showed with none given, in her colours as they are now, whole and with no echo of her; or
+    /// nothing of her at all.
+    /// </summary>
+    public void ShowDying(Samus samus, TimelineStep? step, bool shows)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        if (GetNodeOrNull<ActorVisual>("Picture") is not { } picture)
+            return;
+        if (step is not null)
+            _shown = step;
+        if (_shown is null || !shows)
+        {
+            picture.Show("");
+        }
+        else
+        {
+            picture.Show(_shown);
+            samus.Colours.ShowOn(picture);
+        }
+
+        picture.SetShown(true);
+        picture.Tint(Colors.White);
+        ClearEchoes();
+        foreach (string echo in (string[])["Echo1", "Echo2"])
+            GetNodeOrNull<ActorVisual>(echo)?.Show("");
+    }
+
     /// <summary>Takes her echoes away at once, as switching the speed booster off on the pause screen does.</summary>
     public void ClearEchoes() => (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
 

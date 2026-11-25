@@ -751,6 +751,10 @@ public partial class Samus : Player
     /// </summary>
     protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked)
     {
+        // Dying, she keeps the look she had.
+        if (to is DyingState && from is not DyingState)
+            NoteDying(from);
+
         // A knockback beginning starts a hurt's flash from its first count, whatever count one had reached.
         if (to is KnockedBackState)
             _hurtFlash = 1;

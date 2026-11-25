@@ -32,8 +32,8 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>A new game begins with the opening.</summary>
     public override GameMode CreateModeForNewGame() => new Intro();
 
-    /// <summary>After a death comes the game over screen.</summary>
-    public override GameMode CreateModeAfterDeath() => new Menus.GameOverMode();
+    /// <summary>Samus's death is played by its own mode, and the game over screen comes after it.</summary>
+    public override GameMode CreateDeathMode(PlayingMode playing) => new DeathMode(playing);
 
     /// <summary>
     /// This game adds the escape countdown, the random number the cartridge drew every frame, which of the title's

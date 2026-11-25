@@ -427,7 +427,7 @@ public partial class Room : Node2D
 
         // Then the player's shots against the enemies' shots, each of the enemies' in turn against each of the
         // player's, whether or not any was tried against the player.
-        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDead && Player.State is not DyingState)
+        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDying)
         {
             var shots = _projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList();
             foreach (Projectile enemyShot in EnemyShotsInTurn())
@@ -443,7 +443,7 @@ public partial class Room : Node2D
         }
 
         // Then whatever a projectile has left for the end of the update.
-        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDead && Player.State is not DyingState)
+        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDying)
         {
             foreach (Projectile projectile in _projectiles.ToList())
             {

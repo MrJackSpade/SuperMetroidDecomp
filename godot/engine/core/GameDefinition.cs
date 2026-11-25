@@ -126,8 +126,12 @@ public partial class GameDefinition : Resource
     /// <summary>Makes the mode a new game begins in. The engine's is play in the first room; a game with something to show first says so.</summary>
     public virtual GameMode CreateModeForNewGame() => new PlayingMode();
 
-    /// <summary>Makes the mode that follows the player's death. The engine's reloads the session's save slot, or starts a new game.</summary>
-    public virtual GameMode CreateModeAfterDeath() => new LoadingMode();
+    /// <summary>
+    /// Makes the mode that plays the player's death. It takes control on the update the player begins to die, and is
+    /// given the play it takes over from, which it may go on playing beneath itself. The engine's shows nothing: it
+    /// reloads the session's save slot, or starts a new game, at once.
+    /// </summary>
+    public virtual GameMode CreateDeathMode(PlayingMode playing) => new LoadingMode();
 
     /// <summary>The scene of what is shown over play. Its root is a <see cref="GameHud"/>. None for a game that shows nothing.</summary>
     [Export]

@@ -224,7 +224,6 @@ public sealed partial class EngineAssetWriter
             .Value("room_damage_sound_every", SamusCadenceDefinitions.LiquidDamageSound.Period)
             .Value("room_damage_sound_least_energy", SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
             .Value("turn_updates", SamusSegmentUpdates(P.TurningRightToLeftPose, Seg.Main))
-            .Value("dying_updates", SamusDyingUpdates())
             .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))
 
             // Her breath under water: a bubble on the clock's cadence, which holds the next off while it shows.

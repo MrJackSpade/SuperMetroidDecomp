@@ -355,12 +355,14 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
-    /// Her death: the death pose held while the old game waits and flashes, and then the pictures of her suit breaking
-    /// up, which are on a sheet of their own.
+    /// Her death: its pose (a ball's picture and then the upright one, which holds), the pictures of her suit breaking
+    /// up, which are on a sheet of their own and each name the step of her death's colours they are shown in, and
+    /// how the death is played.
     /// </summary>
     private void WriteSamusDeath(JsonObject timelines)
     {
         string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusDeath];
+        SamusDeathSteps deathSteps = SamusBody.DeathSteps;
         IReadOnlyList<IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>> explosion =
             [.. SamusDeathAnimations.ExplosionSegments.Beats(SamusDeathExplosionSegment.Explosion)];
         // Cut once, in their sheet's own colours, as her body's are: her colours are changed where they are drawn.
@@ -369,11 +371,15 @@ public sealed partial class EngineAssetWriter
         foreach ((string side, P pose, HorizontalDirection facing) in new[]
             { ("right", P.DeathSequenceRightPose, HorizontalDirection.Right), ("left", P.DeathSequenceLeftPose, HorizontalDirection.Left) })
         {
-            var steps = new List<JsonObject>
-            {
-                SamusStepWritten(new SamusStep(pose, SamusDeathSequenceDefinitions.UprightStart,
-                    SamusDeathSequenceDefinitions.PreFlashFrameCount + SamusDeathSequenceDefinitions.FlashFrameCount)),
-            };
+            // The pose: the picture a ball begins it on, then the upright one, which every other death begins on and
+            // which holds. Every picture of the pose lasts as long as the others.
+            timelines.Add($"dying_{side}", SamusTimeline(
+                [
+                    SamusStepWritten(new SamusStep(pose, SamusDeathSequenceDefinitions.BallStart, SamusDeathSequenceDefinitions.InitialFrameHold)),
+                    SamusStepWritten(new SamusStep(pose, SamusDeathSequenceDefinitions.UprightStart, SamusDeathSequenceDefinitions.InitialFrameHold)),
+                ],
+                loopsTo: 1));
+            var steps = new List<JsonObject>();
             foreach (IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue> beat in explosion)
             {
                 if (beat is not AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>.Frame shown)
@@ -386,25 +392,45 @@ public sealed partial class EngineAssetWriter
 
                     // These pictures lie on a canvas of their own; the step puts them where that canvas lies.
                     ["offset"] = new JsonObject { ["x"] = pictures.OffsetX - SamusPictures.OffsetX, ["y"] = pictures.OffsetY - SamusPictures.OffsetY },
+
+                    // The step of her death's colours the cartridge's table shows the picture in.
+                    ["cues"] = new JsonArray($"shade:{deathSteps.ExplosionShade(shown.Shown).Step}"),
                 });
             }
 
-            timelines.Add($"dying_{side}", SamusTimeline(steps, null));
+            timelines.Add($"death_explosion_{side}", SamusTimeline(steps, null));
         }
-    }
 
-    /// <summary>How many updates her death takes: the wait, the flashing and the breaking up of her suit.</summary>
-    private static int SamusDyingUpdates()
-    {
-        int updates = SamusDeathSequenceDefinitions.PreFlashFrameCount + SamusDeathSequenceDefinitions.FlashFrameCount;
-        foreach (IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue> beat in SamusDeathAnimations.ExplosionSegments.Beats(SamusDeathExplosionSegment.Explosion))
+        var flash = new JsonArray();
+        foreach (IAnimationBeat<SamusDeathShade, NoAnimationCue> beat in SamusDeathAnimations.FlashSegments.Beats(SamusDeathFlashSegment.Flash))
         {
-            updates += beat is AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>.Frame shown
-                ? shown.Duration
-                : throw new InvalidDataException($"The breaking up of Samus's suit has a beat this does not know: {beat.GetType().Name}.");
+            if (beat is not AnimationBeat<SamusDeathShade, NoAnimationCue>.Frame shown)
+                throw new InvalidDataException($"The flash of Samus's death has a beat this does not know: {beat.GetType().Name}.");
+            flash.Add(new JsonObject { ["shade"] = shown.Shown.Step, ["updates"] = shown.Duration });
         }
 
-        return updates;
+        var whiteout = new JsonArray();
+        foreach (SamusWhiteoutShade shade in SamusWhiteoutShade.All)
+            whiteout.Add(Colour(deathSteps.WhiteoutColour(shade)));
+        _tree.WriteData("samus/death.json", new JsonObject
+        {
+            ["fade_parts"] = SuperMetroid.Core.Frontend.SamusDeathDefinitions.FadeParts,
+            ["music_set"] = MusicSetName(SuperMetroid.Core.Audio.MusicDataSet.Death),
+            ["music"] = MusicName(SuperMetroid.Core.Frontend.SamusDeathDefinitions.FanfareTrack),
+            ["music_wait"] = SuperMetroid.Core.Frontend.SamusDeathDefinitions.FanfareDelay.Updates,
+            ["pose_first_updates"] = SamusDeathSequenceDefinitions.InitialFrameHold,
+            ["before_flash_updates"] = SamusDeathSequenceDefinitions.PreFlashFrameCount,
+            ["flash_updates"] = SamusDeathSequenceDefinitions.FlashFrameCount,
+            ["flash_first_wait"] = SamusDeathSequenceDefinitions.FirstFlashShadeUpdates,
+            ["flash"] = flash,
+            ["flash_last_shade"] = SamusDeathShade.First.Step,
+            ["whiteout"] = whiteout,
+            ["whiteout_resting"] = SamusWhiteoutShade.Brightest.Step,
+            ["whiteout_last"] = SamusWhiteoutShade.Final.Step,
+
+            // The old last black-out waits one update before each level; it is written as a number there.
+            ["final_fade_wait"] = 1,
+        });
     }
 
     /// <summary>The data file of the timeline of one of the puffs and splashes Samus raises.</summary>

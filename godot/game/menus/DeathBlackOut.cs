@@ -14,6 +14,6 @@ public partial class DeathBlackOut : GameMode
     public override GameMode Step(GameInput input)
     {
         Session.OpenUpdate();
-        return Session.Definition.CreateModeAfterDeath();
+        return new GameOverMode();
     }
 }

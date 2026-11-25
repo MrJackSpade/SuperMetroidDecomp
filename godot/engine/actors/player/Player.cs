@@ -79,10 +79,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("turn_updates")]
     public int TurnUpdates { get; set; }
 
-    /// <summary>How many updates dying takes.</summary>
-    [Export, DataValue("dying_updates")]
-    public int DyingUpdates { get; set; } = 120;
-
     /// <summary>The effect left at the player's feet on landing, by the data file of its timeline; empty for none.</summary>
     [Export(PropertyHint.File), DataValue("land_effect")]
     public string LandEffect { get; set; } = "";
@@ -438,8 +434,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>What the player is doing.</summary>
     public PlayerState State => (PlayerState)States.Current;
 
-    /// <summary>Whether the player has finished dying.</summary>
-    public bool IsDead { get; private set; }
+    /// <summary>Whether the player is dying: their energy is gone, nothing saved them, and the game plays their death.</summary>
+    public bool IsDying => State is DyingState;
 
     /// <summary>Whether the player cannot be hurt just now, having just been hurt.</summary>
     public bool IsInvincible => _invincible.IsRunning;
@@ -677,9 +673,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
         // The form taken since the last update began gives the body its shape only now.
         PublishForm();
-        if (IsDead)
-            return;
-
         TakeJumpBuffer();
         BeforeState();
         if (State.CanAttack)
@@ -695,8 +688,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     public void FinishUpdate()
     {
-        if (IsDead)
-            return;
         BeforeMoving();
         MovedAs = State;
         States.Step();
@@ -949,7 +940,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         return IsOnGround ? new StandingState() : new FallingState();
     }
 
-    /// <summary>Starts the player dying.</summary>
+    /// <summary>Starts the player dying. Play hands over to the game's death on the update the room settles it (<see cref="Core.GameDefinition.CreateDeathMode"/>).</summary>
     public void Die()
     {
         if (State is not DyingState)
@@ -962,7 +953,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)
     {
-        if (IsDead || ShrugsOff(hit) || State is DyingState || !AcceptsHit(hit))
+        if (IsDying || ShrugsOff(hit) || !AcceptsHit(hit))
             return HitResult.Ignored;
         if (hit.Carries(HitKind.Contact) && hit.Source is IHittable toucher && BodyPowerStops(toucher))
             return HitResult.Ignored;
@@ -981,7 +972,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     public void Sap(Hit hit)
     {
-        if (IsDead || State is DyingState)
+        if (IsDying)
             return;
         Inventory.Lose(Inventory.Energy, DamageFrom(hit));
     }
@@ -998,7 +989,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <returns>What was settled.</returns>
     internal EmptyEnergy SettleEmptyEnergy(bool mayDie, bool mayBeSaved = true)
     {
-        if (IsDead || State is DyingState || Inventory.Amount(Inventory.Energy) > 0)
+        if (IsDying || Inventory.Amount(Inventory.Energy) > 0)
             return EmptyEnergy.NotGone;
         if (mayBeSaved && SurvivesEmptyEnergy())
             return EmptyEnergy.Saved;
@@ -1016,7 +1007,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// shots have moved and its objects have played, before any is tried; none is, once the player is dead or dying.
     /// A game with times at which no shot can reach the player says so here.
     /// </summary>
-    protected internal virtual bool BeginEnemyShots() => !IsDead && State is not DyingState;
+    protected internal virtual bool BeginEnemyShots() => !IsDying;
 
     /// <summary>Called when the enemies' shots have all been tried against the player on this update.</summary>
     protected internal virtual void EndEnemyShots()
@@ -1608,9 +1599,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         bool up = _input.IsHeld(GameAction.Up), down = _input.IsHeld(GameAction.Down) && !IsOnGround;
         Aim = up ? (Intent != 0 ? Aim.DiagonalUp : Aim.Up) : down ? (Intent != 0 ? Aim.DiagonalDown : Aim.Down) : Aim.Forward;
     }
-
-    /// <summary>The player has finished dying.</summary>
-    internal void FinishDying() => IsDead = true;
 
     /// <summary>The state machine, once the player has entered a room.</summary>
     private StateMachine<Player> States => _states ?? throw new InvalidOperationException("The player is not in a room.");

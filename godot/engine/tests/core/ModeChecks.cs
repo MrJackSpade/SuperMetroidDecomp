@@ -137,7 +137,6 @@ public sealed class ModeChecks
         Expect.False(game.Session.Progress.Has("after the save"));
         Expect.False(ReferenceEquals(firstPlayer, game.Session.Player));
         Expect.False(Godot.GodotObject.IsInstanceValid(firstPlayer));
-        Expect.False(game.Session.Player.IsDead);
         Expect.Equal("a", ((PlayingMode)game.Mode).RoomScene);
         Expect.Equal(1, game.Loop.GetChildCount());
     }

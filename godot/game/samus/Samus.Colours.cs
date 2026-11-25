@@ -237,13 +237,14 @@ public partial class Samus
     public void SetDrainFlash(bool held) => (_drainFlashing, _drainFlashShowsSuitNext) = (held, false);
 
     /// <summary>
-    /// Plays her colour step. It does not run while a suit is being put on or she is dying. In the cartridge's order:
+    /// Plays her colour step. It does not run while a suit is being put on; while she is dying it runs for as long as
+    /// play goes on beneath her death. In the cartridge's order:
     /// the charge's colours, which on the update a shot's glow ends keep the shine's glow from its turn; the shine's
     /// glow; then the flash of whatever drains her, which keeps a hurt's flash from its turn; then a hurt's flash.
     /// </summary>
     private void StepColours()
     {
-        if (State is CollectingSuitState or DyingState)
+        if (State is CollectingSuitState)
             return;
 
         // Her suit's colours, where a change of pose or a lost run asked for them, show first: what glows shows over them.

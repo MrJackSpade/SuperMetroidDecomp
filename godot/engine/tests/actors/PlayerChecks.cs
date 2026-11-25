@@ -207,14 +207,11 @@ public sealed class PlayerChecks
     }
 
     [Check]
-    public void LosingAllEnergyKillsThePlayerAfterTheDyingTime()
+    public void LosingAllEnergyStartsThePlayerDying()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(100, 80).Setup();
         world.Player.TakeHit(new Hit(500, HitSide.Enemies, HitKind.Contact), world.Player.Hurtbox);
         Expect.True(world.Player.State is DyingState);
-        Expect.False(world.Player.IsDead);
-        world.Step(world.Player.DyingUpdates + 1);
-        Expect.True(world.Player.IsDead);
     }
 
     [Check]

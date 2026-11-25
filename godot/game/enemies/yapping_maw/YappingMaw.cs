@@ -198,7 +198,7 @@ public partial class YappingMaw : Enemy
                 if (_holds)
                     HoldSamus();
                 _drawnBack = _drawnBack.Stepped();
-                if (_drawnBack.IsRunning || Room.Player.IsDead)
+                if (_drawnBack.IsRunning || Room.Player.IsDying)
                     break;
                 LetGo();
                 _cooldown = GrabCooldown;
@@ -337,7 +337,7 @@ public partial class YappingMaw : Enemy
         if (!_holds)
             return;
         _holds = false;
-        if (!Room.Player.IsDead)
+        if (!Room.Player.IsDying)
             Room.Player.Release();
     }
 

@@ -205,7 +205,7 @@ public partial class PlayingMode : GameMode, IRoomPlay
     private GameMode AfterRoom(GameInput input)
     {
         // An update that withheld what follows from the player's energy running out does not count toward the play time.
-        if (Room.EnergySettled != EmptyEnergy.Withheld)
+        if (_terms.CountsPlayTime && Room.EnergySettled != EmptyEnergy.Withheld)
             Session.Progress.CountPlayUpdate(Session.Definition.MostPlayUpdates);
 
         if (Session.TakeSaveRequest() is { } save)
@@ -215,8 +215,10 @@ public partial class PlayingMode : GameMode, IRoomPlay
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
         }
         _hud?.Refresh(Session, Room);
-        if (Session.Player.IsDead)
-            return Session.Definition.CreateModeAfterDeath();
+
+        // A player who began to die on this update is the game's from the next: it plays their death over this play.
+        if (Room.EnergySettled == EmptyEnergy.Dying)
+            return Session.Definition.CreateDeathMode(this);
 
         // What saved a player whose energy was gone takes the place of whatever else the update began: a service that
         // wanted control wants it still and is asked again, and the pause is not given.

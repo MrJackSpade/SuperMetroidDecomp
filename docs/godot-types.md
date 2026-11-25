@@ -1007,6 +1007,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
   next update; the speed boost's is at work from the update after she reaches full boost.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
+- **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
+  stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. It does not start
+  while she settles from a landing (`StandingState.IsSettling`), while she moves up or down, with her grapple beam
+  out, while a power bomb's blast is under way, or while something that has hold of her withholds it
+  (`Samus.ScopeWithheld`, which the giant Metroid sets for as long as it drains her).
 - **Her swing on the grapple beam** (`GrapplingState`) is the cartridge's, not a weight on a string: a line of a set
   length turning about what holds it, its angle counted clockwise from straight up in 65536ths of a turn and its
   turning in 256ths of an angle step. She is put at the line's end each update, by the way the line runs and the

@@ -19,6 +19,9 @@ public sealed class StandingState : PlayerState
     /// </param>
     public StandingState(int settlingUpdates = 0) => _settling = Countdown.Of(settlingUpdates);
 
+    /// <summary>Whether the player is still settling from a landing.</summary>
+    public bool IsSettling => _settling.IsRunning;
+
     /// <summary>Whether the player was still settling from a landing through this state's latest move.</summary>
     public bool MovedSettling { get; private set; }
 

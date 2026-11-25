@@ -315,6 +315,8 @@ public partial class BabyMetroid : Enemy
             case Doing.BeginDrainingSamus:
                 // Clamped on, it has her flash for as long as it drains her.
                 (samus as Samus)?.SetDrainFlash(true);
+                if (samus is Samus withheldFrom)
+                    withheldFrom.ScopeWithheld = true;
                 _doing = Doing.DrainSamus;
                 return true;
 
@@ -407,6 +409,8 @@ public partial class BabyMetroid : Enemy
 
             // Her flash ends, and as she is let fall her suit's colours show.
             (samus as Samus)?.SetDrainFlash(false);
+            if (samus is Samus givenBack)
+                givenBack.ScopeWithheld = false;
             samus.ChangeState(new DrainedState(DrainedState.Pose.Kneeling, canStand: false));
             Room.Session.Sounds.RequestMusic(AfterwardMusic);
             return;

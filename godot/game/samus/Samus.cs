@@ -308,6 +308,29 @@ public partial class Samus : Player
     /// <summary>Whether she has a shine stored.</summary>
     public bool HasStoredShine => _shine.IsRunning;
 
+    /// <summary>Whether something that has hold of her keeps her from her scope, as the giant Metroid does while it drains her.</summary>
+    public bool ScopeWithheld { get; set; }
+
+    /// <summary>
+    /// Whether she was standing, running, crouching or stopped by a wall as her last update ended, and as the one
+    /// before it ended: the scope starts only from two such updates together.
+    /// </summary>
+    private bool _atRestForScope, _atRestForScopeBefore;
+
+    /// <summary>
+    /// Whether the X-ray scope starts on this update, asked of a Samus who stands, runs, crouches or is stopped by a
+    /// wall: it is the item chosen and the run action is held; she was so on her update before as well; she is not
+    /// settling from a landing, nor moving up or down; her grapple beam is put away; nothing that has hold of her
+    /// withholds it; and no power bomb's blast is under way.
+    /// </summary>
+    private bool ScopeStarts(GameInput input) =>
+        Selected == Equipment.XrayScope && input.IsHeld(Actions.Run)
+        && _atRestForScopeBefore && !ScopeWithheld
+        && State is not StandingState { IsSettling: true }
+        && Velocity.Y.IsZero
+        && Grapple is not { IsOut: true }
+        && !Room.Projectiles.OfType<PowerBomb>().Any(bomb => bomb.IsExploding);
+
     /// <summary>
     /// Whether she reads as holding a shine, as a jump into a windup and her body's flicker test it: a stored shine,
     /// or a crystal flash's colouring still running, which the cartridge keeps in the stored shine's timer.
@@ -1018,7 +1041,7 @@ public partial class Samus : Player
                     AimFromInput();
                     return current;
                 }
-                if (current is not RunningState && Selected == Equipment.XrayScope && input.IsHeld(Actions.Run))
+                if (ScopeStarts(input))
                     return new XrayState();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)
                     grapple.Fire(this);
@@ -1026,7 +1049,7 @@ public partial class Samus : Player
 
             case WallStoppedState:
                 // Stopped against a wall she may still look through the scope or fire the grapple.
-                if (Selected == Equipment.XrayScope && input.IsHeld(Actions.Run))
+                if (ScopeStarts(input))
                     return new XrayState();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } againstWall)
                     againstWall.Fire(this);
@@ -1540,6 +1563,9 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void AfterState()
     {
+        (_atRestForScopeBefore, _atRestForScope) =
+            (_atRestForScope, State is StandingState or RunningState or CrouchingState or WallStoppedState);
+
         // Having moved upright and settled, on the ground, she stands on whatever is under her feet.
         if (MovedAs is StandingState { MovedSettling: false } && IsOnGround)
             NoteElevatorStand(new PixelRect(BodyRect.Left, BodyRect.Bottom, BodyRect.Width, 1));

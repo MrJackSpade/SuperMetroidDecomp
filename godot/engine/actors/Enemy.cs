@@ -136,7 +136,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Wakes the enemy.</summary>
     public void Wake() => IsAsleep = false;
 
-    /// <summary>How many updates it has been stepped for while awake.</summary>
+    /// <summary>
+    /// How many turns it has taken while awake before the one it is taking: its first turn reads none. The count moves
+    /// on once the turn's behaviour has been played, a hurt's or a frozen turn too, and before its timeline moves on,
+    /// so a cue reads the turn counted.
+    /// </summary>
     public int Updates { get; private set; }
 
     /// <summary>Whether it was hurt in this update.</summary>
@@ -259,7 +263,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         WasJustHurt = false;
         if (IsAsleep)
             return;
-        Updates++;
         bool unhittableAtStart = _unhittable.IsRunning;
         _unhittable = _unhittable.Stepped();
 
@@ -293,16 +296,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 _statusLeft = _statusLeft.Stepped();
         }
 
+        bool behaves = !heldByHurt && !heldByStatus && !IsFrozen;
         if (heldByHurt)
-        {
             WhileHurt();
-        }
-        else if (!heldByStatus && !IsFrozen)
-        {
+        else if (behaves)
             Behave();
-            if (!IsDead)
-                StepAnimation();
-        }
+
+        // Its own count moves on once the turn has been acted, whatever held it, and before its timeline does.
+        Updates++;
+        if (behaves && !IsDead)
+            StepAnimation();
 
         if (IsDead)
             return;

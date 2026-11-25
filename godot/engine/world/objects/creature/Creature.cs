@@ -32,9 +32,6 @@ public abstract partial class Creature : RoomObject, IMoves
     /// <summary>The name of the timeline it is showing.</summary>
     protected string Playing { get; private set; } = "";
 
-    /// <summary>How many updates it has been in its room.</summary>
-    protected int Updates { get; private set; }
-
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
@@ -45,7 +42,6 @@ public abstract partial class Creature : RoomObject, IMoves
     /// <inheritdoc/>
     protected override void OnStep()
     {
-        Updates++;
         Behave();
         StepAnimation();
     }

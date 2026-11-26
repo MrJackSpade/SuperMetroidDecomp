@@ -8,6 +8,20 @@
 script = ExtResource("1")
 DataFile = "objects/dachora.json"
 
+[node name="Echoes" type="Node2D" parent="."]
+
+[node name="Echo0" type="Node2D" parent="Echoes"]
+script = ExtResource("3")
+
+[node name="Echo1" type="Node2D" parent="Echoes"]
+script = ExtResource("3")
+
+[node name="Echo2" type="Node2D" parent="Echoes"]
+script = ExtResource("3")
+
+[node name="Echo3" type="Node2D" parent="Echoes"]
+script = ExtResource("3")
+
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 

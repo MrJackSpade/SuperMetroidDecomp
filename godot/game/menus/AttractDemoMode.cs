@@ -20,7 +20,9 @@ namespace Game.Menus;
 /// place is her middle in that body), where the view's top-left corner is as it begins ("view": "x", "y"), how long
 /// it lasts ("lasts_updates"), and may list the "equipment" she has,
 /// which of it is switched "off", how much of each thing she can carry ("capacities") and how much she has
-/// ("amounts"), and the "facts" that are so before its room is entered.
+/// ("amounts"), and the "facts" that are so before its room is entered. What it does to its room once the room is
+/// built it says too: the screens it closes to the view ("closed_screens", each "x" and "y" in screens), and how long
+/// Kraid waits before rising in place of his own wait ("kraid_waits_updates").
 /// </remarks>
 public partial class AttractDemoMode : PlayingMode
 {
@@ -67,6 +69,7 @@ public partial class AttractDemoMode : PlayingMode
             _equipped = true;
             Equip(Session.Player.Inventory);
             Stage((Samus)Session.Player);
+            SetUpRoom();
         }
 
         if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause))
@@ -130,6 +133,22 @@ public partial class AttractDemoMode : PlayingMode
             default:
                 throw start.Get("as").Problem("must be \"standing\", \"facing_forward\", \"rolling\", \"falling\", \"shinespark_across\" or \"shinespark_diagonal\"");
         }
+    }
+
+    /// <summary>Does to the demo's room, now built, what the demo's file says is done to it before play begins.</summary>
+    private void SetUpRoom()
+    {
+        if (_data.Has("closed_screens"))
+        {
+            foreach (DataNode screen in _data.List("closed_screens"))
+                Session.ScrollCells.Write(screen.Int("x"), screen.Int("y"), ScreenScroll.Closed);
+        }
+
+        if (!_data.Has("kraid_waits_updates"))
+            return;
+        Enemies.Kraid kraid = Room.Enemies.OfType<Enemies.Kraid>().FirstOrDefault()
+            ?? throw _data.Get("kraid_waits_updates").Problem("is given for a room that has no Kraid");
+        kraid.WaitBeforeRising(_data.Int("kraid_waits_updates"));
     }
 
     /// <summary>Puts Samus in <paramref name="state"/>, in the body that state is entered in, about the middle she has.</summary>

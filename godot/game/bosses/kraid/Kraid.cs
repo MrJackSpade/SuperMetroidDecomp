@@ -500,6 +500,18 @@ public partial class Kraid : Enemy
         base.Touch(part);
     }
 
+    /// <summary>
+    /// Has it wait <paramref name="updates"/> updates before it rises, in place of its own wait: the demonstration
+    /// that plays in its room shortens it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">It is no longer waiting to rise.</exception>
+    public void WaitBeforeRising(int updates)
+    {
+        if (_stage != Stage.Rising || _rise != Rise.Wait)
+            throw new InvalidOperationException("Kraid can be told how long to wait before rising only while it waits to rise.");
+        _wait = updates;
+    }
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {

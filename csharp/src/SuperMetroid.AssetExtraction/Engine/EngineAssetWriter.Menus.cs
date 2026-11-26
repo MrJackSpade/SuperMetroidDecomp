@@ -248,9 +248,25 @@ public sealed partial class EngineAssetWriter
         data["view"] = At(scene.CameraPosition.X, scene.CameraPosition.Y);
         data["lasts_updates"] = scene.Duration;
 
-        // One demo plays in Kraid's room with Kraid already beaten.
-        if (scene.RoomSetup == AttractDemoRoomSetup.DefeatedKraid)
-            data["facts"] = new JsonArray(EngineSheets.FileName(nameof(SuperMetroid.Core.Progression.AreaBoss.Kraid)) + "_defeated");
+        // What a demo does to its room. One plays in the statues' hall with Kraid beaten: the old game counts him beaten
+        // once the room is built, and nothing of the Godot hall is built by that fact, so it is so before the room is
+        // entered. One closes a screen of its room to the view, and one has Kraid wait less before he rises.
+        switch (scene.RoomSetup)
+        {
+            case null:
+                break;
+            case AttractDemoRoomSetup.DefeatedKraid:
+                data["facts"] = new JsonArray(EngineSheets.FileName(nameof(SuperMetroid.Core.Progression.AreaBoss.Kraid)) + "_defeated");
+                break;
+            case AttractDemoRoomSetup.ChargeBeamScroll:
+                data["closed_screens"] = new JsonArray(At(AttractDemoDefinitions.ChargeBeamClosedScreen.X, AttractDemoDefinitions.ChargeBeamClosedScreen.Y));
+                break;
+            case AttractDemoRoomSetup.KraidTimer:
+                data["kraid_waits_updates"] = AttractDemoDefinitions.KraidPhaseWaitUpdates;
+                break;
+            default:
+                throw new InvalidDataException($"A demo sets its room up by {scene.RoomSetup}, which the Godot demo has nothing for.");
+        }
 
         var equipment = new JsonArray();
         var off = new JsonArray();

@@ -26,6 +26,8 @@ namespace Engine.Actors;
 /// "picture_offset": { "x": -8, "y": -8 }, "standing": "in_front"
 /// </code>
 /// "standing" names where it stands against the player (<see cref="World.Standing"/>); without it, behind them.
+/// "hurt_colours" is a change of its pictures' colours (<see cref="Ui.ColourChange"/>) shown while its hurt flash
+/// shows; without it the flash is its picture shown brighter.
 /// "in_front_of_tiles": true has it drawn in front of every tile of the room, the ones in front of the room's things
 /// too, and so over the player whatever its standing.
 /// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
@@ -261,6 +263,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Timelines = TimelineSet.ReadFrom(data);
         EntityNode.ReadColliders(this, data);
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
+        _hurtColours = data.Has("hurt_colours") ? Ui.ColourChange.Read(data.Get("hurt_colours")) : null;
         _inFrontOfTiles = data.Has("in_front_of_tiles") && data.Flag("in_front_of_tiles");
         Standing = data.Has("standing") ? data.Get("standing").AsEnum<Standing>() : Standing.Behind;
         StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
@@ -824,8 +827,32 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (Visual is null)
             return;
-        Visual.Tint(ShowsFrozenLook ? FrozenTint : ShowsHurtFlash ? HurtTint : RestingTint);
+        bool frozen = ShowsFrozenLook, flashes = !frozen && ShowsHurtFlash;
+        if (_hurtColours is not { } colours)
+        {
+            Visual.Tint(frozen ? FrozenTint : flashes ? HurtTint : RestingTint);
+            return;
+        }
+
+        // Its flash is its own pictures in the colours its data gives for it, shown only while it flashes.
+        Visual.Tint(frozen ? FrozenTint : RestingTint);
+        if (flashes == _flashShown)
+            return;
+        _flashShown = flashes;
+        (flashes ? colours : Ui.ColourChange.None).ShowOn(Visual, HurtFlashColours);
     }
+
+    /// <summary>The name its hurt flash's colours are shown under.</summary>
+    private const string HurtFlashColours = "HurtFlash";
+
+    /// <summary>
+    /// The colours its pictures are shown in while its hurt flash shows, as its data gives them ("hurt_colours");
+    /// null for one whose data gives none, which is shown brighter instead.
+    /// </summary>
+    private Ui.ColourChange? _hurtColours;
+
+    /// <summary>Whether its hurt flash's colours are showing now.</summary>
+    private bool _flashShown;
 
     /// <summary>
     /// Whether the picture of this update shows the enemy's hurt flash: while the flash still runs once the turn

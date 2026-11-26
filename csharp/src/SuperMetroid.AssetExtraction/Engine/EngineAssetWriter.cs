@@ -140,6 +140,17 @@ public sealed partial class EngineAssetWriter
             named.Add(_sheets.EnemySheet(sheet));
         if (named.Count == 0)
             named.Add(_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(id)));
-        return new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
+        var enemy = new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
+
+        // The colours it is shown in on the updates its hurt flash shows: the cartridge's one flash shade over its
+        // own pictures, each of their colours as a pale grey or white.
+        var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = named };
+        System.Text.Json.Nodes.JsonObject flash = ShadeChange(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key, family, places);
+
+        // One whose sheets give the flash no colours of its own (a statue, a Torizo, which show a hurt their own way)
+        // says nothing, and is shown brighter by the engine.
+        if (flash.Any(place => place.Value is System.Text.Json.Nodes.JsonObject { Count: > 0 }))
+            enemy.Group("hurt_colours", flash);
+        return enemy;
     }
 }

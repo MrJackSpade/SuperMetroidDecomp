@@ -24,12 +24,9 @@ public partial class SamusXray : Node2D
     [Export]
     public int EyeAhead { get; set; } = 3;
 
-    /// <summary>The furthest the cone's middle swings up or down from level, in 256ths of a turn.</summary>
-    [Export]
-    public int WidestSwing { get; set; } = 54;
-
     private Pixels _widening;
     private Pixels _opened;
+    private bool _fullyOpen;
     private int _swing;
 
     /// <summary>How far the cone's middle has swung from level, in 256ths of a turn: up when negative.</summary>
@@ -47,6 +44,7 @@ public partial class SamusXray : Node2D
         IsOpen = true;
         _widening = Pixels.Zero;
         _opened = Pixels.Zero;
+        _fullyOpen = false;
         _swing = 0;
         _halfWidth = 0;
         QueueRedraw();
@@ -60,16 +58,26 @@ public partial class SamusXray : Node2D
     }
 
     /// <summary>
-    /// Plays one update of looking: the cone opens a little more, swings by <paramref name="swing"/> (up when
-    /// negative), and every hidden block inside it that sight reveals is shown.
+    /// Plays one update of looking: the cone opens a little more or, once fully open, swings by
+    /// <paramref name="swing"/> (up when negative), and every hidden block inside it that sight reveals is shown.
     /// </summary>
     public void Look(Samus samus, int swing)
     {
-        // The cone opens faster each update until it is as wide as it gets.
-        _widening += Pixels.FromNumber(samus.XrayWideningStep);
-        _opened += _widening;
-        _halfWidth = Math.Min(samus.XrayWidestHalfWidth, _opened.Whole);
-        _swing = Math.Clamp(_swing + swing, -WidestSwing, WidestSwing);
+        if (_fullyOpen)
+        {
+            // It swings no further than puts its edge straight up or straight down.
+            int furthest = Turns.PerTurn / 4 - _halfWidth;
+            _swing = Math.Clamp(_swing + swing, -furthest, furthest);
+        }
+        else
+        {
+            // The cone opens faster each update; the update it passes its widest it is held there, and it swings
+            // from the next.
+            _widening += Pixels.FromNumber(samus.XrayWideningStep);
+            _opened += _widening;
+            _fullyOpen = _opened.Whole > samus.XrayWidestHalfWidth;
+            _halfWidth = Math.Min(samus.XrayWidestHalfWidth, _opened.Whole);
+        }
         _facingLeft = samus.Facing == Facing.Left;
         int ahead = _facingLeft ? -EyeAhead : EyeAhead;
         int height = samus.Form == Player.Crouching ? CrouchingEyeHeight : StandingEyeHeight;

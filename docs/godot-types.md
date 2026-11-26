@@ -1766,7 +1766,8 @@ statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once
 statue's descent, which is its part of an update's opening (`IOpeningStep`), played before the update's random
 number is drawn; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
 guardian's eyes and for each turned grey (those of the guardians that are part of the backdrop's picture lie behind
-the room's tiles with it, at `RoomDepth.BehindRoom`), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+the room's tiles with it, at `RoomDepth.BehindRoom`; once the light at a guardian's eyes is made, the pictures that
+stand in the room show the change of colours its data gives for that light, `eye_glow_colours`), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:

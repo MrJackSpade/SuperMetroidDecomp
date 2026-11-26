@@ -79,11 +79,15 @@ public partial class MotherBrainBomb : Projectile, IHasValues
     {
         if (!hit.Carries(new HitKind(HitKinds.Bomb)))
             return HitResult.Ignored;
-        // Its dust is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays, and
-        // is not made with none free.
+        // It is gone first, giving back the place it held; then its dust, one of the enemies' shots on the cartridge,
+        // takes the highest free place, and is not made with none free; and what it drops comes last.
+        Room room = Room;
+        End(room);
         if (DustEffect.Length > 0)
-            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(DustEffect)), Position, holdsPlace: true));
-        return base.TakeHit(hit, part);
+            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(DustEffect)), Position, holdsPlace: true));
+        if (Settings.Drops is { } drops)
+            Pickup.Dropped(room, drops, Position);
+        return HitResult.Destroyed;
     }
 
     /// <inheritdoc/>

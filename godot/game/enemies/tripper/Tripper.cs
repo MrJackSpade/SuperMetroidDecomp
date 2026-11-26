@@ -46,6 +46,11 @@ public partial class Tripper : Enemy
         Play(Facing == Facing.Left ? "still_left" : "still_right");
     }
 
+    /// <summary>Its touch does nothing: the cartridge's ignores hers, and it is only something to stand on.</summary>
+    protected override void Touch(Engine.Collision.Collider part)
+    {
+    }
+
     /// <inheritdoc/>
     protected override void Behave()
     {

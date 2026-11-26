@@ -5,9 +5,9 @@ using Godot;
 namespace Game;
 
 /// <summary>
-/// The flare at the end of Samus's arm cannon while she holds a charge: a glow that swells, and two rings of sparks
-/// that close in on it, one slower than the other. It is drawn in front of her, from the pictures of the beams she
-/// has switched on, in her colours.
+/// The flare at the end of Samus's arm cannon. While she holds a charge: a glow that swells, and two rings of sparks
+/// that close in on it, one slower than the other. While her grapple beam is out: the glow alone, where the line
+/// leaves her. It is drawn in front of her, from the pictures of the beams she has switched on, in her colours.
 /// </summary>
 /// <remarks>
 /// <para>Its three parts each keep their own place in their own timeline. All three start as the charge starts, on
@@ -15,6 +15,9 @@ namespace Game;
 /// from then the glow moves on a step an update and shows; from "sparks_from" both rings do too. It moves on by her
 /// updates, not by the charge's count, so it goes on through an update on which the charge stands still. It shows
 /// only while her pose holds her arm out; hidden, it still moves on. A charge let go, fired or lost ends it.</para>
+/// <para>The grapple's glow is on a count of its own. It is taken up where the glow's timeline loops, on the update
+/// the line is fired, and moves on a step an update for as long as the line is out; the charge's flare neither shows
+/// nor moves on meanwhile.</para>
 /// <para>A part moves on before it is shown, so the first picture of each shows an update less than its step says,
 /// as the cartridge's does.</para>
 /// <para>Its data, "charge_flare" in hers: "shows_from" and "sparks_from"; the timelines "main", and "slow_right",
@@ -33,6 +36,8 @@ public partial class SamusFlare : Node2D
 
         public void Start() => Playing = new TimelinePlayer(right);
 
+        public void StartAt(int step) => Playing = TimelinePlayer.Resuming(right, step, 0);
+
         public void End()
         {
             Playing = null;
@@ -44,7 +49,8 @@ public partial class SamusFlare : Node2D
             (facingRight ? right : left).Steps[(Playing ?? throw new InvalidOperationException("A part of the flare that has not started shows nothing.")).StepIndex].Picture;
     }
 
-    private Part? _main, _slow, _fast;
+    private Part? _main, _slow, _fast, _grapple;
+    private int _grappleFrom;
     private bool _bound;
     private int _showsFrom, _sparksFrom;
     private readonly Dictionary<string, (string Folder, Vector2I Offset)> _pictures = new(StringComparer.Ordinal);
@@ -78,22 +84,47 @@ public partial class SamusFlare : Node2D
         _fast = Made("FastSparks", "fast_right", "fast_left");
         _slow = Made("SlowSparks", "slow_right", "slow_left");
         _main = Made("Glow", "main", "main");
+        _grapple = Made("GrappleGlow", "main", "main");
+        _grappleFrom = FrameTimeline.Read(data.Get("main")).LoopsTo
+            ?? throw data.Problem("gives \"main\" no step it loops to, which is where the grapple's glow takes it up");
     }
 
     /// <summary>Plays one update of the flare, once her weapons have counted the charge and she is where the update leaves her.</summary>
     public void Step(Samus samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if (_main is not { } main || _slow is not { } slow || _fast is not { } fast)
+        if (_main is not { } main || _slow is not { } slow || _fast is not { } fast || _grapple is not { } grapple)
             return;
         if (!_bound)
         {
             // Its pictures come from the room's content, which it first has once she is in a room.
-            foreach (Part part in (Part[])[main, slow, fast])
+            foreach (Part part in (Part[])[main, slow, fast, grapple])
                 part.Picture.Bind(samus.Room.Content);
             _bound = true;
         }
 
+        string beams = samus.BeamsSwitchedOn;
+        if (!_pictures.TryGetValue(beams, out (string Folder, Vector2I Offset) pictures))
+            throw new InvalidOperationException($"Samus's data has no flare for the beams \"{beams}\".");
+        if (samus.Grapple is { ShowsFlare: true })
+        {
+            // The charge's flare stands as it is, unseen, while the grapple's shows.
+            main.Picture.SetShown(false);
+            slow.Picture.SetShown(false);
+            fast.Picture.SetShown(false);
+            if (grapple.Playing is null)
+                grapple.StartAt(_grappleFrom);
+            grapple.Playing!.Step();
+            PixelPosition lies = samus.GrappleFlarePoint;
+            grapple.Picture.SetShown(true);
+            grapple.Picture.PictureOffset = pictures.Offset;
+            grapple.Picture.Position = new Vector2(lies.X.Whole - samus.Position.X.Whole, lies.Y.Whole - samus.Position.Y.Whole);
+            grapple.Picture.Show($"{pictures.Folder}/{grapple.Shown(facingRight: true)}.png");
+            samus.Colours.ShowOn(grapple.Picture);
+            return;
+        }
+
+        grapple.End();
         int held = samus.Weapons.ChargedFor;
         if (held == 0)
         {
@@ -110,9 +141,6 @@ public partial class SamusFlare : Node2D
             fast.Start();
         }
 
-        string beams = samus.BeamsSwitchedOn;
-        if (!_pictures.TryGetValue(beams, out (string Folder, Vector2I Offset) pictures))
-            throw new InvalidOperationException($"Samus's data has no flare for the beams \"{beams}\".");
         Vector2 at = new(samus.FlarePoint.X.Whole - samus.Position.X.Whole, samus.FlarePoint.Y.Whole - samus.Position.Y.Whole);
         bool armOut = samus.HoldsArmOut, facingRight = samus.Facing == Facing.Right;
         void Play(Part part, int from)

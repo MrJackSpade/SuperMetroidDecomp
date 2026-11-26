@@ -279,6 +279,9 @@ public partial class Samus : Player
     /// <summary>Where the flare at the end of her arm cannon lies from her place: by stance, facing and aim, and while she turns by the aim the turn holds.</summary>
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _flarePlaces = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Vector2I> _flareTurningPlaces = new(StringComparer.Ordinal);
+
+    /// <summary>Where the grapple's flare lies from her place, and so where its line is laid from: by stance, facing and aim.</summary>
+    private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _grappleFlarePlaces = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _shotHeights = new(StringComparer.Ordinal);
     private Countdown _shine = Countdown.Over;
     private int _boostStage = -1;
@@ -547,6 +550,7 @@ public partial class Samus : Player
         {
             DataNode flare = data.Get("charge_flare");
             ReadOrigins(flare, "places", _flarePlaces);
+            ReadOrigins(flare, "grapple_places", _grappleFlarePlaces);
             foreach ((string held, DataNode place) in flare.Get("turning_places").Entries())
                 _flareTurningPlaces[held] = new Vector2I(place.Int("x"), place.Int("y"));
             Flare?.ReadValues(flare);
@@ -732,6 +736,22 @@ public partial class Samus : Player
                 : throw new InvalidOperationException($"Samus's data gives the flare no place while she turns aiming {held}.");
         }
     }
+
+    /// <summary>
+    /// Where the flare of her grapple beam lies, and its line is laid from. Swinging, it is the point her body hangs
+    /// from. Held in place by the line, it is the place her data gives the flare for a standing body, as it stands.
+    /// Otherwise, as the line reaches out, it is that place for how she stands, faces and aims, raised as a shot's
+    /// start is; the running places hold only while she runs.
+    /// </summary>
+    public PixelPosition GrappleFlarePoint => State switch
+    {
+        GrapplingState { RopeStart: { } hangsFrom } => hangsFrom,
+        GrappleLockedState => _grappleFlarePlaces.TryGetValue("standing", out var facings) && facings.TryGetValue(Facing == Facing.Right ? "right" : "left", out var aims)
+            && aims.TryGetValue(AimName(Aim), out Vector2I standing)
+                ? Position + PixelOffset.FromWhole(standing.X, standing.Y)
+                : throw new InvalidOperationException($"Samus's data gives the grapple's flare no place on a standing body aiming {AimName(Aim)}."),
+        _ => Origin(_grappleFlarePlaces, moonwalkRuns: false),
+    };
 
     /// <summary>A place her data gives from her own, raised by how high her pose holds her arm.</summary>
     private PixelPosition Raised(Vector2I offset)

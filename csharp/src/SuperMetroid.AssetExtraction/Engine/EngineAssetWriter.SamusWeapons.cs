@@ -138,7 +138,11 @@ public sealed partial class EngineAssetWriter
         }
 
         SuperMetroid.Core.Samus.Artwork.BeamFlarePlacements placed = _installation.LoadProjectiles().FlarePlacement;
-        JsonObject Places(bool running)
+
+        // The grapple's flare has places of its own, which are also where its line is laid from.
+        ChargeFlarePlacements grapplePlaced = _installation.LoadProjectiles().Grapple.FlarePlacement;
+        JsonObject Places(bool running) => PlacesOf(placed, running);
+        static JsonObject PlacesOf(ChargeFlarePlacements placed, bool running)
         {
             var right = new JsonObject();
             var left = new JsonObject();
@@ -174,6 +178,7 @@ public sealed partial class EngineAssetWriter
             ["fast_right"] = Ring("Fast", "Right", fast),
             ["fast_left"] = Ring("Fast", "Left", fast),
             ["places"] = new JsonObject { ["standing"] = Places(running: false), ["running"] = Places(running: true) },
+            ["grapple_places"] = new JsonObject { ["standing"] = PlacesOf(grapplePlaced, running: false), ["running"] = PlacesOf(grapplePlaced, running: true) },
             ["turning_places"] = turning,
         };
     }

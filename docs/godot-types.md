@@ -1044,7 +1044,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   switched on and in her colours. It starts as the charge does, shows from the updates her data gives, moves on by
   her updates whether or not the charge's count does, and is hidden, still moving on, while her pose does not hold
   her arm out (`Samus.HoldsArmOut`). It lies where her data places it by how she stands, faces and aims
-  (`Samus.FlarePoint`), raised as a shot's start is.
+  (`Samus.FlarePoint`), raised as a shot's start is. While her grapple beam is out it shows the glow alone, on a
+  count of its own taken up where the glow loops, where the line leaves her (`Samus.GrappleFlarePoint`), which is
+  also where the line is laid from; the charge's flare neither shows nor moves on meanwhile.
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
   takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`), and once that is found

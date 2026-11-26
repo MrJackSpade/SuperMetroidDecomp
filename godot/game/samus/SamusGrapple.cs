@@ -138,6 +138,9 @@ public partial class SamusGrapple : Node2D
     /// <summary>Whether the line has hold of something.</summary>
     public bool IsLatched => _phase == Phase.Latched;
 
+    /// <summary>Whether the flare where the line leaves her shows: while it reaches out and while it holds, and not on the update a line given up ends.</summary>
+    public bool ShowsFlare => _phase is Phase.Firing or Phase.Latched;
+
     /// <summary>Where the line holds, when latched.</summary>
     public PixelPosition Anchor => _held?.LatchPoint ?? _tip;
 
@@ -405,14 +408,9 @@ public partial class SamusGrapple : Node2D
             IReadOnlyList<string> pictures = line.Rope[line.RopeOfAngle[_lineAngle]];
             if (--_ropeLeft == 0)
                 (_ropePicture, _ropeLeft) = ((_ropePicture + 1) % pictures.Count, line.PictureUpdates);
-            // The line is laid from where it ends by her: swinging, the point her body hangs from; held in place,
-            // where it leaves her standing body; reaching out, her arm.
-            PixelPosition from = samus.State switch
-            {
-                GrapplingState swing => swing.RopeStart ?? samus.GrapplePoint,
-                GrappleLockedState => samus.Position + samus.StandingGrappleOrigin,
-                _ => samus.GrapplePoint,
-            };
+            // The line is laid from where its flare lies: swinging, the point her body hangs from; held in place and
+            // reaching out, the place her data gives the flare at her arm.
+            PixelPosition from = samus.GrappleFlarePoint;
             PixelPosition end = IsLatched ? Anchor : _tip;
             int toward = GrapplingState.AngleOf(end.X.Whole - from.X.Whole, end.Y.Whole - from.Y.Whole);
             long across = (long)CartridgeAngles.SignedSine(toward) * line.Spacing * 256;

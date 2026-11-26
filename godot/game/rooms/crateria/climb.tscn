@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="14"]
 [ext_resource type="PackedScene" path="res://game/enemies/space_pirate/ninja_pirate.tscn" id="15"]
 [ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="16"]
+[ext_resource type="Script" path="res://game/rooms/crateria/EscapeShaftWall.cs" id="17"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -30,7 +31,6 @@ Screens = PackedInt32Array(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
 ScrollLayout = "Climb"
 Music = "escape"
 MusicSet = "ridley_and_draygon_battles"
-Patches = PackedStringArray("escape_wall_destroyed")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("1")
@@ -718,4 +718,22 @@ ShortDustCloudEffect = "effects/short_big_dust_cloud.json"
 BigDustCloudEffect = "effects/big_dust_cloud.json"
 SmallExplosionSound = "enemy_small_explosion"
 SmokeSound = "enemy_big_explosion"
+PresentWhen = SubResource("r1")
+
+[node name="EscapeWall" type="Node" parent="."]
+script = ExtResource("17")
+Patch = "escape_wall_destroyed"
+BlastAt = Vector2i(272, 2184)
+BlastSpread = Vector2i(8, 16)
+BlastEffect = "effects/small_explosion.json"
+BlastSound = "enemy_small_explosion"
+PresentWhen = SubResource("r1")
+
+[node name="PastEscapeWall" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(241, 2081)
+Size = Vector2i(527, 223)
+MeetsMiddle = true
+What = "open"
+Target = NodePath("../EscapeWall")
 PresentWhen = SubResource("r1")

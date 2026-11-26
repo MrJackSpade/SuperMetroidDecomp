@@ -22,6 +22,13 @@ public partial class Trigger : Node2D, IPlaced
     [Export]
     public string What { get; set; } = "";
 
+    /// <summary>
+    /// Whether it is the player's own place, their middle, that must come inside the region, and not any part of their
+    /// body: for something the cartridge sets off by where the player is.
+    /// </summary>
+    [Export]
+    public bool MeetsMiddle { get; set; }
+
     /// <summary>The condition that must hold for the trigger to fire; null when it always may.</summary>
     [Export]
     public Condition? OnlyWhen { get; set; }
@@ -75,7 +82,7 @@ public partial class Trigger : Node2D, IPlaced
         // One that fires for an entry point has fired, or not, as the room was set up.
         if (AtEntry.Length > 0)
             return;
-        bool inside = Area.Overlaps(playerBody);
+        bool inside = MeetsMiddle ? Area.Contains(room.Player.Position.X.Whole, room.Player.Position.Y.Whole) : Area.Overlaps(playerBody);
         bool entered = inside && !_playerWasInside;
         _playerWasInside = inside;
         if (!entered || (Once && _fired) || (OnlyWhen is not null && !OnlyWhen.IsTrue(room)))

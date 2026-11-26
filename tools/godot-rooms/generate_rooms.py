@@ -81,6 +81,14 @@ SPEED_BOOSTER_LAVA_RISE = 0.125
 CHOZO_ACID_FALL = 0.25
 CHOZO_ACID_LOWERED = 'lower_norfair_acid_lowered'
 
+# The acid of the escape room before the old Tourian shaft: the old setup routine that places what sets it rising,
+# the point Samus passes to set it off, and how fast and after how long it then rises, in pixels an update and in
+# updates (EscapeAcidRiseObjectDefinitions: TriggerPoint, RiseSpeed of 13/32, RiseDelay).
+ESCAPE_ACID_SETUP = 'MediumHorizontalShakingWithRisingAcid'
+ESCAPE_ACID_POINT = (240, 1344)
+ESCAPE_ACID_RISE = 0.40625
+ESCAPE_ACID_DELAY = 16
+
 # The boss each area's "area boss", "mini boss" and "torizo" is, by the name its defeat is recorded under.
 AREA_BOSSES = {
     ('Crateria', 'AreaTorizo'): 'bomb_torizo',
@@ -522,9 +530,20 @@ class Generator:
             # Its liquid and its room effects.
             booster = placed_objects.raises_liquid
             lowers_acid = any(thing.chozo == 'LowerNorfair' for thing in things)
+            raises_acid = state.setup == ESCAPE_ACID_SETUP
             shown, told = fx.things(self.room_fx[state.fx], room, ctx,
                                     lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door,
-                                    told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else CHOZO_ACID_FALL if lowers_acid else None)
+                                    told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else CHOZO_ACID_FALL if lowers_acid
+                                    else ESCAPE_ACID_RISE if raises_acid else None)
+            if raises_acid:
+                # The acid waits low until Samus passes its point, and then rises after the wait what watched for her gave it.
+                liquids = [thing for thing in shown if thing.name == 'Liquid' and 'MoveSpeed' in thing.properties]
+                if len(liquids) != 1:
+                    raise ValueError(f'{key}: the escape sets one liquid rising, and the room has {len(liquids)} that wait to be told.')
+                liquids[0].properties['MoveDelay'] = str(ESCAPE_ACID_DELAY)
+                passed = sequences.past_point('PastAcidPoint', ESCAPE_ACID_POINT, room, 'rise')
+                shown.append(passed)
+                links[id(passed)] = {'Target': liquids[0]}
             if lowers_acid:
                 # The statue has the acid fall, and once it has, the room is entered with the acid already down: the
                 # liquid that waits raised is there until then, and one that lies low after.

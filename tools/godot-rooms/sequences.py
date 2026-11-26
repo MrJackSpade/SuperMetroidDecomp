@@ -51,7 +51,27 @@ ESCAPE_BLASTS = {
 }
 
 # The terrain patches a room's escape version has in place, by the old setup routine that made the change.
-ESCAPE_PATCHES = {'AutoDestroyWallDuringEscape': 'escape_wall_destroyed', 'TurnWallIntoShotBlocksDuringEscape': 'wall_shot_blocks'}
+ESCAPE_PATCHES = {'TurnWallIntoShotBlocksDuringEscape': 'wall_shot_blocks'}
+
+# The wall of the old Tourian shaft that gives way in the escape: the old setup routine that places it, the patch
+# that opens it, the point Samus passes to set it off (OldTourianEscapeShaftWallObjectDefinitions.WakePoint), the
+# middle of the wall its blast is left about and how far chance throws that
+# (OldTourianEscapeShaftWallExplosionAnimationDefinitions: XPosition, YPosition, Scatter), and the blast and its sound.
+ESCAPE_WALL_SETUP = 'AutoDestroyWallDuringEscape'
+ESCAPE_WALL = {'Patch': 'escape_wall_destroyed', 'BlastAt': (272, 2184), 'BlastSpread': (8, 16),
+               'BlastEffect': 'effects/small_explosion.json', 'BlastSound': 'enemy_small_explosion'}
+ESCAPE_WALL_POINT = (240, 2080)
+
+
+def past_point(name: str, point: tuple[int, int], room: legacy.Room, what: str) -> Placed:
+    """
+    A trigger that fires once Samus's own place is strictly right of and strictly below a point, wherever in the room
+    that is: how the cartridge's escape sets off what it watches a point for.
+    """
+    left, top = point[0] + 1, point[1] + 1
+    return Placed(TRIGGER, name, {
+        'Size': f'Vector2i({room.screens[0] * SCREEN - left}, {room.screens[1] * SCREEN - top})', 'MeetsMiddle': 'true', 'What': quoted(what)},
+        at=(left, top), enemy=False)
 
 # Maridia's tube: the ride that starts as Samus comes in by each of its room's exits, with how far it moves her on
 # its first update and how much that gains each update, in pixels; negative is upward.
@@ -141,6 +161,15 @@ class Sequences:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
                 'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),
                 **{name: quoted(value) for name, value in ESCAPE_BLASTS.items()}}))
+        if state.setup == ESCAPE_WALL_SETUP:
+            # The wall stands until Samus passes its point, and then gives way with a blast.
+            wall = sequence('crateria/EscapeShaftWall.cs', 'EscapeWall', {
+                'Patch': quoted(ESCAPE_WALL['Patch']), 'BlastAt': 'Vector2i({}, {})'.format(*ESCAPE_WALL['BlastAt']),
+                'BlastSpread': 'Vector2i({}, {})'.format(*ESCAPE_WALL['BlastSpread']),
+                'BlastEffect': quoted(ESCAPE_WALL['BlastEffect']), 'BlastSound': quoted(ESCAPE_WALL['BlastSound'])})
+            passed = past_point('PastEscapeWall', ESCAPE_WALL_POINT, room, 'open')
+            self.placed += [wall, passed]
+            self.links.append((passed, 'Target', wall))
         if state.setup == 'OpenRescuedAnimalsPassageAndQuake':
             # The way the animals left by stands open, and the room shakes, once they have been set free.
             relay = Placed('res://engine/world/Relay.cs', 'AnimalsPassage', {'Rules': 'rules:open:animals_passage_open'},

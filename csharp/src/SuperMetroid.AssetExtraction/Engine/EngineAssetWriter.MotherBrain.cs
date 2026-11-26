@@ -122,7 +122,8 @@ public sealed partial class EngineAssetWriter
                 for (int box = 0; box < parts[part].Length; box++)
                 {
                     EnemyCollisionHitbox hitbox = component.Hitboxes[box];
-                    colliders[parts[part][box]] = Rect(component.Offset.X + hitbox.Left, component.Offset.Y + hitbox.Top,
+                    // These take shots alone (her touch goes by her own rule), so each is written as a shot meets it.
+                    colliders[parts[part][box]] = EngineEnemy.ShotRect(component.Offset.X + hitbox.Left, component.Offset.Y + hitbox.Top,
                         component.Offset.X + hitbox.Right, component.Offset.Y + hitbox.Bottom);
                 }
             }
@@ -423,7 +424,8 @@ public sealed partial class EngineAssetWriter
 
         EnemyCollisionHitbox brain = MotherBrainCollisionDefinitions.BrainHitboxes.Single();
         mother.BodyColliders("Body")
-            .Collider("Brain", brain.Left, brain.Top, brain.Right - brain.Left, brain.Bottom - brain.Top)
+            // Her brain's hurtbox, written as a shot meets the old box: a pixel more at its left and top.
+            .Collider("Brain", brain.Left - 1, brain.Top - 1, brain.Right - brain.Left + 1, brain.Bottom - brain.Top + 1)
             .Value("first_phase_health", MotherBrainFightDefinitions.FirstPhaseHealth)
             .Value("second_phase_health", MotherBrainFightDefinitions.SecondPhaseHealth)
             .Value("third_phase_health", MotherBrainFightDefinitions.ThirdPhaseHealth)

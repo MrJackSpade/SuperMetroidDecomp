@@ -661,9 +661,11 @@ public partial class Phantoon : Enemy
                     break;
                 (int offsetX, int offsetY, bool big, int next) = DeathExplosions[_explosion];
                 _wait = next;
+                // Each explosion is one of the enemies' shots on the cartridge: it holds one of the room's places while
+                // it plays, and is not made with none free.
                 string effect = big ? BigExplosionEffect : SmallExplosionEffect;
                 if (effect.Length > 0)
-                    LeaveEffect(effect, PixelPosition.FromWhole(Position.X.Whole + offsetX, Position.Y.Whole + offsetY));
+                    Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), PixelPosition.FromWhole(Position.X.Whole + offsetX, Position.Y.Whole + offsetY), holdsPlace: true));
                 Sound(big ? BigExplosionSound : SmallExplosionSound);
                 if (++_explosion < DeathExplosions.Length)
                     break;

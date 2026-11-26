@@ -211,11 +211,14 @@ public partial class Boulder : Enemy
         }
     }
 
-    /// <summary>Breaks the boulder up: it is gone, leaving its dust.</summary>
+    /// <summary>
+    /// Breaks the boulder up: it is gone, leaving its dust, one of the enemies' shots on the cartridge, which holds one
+    /// of the room's places while it plays and is not made with none free.
+    /// </summary>
     private void Break()
     {
         if (BreakEffect.Length > 0)
-            LeaveEffect(BreakEffect, Position);
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(BreakEffect)), Position, holdsPlace: true));
         Sound(BreakSound);
         Vanish();
     }

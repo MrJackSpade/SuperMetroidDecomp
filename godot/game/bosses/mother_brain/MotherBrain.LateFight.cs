@@ -474,8 +474,8 @@ public partial class MotherBrain
         _beamExplosionWait = 9;
         PixelOffset from = _rainbowExplosions[_nextBeamExplosion];
         _nextBeamExplosion = (_nextBeamExplosion + 1) % _rainbowExplosions.Count;
-        if (ExplosionEffect.Length > 0)
-            _followingBlasts.Add((LeaveEffect(ExplosionEffect, samus.Position + from), from));
+        if (ExplosionEffect.Length > 0 && LeaveHoldingPlace(ExplosionEffect, samus.Position + from) is { } blast)
+            _followingBlasts.Add((blast, from));
         Sound(ExplosionSound);
     }
 

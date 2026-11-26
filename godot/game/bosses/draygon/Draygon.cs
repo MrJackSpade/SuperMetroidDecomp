@@ -939,9 +939,10 @@ public partial class Draygon : Enemy
     private void LookAt(Player samus)
     {
         PixelPosition gaze = Position + PixelOffset.FromWhole(Facing == Facing.Right ? 24 : -24, -32);
-        // Bubbles rise from by its eye all the while it watches her.
+        // Bubbles rise from by its eye all the while it watches her: one of the enemies' shots on the cartridge, which
+        // holds one of the room's places while it rises and is not made with none free.
         if (Updates % 128 == 0 && EyeBubbleEffect.Length > 0)
-            LeaveEffect(EyeBubbleEffect, gaze);
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(EyeBubbleEffect)), gaze, holdsPlace: true));
         int aim = CartridgeAngles.AimAngle(samus.Position.X.Whole - gaze.X.Whole, samus.Position.Y.Whole - gaze.Y.Whole);
         if (aim == _eyeAim)
             return;

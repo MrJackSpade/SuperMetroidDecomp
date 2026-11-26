@@ -101,9 +101,11 @@ public partial class CeresElevatorDoor : RoomObject
                 _blastIn = BlastInterval;
                 PixelPosition at = Position + Blasts[_blast];
                 _blast = (_blast + 1) % Blasts.Length;
+                // The blast is one of the enemies' shots on the cartridge: it holds one of the room's places while it
+                // plays, and is not made with none free, though it is heard all the same.
                 string effect = Room.Session.Random.Draw().Part(14, 2) == 0 ? SmokeEffect : ExplosionEffect;
                 if (effect.Length > 0)
-                    Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at));
+                    Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true));
                 if (ExplosionSound.Length > 0)
                     Room.Session.Sounds.Request(ExplosionSound, channel: "objects");
                 break;

@@ -64,15 +64,29 @@ public partial class Kago : Enemy
         if (_hits == 0)
             Play("fast");
         _hits++;
-        PackedScene scene = BugScene ?? throw new InvalidOperationException($"The Kago \"{Name}\" names no scene for its bugs.");
-        var bug = scene.Instantiate<KagoBug>();
-        bug.Position = Position;
-        bug.Hive = this;
-        Room.Spawn(bug);
         if (_hits > HitCount)
         {
             Room.MarkGone(Name);
             Vanish();
         }
+
+        LetOutBug();
+    }
+
+    /// <summary>
+    /// Lets out a bug, the last hit's as well. On the cartridge a bug is one of the enemies' shots: it holds one of the
+    /// room's places while it lives, and with none free no bug comes out.
+    /// </summary>
+    private void LetOutBug()
+    {
+        PackedScene scene = BugScene ?? throw new InvalidOperationException($"The Kago \"{Name}\" names no scene for its bugs.");
+        Effect place = Effect.HoldingPlace(Position);
+        if (!Room.Spawn(place))
+            return;
+        var bug = scene.Instantiate<KagoBug>();
+        bug.Position = Position;
+        bug.Hive = this;
+        bug.Place = place;
+        Room.Spawn(bug);
     }
 }

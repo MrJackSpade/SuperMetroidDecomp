@@ -630,10 +630,13 @@ public partial class MotherBrainBaby : Enemy
     /// <summary>A distance from a count of 256ths of a pixel.</summary>
     private static Pixels From256ths(int count) => Pixels.FromParts(count >> 8, (count & 255) * 256);
 
-    /// <summary>Leaves an effect, if it is named.</summary>
+    /// <summary>
+    /// Leaves an effect, if it is named: its dust and its blasts, each one of the enemies' shots on the cartridge, which
+    /// holds one of the room's places while it plays and is not made with none free.
+    /// </summary>
     private void Leave(string effect, PixelPosition at)
     {
         if (effect.Length > 0)
-            LeaveEffect(effect, at);
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true));
     }
 }

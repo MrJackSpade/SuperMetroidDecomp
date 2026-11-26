@@ -574,8 +574,15 @@ public partial class Crocomire : Enemy, ILatchable
     {
         string burst = hit.Carries(new HitKind(HitKinds.SuperMissile)) ? BigDudEffect : DudEffect;
         if (burst.Length > 0)
-            LeaveEffect(burst, at);
+            LeaveHoldingPlace(burst, at);
     }
+
+    /// <summary>
+    /// Leaves dust or a burst: on the cartridge each is one of the enemies' shots, which holds one of the room's places
+    /// while it plays and is not made with none free.
+    /// </summary>
+    private void LeaveHoldingPlace(string effect, PixelPosition at) =>
+        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true));
 
     /// <summary>Whether its near edge lies less than <paramref name="reach"/> pixels right of the view's left edge.</summary>
     private bool NearEdgeIsWithin(int reach) =>
@@ -833,7 +840,7 @@ public partial class Crocomire : Enemy, ILatchable
         if (DustEffect.Length == 0)
             return;
         int below = (Body?.Size.Y ?? 0) / 2 - 16;
-        LeaveEffect(DustEffect, PixelPosition.FromWhole(Position.X.Whole + across + Random.Last.Part(0, 3), Position.Y.Whole + below));
+        LeaveHoldingPlace(DustEffect, PixelPosition.FromWhole(Position.X.Whole + across + Random.Last.Part(0, 3), Position.Y.Whole + below));
     }
 
     /// <summary>Keeps Samus from ever getting past it: at its near edge she is hurt and thrown back.</summary>
@@ -866,7 +873,7 @@ public partial class Crocomire : Enemy, ILatchable
                 if (stage > 0)
                     Room.Terrain.ApplyPatch(BridgeCrumblePatches[stage - 1]);
                 if (DustEffect.Length > 0)
-                    LeaveEffect(DustEffect, PixelPosition.FromWhole(BridgeApproachX + 16 * (stage + (stage > 0 ? 1 : 0)), 176));
+                    LeaveHoldingPlace(DustEffect, PixelPosition.FromWhole(BridgeApproachX + 16 * (stage + (stage > 0 ? 1 : 0)), 176));
             }
         }
 
@@ -887,7 +894,7 @@ public partial class Crocomire : Enemy, ILatchable
         if (BridgeWallPatch.Length > 0)
             Room.Terrain.ApplyPatch(BridgeWallPatch);
         for (int puff = 0; puff < 7 && DustEffect.Length > 0; puff++)
-            LeaveEffect(DustEffect, PixelPosition.FromWhole(BridgeApproachX + 16 * puff, puff is 0 or 2 ? 176 : 192));
+            LeaveHoldingPlace(DustEffect, PixelPosition.FromWhole(BridgeApproachX + 16 * puff, puff is 0 or 2 ? 176 : 192));
     }
 
     /// <summary>Moves its long death on by one update.</summary>

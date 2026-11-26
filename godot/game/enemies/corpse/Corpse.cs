@@ -87,13 +87,16 @@ public partial class Corpse : Enemy
         _crumble.StartNow();
     }
 
-    /// <summary>Leaves the puff of dust of a row reaching the ground.</summary>
+    /// <summary>
+    /// Leaves the puff of dust of a row reaching the ground: one of the enemies' shots on the cartridge, which holds one
+    /// of the room's places while it plays and is not made with none free.
+    /// </summary>
     private void LeaveDust()
     {
         RandomDraw roll = Random.Last;
         int spread = roll.Part(1, 1) * 2 + roll.Part(3, 2) * 8;
         if (DustEffect.Length > 0)
-            LeaveEffect(DustEffect, Position + PixelOffset.FromWhole(DustFrom.X + spread, DustFrom.Y));
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(DustEffect)), Position + PixelOffset.FromWhole(DustFrom.X + spread, DustFrom.Y), holdsPlace: true));
         if (Room.Session.EnemyPasses % 8 == 0)
             Sound(DustSound);
     }

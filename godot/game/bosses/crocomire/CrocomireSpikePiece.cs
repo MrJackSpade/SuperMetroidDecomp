@@ -57,10 +57,13 @@ public partial class CrocomireSpikePiece : Projectile
             return;
         if (_crumbleSound.Length > 0)
             room.Session.Sounds.Request(_crumbleSound, channel: "enemies");
+
+        // It is gone before its dust is raised: the dust, one of the enemies' shots on the cartridge as the piece is,
+        // takes the highest place free, and is not raised with none.
+        Leave(room);
         if (_dust.Length > 0)
-            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(_dust)), Position));
+            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(_dust)), Position, holdsPlace: true));
         if (_landingSound.Length > 0)
             room.Session.Sounds.Request(_landingSound, channel: "enemies");
-        Leave(room);
     }
 }

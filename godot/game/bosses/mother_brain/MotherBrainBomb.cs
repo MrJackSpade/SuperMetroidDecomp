@@ -79,8 +79,10 @@ public partial class MotherBrainBomb : Projectile, IHasValues
     {
         if (!hit.Carries(new HitKind(HitKinds.Bomb)))
             return HitResult.Ignored;
+        // Its dust is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays, and
+        // is not made with none free.
         if (DustEffect.Length > 0)
-            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(DustEffect)), Position));
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(DustEffect)), Position, holdsPlace: true));
         return base.TakeHit(hit, part);
     }
 
@@ -128,6 +130,9 @@ public partial class MotherBrainBomb : Projectile, IHasValues
     /// <summary>Bursts where it is, and sends its fire along the floor.</summary>
     private void Burst(Room room)
     {
+        // It is gone before its fire and its explosion are left, which may so take the place it held; the explosion
+        // is one of the enemies' shots on the cartridge, and is not made with no place free.
+        Leave(room);
         if (Flare.Length > 0)
         {
             var fire = (RidleyFireball)ShotType.Read(room.Content.ReadData(Flare)).Launch(Position, PixelVelocity.Zero, Side, Launcher, Hit.Source);
@@ -136,9 +141,8 @@ public partial class MotherBrainBomb : Projectile, IHasValues
         }
 
         if (ExplosionEffect.Length > 0)
-            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(ExplosionEffect)), Position));
+            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(ExplosionEffect)), Position, holdsPlace: true));
         if (ExplosionSound.Length > 0)
             room.Session.Sounds.Request(ExplosionSound, priority: SoundPriority.Low);
-        Leave(room);
     }
 }

@@ -257,7 +257,14 @@ public partial class MotherBrain
         {
             if (_nextTube > 0 && --_tubeWait > 0)
                 return;
-            var tube = new FallingTube(LeaveEffect(drop.Effect, PixelPosition.FromWhole(drop.X, drop.Y)), drop) { Delay = drop.Delay };
+            _tubeFallen = true;
+
+            // The pipes about the top of her tank are shots on the cartridge: each holds one of the room's places, and
+            // one the room has no place for does not fall, nor raise its dust.
+            PixelPosition from = PixelPosition.FromWhole(drop.X, drop.Y);
+            if ((drop.Top ? LeaveHoldingPlace(drop.Effect, from) : LeaveEffect(drop.Effect, from)) is not { } sprite)
+                return;
+            var tube = new FallingTube(sprite, drop) { Delay = drop.Delay };
 
             // The pipes about the top of her tank are shots on the cartridge and hold no enemy's place.
             if (!drop.Top && _inFirstPlace is null)
@@ -269,7 +276,6 @@ public partial class MotherBrain
             _fallingTubes.Add(tube);
             if (drop.Top)
                 Leave(DustEffect, PixelPosition.FromWhole(drop.X, drop.Y + TopTubeDustBelow));
-            _tubeFallen = true;
             return;
         }
 
@@ -315,14 +321,17 @@ public partial class MotherBrain
 
             if (tube.Drop.Main)
                 LandBrain();
+
+            // It is gone before what it ends in is left, which may so take the place a pipe from the top held.
+            Room.Remove(tube.Sprite);
+            _fallingTubes.Remove(tube);
+
             // A pipe from the top ends in smoke, quietly; the others burst.
             Leave(tube.Drop.Top ? SmokeEffect : ExplosionEffect, tube.Sprite.Position);
             if (!tube.Drop.Top)
                 Sound(ExplosionSound);
             if (ReferenceEquals(tube, _inFirstPlace))
                 (_inFirstPlace, PartOfAPixelLeftInFirstPlace) = (null, tube.Sprite.Position.Y.Fraction);
-            Room.Remove(tube.Sprite);
-            _fallingTubes.Remove(tube);
         }
     }
 

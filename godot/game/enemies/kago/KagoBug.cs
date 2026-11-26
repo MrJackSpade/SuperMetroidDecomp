@@ -76,6 +76,28 @@ public partial class KagoBug : Enemy
     /// <summary>The hive that let it out.</summary>
     public Kago? Hive { get; set; }
 
+    /// <summary>
+    /// What holds its place among the room's places for what enemies launch, taken by its hive as it came out: on the
+    /// cartridge the bug is one of the enemies' shots. Null once it has given the place back.
+    /// </summary>
+    public Effect? Place { get; set; }
+
+    /// <summary>Gives its place back to the room, as it goes.</summary>
+    private void GiveBackPlace()
+    {
+        if (Place is { } place)
+            Room.Remove(place);
+        Place = null;
+    }
+
+    /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        // A shot bug plays its end in the place it held, so the place is free for its remains.
+        GiveBackPlace();
+        return true;
+    }
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
@@ -87,7 +109,11 @@ public partial class KagoBug : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnTouchedPlayer() => Vanish();
+    protected override void OnTouchedPlayer()
+    {
+        GiveBackPlace();
+        Vanish();
+    }
 
     /// <summary>Counts one update toward its sound, which it makes as the count runs out. Only waiting, jumping and falling count.</summary>
     private void StepSound()

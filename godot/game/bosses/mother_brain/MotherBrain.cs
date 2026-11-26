@@ -312,7 +312,7 @@ public partial class MotherBrain : Enemy, IClosingStep
                 break;
 
             case "hand_dust":
-                LeaveEffect(parts[3], Position + PixelOffset.FromWhole(Number(parts[1]), Number(parts[2])));
+                Leave(parts[3], Position + PixelOffset.FromWhole(Number(parts[1]), Number(parts[2])));
                 break;
 
             case "shape":
@@ -417,10 +417,11 @@ public partial class MotherBrain : Enemy, IClosingStep
             return;
         Player samus = room.Player;
 
-        // She breathes out a little, as often as not, whenever her last breath has gone.
+        // She breathes out a little, as often as not, whenever her last breath has gone; a breath the room has no
+        // place for is not breathed, and she tries again.
         bool breathOut = _smallBreath is { } last && IsInstanceValid(last) && !Room.IsLeaving(last);
         if (_breathes && !breathOut && SmallBreathEffect.Length > 0 && Random.Last.Part(15, 1) == 0)
-            _smallBreath = LeaveEffect(SmallBreathEffect, _head + PixelOffset.FromWhole(6, 16));
+            _smallBreath = LeaveHoldingPlace(SmallBreathEffect, _head + PixelOffset.FromWhole(6, 16));
 
         TimelineStep? shown = PlayBrain(samus);
 
@@ -634,11 +635,24 @@ public partial class MotherBrain : Enemy, IClosingStep
     /// <summary>The parts of her body that stop shots, as her data places them for each picture of it.</summary>
     private ColliderPoses Shapes => _shapes ?? throw new InvalidOperationException("Mother Brain's data has not been read.");
 
-    /// <summary>Leaves an effect, if it is named.</summary>
+    /// <summary>
+    /// Leaves dust, smoke or a blast, if it is named: each is one of the enemies' shots on the cartridge, which holds
+    /// one of the room's places while it plays and is not made with none free.
+    /// </summary>
     private void Leave(string effect, PixelPosition at)
     {
         if (effect.Length > 0)
-            LeaveEffect(effect, at);
+            LeaveHoldingPlace(effect, at);
+    }
+
+    /// <summary>
+    /// Leaves an effect that is one of the enemies' shots on the cartridge: it holds one of the room's places while it
+    /// plays, and with none free it is not made. Returns it, or null when it was not made.
+    /// </summary>
+    private Effect? LeaveHoldingPlace(string effect, PixelPosition at)
+    {
+        Effect made = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true);
+        return Room.Spawn(made) ? made : null;
     }
 
     private static int Number(string text) => int.Parse(text, System.Globalization.CultureInfo.InvariantCulture);

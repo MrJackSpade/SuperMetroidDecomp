@@ -436,7 +436,7 @@ public partial class Ridley
                 if (!TailTouchesTerrain())
                     break;
                 if (DustEffect.Length > 0)
-                    LeaveEffect(DustEffect, Tail.Tip.Position + PixelOffset.FromWhole(0, 12));
+                    LeaveHoldingPlace(DustEffect, Tail.Tip.Position + PixelOffset.FromWhole(0, 12));
                 Sound(BounceSound);
                 Room.Shake(2, 4, ShakeWay.Down);
                 ChoosePogoWay(samus);
@@ -892,9 +892,16 @@ public partial class Ridley
         PixelOffset at = _deathExplosions[_nextExplosion];
         _nextExplosion = (_nextExplosion + 1) % _deathExplosions.Count;
         if (ExplosionEffect.Length > 0)
-            LeaveEffect(ExplosionEffect, Position + at);
+            LeaveHoldingPlace(ExplosionEffect, Position + at);
         Sound(ExplosionSound);
     }
+
+    /// <summary>
+    /// Leaves dust or a blast: on the cartridge each is one of the enemies' shots, which holds one of the room's places
+    /// while it plays and is not made with none free.
+    /// </summary>
+    private void LeaveHoldingPlace(string effect, PixelPosition at) =>
+        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true));
 
     /// <summary>Breaks it into its pieces, each flung a little to one side.</summary>
     private void BreakUp()

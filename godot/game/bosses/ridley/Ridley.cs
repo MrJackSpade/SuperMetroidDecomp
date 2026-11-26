@@ -256,12 +256,16 @@ public partial class Ridley : Enemy
             if (!name.StartsWith("Part", StringComparison.Ordinal))
                 continue;
             string number = name["Part".Length..];
-            if (number.EndsWith("Touch", StringComparison.Ordinal))
+            bool touch = number.EndsWith("Touch", StringComparison.Ordinal);
+            if (touch)
                 number = number[..^"Touch".Length];
             int part = int.Parse(number, System.Globalization.CultureInfo.InvariantCulture) - 1;
             collider.Enabled = part < boxes.Count;
+
+            // His data has each box as a shot meets it. Her touch meets the same box a pixel down and right of that,
+            // as the cartridge meets the two on different edges.
             if (part < boxes.Count)
-                collider.Rect = boxes[part];
+                collider.Rect = touch ? boxes[part].MovedBy(1, 1) : boxes[part];
         }
     }
 

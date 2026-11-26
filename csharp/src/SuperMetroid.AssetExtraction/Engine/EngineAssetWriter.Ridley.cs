@@ -208,13 +208,10 @@ public sealed partial class EngineAssetWriter
             {
                 foreach (EnemyHitboxRectangle box in component.Hitboxes)
                 {
-                    boxes.Add(new JsonObject
-                    {
-                        ["left"] = (int)component.Offset.X + box.Left,
-                        ["top"] = (int)component.Offset.Y + box.Top,
-                        ["width"] = box.Right - box.Left,
-                        ["height"] = box.Bottom - box.Top,
-                    });
+                    // Each box is written as a shot meets it; Samus's touch meets it a pixel down and right of that.
+                    boxes.Add(EngineEnemy.ShotRect(
+                        (int)component.Offset.X + box.Left, (int)component.Offset.Y + box.Top,
+                        (int)component.Offset.X + box.Right, (int)component.Offset.Y + box.Bottom));
                 }
             }
 

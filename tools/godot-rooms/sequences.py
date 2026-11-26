@@ -261,6 +261,8 @@ class Sequences:
                 # The capsule tumbles and his wings beat through the old game's own pictures, in its order.
                 'CapsulePictures': strings([floor_picture(name) for name in ('baby_vertical', 'baby_round', 'baby_horizontal', 'baby_round')]),
                 'WingPictures': strings([floor_picture(name) for name in ('wings_raised', 'wings_lowered')]),
+                # What each of those pictures leaves where Samus's stride reads the pace the cartridge never wrote.
+                'WingLeftoversFile': quoted('objects/ceres_getaway_wings.json'),
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
                 'Subtitle': quoted('ceres_self_destruct_subtitle'),
                 # The old getaway asks for his departure's sound on its first update, at the ordinary priority.

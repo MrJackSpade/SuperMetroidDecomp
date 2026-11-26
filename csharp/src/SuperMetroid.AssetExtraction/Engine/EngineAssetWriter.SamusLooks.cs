@@ -13,6 +13,8 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using HudItem = SuperMetroid.Core.Samus.HudItem;
 using P = SuperMetroid.Core.Samus.Poses.SamusPoseId;
 using Seg = SuperMetroid.Core.Samus.Poses.SamusAnimationSegmentName;
 
@@ -194,13 +196,96 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
-    /// Writes every timeline of Samus's into <paramref name="timelines"/>, and into <paramref name="heights"/> how far
-    /// above her middle the shots of each look start: by the look's name, and by the look's and the aim's where an aim has
-    /// a pose of its own.
+    /// Where the arm cannon's cover lies at each step of a timeline, or null when none of its steps shows the cover:
+    /// for each step an empty group where the pose draws no cover, and otherwise its place from hers, lifted as the pose's
+    /// art is, the way it aims and whether it lies in front of her body. The aims used are gathered into
+    /// <paramref name="aims"/>.
     /// </summary>
-    private void WriteSamusLooks(JsonObject timelines, JsonObject heights)
+    private JsonArray? ArmCannonPlaces(List<SamusStep> steps, HashSet<SamusProjectileDirection> aims)
     {
-        void Add(string name, (List<SamusStep> Steps, int? LoopsTo) played) => timelines.Add(name, SamusTimeline(played));
+        var places = new JsonArray();
+        bool shows = false;
+        foreach (SamusStep step in steps)
+        {
+            SamusArmCannonPlacement placement = SamusBody.Gameplay.ArmCannon.Placement(step.Pose);
+            if (placement.DrawOrder == SamusArmCannonDrawOrder.Hidden)
+            {
+                places.Add(new JsonObject());
+                continue;
+            }
+
+            if (!placement.Offsets.TryGetValue(step.Frame, out Offset16<RoomPixels> offset))
+                throw new InvalidDataException($"Samus's pose {step.Pose} draws the arm cannon's cover, but the installation has no place for it at its frame {step.Frame}.");
+            SamusProjectileDirection aim = placement.Direction(step.Pose, step.Frame);
+            aims.Add(aim);
+            places.Add(new JsonObject
+            {
+                ["x"] = offset.X,
+                ["y"] = offset.Y - SamusBody.Gameplay.ArtOrigin(step.Pose),
+                ["aim"] = EngineSheets.FileName(aim.ToString()),
+                // The old game lists its sprites frontmost first: a cover drawn before her body lies in front of it.
+                ["in_front"] = placement.DrawOrder == SamusArmCannonDrawOrder.BeforeBody,
+            });
+            shows = true;
+        }
+
+        return shows ? places : null;
+    }
+
+    /// <summary>
+    /// The arm cannon's cover: how long what she has selected must stay as it is before the cover opens or closes, what
+    /// opens it, its pictures for each way it aims (slightly, half and fully open), where their corner lies from the
+    /// cover's place, and its <paramref name="places"/> by timeline.
+    /// </summary>
+    private JsonObject ArmCannonWritten(JsonObject places, IReadOnlyCollection<SamusProjectileDirection> aims)
+    {
+        const string prefix = "ArmCannon.";
+        SamusArmCannonCoverFrame[] opening = [SamusArmCannonCoverFrame.SlightlyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.FullyOpen];
+        string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusOverlays];
+        EngineSheetPictures cut = _sheets.CutNamed(
+            _tree, SpriteFamily, "samus/arm_cannon", sheet,
+            aims.SelectMany(aim => opening.Select(frame => SamusOverlaySheetDefinitions.ArmCannonFrame(aim, frame))),
+            shade: null, frame => EngineSheets.FileName(frame[prefix.Length..]), regionMaps: true);
+        var pictures = new JsonObject();
+        foreach (SamusProjectileDirection aim in aims)
+            pictures[EngineSheets.FileName(aim.ToString())] = EngineNames.List(opening.Select(frame => (JsonNode)cut.Of(SamusOverlaySheetDefinitions.ArmCannonFrame(aim, frame))));
+
+        // What she has selected, as the Godot game names it.
+        static string Selection(HudItem item) => item switch
+        {
+            HudItem.Beam => "",
+            HudItem.Missile => "missiles",
+            HudItem.SuperMissile => "super_missiles",
+            HudItem.PowerBomb => "power_bombs",
+            HudItem.Grapple => "grapple_beam",
+            HudItem.XRay => "xray_scope",
+            _ => throw new InvalidDataException($"Samus's selection {item} has no name in the Godot game."),
+        };
+
+        return new JsonObject
+        {
+            ["steady_updates"] = SamusArmCannonDefinitions.StableSelectionUpdates,
+            ["opened_by"] = EngineNames.List(Enum.GetValues<HudItem>().Where(SamusArmCannonOpening.Opens).Select(item => (JsonNode)Selection(item))),
+            ["offset"] = new JsonObject { ["x"] = cut.OffsetX, ["y"] = cut.OffsetY },
+            ["pictures"] = pictures,
+            ["places"] = places,
+        };
+    }
+
+    /// <summary>
+    /// Writes every timeline of Samus's into <paramref name="timelines"/>, into <paramref name="heights"/> how far
+    /// above her middle the shots of each look start: by the look's name, and by the look's and the aim's where an aim has
+    /// a pose of its own, and into <paramref name="coverPlaces"/> where the arm cannon's cover lies at each step of each
+    /// timeline that shows it, gathering the ways it aims into <paramref name="coverAims"/>.
+    /// </summary>
+    private void WriteSamusLooks(JsonObject timelines, JsonObject heights, JsonObject coverPlaces, HashSet<SamusProjectileDirection> coverAims)
+    {
+        void Add(string name, (List<SamusStep> Steps, int? LoopsTo) played)
+        {
+            timelines.Add(name, SamusTimeline(played));
+            if (ArmCannonPlaces(played.Steps, coverAims) is { } places)
+                coverPlaces.Add(name, places);
+        }
 
         // A look, or a look with one aim, shown by one old pose for each side.
         void Look(string look, string? aim, P right, P left, Seg? from = null, bool oneSegment = false, string suffix = "")

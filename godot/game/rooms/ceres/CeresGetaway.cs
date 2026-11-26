@@ -30,6 +30,14 @@ public partial class CeresGetaway : RoomSequence
     [Export]
     public Godot.Collections.Array<string> WingPictures { get; set; } = [];
 
+    /// <summary>
+    /// The data file of what each of his wings' pictures leaves behind as it is drawn, in the order of
+    /// <see cref="WingPictures"/>: under "stride_updates", the lengths of the pictures of Samus's stride at the pace
+    /// the cartridge never wrote (<see cref="Samus.TakeStridePaceLeftByWings"/>); empty for none.
+    /// </summary>
+    [Export(PropertyHint.File)]
+    public string WingLeftoversFile { get; set; } = "";
+
     /// <summary>The floor's tint at each whole size it is shown at, from nearest to farthest; empty for none.</summary>
     [Export]
     public Godot.Collections.Array<Color> SizeTints { get; set; } = [];
@@ -127,6 +135,7 @@ public partial class CeresGetaway : RoomSequence
     private CanvasLayer? _warning;
     private TypedText? _words;
     private Node2D? _subtitle;
+    private IReadOnlyList<int[]> _wingStrideUpdates = [];
 
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
@@ -209,6 +218,11 @@ public partial class CeresGetaway : RoomSequence
         room.Session.Progress.Record(StoryEvents.CeresRidleyEscaped);
         (_stage, _flown, _angle, _scroll) = (Stage.Flying, 0, 1, new Vector2I(-128, 32));
         (_capsule, _wings, _alarm, _typedFor) = (0, 0, -1, 0);
+        _wingStrideUpdates = WingLeftoversFile.Length == 0
+            ? []
+            : [.. room.Content.ReadData(WingLeftoversFile).List("stride_updates").Select(wing => wing.Items().Select(updates => updates.AsInt()).ToArray())];
+        if (_wingStrideUpdates.Count != 0 && _wingStrideUpdates.Count != WingPictures.Count)
+            throw new InvalidOperationException($"Ridley's getaway \"{Name}\" has {WingPictures.Count} wing pictures but what {_wingStrideUpdates.Count} of them leave behind.");
         TurningFloor floor = FloorOf();
         floor.Visible = true;
 
@@ -256,6 +270,10 @@ public partial class CeresGetaway : RoomSequence
         {
             _wings = (_wings + 1) % WingPictures.Count;
             floor.ShowPart("Wings", WingPictures[_wings]);
+
+            // The cartridge lays the wings' picture out where Samus's stride reads its unwritten pace.
+            if (_wingStrideUpdates.Count != 0)
+                ((Samus)room.Player).TakeStridePaceLeftByWings(_wingStrideUpdates[_wings]);
         }
     }
 

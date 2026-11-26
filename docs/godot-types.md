@@ -173,6 +173,10 @@ something that leaves the room.
   `EnergyFraction` is the part of one energy she holds beyond her whole energy: ongoing damage (heat, lava,
   acid, spikes, a chewing plant) comes off it first and borrows a whole energy the moment it asks for more than is
   held, so such damage takes an energy on its first update; a suit divides the damage counted in 256ths.
+  `LeftoverStridePace` is the pace of Samus's stride that the cartridge never wrote: the boost's echo let in with as
+  many sounds waiting as the boost has stages picks a stage past the last, whose first picture lasts what Ridley's
+  getaway from Ceres left there as it last drew his wings (`CeresGetaway`, from `objects/ceres_getaway_wings.json`,
+  telling her through `Samus.TakeStridePaceLeftByWings`), or nought before it has. Samus holds it.
   `CartridgeAngles` is the cartridge's own sines, its aim at a point and the products it makes with them, for
   every enemy, boss and shot that reckons with an angle: the half wave in 65535ths and in 256ths with what is finer
   dropped, the fine sine that peaks at 32767, the aim read from a slope counted round, a speed along an angle in
@@ -1064,7 +1068,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   of the boost she is at (`boost_stride_updates`); a run taken up afresh starts the stride again. Each stride
   completed with momentum and the dash held counts one off the stage (`boost_stride_counts`), and with none left
   the stage is done; at the last she is boosting. A dash begun partway through a stride reaches its first stage as
-  that stride ends.
+  that stride ends. Reaching the last stage asks for the echo, and the stride then counts down from, and starts at
+  the pace of, the stage numbered by how many sounds the request found waiting; the fourth (`3`) when it was turned
+  away; and with as many waiting as there are stages, none to count and a first picture of the pace the cartridge
+  never wrote (`LeftoverStridePace`). A stride counted off a stage with none left takes the boost down a stage, with
+  255 strides to climb back. Out of any liquid each picture of the stride lasts as many updates longer as she is
+  slowed (`SpeedHalvings`).
 - **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
   wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
   down at other than a whole number of pixels an update. Her dust rises a pixel on each update it shows, its first
@@ -1130,13 +1139,22 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
   spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
   next update; the speed boost's is at work from the update after she reaches full boost.
-- **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`, `SamusFlare`.
+- **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`, `SamusFlare`, `SamusSuitLight`.
+- **The light that puts a suit on her** (`SamusSuitLight`, her data's "suit_light") is stepped once on each update
+  of collecting a suit (`CollectingSuitState`) and shown as her update ends; on an update it is not stepped it shows
+  nothing. It adds its colour over everything of the room, in rows counted from the top of the screen: after a wait
+  a one-column beam reaches in from the top and the bottom until its halves meet; it widens evenly, then by rounded
+  sides (an oval about its middle line) to the whole screen while its colour whitens; the suit is shown; it closes
+  from the top and, a line less, the bottom while its colour settles to the suit's; and its middle line narrows from
+  both ends, its left edge carried round from the row's last column to its start on the first narrowing, until that
+  edge reaches the column the pickup lets her go at.
 - **The flare at the end of her arm cannon** (`SamusFlare`): while she holds a charge, a glow and two rings of
   sparks, each on a timeline and a count of its own, drawn in front of her from the pictures of the beams she has
   switched on and in her colours. It starts as the charge does, shows from the updates her data gives, moves on by
   her updates whether or not the charge's count does, and is hidden, still moving on, while her pose does not hold
   her arm out (`Samus.HoldsArmOut`). It lies where her data places it by how she stands, faces and aims
-  (`Samus.FlarePoint`), raised as a shot's start is. While her grapple beam is out it shows the glow alone, on a
+  (`Samus.FlarePoint`), raised as a shot's start is; its sparks are the set of the way she faces, and moonwalking
+  the other way's, as the cartridge's moonwalk poses face away from their aim. While her grapple beam is out it shows the glow alone, on a
   count of its own taken up where the glow loops, where the line leaves her (`Samus.GrappleFlarePoint`), which is
   also where the line is laid from; the charge's flare neither shows nor moves on meanwhile.
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
@@ -1164,7 +1182,15 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
   landing, a crouch, curling up); with "_suited" after any of them while she wears the varia or the gravity suit
-  (she faces out of the screen in another pose). Her pictures are written once, in their sheet's own colours.
+  (she faces out of the screen in another pose). Running, the timeline is not played by itself: its step shown is
+  the picture of the stride play counts her boost by (`Samus.StridePicture`), so the stride shown quickens through
+  the boost's stages as play's does. Her pictures are written once, in their sheet's own colours.
+  `SamusVisual` shows her arm cannon's cover too (her data's "arm_cannon"): with missiles, super missiles or the
+  grapple beam selected, once what she has selected has stayed so for its updates (the changing one counted), it
+  opens over three updates, a picture each, and with anything else selected it closes the same way back; it moves on
+  every update she is shown, the ride of an elevator included. Each step of each of her timelines says where it lies
+  from her place, the way it aims and whether in front of her body or behind it, or that the step shows none; it is
+  in her colours, flickers after a hit, and is not shown on an elevator's ride or in her death.
 - **The view's measure of her last move across** (`Camera.Speed`) is one pixel whenever the session's game starts
   afresh and its player is a new one (`GameSession.BeginAgain`, `Camera.TakePlayerAsNew`): what reads it before
   the view next follows a move, as a kicked Yard does, reads that.
@@ -1184,7 +1210,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   (`PowerBomb.BeginFlashBlast`, by its `flash_blast_reaches`): it sweeps the enemies as any blast does, strikes
   no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended. The sounds a blast
   turned away are asked for again as it ends, once the flash has been offered and by what she is doing then; a
-  blast that ends beneath a message offers no flash and asks for nothing again.
+  blast that ends beneath a message offers the flash at once, by what was held on the last update she played, and
+  asks for nothing again.
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
   form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three

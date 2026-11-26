@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://game/samus/Samus.cs" id="1"]
 [ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://game/samus/SamusGrapple.cs" id="5"]
 [ext_resource type="Script" path="res://game/samus/SamusXray.cs" id="6"]
 [ext_resource type="Script" path="res://game/samus/SamusFlare.cs" id="7"]
+[ext_resource type="Script" path="res://game/samus/SamusSuitLight.cs" id="8"]
 
 [node name="Samus" type="Node2D"]
 script = ExtResource("1")
@@ -50,3 +51,6 @@ script = ExtResource("5")
 
 [node name="Xray" type="Node2D" parent="."]
 script = ExtResource("6")
+
+[node name="SuitLight" type="Node2D" parent="."]
+script = ExtResource("8")

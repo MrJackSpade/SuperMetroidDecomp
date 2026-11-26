@@ -488,9 +488,13 @@ public sealed partial class EngineAssetWriter
 
         var timelines = new JsonObject();
         var heights = new JsonObject();
-        WriteSamusLooks(timelines, heights);
+        var coverPlaces = new JsonObject();
+        var coverAims = new HashSet<SamusProjectileDirection>();
+        WriteSamusLooks(timelines, heights, coverPlaces, coverAims);
         WriteSamusColours();
         file.Group("shot_heights", heights);
+        file.Group("arm_cannon", ArmCannonWritten(coverPlaces, [.. coverAims.Order()]));
+        file.Group("suit_light", SuitLightWritten());
         foreach ((string name, JsonNode? timeline) in timelines.ToList())
         {
             timelines.Remove(name);
@@ -498,5 +502,56 @@ public sealed partial class EngineAssetWriter
         }
 
         file.Write();
+    }
+
+    /// <summary>
+    /// The light that puts a suit on her as she collects it, as the old pickup's beam runs: its wait, its lines, how
+    /// it appears, widens evenly and then by its rounded sides, and thins out to nothing; the speeds its edges move at,
+    /// in 256ths of a pixel; and its colours, as levels of red, green and blue, each suit's own and the white it
+    /// brightens to, with the levels they move by.
+    /// </summary>
+    private static JsonObject SuitLightWritten()
+    {
+        static JsonArray Levels(FadeLevelColour colour) => EngineNames.List(new[] { colour.Red, colour.Green, colour.Blue });
+        static JsonObject Edges(SuitPickupBeamEdges edges) => new() { ["left"] = edges.Left, ["right"] = edges.Right };
+        SuitPickupBeamEdges narrow = SuitPickupBeamDefinitions.NarrowBeamEdges;
+        if (narrow.Left != narrow.Right)
+            throw new InvalidDataException("The suit pickup's narrow beam is wider than one column, which the light's one column cannot say.");
+        if (SuitPickupBeamDefinitions.FullScreenEdges != new SuitPickupBeamEdges(0, SuitPickupClosingLineWrap.RowColumns - 1))
+            throw new InvalidDataException("The suit pickup's beam does not widen to the screen's whole row, as the light takes it to.");
+        return new JsonObject
+        {
+            ["wait"] = SuitPickupBeamDefinitions.UpdatesBeforeLightBeam,
+            ["lines"] = SuitPickupBeamDefinitions.BeamLines,
+            ["appearing_lines"] = SuitPickupBeamDefinitions.AppearingLinesPerUpdate,
+            ["narrow"] = narrow.Left,
+            ["even_until"] = SuitPickupBeamDefinitions.UniformWideningEndColumn,
+            ["curve_from"] = Edges(SuitPickupBeamDefinitions.CurvedWideningStart),
+            ["curve_width"] = SuitPickupBeamDefinitions.CurveWidth,
+            ["thinning_from"] = Edges(SuitPickupBeamDefinitions.DissipationStart),
+            ["thinning_step"] = SuitPickupClosingLineWrap.NarrowedLeft(0),
+            ["thinned_at"] = SuitPickupBeamDefinitions.DissipatedColumn,
+            ["speed"] = SuitPickupBeamDefinitions.InitialWideningSpeed.InTwoHundredFiftySixthsOfPixel,
+            ["speed_gain"] = SuitPickupBeamDefinitions.WideningAcceleration.InTwoHundredFiftySixthsOfPixel,
+            ["speed_loss"] = SuitPickupBeamDefinitions.ShrinkingDeceleration.InTwoHundredFiftySixthsOfPixel,
+            ["least_speed"] = SuitPickupBeamDefinitions.MinimumShrinkingSpeed.InTwoHundredFiftySixthsOfPixel,
+            ["full_level"] = FadeLevelColour.FullLevel,
+            ["white"] = Levels(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.White),
+            ["whitening"] = SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.WhiteningLevelsPerUpdate,
+            ["settling"] = SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.SettlingLevelsPerUpdate,
+            ["suits"] = new JsonObject
+            {
+                ["varia_suit"] = new JsonObject
+                {
+                    ["starts"] = Levels(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.VariaBeam),
+                    ["settles"] = Levels(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.VariaOrange),
+                },
+                ["gravity_suit"] = new JsonObject
+                {
+                    ["starts"] = Levels(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.GravityBeam),
+                    ["settles"] = Levels(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.SuitPickup.GravityBeam),
+                },
+            },
+        };
     }
 }

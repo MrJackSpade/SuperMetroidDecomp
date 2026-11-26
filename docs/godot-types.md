@@ -1414,7 +1414,7 @@ How a projectile behaves is settings, not code:
 
 A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm
 turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, each by a cue) and that moves its own way is a
-`CuedProjectile`, the engine's: by itself a burst that plays out where it is, and the base of those that fly.
+`CuedProjectile`, the engine's: by itself a burst that plays out where it is, and the base of those that fly. A cue of its timeline may say that it stays through every touch of its target from then on ("stays"), shot down or not, as the bursts of this game's Torizos' orbs and the Golden Torizo's super missile do.
 
 ### Pickup (base), Effect (base) and Remains
 

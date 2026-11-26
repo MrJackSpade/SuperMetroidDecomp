@@ -396,8 +396,18 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <summary>Whether it harms what it meets now: shot down, it does, whatever its settings said of it.</summary>
     private bool HarmsNow => _shotDown || DeliversHitNow;
 
-    /// <summary>How it meets its target now: shot down, it ends on it, whatever its settings said of it.</summary>
-    private ProjectileSettings.Target MeetsTargetAs => _shotDown ? ProjectileSettings.Target.Ends : _settings.MeetingTarget;
+    /// <summary>
+    /// Whether it stays through every touch of its target from here on, whatever its settings say and though it was
+    /// shot down: it harms the one it touches again each time that one can be harmed. A kind whose pictures say when
+    /// it becomes so sets it, as a cued projectile does on its timeline's cue.
+    /// </summary>
+    protected bool OutlastsTouch { get; set; }
+
+    /// <summary>How it meets its target now: one that outlasts a touch stays; else, shot down, it ends on it, whatever its settings said of it.</summary>
+    private ProjectileSettings.Target MeetsTargetAs =>
+        OutlastsTouch ? ProjectileSettings.Target.PassesThroughAndRehits
+        : _shotDown ? ProjectileSettings.Target.Ends
+        : _settings.MeetingTarget;
 
     /// <inheritdoc/>
     public virtual HitResult TakeHit(Hit hit, Collider part)

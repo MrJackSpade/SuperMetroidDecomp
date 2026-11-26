@@ -213,7 +213,7 @@ public sealed partial class EngineAssetWriter
             _ => throw new InvalidDataException($"The eye door's spit raises {cue.Kind}, which this does not know."),
         };
 
-        // Left as an effect, it only stops and takes itself away, which an effect does by ending.
+        // Left as an effect, or played as a shot one's end, it only stops and takes itself away, which it does by ending.
         static string? EffectCue(EyeDoorProjectileCue cue) => cue.Kind is EyeDoorProjectileCueKind.StopMoving or EyeDoorProjectileCueKind.Delete
             ? null
             : throw new InvalidDataException($"An effect of the eye door raises {cue.Kind}, which this does not know.");
@@ -235,7 +235,7 @@ public sealed partial class EngineAssetWriter
         string fired = Shared($"{spitFolder}/fired.json", EyeDoorProjectileAnimations.Segments, EyeDoorProjectileAnimations.StartingAt[EyeDoorProjectileSegment.Fired], SpitCue);
         string burst = Shared($"{spitFolder}/burst.json", EyeDoorProjectileAnimations.Segments, EyeDoorProjectileAnimations.StartingAt[EyeDoorProjectileSegment.Impact], SpitCue);
         string shot = Shared($"{spitFolder}/shot.json", EyeDoorProjectileAnimations.Segments, EyeDoorProjectileAnimations.StartingAt[EyeDoorProjectileSegment.Shot], EffectCue);
-        new EngineObjectFile(_tree, spitFile, "EyeDoorSpit").Value("burst_timeline", burst).Value("shot_effect", shot).Write();
+        new EngineObjectFile(_tree, spitFile, "EyeDoorSpit").Value("burst_timeline", burst).Write();
 
         EnemyProjectileDefinition spit = EnemyProjectileDefinitionCatalog.Definitions[RoomEnemyProjectileKind.EyeDoorProjectile];
         EnemyProjectileDefinition sweat = EnemyProjectileDefinitionCatalog.Definitions[RoomEnemyProjectileKind.EyeDoorSweat];
@@ -260,6 +260,9 @@ public sealed partial class EngineAssetWriter
         // It moves itself, and meets terrain its own way.
         spitProjectile["meeting_terrain"] = "passes_through";
         spitProjectile["standing"] = EngineEnemy.StandingOf(spit);
+        // A shot one stops where it is in a cloud of fire, harming to the touch while that plays; touching Samus it is
+        // only taken away.
+        spitProjectile["shot_timeline"] = shot;
         // Its sweat moves itself too: a wall only stops its way across, and it ends, with its splash, only where it
         // comes down onto terrain. Ending on Samus it leaves nothing.
         JsonObject sweatProjectile = Projectile(sweat, falling);

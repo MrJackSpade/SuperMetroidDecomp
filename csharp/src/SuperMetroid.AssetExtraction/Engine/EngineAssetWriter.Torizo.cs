@@ -562,16 +562,22 @@ public sealed partial class EngineAssetWriter
 
             // The super missile it catches and throws back.
             string heldRight = Timeline("super_missile_held_right", TorizoProjectileSegment.SuperMissileRight, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoSuperMissile));
+            string impact = Timeline("super_missile_impact", TorizoProjectileSegment.SuperMissileImpact);
             TorizoProjectileData("bosses/torizo_super_missile.json", "TorizoSuperMissile",
                 new JsonObject
                 {
                     ["held_right"] = heldRight,
                     ["held_left"] = Timeline("super_missile_held_left", TorizoProjectileSegment.SuperMissileLeft, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoSuperMissile)),
-                    ["impact"] = Timeline("super_missile_impact", TorizoProjectileSegment.SuperMissileImpact),
+                    ["impact"] = impact,
                 },
                 ("throw_speed", (int)TorizoMotionDefinitions.ThrownSuperMissileSpeed.Pixels),
                 ("gravity", EngineNames.Number(TorizoMotionDefinitions.DroolAndMissileGravity)));
-            torizo.Shot("super_missile", RoomEnemyProjectileKind.GoldenTorizoSuperMissile, (_, shot, projectile) => Thrown(shot, projectile, "torizo_super_missile.tscn", heldRight));
+            // Shot down, held or thrown, it blows up where it is as it does on meeting a wall, harming to the touch.
+            torizo.Shot("super_missile", RoomEnemyProjectileKind.GoldenTorizoSuperMissile, (_, shot, projectile) =>
+            {
+                Thrown(shot, projectile, "torizo_super_missile.tscn", heldRight);
+                projectile["shot_timeline"] = impact;
+            });
 
             // The beams of its eyes.
             string beam = Timeline("eye_beam", TorizoProjectileSegment.EyeBeam, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEyeBeam));

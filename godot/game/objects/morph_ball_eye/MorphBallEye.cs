@@ -254,6 +254,9 @@ public partial class MorphBallEye : RoomObject
         }
     }
 
+    /// <summary>How much red and green the light adds at its brightest: level 16 of the cartridge's 31.</summary>
+    private const float FullLight = 16f / 31f;
+
     /// <summary>Shows its light as a wedge from it toward Samus.</summary>
     private void ShowBeam()
     {
@@ -262,11 +265,18 @@ public partial class MorphBallEye : RoomObject
         beam.Visible = _beam != Beam.Off;
         if (!beam.Visible)
             return;
+
+        // The light is added to everything already drawn, the room's front tiles and Samus too, from a line above
+        // the eye.
+        beam.ZAsRelative = false;
+        beam.ZIndex = RoomDepth.Overlay;
+        beam.Position = new Vector2(0, -1);
+        beam.Material ??= new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
         int half = _halfWidth >> 8;
         Pixels reach = Pixels.FromWhole(512);
         Vector2 Edge(int angle) => new(Turns.Cosine(Turns.Wrap(angle), reach).Whole, Turns.Sine(Turns.Wrap(angle), reach).Whole);
         beam.Polygon = [Vector2.Zero, Edge(_angle - half), Edge(_angle + half)];
-        beam.Color = new Color(_light, _light, 0f, 0.5f);
+        beam.Color = new Color(_light * FullLight, _light * FullLight, 0f);
     }
 
     /// <summary>Starts the timeline of that name for the way it faces.</summary>

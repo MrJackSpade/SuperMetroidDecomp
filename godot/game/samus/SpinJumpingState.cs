@@ -273,16 +273,26 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         bool ready = _ready.IsRunning;
         _showsReady = ready;
         _ready = _ready.Stepped();
-        if (!_looksForWalls || !owner.MayWallJump || FeelForWall(owner) is not { } gap)
+        if (!_looksForWalls || !owner.MayWallJump || FeelForWall(owner, out Enemy? enemy) is not { } gap)
             return false;
 
         // Ready, a fresh press of the jump launches her if the wall is nearer than her reach; something solid found
-        // at her reach's very end is felt but not jumped from.
+        // at her reach's very end is felt but not jumped from. An enemy she launches from, solid or frozen, is
+        // shaken for a while where it is shown.
         if (ready)
-            return owner.JumpPressed && gap < owner.WallJumpReach;
+        {
+            bool launches = owner.JumpPressed && gap < owner.WallJumpReach;
+            if (launches)
+                enemy?.ShakeFor(LaunchShakeUpdates);
+            return launches;
+        }
+
         _ready = Countdown.Of(samus.InMedium("wall_jump_ready_updates", samus.WallJumpReadyUpdates));
         return false;
     }
+
+    /// <summary>For how many updates an enemy she launches a wall jump from is shown shaken.</summary>
+    private const int LaunchShakeUpdates = 64;
 
     /// <summary>
     /// Feels for a wall as the cartridge does: by trying a move of her reach to the side away from the direction
@@ -291,8 +301,9 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// leaves her where she is but for her part of a pixel: terrain that would stop her leaves it across as a stop
     /// against it would, and a solid she lies exactly against takes it away up and down.
     /// </summary>
-    private static int? FeelForWall(Player owner)
+    private static int? FeelForWall(Player owner, out Enemy? enemy)
     {
+        enemy = null;
         bool left = owner.Input.IsHeld(GameAction.Left);
         if (!left && !owner.Input.IsHeld(GameAction.Right))
             return null;
@@ -301,6 +312,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             owner.Body, side.Toward(Pixels.FromWhole(owner.WallJumpReach)), owner.BodyMoves, out PixelPosition rest);
         if (!tried.Blocked)
             return null;
+        enemy = tried.BlockedBy?.CollisionOwner as Enemy;
         if (tried.BlockedByTerrain)
             owner.Position = owner.Position with { X = owner.Position.X.WithFraction(rest.X.Fraction) };
         else

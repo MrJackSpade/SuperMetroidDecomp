@@ -786,7 +786,27 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <inheritdoc/>
-    public void ShowPosition() => EntityNode.Show(this, Position);
+    public void ShowPosition()
+    {
+        if (!_shake.IsRunning)
+        {
+            EntityNode.Show(this, Position);
+            return;
+        }
+
+        // Shaken, it is shown a pixel to one side, two of its turns each way by its own count; where it is stays.
+        EntityNode.Show(this, Position + PixelOffset.FromWhole(Updates % 4 >= 2 ? -1 : 1, 0));
+        _shake = _shake.Stepped();
+    }
+
+    /// <summary>The updates left for which it is shown shaken.</summary>
+    private Countdown _shake = Countdown.Over;
+
+    /// <summary>
+    /// Shakes the enemy where it is shown: for the next <paramref name="shows"/> updates it is shown a pixel to the
+    /// right or to the left by turns, by its own count of turns. Only what is seen moves: it is met where it is.
+    /// </summary>
+    public void ShakeFor(int shows) => _shake = Countdown.Of(shows);
 
     /// <summary>Moves the enemy's timeline on by one update and hands it the cues reached.</summary>
     private void StepAnimation()

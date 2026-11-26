@@ -190,7 +190,7 @@ public sealed partial class EngineAssetWriter
             .Write();
 
         // The Kzan's top is what Samus stands on and its underside what hurts; both are sized as the old game sizes it.
-        Enemy("enemies/kzan.json", "Kzan", EnemyDefinitionId.KzanTop).BodyColliders("Solid", "Hitbox")
+        Enemy("enemies/kzan.json", "Kzan", EnemyDefinitionId.KzanTop).BodyColliders("Solid", "Hitbox", "Hurtbox")
             .Value("rise_wait", KzanMotionDefinitions.RiseWait)
             .Value("rise_speed", EngineNames.Number(-KzanMotionDefinitions.RisingStep))
             .Value("fall_quickening", EngineNames.Number(KzanMotionDefinitions.FallAcceleration))

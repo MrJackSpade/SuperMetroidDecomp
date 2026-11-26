@@ -139,7 +139,7 @@ public sealed partial class EngineAssetWriter
                 ("roll_backward_left", OumSegment.FacingLeftRollingBackwards), ("roll_backward_right", OumSegment.FacingRightRollingBackwards))
             .Write();
 
-        Enemy("enemies/mama_turtle.json", "MamaTurtle", EnemyDefinitionId.MamaTurtle).BodyColliders("Solid", "Hitbox")
+        Enemy("enemies/mama_turtle.json", "MamaTurtle", EnemyDefinitionId.MamaTurtle).BodyColliders("Solid", "Hitbox", "Hurtbox")
             // How high her shell stands at each pixel out from her middle, to the left and to the right.
             .Group("shell_left", EngineNames.List(MamaTurtleShellContourDefinitions.LeftOfOrigin))
             .Group("shell_right", EngineNames.List(MamaTurtleShellContourDefinitions.RightOfOrigin))

@@ -306,13 +306,22 @@ public partial class Ridley : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void Behave()
+    protected override void Behave() => BehaveAs(hurt: false);
+
+    /// <summary>
+    /// Hurt, it is not held still: the cartridge runs its own hurt behaviour in place of its behaviour, which in
+    /// Norfair is the same at half the pace, its tail and its colours on every update.
+    /// </summary>
+    protected override void WhileHurt() => BehaveAs(hurt: true);
+
+    /// <summary>One update of it, in its hurt or out of it.</summary>
+    private void BehaveAs(bool hurt)
     {
         PlacePose();
         if (OnCeres)
             BehaveOnCeres();
         else
-            BehaveInNorfair();
+            BehaveInNorfair(hurt);
         ShowColours();
     }
 

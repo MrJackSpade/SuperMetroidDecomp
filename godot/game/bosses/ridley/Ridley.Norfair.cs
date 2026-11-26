@@ -250,11 +250,10 @@ public partial class Ridley
         return true;
     }
 
-    /// <summary>One update of it in Norfair.</summary>
-    private void BehaveInNorfair()
+    /// <summary>One update of it in Norfair; <paramref name="hurt"/> says its hurt holds, which is not as long as its flash.</summary>
+    private void BehaveInNorfair(bool hurt)
     {
         Player samus = Room.Player;
-        bool hurt = IsFlashing;
         // Hurt, it acts only every other update, and loses its grip on how it carries Samus.
         bool acts = !hurt || Updates % 2 == 0;
         _hurtLag = hurt ? Math.Min(8, _hurtLag + 1) : Math.Max(0, _hurtLag - 4);

@@ -243,8 +243,6 @@ public sealed partial class EngineAssetWriter
         if (CrocomireProjectileDefinitions.AuthoredGradients.Length + 1 != CrocomireProjectileDefinitions.VolleyShotCount)
             throw new InvalidDataException("Crocomire's volley is not its authored shots and one more.");
         crocomire.BodyColliders("Body")
-            // It goes on with what it is doing while it flashes.
-            .Group("stunned_while_hurt", false)
             .Value("wake_distance", CrocomireFightDefinitions.WakeDistance)
             .Value("spike_wall_charge_x", CrocomireFightDefinitions.SpikeWallChargeX)
             .Value("bridge_approach_x", CrocomireBridgeCollapseDefinitions.ApproachStartX)

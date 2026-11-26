@@ -18,6 +18,17 @@ internal sealed partial class EngineEnemy
     private readonly EngineSheets _sheets;
     private readonly EnemyDefinitionId _id;
     private readonly string _file;
+
+    /// <summary>
+    /// The kinds whose old entity runs a hurt behaviour of its own in place of its behaviour (an override of
+    /// <c>RunHurt</c>): the Metroid, the two Torizos, Ridley in Norfair, Phantoon and Draygon.
+    /// </summary>
+    private static readonly HashSet<EnemyDefinitionId> HasHurtBehaviourOfItsOwn =
+    [
+        EnemyDefinitionId.Metroid, EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo, EnemyDefinitionId.Ridley,
+        EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.DraygonBody,
+    ];
+
     private readonly JsonObject _timelines = [];
     private readonly JsonObject _colliders = [];
 
@@ -46,6 +57,12 @@ internal sealed partial class EngineEnemy
         Data["contact_damage"] = Definition.Damage;
         // A weapon's hit makes the old enemy flash that much longer than its own flash, and nearly every hit is a weapon's.
         Data["hurt_flash_updates"] = Definition.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
+
+        // The old game holds nearly every enemy still while it is hurt. One whose response is its species' own goes on
+        // with its ordinary behaviour, unless the species has a hurt behaviour to run in its place: those the Godot
+        // types run themselves, held or not as they say.
+        if (Definition.HurtResponse == EnemyHurtResponse.SpeciesOwn && !HasHurtBehaviourOfItsOwn.Contains(id))
+            Data["stunned_while_hurt"] = false;
         Data["picture_offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
         // Where it stands against Samus as it enters; one that stands behind her, as nearly all do, says nothing.
         if (Definition.Stacking != EnemyStacking.BehindSamus)

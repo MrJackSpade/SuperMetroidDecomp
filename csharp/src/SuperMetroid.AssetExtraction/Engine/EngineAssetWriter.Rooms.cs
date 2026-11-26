@@ -43,8 +43,8 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Writes the patches of the rooms' own changes: the way the rescued animals leave by, in the room they leave
-    /// through; the wall that is gone from the old Tourian shaft during the escape; and the wall that stands where
-    /// the door of Phantoon's room is for as long as the fight lasts.
+    /// through; the wall that is gone from the old Tourian shaft during the escape; and the door of Phantoon's room as
+    /// it is drawn for as long as the fight lasts.
     /// </summary>
     private void WriteRoomPatches()
     {
@@ -76,7 +76,11 @@ public sealed partial class EngineAssetWriter
             Layouts.PatchTreadmill(room, state, "treadmill_leftwards", WreckedShipTreadmillDirection.Leftwards);
         }
 
-        // The old game makes the door's blocks a door that nothing opens; here they are wall, and the door's cap is put away.
+        // The old fight door is the door's column of door blocks and, beside it, the shootable block over three cells
+        // that continue it, where the room's grey cap stands. Shots that meet that block find the cap, sealed until
+        // Phantoon is dead, and are duds. A door's cap here is the room's barrier, and the layout leaves its blocks
+        // open for it, so the patch does too: the fight door only changes what the door looks like, and the cap,
+        // put out of sight, is still what stops Samus and takes her shots.
         foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => placed.Room == RoomDefinitions.Phantoon))
         {
             // Until the door is drawn its top block is held solid, showing what it showed.
@@ -85,11 +89,19 @@ public sealed partial class EngineAssetWriter
             Layouts.Patch(room, state, FightDoorPatch, PhantoonDoorChangeDefinitions.Block,
                 Layouts.PatchCells(GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName,
                     (PhantoonDoorDrawKeys.Installed.Of(PhantoonDoorDraw.FightDoor), PhantoonDoorObjectDrawDefinitions.Shapes[PhantoonDoorDraw.FightDoor]))
-                    .Select(cell => cell with { Collision = RoomCollisionType.SolidBlock }));
+                    .Select(cell => cell with
+                    {
+                        Collision = cell.Collision switch
+                        {
+                            RoomCollisionType.DoorBlock => RoomCollisionType.DoorBlock,
+                            RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension => RoomCollisionType.Air,
+                            var other => throw new InvalidDataException($"Phantoon's fight door draws a block that is {other}, which this does not know."),
+                        },
+                    }));
         }
     }
 
-    /// <summary>The patches of Phantoon's room that are his door walled for the fight, and its top block held solid until the door changes.</summary>
+    /// <summary>The patches of Phantoon's room that are his door drawn for the fight, and its top block held solid until the door changes.</summary>
     private const string FightDoorPatch = "fight_door", FightDoorHeldPatch = "fight_door_held";
 
     /// <summary>The name of the folder a set of graphics' pictures are kept in, which a room's content puts for the set's place in a path.</summary>

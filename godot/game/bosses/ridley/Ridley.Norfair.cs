@@ -150,7 +150,7 @@ public partial class Ridley
     private readonly List<Band> _bands = [];
     private readonly List<PixelOffset> _deathExplosions = [];
     private readonly List<Piece> _breakup = [];
-    private readonly List<(Effect Sprite, PixelVelocity Speed, int Left)> _pieces = [];
+    private readonly List<(Effect Sprite, PixelVelocity Speed, int Left, int Moved)> _pieces = [];
     private Phase _phase;
     private Mode _mode;
     private Band _band = null!;
@@ -257,6 +257,10 @@ public partial class Ridley
         // Hurt, it acts only every other update, and loses its grip on how it carries Samus.
         bool acts = !hurt || Updates % 2 == 0;
         _hurtLag = hurt ? Math.Min(8, _hurtLag + 1) : Math.Max(0, _hurtLag - 4);
+
+        // Its pieces move before it acts, so those it breaks into this update first move on the next, as the
+        // cartridge's enemies made in a turn first take theirs on the next update.
+        StepPieces();
         if (acts)
         {
             UpdateIntangibility();
@@ -278,7 +282,6 @@ public partial class Ridley
 
         if (_holdsSamus && (!hurt || _hurtLag >= 8))
             CarrySamus(samus);
-        StepPieces();
         _band = _bands.First(band => Health.Current < band.Below);
     }
 
@@ -907,9 +910,13 @@ public partial class Ridley
     private void LeaveHoldingPlace(string effect, PixelPosition at) =>
         Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true));
 
-    /// <summary>Breaks it into its pieces, each flung a little to one side.</summary>
+    /// <summary>
+    /// Breaks it into its pieces, each flung a little to one side. Caught turning to face out of the screen, it breaks
+    /// up as though it faced right, as on the cartridge.
+    /// </summary>
     private void BreakUp()
     {
+        bool right = Facing == Facing.Right || IsTurning;
         foreach (Piece piece in _breakup)
         {
             // From the number drawn: none up to three sixteenths of a pixel from its fifth and sixth places, a whole
@@ -918,29 +925,35 @@ public partial class Ridley
             Pixels across = Pixels.FromNumber(draw.Part(4, 2) / 16.0 + draw.Part(8, 1));
             PixelPosition at = piece.TailLink >= 0
                 ? Tail.Links[piece.TailLink].Position
-                : Position + PixelOffset.FromWhole(Facing == Facing.Right ? -piece.X : piece.X, piece.Y);
+                : Position + PixelOffset.FromWhole(right ? -piece.X : piece.X, piece.Y);
+            // A piece starts on the whole pixel it is made at.
             Effect sprite = LeaveEffect(
-                piece.Effect.Replace("{side}", Side, StringComparison.Ordinal)
+                piece.Effect.Replace("{side}", right ? "right" : "left", StringComparison.Ordinal)
                     .Replace("{tip}", TailTipPicture.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal),
-                at);
-            _pieces.Add((sprite, new PixelVelocity(draw.Part(15, 1) == 1 ? -across : across, Pixels.Zero), piece.Updates));
+                PixelPosition.FromWhole(at.X.Whole, at.Y.Whole));
+            // It is not seen until its first move, on the next update.
+            sprite.Visible = false;
+            _pieces.Add((sprite, new PixelVelocity(draw.Part(15, 1) == 1 ? -across : across, Pixels.Zero), piece.Updates, 0));
         }
     }
 
-    /// <summary>Moves its pieces: they slow across, fall, flicker, and each in its time goes off.</summary>
+    /// <summary>
+    /// Moves its pieces: they slow across, fall, show on their first move and every other one after, and each goes
+    /// off as it makes its last.
+    /// </summary>
     private void StepPieces()
     {
         Pixels drag = Pixels.FromNumber(0.015625);
         for (int index = _pieces.Count - 1; index >= 0; index--)
         {
-            (Effect sprite, PixelVelocity speed, int left) = _pieces[index];
+            (Effect sprite, PixelVelocity speed, int left, int moved) = _pieces[index];
+            sprite.Visible = moved % 2 == 0;
             Pixels across = speed.X.Abs() <= drag ? Pixels.Zero : speed.X.IsNegative ? speed.X + drag : speed.X - drag;
             speed = new PixelVelocity(across, speed.Y + drag);
             sprite.Position += speed.OverOneUpdate;
-            sprite.Visible = left % 2 == 0;
             if (--left > 0)
             {
-                _pieces[index] = (sprite, speed, left);
+                _pieces[index] = (sprite, speed, left, moved + 1);
                 continue;
             }
 

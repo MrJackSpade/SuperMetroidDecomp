@@ -108,7 +108,7 @@ public sealed partial class EngineAssetWriter
             .Value("big_explosion_sound", EngineNames.Sound(PhantoonSoundDefinitions.DeathExplosionSounds[DustExplosionAnimation.BigExplosion]))
             .Value("small_explosion_sound", EngineNames.Sound(PhantoonSoundDefinitions.DeathExplosionSound))
             // His door's changes: the top block of its column is held solid from his turn (PhantoonDoorObjects), and
-            // the door is drawn, wall or door again, on the change's first update, as the room's objects take theirs.
+            // the door is drawn, for the fight or as it was, on the change's first update, as the room's objects take theirs.
             .Group("fight_door", new JsonObject
             {
                 ["held"] = FightDoorHeldPatch,

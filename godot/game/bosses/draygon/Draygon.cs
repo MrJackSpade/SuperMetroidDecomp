@@ -22,12 +22,14 @@ namespace Game.Enemies;
 /// "dying_left", "dying_right" and "rest"; a step with no picture leaves it as it was shown. The cue "goop" of a
 /// fire-goop timeline lets one go; of a dying timeline "dying_effect:" with an effect's data file leaves that effect
 /// somewhere about it, "intangible" ends its touch and "paralyse" stops its tail and arms where they are. The visual
-/// "Tail" plays "tail_left", "tail_right", "tail_whip_left", "tail_whip_right", "tail_final_whips_left" and
-/// "tail_final_whips_right", whose cue "whip_hit" lands a blow, "release" lets Samus go, "shift:" with how far across
-/// and down moves the pictures of its body and eye that far for the lash, and "sound:" with a sound's name asks for
-/// it; "Arms" plays "arms_left", "arms_right", "arms_reach_left", "arms_reach_right", "arms_grab_left" and
-/// "arms_grab_right"; "Eye" plays "eye_left_looking_up" and the like for each side and each of the four ways, and
-/// "eye_dying_left", "eye_dying_right", "eye_dead_left" and "eye_dead_right". The names of the pictures of its body
+/// "Tail" plays "tail_fake_whip_left", its feint as the fight opens, "tail_left", "tail_right", "tail_whip_left",
+/// "tail_whip_right", "tail_final_whips_left" and "tail_final_whips_right", whose cue "whip_hit" lands a blow,
+/// "release" lets Samus go, "shift:" with how far across and down moves the pictures of its body and eye that far for
+/// the lash, and "sound:" with a sound's name asks for it; "Arms" plays "arms_left", "arms_right", "arms_reach_left",
+/// "arms_reach_right", "arms_grab_left" and "arms_grab_right"; "Eye" plays "eye_idle_left" and "eye_idle_right", its
+/// blink, "eye_left_looking_up" and the like for each side and each of the four ways, and "eye_dying_left",
+/// "eye_dying_right", "eye_dead_left" and "eye_dead_right". The cue "track_eye:" with "left" or "right", of its body's
+/// timelines or its eye's, sets its eye following Samus, looking out to that side. The names of the pictures of its body
 /// and eye may hold "{health}", which stands for "_health_" and which of its "health_bands" its health is in, from
 /// nothing up: the least health of each, highest first. Its hurtbox "Belly" is where it can be hurt; the rest of its
 /// colliders are its shell, which stops shots and hurts to touch. "facing_colliders" gives every collider its place
@@ -197,6 +199,12 @@ public partial class Draygon : Enemy
     /// <summary>The aim its eye last looked along, the cartridge's angle: straight up before its first look.</summary>
     private int _eyeAim;
 
+    /// <summary>
+    /// The side its eye looks out to as it follows Samus, which its timelines name; null while it does not follow her,
+    /// before its body's first step and once it is dying.
+    /// </summary>
+    private Facing? _eyeFollows;
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
@@ -280,7 +288,10 @@ public partial class Draygon : Enemy
         _leftStart = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         _quickening = Pixels.FromNumber(SwoopQuickening);
         _eyeAim = Turns.PerTurn / 4;
-        Face(Facing.Right);
+        _eyeFollows = null;
+        // It faces left until its first pass turns it, and its tail opens with a feint before it swings idly.
+        Face(Facing.Left);
+        PlayPart("Tail", "tail_fake_whip_left", restart: true);
     }
 
     /// <inheritdoc/>
@@ -322,6 +333,9 @@ public partial class Draygon : Enemy
             LeaveEffect(cue[dyingEffect.Length..], Position + Scattered(_dyingScatter));
             return;
         }
+
+        if (EyeFollowsFrom(cue))
+            return;
 
         switch (cue)
         {
@@ -708,8 +722,8 @@ public partial class Draygon : Enemy
                 throw new InvalidOperationException($"Draygon has no phase {_phase}.");
         }
 
-        if (!_dying)
-            LookAt(samus);
+        if (_eyeFollows is { } side)
+            LookAt(samus, side);
         StepParts();
     }
 
@@ -883,6 +897,7 @@ public partial class Draygon : Enemy
         (Room.Player as Samus)?.Grapple?.Release();
         Play(Facing == Facing.Right ? "dying_right" : "dying_left", restart: true);
         PlayPart("Eye", Facing == Facing.Right ? "eye_dying_right" : "eye_dying_left");
+        _eyeFollows = null;
         _phase = Phase.Dying;
     }
 
@@ -896,13 +911,14 @@ public partial class Draygon : Enemy
     }
 
     /// <summary>
-    /// Turns its eye toward Samus: the cartridge's aim from its eye to her, between whole pixels. Only when that aim
-    /// changes does the eye start over on a look, the one of up, right, down and left nearest the aim, an aim
-    /// halfway between two taking the later clockwise.
+    /// Turns its eye toward Samus, looking out to <paramref name="side"/>: the cartridge's aim from its eye to her,
+    /// between whole pixels. Only when that aim changes does the eye start over on a look, the one of up, right, down
+    /// and left nearest the aim, an aim halfway between two taking the later clockwise; until then it goes on with what
+    /// it shows, its blink among them.
     /// </summary>
-    private void LookAt(Player samus)
+    private void LookAt(Player samus, Facing side)
     {
-        PixelPosition gaze = Position + PixelOffset.FromWhole(Facing == Facing.Right ? 24 : -24, -32);
+        PixelPosition gaze = Position + PixelOffset.FromWhole(side == Facing.Right ? 24 : -24, -32);
         // Bubbles rise from by its eye all the while it watches her: one of the enemies' shots on the cartridge, which
         // holds one of the room's places while it rises and is not made with none free.
         if (Updates % 128 == 0 && EyeBubbleEffect.Length > 0)
@@ -913,13 +929,35 @@ public partial class Draygon : Enemy
         _eyeAim = aim;
         int clockwiseFromUp = Turns.Wrap(Turns.PerTurn / 4 - aim + Turns.PerTurn / 8);
         string way = EyeWays[clockwiseFromUp / (Turns.PerTurn / 4)];
-        PlayPart("Eye", $"eye_{(Facing == Facing.Right ? "right" : "left")}_looking_{way}", restart: true);
+        PlayPart("Eye", $"eye_{(side == Facing.Right ? "right" : "left")}_looking_{way}", restart: true);
+    }
+
+    /// <summary>
+    /// Acts on a cue "track_eye:" with a side, which sets its eye following Samus looking out to that side: its body's
+    /// as it turns, and always the left as its eye's blink ends, whichever way it faces, as on the cartridge. Returns
+    /// whether the cue was one.
+    /// </summary>
+    private bool EyeFollowsFrom(string cue)
+    {
+        const string follows = "track_eye:";
+        if (!cue.StartsWith(follows, StringComparison.Ordinal))
+            return false;
+        _eyeFollows = cue[follows.Length..] switch
+        {
+            "left" => Facing.Left,
+            "right" => Facing.Right,
+            var other => throw new InvalidOperationException($"Draygon's cue \"{cue}\" names the side \"{other}\", which is neither left nor right."),
+        };
+        return true;
     }
 
     /// <summary>The ways its eye looks, clockwise from up, each the middle of its quarter of the turn.</summary>
     private static readonly string[] EyeWays = ["up", "right", "down", "left"];
 
-    /// <summary>Turns it and its tail and arms to face a way.</summary>
+    /// <summary>
+    /// Turns it to face a way, and starts its body, eye, tail and arms over on their timelines for that way: its body's
+    /// first step sets its eye following Samus, and its eye blinks until her aim from it changes.
+    /// </summary>
     private void Face(Facing way)
     {
         Facing = way;
@@ -933,8 +971,9 @@ public partial class Draygon : Enemy
 
         string side = way == Facing.Right ? "right" : "left";
         Play($"body_{side}", restart: true);
-        PlayPart("Tail", $"tail_{side}");
-        PlayPart("Arms", $"arms_{side}");
+        PlayPart("Eye", $"eye_idle_{side}", restart: true);
+        PlayPart("Tail", $"tail_{side}", restart: true);
+        PlayPart("Arms", $"arms_{side}", restart: true);
     }
 
     /// <summary>Starts one of its parts on a timeline, unless it is already playing it.</summary>
@@ -956,6 +995,9 @@ public partial class Draygon : Enemy
         {
             foreach (string cue in player.Step())
             {
+                // Its eye's blink ends with its eye set following Samus.
+                if (EyeFollowsFrom(cue))
+                    continue;
                 if (cue == "whip_hit")
                 {
                     // Its tail lands: Samus is hurt where she hangs, the room shakes, and its swoops lose their edge.
@@ -993,7 +1035,7 @@ public partial class Draygon : Enemy
                 continue;
             TimelineStep step = player.Shown;
             visual.Show(step with { Picture = Coloured(step.Picture) });
-            // Every part of it flashes with its body.
+            // Every part of it is tinted as its body is; its hurt flash's colours are shown on each part by the flash.
             if (Visual is { } body)
                 visual.Tint(body.Modulate);
         }

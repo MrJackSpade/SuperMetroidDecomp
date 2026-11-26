@@ -536,7 +536,8 @@ class Generator:
             placed_objects = objects.Objects(ctx, self.object_lists[state.objects], doors_in)
             things.extend(placed_objects.placed)
             for boss in [thing for thing in things if thing.boss == 'phantoon']:
-                # The door of Phantoon's room is wall while the fight lasts, so its cap is put out of sight.
+                # The door of Phantoon's room is drawn shut over its cap while the fight lasts, so the cap is put out
+                # of sight: it still stands there, sealed, and takes the shots that meet the door.
                 links.setdefault(id(boss), {})['HiddenInFight'] = [thing for thing in placed_objects.placed if thing.name.endswith('Cap')]
             for teller, name, told in placed_objects.tells:
                 links.setdefault(id(teller), {})[name] = told

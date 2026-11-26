@@ -41,7 +41,7 @@ public sealed class Dive
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        MoveOptions air = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        MoveOptions air = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall };
         switch (_doing)
         {
             case Doing.Waiting:

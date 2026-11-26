@@ -9,6 +9,13 @@ public sealed record MoveOptions
     /// <summary>The plain move.</summary>
     public static MoveOptions Plain { get; } = new();
 
+    /// <summary>
+    /// The plain move of anything that is not the player, an enemy or a creature: stopped by terrain and by the solids
+    /// that stand as part of the room, and by no other solid. On the cartridge a solid enemy is solid to the player
+    /// alone; an enemy meets the room's blocks and nothing else.
+    /// </summary>
+    public static MoveOptions AmongBlocks { get; } = new() { StoppedBySolids = false };
+
     /// <summary>How sloped ground is treated.</summary>
     public SlopeTreatment Slopes { get; init; } = SlopeTreatment.Climb;
 

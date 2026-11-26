@@ -76,11 +76,11 @@ public abstract partial class Creature : RoomObject, IMoves
 
     /// <summary>Moves it across by <paramref name="distance"/> and returns whether something stopped it.</summary>
     protected bool MoveAcrossBy(Pixels distance, SlopeTreatment slopes = SlopeTreatment.Wall) =>
-        Room.Mover.MoveAcross(MovingBody, distance, MoveOptions.Plain with { Slopes = slopes }).Blocked;
+        Room.Mover.MoveAcross(MovingBody, distance, MoveOptions.AmongBlocks with { Slopes = slopes }).Blocked;
 
     /// <summary>Moves it down by <paramref name="distance"/>, upward when negative, and returns whether something stopped it.</summary>
     protected bool MoveDownBy(Pixels distance, SlopeTreatment slopes = SlopeTreatment.Wall) =>
-        Room.Mover.MoveDown(MovingBody, distance, MoveOptions.Plain with { Slopes = slopes }).Blocked;
+        Room.Mover.MoveDown(MovingBody, distance, MoveOptions.AmongBlocks with { Slopes = slopes }).Blocked;
 
     /// <summary>Shows or hides it.</summary>
     protected void SetShown(bool shown)

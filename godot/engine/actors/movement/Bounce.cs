@@ -20,7 +20,7 @@ public sealed class Bounce
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        MoveOptions air = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        MoveOptions air = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall };
 
         bool hitWall = room.MoveAcross(body, mover.Velocity.X, air).Blocked;
         if (hitWall)

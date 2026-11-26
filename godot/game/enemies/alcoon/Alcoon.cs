@@ -223,7 +223,7 @@ public partial class Alcoon : Enemy
         if (!Room.Mover.MoveAcross(
                 Body ?? throw new InvalidOperationException($"The Alcoon \"{Name}\" has no body collider."),
                 Facing.Toward(Pixels.FromWhole(Stride)),
-                Engine.Collision.MoveOptions.Plain with { ClimbPerPixel = 2, FollowGroundDown = 2 }).Blocked)
+                Engine.Collision.MoveOptions.AmongBlocks with { ClimbPerPixel = 2, FollowGroundDown = 2 }).Blocked)
             return;
         Facing = Facing.Opposite();
         Play(Facing == Facing.Left ? "walking_left" : "walking_right", restart: true);

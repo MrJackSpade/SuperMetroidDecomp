@@ -193,7 +193,7 @@ public partial class Boulder : Enemy
                 MoveDownBy(curve.SpeedAt(_travelPlace) + Pixels.FromWhole(_reach));
                 Position -= PixelOffset.FromWhole(0, _reach);
                 Collider body = Body ?? throw new InvalidOperationException($"The Boulder \"{Name}\" has no body collider.");
-                if (Room.Mover.MoveAcross(body, Rolls.Toward(curve.SpeedAt(_travelPlace)), MoveOptions.Plain with { Slopes = SlopeTreatment.Ignore }).Blocked)
+                if (Room.Mover.MoveAcross(body, Rolls.Toward(curve.SpeedAt(_travelPlace)), MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Ignore }).Blocked)
                 {
                     Sound(ImpactSound);
                     Break();

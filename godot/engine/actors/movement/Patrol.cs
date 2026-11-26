@@ -30,7 +30,7 @@ public sealed class Patrol
 
         if (Walks)
         {
-            if (mover2.IsOnGround(body, MoveOptions.Plain))
+            if (mover2.IsOnGround(body, MoveOptions.AmongBlocks))
             {
                 mover.Velocity = mover.Velocity.WithY(Pixels.Zero);
                 if (TurnsAtEdges)
@@ -38,7 +38,7 @@ public sealed class Patrol
                     // Look one body's width ahead for ground to step onto.
                     PixelRect rect = body.RoomRect;
                     int ahead = mover.Facing == Facing.Right ? rect.Width : -rect.Width;
-                    if (mover2.IsFree(rect.MovedBy(ahead, 1), body.CollisionOwner, MoveOptions.Plain))
+                    if (mover2.IsFree(rect.MovedBy(ahead, 1), body.CollisionOwner, MoveOptions.AmongBlocks))
                     {
                         mover.Facing = mover.Facing.Opposite();
                         reachedEdge = true;
@@ -48,12 +48,12 @@ public sealed class Patrol
             else
             {
                 mover.Velocity = mover.Velocity.WithY(mover.Velocity.Y + Gravity);
-                hitFloor = mover2.MoveDown(body, mover.Velocity.Y, MoveOptions.Plain).Blocked;
+                hitFloor = mover2.MoveDown(body, mover.Velocity.Y, MoveOptions.AmongBlocks).Blocked;
             }
         }
 
         mover.Velocity = mover.Velocity.WithX(mover.Facing.Toward(Speed));
-        MoveOptions options = Walks ? MoveOptions.Plain with { FollowGroundDown = 2 } : MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        MoveOptions options = Walks ? MoveOptions.AmongBlocks with { FollowGroundDown = 2 } : MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall };
         bool hitWall = mover2.MoveAcross(body, mover.Velocity.X, options).Blocked;
         if (hitWall)
             mover.Facing = mover.Facing.Opposite();

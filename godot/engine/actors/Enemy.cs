@@ -749,21 +749,24 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
     }
 
-    /// <summary>Moves the enemy across by its speed and returns what happened.</summary>
+    /// <summary>
+    /// Moves the enemy across by its speed and returns what happened. No solid stops an enemy but one that stands as
+    /// part of the room, whatever the options say of solids.
+    /// </summary>
     protected MoveResult MoveAcross(MoveOptions options) =>
-        Room.Mover.MoveAcross(RequireBody(), Velocity.X, options);
+        Room.Mover.MoveAcross(RequireBody(), Velocity.X, options with { StoppedBySolids = false });
 
-    /// <summary>Moves the enemy down by its speed and returns what happened.</summary>
+    /// <summary>Moves the enemy down by its speed and returns what happened; as across, no solid but the room's stops it.</summary>
     protected MoveResult MoveDown(MoveOptions options) =>
-        Room.Mover.MoveDown(RequireBody(), Velocity.Y, options);
+        Room.Mover.MoveDown(RequireBody(), Velocity.Y, options with { StoppedBySolids = false });
 
     /// <summary>Moves the enemy across by <paramref name="distance"/>, treating slopes as walls, and returns whether something stopped it.</summary>
     protected bool MoveAcrossBy(Pixels distance) =>
-        Room.Mover.MoveAcross(RequireBody(), distance, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall }).Blocked;
+        Room.Mover.MoveAcross(RequireBody(), distance, MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall }).Blocked;
 
     /// <summary>Moves the enemy down by <paramref name="distance"/>, upward when negative, and returns whether something stopped it.</summary>
     protected bool MoveDownBy(Pixels distance) =>
-        Room.Mover.MoveDown(RequireBody(), distance, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall }).Blocked;
+        Room.Mover.MoveDown(RequireBody(), distance, MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall }).Blocked;
 
     /// <summary>
     /// Moves the enemy by <paramref name="offset"/> through everything, carrying along whoever stands on its solid
@@ -792,15 +795,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Moves the player by <paramref name="offset"/>, as far as terrain lets them go: for an enemy that takes its rider with it.</summary>
     protected void ShiftPlayer(PixelOffset offset)
     {
-        MoveOptions carried = MoveOptions.Plain with { StoppedBySolids = false, Slopes = SlopeTreatment.Wall };
+        MoveOptions carried = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall };
         if (!offset.X.IsZero)
             Room.Mover.MoveAcross(Room.Player.Body, offset.X, carried);
         if (!offset.Y.IsZero)
             Room.Mover.MoveDown(Room.Player.Body, offset.Y, carried);
     }
 
-    /// <summary>Whether the enemy stands on terrain or a solid.</summary>
-    protected bool IsOnGround => Room.Mover.IsOnGround(RequireBody(), MoveOptions.Plain);
+    /// <summary>Whether the enemy stands on terrain, or on a solid that stands as part of the room.</summary>
+    protected bool IsOnGround => Room.Mover.IsOnGround(RequireBody(), MoveOptions.AmongBlocks);
 
     /// <summary>Whether the enemy's place is in the camera's view, or within <paramref name="margin"/> pixels of it.</summary>
     protected bool IsInView(int margin)

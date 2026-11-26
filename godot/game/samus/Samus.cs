@@ -1001,10 +1001,16 @@ public partial class Samus : Player
 
         // Stopped by a wall or by something solid, the run does not begin: she is left in the wall-stop pose, aiming
         // as she was. The step is not put on a slope's surface afterwards, as the cartridge's is not.
+        PixelPosition stood = Position;
         MoveResult step = Room.Mover.MoveAcross(
             Body, headed.Toward(Pixels.FromWhole(1)), BodyMoves with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
         if (!step.Blocked)
             return to;
+
+        // Something solid found ahead, an enemy frozen or solid, stops the run without moving her at all: the
+        // cartridge only feels for it. Terrain's stop leaves her brought up against it.
+        if (!step.BlockedByTerrain)
+            Position = stood;
         return from is WallStoppedState ? from : new WallStoppedState();
     }
 

@@ -19,36 +19,6 @@ public sealed class ModeChecks
     }
 
     [Check]
-    public void EnteringAnExitChangesRoomsAndHandsBackToTheSamePlay()
-    {
-        using var game = new StandInGame();
-        var playing = (PlayingMode)game.Mode;
-
-        game.StepUntil(() => game.Mode is RoomTransitionMode, GameAction.Right);
-        Expect.Equal("a", playing.RoomScene);
-        Expect.Equal(2, game.Loop.GetChildCount());
-        long playedBefore = game.Session.Progress.PlayUpdates;
-
-        game.StepUntil(() => game.Mode is PlayingMode, GameAction.Right);
-        Expect.True(ReferenceEquals(playing, game.Mode));
-        Expect.Equal("b", playing.RoomScene);
-        Expect.Equal(PixelPosition.FromWhole(40, 80), game.Session.Player.Position);
-        Expect.Equal(playedBefore, game.Session.Progress.PlayUpdates);
-        Expect.Equal(1, game.Loop.GetChildCount());
-        Expect.True(ReferenceEquals(playing.Room, game.Session.Player.GetParent()));
-    }
-
-    [Check]
-    public void AnExitThatLeadsNowhereIsRefused()
-    {
-        using var game = new StandInGame();
-        var playing = (PlayingMode)game.Mode;
-        var exit = new Engine.World.RoomExit { Name = "Nowhere" };
-        Expect.Throws<InvalidOperationException>(() => _ = new RoomTransitionMode(playing, exit));
-        exit.Free();
-    }
-
-    [Check]
     public void PausingStopsPlayUntilItIsPressedAgain()
     {
         using var game = new StandInGame();

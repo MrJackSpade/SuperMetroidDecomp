@@ -68,9 +68,15 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>Sounds and music wait their turn as the cartridge's do.</summary>
     public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) => new CartridgeSounds(content);
 
-    /// <summary>A door that scrolls is passed through as the cartridge passes Samus through it; any other way out is the engine's plain change of rooms.</summary>
+    /// <summary>
+    /// Every way out of this game's rooms is a door, an elevator's and a fall through sand among them, and is passed
+    /// through as the cartridge passes Samus through it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The way out is not a door.</exception>
     public override GameMode CreateRoomTransition(PlayingMode playing, Engine.World.RoomExit exit) =>
-        exit is Door door ? new DoorTransitionMode(playing, door) : base.CreateRoomTransition(playing, exit);
+        exit is Door door
+            ? new DoorTransitionMode(playing, door)
+            : throw new InvalidOperationException($"The way out \"{exit.Name}\" is not a door, and this game passes between its rooms only through doors.");
 
     /// <summary>The room's scroll cells are the cartridge's fifty, which outlive each room.</summary>
     public override Engine.World.IScrollCells CreateScrollCells(GameSession session) => new Compatibility.KeptScrollCells(session);

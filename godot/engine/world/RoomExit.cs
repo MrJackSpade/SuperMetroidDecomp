@@ -22,10 +22,6 @@ public partial class RoomExit : Node2D, IPlaced
     [Export]
     public string LeadsToExit { get; set; } = "";
 
-    /// <summary>How the transition looks.</summary>
-    [Export]
-    public TransitionStyle Style { get; set; }
-
     /// <summary>Where a player arriving by this exit appears, in pixels from this node.</summary>
     [Export]
     public Vector2I ArrivalOffset { get; set; }

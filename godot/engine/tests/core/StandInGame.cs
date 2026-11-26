@@ -31,7 +31,6 @@ public sealed class StandInGame : IDisposable
             First = firstMode ?? (() => new PlayingMode()),
             FirstRoom = "a",
             FirstEntryPoint = "Start",
-            TransitionUpdates = 10,
         };
         _loop.Start(definition, Input, Assets.Library, Saves, new Options());
     }

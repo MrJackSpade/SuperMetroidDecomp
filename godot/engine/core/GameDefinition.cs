@@ -12,7 +12,7 @@ namespace Engine.Core;
 /// "engine/game_definition", and everything the engine knows about a particular game it learns from here.
 /// </summary>
 [GlobalClass]
-public partial class GameDefinition : Resource
+public abstract partial class GameDefinition : Resource
 {
     /// <summary>The scene of the first mode: the screen the game starts on. Its root is a <see cref="GameMode"/>.</summary>
     [Export]
@@ -114,10 +114,6 @@ public partial class GameDefinition : Resource
     /// <summary>The folder, within the assets tree, of the game's music: one file per piece, named for it.</summary>
     [Export]
     public string MusicFolder { get; set; } = "music";
-
-    /// <summary>How many updates the change from one room to the next takes.</summary>
-    [Export]
-    public int TransitionUpdates { get; set; } = 30;
 
     /// <summary>Makes the mode laid over play when the player pauses.</summary>
     public virtual GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
@@ -273,9 +269,10 @@ public partial class GameDefinition : Resource
 
     /// <summary>
     /// Makes the mode that takes the player from the room being played through <paramref name="exit"/> to the room it
-    /// leads to. The engine's plain change of rooms, a fade, unless the game has a passage of its own.
+    /// leads to, and hands play back there. The engine notices the player in a way out and knows where it leads and
+    /// where they arrive; how a game passes between its rooms is the game's own, and the engine has none.
     /// </summary>
-    public virtual GameMode CreateRoomTransition(PlayingMode playing, RoomExit exit) => new RoomTransitionMode(playing, exit);
+    public abstract GameMode CreateRoomTransition(PlayingMode playing, RoomExit exit);
 
     /// <summary>Makes the session-long services this game adds, one of each. None, unless the game says.</summary>
     public virtual IReadOnlyList<ISessionService> CreateServices() => [];

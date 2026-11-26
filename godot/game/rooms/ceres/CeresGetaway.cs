@@ -33,7 +33,7 @@ public partial class CeresGetaway : RoomSequence
     /// <summary>
     /// The data file of what each of his wings' pictures leaves behind as it is drawn, in the order of
     /// <see cref="WingPictures"/>: under "stride_updates", the lengths of the pictures of Samus's stride at the pace
-    /// the cartridge never wrote (<see cref="Samus.TakeStridePaceLeftByWings"/>); empty for none.
+    /// the cartridge never wrote (<see cref="Compatibility.LeftoverStridePace"/>); empty for none.
     /// </summary>
     [Export(PropertyHint.File)]
     public string WingLeftoversFile { get; set; } = "";
@@ -273,7 +273,7 @@ public partial class CeresGetaway : RoomSequence
 
             // The cartridge lays the wings' picture out where Samus's stride reads its unwritten pace.
             if (_wingStrideUpdates.Count != 0)
-                ((Samus)room.Player).TakeStridePaceLeftByWings(_wingStrideUpdates[_wings]);
+                room.Session.Service<Compatibility.LeftoverStridePace>().TakeLeftByWings(_wingStrideUpdates[_wings]);
         }
     }
 

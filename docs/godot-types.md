@@ -176,7 +176,7 @@ something that leaves the room.
   `LeftoverStridePace` is the pace of Samus's stride that the cartridge never wrote: the boost's echo let in with as
   many sounds waiting as the boost has stages picks a stage past the last, whose first picture lasts what Ridley's
   getaway from Ceres left there as it last drew his wings (`CeresGetaway`, from `objects/ceres_getaway_wings.json`,
-  telling her through `Samus.TakeStridePaceLeftByWings`), or nought before it has. Samus holds it.
+  telling it), or nought before it has. It is one of the session's services, and a game begun again leaves it as it stands: the cartridge keeps it from power-on.
   `CartridgeAngles` is the cartridge's own sines, its aim at a point and the products it makes with them, for
   every enemy, boss and shot that reckons with an angle: the half wave in 65535ths and in 256ths with what is finer
   dropped, the fine sine that peaks at 32767, the aim read from a slope counted round, a speed along an angle in

@@ -54,6 +54,7 @@ public partial class SuperMetroid : GameDefinition
         new PauseHeldButtons(),
         new Compatibility.SharedFadeCount(),
         new Rooms.Ceres.CeresDebrisCount(),
+        new Compatibility.LeftoverStridePace(),
     ];
 
     /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>

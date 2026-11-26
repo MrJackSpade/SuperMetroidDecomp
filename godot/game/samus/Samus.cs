@@ -2117,15 +2117,6 @@ public partial class Samus : Player
     /// </summary>
     private const int PaceAfterEchoTurnedAway = 3;
 
-    /// <summary>The pace a stride takes when the boost's echo found a stage past the last's worth of sounds waiting.</summary>
-    private readonly Compatibility.LeftoverStridePace _leftoverStridePace = new();
-
-    /// <summary>
-    /// Takes the lengths of the stride's pictures that a beat of Ridley's wings leaves behind as his getaway from Ceres
-    /// draws them: the pace of a stride the cartridge never wrote (<see cref="Compatibility.LeftoverStridePace"/>).
-    /// </summary>
-    public void TakeStridePaceLeftByWings(IReadOnlyList<int> updates) => _leftoverStridePace.TakeLeftByWings(updates);
-
     /// <summary>
     /// Moves her running stride on by one update. The speed booster's boost is counted in strides: each one completed
     /// with momentum and the dash held counts one off the stage she is at, and with none left the stage is done. How
@@ -2185,7 +2176,7 @@ public partial class Samus : Player
                 {
                     // A stage past the last: no strides to count, and a first picture as long as whatever lies there.
                     _stridesLeft = 0;
-                    _strideLeft = _leftoverStridePace.Updates(0) + StrideSlowing;
+                    _strideLeft = Room.Session.Service<Compatibility.LeftoverStridePace>().Updates(0) + StrideSlowing;
                     return;
                 }
 

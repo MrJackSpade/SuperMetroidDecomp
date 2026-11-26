@@ -1182,7 +1182,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   crystal flash begins she keeps the bomb, which goes on holding its place among her power bombs, and as the
   flash's rise is done the same bomb plays the flash's own blast from where she has risen to
   (`PowerBomb.BeginFlashBlast`, by its `flash_blast_reaches`): it sweeps the enemies as any blast does, strikes
-  no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended.
+  no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended. The sounds a blast
+  turned away are asked for again as it ends, once the flash has been offered and by what she is doing then; a
+  blast that ends beneath a message offers no flash and asks for nothing again.
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
   form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three

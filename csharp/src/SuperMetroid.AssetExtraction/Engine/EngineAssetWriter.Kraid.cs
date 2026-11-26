@@ -277,6 +277,14 @@ public sealed partial class EngineAssetWriter
         JsonObject BodyColours(string shade) => KraidShadeChange(shade, bodyFamily, bodyPlaces);
         JsonObject PartColours(string shade) => KraidShadeChange(shade, partFamily, partPlaces);
 
+        // His room's colours at each step of a fade of its backdrop, as the old fades blend them: so far from what the
+        // room showed as the fade began toward what it ends on, by the fade's own steps, the first showing it unmoved
+        // and the last the whole way, which it keeps once the fade is done.
+        SortedDictionary<string, string> room = RoomPlacesOf(EnemyDefinitionId.Kraid);
+        JsonObject roomOwn = [], kraidBackdrop = ShadeChange(KraidShades.Backdrop.Key, room), black = ShadeChange(KraidShades.BackdropBlack.Key, room);
+        JsonArray BackdropFade(JsonObject from, JsonObject to) => EngineNames.List(Enumerable.Range(0, KraidBackgroundDefinitions.BackdropFadeLastStep + 1)
+            .Select(step => (JsonNode)ChangeBetween(from, to, new SuperMetroid.Core.Assets.FadeLevel(step, KraidBackgroundDefinitions.BackdropFadeLastStep))));
+
         kraid.Group("reactions", EngineReactions.Of(hurtInMouth))
             .Value("rise_wait_updates", KraidArenaDefinitions.RiseWaitUpdates)
             .Value("lunge_delay_updates", KraidArenaDefinitions.LungeDelayUpdates)
@@ -335,6 +343,15 @@ public sealed partial class EngineAssetWriter
                 ["parts"] = PartColours(KraidShades.HurtFlash.Key),
             })
             .Group("death_colours", BodyColours(KraidShades.DeathArm.Key))
+            // Its room fades into its colours as it grows, to black as it dies, from its colours or, killed before its
+            // room has faded into them, from the room's own, and back into its colours once it has sunk.
+            .Group("backdrop_fades", new JsonObject
+            {
+                ["growing"] = BackdropFade(roomOwn, kraidBackdrop),
+                ["dying"] = BackdropFade(kraidBackdrop, black),
+                ["dying_before_grown"] = BackdropFade(roomOwn, black),
+                ["sunk"] = BackdropFade(black, kraidBackdrop),
+            })
             // Every shade of its body shows its eyes in the colours of its most hurt band; its eyes' colours are shown
             // in their place.
             .Group("eye_colours", new JsonObject

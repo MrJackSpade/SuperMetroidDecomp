@@ -1,5 +1,4 @@
 using Engine.Actors;
-using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -9,11 +8,12 @@ namespace Game.Enemies;
 
 /// <summary>
 /// What the eye of an eye door spits. It forms in front of the eye, then flies at where Samus was, gathering speed
-/// all the way, and bursts on terrain. A shot destroys it in a cloud of fire.
+/// all the way, and bursts on terrain. A shot stops it where it is in a cloud of fire, which its settings play as its
+/// end.
 /// </summary>
 /// <remarks>
 /// Its timeline gives the cue "aim" to take aim, "fly" to set off, "stop" to come to rest, and "end" to take it
-/// away. Its data names its "burst_timeline" and the "shot_effect" a shot leaves of it.
+/// away. Its data names its "burst_timeline".
 /// </remarks>
 public partial class EyeDoorSpit : Projectile, IHasValues
 {
@@ -25,10 +25,6 @@ public partial class EyeDoorSpit : Projectile, IHasValues
     [Export, DataValue("burst_timeline")]
     public string BurstTimeline { get; set; } = "";
 
-    /// <summary>The effect left where one of Samus's shots destroys it, by the data file of its timeline.</summary>
-    [Export, DataValue("shot_effect")]
-    public string ShotEffect { get; set; } = "";
-
     private PixelVelocity _speed;
     private PixelVelocity _gain;
     private bool _flying;
@@ -39,17 +35,6 @@ public partial class EyeDoorSpit : Projectile, IHasValues
     /// <inheritdoc/>
     public void ReadValues(DataNode data)
     {
-    }
-
-    /// <inheritdoc/>
-    public override HitResult TakeHit(Hit hit, Collider part)
-    {
-        Room room = Room;
-        PixelPosition at = Position;
-        HitResult result = base.TakeHit(hit, part);
-        if (result == HitResult.Destroyed && ShotEffect.Length > 0)
-            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(ShotEffect)), at));
-        return result;
     }
 
     /// <inheritdoc/>

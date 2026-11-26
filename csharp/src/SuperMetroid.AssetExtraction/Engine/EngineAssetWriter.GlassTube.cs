@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Engine;
 
 /// <summary>
 /// The glass tube of Maridia. The tube itself is its room's own blocks, so breaking it is a patch of the room's
-/// layouts; its crack, its shards and the bubbles let out are effects.
+/// layouts; its crack is an effect, and its shards and the bubbles let out are its own, shown by their timelines.
 /// </summary>
 public sealed partial class EngineAssetWriter
 {
@@ -50,17 +50,11 @@ public sealed partial class EngineAssetWriter
         // Broken, the tube's upper rows and then its lower rows are cleared, and last the block the old game placed
         // it on shows as its rim. Every state of the room that has the tube has the patch: one the tube is already
         // broken in is given it too, and there it changes nothing.
-        var origins = new HashSet<Position16<RoomBlocks>>();
         foreach ((RoomDefinition room, RoomStateSettings state, RoomObjectPlacement placement) in Placed<NoobTubeSetup>())
         {
             Layouts.Patch(room, state, TubeOpenPatch, placement.Block, Layouts.PatchCells(
                 directory, Drawn(NoobTubeDraw.UpperRowsOpen), Drawn(NoobTubeDraw.LowerRowsOpen), Drawn(NoobTubeDraw.Opened)));
-            origins.Add(placement.Block);
         }
-
-        if (origins.Count != 1)
-            throw new InvalidDataException($"The glass tube stands on {origins.Count} different blocks; its shards are written for one.");
-        int tubeX = origins.Single().X * EngineRoomObjects.Block;
 
         EngineSheetPictures pictures = _sheets.CutSpawned(
             _tree, folder, EngineSheets.SharedSpawner, NoobTubeProjectileAnimations.ShownFrames.Select(EnemySheetDefinitions.ProjectileFrameName));
@@ -121,84 +115,86 @@ public sealed partial class EngineAssetWriter
             _tree.WriteData(crack, Placed(steps));
         }
 
-        // Each shard flies out from the crack and then sinks. The old game draws each as two, by turns: itself, and
-        // its mirror image as far from the room's other side, which here is the same effect's picture set across.
-        var shards = new JsonArray();
-        for (int index = 0; index < NoobTubeDebrisDefinitions.Shards.Length; index++)
+        // The shards and the bubbles are the tube's own, which it moves and shows by their timelines' cues: how a
+        // shard flickers, when a piece sets off, when it begins to sway, and when it is gone. Each frame is a step,
+        // with the cues raised before it; cues raised after the last frame come on a step of their own.
+        static string PieceCue(NoobTubeProjectileCue cue) => cue.Kind switch
         {
-            NoobTubePiece piece = NoobTubeDebrisDefinitions.Shards[index];
-            NoobTubeShard shard = piece.Start is NoobTubePieceStart.ShardFlight flight
-                ? flight.Shard
-                : throw new InvalidDataException("A shard of the glass tube does not start as a shard in flight.");
+            NoobTubeProjectileCueKind.FlickerReflected => "reflected",
+            NoobTubeProjectileCueKind.FlickerHidden => "hidden",
+            NoobTubeProjectileCueKind.StartBubbleRise => "rise",
+            NoobTubeProjectileCueKind.AssignShardFallingAngle or NoobTubeProjectileCueKind.AssignBubbleFallingAngle => "sway",
+            NoobTubeProjectileCueKind.StartShardFall or NoobTubeProjectileCueKind.StartBubbleFall => "fall",
+            NoobTubeProjectileCueKind.Delete => "end",
+            _ => throw new InvalidDataException($"A piece of the glass tube raises {cue.Kind}, which this does not know."),
+        };
+        JsonObject Piece(Animation<NoobTubeProjectileSegment> animation)
+        {
             (List<IAnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>> beats, List<IAnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>>? cycle) =
-                EngineTimelines.Played(NoobTubeProjectileAnimations.Segments, NoobTubeProjectileAnimations.ShardAnimations[shard]);
+                EngineTimelines.Played(NoobTubeProjectileAnimations.Segments, animation);
             if (cycle is not null)
-                throw new InvalidDataException("A shard of the glass tube goes round and round, which an effect that ends cannot.");
+                throw new InvalidDataException("A piece of the glass tube goes round and round, where the tube's pieces are each gone in the end.");
             var steps = new JsonArray();
-            decimal column = tubeX + piece.Offset.X;
-            bool falling = false, reflected = false;
-            string? cue = null;
+            var cues = new JsonArray();
+            void Add(string picture, int updates)
+            {
+                var step = new JsonObject { ["picture"] = picture, ["updates"] = updates };
+                if (cues.Count > 0)
+                {
+                    step["cues"] = cues;
+                    cues = new JsonArray();
+                }
+
+                steps.Add(step);
+            }
+
             foreach (IAnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue> beat in beats)
             {
                 switch (beat)
                 {
                     case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Frame frame:
-                        for (int update = 0; update < frame.Duration; update++)
-                        {
-                            bool own = (steps.Count & 1) == 0;
-                            var step = new JsonObject { ["updates"] = 1 };
-                            if (own)
-                            {
-                                step["picture"] = Picture(frame.Shown.Shown);
-                            }
-                            else if (reflected && frame.Shown.Mirrored is { } mirrored)
-                            {
-                                step["picture"] = Picture(mirrored);
-                                step["offset"] = new JsonObject { ["x"] = NoobTubeDebrisDefinitions.ShardMirrorSpan - 2 * (int)Math.Floor(column), ["y"] = 0 };
-                            }
-                            else
-                            {
-                                step["picture"] = "";
-                            }
-
-                            if (cue is not null)
-                                step["cues"] = new JsonArray(cue);
-                            cue = null;
-                            steps.Add(step);
-                            if (!falling)
-                                column += piece.Velocity.X.Pixels;
-                        }
-
+                        Add(Picture(frame.Shown.Shown), frame.Duration);
                         break;
-                    case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event { Raised.Kind: NoobTubeProjectileCueKind.FlickerReflected }:
-                        reflected = true;
-                        break;
-                    case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event { Raised.Kind: NoobTubeProjectileCueKind.FlickerHidden }:
-                        reflected = false;
-                        break;
-                    case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event { Raised.Kind: NoobTubeProjectileCueKind.StartShardFall }:
-                        falling = true;
-                        cue = Drift(SignedEightEight.Zero, NoobTubeDebrisDefinitions.ShardFallYVelocity);
-                        break;
-                    case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event { Raised.Kind: NoobTubeProjectileCueKind.AssignShardFallingAngle or NoobTubeProjectileCueKind.Delete }:
+                    case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event raised:
+                        cues.Add(PieceCue(raised.Raised));
                         break;
                     default:
-                        throw new InvalidDataException($"A shard of the glass tube has a beat this does not know: {beat}.");
+                        throw new InvalidDataException($"A piece of the glass tube has a beat this does not know: {beat}.");
                 }
             }
 
+            if (cues.Count > 0)
+                Add("", 1);
+            return Placed(steps);
+        }
+
+        // Each shard flies out from the crack and then sinks. The old game draws one, by turns, at its own column and
+        // as its mirror image across the tube, whose pictures are given beside its own.
+        var shards = new JsonArray();
+        for (int index = 0; index < NoobTubeDebrisDefinitions.Shards.Length; index++)
+        {
+            NoobTubeShard shard = NoobTubeDebrisDefinitions.Shards[index].Start is NoobTubePieceStart.ShardFlight flight
+                ? flight.Shard
+                : throw new InvalidDataException("A shard of the glass tube does not start as a shard in flight.");
             string file = $"{folder}/shard_{index + 1}.json";
-            _tree.WriteData(file, Placed(steps));
+            _tree.WriteData(file, Piece(NoobTubeProjectileAnimations.ShardAnimations[shard]));
             shards.Add(file);
         }
 
-        // The bubbles let out rise the whole of their short lives.
+        var mirrors = new JsonObject();
+        foreach (NoobTubeProjectileFrame frame in NoobTubeProjectileAnimations.Segments.Frames)
+        {
+            if (frame.Mirrored is not { } mirrored)
+                continue;
+            string own = Picture(frame.Shown), image = Picture(mirrored);
+            if (mirrors[own]?.GetValue<string>() is { } known && known != image)
+                throw new InvalidDataException($"The glass tube's shard picture {own} is mirrored by two pictures.");
+            mirrors[own] = image;
+        }
+
+        // The bubbles let out rise the whole of their short lives, and sway as they go.
         string bubble = $"{folder}/bubble.json";
-        JsonObject bubbles = EngineTimelines.Of(
-            NoobTubeProjectileAnimations.Segments, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble],
-            frame => Picture(frame.Shown), static (NoobTubeProjectileCue _) => null);
-        bubbles["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
-        _tree.WriteData(bubble, bubbles);
+        _tree.WriteData(bubble, Piece(NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]));
 
         const int block = EngineRoomObjects.Block;
         new EngineObjectFile(_tree, "objects/glass_tube.json", "GlassTube")
@@ -212,6 +208,7 @@ public sealed partial class EngineAssetWriter
             .Value("break_sound", EngineNames.SoundOrStop(NoobTubeObjectDefinitions.BreakSound))
             .Value("dud_sound", EngineNames.SoundOrStop(NoobTubeObjectDefinitions.IneffectiveShotSound))
             .Group("shards", shards)
+            .Group("mirrors", mirrors)
             // The one block a power bomb's blast must reach.
             .Collider("Hurtbox", 0, 0, block, block)
             .Write();

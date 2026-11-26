@@ -5,6 +5,7 @@ using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -13,14 +14,18 @@ namespace Game.Objects;
 /// <summary>
 /// The glass tube of Maridia. Only a power bomb harms it. Once one has gone off against it, the next thing Samus
 /// does starts it cracking: she is held where she is, the crack spreads, and the tube bursts into shards and
-/// bubbles, shaking the room. From then on it is broken for good and the water is in. Each bubble, and each shard
-/// still on the screen, draws a random number as it begins to sway: the bubbles on the ninth update after the
-/// burst, the shards on the thirty-third.
+/// bubbles, shaking the room. From then on it is broken for good and the water is in. The shards and bubbles are
+/// its own, and it stays until the last of them is gone: a shard flies out and then sinks, swaying along an arc; a
+/// bubble rises, and sways as it goes. Each draws a random number for where its sway starts as it begins to sway.
+/// A shard is shown by turns of the short count at its own column and mirrored across the tube, or hidden, and is
+/// taken away once it is far enough below the view.
 /// </summary>
 /// <remarks>
-/// Its data names its pictures "intact", "cracking" and "shattered"; its effects "crack", "bubble" and the ten of its
-/// "shards"; the terrain patch that opens it, "open_patch"; and its sounds. Its hurtbox is what a power bomb's blast
-/// reaches.
+/// Its data names its pictures "intact", "cracking" and "shattered"; its effect "crack"; the timelines of a "bubble"
+/// and of the ten "shards", and, under "mirrors", each shard's picture with its mirror image; the terrain patch that
+/// opens it, "open_patch"; and its sounds. Its hurtbox is what a power bomb's blast reaches. A piece's timeline gives
+/// the cues "reflected" and "hidden", how a shard flickers; "rise" and "fall", which set it moving or sinking;
+/// "sway", on which it draws the number its sway starts at; and "end", which takes it away.
 /// </remarks>
 public partial class GlassTube : RoomObject, IHittable
 {
@@ -40,9 +45,9 @@ public partial class GlassTube : RoomObject, IHittable
     [Export, DataValue("crack")]
     public string CrackEffect { get; set; } = "";
 
-    /// <summary>The effect of a bubble of the air let out.</summary>
+    /// <summary>The timeline of a bubble of the air let out, by its data file.</summary>
     [Export, DataValue("bubble")]
-    public string BubbleEffect { get; set; } = "";
+    public string BubbleTimeline { get; set; } = "";
 
     /// <summary>The terrain patch that opens it.</summary>
     [Export, DataValue("open_patch")]
@@ -62,6 +67,23 @@ public partial class GlassTube : RoomObject, IHittable
         WaitingForSamus,
         Cracking,
         Shattered,
+        Settling,
+    }
+
+    /// <summary>How a piece moves: not yet, flying straight, or swaying as it goes.</summary>
+    private enum Motion
+    {
+        Still,
+        Flying,
+        Swaying,
+    }
+
+    /// <summary>How a shard is shown on the turns of the short count: as it is, by turns mirrored across the tube, or by turns hidden.</summary>
+    private enum Flicker
+    {
+        None,
+        Reflected,
+        Hidden,
     }
 
     /// <summary>Where the crack starts, from where the tube stands, in pixels.</summary>
@@ -84,31 +106,68 @@ public partial class GlassTube : RoomObject, IHittable
         PixelOffset.FromWhole(120, 32), PixelOffset.FromWhole(152, 64), PixelOffset.FromWhole(184, 84),
     ];
 
-    /// <summary>How long after the burst a bubble, and a shard, begins to sway, drawing a number for where its sway starts.</summary>
-    private const int BubbleSwaysAfter = 9, ShardSwaysAfter = 33;
+    /// <summary>How fast a bubble rises, the whole of its life.</summary>
+    private static readonly PixelVelocity BubbleSpeed = new(Pixels.Zero, Pixels.FromWhole(-5));
 
-    /// <summary>How long the burst tube stays before it is done.</summary>
+    /// <summary>How fast a shard sinks once it sways.</summary>
+    private static readonly Pixels ShardSinkSpeed = Pixels.FromNumber(0.75);
+
+    /// <summary>How many steps of a turn a shard's sway, and a bubble's, goes round each update.</summary>
+    private const int ShardSwaySteps = 1, BubbleSwaySteps = 2;
+
+    /// <summary>How long the burst tube stays before it is done and the water is in.</summary>
     private const int ShatteredUpdates = 96;
 
     /// <summary>How far below the top of the view a shard is taken away.</summary>
     private const int ShardGoneBelowView = 288;
 
-    private readonly List<string> _shardEffects = [];
+    /// <summary>Twice the column, in the room, that a shard is mirrored across.</summary>
+    private const int MirrorSpan = 256;
+
+    /// <summary>One of its shards or bubbles: where it is, how it moves and is shown, and the visual that shows it.</summary>
+    private sealed class Piece(bool isShard, FrameTimeline timeline, ActorVisual visual, PixelPosition at, PixelVelocity speed)
+    {
+        public bool IsShard { get; } = isShard;
+
+        public TimelinePlayer Timeline { get; } = new(timeline);
+
+        public ActorVisual Visual { get; } = visual;
+
+        /// <summary>Its own column, which it is shown at or mirrored across the tube from.</summary>
+        public Pixels X { get; set; } = at.X;
+
+        public Pixels Y { get; set; } = at.Y;
+
+        public PixelVelocity Speed { get; set; } = speed;
+
+        public Motion Moving { get; set; } = isShard ? Motion.Flying : Motion.Still;
+
+        public Flicker Flickers { get; set; }
+
+        /// <summary>Whether its flicker shows it at its mirror image, or hides it, on this turn of the short count.</summary>
+        public bool AwayFromOwnColumn { get; set; }
+
+        /// <summary>Where its sway is round the turn, in the cartridge's 256 steps of it.</summary>
+        public int Sway { get; set; }
+    }
+
+    private readonly List<string> _shardTimelines = [];
+    private readonly Dictionary<string, string> _mirrors = new(StringComparer.Ordinal);
+    private readonly List<Piece> _pieces = [];
     private Phase _phase;
     private int _timer;
-
-    /// <summary>The shards still flying, each with where it started and how it flies, and how many bubbles were let out.</summary>
-    private readonly List<(Effect Shard, Pixels StartedAtY, Pixels SpeedDown)> _shards = [];
-    private int _bubbles;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        _shardEffects.Clear();
-        _shardEffects.AddRange(data.List("shards").Select(shard => shard.AsText()));
-        if (_shardEffects.Count != Shards.Length)
+        _shardTimelines.Clear();
+        _shardTimelines.AddRange(data.List("shards").Select(shard => shard.AsText()));
+        if (_shardTimelines.Count != Shards.Length)
             throw data.Problem($"must name {Shards.Length} shards");
+        _mirrors.Clear();
+        foreach ((string picture, DataNode mirrored) in data.Get("mirrors").Entries())
+            _mirrors[picture] = mirrored.AsText();
     }
 
     /// <inheritdoc/>
@@ -173,35 +232,37 @@ public partial class GlassTube : RoomObject, IHittable
                 if (--_timer > 0)
                     break;
                 Sound(BreakSound);
-                _shards.Clear();
+                // Its own picture is shown before its pieces are let out, whose visuals are theirs.
+                Show(ShatteredPicture);
+                _pieces.Clear();
                 for (int shard = 0; shard < Shards.Length; shard++)
-                {
-                    if (Leave(_shardEffects[shard], CrackAt + Shards[shard].From, Shards[shard].Speed) is { } flying)
-                        _shards.Add((flying, (Position + CrackAt + Shards[shard].From).Y, Shards[shard].Speed.Y));
-                }
-
-                _bubbles = 0;
+                    LetOut(true, _shardTimelines[shard], CrackAt + Shards[shard].From, Shards[shard].Speed);
                 foreach (PixelOffset bubble in Bubbles)
-                {
-                    if (Leave(BubbleEffect, bubble, new PixelVelocity(Pixels.Zero, Pixels.FromWhole(-5))) is not null)
-                        _bubbles++;
-                }
+                    LetOut(false, BubbleTimeline, bubble, BubbleSpeed);
 
                 Room.Shake(1, 64);
                 Room.Terrain.ApplyPatch(OpenPatch);
-                Show(ShatteredPicture);
                 (_phase, _timer) = (Phase.Shattered, ShatteredUpdates);
                 break;
 
             case Phase.Shattered:
-                StepPieces(ShatteredUpdates - (_timer - 1));
+                StepPieces();
                 if (--_timer > 0)
                     break;
                 Room.Session.Progress.Record(StoryEvents.MaridiaTubeBroken);
                 Room.Liquid?.LetIn();
                 if (samus.State is HeldState)
                     samus.Release();
-                Room.Remove(this);
+                _phase = Phase.Settling;
+                if (_pieces.Count == 0)
+                    Room.Remove(this);
+                break;
+
+            case Phase.Settling:
+                // It is done once the last of its pieces is gone.
+                StepPieces();
+                if (_pieces.Count == 0)
+                    Room.Remove(this);
                 break;
 
             default:
@@ -212,52 +273,152 @@ public partial class GlassTube : RoomObject, IHittable
     private static PixelVelocity Speed(double across, double down) => new(Pixels.FromNumber(across), Pixels.FromNumber(down));
 
     /// <summary>
-    /// What the pieces do on the update so many after the burst that touches the room's random numbers. A shard that
-    /// has flown far enough below the view is taken away, where its flight has taken it by then; each bubble draws a
-    /// number as it begins to sway, and so does each shard still there when its turn to sway comes.
+    /// Lets out a shard or a bubble at <paramref name="from"/>, going at <paramref name="speed"/>. It shows nothing
+    /// until its first update, the one after the burst, plays its timeline's first step.
     /// </summary>
-    private void StepPieces(int sinceBurst)
+    private void LetOut(bool isShard, string timelineFile, PixelOffset from, PixelVelocity speed)
     {
-        if (sinceBurst <= ShardSwaysAfter)
+        FrameTimeline timeline = FrameTimeline.Read(Room.Content.ReadData(timelineFile));
+        TimelineStep first = timeline.Steps[0];
+        var visual = new ActorVisual
         {
-            int goneBelow = Room.Session.Camera.Top + ShardGoneBelowView;
-            for (int index = _shards.Count - 1; index >= 0; index--)
+            Name = isShard ? "Shard" : "Bubble", PictureOffset = new Vector2I(first.Offset.X, first.Offset.Y),
+            ZAsRelative = false, ZIndex = RoomDepth.Launched,
+        };
+        AddChild(visual);
+        visual.Bind(Room.Content);
+        visual.SetShown(false);
+        _pieces.Add(new Piece(isShard, timeline, visual, Position + from, speed));
+    }
+
+    /// <summary>Plays an update of each of its pieces in turn, and takes away those that are gone.</summary>
+    private void StepPieces()
+    {
+        for (int index = 0; index < _pieces.Count; index++)
+        {
+            Piece piece = _pieces[index];
+            if (StepPiece(piece))
+                continue;
+            piece.Visual.SetShown(false);
+            piece.Visual.QueueFree();
+            _pieces.RemoveAt(index--);
+        }
+    }
+
+    /// <summary>
+    /// Plays one update of a piece: it moves, and a shard far enough below the view is taken away before its turn to
+    /// be shown, as the cartridge's moves come before its animations; then its timeline's cues are acted on and it is
+    /// shown. Returns whether it is still there.
+    /// </summary>
+    private bool StepPiece(Piece piece)
+    {
+        Move(piece);
+        if (piece.IsShard && piece.Y.Whole - Room.Session.Camera.Top >= ShardGoneBelowView)
+            return false;
+
+        // A flickering shard is at its own column on the odd turns of the short count.
+        bool atOwnColumn = Room.Session.Clock.ShortUpdates % 2 == 1;
+        foreach (string cue in piece.Timeline.Step())
+        {
+            switch (cue)
             {
-                (Effect shard, Pixels startedAtY, Pixels speedDown) = _shards[index];
-                if ((startedAtY + speedDown * sinceBurst).Whole < goneBelow)
-                    continue;
-                Room.Remove(shard);
-                _shards.RemoveAt(index);
+                case "reflected":
+                    (piece.Flickers, piece.AwayFromOwnColumn) = (Flicker.Reflected, !atOwnColumn);
+                    break;
+                case "hidden":
+                    (piece.Flickers, piece.AwayFromOwnColumn) = (Flicker.Hidden, !atOwnColumn);
+                    break;
+                case "rise":
+                    piece.Moving = Motion.Flying;
+                    break;
+                case "fall":
+                    piece.Moving = Motion.Swaying;
+                    break;
+                case "sway":
+                    // The sway starts at the step of the first half turn the top seven bits of the number name; a
+                    // shard sinks from then on.
+                    piece.Sway = Room.Session.Random.Draw().Part(9, 7);
+                    if (piece.IsShard)
+                        piece.Speed = piece.Speed.WithY(ShardSinkSpeed);
+                    break;
+                case "end":
+                    return false;
+                default:
+                    throw new InvalidOperationException($"A piece of the glass tube's timeline gives the cue \"{cue}\", which it does not know.");
             }
         }
 
-        if (sinceBurst == BubbleSwaysAfter)
-        {
-            for (int bubble = 0; bubble < _bubbles; bubble++)
-                Room.Session.Random.Draw();
-        }
+        ShowPiece(piece);
+        return true;
+    }
 
-        if (sinceBurst == ShardSwaysAfter)
+    /// <summary>Moves a piece an update as it moves now.</summary>
+    private static void Move(Piece piece)
+    {
+        switch (piece.Moving)
         {
-            for (int shard = 0; shard < _shards.Count; shard++)
-                Room.Session.Random.Draw();
+            case Motion.Still:
+                break;
+            case Motion.Flying:
+                (piece.X, piece.Y) = (piece.X + piece.Speed.X, piece.Y + piece.Speed.Y);
+                break;
+            case Motion.Swaying:
+                (piece.X, piece.Y) = (piece.X + SwaySpeed(piece.Sway), piece.Y + piece.Speed.Y);
+                piece.Sway = (piece.Sway + (piece.IsShard ? ShardSwaySteps : BubbleSwaySteps)) & 255;
+                break;
+            default:
+                throw new InvalidOperationException($"A piece of the glass tube moves in no way {piece.Moving}.");
         }
     }
 
-    private Effect? Leave(string effect, PixelOffset from, PixelVelocity speed)
+    /// <summary>
+    /// How far across a piece sways an update at a step of its sway: a quarter of the cartridge's sine there, in
+    /// 256ths of a pixel, rounded down. The cartridge keeps the step it reads to the turn's second and fourth
+    /// quarters: one in the first or third is read a quarter turn on.
+    /// </summary>
+    private static Pixels SwaySpeed(int sway)
+    {
+        int step = sway % 128 < 64 ? (sway + 64) & 255 : sway;
+        int twoFiftySixths = CartridgeAngles.SignedSine(step) >> 2;
+        return Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
+    }
+
+    /// <summary>Shows a piece where it is, at its own column or mirrored across the tube, or hidden, as its flicker has it.</summary>
+    private void ShowPiece(Piece piece)
+    {
+        string picture = piece.Timeline.Shown.Picture;
+        bool mirrored = piece.Flickers == Flicker.Reflected && piece.AwayFromOwnColumn && picture.Length > 0;
+        int column = piece.X.Whole;
+        if (mirrored)
+        {
+            picture = _mirrors.TryGetValue(picture, out string? image)
+                ? image
+                : throw new InvalidOperationException($"The glass tube's shard picture \"{picture}\" has no mirror image in its data.");
+            column = MirrorSpan - column;
+        }
+
+        piece.Visual.Show(picture);
+        piece.Visual.SetShown(!(piece.Flickers == Flicker.Hidden && piece.AwayFromOwnColumn));
+        piece.Visual.Position = new Vector2(column - Position.X.Whole, piece.Y.Whole - Position.Y.Whole);
+    }
+
+    private void Leave(string effect, PixelOffset from, PixelVelocity speed)
     {
         if (effect.Length == 0)
-            return null;
+            return;
         Effect left = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), Position + from);
         left.Velocity = speed;
         Room.Spawn(left);
-        return left;
     }
 
+    /// <summary>Shows one of its own pictures; its pieces' visuals show theirs.</summary>
     private void Show(string picture)
     {
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(picture);
+        {
+            if (!_pieces.Any(piece => piece.Visual == visual))
+                visual.Show(picture);
+        }
     }
 
     private void Sound(string sound)

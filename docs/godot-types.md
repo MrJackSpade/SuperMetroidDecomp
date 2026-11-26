@@ -1412,8 +1412,8 @@ lights become the trailing pair's shot so as they start to fall.
 **A projectile shot down** is gone at once, leaving what it drops, unless its data gives it an end to play
 (`"shot_timeline"`). Then it stays what it is and where it is while that plays: it holds still, stops shots no
 longer, harms what it touches whatever its data said of it and ends on it; and as the timeline ends what it drops
-is rolled and left in the place it held. Phantoon's flames, the Torizos' orbs, the Golden Torizo's eggs,
-Crocomire's fire and the rocks Kraid spits end so. The bug a Kago lets out, an enemy here, ends the same way in its
+is rolled and left in the place it held. Phantoon's flames, the Torizos' orbs, the Golden Torizo's eggs and the
+super missiles it throws back, Crocomire's fire, the rocks Kraid spits, Draygon's goop and what an eye door spits end so. The bug a Kago lets out, an enemy here, ends the same way in its
 own class: shot down, it plays its burst where it is, still hurting to the touch, and leaves its drop as it ends.
 
 **Places for what enemies launch and leave.** A room may keep a count of places (`GameDefinition.EnemyPlaces`;
@@ -1684,7 +1684,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   ledges of its body, and where its arm touches, are `ColliderPoses` taken as its head and arm change picture; how
   hurt it is, the flash of a hit in the mouth and its dying are changes of the colours of its one set of pictures,
   which its spikes and nails show with its arm and foot, and its eyes' own colours are shown over them; what it does
-  to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
+  to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; its room's fades,
+  into its colours as it grows, to black as it dies and back once it has sunk, are lists of changes of the room's
+  colours (`Room.Recolour`), one for each of a fade's own steps, which the extractor blends between the two colourings
+  as the cartridge does and it shows as the shared fade count lets it step; the three spikes of its belly and
   its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
   screens it keeps the view from until it has grown are `CameraZone`s it opens; its body is a solid of its
   definition's size, switched on as it starts to sink); Crocomire
@@ -1734,7 +1737,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Station`: save, energy refill, missile refill, map.
 - `Item`: every upgrade and expansion.
 - `GlassTube` (this game's, `game/objects/glass_tube/`): the Maridia glass tube. It is not a barrier: a power
-  bomb only arms it, and it bursts when Samus next acts, holding her while it does.
+  bomb only arms it, and it bursts when Samus next acts, holding her while it does. The shards and bubbles it bursts
+  into are its own, not effects: visuals it moves, sways and flickers each update by their timelines' cues, drawing
+  the room's random numbers as the cartridge's pieces do, and it stays in the room until the last of them is gone.
 - `CeresElevatorDoor` (this game's, `game/objects/ceres_elevator_door/`): the blocked way to Ceres's elevator,
   blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering. The glow is
   the steps of a change of colours its data gives ("glow"), each held eight updates, shown on the room's terrain and

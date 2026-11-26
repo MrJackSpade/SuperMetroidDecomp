@@ -2029,7 +2029,9 @@ public partial class Samus : Player
 
         if (_spunAtStart && State is not (SpinJumpingState or WallJumpingState))
         {
-            Room.Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
+            // A scene's showing of her asks for no stop of a spin's sound, having asked for none of the sound.
+            if (!IsShownByScene)
+                Room.Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
 
             // A charge that had begun to sound is asked for again at the next look after she is shown, if the attack
             // is held now and still held then.
@@ -2043,14 +2045,15 @@ public partial class Samus : Player
 
     /// <summary>
     /// Asks for her footsteps' sound on the last update of each picture of her stride that brings a foot down, as the
-    /// cartridge does: not in a boss's room, not while she holds a shine as the game's tests see it, and not once
-    /// the boost is at its full stage. The request counts among the sounds waiting whether or not it is heard.
+    /// cartridge does: not in a boss's room, not while she holds a shine as the game's tests see it, not once the
+    /// boost is at its full stage, and not while a scene is showing her. The request counts among the sounds waiting
+    /// whether or not it is heard.
     /// </summary>
     private void StepFootsteps()
     {
         if (_strideLeft != 1 || !FootContacts.Contains(_strideAt))
             return;
-        if (Room.HasBoss || ReadsAsHoldingShine || IsBoosting)
+        if (Room.HasBoss || ReadsAsHoldingShine || IsBoosting || IsShownByScene)
             return;
         Room.Session.Sounds.Request(Sounds.Footsteps, channel: "samus");
     }

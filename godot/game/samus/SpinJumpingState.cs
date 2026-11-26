@@ -110,7 +110,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         {
             case Start.FromGround:
                 owner.Rise(owner.LaunchSpeed(offWall: false, owner.FormOr(Samus.Spinning)));
-                owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
+                AskForSpinSound(owner);
                 break;
 
             case Start.AfterWallJump:
@@ -129,7 +129,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             case Start.Adrift:
                 // The cartridge takes up the spin's pose here without starting a jump: she has no way up or down.
                 owner.Drift();
-                owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
+                AskForSpinSound(owner);
                 break;
 
             default:
@@ -334,7 +334,19 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         if (falling < ((Samus)owner).MediumLastEntered.Speed(SpaceJumpLeastFall) || falling >= owner.Medium.Speed(SpaceJumpMostFall))
             return;
         owner.Rise(owner.LaunchSpeed(offWall: false, owner.Form));
-        owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
+        AskForSpinSound(owner);
+    }
+
+    /// <summary>
+    /// Asks for the sound of the spin she is in. The plain spin's is not asked for while a scene is showing her, as
+    /// the cartridge's cinematics leave it out.
+    /// </summary>
+    private static void AskForSpinSound(Player owner)
+    {
+        string sound = SpinSound(owner);
+        if (sound == Sounds.SpinJump && ((Samus)owner).IsShownByScene)
+            return;
+        owner.Room.Session.Sounds.Request(sound, channel: "samus");
     }
 
     /// <summary>The sound of the spin she is in.</summary>

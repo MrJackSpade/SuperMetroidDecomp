@@ -78,8 +78,9 @@ public partial class ScrollingMap : Node2D
         map._cells = new MapView { Name = "Cells", Window = cells, DrawsSigns = false };
         window.AddChild(map._cells);
         map._cells.Present(area, progress, content);
+        // The signs lie within the opening too: nothing of the map is drawn over its frame.
         map._signs = new MapView { Name = "Signs", Window = cells, DrawsCells = false };
-        map.AddChild(map._signs);
+        window.AddChild(map._signs);
         map._signs.Present(area, progress, content);
 
         // Its bounds are those of what the area's map shows once had, or of what has been explored while it is not.
@@ -188,9 +189,9 @@ public partial class ScrollingMap : Node2D
         var first = new Vector2I(Mathf.FloorToInt((float)Scroll.X / _cell), Mathf.FloorToInt((float)Scroll.Y / _cell));
         Vector2I at = first * _cell - Scroll + _plane;
 
-        // The cells are drawn within the opening, whose corner their own place is measured from.
+        // Both are drawn within the opening, whose corner their own place is measured from.
         cells.Position = at - (Vector2I)cells.GetParent<Control>().Position;
-        signs.Position = at;
+        signs.Position = cells.Position;
         foreach (MapView view in new[] { cells, signs })
         {
             view.Centre = first + view.Window / 2;

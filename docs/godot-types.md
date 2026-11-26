@@ -193,8 +193,10 @@ something that leaves the room.
   nine or fifteen; fifteen is the most that wait), and one let in is dropped all the same while a door's passage,
   a demonstration or a power bomb's blast turns sounds away. On each turn a library hands its oldest waiting sound
   to the sound program and goes through a fixed exchange with it before the next (`SoundLibraryQueue`); the program
-  takes up what it is asked every 512 of its samples, 534 of which pass in an update (`SoundProgramClock`), and a
-  sound is heard when the program starts it, on the channel of its library. Music waits in a queue of its own, each
+  takes up what it is asked every 512 of its samples, 534 of which pass in an update (`SoundProgramClock`). All of
+  that is a count kept for the waits play depends on, and decides nothing that is heard: a sound is heard on the
+  update it is asked for, on the channel of its library, whatever its priority and however many wait, unless a
+  door's passage, a demonstration or a power bomb's blast is turning sounds away. Music waits in a queue of its own, each
   piece at least eight turns once at the front (`MusicQueue`), and a change of music withdraws what every library
   asks for eight turns.
   The cartridge's music comes in sets, one loaded at a time (`audio/music_sets.json`: the set loaded at power-on

@@ -3,9 +3,10 @@ namespace Game.Compatibility;
 /// <summary>
 /// When the cartridge's sound program takes up what the game asks of it. The program looks at what each library is
 /// asked for on a clock of its own, every 512 of its samples, while an update lasts 534: so its look falls a little
-/// earlier in each update, and now and then twice in one. At each look, library by library in a fixed order, it acts
-/// on what it took at the look before, reports that back, and takes what is asked now. Something asked for and
-/// replaced between two looks is never seen.
+/// earlier in each update, and now and then twice in one. At each look, library by library in a fixed order, it
+/// reports back what it took at the look before and takes what is asked now. Something asked for and replaced
+/// between two looks is never seen. It is a count for the waits play keeps: it starts no sound, since what is heard
+/// is started as it is asked for.
 /// </summary>
 internal sealed class SoundProgramClock
 {
@@ -18,16 +19,14 @@ internal sealed class SoundProgramClock
     /// <summary>The timer's steps between two looks at what is asked.</summary>
     private const int StepsPerLook = 8;
 
-    private readonly string[] _names;
     private readonly Dictionary<string, Library> _libraries;
     private int _samplesSinceStep;
     private int _stepsSinceLook;
 
-    /// <summary>A clock at power-on, serving <paramref name="libraries"/> in their order.</summary>
+    /// <summary>A clock at power-on, serving <paramref name="libraries"/>.</summary>
     public SoundProgramClock(IReadOnlyList<string> libraries)
     {
-        _names = [.. libraries];
-        _libraries = _names.ToDictionary(name => name, _ => new Library(), StringComparer.Ordinal);
+        _libraries = libraries.ToDictionary(name => name, _ => new Library(), StringComparer.Ordinal);
     }
 
     /// <summary>What <paramref name="library"/> reports back as taken up: a sound, or nothing.</summary>
@@ -43,8 +42,8 @@ internal sealed class SoundProgramClock
             library.Asked = null;
     }
 
-    /// <summary>Runs one update's samples. Each sound the program starts is told to <paramref name="started"/>, with its library.</summary>
-    public void Advance(Action<string, string> started)
+    /// <summary>Runs one update's samples.</summary>
+    public void Advance()
     {
         int sample = 0;
         while (sample < SamplesPerUpdate)
@@ -55,7 +54,7 @@ internal sealed class SoundProgramClock
                 if (++_stepsSinceLook == StepsPerLook)
                 {
                     _stepsSinceLook = 0;
-                    Look(started);
+                    Look();
                 }
             }
 
@@ -65,21 +64,13 @@ internal sealed class SoundProgramClock
         }
     }
 
-    /// <summary>One look: each library acts on what it took last, reports it, and takes what is asked now.</summary>
-    private void Look(Action<string, string> started)
+    /// <summary>One look: each library reports what it took last and takes what is asked now.</summary>
+    private void Look()
     {
-        foreach (string name in _names)
+        foreach (Library library in _libraries.Values)
         {
-            Library library = _libraries[name];
-            string? before = library.ActedOn;
-            string? now = library.Taken;
-            library.ActedOn = now;
-            library.Reported = now;
+            library.Reported = library.Taken;
             library.Taken = library.Asked;
-
-            // A sound starts only when what is acted on has changed, and is a sound.
-            if (now is not null && now != before)
-                started(name, now);
         }
     }
 
@@ -88,11 +79,8 @@ internal sealed class SoundProgramClock
         /// <summary>What the game asks for now.</summary>
         public string? Asked;
 
-        /// <summary>What the program took at its last look, which the next look acts on.</summary>
+        /// <summary>What the program took at its last look, which the next look reports.</summary>
         public string? Taken;
-
-        /// <summary>What the program acted on at its last look.</summary>
-        public string? ActedOn;
 
         /// <summary>What the program reports back.</summary>
         public string? Reported;

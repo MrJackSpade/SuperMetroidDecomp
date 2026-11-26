@@ -5,13 +5,19 @@ using Engine.World;
 namespace Game.Compatibility;
 
 /// <summary>
-/// The cartridge's way with sound, which is part of how the game plays: a door waits for the sounds and the music
-/// waiting to run out, and the speed booster reads how many sounds were waiting. Every sound belongs to one of three
-/// libraries, told by the first part of its name ("samus", "enemy", "room"), and waits its turn in that library's
-/// queue (<see cref="SoundLibraryQueue"/>); the sound program takes up what it is asked on its own clock
-/// (<see cref="SoundProgramClock"/>); music waits in a queue of its own (<see cref="MusicQueue"/>), and a change of
-/// music withdraws what every library asks for eight turns. A sound is heard when the program starts it, on the
-/// channel of its library.
+/// The cartridge's waits for its sounds, which are part of how the game plays: a door waits for the sounds and the
+/// music waiting to run out, and the speed booster reads how many sounds were waiting. They are kept here as a count
+/// and nothing more. Every sound belongs to one of three libraries, told by the first part of its name ("samus",
+/// "enemy", "room"), and is counted as waiting its turn in that library's queue (<see cref="SoundLibraryQueue"/>);
+/// the sound program is counted as taking up what it is asked on its own clock (<see cref="SoundProgramClock"/>);
+/// music waits in a queue of its own (<see cref="MusicQueue"/>), and a change of music withdraws what every library
+/// asks for eight turns.
+/// <para>
+/// What is heard does not go through the queues. A sound is heard on the update it is asked for, on the channel of
+/// its library, whatever its priority and however many wait; only a door's passage, a demonstration or a power
+/// bomb's blast keeps it from being heard, as the game turns sounds away then. The queues say how long play waits,
+/// never what a player hears.
+/// </para>
 /// </summary>
 /// <remarks>
 /// <para>
@@ -148,12 +154,19 @@ public sealed class CartridgeSounds : ISoundFlow
     public bool HasWaitingMusic => _music.HasWaiting;
 
     /// <summary>
-    /// Takes a sound into its library's queue. Its priority is tried first, against how many wait; one let in is
-    /// then dropped all the same while the game turns sounds away. The channel its asker named is not used: its
-    /// library is its channel.
+    /// A sound asked for. It is heard at once, on its library's channel, unless the game is turning sounds away; and
+    /// it is counted into its library's queue for the waits play keeps, its priority tried against how many wait and
+    /// one let in dropped all the same while sounds are turned away. What the count answers is what is returned. The
+    /// channel its asker named is not used: its library is its channel.
     /// </summary>
-    public SoundAdmission Ask(string sound, string channel, SoundPriority priority) =>
-        _queues[LibraryOf(sound)].Admit(sound, priority, DoorTurnsSoundsAway || DemoPlaying || PowerBombExploding);
+    public SoundAdmission Ask(string sound, string channel, SoundPriority priority)
+    {
+        string library = LibraryOf(sound);
+        bool turnedAway = DoorTurnsSoundsAway || DemoPlaying || PowerBombExploding;
+        if (!turnedAway)
+            _started.Add(new AcceptedSound(AsLoadedSetPlays(sound), library));
+        return _queues[library].Admit(sound, priority, turnedAway);
+    }
 
     /// <summary>Asks each library, in order, for the sound that stops everything it is sounding.</summary>
     public void AskSilence(SoundPriority priority)
@@ -293,7 +306,7 @@ public sealed class CartridgeSounds : ISoundFlow
         foreach ((string library, string? sound) in _askedOfProgram)
             _clock.Ask(library, sound);
         _askedOfProgram.Clear();
-        _clock.Advance((library, sound) => _started.Add(new AcceptedSound(AsLoadedSetPlays(sound), library)));
+        _clock.Advance();
     }
 
     /// <inheritdoc/>
@@ -304,7 +317,7 @@ public sealed class CartridgeSounds : ISoundFlow
         return taken;
     }
 
-    /// <summary>Nothing falls silent but by a stop taking its turn.</summary>
+    /// <summary>Nothing falls silent but by a stop being asked for.</summary>
     public bool TakeSilence() => false;
 
     /// <summary>One turn of the three libraries: withdrawn alike after a change of music, and otherwise each its own exchange.</summary>

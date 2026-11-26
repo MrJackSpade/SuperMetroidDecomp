@@ -56,8 +56,10 @@ TUBE_RIDES = (('RideUp', 'ToOasis', -1.0, -0.125), ('RideDown', 'ToPlasmaSpark',
 # The old code's backgrounds that are no picture: none, the layer a boss's body is drawn on, and that layer cleared.
 NOT_PICTURES = {'null', 'BossBody', 'Cleared', 'KraidAlive'}
 
-# The guardians of the Tourian statue, each with a visual and a grey one over it.
-GUARDIANS = ['Kraid', 'Phantoon', 'Draygon', 'Ridley']
+# The guardians of the Tourian statue, each with a visual and a grey one over it, in the order they are drawn:
+# Kraid and Draygon are part of the backdrop's picture and lie under the rest, and Ridley's statue is drawn over
+# Phantoon's, as the cartridge draws them.
+GUARDIANS = ['Kraid', 'Draygon', 'Phantoon', 'Ridley']
 
 
 def sequence(script: str, name: str, properties: dict[str, str], **more) -> Placed:
@@ -237,9 +239,10 @@ class Sequences:
     def statue_hall(self, ctx, named: dict[str, Placed]) -> None:
         # The statue is a plain thing the hall's sequence moves and shows: its base, a visual for each guardian, and a
         # grey one over each. It stands at the corner of the room's backdrop, which is the picture the statue is part
-        # of and sinks with it; the hall's data says where each picture lies from there.
+        # of and sinks with it; the hall's data says where each picture lies from there. The base is drawn over the
+        # guardians, as the cartridge draws it.
         statue = Placed('', 'Statue', {}, at=(0, 0), enemy=False,
-                        children=[('Base', VISUAL, {})] + [(guardian + grey, VISUAL, {}) for guardian in GUARDIANS for grey in ('', 'Grey')])
+                        children=[(guardian + grey, VISUAL, {}) for guardian in GUARDIANS for grey in ('', 'Grey')] + [('Base', VISUAL, {})])
         hall = sequence('crateria/TourianStatueHall.cs', 'StatueHall', {
             'DataFile': quoted('rooms/tourian_statue_hall.json'), 'StartsWhen': ctx.always(), 'ClearPatch': quoted('floor_clear')})
         self.placed += [statue, hall]

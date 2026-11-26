@@ -22,7 +22,8 @@ namespace Game.Rooms.Crateria;
 /// each for it turned grey, named with "Grey" after, and one named "Base". Its data names, under "statues", each
 /// guardian's pictures ("bright", "dim", "dark", "released", "grey"), where they lie from the statue ("offset",
 /// "grey_offset"), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
-/// stays with the view as it moves up and down, and what is part of it stays with it), and its effects: "eye_glow",
+/// stays with the view as it moves up and down, and what is part of it stays with it and lies behind the room's
+/// tiles), and its effects: "eye_glow",
 /// "particle", "tail", "splash" and "soul" by the data files of their timelines (those of the particle and the
 /// soul loop). It names "base" (a "picture" and its "offset"); the "dust" the sinking statue raises, by the data
 /// file of its timeline, with "dust_puffs", "dust_rounds", "dust_updates" and the "dust_scatter" it is thrown by;
@@ -194,6 +195,13 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
             grey.Bind(room.Content);
             grey.Show(Picture(guardian, "grey"));
             grey.Tint(new Color(1, 1, 1, 0));
+
+            // A guardian that is part of the backdrop lies behind the room's tiles with it, so the floor hides it as it sinks.
+            if (!pictures.Flag("in_room"))
+            {
+                foreach (ActorVisual visual in new[] { Visual(guardian.Name), grey })
+                    (visual.ZAsRelative, visual.ZIndex) = (false, RoomDepth.BehindRoom);
+            }
         }
 
         if (room.Session.Progress.Has(StoryEvents.TourianUnlocked))

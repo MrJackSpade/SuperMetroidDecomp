@@ -1,4 +1,5 @@
 using Engine.Shared;
+using Engine.Tests.Core;
 
 namespace Engine.Tests.Shared;
 

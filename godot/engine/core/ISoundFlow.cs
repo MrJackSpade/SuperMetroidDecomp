@@ -5,8 +5,7 @@ namespace Engine.Core;
 /// <summary>
 /// How the sounds and music that gameplay asks for come to be heard: whether each is let in, how long it waits, and
 /// on which update it starts. <see cref="SoundRequests"/> asks it; the audio director plays what it starts. The
-/// engine's own, <see cref="ImmediateSoundFlow"/>, starts everything at once. A game whose sounds wait their turn
-/// supplies its own through <see cref="GameDefinition.CreateSoundFlow"/>. Whatever it keeps is the game's state,
+/// engine has none of its own: a game supplies its flow through <see cref="GameDefinition.CreateSoundFlow"/>. Whatever it keeps is the game's state,
 /// moved on once an update and never by a sound device.
 /// </summary>
 public interface ISoundFlow

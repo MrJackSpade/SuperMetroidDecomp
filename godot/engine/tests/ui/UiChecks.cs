@@ -55,7 +55,7 @@ public sealed class UiChecks
     public void TypedTextShowsACharacterAtATimeWithASoundForEachThatIsNotASpace()
     {
         var text = new TypedText { UpdatesPerCharacter = 2, Sound = "tick" };
-        var sounds = new SoundRequests();
+        var sounds = new SoundRequests(new Engine.Tests.Core.ImmediateSoundFlow());
         text.Type("ab c");
         Expect.Equal(0, text.Shown);
 

@@ -14,6 +14,24 @@ public partial class StandInDefinition : GameDefinition
     /// <inheritdoc/>
     public override Engine.Actors.Player CreatePlayer() => new() { Name = "Player" };
 
+    /// <summary>The number the stand-in game's random sequence starts from.</summary>
+    public uint RandomSeed { get; set; } = 1;
+
+    /// <inheritdoc/>
+    public override GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
+
+    /// <inheritdoc/>
+    public override Engine.World.IScrollCells CreateScrollCells(GameSession session) => new RoomScrollCells();
+
+    /// <inheritdoc/>
+    public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) => new ImmediateSoundFlow();
+
+    /// <inheritdoc/>
+    public override Engine.Shared.IRandomSequence CreateRandomSequence() => new PlainRandomSequence(RandomSeed);
+
+    /// <inheritdoc/>
+    public override Engine.Actors.ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
+
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => [];
 

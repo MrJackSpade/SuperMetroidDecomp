@@ -33,10 +33,6 @@ public abstract partial class GameDefinition : Resource
     /// </summary>
     public virtual Content.AssetsMaker? AssetsMaker => null;
 
-    /// <summary>The number a new session's random sequence starts from.</summary>
-    [Export]
-    public uint RandomSeed { get; set; } = 1;
-
     /// <summary>Makes the mode a new session starts in: the screen the game starts on.</summary>
     public abstract GameMode CreateFirstMode();
 
@@ -105,7 +101,7 @@ public abstract partial class GameDefinition : Resource
     public string MusicFolder { get; set; } = "music";
 
     /// <summary>Makes the mode laid over play when the player pauses.</summary>
-    public virtual GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
+    public abstract GameMode CreatePauseMode(PlayingMode playing);
 
     /// <summary>
     /// Whether the pause may be asked for on this update of play in <paramref name="room"/>, over and above what play
@@ -243,17 +239,15 @@ public abstract partial class GameDefinition : Resource
     public abstract bool StatusLasts(GameSession session, string status);
 
     /// <summary>
-    /// Makes what keeps how each screen of the room being played lets the view in, for <paramref name="session"/>. The
-    /// engine's plain keeper, which knows the room's own screens and nothing else, unless the game needs another.
+    /// Makes what keeps how each screen of the room being played lets the view in, for <paramref name="session"/>.
     /// </summary>
-    public virtual IScrollCells CreateScrollCells(GameSession session) => new RoomScrollCells();
+    public abstract IScrollCells CreateScrollCells(GameSession session);
 
     /// <summary>
-    /// Makes what decides how the sounds and music asked for come to be heard. The engine's plain flow, where
-    /// everything starts at once, unless the game's sounds wait their turn in a way of its own, which may read the
-    /// game's data from <paramref name="content"/>.
+    /// Makes what decides how the sounds and music asked for come to be heard, which may read the game's data from
+    /// <paramref name="content"/>.
     /// </summary>
-    public virtual ISoundFlow CreateSoundFlow(ContentLibrary content) => new ImmediateSoundFlow();
+    public abstract ISoundFlow CreateSoundFlow(ContentLibrary content);
 
     /// <summary>
     /// Makes the mode that takes the player from the room being played through <paramref name="exit"/> to the room it
@@ -287,16 +281,14 @@ public abstract partial class GameDefinition : Resource
     }
 
     /// <summary>
-    /// Makes the sequence a new session's random numbers come from. The engine's plain sequence unless the game needs a
-    /// particular one.
+    /// Makes the sequence a new session's random numbers come from.
     /// </summary>
-    public virtual IRandomSequence CreateRandomSequence() => new PlainRandomSequence(RandomSeed);
+    public abstract IRandomSequence CreateRandomSequence();
 
     /// <summary>
-    /// Makes the way the player's speed across is read against its limits. The engine's plain reading unless the game
-    /// needs a particular one.
+    /// Makes the way the player's speed is read against its limits.
     /// </summary>
-    public virtual ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
+    public abstract ISpeedReadings CreateSpeedReadings();
 
     /// <summary>
     /// How the player's body is moved through a room on this update of <paramref name="session"/>, given

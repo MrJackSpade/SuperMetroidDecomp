@@ -21,7 +21,10 @@ public sealed class Camera
     /// <summary>Half a screen: how far in from the view's corner the screen it checks across and down is taken.</summary>
     private const int HalfScreen = Screen / 2;
 
-    private IScrollCells _cells = new RoomScrollCells();
+    private IScrollCells? _cells;
+
+    /// <summary>What keeps how each screen lets the view in, once the camera has been given a room's.</summary>
+    private IScrollCells Cells => _cells ?? throw new InvalidOperationException("The camera has been given no room's screens.");
     private int _columns = 1;
     private int _rows = 1;
     private PixelPosition? _tracked;
@@ -247,13 +250,13 @@ public sealed class Camera
         if (Left > last)
             SetLeft(last);
         (int column, int row) = ScreenCheckedAcross();
-        if (_cells.Read(column, row) == ScreenScroll.Closed)
+        if (Cells.Read(column, row) == ScreenScroll.Closed)
         {
             DriftThroughClosed(across: true, from, column, row);
             return;
         }
 
-        if (_cells.Read(column + 1, row) != ScreenScroll.Closed)
+        if (Cells.Read(column + 1, row) != ScreenScroll.Closed)
             return;
         DriftBackFromClosedBeyond(across: true, from, column, row, ScreenStart(Left));
     }
@@ -267,7 +270,7 @@ public sealed class Camera
         // How far below a screen's top the view may rest is chosen before the view is kept inside the room, and
         // holds for this update.
         (int firstColumn, int firstRow) = ScreenCheckedDown();
-        int rest = _cells.Read(firstColumn, firstRow) == ScreenScroll.OpenAlignedToTop ? 0 : LowerRest;
+        int rest = Cells.Read(firstColumn, firstRow) == ScreenScroll.OpenAlignedToTop ? 0 : LowerRest;
         int from = Top;
         if (Top < 0)
             SetTop(0);
@@ -275,13 +278,13 @@ public sealed class Camera
         if (Top > last)
             SetTop(last);
         (int column, int row) = ScreenCheckedDown();
-        if (_cells.Read(column, row) == ScreenScroll.Closed)
+        if (Cells.Read(column, row) == ScreenScroll.Closed)
         {
             DriftThroughClosed(across: false, from, column, row);
             return;
         }
 
-        if (_cells.Read(column, row + 1) != ScreenScroll.Closed)
+        if (Cells.Read(column, row + 1) != ScreenScroll.Closed)
             return;
         int boundary = ScreenStart(Top) + rest;
 
@@ -306,7 +309,7 @@ public sealed class Camera
         }
 
         (int column, int row) = ScreenCheckedAcross();
-        if (_cells.Read(column + 1, row) != ScreenScroll.Closed)
+        if (Cells.Read(column + 1, row) != ScreenScroll.Closed)
             return;
         DriftBack(across: true, from, ScreenStart(Left));
     }
@@ -315,7 +318,7 @@ public sealed class Camera
     {
         int from = Top;
         (int column, int row) = ScreenCheckedDown();
-        int rest = _cells.Read(column, row) == ScreenScroll.OpenAlignedToTop ? 0 : LowerRest;
+        int rest = Cells.Read(column, row) == ScreenScroll.OpenAlignedToTop ? 0 : LowerRest;
         if (IdealTop < Top)
             SnapToIdeal(across: false);
         int boundary = (_rows - 1) * Screen + rest;
@@ -324,7 +327,7 @@ public sealed class Camera
         if (!pastRoomBottom)
         {
             // A view already past the room's bottom is not asked about the screen below.
-            stoppedBelow = _cells.Read(column, row + 1) == ScreenScroll.Closed;
+            stoppedBelow = Cells.Read(column, row + 1) == ScreenScroll.Closed;
             if (stoppedBelow)
             {
                 boundary = ScreenStart(Top) + rest;
@@ -349,7 +352,7 @@ public sealed class Camera
         }
 
         (int column, int row) = across ? ScreenCheckedAcross() : ScreenCheckedDown();
-        if (_cells.Read(column, row) != ScreenScroll.Closed)
+        if (Cells.Read(column, row) != ScreenScroll.Closed)
             return;
         int boundary = ScreenStart(Whole(across)) + Screen;
         int candidate = from + SpeedAlong(across) + ClosedScreenDrift;
@@ -378,7 +381,7 @@ public sealed class Camera
 
         // Should the screen past the one it lands in be closed too, it stays at that screen's near edge.
         (int landsColumn, int landsRow) = across ? (ScreenOf(candidate), row) : (column, ScreenOf(candidate));
-        bool beyondOpen = _cells.Read(across ? landsColumn + 1 : landsColumn, across ? landsRow : landsRow + 1) != ScreenScroll.Closed;
+        bool beyondOpen = Cells.Read(across ? landsColumn + 1 : landsColumn, across ? landsRow : landsRow + 1) != ScreenScroll.Closed;
         SetWhole(across, beyondOpen ? candidate : ScreenStart(candidate));
     }
 
@@ -392,7 +395,7 @@ public sealed class Camera
         }
 
         (int landsColumn, int landsRow) = across ? (ScreenOf(candidate), row) : (column, ScreenOf(candidate));
-        SetWhole(across, _cells.Read(landsColumn, landsRow) != ScreenScroll.Closed ? candidate : ScreenStart(candidate) + Screen);
+        SetWhole(across, Cells.Read(landsColumn, landsRow) != ScreenScroll.Closed ? candidate : ScreenStart(candidate) + Screen);
     }
 
     /// <summary>The screen whose state decides the view's way across: the one its left edge is in, half a screen down from its top.</summary>

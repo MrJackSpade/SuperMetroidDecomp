@@ -294,7 +294,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private int _ongoingHundredths;
     private int _addedOngoing;
     private bool _valuesLoaded;
-    private ISpeedReadings _readings = new PlainSpeedReadings();
+    private ISpeedReadings? _readings;
+
+    /// <summary>How the game reads the player's speed, once they have entered a room.</summary>
+    private ISpeedReadings Readings => _readings ?? throw new InvalidOperationException("The player is not in a room.");
     private readonly Dictionary<string, IReadOnlyList<string>> _ongoingCancelledBy = new(StringComparer.Ordinal);
     private readonly List<BodyPower> _bodyPowers = [];
 
@@ -378,10 +381,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// Whether the player's speed up or down reads as at least <paramref name="whole"/> whole pixels an update, as
     /// the game reads speeds (<see cref="ISpeedReadings.ReachesWhole"/>). What asks how fast they rise or fall asks this.
     /// </summary>
-    public bool MovesUpOrDownAtLeast(int whole) => _readings.ReachesWhole(HeldSpeedUpOrDown, whole);
+    public bool MovesUpOrDownAtLeast(int whole) => Readings.ReachesWhole(HeldSpeedUpOrDown, whole);
 
     /// <summary>Whether the speed the player came down at this update reads as at least <paramref name="whole"/> whole pixels an update, read the same way.</summary>
-    public bool LandedAtLeast(int whole) => _readings.ReachesWhole(_landingHeld, whole);
+    public bool LandedAtLeast(int whole) => Readings.ReachesWhole(_landingHeld, whole);
 
     /// <summary>
     /// Lands the player on their feet at <paramref name="speed"/>: they are at rest up and down and across, steered,
@@ -1252,7 +1255,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private Pixels Gained(Pixels speed, MoveValues moves, out bool capped)
     {
         Pixels faster = speed + moves.Gain;
-        capped = _readings.IsPastTop(faster, moves.Top);
+        capped = Readings.IsPastTop(faster, moves.Top);
         return capped ? moves.Top : faster;
     }
 
@@ -1322,7 +1325,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
 
         Pixels cap = Pixels.FromNumber(DashBoostNeeds.Length > 0 && Inventory.IsOn(DashBoostNeeds) ? BoostedDashCap : DashCap);
-        DashSpeed = _readings.IsAtCap(DashSpeed, cap) ? cap : DashSpeed + Pixels.FromNumber(DashAcceleration);
+        DashSpeed = Readings.IsAtCap(DashSpeed, cap) ? cap : DashSpeed + Pixels.FromNumber(DashAcceleration);
     }
 
     /// <summary>Whether the dash action is held.</summary>

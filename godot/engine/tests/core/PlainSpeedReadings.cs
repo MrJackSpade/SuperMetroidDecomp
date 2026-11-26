@@ -1,8 +1,9 @@
 using Engine.Shared;
+using Engine.Actors;
 
-namespace Engine.Actors;
+namespace Engine.Tests.Core;
 
-/// <summary>The engine's own reading of the player's speed against its limits: one number compared with another.</summary>
+/// <summary>The stand-in game's reading of the player's speed against its limits: one number compared with another.</summary>
 public sealed class PlainSpeedReadings : ISpeedReadings
 {
     /// <inheritdoc/>

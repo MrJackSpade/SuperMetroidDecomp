@@ -3,9 +3,8 @@ using Engine.Shared;
 namespace Engine.Actors;
 
 /// <summary>
-/// How the player's speed is read against its limits, and against what asks how fast they move up or down. The engine reads it plainly
-/// (<see cref="PlainSpeedReadings"/>); a game whose speeds must be read some other way supplies its own through its
-/// <see cref="Core.GameDefinition"/>.
+/// How the player's speed is read against its limits, and against what asks how fast they move up or down. The engine has no
+/// reading of its own: the game supplies one through its <see cref="Core.GameDefinition"/>.
 /// </summary>
 public interface ISpeedReadings
 {

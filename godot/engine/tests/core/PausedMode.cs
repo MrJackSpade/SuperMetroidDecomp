@@ -1,6 +1,7 @@
 using Engine.Input;
+using Engine.Core;
 
-namespace Engine.Core;
+namespace Engine.Tests.Core;
 
 /// <summary>
 /// The game paused. Play is kept beneath it and does not run; the pause action hands control back. A game's own pause

@@ -325,7 +325,7 @@ it is remembered.
   error, not silence.
 - What waits to be heard is game state where the game reads it. This game's flow is the cartridge's
   (`CartridgeSounds`, in the compatibility layer): an update opens with the music's turn, the mode plays it, and it
-  closes with the sounds' turns and the sound program's clock. The engine's plain flow starts everything at once.
+  closes with the sounds' turns and the sound program's clock. The flow is the game's (`GameDefinition.CreateSoundFlow`); the engine has none of its own.
 
 ## Presentation
 

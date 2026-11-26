@@ -10,12 +10,6 @@ namespace Engine.Core;
 /// </summary>
 public sealed class SoundRequests
 {
-    /// <summary>Requests that go by the engine's plain flow, where everything starts at once.</summary>
-    public SoundRequests()
-        : this(new ImmediateSoundFlow())
-    {
-    }
-
     /// <summary>Requests that go by <paramref name="flow"/>.</summary>
     public SoundRequests(ISoundFlow flow)
     {

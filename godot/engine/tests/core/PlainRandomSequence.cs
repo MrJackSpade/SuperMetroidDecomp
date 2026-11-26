@@ -1,6 +1,8 @@
-namespace Engine.Shared;
+using Engine.Shared;
 
-/// <summary>The engine's own random sequence: a small generator that gives the same numbers for the same seed.</summary>
+namespace Engine.Tests.Core;
+
+/// <summary>The stand-in game's random sequence: a small generator that gives the same numbers for the same seed.</summary>
 public sealed class PlainRandomSequence : IRandomSequence
 {
     /// <summary>The generator's state, never zero.</summary>

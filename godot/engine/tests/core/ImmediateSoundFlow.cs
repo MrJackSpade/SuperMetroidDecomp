@@ -1,9 +1,10 @@
 using Engine.World;
+using Engine.Core;
 
-namespace Engine.Core;
+namespace Engine.Tests.Core;
 
 /// <summary>
-/// The engine's plain way with sound: every sound asked for is let in and starts on the update it was asked for, on
+/// The stand-in game's way with sound: every sound asked for is let in and starts on the update it was asked for, on
 /// the channel its asker named, and nothing waits. Music asked for with a wait plays when the wait is over, each
 /// piece after the one asked for before it.
 /// </summary>

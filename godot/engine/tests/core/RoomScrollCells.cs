@@ -1,6 +1,7 @@
 using Engine.Content;
+using Engine.World;
 
-namespace Engine.World;
+namespace Engine.Tests.Core;
 
 /// <summary>
 /// The plain keeper of a room's screens: it holds the states of the room's own screens and nothing else, and every

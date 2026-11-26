@@ -5,8 +5,8 @@ using Godot;
 namespace Engine.World.Objects;
 
 /// <summary>
-/// What is special about a boss fight, kept apart from the boss. When the player enters its region it changes the
-/// music and wakes the boss; when the boss is destroyed it records the defeat and puts the room's music back. It does
+/// What is special about a boss fight, kept apart from the boss. When the player enters its region it wakes the
+/// boss; when the boss is destroyed it records the defeat and puts the room's music back. It does
 /// not touch the room's barriers: they hold themselves shut on a condition about this fight's fact. The boss itself
 /// knows nothing of any of this.
 /// </summary>
@@ -15,10 +15,6 @@ public partial class BossEncounter : RoomObject
     /// <summary>The boss.</summary>
     [Export]
     public NodePath Boss { get; set; } = new();
-
-    /// <summary>The music played during the fight, by name; empty to leave the music alone.</summary>
-    [Export]
-    public string Music { get; set; } = "";
 
     /// <summary>The width and height of the region that starts the fight, in pixels; its top-left is where the encounter stands.</summary>
     [Export]
@@ -72,8 +68,6 @@ public partial class BossEncounter : RoomObject
             if (!Area.Overlaps(Room.Player.BodyRect))
                 return;
             _started = true;
-            if (Music.Length > 0)
-                Room.Session.Sounds.RequestMusic(Music);
             if (GetNodeOrNull(Boss) is Enemy boss)
                 boss.Wake();
             return;

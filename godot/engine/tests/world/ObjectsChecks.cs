@@ -232,7 +232,7 @@ public sealed class ObjectsChecks
         door.HeldShutBy = Condition.Of(ConditionKind.FactRecorded, "boss beaten");
         var encounter = world.Place(new BossEncounter
         {
-            Name = "Fight", Boss = new NodePath("../Boss"), Music = "boss theme", RememberedAs = "boss beaten", Size = new Vector2I(64, 96),
+            Name = "Fight", Boss = new NodePath("../Boss"), RememberedAs = "boss beaten", Size = new Vector2I(64, 96),
         }, 100, 0);
         world.Setup();
 
@@ -244,7 +244,6 @@ public sealed class ObjectsChecks
         world.Step(40, GameAction.Right);
         Expect.True(encounter.HasStarted);
         Expect.False(boss.IsAsleep);
-        Expect.Equal("boss theme", world.Session.Sounds.Music);
 
         boss.Die();
         world.Step(2);

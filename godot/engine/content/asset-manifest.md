@@ -30,9 +30,9 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, dud_effect, dud_sound, health, lunge_delay_updates, mouth_dud_effect, rise_wait_updates, rock_sound, samus_in_view_facing_left, samus_in_view_facing_right, spit_cadence_updates, thinking_step_updates |
 | `bosses/kraid_ceiling_rock.json` | `KraidRock` | drift, drift_limit, gravity |
 | `bosses/kraid_lint.json` | `KraidLint` | charge_updates, contact_damage, emerge_pixels, fire_sound, fire_speed, harmless_x, health, point_x, reload_updates, return_x |
-| `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
+| `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left, second_death_effect |
 | `bosses/kraid_rock.json` | `KraidRock` | drift, drift_limit, gravity |
-| `bosses/kraid_second_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
+| `bosses/kraid_second_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left, second_death_effect |
 | `bosses/mother_brain.json` | `MotherBrain` | ascent_dust_sound, attack_cry_sound, big_breath_effect, big_dust_effect, big_explosion_effect, charge_sound, charge_stop_sound, contact_damage, corpse_dust_effect, corpse_dust_sound, door_fragment_effect, drained_grey_step_updates, dust_effect, explosion_effect, explosion_sound, fake_death_grey_step_updates, finish_off_energy, first_phase_health, footstep_sound, from_grey_step_updates, full_strength_health, grey_steps, hand_beam_sound, health, hurt_sound, laser_sound, rainbow_beam_sound, rainbow_beam_stop_sound, samus_stands_energy, second_phase_health, small_breath_effect, smoke_effect, third_phase_health |
 | `bosses/mother_brain_baby.json` | `MotherBrainBaby` | contact_damage, cry_sound, death_sound, dust_effect, explosion_effect, explosion_sound, heal_sound, health, remorse_cry_sound, shielding_health |
 | `bosses/mother_brain_bomb.json` | `MotherBrainBomb` | dust_effect, explosion_effect, explosion_sound, flare, floor, right_wall |
@@ -94,7 +94,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/face_block.json` | `FaceBlock` | contact_damage, glow_updates, health, wakes_with |
 | `enemies/fake_kraid.json` | `FakeKraid` | contact_damage, cry_sound, death_drops, health, spike_sound, step_pixels |
 | `enemies/falling_spark.json` | `FallingSpark` | fall_speed_limit, gravity, skip_lift, skip_speed, skitter_timeline, skitter_times, trail_effect, trail_every |
-| `enemies/fireflea.json` | `Fireflea` | contact_damage, health |
+| `enemies/fireflea.json` | `Fireflea` | contact_damage, health, second_death_effect |
 | `enemies/fune.json` | `Fune` | contact_damage, health, mouth_drop |
 | `enemies/gamet.json` | `Gamet` | contact_damage, health, rise_speed |
 | `enemies/geega.json` | `Geega` | contact_damage, emergence_delay, health, speed_curve, swoop_distance, swoop_start_mark, trigger_distance, trigger_height |
@@ -757,16 +757,13 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_rest.json` | `game/objects/station/energy_station.tscn` |
-| `objects/energy_station_working.json` | `game/objects/station/energy_station.tscn` |
 | `objects/map_station_arm_left.json` | `game/objects/station/map_station.tscn` |
 | `objects/map_station_arm_right.json` | `game/objects/station/map_station.tscn` |
 | `objects/map_station_done.json` | `game/objects/station/map_station.tscn` |
 | `objects/map_station_rest.json` | `game/objects/station/map_station.tscn` |
-| `objects/map_station_working.json` | `game/objects/station/map_station.tscn` |
 | `objects/missile_station_arm_left.json` | `game/objects/station/missile_station.tscn` |
 | `objects/missile_station_arm_right.json` | `game/objects/station/missile_station.tscn` |
 | `objects/missile_station_rest.json` | `game/objects/station/missile_station.tscn` |
-| `objects/missile_station_working.json` | `game/objects/station/missile_station.tscn` |
 | `objects/save_station_electricity.json` | `game/objects/station/save_station.tscn` |
 | `objects/save_station_rest.json` | `game/objects/station/save_station.tscn` |
 | `objects/save_station_working.json` | `game/objects/station/save_station.tscn` |

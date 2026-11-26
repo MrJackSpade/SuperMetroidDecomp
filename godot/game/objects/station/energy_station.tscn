@@ -7,7 +7,6 @@
 [node name="EnergyStation" type="Node2D"]
 script = ExtResource("1")
 RestTimeline = "objects/energy_station_rest.json"
-WorkingTimeline = "objects/energy_station_working.json"
 Kind = 2
 HowUsed = 1
 Size = Vector2i(48, 16)

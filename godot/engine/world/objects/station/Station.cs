@@ -111,7 +111,10 @@ public partial class Station : RoomObject
     [Export(PropertyHint.File)]
     public string RestTimeline { get; set; } = "";
 
-    /// <summary>The data file of the timeline its visuals show while it works; empty for none.</summary>
+    /// <summary>
+    /// The data file of the timeline its visuals show while it works; empty for a station whose display at rest runs
+    /// on unbroken through its work.
+    /// </summary>
     [Export(PropertyHint.File)]
     public string WorkingTimeline { get; set; } = "";
 
@@ -165,6 +168,9 @@ public partial class Station : RoomObject
     private bool _usedThisVisit;
     private TimelinePlayer? _timeline;
 
+    /// <summary>Whether its first update in the room is still to come: what it showed as the room was set up stands through that one.</summary>
+    private bool _beforeFirstUpdate;
+
     /// <summary>The fact recorded when an area's map is revealed, for <paramref name="area"/>.</summary>
     public static string MapRevealedFact(string area) => $"map revealed: {area}";
 
@@ -189,13 +195,19 @@ public partial class Station : RoomObject
         }
 
         ShowAtRest();
+        _beforeFirstUpdate = true;
     }
 
     /// <inheritdoc/>
     protected override void OnStep()
     {
         Player player = Room.Player;
-        StepTimeline();
+
+        // Its first picture is the one its first update shows; its display moves on from the update after.
+        if (_beforeFirstUpdate)
+            _beforeFirstUpdate = false;
+        else
+            StepTimeline();
 
         // The sound of its finishing comes a set time after it, and until it is back at rest it takes no one.
         if (_doneSoundWait.IsRunning)
@@ -312,7 +324,8 @@ public partial class Station : RoomObject
     {
         _busy = true;
         _working = Countdown.Of(WorkUpdates);
-        Show(WorkingTimeline.Length > 0 ? WorkingTimeline : RestTimeline);
+        if (WorkingTimeline.Length > 0)
+            Show(WorkingTimeline);
         Sound(StartSound);
         if (effect.Length > 0)
             Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), Position + PixelOffset.FromWhole(WorkingEffectAt.X, WorkingEffectAt.Y)));

@@ -7,7 +7,6 @@
 [node name="MapStation" type="Node2D"]
 script = ExtResource("1")
 RestTimeline = "objects/map_station_rest.json"
-WorkingTimeline = "objects/map_station_working.json"
 Kind = 1
 HowUsed = 1
 Size = Vector2i(64, 16)

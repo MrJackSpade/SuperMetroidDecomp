@@ -95,8 +95,8 @@ public sealed partial class EngineAssetWriter
         {
             string name = EngineSheets.FileName(kind.ToString()) + "_station";
             int stationX = -rule.LeftOffset * block;
+            // Its display runs on unbroken while its arm is at work, so it has no look of its own for that.
             _tree.WriteData($"objects/{name}_rest.json", Display(rule.Animation, stationX, 0));
-            _tree.WriteData($"objects/{name}_working.json", Display(rule.Animation, stationX, 0));
             if (rule.AcquiredAnimation is { } acquired)
                 _tree.WriteData($"objects/{name}_done.json", Display(acquired, stationX, 0));
 

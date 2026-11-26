@@ -1733,7 +1733,8 @@ public partial class Samus : Player
             return;
         // A state that holds a knockback off still has it waiting: it begins once she is out of that state, if its
         // time has not run out by then.
-        bool takesKnockback = State.InControl || State.HoldsOffInterruptions;
+        // A ball already being thrown is not thrown afresh, as an upright Samus already knocked back is not.
+        bool takesKnockback = (State.InControl || State.HoldsOffInterruptions) && Thrown is null;
         if (!hit.Carries(HitKind.Hazard))
         {
             if (takesKnockback)

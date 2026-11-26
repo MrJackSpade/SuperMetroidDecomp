@@ -77,6 +77,7 @@ public partial class MorphBallEye : RoomObject
     private enum Beam
     {
         Off,
+        Asked,
         Widening,
         Full,
         Fading,
@@ -100,7 +101,7 @@ public partial class MorphBallEye : RoomObject
     private int _widthGrowth;
     private int _shade;
 
-    /// <summary>Whether it has taken up the glow of its room's face blocks.</summary>
+    /// <summary>Whether it has joined the glow of its room's face blocks.</summary>
     private bool _glows;
     private float _light;
 
@@ -148,11 +149,11 @@ public partial class MorphBallEye : RoomObject
         Player samus = Room.Player;
         StepBeam();
 
-        // It shares the colours of its room's face blocks, and so shows their glow from the update after that starts.
-        if (!_glows && Room.Objects.OfType<Enemies.FaceBlockGlow>().FirstOrDefault() is { HasStarted: true } glow)
+        // It shares the colours of its room's face blocks, and so shows their glow on the update it starts.
+        if (!_glows && Room.Objects.OfType<Enemies.FaceBlockGlow>().FirstOrDefault() is { } glow)
         {
             foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-                glow.StartOn(visual);
+                glow.Join(visual);
             _glows = true;
         }
 
@@ -178,7 +179,7 @@ public partial class MorphBallEye : RoomObject
                 if (--_timer > 0)
                     break;
                 Sound(ActivationSound);
-                (_beam, _halfWidth, _widthGrowth, _shade, _light) = (Beam.Widening, 0, 0, 0, 1f);
+                (_beam, _halfWidth, _widthGrowth, _shade, _light) = (Beam.Asked, 0, 0, 0, 0f);
                 _doing = Doing.Open;
                 LookAt();
                 break;
@@ -187,8 +188,6 @@ public partial class MorphBallEye : RoomObject
                 if (Math.Abs(to.Y.Whole) >= StaysOpenWithin.Y || Math.Abs(to.X.Whole) >= StaysOpenWithin.X)
                 {
                     Sound(BeamStopSound);
-                    if (_beam != Beam.Off)
-                        _beam = Beam.Fading;
                     (_doing, _timer) = (Doing.Closing, TransitionUpdates);
                     Play("closing");
                     break;
@@ -221,12 +220,20 @@ public partial class MorphBallEye : RoomObject
         Show(_aims[Turns.Wrap(_angle) * _aims.Count / Turns.PerTurn]);
     }
 
-    /// <summary>Its light widens as it comes on, wavers while it is on, and fades when it goes off.</summary>
+    /// <summary>
+    /// Its light comes on, at no width, the update after the eye asks for it, and widens from the next; it wavers
+    /// while it is on, and starts to fade the update after it finds the eye no longer open. It takes its step before
+    /// the eye takes its own.
+    /// </summary>
     private void StepBeam()
     {
         switch (_beam)
         {
             case Beam.Off:
+                break;
+
+            case Beam.Asked:
+                (_beam, _light) = (Beam.Widening, 1f);
                 break;
 
             case Beam.Widening:
@@ -237,6 +244,12 @@ public partial class MorphBallEye : RoomObject
                 break;
 
             case Beam.Full:
+                if (_doing != Doing.Open)
+                {
+                    _beam = Beam.Fading;
+                    break;
+                }
+
                 // It dims by steps to half and brightens again.
                 int along = _shade % LightShades;
                 _light = (LightShades - (along <= LightShades / 2 ? along : LightShades - along)) / (float)LightShades;
@@ -262,7 +275,7 @@ public partial class MorphBallEye : RoomObject
     {
         if (GetNodeOrNull<Polygon2D>("Beam") is not { } beam)
             return;
-        beam.Visible = _beam != Beam.Off;
+        beam.Visible = _beam is not (Beam.Off or Beam.Asked);
         if (!beam.Visible)
             return;
 

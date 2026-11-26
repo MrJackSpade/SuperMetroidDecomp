@@ -206,7 +206,6 @@ public partial class Ridley : Enemy
             throw colours.Problem("must give its eyes' colours for each step of their showing, and its body's for each step of its showing but the last");
         if (OnCeres)
         {
-            _retreatColours = ColourChange.Read(data.Get("retreat_colours"));
             _ownColours = ColourChange.Read(colours.Get("own"));
             ReadCeresBands(data);
         }

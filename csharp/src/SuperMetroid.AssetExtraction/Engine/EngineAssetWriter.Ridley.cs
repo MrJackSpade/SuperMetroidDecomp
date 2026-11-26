@@ -545,9 +545,6 @@ public sealed partial class EngineAssetWriter
             return timeline;
         }
 
-        // The colours its retreat gives the chamber, on the pictures of each state of a room that places it.
-        ridley.Group("retreat_colours", ShadeChange($"{RidleyShades.RetreatRoom.Key}+{RidleyShades.RetreatShared.Key}", RoomPlacesOf(EnemyDefinitionId.RidleyCeres)));
-
         // The bands of hits taken that lay a look of its health over its own colours. A band with no look leaves the
         // colours as they are, which, as hits only add up, is the last band's look reached below it.
         var bands = new JsonArray();

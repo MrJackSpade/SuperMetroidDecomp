@@ -21,9 +21,7 @@ namespace Game.Enemies;
 /// the first of its visuals and so drawn behind all the rest of it: while it is unseen the capsule shows alone, and
 /// once it has faded in it holds the capsule in front of itself no more than its claws do. The capsule
 /// plays "baby_idle" and "baby_expressive"; their cue "reacts" livens it when it is falling, and "cries" has it cry
-/// or, as often as not when it is still, settle. Its data's "retreat_colours" is the change of colours its going
-/// gives the chamber's own pictures, which stays for as long as the room is there; under its "colours", "own" is
-/// the change of its own pictures' colours it shows once it has shown itself. Its "health_bands" each give the
+/// or, as often as not when it is still, settle. Under its data's "colours", "own" is the change of its own pictures' colours it shows once it has shown itself. Its "health_bands" each give the
 /// fewest "hits" in a band and the "colours" it shows from then on, while it fights, in place of its own.
 /// </remarks>
 public partial class Ridley
@@ -51,9 +49,6 @@ public partial class Ridley
     /// <summary>How many updates each hit makes it flash.</summary>
     [Export, DataValue("hit_flash_updates")]
     public int HitFlashUpdates { get; set; } = 13;
-
-    /// <summary>The colours its going gives the chamber.</summary>
-    private ColourChange _retreatColours = ColourChange.None;
 
     /// <summary>Its own colours, once it has shown itself.</summary>
     private ColourChange _ownColours = ColourChange.None;
@@ -374,9 +369,6 @@ public partial class Ridley
                 Velocity = PixelVelocity.Zero;
                 Tail.Action = RidleyTail.Doing.None;
                 _ceresPhase = CeresPhase.Gone;
-
-                // The chamber takes its colours on this update; its own it keeps.
-                Room.Recolour("RidleyRetreat", _retreatColours);
                 foreach (NodePath path in ToldWhenGone)
                     (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Ridley is to tell \"{path}\" that it has gone, but that is nothing that can be told.")).Triggered(GoneMessage);
                 Vanish();

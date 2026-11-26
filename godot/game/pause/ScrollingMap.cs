@@ -84,12 +84,16 @@ public partial class ScrollingMap : Node2D
 
         // Its bounds are those of what the area's map shows once had, or of what has been explored while it is not.
         bool had = area.RevealedBy.Length > 0 && progress.Has(area.RevealedBy);
-        List<AreaCell> counted = [.. area.Cells.Where(found => had ? !found.Secret : progress.IsExplored(area.Name, found.Place.X, found.Place.Y))];
+        // What has been explored counts wherever it is, a place whose cell shows nothing too, as the cartridge's
+        // map counts every explored place.
+        List<Vector2I> counted = had
+            ? [.. area.Cells.Where(found => !found.Secret).Select(found => found.Place)]
+            : [.. progress.Explored.Where(found => found.Area == area.Name).Select(found => new Vector2I(found.Column, found.Row))];
         DataNode none = data.Get("unrevealed");
-        int left = counted.Count > 0 ? counted.Min(found => found.Place.X) : none.Int("left");
-        int right = counted.Count > 0 ? counted.Max(found => found.Place.X) : none.Int("right");
-        int top = counted.Count > 0 ? counted.Min(found => found.Place.Y) : none.Int("top");
-        int bottom = counted.Count > 0 ? counted.Max(found => found.Place.Y) : none.Int("bottom");
+        int left = counted.Count > 0 ? counted.Min(found => found.X) : none.Int("left");
+        int right = counted.Count > 0 ? counted.Max(found => found.X) : none.Int("right");
+        int top = counted.Count > 0 ? counted.Min(found => found.Y) : none.Int("top");
+        int bottom = counted.Count > 0 ? counted.Max(found => found.Y) : none.Int("bottom");
         map._bounds = new Rect2I(left * cell, top * cell, (right - left) * cell, (bottom - top) * cell);
 
         int across = map._bounds.Position.X + map._bounds.Size.X / 2 - data.Int("centre_column");

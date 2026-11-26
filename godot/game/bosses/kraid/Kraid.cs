@@ -1428,7 +1428,8 @@ public partial class Kraid : Enemy
                     Sound(parts[1]);
                     break;
                 case "mouth":
-                    ShowMouth(parts[1], player.Current.Updates);
+                    // Held for the length of the step the cue belongs to, which the player may already have passed.
+                    ShowMouth(parts[1], player.Shown.Updates);
                     break;
                 case "pose":
                     // The pieces of its foot move with where the foot is drawn.

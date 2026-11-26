@@ -115,6 +115,18 @@ public partial class Phantoon : Enemy
     /// </summary>
     private const int WaverUpdates = 120, WaverSettlingUpdates = 12 * 4 + 1;
 
+    /// <summary>
+    /// Dead, its body breaks up into ever larger blocks before it fades: so many sizes of block, the next on every so
+    /// manieth update of the clock.
+    /// </summary>
+    private const int DissolveSizes = 16, DissolveEvery = 16;
+
+    /// <summary>How long after its body is gone the ship's power begins to come back, in updates, and on every how manieth update of the clock it takes a step.</summary>
+    private const int PowerWaitUpdates = 61, PowerStepEvery = 4;
+
+    /// <summary>The name the room's colours are changed under as the ship's power comes back.</summary>
+    private const string PowerSource = "PhantoonPower";
+
     private static readonly int[] VulnerableWindows = [60, 30, 15, 30, 60, 30, 15, 60];
     private static readonly int[] EyeClosedWaits = [720, 60, 360, 720, 360, 60, 360, 720];
     private static readonly int[] RainHidingWaits = [60, 120, 30, 60, 30, 60, 30, 30];
@@ -157,7 +169,10 @@ public partial class Phantoon : Enemy
         FatalSwoop,
         DyingFades,
         DyingExplosions,
+        BeginDissolve,
+        Dissolving,
         DyingFadeOut,
+        AlmostDead,
         Dead,
     }
 
@@ -199,6 +214,13 @@ public partial class Phantoon : Enemy
     private int _explosion;
     private int _explosionPasses;
 
+    /// <summary>The size of the blocks its dead body has broken up into, from one.</summary>
+    private int _dissolve;
+
+    /// <summary>The room's own colours at each step of the ship's power coming back, the last of which stays, and how many steps have been taken.</summary>
+    private readonly List<Engine.Ui.ColourChange> _powerOn = [];
+    private int _powerStep;
+
     /// <summary>Whether its opening ring of flames has been told to close in on it.</summary>
     public bool StartingFlamesClose => _phase == Phase.StartingFlamesOrbit;
 
@@ -207,7 +229,8 @@ public partial class Phantoon : Enemy
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) =>
-        _phase is not (Phase.WaitingOnEye or Phase.DyingFades or Phase.DyingExplosions or Phase.DyingFadeOut or Phase.Dead) && base.IsHitBy(side);
+        _phase is not (Phase.WaitingOnEye or Phase.DyingFades or Phase.DyingExplosions or Phase.BeginDissolve or Phase.Dissolving or Phase.DyingFadeOut
+            or Phase.AlmostDead or Phase.Dead) && base.IsHitBy(side);
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -242,6 +265,10 @@ public partial class Phantoon : Enemy
         _dropCorner = new Vector2I(scatter.Int("x"), scatter.Int("y"));
         _dropAcross = Field(scatter.Get("across"));
         _dropDown = Field(scatter.Get("down"));
+        _powerOn.Clear();
+        _powerOn.AddRange(data.List("power_on").Select(Engine.Ui.ColourChange.Read));
+        if (_powerOn.Count == 0)
+            throw data.Problem("must give at least one step of the ship's power coming back");
     }
 
     /// <summary>Which band of its health it is in, from nothing up: it changes colour as it is worn down.</summary>
@@ -672,25 +699,63 @@ public partial class Phantoon : Enemy
                 _explosion = 5;
                 if (++_explosionPasses < 3)
                     break;
-                _phase = Phase.DyingFadeOut;
-                BeginFade();
+                _phase = Phase.BeginDissolve;
+                break;
+
+            case Phase.BeginDissolve:
+                // An update of its own, as on the cartridge: its parts go, it cries out, and its body begins to break up.
+                _dissolve = 1;
+                _phase = Phase.Dissolving;
                 foreach (string part in new[] { "Eye", "Mouth", "Tentacles" })
                     GetNodeOrNull<ActorVisual>(part)?.SetShown(false);
                 Sound(DyingCry);
                 break;
 
-            case Phase.DyingFadeOut:
-                if (FadeOut(clock))
+            case Phase.Dissolving:
+                // The blocks grow a size on each update the clock gives them, and on the one that finds them at their
+                // largest its body begins to fade.
+                if (clock % DissolveEvery != 0)
+                    break;
+                if (_dissolve < DissolveSizes)
                 {
-                    _phase = Phase.Dead;
-                    _wait = 61;
+                    _dissolve++;
+                    break;
                 }
 
+                _phase = Phase.DyingFadeOut;
+                BeginFade();
+                break;
+
+            case Phase.DyingFadeOut:
+                if (FadeOut(clock))
+                    _phase = Phase.AlmostDead;
+                break;
+
+            case Phase.AlmostDead:
+                // An update of its own, on which what is left of it is cleared away and the wait for the power begins.
+                _phase = Phase.Dead;
+                _wait = PowerWaitUpdates;
+                _powerStep = 0;
                 break;
 
             case Phase.Dead:
-                if (!Ends())
+                // The wait runs out on its last update, which is the first the power may take a step on. The power
+                // comes back over the room a step on each update the clock gives it: the first moves nothing, each
+                // of the next an equal part of the way, the last is shown once more, and on the step after that the
+                // room keeps its powered colours and everything else of its going is done.
+                if (_wait > 0 && --_wait > 0)
                     break;
+                if (clock % PowerStepEvery != 0)
+                    break;
+                if (_powerStep <= _powerOn.Count + 1)
+                {
+                    int part = Math.Min(_powerStep, _powerOn.Count);
+                    if (part > 0)
+                        Room.Recolour(PowerSource, _powerOn[part - 1]);
+                    _powerStep++;
+                    break;
+                }
+
                 for (int drop = 0; drop < DeathDrops; drop++)
                 {
                     RandomDraw draw = Random.Draw();

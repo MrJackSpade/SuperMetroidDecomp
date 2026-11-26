@@ -167,6 +167,42 @@ public sealed partial class EngineAssetWriter
         }
     }
 
+    /// <summary>
+    /// A change of colours taken part of the way, as the old game's fades between two colourings go: each colour the
+    /// change shows otherwise is shown so far toward what the change shows for it, each of its three parts by the old
+    /// game's own steps of brightness. A colour that has not yet moved is left out, and so is a place none has moved in.
+    /// </summary>
+    /// <param name="change">The whole change, as <see cref="ShadeChange(string, IReadOnlyDictionary{string, string})"/> writes one.</param>
+    /// <param name="progress">How far along the way.</param>
+    private static JsonObject ChangePartWay(JsonObject change, SuperMetroid.Core.Assets.FadeLevel progress)
+    {
+        static SuperMetroid.Core.Assets.RgbColor Read(string written)
+        {
+            int colour = int.Parse(written.AsSpan(0, 6), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture);
+            return new SuperMetroid.Core.Assets.RgbColor((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
+        }
+
+        var partWay = new JsonObject();
+        foreach ((string place, JsonNode? colours) in change)
+        {
+            var moved = new JsonObject();
+            foreach ((string from, JsonNode? to) in colours!.AsObject())
+            {
+                SuperMetroid.Core.Compatibility.FadeLevelColour start = SuperMetroid.Core.Compatibility.FadeLevelColour.Of(Read(from));
+                SuperMetroid.Core.Compatibility.FadeLevelColour end = SuperMetroid.Core.Compatibility.FadeLevelColour.Of(Read(to!.GetValue<string>()));
+                SuperMetroid.Core.Assets.RgbColor shown = start.Map((channel, level) => level + ((end[channel] - level) * progress.Step / progress.Steps)).ToColour();
+                string written = ((shown.Red << 16) | (shown.Green << 8) | shown.Blue).ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+                if (written != from[..6])
+                    moved[from] = written;
+            }
+
+            if (moved.Count > 0)
+                partWay[place] = moved;
+        }
+
+        return partWay;
+    }
+
     /// <summary>The most colours a thing drawn in the engine shows changed at once (its <c>Recolouring.MostSwaps</c>).</summary>
     private const int MostSwapsShown = 64;
 

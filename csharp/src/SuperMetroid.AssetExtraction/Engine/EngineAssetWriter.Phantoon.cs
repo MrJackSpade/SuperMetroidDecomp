@@ -127,6 +127,12 @@ public sealed partial class EngineAssetWriter
             .Group("health_bands", EngineNames.List(bands.Select(band => band.MinimumHealth)))
             .PictureSets("{health}")
             .Group("scattered_drops", Drops(phantoon.Definition.Drops) ?? throw new InvalidDataException("Phantoon scatters nothing when it is gone."))
+
+            // The ship's power coming back over its room once it is gone: the room's own pictures at each step of
+            // the way to their powered colours, the last of which stays.
+            .Group("power_on", EngineNames.List(Enumerable.Range(1, PhantoonColorDefinitions.PowerOnSteps).Select(step => (JsonNode)ChangePartWay(
+                ShadeChange(PhantoonShades.Powered.Key, RoomPlacesOf(EnemyDefinitionId.PhantoonBody)),
+                new SuperMetroid.Core.Assets.FadeLevel(step, PhantoonColorDefinitions.PowerOnSteps)))))
             .Group("drop_scatter", new JsonObject
             {
                 ["x"] = (int)PhantoonArenaDefinitions.DeathDropOrigin.X,

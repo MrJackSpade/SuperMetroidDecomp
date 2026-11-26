@@ -29,6 +29,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>The patch that makes the wall of Bomb Torizo's room blocks a shot breaks, during the escape.</summary>
     private const string WallShotBlocksPatch = "wall_shot_blocks";
 
+    /// <summary>The fact recorded once the animals have a way out, as the Godot game's rooms and its ending name it.</summary>
+    private const string AnimalsEscapedFact = "animals_escaped";
+
     /// <summary>Writes both Torizos, the hand, and the wall the animals escape through.</summary>
     private void WriteTorizos()
     {
@@ -52,7 +55,9 @@ public sealed partial class EngineAssetWriter
         foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => wallRooms.Contains(placed.Room)))
         {
             Layouts.PatchReactingBlock(room, state, WallShotBlocksPatch, new Position16<RoomBlocks>(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY),
-                EscapeAnimalWallDefinitions.HeightInBlocks, "shot_block_animal_escape", new JsonObject { ["solid"] = true, ["broken_by"] = EngineLayouts.AnyWeapon() });
+                EscapeAnimalWallDefinitions.HeightInBlocks, "shot_block_animal_escape",
+                // Its breaking is what lets the animals out: the old wall marks them escaped as its breaking ends.
+                new JsonObject { ["solid"] = true, ["broken_by"] = EngineLayouts.AnyWeapon(), ["records"] = AnimalsEscapedFact });
         }
     }
 

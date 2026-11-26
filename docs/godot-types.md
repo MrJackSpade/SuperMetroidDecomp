@@ -573,6 +573,7 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Solid or passable | Solid; passable. |
 | Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). |
 | After breaking | Gone until the room is next set up; regrows after a set time. |
+| Remembered | Nothing; or a fact recorded as it breaks (`records`), for a wall whose breaking the game goes on by: the wall the animals leave by in the escape records that they have. |
 | Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability, which shows it for what it is only for as long as it sees it. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back, unless its type says it hides again. |
 | How it looks | The pictures of the tiles it lies on; a picture of its own once revealed, or one for each of its tiles; a timeline of pictures from the moment it breaks; a timeline of pictures up to the moment it comes back. |
 | Heard | Nothing; a sound as it breaks; a sound of its own for a hit of a listed kind that breaks it (a block one weapon breaks silently and another with a crumble). |

@@ -381,8 +381,7 @@ public partial class Room : Node2D
                 change.Step(this);
             _terrainChanges.RemoveAll(change => change.IsOver);
             Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
-            foreach (string sound in Terrain.TakeBreakSounds())
-                Session.Sounds.Request(sound, channel: "room");
+            TakeWhatBroke();
         }
 
         // A message asked for by now is shown before the update goes on: the rest of the update waits for it.
@@ -607,8 +606,7 @@ public partial class Room : Node2D
         if (terrain)
         {
             Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
-            foreach (string sound in Terrain.TakeBreakSounds())
-                Session.Sounds.Request(sound, channel: "room");
+            TakeWhatBroke();
         }
 
         if (enemies)
@@ -1127,6 +1125,15 @@ public partial class Room : Node2D
     /// room lasts, as a boss whose room hides the map does; the cell the player is in is then not marked explored.
     /// </summary>
     public bool MapShown { get; set; } = true;
+
+    /// <summary>Asks for the sounds of the blocks that have broken since last asked, and records the facts their breaking records.</summary>
+    private void TakeWhatBroke()
+    {
+        foreach (string sound in Terrain.TakeBreakSounds())
+            Session.Sounds.Request(sound, channel: "room");
+        foreach (string fact in Terrain.TakeBrokenFacts())
+            Session.Progress.Record(fact);
+    }
 
     /// <summary>Records the map cell the player is in as explored.</summary>
     private void MarkExplored()

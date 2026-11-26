@@ -52,6 +52,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
     /// <summary>The sounds of the blocks that have broken and not yet been asked for: one for each block, in the order they broke.</summary>
     private readonly List<string> _breakSounds = [];
+    private readonly List<string> _brokenFacts = [];
 
     /// <summary>The tiles a revealing ability sees, by row and column, with how many more updates each is shown as seen.</summary>
     private readonly Dictionary<(int Row, int Column), int> _seenTiles = [];
@@ -536,6 +537,16 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         string sound = block.Type.BreakSoundFor(by);
         if (sound.Length > 0)
             _breakSounds.Add(sound);
+        if (block.Type.Records.Length > 0)
+            _brokenFacts.Add(block.Type.Records);
+    }
+
+    /// <summary>The facts the blocks that broke since this was last asked record, for the room to record.</summary>
+    public IReadOnlyList<string> TakeBrokenFacts()
+    {
+        string[] facts = [.. _brokenFacts];
+        _brokenFacts.Clear();
+        return facts;
     }
 
     /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals, through this update.</summary>

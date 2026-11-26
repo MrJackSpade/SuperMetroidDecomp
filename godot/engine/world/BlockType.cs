@@ -16,6 +16,7 @@ namespace Engine.World;
 ///   "broken_by": ["beam", "missile"],
 ///   "breaks_when_stood_on": false,
 ///   "regrows_after": 240,
+///   "records": "wall_broken",
 ///   "hidden_until": ["bomb"],
 ///   "revealed_by_sight": true,
 ///   "contact": "nothing", "contact_hit": 0, "contact_speed": 0, "carries_only_level": false,
@@ -138,6 +139,9 @@ public sealed class BlockType
     /// <summary>Whether it goes on blocking, broken, for as long as the pictures of its breaking or of its regrowing show.</summary>
     public bool BlocksWhileCrumbling { get; private init; }
 
+    /// <summary>The fact recorded as it breaks, by name ("records"); empty for none: a wall whose breaking the game remembers.</summary>
+    public string Records { get; private init; } = "";
+
     /// <summary>The picture shown while hidden; empty for the pictures of the tiles it lies on.</summary>
     public string HiddenPicture { get; private init; } = "";
 
@@ -189,6 +193,7 @@ public sealed class BlockType
             LatchedUpdates = data.Has("latched_updates") ? data.Int("latched_updates") : 0,
             RegrowsAfter = data.Has("regrows_after") ? data.Int("regrows_after") : 0,
             BlocksWhileCrumbling = data.Has("blocks_while_crumbling") && data.Flag("blocks_while_crumbling"),
+            Records = data.Has("records") ? data.Text("records") : "",
             HiddenUntil = Kinds("hidden_until"),
             RevealedBySight = data.Has("revealed_by_sight") && data.Flag("revealed_by_sight"),
             Contact = data.Has("contact") ? data.Get("contact").AsEnum<BlockContact>() : BlockContact.Nothing,

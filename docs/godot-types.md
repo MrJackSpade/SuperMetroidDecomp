@@ -1737,7 +1737,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Station`: save, energy refill, missile refill, map.
 - `Item`: every upgrade and expansion.
 - `GlassTube` (this game's, `game/objects/glass_tube/`): the Maridia glass tube. It is not a barrier: a power
-  bomb only arms it, and it bursts when Samus next acts, holding her while it does.
+  bomb only arms it, and it bursts when Samus next acts, holding her while it does. The shards and bubbles it bursts
+  into are its own, not effects: visuals it moves, sways and flickers each update by their timelines' cues, drawing
+  the room's random numbers as the cartridge's pieces do, and it stays in the room until the last of them is gone.
 - `CeresElevatorDoor` (this game's, `game/objects/ceres_elevator_door/`): the blocked way to Ceres's elevator,
   blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering. The glow is
   the steps of a change of colours its data gives ("glow"), each held eight updates, shown on the room's terrain and

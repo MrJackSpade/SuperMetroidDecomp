@@ -135,18 +135,25 @@ public sealed partial class EngineAssetWriter
                 || boxes.Skip(1).Any(shell => !ReferenceEquals(shell.Touch, DraygonReactions.Touch) || !shell.Shot.IsDud))
                 throw new InvalidDataException("Draygon is not a belly that shots hurt and three parts of a shell that stop them, as the Godot Draygon is.");
             var placed = new JsonObject();
-            void Place(string name, EnemyCollisionHitbox box)
+            // The old probe meets a shot and Samus's touch on different edges of a box, a pixel apart: a hurtbox is
+            // written for the one and a hitbox for the other.
+            void Place(string name, EnemyCollisionHitbox box, bool touch)
             {
-                placed[name] = new JsonObject { ["left"] = box.Left, ["top"] = box.Top, ["width"] = box.Right - box.Left, ["height"] = box.Bottom - box.Top };
+                JsonObject rect = touch ? EngineEnemy.TouchRect(box) : EngineEnemy.ShotRect(box);
                 if (sized)
-                    draygon.Collider(name, box.Left, box.Top, box.Right - box.Left, box.Bottom - box.Top);
+                {
+                    draygon.Collider(
+                        name, rect["left"]!.GetValue<int>(), rect["top"]!.GetValue<int>(), rect["width"]!.GetValue<int>(), rect["height"]!.GetValue<int>());
+                }
+
+                placed[name] = rect;
             }
 
-            Place("Belly", boxes[0]);
+            Place("Belly", boxes[0], touch: false);
             for (int shell = 1; shell < boxes.Length; shell++)
             {
-                Place($"Shell{shell}", boxes[shell]);
-                Place($"Shell{shell}Touch", boxes[shell]);
+                Place($"Shell{shell}", boxes[shell], touch: false);
+                Place($"Shell{shell}Touch", boxes[shell], touch: true);
             }
 
             return placed;

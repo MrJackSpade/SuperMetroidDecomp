@@ -49,11 +49,14 @@ public sealed partial class EngineAssetWriter
         foreach (KeyValuePair<CompassDirection, PhantoonPartSegment> gaze in PhantoonPatternDefinitions.EyeGazeAnimations)
             Part("eye_looking_" + EngineSheets.FileName(gaze.Key.ToString()), gaze.Value);
 
-        // Where it can be touched and shot: its body, its eye and its three tentacles, each from its place.
+        // Where it can be touched and shot: its body, its eye and its three tentacles, each from its place. The old
+        // probe meets a shot and Samus's touch on different edges of a box, a pixel apart, so each is written twice.
+        void Sized(string name, JsonObject rect) => phantoon.Collider(
+            name, rect["left"]!.GetValue<int>(), rect["top"]!.GetValue<int>(), rect["width"]!.GetValue<int>(), rect["height"]!.GetValue<int>());
         void Area(string name, EnemyCollisionHitbox box)
         {
-            phantoon.Collider(name, box.Left, box.Top, box.Right - box.Left, box.Bottom - box.Top);
-            phantoon.Collider(name == "EyeHurt" ? "EyeTouch" : name + "Touch", box.Left, box.Top, box.Right - box.Left, box.Bottom - box.Top);
+            Sized(name, EngineEnemy.ShotRect(box));
+            Sized(name == "EyeHurt" ? "EyeTouch" : name + "Touch", EngineEnemy.TouchRect(box));
         }
 
         Area("Body", PhantoonCollisionDefinitions.Body);
@@ -62,8 +65,10 @@ public sealed partial class EngineAssetWriter
         Area("RightTentacle", PhantoonCollisionDefinitions.RightTentacle);
         Area("CentreTentacle", PhantoonCollisionDefinitions.CenterTentacle);
 
-        // The one pixel at its middle, which alone takes shots on the update its body turns solid.
-        phantoon.Collider("Centre", PhantoonSolidifyingCentre.Centre.X, PhantoonSolidifyingCentre.Centre.Y, 1, 1);
+        // The point at its middle, which alone takes shots on the update its body turns solid: a box of no size in
+        // the old game, which a shot meets as it meets any box's left and top edge.
+        Sized("Centre", EngineEnemy.ShotRect(
+            PhantoonSolidifyingCentre.Centre.X, PhantoonSolidifyingCentre.Centre.Y, PhantoonSolidifyingCentre.Centre.X, PhantoonSolidifyingCentre.Centre.Y));
 
         // Its path: a digit a step, as on a number pad, which is how the Godot Phantoon reads it.
         (char Digit, int X, int Y)[] pad = [('1', -1, 1), ('2', 0, 1), ('3', 1, 1), ('4', -1, 0), ('6', 1, 0), ('7', -1, -1), ('8', 0, -1), ('9', 1, -1)];

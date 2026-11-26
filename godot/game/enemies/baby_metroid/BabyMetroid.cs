@@ -142,12 +142,10 @@ public partial class BabyMetroid : Enemy
         if (!_reactsToSamus)
             return HitResult.Absorbed;
         StopFollowing();
-        // Whatever hit it, it is knocked away from the first of Samus's shots still in the room, harder the more the
-        // hit would have hurt.
-        if (Room.Projectiles.FirstOrDefault(shot => shot.Side == HitSide.Player) is not { } first)
-            return HitResult.Absorbed;
+        // Whatever hit it, a bomb as much as a shot, it is knocked away from what holds the first of Samus's shots'
+        // places, and from the room's corner when nothing holds it; harder the more the hit would have hurt.
         double strength = Math.Min(hit.Damage / 32.0, 15 / 16.0);
-        PushAwayFrom(first.Position, Pixels.FromNumber(strength));
+        PushAwayFrom(((Samus)Room.Player).FirstShotStands, Pixels.FromNumber(strength));
         return HitResult.Absorbed;
     }
 

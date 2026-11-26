@@ -132,8 +132,9 @@ public partial class Metroid : Enemy
             return;
         }
 
-        // A shot throws it back from where the shot was, harder the further off it was.
-        PixelPosition from = hit.At ?? Room.Player.Position;
+        // It is thrown back from what holds the first of her shots' places, whatever struck it, a bomb as much as a
+        // shot, and from the room's corner when nothing holds that place; harder the further off that is.
+        PixelPosition from = ((Samus)Room.Player).FirstShotStands;
         Velocity = new PixelVelocity(
             Pixels.FromWhole(Position.X.Whole - from.X.Whole).Share(1, 8),
             Pixels.FromWhole(Position.Y.Whole - from.Y.Whole).Share(1, 8));

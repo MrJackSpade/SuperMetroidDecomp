@@ -19,11 +19,14 @@ public sealed class Weapons
     private readonly List<Held> _held = [];
 
     /// <summary>Places of a pool held by a firing or a projectile: until all its projectiles have ended and what they left is gone.</summary>
-    private sealed class Held(string pool, int places)
+    private sealed class Held(string pool, int places, IReadOnlyList<int> numbers)
     {
         public string Pool { get; } = pool;
 
         public int Places { get; } = places;
+
+        /// <summary>The places it holds, by their numbers in the pool, counted from nought.</summary>
+        public IReadOnlyList<int> Numbers { get; } = numbers;
 
         public List<Projectile> Shots { get; } = [];
 
@@ -35,6 +38,32 @@ public sealed class Weapons
 
     /// <summary>How many places of <paramref name="pool"/> are held.</summary>
     public int PlacesHeld(string pool) => _held.Where(held => held.Pool == pool && held.StillHolds).Sum(held => held.Places);
+
+    /// <summary>
+    /// The lowest-numbered places of <paramref name="pool"/> that nothing holds, as many as are wanted or as there
+    /// are: a pool's places are numbered from nought, and what is fired takes the lowest free.
+    /// </summary>
+    private int[] FreePlaces(string pool, int wanted)
+    {
+        HashSet<int> taken = [.. _held.Where(held => held.Pool == pool && held.StillHolds).SelectMany(held => held.Numbers)];
+        return [.. Enumerable.Range(0, PlacesIn(pool)).Where(number => !taken.Contains(number)).Take(wanted)];
+    }
+
+    /// <summary>
+    /// Where what holds a numbered place of <paramref name="pool"/> stands, the places counted from nought: the
+    /// first of its shots still flying, or failing that the first thing they left that is still there. Null for a
+    /// place nothing holds, and, where only a shot still flying is asked for, for a place held by what one left. A
+    /// game that reads one of the player's shots by its place asks this.
+    /// </summary>
+    public PixelPosition? StandsIn(string pool, int place, bool flyingOnly = false)
+    {
+        Held? holder = _held.FirstOrDefault(held => held.Pool == pool && held.StillHolds && held.Numbers.Contains(place));
+        if (holder is null)
+            return null;
+        if (holder.Shots.FirstOrDefault(shot => GodotObject.IsInstanceValid(shot) && !shot.HasEnded) is { } flying)
+            return flying.Position;
+        return flyingOnly ? null : holder.Left.Where(GodotObject.IsInstanceValid).OfType<Engine.Collision.ICollisionOwner>().FirstOrDefault()?.Position;
+    }
 
     /// <summary>How many places <paramref name="pool"/> has, as the weapons that share it give it.</summary>
     /// <exception cref="InvalidOperationException">No weapon shares the pool.</exception>
@@ -48,7 +77,7 @@ public sealed class Weapons
     public void HoldPlace(string pool, Projectile projectile)
     {
         ArgumentNullException.ThrowIfNull(projectile);
-        var alone = new Held(pool, 1);
+        var alone = new Held(pool, 1, FreePlaces(pool, 1));
         alone.Shots.Add(projectile);
         projectile.LeftOnEnding += alone.Left.Add;
         _held.Add(alone);
@@ -59,7 +88,7 @@ public sealed class Weapons
     {
         if (weapon.PlacesTaken > 0)
         {
-            var together = new Held(weapon.Pool, weapon.PlacesTaken);
+            var together = new Held(weapon.Pool, weapon.PlacesTaken, FreePlaces(weapon.Pool, weapon.PlacesTaken));
             foreach (Projectile projectile in projectiles)
             {
                 together.Shots.Add(projectile);
@@ -72,7 +101,7 @@ public sealed class Weapons
 
         foreach (Projectile projectile in projectiles)
         {
-            var alone = new Held(weapon.Pool, 1);
+            var alone = new Held(weapon.Pool, 1, FreePlaces(weapon.Pool, 1));
             alone.Shots.Add(projectile);
             projectile.LeftOnEnding += alone.Left.Add;
             _held.Add(alone);

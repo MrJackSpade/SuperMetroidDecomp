@@ -109,10 +109,14 @@ public partial class WalkingPirate : Enemy
             Walk();
         if (!FlinchesFromShots)
             return;
-        // The first of Samus's shots in the room is the one it watches.
-        Projectile? shot = Room.Projectiles.FirstOrDefault(projectile => projectile.Side == HitSide.Player && !projectile.HasEnded);
-        if (shot is null || Math.Abs(shot.Position.X.Whole - Position.X.Whole) >= FlinchReach || Math.Abs(shot.Position.Y.Whole - Position.Y.Whole) >= FlinchReach)
+        // It watches one thing: what holds the highest of her shots' places that holds anything, a shot or what a
+        // shot left, and nothing else when that is far off.
+        if (((Samus)Room.Player).HighestShotStands(flyingOnly: false) is not { } shot
+            || Math.Abs(shot.X.Whole - Position.X.Whole) >= FlinchReach || Math.Abs(shot.Y.Whole - Position.Y.Whole) >= FlinchReach)
+        {
             return;
+        }
+
         Play(Position.X.Whole < Target.X.Whole ? "flinch_right" : "flinch_left", restart: true);
     }
 

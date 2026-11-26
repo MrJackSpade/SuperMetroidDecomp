@@ -297,12 +297,18 @@ public partial class NinjaPirate : Enemy
     /// <summary>The name of one of its timelines for a side.</summary>
     private static string Sided(string timeline, Facing side) => side == Facing.Left ? $"{timeline}_left" : $"{timeline}_right";
 
-    /// <summary>Flinches, facing Samus, if the first of her shots in the room has come near; returns whether it did.</summary>
+    /// <summary>
+    /// Flinches, facing Samus, if the shot it watches has come near; returns whether it did. It watches one shot: the
+    /// one still flying in the highest of her shots' places that holds one, and no other when that one is far off.
+    /// </summary>
     private bool Flinches()
     {
-        Projectile? shot = Room.Projectiles.FirstOrDefault(projectile => projectile.Side == HitSide.Player && !projectile.HasEnded);
-        if (shot is null || Math.Abs(shot.Position.X.Whole - Position.X.Whole) >= FlinchDistance || Math.Abs(shot.Position.Y.Whole - Position.Y.Whole) >= FlinchDistance)
+        if (((Samus)Room.Player).HighestShotStands(flyingOnly: true) is not { } shot
+            || Math.Abs(shot.X.Whole - Position.X.Whole) >= FlinchDistance || Math.Abs(shot.Y.Whole - Position.Y.Whole) >= FlinchDistance)
+        {
             return false;
+        }
+
         Play(Sided("flinch", TowardPlayer), restart: true);
         return true;
     }

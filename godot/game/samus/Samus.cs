@@ -677,6 +677,33 @@ public partial class Samus : Player
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
 
+    /// <summary>
+    /// Where what holds the first of her shots' places stands, a shot or what a shot left there, and the room's corner
+    /// when nothing holds it. The cartridge's Metroids, struck by a shot or a bomb, are pushed away from here, and
+    /// not from what struck them.
+    /// </summary>
+    public PixelPosition FirstShotStands => Weapons.StandsIn(ShotsPool, 0) ?? PixelPosition.FromWhole(0, 0);
+
+    /// <summary>
+    /// Where what holds the highest of her shots' places that holds anything stands; null when none does. The
+    /// cartridge's pirates watch that one alone, and look no lower when it is far off: a walking pirate counts a shot
+    /// and what a shot left, a ninja only a shot still flying (<paramref name="flyingOnly"/>).
+    /// </summary>
+    public PixelPosition? HighestShotStands(bool flyingOnly)
+    {
+        string pool = ShotsPool;
+        for (int place = Weapons.PlacesIn(pool) - 1; place >= 0; place--)
+        {
+            if (Weapons.StandsIn(pool, place, flyingOnly) is { } stands)
+                return stands;
+        }
+
+        return null;
+    }
+
+    /// <summary>The pool her beams, missiles and super missiles share their places in.</summary>
+    private string ShotsPool => Weapons.All.First(weapon => weapon.Name == Arsenal.Beam).Pool;
+
     /// <summary>The view also leads the other way while she moonwalks, and through a damage boost, which the knockback still carries.</summary>
     public override Facing ViewFacing =>
         State is MoonwalkingState or DamageBoostState ? Facing.Opposite() : base.ViewFacing;

@@ -512,10 +512,14 @@ internal sealed partial class EngineLayouts
                 else
                     tile["step"] = Block / 2;
 
-                // A floor's slope lets only a share of a move across it through, counted in 256ths.
+                // A slope read as a height profile lets only a share of a move along it through, counted in 256ths:
+                // of Samus's on the ground where it is a floor's, and of a crawler's on a floor's or a ceiling's. The
+                // old shapes keep the two apart and give every shape the same for both.
                 int share = behavior.Slope.Shape.GroundedSpeedShare.TwoHundredFiftySixths;
-                if (!behavior.Slope.FlipsVertically && behavior.Slope.IsNonSquare && share != SpeedShare.Whole.TwoHundredFiftySixths)
-                    tile["ground_share"] = share;
+                if (behavior.Slope.Shape.CrawlerTangentShare.TwoHundredFiftySixths != share)
+                    throw new InvalidDataException($"The slope shape {behavior.Slope.Shape} lets a crawler through by another share than Samus, and a tile keeps one share.");
+                if (behavior.Slope.IsNonSquare && share != SpeedShare.Whole.TwoHundredFiftySixths)
+                    tile["share"] = share;
                 break;
             case RoomCollisionType.HorizontalExtension:
             case RoomCollisionType.VerticalExtension:

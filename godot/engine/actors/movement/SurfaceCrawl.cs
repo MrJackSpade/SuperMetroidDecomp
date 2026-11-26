@@ -1,5 +1,6 @@
 using Engine.Collision;
 using Engine.Shared;
+using Engine.World;
 
 namespace Engine.Actors.Movement;
 
@@ -187,7 +188,7 @@ public sealed class SurfaceCrawl
         if (found)
         {
             _misses = 0;
-            if (room.MoveAcross(body, Speed * _across, along).Blocked)
+            if (room.MoveAcross(body, Along(mover), along).Blocked)
             {
                 _down = -_down;
                 Side = _across > 0 ? Clings.Right : Clings.Left;
@@ -209,6 +210,18 @@ public sealed class SurfaceCrawl
         _across = -_across;
         Side = _across > 0 ? Clings.Right : Clings.Left;
         return new MoveReport(false, false, false, true, false);
+    }
+
+    /// <summary>
+    /// How far it goes across this update along a floor or ceiling: by its speed, of which sloped ground that holds
+    /// things by their middle lets only its share through. The ground asked is what lies at the middle of the face it
+    /// presses with, where it is after pressing: the bottom row of its body on a floor, the top row on a ceiling.
+    /// </summary>
+    private Pixels Along(IMoves mover)
+    {
+        PixelRect here = mover.MovingBody.RoomRect;
+        int share = mover.Room.Terrain.SlopeShareAt(here.Left + here.Width / 2, _down < 0 ? here.Top : here.Bottom - 1);
+        return Speed.Share(share, SlopeShape.WholeShare) * _across;
     }
 
     /// <summary>Falls until something stops it, and then crawls on from where it landed.</summary>

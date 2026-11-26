@@ -14,7 +14,7 @@ namespace Engine.World;
 ///   "tiles": {
 ///     ".": { "kind": "empty" },
 ///     "#": { "kind": "solid", "picture": "tiles/rock.png" },
-///     "/": { "kind": "slope", "solid": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "ground_share": 192, "holds": "middle" },
+///     "/": { "kind": "slope", "solid": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "share": 192, "holds": "middle" },
 ///     "S": { "kind": "block", "block": "blocks/shot.json" },
 ///     "~": { "kind": "empty", "pictures": ["tiles/lava_1.png", "tiles/lava_2.png"], "updates": 10 },
 ///     "w": { "kind": "empty", "picture": "tiles/rock.png", "seen": "" }
@@ -146,9 +146,9 @@ public sealed class TerrainLayout
                 if (solid.Any(pixels => pixels < 0 || pixels > tileSize))
                     throw tile.Get("solid").Problem($"must hold 0 through {tileSize} in each column");
                 bool fromTop = tile.Has("from") && tile.Get("from").AsEnum<SlopeAnchor>() == SlopeAnchor.Top;
-                int share = tile.Has("ground_share") ? tile.Int("ground_share") : SlopeShape.WholeShare;
+                int share = tile.Has("share") ? tile.Int("share") : SlopeShape.WholeShare;
                 if (share is < 1 or > SlopeShape.WholeShare)
-                    throw tile.Get("ground_share").Problem($"must be 1 through {SlopeShape.WholeShare}, the 256ths of a move across the slope that get through");
+                    throw tile.Get("share").Problem($"must be 1 through {SlopeShape.WholeShare}, the 256ths of a move along the slope that get through");
                 bool holdsMiddle = tile.Has("holds");
                 if (holdsMiddle && tile.Text("holds") != "middle")
                     throw tile.Get("holds").Problem("must be \"middle\", for a slope that holds things up by their middle, or be left out");

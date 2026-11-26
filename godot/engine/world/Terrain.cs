@@ -457,7 +457,8 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     /// <summary>
     /// The shares, in 256ths, that the sloped tiles in the pixel column <paramref name="x"/> between the rows
     /// <paramref name="top"/> and <paramref name="bottom"/> (not included) let through of a move across them on the
-    /// ground: one for each such tile that lets less than all of it through, from the top down.
+    /// ground: one for each such tile that is a floor's and lets less than all of it through, from the top down. A
+    /// ceiling's slope takes nothing from a move on the ground.
     /// </summary>
     public IReadOnlyList<int> GroundSharesIn(int x, int top, int bottom)
     {
@@ -468,11 +469,26 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         int firstRow = Math.Max(0, top / size), lastRow = Math.Min(Layout.Rows - 1, (bottom - 1) / size);
         for (int row = firstRow; row <= lastRow; row++)
         {
-            if (_blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { GroundShare: < SlopeShape.WholeShare } slope })
-                shares.Add(slope.GroundShare);
+            if (_blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { Share: < SlopeShape.WholeShare, FromTop: false } slope })
+                shares.Add(slope.Share);
         }
 
         return shares;
+    }
+
+    /// <summary>
+    /// The share, in 256ths, that the sloped ground at a pixel of the room lets through of a move along it, where that
+    /// ground holds things up by their middle, a floor's or a ceiling's; all of the move anywhere else. What crawls
+    /// along a floor or ceiling goes across by this share of its speed.
+    /// </summary>
+    public int SlopeShareAt(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= WidthInPixels || y >= HeightInPixels)
+            return SlopeShape.WholeShare;
+        int size = TileSize, row = y / size, column = x / size;
+        return _blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { HoldsMiddle: true } slope }
+            ? slope.Share
+            : SlopeShape.WholeShare;
     }
 
     /// <summary>The intact blocks <paramref name="rect"/> overlaps or, when <paramref name="touchingCounts"/>, lies against.</summary>

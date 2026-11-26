@@ -555,8 +555,9 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 - The tile layout is an asset. A room names its layout; `Terrain` loads it, in the editor and in the game. A room
   scene never stores its tiles.
 - A plain tile is data: empty, solid, or a slope with a height per pixel column: the pixels of the column that are
-  solid, counted up from the tile's bottom, or down from its top for a ceiling. A floor's slope may let only a share
-  of a move across it through (`ground_share`, in 256ths), which the player's movement takes off. A slope may say
+  solid, counted up from the tile's bottom, or down from its top for a ceiling. A slope may let only a share of a
+  move along it through (`share`, in 256ths): the player's movement takes it off a move across a floor's slope, and
+  the surface crawl goes along a floor's or a ceiling's by that share of its speed. A slope may say
   that it holds things up by their middle (`"holds": "middle"`): to a mover that treats slopes so
   (`SlopeTreatment.ClimbUnderMiddle`, which the player's body does) only the middle column of the body meets it, so
   the body's edges pass into it and the mover stands where its surface is under their middle, and such a mover

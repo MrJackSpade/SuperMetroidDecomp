@@ -13,11 +13,11 @@ public sealed class SlopeShape
     /// <param name="solid">The solid pixels in each column, left to right; one entry per pixel of a tile's width.</param>
     /// <param name="fromTop">Whether the solid part hangs from the tile's top, as a ceiling does.</param>
     /// <exception cref="ArgumentException">A column holds fewer than zero or more than a tile's height of pixels.</exception>
-    /// <param name="groundShare">How much of a move across it the slope lets through, in 256ths; 256 is all of it.</param>
+    /// <param name="share">How much of a move along it the slope lets through, in 256ths; 256 is all of it.</param>
     /// <param name="holdsMiddle">Whether the slope holds things up by their middle, for movers that ask for slopes to be treated so.</param>
     /// <exception cref="ArgumentOutOfRangeException">The share is not 1 through 256.</exception>
     /// <param name="step">The size of the steps the solid part is cut in, in pixels; 1 for a shape met pixel by pixel.</param>
-    public SlopeShape(IReadOnlyList<int> solid, bool fromTop, int groundShare = WholeShare, bool holdsMiddle = false, int step = 1)
+    public SlopeShape(IReadOnlyList<int> solid, bool fromTop, int share = WholeShare, bool holdsMiddle = false, int step = 1)
     {
         if (step < 1 || step > solid.Count)
             throw new ArgumentOutOfRangeException(nameof(step), step, $"A shape's step is 1 through {solid.Count} pixels.");
@@ -25,11 +25,11 @@ public sealed class SlopeShape
         HoldsMiddle = holdsMiddle;
         if (solid.Any(pixels => pixels < 0 || pixels > solid.Count))
             throw new ArgumentException($"Each column of a slope holds 0 through {solid.Count} solid pixels.", nameof(solid));
-        if (groundShare is < 1 or > WholeShare)
-            throw new ArgumentOutOfRangeException(nameof(groundShare), groundShare, $"A slope's share is 1 through {WholeShare}.");
+        if (share is < 1 or > WholeShare)
+            throw new ArgumentOutOfRangeException(nameof(share), share, $"A slope's share is 1 through {WholeShare}.");
         _solid = [.. solid];
         FromTop = fromTop;
-        GroundShare = groundShare;
+        Share = share;
     }
 
     /// <summary>
@@ -48,8 +48,11 @@ public sealed class SlopeShape
     /// <summary>The parts in the whole of a move: a slope's share is counted in these.</summary>
     public const int WholeShare = 256;
 
-    /// <summary>How much of a move across it the slope lets through for something walking on the ground, in 256ths.</summary>
-    public int GroundShare { get; }
+    /// <summary>
+    /// How much of a move along it the slope lets through, in 256ths: of the player's move across a floor's slope they
+    /// walk into, and of a crawler's along the floor or ceiling it is on.
+    /// </summary>
+    public int Share { get; }
 
     /// <summary>Whether the solid part hangs from the tile's top.</summary>
     public bool FromTop { get; }

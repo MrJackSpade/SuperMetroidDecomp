@@ -443,8 +443,10 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Where the pieces of Kraid that shots meet are for each way its mouth is open. A shot is hurt by the inner shape
-    /// of its mouth alone. Above the bottom of the mouth's outer shape its body is that shape, reaching back to its
-    /// right side; below it, its body is its ledges.
+    /// of its mouth alone, which reaches back to its right side, as the old mouth test has no right edge. Above the
+    /// bottom of the mouth's outer shape its body is that shape, reaching back to its right side; below it, its body is
+    /// its ledges, from the row past that bottom, as the old body test reads the ledges only for a shot whose top lies
+    /// below it.
     /// </summary>
     private static JsonObject KraidHeadPoses((string Name, KraidHeadFrame Frame)[] mouths, Extent16<RoomPixels> radius)
     {
@@ -456,14 +458,14 @@ public sealed partial class EngineAssetWriter
             if (frame.InvulnerableShape is { } innerShape)
             {
                 EnemyHitboxRectangle inner = KraidMouthHitboxes.Resolve(innerShape);
-                colliders["Mouth"] = Rect(inner.Left, inner.Top, inner.Right, inner.Bottom);
+                colliders["Mouth"] = MouthPassRect(inner.Left, inner.Top, radius.X, inner.Bottom);
             }
 
             EnemyHitboxRectangle outer = KraidMouthHitboxes.Resolve(frame.VulnerableShape);
-            colliders["HeadShell"] = Rect(outer.Left, outer.Top, radius.X, outer.Bottom);
+            colliders["HeadShell"] = MouthPassRect(outer.Left, outer.Top, radius.X, outer.Bottom);
             for (int ledge = 0; ledge < ledges.Count; ledge++)
             {
-                int top = Math.Max(ledges[ledge].Top, outer.Bottom);
+                int top = Math.Max(ledges[ledge].Top, outer.Bottom + 1);
                 if (top < ledges[ledge].Bottom)
                     colliders[$"Body{ledge + 1}"] = Rect(ledges[ledge].Left, top, radius.X, ledges[ledge].Bottom);
             }
@@ -543,6 +545,18 @@ public sealed partial class EngineAssetWriter
     private static JsonObject Rect(int left, int top, int right, int bottom) => new()
     {
         ["left"] = left, ["top"] = top, ["width"] = Math.Max(1, right - left), ["height"] = Math.Max(1, bottom - top),
+    };
+
+    /// <summary>
+    /// The hurtbox a shot meets on the pixels Kraid's old mouth and body passes meet it within a mouth shape: a shot
+    /// whose right edge lies at or right of the shape's left, whose bottom lies at or below its top and whose top lies
+    /// at or above its bottom (KraidPassBounds). The Godot rectangle is met where a shot's edge lies past it, so it is
+    /// a pixel more at the left and at the top, and at the bottom too, where the old passes meet a shot on the
+    /// shape's own bottom row. Its right side is where it is given.
+    /// </summary>
+    private static JsonObject MouthPassRect(int left, int top, int right, int bottom) => new()
+    {
+        ["left"] = left - 1, ["top"] = top - 1, ["width"] = right - (left - 1), ["height"] = bottom + 1 - (top - 1),
     };
 
     /// <summary>The colours of Kraid's eyes, one for each eye, each written as six hexadecimal digits.</summary>

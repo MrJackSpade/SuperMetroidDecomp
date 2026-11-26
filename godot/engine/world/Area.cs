@@ -16,7 +16,8 @@ namespace Engine.World;
 ///   "cells": [ { "column": 3, "row": 2, "shows": "corridor" }, { "column": 4, "row": 2, "shows": "corridor", "secret": true } ],
 ///   "markers": [ { "column": 3, "row": 2, "shows": "save" } ] }
 /// </code>
-/// A secret cell shows only once explored, never because the map was revealed. An area may give two more sheets
+/// A secret cell shows only once explored, never because the map was revealed. A cell may say that the cell above
+/// it is explored with it ("explores_above": true). An area may give two more sheets
 /// laid out as "sheet" is: "unexplored_sheet", the pictures of cells that show but have not been explored, and
 /// "here_sheet", the pictures of the cell the player is in. It may give "labels": pictures of their own laid over
 /// the map at a place in its pixels, each an "x", a "y", a "picture" file, and optionally "when", a fact that must
@@ -124,5 +125,6 @@ public sealed class Area
 
     /// <summary>Reads one cell.</summary>
     private static AreaCell ReadCell(DataNode data) =>
-        new(new Vector2I(data.Int("column"), data.Int("row")), data.Text("shows"), data.Has("secret") && data.Flag("secret"));
+        new(new Vector2I(data.Int("column"), data.Int("row")), data.Text("shows"), data.Has("secret") && data.Flag("secret"),
+            data.Has("explores_above") && data.Flag("explores_above"));
 }

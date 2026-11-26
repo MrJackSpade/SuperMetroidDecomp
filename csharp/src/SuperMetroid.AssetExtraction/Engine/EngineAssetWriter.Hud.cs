@@ -209,6 +209,11 @@ public sealed partial class EngineAssetWriter
                     var entry = new JsonObject { ["column"] = column, ["row"] = row, ["shows"] = EngineSheets.FileName(cell.Name) };
                     if (!map.IsRevealedByMapStation(place))
                         entry["secret"] = true;
+
+                    // The low piece of a sloped hallway's floor has the hallway's other half in the cell above it:
+                    // the cartridge explores that cell with it.
+                    if (cell.Slope is MapCellSlope.RightwardFloorLow or MapCellSlope.LeftwardFloorLow)
+                        entry["explores_above"] = true;
                     cells.Add(entry);
                 }
             }

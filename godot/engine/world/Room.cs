@@ -984,6 +984,18 @@ public partial class Room : Node2D
     }
 
     /// <summary>
+    /// Adds a colour to, or takes one from, every colour of the room's backdrops, the pictures behind its tiles, at
+    /// once, in place of whatever <paramref name="source"/> last asked for there: the cartridge's arithmetic on the
+    /// colours of what lies behind a room, which leaves the room's tiles and what stands in it as they are.
+    /// <see cref="ColourShift.None"/> takes back what the source asked for.
+    /// </summary>
+    public void ShiftBackdrops(string source, ColourShift shift)
+    {
+        foreach (Backdrop backdrop in _backdrops)
+            backdrop.Shift(source, shift);
+    }
+
+    /// <summary>
     /// Adds a room-wide condition to the room while it is being played: whatever starts one that the room's scene does
     /// not place. It is the room's from then on, set up at once and stepped with the room's other effects from the
     /// next update that steps them.

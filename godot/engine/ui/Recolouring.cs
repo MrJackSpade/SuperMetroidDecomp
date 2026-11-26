@@ -8,6 +8,7 @@ namespace Engine.Ui;
 /// it. A thing that can be recoloured keeps one and hands its own drawing to it. The shader swaps exact colours, so a
 /// picture's shapes are untouched and nothing is drawn twice; with nothing asked for the thing has no shader at all.
 /// A colour may be shown see-through (<see cref="ColourSwap.To"/>): its pixels are then drawn that much less opaque.
+/// A colour may also be added to or taken from every colour the thing shows, after its swaps (<see cref="Shift"/>).
 /// A swap may be of one region of a picture only: the shader reads the region of each pixel from the picture's map
 /// of regions, which a picture that has one is drawn with (<see cref="Content.ContentLibrary.LoadTexture"/>).
 /// </summary>
@@ -28,6 +29,7 @@ public sealed class Recolouring
         uniform vec3 swap_to[64];
         uniform float swap_opacity[64];
         uniform int swap_region[64];
+        uniform vec3 shift = vec3(0.0);
         varying vec4 tint;
         void vertex() {
             tint = COLOR;
@@ -51,12 +53,16 @@ public sealed class Recolouring
                     break;
                 }
             }
+            shown.rgb = clamp(shown.rgb + shift, 0.0, 1.0);
             COLOR = shown * tint;
         }
         """;
 
     /// <summary>What each source asked for, the source that asked last first.</summary>
     private readonly List<(string Source, IReadOnlyList<ColourSwap> Swaps)> _asked = [];
+
+    /// <summary>What each source asked added to or taken from every colour.</summary>
+    private readonly List<(string Source, ColourShift Shift)> _shifted = [];
 
     /// <summary>The thing drawn.</summary>
     private readonly CanvasItem _item;
@@ -97,10 +103,28 @@ public sealed class Recolouring
         Show();
     }
 
-    /// <summary>Hands the shader every colour changed, or takes the shader away when none is.</summary>
+    /// <summary>
+    /// Keeps <paramref name="shift"/> as what <paramref name="source"/> asks added to or taken from every colour the
+    /// thing shows, in place of what it asked before, and shows the thing so; <see cref="ColourShift.None"/> takes
+    /// back what the source asked. What several sources ask is added together.
+    /// </summary>
+    public void Shift(string source, ColourShift shift)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(source);
+        int at = _shifted.FindIndex(asked => asked.Source == source);
+        if (at < 0 && shift.IsNone)
+            return;
+        if (at >= 0)
+            _shifted.RemoveAt(at);
+        if (!shift.IsNone)
+            _shifted.Add((source, shift));
+        Show();
+    }
+
+    /// <summary>Hands the shader every colour changed and what is added to them all, or takes the shader away when nothing is asked.</summary>
     private void Show()
     {
-        if (_asked.Count == 0)
+        if (_asked.Count == 0 && _shifted.Count == 0)
         {
             if (ReferenceEquals(_item.Material, _material))
                 _item.Material = null;
@@ -132,6 +156,7 @@ public sealed class Recolouring
         _material.SetShaderParameter("swap_to", to);
         _material.SetShaderParameter("swap_opacity", opacity);
         _material.SetShaderParameter("swap_region", region);
+        _material.SetShaderParameter("shift", new Vector3(_shifted.Sum(asked => asked.Shift.Red), _shifted.Sum(asked => asked.Shift.Green), _shifted.Sum(asked => asked.Shift.Blue)));
         if (!ReferenceEquals(_item.Material, _material))
             _item.Material = _material;
     }

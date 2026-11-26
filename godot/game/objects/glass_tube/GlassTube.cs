@@ -160,7 +160,9 @@ public partial class GlassTube : RoomObject, IHittable
                     || input.WasPressed(GameAction.Right) || input.WasPressed(GameAction.Jump) || input.WasPressed(GameAction.Attack);
                 if (!acted)
                     break;
-                samus.Hold();
+
+                // She is stopped as she is while it breaks, and goes on from there with the speed she had.
+                samus.HoldAsTheyAre();
                 // The crack stays where it is until its own timeline has it fall.
                 Leave(CrackEffect, CrackAt, PixelVelocity.Zero);
                 Show(CrackingPicture);

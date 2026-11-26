@@ -175,7 +175,9 @@ public partial class MotherBrain
             case Descent.PauseBeforeLock:
                 if (--_timer > 0)
                     break;
-                samus.Hold();
+
+                // The cartridge's lock here stops her as she is, in the air or mid-stride, and letting go has her go on.
+                samus.HoldAsTheyAre();
                 (_descent, _timer) = (Descent.PauseBeforeMusic, 33);
                 goto case Descent.PauseBeforeMusic;
 

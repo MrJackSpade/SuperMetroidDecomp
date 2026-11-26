@@ -171,7 +171,8 @@ public partial class YappingMaw : Enemy
         // as it lets her go. Out of a spin or a wall jump it stands her up first, body and all.
         if (samus.State is SpinJumpingState or WallJumpingState)
         {
-            samus.Hold();
+            // Held as one standing: that is how she is shown, and letting go leaves her at rest.
+            samus.ChangeState(new HeldState(new StandingState()));
             samus.TrySetForm(Engine.Actors.Player.Standing);
         }
         else

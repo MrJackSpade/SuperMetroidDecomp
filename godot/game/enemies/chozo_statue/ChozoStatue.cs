@@ -214,7 +214,9 @@ public partial class ChozoStatue : Enemy
         _carrying = true;
         if (_hand is { } hand)
             hand.Enabled = false;
-        samus.Hold();
+
+        // Its hold only stops her taking part, as the cartridge's does: what she was doing is hers again as it lets go.
+        samus.HoldAsTheyAre();
         if (RecordsFact.Length > 0)
             Room.Session.Progress.Record(RecordsFact);
         if (HandPatch.Length > 0)

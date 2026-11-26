@@ -1040,7 +1040,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   that stride ends.
 - **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
   wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
-  down at other than a whole number of pixels an update.
+  down at other than a whole number of pixels an update. Her dust rises a pixel on each update it shows, its first
+  among them: its timeline has a step for each update, each placed a pixel higher than the one before.
 - **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
   carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
   her. What the input asks of it is the first of these that holds: the jump with left, then the jump with right,

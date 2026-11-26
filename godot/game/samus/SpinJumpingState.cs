@@ -61,7 +61,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     private bool _looksForWalls;
 
     /// <summary>The updates left in which the spin is ready to jump off a wall.</summary>
-    private Countdown _ready;
+    private PictureCount _ready;
 
     /// <summary>Whether this update's input asked the spin to turn.</summary>
     private bool _turnAsked;
@@ -272,7 +272,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         var samus = (Samus)owner;
         bool ready = _ready.IsRunning;
         _showsReady = ready;
-        _ready = _ready.Stepped();
+        _ready = _ready.Stepped(samus);
         if (!_looksForWalls || FeelForWall(owner, out Enemy? enemy) is not { } gap)
             return false;
 
@@ -288,7 +288,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             return launches;
         }
 
-        _ready = Countdown.Of(samus.InMedium("wall_jump_ready_updates", samus.WallJumpReadyUpdates));
+        _ready = PictureCount.Begin(samus, samus.WallJumpReadyPictures, asChangeBegins: false);
         return false;
     }
 

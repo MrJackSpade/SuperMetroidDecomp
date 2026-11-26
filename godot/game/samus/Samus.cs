@@ -250,13 +250,16 @@ public partial class Samus : Player
     [Export, DataValue("crouch_jump_lift")]
     public int CrouchJumpLift { get; set; } = 10;
 
-    /// <summary>How many updates she takes to settle after landing from a spin or a wall jump.</summary>
-    [Export, DataValue("spin_landing_updates")]
-    public int SpinLandingUpdates { get; set; } = 10;
+    /// <summary>How many updates each picture of her settling after landing from a spin or a wall jump is held, in order.</summary>
+    [Export, DataValue("spin_landing_pictures")]
+    public int[] SpinLandingPictures { get; set; } = [];
 
-    /// <summary>How many updates a spin that has found a wall to jump from stays ready to jump off it.</summary>
-    [Export, DataValue("wall_jump_ready_updates")]
-    public int WallJumpReadyUpdates { get; set; } = 8;
+    /// <summary>
+    /// How many updates each picture of a spin that has found a wall to jump from is held, in order: the spin stays
+    /// ready to jump off the wall as long as they last.
+    /// </summary>
+    [Export, DataValue("wall_jump_ready_pictures")]
+    public int[] WallJumpReadyPictures { get; set; } = [];
 
     /// <summary>How many updates of the charge it takes for a spin jump to hurt what it touches.</summary>
     [Export, DataValue("charged_spin_updates")]
@@ -705,8 +708,17 @@ public partial class Samus : Player
     }
 
     /// <summary>A landing out of a spin or a wall jump takes a spin's landing to settle.</summary>
-    public override int SettlingUpdatesAfter(PlayerState from) =>
-        from is SpinJumpingState or WallJumpingState ? InMedium("spin_landing_updates", SpinLandingUpdates) : base.SettlingUpdatesAfter(from);
+    public override IReadOnlyList<int> SettlingPicturesAfter(PlayerState from) =>
+        from is SpinJumpingState or WallJumpingState ? SpinLandingPictures : base.SettlingPicturesAfter(from);
+
+    /// <summary>
+    /// With her feet under a liquid that does not hinder her, as with the gravity suit, a picture that follows another
+    /// is held no longer at all, while the first picture of a change begun there is held as out of any liquid: the
+    /// cartridge gives a pose it begins her slowing for its delay, and takes the delay away on every update she
+    /// stands in such a liquid.
+    /// </summary>
+    public override int PictureHold(bool asChangeBegins) =>
+        !asChangeBegins && FeetAreInLiquid && Medium.MediumName == PlayerMedium.Air ? 0 : base.PictureHold(asChangeBegins);
 
     /// <summary>
     /// How many updates a fired beam, and a fired missile or super missile, keep her own bombs from throwing her: the
@@ -1085,7 +1097,7 @@ public partial class Samus : Player
 
         // A run taken up afresh starts its stride again.
         if (!alreadyRunning && RunStrideUpdates.Length > 0)
-            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0] + StrideSlowing);
+            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0] + PictureHold(asChangeBegins: true));
         RunPose pose = NextRunPose(alreadyRunning);
         bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
         _runPose = pose;
@@ -2203,10 +2215,11 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// The updates added to each picture of her stride: as many as she is slowed by what clings to her, out of any
-    /// liquid, as the cartridge adds its slowing to every picture of her animation.
+    /// The updates added to each picture of her stride that follows another: as many as her pictures are then held
+    /// longer, by the liquid she is in or by what clings to her, as the cartridge adds its delay to every picture of
+    /// her animation.
     /// </summary>
-    private int StrideSlowing => FeetAreInLiquid ? 0 : SpeedHalvings;
+    private int StrideSlowing => PictureHold(asChangeBegins: false);
 
     /// <summary>Starts the warning as her energy falls low and stops it as her energy recovers. The warning goes on by itself in between.</summary>
     private void WarnOfLowEnergy()

@@ -9,8 +9,8 @@ namespace Engine.Actors;
 /// </summary>
 public sealed class TurningState : PlayerState
 {
-    /// <summary>The updates left before the turn is done.</summary>
-    private Countdown _left;
+    /// <summary>What is left of the turn, counted by its pictures.</summary>
+    private PictureCount _left;
 
     /// <summary>A turn on the ground.</summary>
     /// <param name="crouched">Whether the player turns crouched, and stays so.</param>
@@ -39,7 +39,7 @@ public sealed class TurningState : PlayerState
     public override void Enter(Player owner)
     {
         owner.TurnAround();
-        _left = Countdown.Of(owner.InMedium("turn_updates", owner.TurnUpdates));
+        _left = PictureCount.Begin(owner, owner.TurnPictures);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public sealed class TurningState : PlayerState
         owner.MoveAcross();
         owner.PressToGround();
         owner.LoseMomentum();
-        _left = _left.Stepped();
+        _left = _left.Stepped(owner);
         return null;
     }
 

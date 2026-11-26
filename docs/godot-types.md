@@ -903,7 +903,7 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   gives them a rise, a fall or a speed up or down of its own.
 - **In the air.** A jump keeps the jump's own move values from its start until the player lands: `JumpingState` is
   the whole jump, and `FallingState` is for walking off a floor and for being let go in the air. A jump from the
-  ground may first gather itself for `jump_start_updates`, moving nothing of the player's own. Both steer by the air
+  ground may first gather itself for as long as `jump_start_pictures` last, moving nothing of the player's own. Both steer by the air
   rule (`SteerAndMoveInAir`): steered with neither direction held, the player stops across at once and does not move
   across that update; unsteered or reversing they carry on. A player taking up a new stance in the air (`AirStance`:
   their aim, and aiming level in a jump whether they steer the way they face or hold the attack, `AirArm`; a stance
@@ -926,8 +926,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from, a
   jump aiming level then being in the stance of steering the way they now face, and a turn made aiming diagonally
   down coming out aiming straight down. A landing ends standing whatever is held.
-- **Postures.** Crouching down, standing up, taking the low form and leaving it each take the updates the game
-  gives them (`crouch_updates`, `stand_updates`, `crawl_enter_updates`, `crawl_leave_updates`; none is at once). For
+- **Postures.** Crouching down, standing up, taking the low form and leaving it each last as long as the pictures the game
+  gives them (`crouch_pictures`, `stand_pictures`, `crawl_enter_pictures`, `crawl_leave_pictures`; none is at once). For
   that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is
   not asked, and they move across only as far as a dash carries them, their own speed kept. Through a change between
   crouching and standing they can attack, aiming as they did when it began (this game's Samus fires from heights of
@@ -963,9 +963,13 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   already that far down, and fall from rest.
 - **In a liquid.** The player is in a liquid when the pixel row tested (their feet's, or their head's) lies below
   its surface line, not on it (`Player.IsUnder`). Their medium is found afresh each update, before they move. A
-  medium may give its own lengths for the timed changes (`"updates"`, by the name of the value that gives the length
-  elsewhere: a turn, a change of posture, a jump's gathering), which a state reads as the change begins
-  (`Player.InMedium`).
+  timed change (a turn, a change of posture, a jump's gathering, a landing's settling) is counted picture by picture
+  (`PictureCount`): the game gives how many updates each of its pictures is held, and each is held as much longer
+  as the player's pictures are held as that picture begins (`Player.PictureHold`): by the medium they are then in
+  (`"picture_hold"`), or out of any that holds them, by what clings to them. A change the player is in as they
+  enter or leave a liquid so goes on from its next picture by where they then are. This game's Samus, with her feet
+  under a liquid that does not hinder her, holds a picture that follows another no longer at all
+  (`Samus.PictureHold`), and her stride's pictures are held by the same rule.
 - A player aiming straight down in a jump or a fall takes the form `aiming_down` where the game gives one, a
   smaller body, and the form of the jump or the fall again when they aim elsewhere and it fits.
 - **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
@@ -974,8 +978,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   update of the landing is not counted. A mode that passes updates the player does not play tells them what is
   held on each (`Player.NoteHeld`, as this game's pause screen does): the jump goes on counting from where it
   stood. A player who has stood since landing for as long as a landing takes to
-  settle (`landing_updates`) is given the same chance once more. How long a landing takes to settle may differ by
-  the state it ends, which the game's player says (`SettlingUpdatesAfter`, asked by `AirStance.FallAndLand`).
+  settle (`landing_pictures`) is given the same chance once more. How long a landing takes to settle may differ by
+  the state it ends, which the game's player says (`SettlingPicturesAfter`, asked by `AirStance.FallAndLand`).
 - A wall jump leaves the wall with the player's own speed across at rest (a dash and momentum kept) and the way
   they face unchanged, gains speed by the wall jump's own move values whether or not a direction is held, and lasts
   for as long as the jump is held; let go, it carries on as a jump. The engine does not find the wall: the game's
@@ -1106,7 +1110,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   out of a jump, its first pose included, the windup starts `shinespark_lift` pixels higher, moved there whatever
   is above her.
 - **Her wall jump** is from a spin only. A wall within `wall_jump_reach` on the side away from the direction held
-  makes the spin ready from the next update for `wall_jump_ready_updates`; ready, a fresh jump with the wall still
+  makes the spin ready from the next update for as long as `wall_jump_ready_pictures` last; ready, a fresh jump with the wall still
   there jumps off it, and that update she moves neither up nor down. A spin held steadily from the ground does not
   look for walls: it does once an update's input has asked nothing of it, or it has turned, or it came out of a
   wall jump. What the input asks of the wall jump is the first of these that holds: a press of down curls her up;
@@ -1116,7 +1120,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   screw attack. The wall jump is heard as a landing, and as it begins it kicks up dust (`wall_jump_effect`) at the
   bottom row of her body, `wall_jump_effect_behind` pixels behind the way she then faces, unless her feet are in a
   liquid, whatever her suit. A wall jump that lands settles as a spin's landing does
-  (`spin_landing_updates`, by `Samus.SettlingUpdatesAfter`) and is shown by the spin's landing pictures.
+  (`spin_landing_pictures`, by `Samus.SettlingPicturesAfter`) and is shown by the spin's landing pictures.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
 - **Her run's one pixel.** As the cartridge does, a run about to be taken up in a pose she is not already running

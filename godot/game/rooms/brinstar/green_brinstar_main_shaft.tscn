@@ -582,11 +582,39 @@ Target = NodePath("../Screen1x7")
 [node name="Arriving2" type="Node2D" parent="."]
 script = ExtResource("14")
 position = Vector2(0, 0)
+AtEntry = "ToItsRightSide"
+What = "open_fully"
+Target = NodePath("../Screen0x6")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
+AtEntry = "ToItsRightSide"
+What = "open_fully"
+Target = NodePath("../Screen0x7")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
+AtEntry = "ToGreenBrinstarBeetoms"
+What = "open_fully"
+Target = NodePath("../Screen0x6")
+
+[node name="Arriving5" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
+AtEntry = "ToGreenBrinstarBeetoms"
+What = "open_fully"
+Target = NodePath("../Screen0x7")
+
+[node name="Arriving6" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
 AtEntry = "ToEtecoonEnergyTank"
 What = "open_to_top"
 Target = NodePath("../Screen1x7")
 
-[node name="Arriving3" type="Node2D" parent="."]
+[node name="Arriving7" type="Node2D" parent="."]
 script = ExtResource("14")
 position = Vector2(0, 0)
 AtEntry = "ToGreenBrinstarElevator"

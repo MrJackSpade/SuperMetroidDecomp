@@ -389,9 +389,19 @@ def scroll_changes() -> dict[str, list[tuple[tuple[int, int], str]]]:
 def door_setups() -> dict[str, list[tuple[tuple[int, int], str]]]:
     """Each door setup that changes the scrolling of the room it leads into: the screens it sets."""
     text = without_comments(read('Rooms', 'Doors', 'DoorSetupDefinitions.cs'))
+
+    # A list of changes more than one setup makes is written once and named by each of them.
+    shared = {name: _screen_states(expression)
+              for name, expression in properties_of(text, r'private static readonly ScreenScrollChange\[\] (\w+) =')}
     result = {}
     for name, expression in properties_of(text, r'public static DoorSetup (\w+) \{ get; \} ='):
-        states = _screen_states(expression)
+        changes = call_arguments(expression)[1].strip()
+        if changes.startswith('['):
+            states = _screen_states(changes)
+        elif changes in shared:
+            states = shared[changes]
+        else:
+            raise ValueError(f'The door setup {name} gives its screen changes as {changes}, which is neither a list nor a shared one.')
         if states:
             result[name] = states
     return result

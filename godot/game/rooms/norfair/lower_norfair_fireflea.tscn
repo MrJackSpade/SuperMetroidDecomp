@@ -335,6 +335,20 @@ AtEntry = "ToLowerNorfairSpringBallMaze"
 What = "close"
 Target = NodePath("../Screen1x1")
 
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToLowerNorfairEscapePowerBombs"
+What = "open_to_top"
+Target = NodePath("../Screen1x0")
+
+[node name="Arriving5" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToLowerNorfairEscapePowerBombs"
+What = "close"
+Target = NodePath("../Screen1x1")
+
 [node name="Darkness" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)

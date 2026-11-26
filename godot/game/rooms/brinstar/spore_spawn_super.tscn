@@ -158,6 +158,20 @@ What = "open_fully"
 Once = false
 Target = NodePath("../Screen1x1")
 
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToSporeSpawn"
+What = "open_to_top"
+Target = NodePath("../Screen1x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToSporeSpawn"
+What = "close"
+Target = NodePath("../Screen1x1")
+
 [node name="Spores" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)

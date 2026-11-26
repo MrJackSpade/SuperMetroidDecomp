@@ -176,6 +176,20 @@ What = "open_fully"
 Once = false
 Target = NodePath("../Screen1x1")
 
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToHiJumpBoots"
+What = "open_fully"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToHiJumpBoots"
+What = "open_fully"
+Target = NodePath("../Screen0x1")
+
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)

@@ -279,6 +279,34 @@ What = "open_fully"
 Once = false
 Target = NodePath("../Screen0x0")
 
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToAmphitheatre"
+What = "open_to_top"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToAmphitheatre"
+What = "close"
+Target = NodePath("../Screen0x1")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToLowerNorfairFireflea"
+What = "open_to_top"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToLowerNorfairFireflea"
+What = "close"
+Target = NodePath("../Screen0x1")
+
 [node name="Heat" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)

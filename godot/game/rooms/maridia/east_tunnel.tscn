@@ -246,6 +246,34 @@ What = "open_to_top"
 Once = false
 Target = NodePath("../Screen1x0")
 
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToWarehouseEntrance"
+What = "close"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToWarehouseEntrance"
+What = "open_to_top"
+Target = NodePath("../Screen0x1")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToGlassTunnel"
+What = "close"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToGlassTunnel"
+What = "open_to_top"
+Target = NodePath("../Screen0x1")
+
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)

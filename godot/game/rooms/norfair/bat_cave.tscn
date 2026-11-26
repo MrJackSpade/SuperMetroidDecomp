@@ -175,6 +175,20 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x0")
 
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToSpeedBoosterHall"
+What = "open_to_top"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToSpeedBoosterHall"
+What = "close"
+Target = NodePath("../Screen0x1")
+
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)

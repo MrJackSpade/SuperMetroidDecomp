@@ -107,6 +107,20 @@ What = "open_fully"
 Once = false
 Target = NodePath("../Screen0x1")
 
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+AtEntry = "ToToilet"
+What = "open_fully"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+AtEntry = "ToToilet"
+What = "open_fully"
+Target = NodePath("../Screen0x1")
+
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)

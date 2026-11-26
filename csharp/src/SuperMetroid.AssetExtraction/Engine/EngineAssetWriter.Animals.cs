@@ -203,6 +203,9 @@ public sealed partial class EngineAssetWriter
     private void WriteEscapeEtecoon()
     {
         EngineObjectFile etecoon = Creature("objects/escape_etecoon.json", "EscapeEtecoon", EnemyDefinitionId.EtecoonEscape, out EngineSheetPictures pictures);
+        // It stands solid to Samus, its body's size, as the old one is set up to whatever its room places it with.
+        Extent16<RoomPixels> radius = RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.EtecoonEscape].Radius;
+        etecoon.Collider("Solid", -radius.X, -radius.Y, 2 * radius.X, 2 * radius.Y);
         static string Cue(EscapeEtecoonCue cue) => cue switch
         {
             EscapeEtecoonCue.LowTideRunStarts run => $"low_tide_run:{EngineNames.Side(run.Running)}",

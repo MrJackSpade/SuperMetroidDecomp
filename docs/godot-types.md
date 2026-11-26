@@ -1705,7 +1705,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
   (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`. The Dachora's
   glows, of speed and of the shine, are frames of changes of its pictures' colours, which its data lists
-  (`glow_colours`).
+  (`glow_colours`). The trapped Etecoons of the escape stand solid to Samus, a solid of their body's size.
 - The Tourian entrance statue is a plain node holding the pictures its hall's sequence
   shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, each with a state

@@ -26,8 +26,10 @@ namespace Game.Rooms.Crateria;
 /// first showing none of its grey, the last all of it, and each between as much more as the one before), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
 /// stays with the view as it moves up and down, and what is part of it stays with it and lies behind the room's
 /// tiles), the change of colours the light made at its eyes shows on the pictures that stand in the room and on the
-/// other guardians' effects from then on ("eye_glow_colours", by each picture's path and each effect's folder), and
-/// its effects: "eye_glow",
+/// other guardians' effects from then on ("eye_glow_colours", by each picture's path and each effect's folder), for a
+/// guardian that stands in the room the change of colours each step of its greying shows on the other pictures that
+/// stand in the room and on every guardian's effects ("grey_colours", one for each step, written as
+/// "eye_glow_colours" is), and its effects: "eye_glow",
 /// "particle", "tail", "splash" and "soul" by the data files of their timelines (those of the particle and the
 /// soul loop). It names "base" (a "picture" and its "offset"); the "dust" the sinking statue raises, by the data
 /// file of its timeline, with "dust_puffs", "dust_rounds", "dust_updates" and the "dust_scatter" it is thrown by;
@@ -97,17 +99,32 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         /// <summary>How many updates each step of its greying is held.</summary>
         public IReadOnlyList<int> GreyingUpdates { get; set; } = [];
 
-        /// <summary>How much of its grey shows once it has been greying <see cref="GreyingFor"/> updates: none in its first step, all in its last.</summary>
-        public float GreyShown
+        /// <summary>The step of its greying it shows once it has been greying <see cref="GreyingFor"/> updates.</summary>
+        public int GreyStep
         {
             get
             {
                 int step = 0;
                 for (int passed = GreyingFor - 1; step < GreyingUpdates.Count - 1 && passed >= GreyingUpdates[step]; step++)
                     passed -= GreyingUpdates[step];
-                return (float)step / (GreyingUpdates.Count - 1);
+                return step;
             }
         }
+
+        /// <summary>How much of its grey shows once it has been greying <see cref="GreyingFor"/> updates: none in its first step, all in its last.</summary>
+        public float GreyShown => (float)GreyStep / (GreyingUpdates.Count - 1);
+
+        /// <summary>
+        /// For each step of its greying, the change of colours it makes on the statue's other sprites; none for a
+        /// guardian that is part of the backdrop.
+        /// </summary>
+        public IReadOnlyList<ColourChange> GreyColours { get; set; } = [];
+
+        /// <summary>The step of its greying the statue's other sprites show; -1 while they show none.</summary>
+        public int GreyStepShown { get; set; } = -1;
+
+        /// <summary>The name its greying's colours are shown on the other sprites under.</summary>
+        public string GreySource => $"grey_{name}";
     }
 
     /// <summary>How long the statue waits once all four are grey, how far it sinks, and how far each update.</summary>
@@ -235,11 +252,14 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         _eyesLit = null;
         foreach (Guardian guardian in _guardians)
         {
-            (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor) = (Stage.Entering, -1, 0, -1);
+            (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor, guardian.GreyStepShown) = (Stage.Entering, -1, 0, -1, -1);
             DataNode pictures = Data().Get("statues").Get(guardian.Name.ToLowerInvariant());
             guardian.GreyingUpdates = [.. pictures.List("greying_updates").Select(updates => updates.AsInt())];
             if (guardian.GreyingUpdates.Count < 2)
                 throw pictures.Problem("gives fewer than two steps of greying");
+            guardian.GreyColours = pictures.Flag("in_room") ? [.. pictures.List("grey_colours").Select(ColourChange.Read)] : [];
+            if (pictures.Flag("in_room") && guardian.GreyColours.Count != guardian.GreyingUpdates.Count)
+                throw pictures.Problem("gives the colours of a different number of steps of greying than it greys by");
             Visual(guardian.Name).Bind(room.Content);
             Visual(guardian.Name).PictureOffset = Offset(pictures.Get("offset"));
             Visual(guardian.Name + "Grey").PictureOffset = Offset(pictures.Get("grey_offset"));
@@ -292,6 +312,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
             {
                 guardian.GreyingFor++;
                 Visual(guardian.Name + "Grey").Tint(new Color(1, 1, 1, guardian.GreyShown));
+                ShowGrey(guardian, guardian.GreyStep);
             }
 
             if (guardian.Stage == Stage.Done || (guardian.Left > 0 && --guardian.Left > 0))
@@ -314,7 +335,9 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                         // It was let go before: it is grey, and has nothing more to do.
                         FinishRelease(guardian);
                         Visual(guardian.Name).Show(Picture(guardian, "released"));
+                        ShowOthersOn(guardian);
                         Visual(guardian.Name + "Grey").Tint(Colors.White);
+                        ShowGrey(guardian, guardian.GreyingUpdates.Count - 1);
                         guardian.Stage = Stage.Done;
                         return;
                     }
@@ -405,9 +428,44 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     private void Show(Guardian guardian, string picture, int updates)
     {
         Visual(guardian.Name).Show(Picture(guardian, picture));
-        if (_eyesLit is { } lit && StandsInRoom(guardian))
-            lit.ShowOn(Visual(guardian.Name), EyesLitSource);
+        ShowOthersOn(guardian);
         guardian.Left = updates;
+    }
+
+    /// <summary>
+    /// Shows on a guardian that stands in the room, as it takes up a picture, the colours the light last made and the
+    /// other guardians' greying make on it.
+    /// </summary>
+    private void ShowOthersOn(Guardian guardian)
+    {
+        if (!StandsInRoom(guardian))
+            return;
+        _eyesLit?.ShowOn(Visual(guardian.Name), EyesLitSource);
+        foreach (Guardian greyed in _guardians.Where(other => other != guardian && other.GreyStepShown >= 0))
+            greyed.GreyColours[greyed.GreyStepShown].ShowOn(Visual(guardian.Name), greyed.GreySource);
+    }
+
+    /// <summary>
+    /// Shows a step of a guardian's greying on the statue's other sprites, as the cartridge lays each step of a sprite
+    /// guardian's grey-out over all of them: the base, the other guardian that stands in the room, and every effect let
+    /// out. The guardian itself shows it by its grey picture.
+    /// </summary>
+    private void ShowGrey(Guardian guardian, int step)
+    {
+        if (guardian.GreyColours.Count == 0 || step == guardian.GreyStepShown)
+            return;
+        guardian.GreyStepShown = step;
+        ColourChange grey = guardian.GreyColours[step];
+        grey.ShowOn(Visual("Base"), guardian.GreySource);
+        foreach (Guardian standing in _guardians.Where(other => other != guardian && StandsInRoom(other)))
+        {
+            grey.ShowOn(Visual(standing.Name), guardian.GreySource);
+            grey.ShowOn(Visual(standing.Name + "Grey"), guardian.GreySource);
+        }
+
+        _letOut.RemoveAll(gone => !GodotObject.IsInstanceValid(gone));
+        foreach (Effect effect in _letOut)
+            grey.ShowOn(effect, guardian.GreySource);
     }
 
     /// <summary>
@@ -646,10 +704,13 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         if (!room.Spawn(effect))
             return null;
 
-        // It is cut in its own guardian's light; a later light made since shows in its place.
+        // It is cut in its own guardian's light; a later light made since shows in its place, and so does the grey of
+        // every guardian that stands in the room and has begun to grey.
         _letOut.RemoveAll(gone => !GodotObject.IsInstanceValid(gone));
         _letOut.Add(effect);
         _eyesLit?.ShowOn(effect, EyesLitSource);
+        foreach (Guardian greyed in _guardians.Where(other => other.GreyStepShown >= 0))
+            greyed.GreyColours[greyed.GreyStepShown].ShowOn(effect, greyed.GreySource);
         return effect;
     }
 

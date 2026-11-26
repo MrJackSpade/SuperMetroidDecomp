@@ -20,7 +20,9 @@ namespace Game.Enemies;
 /// "eye_close"; "eye_close_and_pick", whose cue "pick_pattern" chooses what it does next; "eyeball_centred"; and
 /// "eye_looking_" with one of the eight ways. The visual "Mouth" plays "mouth_idle" and "mouth_spawn_flame", whose
 /// cue "flame" drops a flame; "Tentacles" plays "tentacles". The cue "appear_sound" asks for the next of its
-/// "appear_sounds" in turn. Its colliders whose names begin "Eye" are its eye; the rest are its body and its three
+/// "appear_sounds" in turn. Its colliders whose names begin "Eye" are its eye; "Centre" is the one pixel at its
+/// middle, which alone takes shots on the update between the cue "begin_tracking" and its eye opening to harm, and
+/// spends them; the rest are its body and its three
 /// tentacles, each a hurtbox for shots and a hitbox for its touch. Its data gives its figure of eight under "path",
 /// a digit a step as on a number pad; the places its rains fall from under "rain_patterns"; under "health_bands" the
 /// least health of each band of its health, highest first: the names of its pictures may hold "{health}", which
@@ -168,6 +170,7 @@ public partial class Phantoon : Enemy
     private bool _swoopAfterWindow;
     private bool _nextIsRain;
     private bool _dying;
+    private bool _turningSolid;
 
     private int _pathPlace;
     private bool _pathBackward;
@@ -264,6 +267,19 @@ public partial class Phantoon : Enemy
         PlayPart("Tentacles", "tentacles");
         SetVisible(0);
         SetHurtAreas(eye: false, body: false, touch: false);
+        (Centre.Enabled, _turningSolid) = (false, false);
+    }
+
+    /// <summary>The one pixel at its middle.</summary>
+    private Collider Centre => GetNode<Collider>("Centre");
+
+    /// <inheritdoc/>
+    public override Engine.World.HitResult TakeHit(Hit hit, Collider part)
+    {
+        // A shot that meets the pixel at its middle is spent, and nothing of it is hit.
+        if (part == Centre)
+            return Engine.World.HitResult.Absorbed;
+        return base.TakeHit(hit, part);
     }
 
     /// <inheritdoc/>
@@ -326,6 +342,13 @@ public partial class Phantoon : Enemy
     protected override void Behave()
     {
         long clock = Room.Session.Clock.Updates;
+        if (_turningSolid)
+        {
+            // Its eye opens to harm one update after it began to track Samus: until then only its middle is there.
+            (Centre.Enabled, _turningSolid) = (false, false);
+            SetHurtAreas(eye: true, body: false, touch: true);
+        }
+
         switch (_phase)
         {
             case Phase.SpawnStartingFlames:
@@ -706,11 +729,14 @@ public partial class Phantoon : Enemy
         BeginFade();
     }
 
-    /// <summary>Opens its eye to harm, for a time picked by chance.</summary>
+    /// <summary>
+    /// Begins to track Samus, for a time picked by chance. Its eye opens to harm on its next turn; on the update
+    /// between, as on the cartridge, the one pixel at its middle is all of it a shot can meet.
+    /// </summary>
     private void BeginTracking()
     {
         _swoopAfterWindow = false;
-        SetHurtAreas(eye: true, body: false, touch: true);
+        (Centre.Enabled, _turningSolid) = (true, true);
         _wait = VulnerableWindows[Random.Draw().Part(0, 3)];
         _phase = Phase.EyeTracks;
         PlayPart("Eye", "eyeball_centred");
@@ -935,6 +961,9 @@ public partial class Phantoon : Enemy
     {
         foreach (Collider collider in Engine.World.EntityNode.CollidersOf(this))
         {
+            if (collider == Centre)
+                continue;
+
             // Each part of it is there to be shot when that part is, and hurts by touch only when its touch does.
             bool there = collider.Name.ToString().StartsWith("Eye", StringComparison.Ordinal) ? eye : body;
             collider.Enabled = there && !_dying && (collider.Role != ColliderRole.Hitbox || touch);

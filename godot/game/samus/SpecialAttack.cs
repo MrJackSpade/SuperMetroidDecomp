@@ -159,7 +159,7 @@ public partial class SpecialAttack : Projectile
         }
 
         _angle += _turn;
-        _radius += 8;
+        GrowRing(8);
     }
 
     private void StepPlasma(Room room, Player samus)
@@ -169,7 +169,7 @@ public partial class SpecialAttack : Projectile
         switch (_stage)
         {
             case Stage.First:
-                _radius += 4;
+                GrowRing(4);
                 if (_radius >= 192)
                     _stage = Stage.Second;
                 break;
@@ -182,10 +182,16 @@ public partial class SpecialAttack : Projectile
                 if (HasLeftView(room))
                     Leave(room);
                 else
-                    _radius += 4;
+                    GrowRing(4);
                 break;
         }
     }
+
+    /// <summary>
+    /// Widens an ice or plasma ring. The cartridge holds a ring's reach in one byte, so a ring still on screen as
+    /// its reach passes 255 falls back onto Samus and grows outward again from what lies past it.
+    /// </summary>
+    private void GrowRing(int step) => _radius = (_radius + step) % 256;
 
     private void StepSpazer(Room room, Player samus)
     {

@@ -80,7 +80,9 @@ public sealed partial class EngineAssetWriter
         // The face block: its glow recolours the whole face, a change of its pictures' colours for each level in the
         // order the glow goes through them, shown too on what shares its colours where that has the level's shade:
         // the Morph Ball eye.
+        // The old game places every face block solid to Samus, by the size its definition gives it.
         EngineEnemy face = Enemy("enemies/face_block.json", "FaceBlock", EnemyDefinitionId.FaceBlock)
+            .BodyColliders("Solid")
             .Value("wakes_with", "morph_ball")
             .Value("glow_updates", FaceBlockGlowDefinitions.FrameDuration)
             .Looks(BlueBrinstarFaceBlockAnimations.Segments, BlueBrinstarFaceBlockAnimations.StartingWith,

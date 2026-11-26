@@ -9,7 +9,8 @@ namespace Game.Enemies;
 /// <summary>
 /// A face block: a carved face in the rock that does nothing until Samus has the Morph Ball. From then on it glows,
 /// with the one glow its room's face blocks share (<see cref="FaceBlockGlow"/>), and turns its eyes to her the first
-/// time she comes near on the side it watches. Nothing touches it.
+/// time she comes near on the side it watches. It is solid to her, a block wide and high; her shots and bombs
+/// pass it, and nothing harms it.
 /// </summary>
 /// <remarks>
 /// Its timelines are "looking_ahead", "samus_left" and "samus_right". Its data lists the glow's levels under "glow",

@@ -3,6 +3,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
@@ -70,8 +71,11 @@ public partial class WorkRobot : Enemy
     private int _cooldown;
     private Pixels _fallSpeed;
 
-    /// <summary>The steps of the glow its room's powered robots share, as its data gives them.</summary>
+    /// <summary>The steps of its glow, as its data gives them.</summary>
     private DataNode? _glowSteps;
+
+    /// <summary>The glow a powered robot shows on itself; none for one without power.</summary>
+    private ColourSteps? _glow;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -80,24 +84,27 @@ public partial class WorkRobot : Enemy
         _glowSteps = data.Get("glow");
     }
 
-    /// <summary>
-    /// Set up, a powered robot starts its room's glow again and shows it from then on; one without power stops it,
-    /// as the cartridge's does.
-    /// </summary>
+    /// <summary>Set up, a powered robot begins its glow; one without power shows none.</summary>
     protected override void OnEnterRoom()
     {
         Facing = Facing.Left;
         Play(Powered ? "standing_left" : Pose);
-        WorkRobotGlow glow = WorkRobotGlow.In(Room, _glowSteps ?? throw new InvalidOperationException($"The Work Robot \"{Name}\" has no data for its glow."));
-        if (!Powered)
-            glow.Stop();
-        else if (Visual is { } visual)
-            glow.StartOn(visual);
+        _glow = null;
+        if (!Powered || Visual is not { } visual)
+            return;
+        _glow = new ColourSteps(_glowSteps ?? throw new InvalidOperationException($"The Work Robot \"{Name}\" has no data for its glow."), "work_robot_glow");
+        _glow.ShowOn(visual);
+        _glow.Restart();
     }
+
+    /// <summary>Its glow goes on while a hurt holds its behaviour off.</summary>
+    protected override void WhileHurt() => _glow?.Step();
 
     /// <inheritdoc/>
     protected override void Behave()
     {
+        _glow?.Step();
+
         // In the air its timeline waits, and it falls faster; landed, it keeps the speed it landed with.
         bool landed = MoveDownBy(_fallSpeed);
         HoldsTimeline = !landed;

@@ -99,6 +99,10 @@ public sealed partial class EngineAssetWriter
         var inRoom = new List<(string Path, string Frame, string[] Shades)>();
         var glows = new List<(JsonObject Data, string Glow)>();
 
+        // The folder of each effect a guardian lets out, with the frames cut there and the light it is cut in: the
+        // cartridge shows a later light on those still playing, as on every sprite of the statue.
+        var effectFolders = new List<(string Folder, string[] Frames, string Glow)>();
+
         var statues = new JsonObject();
         foreach (TourianStatue statue in new[] { TourianStatue.Kraid, TourianStatue.Phantoon, TourianStatue.Draygon, TourianStatue.Ridley })
         {
@@ -252,9 +256,11 @@ public sealed partial class EngineAssetWriter
             ];
             foreach ((string effect, TourianStatueProjectileSegment segment, bool loops) in effects)
             {
-                IEnumerable<string> frames = TourianStatueProjectileAnimations.Segments.Beats(segment)
-                    .Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value));
+                string[] frames = [.. TourianStatueProjectileAnimations.Segments.Beats(segment)
+                    .Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value))
+                    .Distinct(StringComparer.Ordinal)];
                 EngineSheetPictures pictures = _sheets.CutSpawnedShades(_tree, $"{folder}/{effect}", spawner, frames, glowing);
+                effectFolders.Add(($"{folder}/{effect}", frames, definition.Eye.Glow.Key));
 
                 // The hall itself does what these raise: the burst, the sparks, their tails.
                 JsonObject timeline = EngineTimelines.Of(TourianStatueProjectileAnimations.Segments, segment, loops,
@@ -275,44 +281,64 @@ public sealed partial class EngineAssetWriter
         EngineSheetPictures basePictures = _sheets.CutSpawnedShades(_tree, $"{StatueHallFolder}/base", spawner, [baseFrame], entrance);
         inRoom.Add((basePictures.Of(baseFrame), baseFrame, [entrance]));
 
-        // The colours the light of each guardian's eyes changes on the pictures that stand in the room, picture by
-        // picture: each colour as the picture is cut, and as it shows with the light's shade laid over its entrance
-        // colours.
+        // The colours the light of each guardian's eyes changes, place by place: on each picture that stands in the
+        // room, each colour as the picture is cut and as it shows with the light's shade laid over its entrance
+        // colours; and on the effects of every other guardian, each colour as they are cut in their own light and as
+        // they show in this one, which takes its place.
         JsonObject EyeGlowColours(string glow)
         {
-            static string Written(RgbaPixel pixel) =>
-                ((pixel.R << 16) | (pixel.G << 8) | pixel.B).ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
             var written = new JsonObject();
             foreach ((string path, string frame, string[] shades) in inRoom)
             {
+                string[] litShades = [shades[0], glow, .. shades[1..]];
+                WriteChanges(written, glow, path, [(frame, shades, litShades)]);
+            }
+
+            foreach ((string effectFolder, string[] frames, string cutIn) in effectFolders)
+            {
+                if (cutIn == glow)
+                    continue;
+                string[] cutShades = [entrance, cutIn], litShades = [entrance, glow];
+                WriteChanges(written, glow, effectFolder, [.. frames.Select(frame => (frame, cutShades, litShades))]);
+            }
+
+            return written;
+        }
+
+        // Writes under the place what the light changes of the frames shown there: each colour as a frame is cut, and
+        // as it shows lit.
+        void WriteChanges(JsonObject written, string glow, string place, IReadOnlyList<(string Frame, string[] Cut, string[] Lit)> shown)
+        {
+            static string Written(RgbaPixel pixel) =>
+                ((pixel.R << 16) | (pixel.G << 8) | pixel.B).ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+            var changed = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            foreach ((string frame, string[] cutShades, string[] litShades) in shown)
+            {
                 string sheet = _sheets.SheetHolding(spawner, frame);
-                (RgbaPixel[] unlit, int _, int _) = _sheets.FrameShown(GameInstallationLayout.EnemySheetDirectoryName, sheet, frame, shades);
-                (RgbaPixel[] lit, int _, int _) = _sheets.FrameShown(GameInstallationLayout.EnemySheetDirectoryName, sheet, frame, [shades[0], glow, .. shades[1..]]);
-                var changed = new SortedDictionary<string, string>(StringComparer.Ordinal);
+                (RgbaPixel[] unlit, int _, int _) = _sheets.FrameShown(GameInstallationLayout.EnemySheetDirectoryName, sheet, frame, cutShades);
+                (RgbaPixel[] lit, int _, int _) = _sheets.FrameShown(GameInstallationLayout.EnemySheetDirectoryName, sheet, frame, litShades);
                 for (int i = 0; i < unlit.Length; i++)
                 {
                     if (unlit[i].A == 0)
                         continue;
                     string from = Written(unlit[i]), to = Written(lit[i]);
-                    if (changed.TryGetValue(from, out string? shown) && shown != to)
-                        throw new InvalidDataException($"The light {glow} shows the colour {from} of {path} as {shown} in one place and as {to} in another.");
+                    if (changed.TryGetValue(from, out string? before) && before != to)
+                        throw new InvalidDataException($"The light {glow} shows the colour {from} of {place} as {before} in one place and as {to} in another.");
                     changed[from] = to;
                 }
-
-                var colours = new JsonObject();
-                foreach ((string from, string to) in changed)
-                {
-                    if (from != to)
-                        colours[from] = to;
-                }
-
-                if (colours.Count > MostSwapsShown)
-                    throw new InvalidDataException($"The light {glow} changes {colours.Count} colours of {path}; a thing shows at most {MostSwapsShown} changed at once.");
-                if (colours.Count > 0)
-                    written[path] = colours;
             }
 
-            return written;
+            var colours = new JsonObject();
+            foreach ((string from, string to) in changed)
+            {
+                if (from != to)
+                    colours[from] = to;
+            }
+
+            if (colours.Count > MostSwapsShown)
+                throw new InvalidDataException($"The light {glow} changes {colours.Count} colours of {place}; a thing shows at most {MostSwapsShown} changed at once.");
+            if (colours.Count > 0)
+                written[place] = colours;
         }
 
         foreach ((JsonObject data, string glow) in glows)

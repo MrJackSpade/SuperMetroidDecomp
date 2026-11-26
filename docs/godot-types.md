@@ -1621,6 +1621,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   `ColliderPoses` pose with every step of their timelines, which places two or three hurtboxes for her shots
   and as many hitboxes for her touch: the cartridge meets a shot and a touch on different edges of a frame's box,
   a pixel apart, so each box is written once for each (`EngineEnemy.ShotRect`, `TouchRect`).
+- Oum: met by the boxes of the picture it shows, as the pirates are (`EngineEnemy.PosedByFrame`), each pose saying
+  what each part does with a shot (its shell swallows one, its soft part answers by its reactions) and with Samus's
+  touch (its jet hurts and shoves her, any other part only shoves her); its body and solid stay one square.
 - Kzan: one enemy; its top and bottom are parts.
 - Rinka: an enemy; its source is a `RinkaSpawner`, a `Spawner` that shares its places with the others in the room.
 - Zebetite (one node that stands again as each barrier in turn); Draygon's wall cannons; the eye of an eye door

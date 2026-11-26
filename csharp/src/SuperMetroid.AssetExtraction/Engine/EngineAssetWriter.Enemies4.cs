@@ -33,6 +33,18 @@ public sealed partial class EngineAssetWriter
         _ => throw new InvalidDataException($"A Ki-Hunter's acid raises {cue}, which this does not know."),
     };
 
+    /// <summary>What a box of the Oum does with a shot, as the Godot Oum names it: its shell or its soft part.</summary>
+    private static string OumShotBox(EnemyReaction reaction) =>
+        reaction == EnemyReaction.Ignore ? "shell"
+        : reaction == OumReactions.Shot ? "soft"
+        : throw new InvalidDataException($"A box of the Oum meets a shot with {reaction}, which this does not know.");
+
+    /// <summary>What a box of the Oum does to Samus's touch, as the Godot Oum names it: hurts her, or only shoves her.</summary>
+    private static string OumTouchBox(EnemyReaction reaction) =>
+        reaction == OumReactions.DamagingTouch ? "hurts"
+        : reaction == OumReactions.NonDamagingTouch ? "shoves"
+        : throw new InvalidDataException($"A box of the Oum meets Samus's touch with {reaction}, which this does not know.");
+
     /// <summary>Writes the Ki-Hunters, the Rio, the Squeept, the Oum, the turtles and the Spark.</summary>
     private void WriteMoreCuedEnemies()
     {
@@ -113,7 +125,7 @@ public sealed partial class EngineAssetWriter
                 ("hidden", NorfairLavaJumperSegment.Hidden), ("jump", NorfairLavaJumperSegment.Jump), ("flame", NorfairLavaJumperSegment.Follower))
             .Write();
 
-        Enemy("enemies/oum.json", "Oum", EnemyDefinitionId.Oum).BodyColliders("Body", "Solid", "Hurtbox", "Hitbox")
+        Enemy("enemies/oum.json", "Oum", EnemyDefinitionId.Oum).BodyColliders("Body", "Solid")
             .Value("pushing_reach_across", OumMotionDefinitions.PushingReachX)
             .Value("pushing_reach_down", OumMotionDefinitions.PushingReachY)
             .Value("attack_reach", OumMotionDefinitions.AttackReach)
@@ -137,6 +149,9 @@ public sealed partial class EngineAssetWriter
                 ("attack_left", OumSegment.FacingLeftAttacking), ("attack_right", OumSegment.FacingRightAttacking),
                 ("roll_forward_left", OumSegment.FacingLeftRollingForwards), ("roll_forward_right", OumSegment.FacingRightRollingForwards),
                 ("roll_backward_left", OumSegment.FacingLeftRollingBackwards), ("roll_backward_right", OumSegment.FacingRightRollingBackwards))
+            // Shots and Samus meet the boxes of the picture it shows: its shell swallows a shot, its soft part takes one,
+            // and only the boxes of its jet hurt her.
+            .PosedByFrame(OumCollisionDefinitions.Frames, OumShotBox, OumTouchBox)
             .Write();
 
         Enemy("enemies/mama_turtle.json", "MamaTurtle", EnemyDefinitionId.MamaTurtle).BodyColliders("Solid", "Hitbox", "Hurtbox")

@@ -5,6 +5,7 @@ using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -12,14 +13,19 @@ namespace Game.Enemies;
 /// <summary>
 /// An Oum: a great snail in a boulder of a shell. Dropped into the room it bounces to rest, and when Samus comes close
 /// it rolls, back and forth between walls. She can stand on it and be carried, lean on it to stop it, or be pushed
-/// along ahead of it. Now and then, when she is near, it turns to her and lunges out of its shell, which is the only
-/// time its touch hurts.
+/// along ahead of it. Now and then, when she is near, it turns to her and lunges out of its shell on a jet, which is
+/// the only time its touch hurts.
 /// </summary>
 /// <remarks>
 /// Its timelines are "idle_left", "idle_right", "roll_forward_left", "roll_forward_right", "roll_backward_left",
 /// "roll_backward_right", "attack_left" and "attack_right". The attack's cue "attack_done" ends it, and the cues
-/// "can_attack" and "cannot_attack" mark the parts of a roll from which it may lunge. Its hitbox is live only while
-/// it lunges. Its bounces follow the speed curve its data names.
+/// "can_attack" and "cannot_attack" mark the parts of a roll from which it may lunge. Its bounces follow the speed
+/// curve its data names.
+/// <para>What shots and Samus meet of it are the boxes of the picture it shows: its data's "poses"
+/// (<see cref="ColliderPoses"/>) place its hurtboxes "Part1" to "Part3" and its hitboxes "Part1Touch" to "Part3Touch"
+/// by picture, and each step of its timelines begins with the cue "pose:" and the picture's name. A pose says what
+/// each part does: under "shots", "shell" for one that swallows a shot and "soft" for one its reactions answer; under
+/// "touches", "hurts" for one that hurts Samus and shoves her, and "shoves" for one that only shoves her.</para>
 /// </remarks>
 public partial class Oum : Enemy
 {
@@ -85,7 +91,33 @@ public partial class Oum : Enemy
     private bool _rollsBackward;
     private bool _mayAttack;
     private bool _stopped;
-    private Collider? _lunge;
+    private ColliderPoses? _poses;
+
+    /// <summary>What each of its parts does with a shot and with Samus's touch, by its pose and the part's name.</summary>
+    private readonly Dictionary<(string Pose, string Part), (string Shot, string Touch)> _parts = [];
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _poses = ColliderPoses.Read(data.Get("poses"), this);
+        _parts.Clear();
+        foreach ((string name, DataNode pose) in data.Get("poses").Entries())
+        {
+            // A picture the cartridge gives no boxes is a pose with no parts, and says nothing of them.
+            if (!pose.Has("shots"))
+                continue;
+            foreach ((string part, DataNode shot) in pose.Get("shots").Entries())
+            {
+                string touch = pose.Get("touches").Text(part);
+                if (shot.AsText() is not ("shell" or "soft"))
+                    throw shot.Problem($"is \"{shot.AsText()}\", which is not \"shell\" or \"soft\"");
+                if (touch is not ("hurts" or "shoves"))
+                    throw pose.Get("touches").Get(part).Problem($"is \"{touch}\", which is not \"hurts\" or \"shoves\"");
+                _parts[(name, part)] = (shot.AsText(), touch);
+            }
+        }
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -94,23 +126,55 @@ public partial class Oum : Enemy
         Facing = Facing.Right;
         _cooldown = Countdown.Of(AttackCooldown);
         _bouncesLeft = SettlingBounces;
-        _lunge = EntityNode.ColliderOf(this, ColliderRole.Hitbox);
-        if (_lunge is not null)
-            _lunge.Enabled = false;
         Play("idle_left");
+    }
+
+    /// <summary>What the part of it a shot or Samus has met does, in the pose it is in.</summary>
+    private (string Shot, string Touch) PartMet(Collider part)
+    {
+        // A part is a hurtbox, which a shot meets, and a hitbox named for it with "Touch" after, which Samus meets.
+        string pose = _poses?.Current ?? "", name = part.Name.ToString();
+        if (name.EndsWith("Touch", StringComparison.Ordinal))
+            name = name[..^"Touch".Length];
+        return _parts.TryGetValue((pose, name), out (string Shot, string Touch) met)
+            ? met
+            : throw new InvalidOperationException($"The Oum \"{Name}\"'s pose \"{pose}\" does not say what its part \"{part.Name}\" does.");
+    }
+
+    /// <summary>
+    /// A beam, missile or super missile that meets its shell does nothing to it and shows nothing, and is spent on it,
+    /// but a plasma beam flies on; a bomb's blast there takes no notice of it. Anything else, and anything that meets
+    /// its soft part, is answered as its reactions say.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        ArgumentNullException.ThrowIfNull(hit);
+        ArgumentNullException.ThrowIfNull(part);
+        if (IsDead || PartMet(part).Shot != "shell")
+            return base.TakeHit(hit, part);
+        if (hit.Carries(new HitKind(HitKinds.Bomb)) || hit.Carries(new HitKind(HitKinds.Plasma)))
+            return HitResult.Ignored;
+        if (hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]))
+            return HitResult.Dud;
+        return base.TakeHit(hit, part);
     }
 
     /// <inheritdoc/>
     protected override void OnCue(string cue)
     {
+        const string pose = "pose:";
+        if (cue.StartsWith(pose, StringComparison.Ordinal))
+        {
+            (_poses ?? throw new InvalidOperationException($"The data of the Oum \"{Name}\" has not been read.")).Take(cue[pose.Length..]);
+            return;
+        }
+
         switch (cue)
         {
             case "attack_done":
                 if (_doing != Doing.Attacking)
                     throw new InvalidOperationException($"The Oum \"{Name}\" finished lunging while it was {_doing}.");
                 _doing = Doing.AttackDone;
-                if (_lunge is not null)
-                    _lunge.Enabled = false;
                 break;
             case "can_attack":
                 _mayAttack = true;
@@ -124,7 +188,8 @@ public partial class Oum : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (_doing == Doing.Attacking)
+        // The boxes of its jet hurt her and then shove her, as every other box only does.
+        if (PartMet(part).Touch == "hurts")
             base.Touch(part);
         if (!IsRiddenByPlayer)
             ShiftPlayer(PixelOffset.FromWhole(Target.X.Whole < Position.X.Whole ? -ShoveDistance : ShoveDistance, 0));
@@ -179,8 +244,6 @@ public partial class Oum : Enemy
                     Facing = _heading;
                     Play(Facing == Facing.Left ? "attack_left" : "attack_right", restart: true);
                     _doing = Doing.Attacking;
-                    if (_lunge is not null)
-                        _lunge.Enabled = true;
                     break;
                 }
 

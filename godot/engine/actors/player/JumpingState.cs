@@ -99,11 +99,27 @@ public sealed class JumpingState : PlayerState
         TookUpStance = false;
         _hadSpeed = !owner.Velocity.X.IsZero;
 
-        // A jump that is gathering itself listens to nothing: it holds the stance it began in.
+        // A jump that is gathering itself holds the stance it began in. Where the gathering is longer than an update,
+        // as in a liquid, what is held on its updates before the last can end it: the jump with the way behind turns
+        // the player in the air; the jump with an aim or the way ahead, or the attack, has them rise at once.
         if (_gathering.IsRunning)
         {
-            _stanceAsked = Stance;
-            return this;
+            GameInput input = owner.Input;
+            bool right = owner.Facing == Facing.Right;
+            bool jump = input.IsHeld(GameAction.Jump);
+            bool ahead = input.IsHeld(right ? GameAction.Right : GameAction.Left), behind = input.IsHeld(right ? GameAction.Left : GameAction.Right);
+            bool listens = _gathering.Remaining > 1;
+            if (listens && jump && behind)
+                return new AirTurningState(fromJump: true);
+            if (!listens || !((jump && (owner.AimIsHeld || ahead)) || input.IsHeld(GameAction.Attack)))
+            {
+                _stanceAsked = Stance;
+                return this;
+            }
+
+            _gathering = Countdown.Over;
+            owner.SteerAfresh();
+            _gathered = true;
         }
 
         owner.AimFromInput();

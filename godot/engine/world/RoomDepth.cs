@@ -64,6 +64,13 @@ public static class RoomDepth
     public const int Launched = 13;
 
     /// <summary>
+    /// In front of what is launched and left in the room: where something launched lies that is drawn over the rest
+    /// of what is launched, as the bursts of the player's own shots are over what enemies launch. Behind the room's
+    /// own front.
+    /// </summary>
+    public const int OverLaunched = 14;
+
+    /// <summary>
     /// The part of the picture behind the room that lies in front of the things standing in it, which a backdrop
     /// draws again there: behind the tiles' own such part.
     /// </summary>
@@ -92,6 +99,7 @@ public static class RoomDepth
         Standing.Frontmost => Frontmost,
         Standing.Hindmost => BehindAllThings,
         Standing.Foremost => Launched,
+        Standing.Topmost => OverLaunched,
         _ => throw new ArgumentOutOfRangeException(nameof(standing), standing, "Undefined standing."),
     };
 

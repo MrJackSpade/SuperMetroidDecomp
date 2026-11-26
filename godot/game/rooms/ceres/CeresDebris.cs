@@ -42,7 +42,10 @@ public partial class CeresDebris : RoomSequence
         string piece = draw.Part(15, 1) == 1 ? DarkPiece : LightPiece;
         ShotType shot = ShotType.Read(room.Content.ReadData(piece));
         var at = PixelPosition.FromWhole(Columns[draw.Part(0, 4)], StartsAtY);
-        room.Spawn(shot.Launch(at, new PixelVelocity(Pixels.Zero, shot.Speed), HitSide.Enemies, null, this));
+        Projectile fallen = shot.Launch(at, new PixelVelocity(Pixels.Zero, shot.Speed), HitSide.Enemies, null, this);
+        // The cartridge draws a piece behind Samus and all else standing in the room; its dust is drawn in front of her.
+        if (room.Spawn(fallen))
+            RoomDepth.Stand(fallen, Standing.Rearmost);
         return false;
     }
 }

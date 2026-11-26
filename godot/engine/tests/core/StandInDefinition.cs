@@ -14,6 +14,30 @@ public partial class StandInDefinition : GameDefinition
     /// <inheritdoc/>
     public override Engine.Actors.Player CreatePlayer() => new() { Name = "Player" };
 
+    /// <inheritdoc/>
+    public override Dictionary<string, List<string>> StandardBindings => [];
+
+    /// <inheritdoc/>
+    public override bool PauseMayBeAsked(GameSession session, Engine.World.Room room) => true;
+
+    /// <inheritdoc/>
+    public override GameMode CreateModeForNewGame() => new PlayingMode();
+
+    /// <inheritdoc/>
+    public override GameMode CreateDeathMode(PlayingMode playing) => new LoadingMode();
+
+    /// <inheritdoc/>
+    public override bool RemainsLeaveDrop(int place) => true;
+
+    /// <inheritdoc/>
+    public override bool StatusLasts(GameSession session, string status) => true;
+
+    /// <inheritdoc/>
+    public override IReadOnlyList<ISessionService> CreateServices() => [];
+
+    /// <inheritdoc/>
+    public override Engine.Collision.MoveOptions BodyMoves(GameSession session, Engine.Collision.MoveOptions plain) => plain;
+
     /// <summary>The stand-in game has no passage between its rooms: the engine carries none, and its checks try none.</summary>
     public override GameMode CreateRoomTransition(PlayingMode playing, Engine.World.RoomExit exit) =>
         throw new InvalidOperationException("The stand-in game has no way from one room to the next.");

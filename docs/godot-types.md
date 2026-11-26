@@ -460,7 +460,11 @@ select, options, game over, time up, and one per cinematic.
   darkness, and the game-over screen.
 - **Where a game plugs in** is always the `GameDefinition`: the pause mode, the mode that plays a death, the first mode,
   how a room is made, the folders its words, sounds and music are in, how many save slots it has, its own actions
-  and the buttons they are bound to until the player chooses otherwise.
+  and the buttons they are bound to until the player chooses otherwise. The definition is abstract, and what a
+  game must always say has no default of the engine's behind it: the first mode, the mode a new game begins in, the
+  mode that plays a death, the passage between rooms, whether a pause may be asked, the session's services, the
+  standard bindings, whether a status lasts, whether remains leave their drop, and how the player's body moves. An
+  engine default behind a member this game always answers was never reached, and is not kept (#3124, #3326).
 
 **What is remembered.** A room forgets everything when it is left: enemies return, blocks regrow, barriers close.
 The only things that survive are facts in `Progress`.

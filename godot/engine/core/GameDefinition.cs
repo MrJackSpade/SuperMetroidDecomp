@@ -23,9 +23,9 @@ public abstract partial class GameDefinition : Resource
 
     /// <summary>
     /// The buttons this game's own actions are bound to until the player chooses otherwise, by the action's name and
-    /// written as <see cref="Options"/> writes bindings. None, unless the game says.
+    /// written as <see cref="Options"/> writes bindings.
     /// </summary>
-    public virtual Dictionary<string, List<string>> StandardBindings => [];
+    public abstract Dictionary<string, List<string>> StandardBindings { get; }
 
     /// <summary>
     /// How an exported game that starts with no assets has them made from a file the player supplies
@@ -109,19 +109,18 @@ public abstract partial class GameDefinition : Resource
 
     /// <summary>
     /// Whether the pause may be asked for on this update of play in <paramref name="room"/>, over and above what play
-    /// itself asks of the player. Always, unless a game says otherwise.
+    /// itself asks of the player.
     /// </summary>
-    public virtual bool PauseMayBeAsked(GameSession session, World.Room room) => true;
+    public abstract bool PauseMayBeAsked(GameSession session, World.Room room);
 
-    /// <summary>Makes the mode a new game begins in. The engine's is play in the first room; a game with something to show first says so.</summary>
-    public virtual GameMode CreateModeForNewGame() => new PlayingMode();
+    /// <summary>Makes the mode a new game begins in: play in the first room, or whatever the game shows first.</summary>
+    public abstract GameMode CreateModeForNewGame();
 
     /// <summary>
     /// Makes the mode that plays the player's death. It takes control on the update the player begins to die, and is
-    /// given the play it takes over from, which it may go on playing beneath itself. The engine's shows nothing: it
-    /// reloads the session's save slot, or starts a new game, at once.
+    /// given the play it takes over from, which it may go on playing beneath itself.
     /// </summary>
-    public virtual GameMode CreateDeathMode(PlayingMode playing) => new LoadingMode();
+    public abstract GameMode CreateDeathMode(PlayingMode playing);
 
     /// <summary>The scene of what is shown over play. Its root is a <see cref="GameHud"/>. None for a game that shows nothing.</summary>
     [Export]
@@ -185,9 +184,9 @@ public abstract partial class GameDefinition : Resource
 
     /// <summary>
     /// Whether remains holding the place numbered <paramref name="place"/>, counted from none, leave the drop they
-    /// have rolled, in a room that keeps a count of such places. They do, unless the game says otherwise.
+    /// have rolled, in a room that keeps a count of such places.
     /// </summary>
-    public virtual bool RemainsLeaveDrop(int place) => true;
+    public abstract bool RemainsLeaveDrop(int place);
 
     /// <summary>How many updates the session's clock counts before it comes round to zero; nothing for a clock that never does.</summary>
     [Export]
@@ -238,10 +237,10 @@ public abstract partial class GameDefinition : Resource
     public int FrozenLookBlinkUpdatesEachWay { get; set; }
 
     /// <summary>
-    /// Whether a status an enemy is in still lasts, apart from its time: it does, unless the game has something that
-    /// ends a status early. Each enemy in a status asks on its turn.
+    /// Whether a status an enemy is in still lasts, apart from its time: a game may have something that ends a
+    /// status early. Each enemy in a status asks on its turn.
     /// </summary>
-    public virtual bool StatusLasts(GameSession session, string status) => true;
+    public abstract bool StatusLasts(GameSession session, string status);
 
     /// <summary>
     /// Makes what keeps how each screen of the room being played lets the view in, for <paramref name="session"/>. The
@@ -263,8 +262,8 @@ public abstract partial class GameDefinition : Resource
     /// </summary>
     public abstract GameMode CreateRoomTransition(PlayingMode playing, RoomExit exit);
 
-    /// <summary>Makes the session-long services this game adds, one of each. None, unless the game says.</summary>
-    public virtual IReadOnlyList<ISessionService> CreateServices() => [];
+    /// <summary>Makes the session-long services this game adds, one of each.</summary>
+    public abstract IReadOnlyList<ISessionService> CreateServices();
 
     /// <summary>Makes the session's player.</summary>
     /// <exception cref="InvalidOperationException">No player scene is set, or its root is not a player.</exception>
@@ -300,9 +299,9 @@ public abstract partial class GameDefinition : Resource
     public virtual ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
 
     /// <summary>
-    /// How the player's body is moved through a room on this update of <paramref name="session"/>: as
-    /// <paramref name="plain"/> says, which is how the engine's player moves, unless the game needs its player's moves
-    /// tried or stopped some other way.
+    /// How the player's body is moved through a room on this update of <paramref name="session"/>, given
+    /// <paramref name="plain"/>, the engine's plain moves: those, or the same with the game's own way of trying or
+    /// stopping its player's moves.
     /// </summary>
-    public virtual Collision.MoveOptions BodyMoves(GameSession session, Collision.MoveOptions plain) => plain;
+    public abstract Collision.MoveOptions BodyMoves(GameSession session, Collision.MoveOptions plain);
 }

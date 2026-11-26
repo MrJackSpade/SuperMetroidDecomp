@@ -18,6 +18,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -248,6 +250,21 @@ public sealed partial class EngineAssetWriter
         data["view"] = At(scene.CameraPosition.X, scene.CameraPosition.Y);
         data["lasts_updates"] = scene.Duration;
 
+        // The demo's room is loaded through a door, whose setup may set screens of the room; a demo's room is entered
+        // by no door in the Godot game, so the demo says them itself.
+        var screens = new JsonArray();
+        void Sets(Position16<RoomScreens> screen, RoomScrollState state)
+        {
+            JsonObject set = At(screen.X, screen.Y);
+            set["scroll"] = ScrollStateName(state);
+            screens.Add(set);
+        }
+
+        if (!ReferenceEquals(scene.Door.Setup.RoomEvent, DoorRoomEvent.None))
+            throw new InvalidDataException($"The door a demo's room {scene.Room.Name} is loaded through sets off an event, which the Godot demo has nothing for.");
+        foreach (ScreenScrollChange change in scene.Door.Setup.ScreenChanges)
+            Sets(change.Screen, change.State);
+
         // What a demo does to its room. One plays in the statues' hall with Kraid beaten: the old game counts him beaten
         // once the room is built, and nothing of the Godot hall is built by that fact, so it is so before the room is
         // entered. One closes a screen of its room to the view, and one has Kraid wait less before he rises.
@@ -259,7 +276,7 @@ public sealed partial class EngineAssetWriter
                 data["facts"] = new JsonArray(EngineSheets.FileName(nameof(SuperMetroid.Core.Progression.AreaBoss.Kraid)) + "_defeated");
                 break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
-                data["closed_screens"] = new JsonArray(At(AttractDemoDefinitions.ChargeBeamClosedScreen.X, AttractDemoDefinitions.ChargeBeamClosedScreen.Y));
+                Sets(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.KraidTimer:
                 data["kraid_waits_updates"] = AttractDemoDefinitions.KraidPhaseWaitUpdates;
@@ -267,6 +284,9 @@ public sealed partial class EngineAssetWriter
             default:
                 throw new InvalidDataException($"A demo sets its room up by {scene.RoomSetup}, which the Godot demo has nothing for.");
         }
+
+        if (screens.Count > 0)
+            data["screens"] = screens;
 
         var equipment = new JsonArray();
         var off = new JsonArray();

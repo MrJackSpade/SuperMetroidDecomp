@@ -21,8 +21,9 @@ namespace Game.Menus;
 /// it lasts ("lasts_updates"), and may list the "equipment" she has,
 /// which of it is switched "off", how much of each thing she can carry ("capacities") and how much she has
 /// ("amounts"), and the "facts" that are so before its room is entered. What it does to its room once the room is
-/// built it says too: the screens it closes to the view ("closed_screens", each "x" and "y" in screens), and how long
-/// Kraid waits before rising in place of his own wait ("kraid_waits_updates").
+/// built it says too: how screens of the room let the view in ("screens", each "x" and "y" in screens with its
+/// "scroll"), as the door the cartridge's demo comes in by sets them and as the demo itself does; and how long Kraid
+/// waits before rising in place of his own wait ("kraid_waits_updates").
 /// </remarks>
 public partial class AttractDemoMode : PlayingMode
 {
@@ -138,10 +139,10 @@ public partial class AttractDemoMode : PlayingMode
     /// <summary>Does to the demo's room, now built, what the demo's file says is done to it before play begins.</summary>
     private void SetUpRoom()
     {
-        if (_data.Has("closed_screens"))
+        if (_data.Has("screens"))
         {
-            foreach (DataNode screen in _data.List("closed_screens"))
-                Session.ScrollCells.Write(screen.Int("x"), screen.Int("y"), ScreenScroll.Closed);
+            foreach (DataNode screen in _data.List("screens"))
+                Session.ScrollCells.Write(screen.Int("x"), screen.Int("y"), screen.Get("scroll").AsEnum<ScreenScroll>());
         }
 
         if (!_data.Has("kraid_waits_updates"))

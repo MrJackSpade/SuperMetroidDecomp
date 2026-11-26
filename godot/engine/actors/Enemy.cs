@@ -662,6 +662,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Room.Remove(this);
     }
 
+    /// <summary>The sound of its death, by name, as its data gives it ("death", "sound"); empty when it has none.</summary>
+    protected string SoundOfDeath => _deathSound;
+
     /// <summary>The timeline of its death by <paramref name="hit"/>; of its death by nothing in particular when that is null.</summary>
     private string DeathEffectFor(Hit? hit)
     {

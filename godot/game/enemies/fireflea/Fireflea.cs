@@ -91,10 +91,14 @@ public partial class Fireflea : Enemy
 
         // The cartridge's Fireflea runs its death after every touch, whatever the touch did. Where the touch was a
         // blow of her body that had already killed it, that second death finds its place emptied: its explosion, the
-        // small one, stands at the room's corner and drops nothing. (It counts a second kill too, which nothing in a
-        // Fireflea's room reads.)
+        // small one, stands at the room's corner and drops nothing. It is a death's remains all the same: it is
+        // heard, and holds one of the room's places while it plays and for the pause a spent drop keeps. (It counts
+        // a second kill too, which nothing in a Fireflea's room reads.)
         if (_killedByHerBody)
-            LeaveEffect(SecondDeathEffect, PixelPosition.Origin);
+        {
+            Sound(SoundOfDeath);
+            Room.Spawn(Remains.Of(FrameTimeline.Read(Room.Content.ReadData(SecondDeathEffect)), PixelPosition.Origin, DropTable.Nothing));
+        }
     }
 
     /// <summary>Where on its circle it is now, on whole pixels: the cartridge's short product of its radius.</summary>

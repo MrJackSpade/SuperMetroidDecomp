@@ -120,10 +120,14 @@ public partial class KraidNail : Enemy
     {
         // The cartridge's nail runs its death after its touch wherever the touch left its place taken. A blow of her
         // body that killed a nail another follows leaves the place waiting for that other, so the death runs again on
-        // it: its explosion, the small one, stands at the room's corner and drops nothing. (It counts a second kill
-        // too, which nothing in Kraid's room reads.)
+        // it: its explosion, the small one, stands at the room's corner and drops nothing. It is a death's remains
+        // all the same: it is heard, and holds one of the room's places while it plays and for the pause a spent
+        // drop keeps. (It counts a second kill too, which nothing in Kraid's room reads.)
         if (_killedByHerBody && RespawnsWhenKilled)
-            LeaveEffect(SecondDeathEffect, PixelPosition.Origin);
+        {
+            Sound(SoundOfDeath);
+            Room.Spawn(Remains.Of(FrameTimeline.Read(Room.Content.ReadData(SecondDeathEffect)), PixelPosition.Origin, DropTable.Nothing));
+        }
     }
 
     /// <summary>

@@ -10,4 +10,7 @@ public sealed class PlainSpeedReadings : ISpeedReadings
 
     /// <inheritdoc/>
     public bool IsAtCap(Pixels dash, Pixels cap) => dash >= cap;
+
+    /// <summary>However the player is held to be going, it is how fast they move that is compared.</summary>
+    public bool ReachesWhole(Pixels size, int whole) => size.Abs().Whole >= whole;
 }

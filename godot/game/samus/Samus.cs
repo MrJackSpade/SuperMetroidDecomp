@@ -630,7 +630,7 @@ public partial class Samus : Player
     /// </summary>
     protected override void OnLanded()
     {
-        bool hard = LandingSpeed.Whole >= HardLandingSpeed;
+        bool hard = LandedAtLeast(HardLandingSpeed);
         if (!hard && LandingSpeed.Fraction == 0)
             return;
         base.OnLanded();
@@ -1967,7 +1967,7 @@ public partial class Samus : Player
 
         // A plain fall, her arm at rest and her aim level, takes up its fast-fall pictures once it falls fast enough
         // and keeps them while it stays a plain fall, as the cartridge's fall does once its animation has got there.
-        _fallsFast = State is FallingState { Arm: AirArm.AtRest } && Aim == Aim.Forward && (_fallsFast || Velocity.Y.Whole >= FastFallLookSpeed);
+        _fallsFast = State is FallingState { Arm: AirArm.AtRest } && Aim == Aim.Forward && (_fallsFast || MovesUpOrDownAtLeast(FastFallLookSpeed));
     }
 
     /// <summary>The name an aim has in her data file.</summary>

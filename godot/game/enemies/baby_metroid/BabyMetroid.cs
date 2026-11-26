@@ -418,11 +418,17 @@ public partial class BabyMetroid : Enemy
         samus.SpeedHalvings = 2;
         // Rising or falling, a speed of four pixels or more an update is cut to two, and for that update it sits a
         // pixel to the right.
-        Pixels speed = samus.Velocity.Y.Abs();
-        bool fast = speed.Whole >= 4;
-        if (fast)
+        // The cut goes by the cartridge's reading of her speed, which reads one worn past rest, at the top of a rise or
+        // in a moonfall, as below four. The pixel to the right goes by the speed's whole pixels as a plain count, which
+        // such a speed, held at the top of its range, is far above.
+        bool right = Game.Compatibility.CartridgeSpeedReadings.WholeAsCount(samus.HeldSpeedUpOrDown) >= 4;
+        if (samus.MovesUpOrDownAtLeast(4))
+        {
+            Pixels speed = samus.Velocity.Y.Abs();
             samus.Velocity = samus.Velocity.WithY(samus.Velocity.Y.IsNegative ? -speed.WithWhole(2) : speed.WithWhole(2));
-        Position = samus.Position + shake + PixelOffset.FromWhole(fast ? 1 : 0, -20);
+        }
+
+        Position = samus.Position + shake + PixelOffset.FromWhole(right ? 1 : 0, -20);
         int taken = inventory.IsOn(Equipment.VariaSuit) ? 2 : 4;
         inventory.Lose(Inventory.Energy, taken >= energy ? energy - 1 : taken);
     }

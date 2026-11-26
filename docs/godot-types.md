@@ -152,7 +152,11 @@ something that leaves the room.
   `CartridgeSpeedReadings` is how the cartridge reads Samus's speed across against its limits (`ISpeedReadings`,
   which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
   their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
-  under it.
+  under it. It reads how fast she moves up or down the same way (`ReachesWhole`), from the size of her speed the
+  way she is held to be going (`Player.HeldSpeedUpOrDown`): the speed of a moonfall, or of a rise worn past its
+  top, is a rise's run below nothing, which the cartridge holds at the top of its range and reads as below
+  whatever a fall is asked about. So a moonfalling ball does not rebound, the landing is no hard one, no fast fall
+  shows, and the Baby's drain does not cut it.
   Samus's body is moved as the cartridge moves it (`SuperMetroid.BodyMoves`): each move is tried only where it
   would end (section 7, "How much of its way a move tries"), so she keeps her part of a pixel beside what she has
   not yet run into, rests at the far end of her pixel on the ground and against a wall to her right, passes what a
@@ -814,7 +818,9 @@ in `engine/actors/player/`.
   old way, against the way they now face, slowing to rest, then steered). A speed slowed exactly to rest keeps its
   condition one update more. `Player.Steer` and `SteerInAir` are the two rules; how a speed is read against its top
   and a dash against its cap is the game's to say (`ISpeedReadings`, from the `GameDefinition`; the engine's own is
-  a plain comparison). A dash is a second speed on top, carried the same way, kept through the air while the player
+  a plain comparison), and so is whether a speed up or down reaches so many whole pixels, which the ball's rebound
+  asks of the speed it came down at (`Player.LandedAtLeast`) and a game may ask of the speed now
+  (`MovesUpOrDownAtLeast`). A dash is a second speed on top, carried the same way, kept through the air while the player
   has momentum; `FoldDash` adds it into the player's own speed and leaves none. Meeting a wall brings all of it to
   rest. States that throw the player about (a knockback, a push, a script) set `Velocity` outright.
 - **Standing** keeps no speed: each update a dash's speed alone still carries the player, and then everything across

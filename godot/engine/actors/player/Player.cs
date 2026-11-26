@@ -364,6 +364,25 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     public Pixels LandingSpeed { get; private set; }
 
+    /// <summary>The size of the speed the player came down at this update, the way they were held to be going (<see cref="HeldSpeedUpOrDown"/>).</summary>
+    private Pixels _landingHeld;
+
+    /// <summary>
+    /// The size of the player's speed up or down the way they are held to be going: a fall's is its speed downward; a
+    /// rise's, and that of a player adrift, its speed upward, which is less than nothing once gravity has worn it
+    /// past rest and they come down.
+    /// </summary>
+    public Pixels HeldSpeedUpOrDown => IsRising || IsAdrift ? -_velocity.Y : _velocity.Y;
+
+    /// <summary>
+    /// Whether the player's speed up or down reads as at least <paramref name="whole"/> whole pixels an update, as
+    /// the game reads speeds (<see cref="ISpeedReadings.ReachesWhole"/>). What asks how fast they rise or fall asks this.
+    /// </summary>
+    public bool MovesUpOrDownAtLeast(int whole) => _readings.ReachesWhole(HeldSpeedUpOrDown, whole);
+
+    /// <summary>Whether the speed the player came down at this update reads as at least <paramref name="whole"/> whole pixels an update, read the same way.</summary>
+    public bool LandedAtLeast(int whole) => _readings.ReachesWhole(_landingHeld, whole);
+
     /// <summary>
     /// Lands the player on their feet at <paramref name="speed"/>: they are at rest up and down and across, steered,
     /// and a jump already held may count as pressed afresh on the next update. A dash is left as it is.
@@ -371,6 +390,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void Land(Pixels speed)
     {
         LandingSpeed = speed;
+        _landingHeld = IsRising || IsAdrift ? -speed : speed;
         _cameDown = true;
         FallFromRest();
         ComeToRest();
@@ -519,6 +539,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void CameDownAt(Pixels speed)
     {
         LandingSpeed = speed;
+        _landingHeld = IsRising || IsAdrift ? -speed : speed;
         _cameDown = true;
     }
 
@@ -768,7 +789,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
         if (triedWhereItEnds ? _cameDown : onGround && !_wasOnGround)
             OnLanded();
-        LandingSpeed = Pixels.Zero;
+        (LandingSpeed, _landingHeld) = (Pixels.Zero, Pixels.Zero);
         (_cameDown, _groundStoppedMove, _stoppedOnTile) = (false, false, null);
         _wasOnGround = onGround;
         BeMovedByBlocks();

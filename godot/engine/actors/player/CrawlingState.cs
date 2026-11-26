@@ -195,7 +195,7 @@ public sealed class CrawlingState : PlayerState
         }
 
         bool bounces = owner.CrawlBounceSpeed > 0;
-        if (bounces && _bounces == 0 && owner.Velocity.Y.Whole >= owner.CrawlBounceFallSpeed)
+        if (bounces && _bounces == 0 && owner.LandedAtLeast(owner.CrawlBounceFallSpeed))
         {
             _bounces = 1;
             owner.Rise(Pixels.FromNumber(owner.CrawlBounceSpeed));

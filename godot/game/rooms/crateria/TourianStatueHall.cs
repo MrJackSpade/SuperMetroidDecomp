@@ -144,6 +144,22 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     private int _dustRoundsLeft;
     private int _dustWait;
     private readonly List<(Effect Tail, int Age)> _tails = [];
+
+    /// <summary>
+    /// The pictures of the statue that are things of their own on the cartridge, each one of the enemies' shots, in
+    /// the order it makes them as the room is set up: the base, and the two guardians that stand in the room.
+    /// </summary>
+    private static readonly string[] Decorations = ["Base", "Ridley", "Phantoon"];
+
+    /// <summary>What holds each decoration's place among the room's places for what enemies launch; null for one the room had no place for, which is not there.</summary>
+    private readonly Dictionary<string, Effect?> _decorationHolds = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// What holds the place of each puff of the sinking statue's dust for as long as the dust is raised: on the
+    /// cartridge each puff is one of the enemies' shots that throws itself again each round. Only those the room had a
+    /// place for are here, and only they are raised.
+    /// </summary>
+    private readonly List<Effect> _dustHolds = [];
     private readonly List<(Effect Soul, Pixels Speed)> _souls = [];
     private DataNode? _data;
     private Vector2 _statueHome;
@@ -176,8 +192,9 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         StepEffects(room);
         StepDust(room);
 
-        // The hall has settled once it has stood a while with no guardian part-way through anything.
-        if (!_settled && elapsed >= SettleUpdates && _firstGlow.Count == 0 && _releases == Releases.None)
+        // The hall has settled once it has stood a while with no guardian part-way through anything. On the cartridge
+        // it is the base's decoration that sees this, so without it the hall never settles.
+        if (!_settled && elapsed >= SettleUpdates && _firstGlow.Count == 0 && _releases == Releases.None && _decorationHolds["Base"] is not null)
             Settle(room);
         Place(room);
         return false;
@@ -200,6 +217,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         _sparks.Clear();
         _tails.Clear();
         _souls.Clear();
+        _dustHolds.Clear();
         foreach (Guardian guardian in _guardians)
         {
             (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor) = (Stage.Entering, -1, 0, -1);
@@ -221,6 +239,18 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                 foreach (ActorVisual visual in new[] { Visual(guardian.Name), grey })
                     (visual.ZAsRelative, visual.ZIndex) = (false, RoomDepth.BehindRoom);
             }
+        }
+
+        // The decorations take their places as the room is set up; one the room has no place for is not there.
+        _decorationHolds.Clear();
+        foreach (string decoration in Decorations)
+        {
+            Effect hold = Effect.HoldingPlace(PixelPosition.FromWhole(0, 0));
+            _decorationHolds[decoration] = room.Spawn(hold) ? hold : null;
+            bool there = _decorationHolds[decoration] is not null;
+            Visual(decoration).SetShown(there);
+            if (decoration != "Base")
+                Visual(decoration + "Grey").SetShown(there);
         }
 
         if (room.Session.Progress.Has(StoryEvents.TourianUnlocked))
@@ -315,9 +345,10 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                 switch (guardian.Frame)
                 {
                     case 2:
-                        // A light gathers at its eyes.
-                        Leave(room, guardian, "eye_glow", eye);
-                        _glows.Add((eye, EyeGlowUpdates, guardian));
+                        // A light gathers at its eyes; it is the light that bursts, so one the room has no place
+                        // for bursts into nothing.
+                        if (Leave(room, guardian, "eye_glow", eye) is not null)
+                            _glows.Add((eye, EyeGlowUpdates, guardian));
                         break;
                     case 3:
                         // Its spirit leaves it, and it begins to turn grey.
@@ -376,10 +407,12 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
             room.Shake(1, ShakeUpdates, ShakeWay.Down);
             for (int spark = 0; spark < Sparks; spark++)
             {
+                // A spark the room has no place for is not made, and draws no number for its way.
+                if (Leave(room, of, "particle", at) is not { } made)
+                    continue;
                 int angle = room.Session.Random.Draw().Part(0, 6) - 32;
                 var speed = new PixelVelocity(Turns.Sine(angle, Pixels.FromWhole(1)), -Turns.Cosine(angle, Pixels.FromWhole(4)));
-                if (Leave(room, of, "particle", at) is { } made)
-                    _sparks.Add((made, speed, 0, of));
+                _sparks.Add((made, speed, 0, of));
             }
         }
 
@@ -464,6 +497,15 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
             if (--_wait > 0)
                 return;
             (_dustRoundsLeft, _dustWait) = (Data().Int("dust_rounds"), 0);
+
+            // The puffs of dust take their places once, for every round they are raised.
+            for (int puff = 0; puff < Data().Int("dust_puffs"); puff++)
+            {
+                Effect hold = Effect.HoldingPlace(DustAt);
+                if (room.Spawn(hold))
+                    _dustHolds.Add(hold);
+            }
+
             _descent = Descent.Lowering;
             return;
         }
@@ -516,22 +558,34 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
 
     /// <summary>
     /// Plays one update of the dust the sinking statue raises: so many puffs at a time, each thrown a chance distance
-    /// from under the statue, and again as often as its data says, a puff's length apart.
+    /// from under the statue, and again as often as its data says, a puff's length apart. Only the puffs that hold a
+    /// place are raised, and as the last round ends they give their places back.
     /// </summary>
     private void StepDust(Room room)
     {
-        if (_dustRoundsLeft == 0 || --_dustWait > 0)
+        if (_dustHolds.Count == 0 || --_dustWait > 0)
             return;
+        if (_dustRoundsLeft == 0)
+        {
+            foreach (Effect hold in _dustHolds)
+                room.Remove(hold);
+            _dustHolds.Clear();
+            return;
+        }
+
         _dustRoundsLeft--;
         _dustWait = Data().Int("dust_updates");
         DataNode scatter = Data().Get("dust_scatter");
         FrameTimeline dust = FrameTimeline.Read(room.Content.ReadData(Data().Text("dust")));
-        for (int puff = 0; puff < Data().Int("dust_puffs"); puff++)
+        for (int puff = 0; puff < _dustHolds.Count; puff++)
         {
             PixelOffset thrown = room.Session.Random.Scatter(scatter.Int("width"), scatter.Int("height"), scatter.Int("middle_x"), scatter.Int("middle_y"));
-            room.Spawn(Effect.Of(dust, PixelPosition.FromWhole(128, 188) + thrown));
+            room.Spawn(Effect.Of(dust, DustAt + thrown));
         }
     }
+
+    /// <summary>Where the sinking statue's dust is thrown from.</summary>
+    private static PixelPosition DustAt => PixelPosition.FromWhole(128, 188);
 
     /// <summary>A place from the statue, as its data gives one.</summary>
     private static Vector2I Offset(DataNode offset) => new(offset.Int("x"), offset.Int("y"));
@@ -541,9 +595,10 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         string file = Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Text(name);
         if (file.Length == 0)
             return null;
-        Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(file)), at);
-        room.Spawn(effect);
-        return effect;
+        // Each is one of the enemies' shots on the cartridge: it holds one of the room's places, and with none free it is
+        // not made.
+        Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(file)), at, holdsPlace: true);
+        return room.Spawn(effect) ? effect : null;
     }
 
     private string Picture(Guardian guardian, string which) =>

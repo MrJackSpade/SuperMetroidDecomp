@@ -166,6 +166,18 @@ public partial class SporeSpawn : Enemy
     /// <summary>Where each link of its stalk was last placed, in the room.</summary>
     private readonly (int X, int Y)[] _stalkPlaces = new (int X, int Y)[StalkLinks];
 
+    /// <summary>
+    /// What holds each link of its stalk's place among the room's places for what enemies launch, for good: on the
+    /// cartridge each is a shot of its own. Null for a link the room had no place for, which is not there.
+    /// </summary>
+    private readonly Effect?[] _stalkHolds = new Effect?[StalkLinks];
+
+    /// <summary>
+    /// What holds each emitter's place among the room's places for what enemies launch, until it dies: on the cartridge
+    /// each is a shot of its own. Null for an emitter the room had no place for, which is not there and lets out nothing.
+    /// </summary>
+    private readonly Effect?[] _emitterHolds = new Effect?[Emitters];
+
     /// <inheritdoc/>
     /// <remarks>Shots pass it from its death until it hardens; the husk turns them away.</remarks>
     public override bool IsHitBy(HitSide side) => (Husk || _hardened || !_dying) && base.IsHitBy(side);
@@ -213,6 +225,12 @@ public partial class SporeSpawn : Enemy
             GetNode<Collider>(part).Enabled = false;
             GetNode<Collider>(part + "Touch").Enabled = false;
         }
+
+        // Its stalk's links take their places as it is set up, the husk's as well, the lowest first and the one at the
+        // ceiling last.
+        for (int link = StalkLinks - 1; link >= 0; link--)
+            _stalkHolds[link] = HoldPlace();
+
         if (Husk)
         {
             Play("husk");
@@ -230,10 +248,23 @@ public partial class SporeSpawn : Enemy
             inert.Enabled = false;
         Play("awaiting_descent");
         Position -= PixelOffset.FromWhole(0, StartRise);
+        // Then its emitters take theirs, in order.
         for (int emitter = 0; emitter < Emitters; emitter++)
-            _emitterPlayers[emitter] = new TimelinePlayer(Timelines.Get("emitter_closed"));
+        {
+            _emitterHolds[emitter] = HoldPlace();
+            if (_emitterHolds[emitter] is not null)
+                _emitterPlayers[emitter] = new TimelinePlayer(Timelines.Get("emitter_closed"));
+        }
+
         PlaceStalk();
         ShowParts();
+    }
+
+    /// <summary>Takes one of the room's places for what enemies launch, for a part of it; null when none is free.</summary>
+    private Effect? HoldPlace()
+    {
+        Effect place = Effect.HoldingPlace(Position);
+        return Room.Spawn(place) ? place : null;
     }
 
     /// <inheritdoc/>
@@ -285,11 +316,14 @@ public partial class SporeSpawn : Enemy
         EndHurt();
         foreach (Projectile spore in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
             Room.Remove(spore);
-        // The places its spores came from go with them.
+        // The places its spores came from go with them, and give back the room's places they held.
         for (int emitter = 0; emitter < Emitters; emitter++)
         {
             _emitterPlayers[emitter] = null;
             GetNode<ActorVisual>($"Emitter{emitter + 1}").Show("");
+            if (_emitterHolds[emitter] is { } held)
+                Room.Remove(held);
+            _emitterHolds[emitter] = null;
         }
 
         Play("death", restart: true);
@@ -487,6 +521,9 @@ public partial class SporeSpawn : Enemy
             return;
         for (int emitter = 0; emitter < Emitters; emitter++)
         {
+            // An emitter that is not there draws no number.
+            if (_emitterHolds[emitter] is null)
+                continue;
             if (_emitterWait[emitter] == 0)
             {
                 _emitterPlayers[emitter] = new TimelinePlayer(Timelines.Get("emitter_release"));
@@ -520,6 +557,7 @@ public partial class SporeSpawn : Enemy
             (int x, int y) = _stalkPlaces[link];
             visual.Position = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
             visual.Show(_stalk.Shown);
+            visual.SetShown(_stalkHolds[link] is not null);
         }
 
         for (int emitter = 0; emitter < Emitters; emitter++)

@@ -20,12 +20,18 @@ public partial class GameLoad : GameMode
     /// The game in the session's save slot. <paramref name="appears"/> says Samus appears where she saved, as when
     /// the game is taken up from its map: she faces out of the screen while her suit comes to its colours
     /// (<see cref="AppearingState"/>), her fanfare plays, and the room's music behind it. A game saved at the
-    /// arrival on Ceres does not. With nothing in the slot a new game begins as this game's new games do.
+    /// arrival on Ceres does not. A game saved as she left Ceres is taken up with Ceres blowing up behind her, and
+    /// she lands from there as she did then. With nothing in the slot a new game begins as this game's new games do.
     /// </summary>
     public static GameLoad OfSlot(bool appears) => new(session =>
     {
         if (session.LoadSlot() is not { } save)
             return session.Definition.CreateModeForNewGame();
+
+        // The game saved as Ceres was left is saved for the place she lands: no place the map marks, and not where
+        // a game begins. Nothing of Ceres is set up for it.
+        if (save.Room != session.Definition.FirstRoom && !SaveMapMode.Shows(session))
+            return new Cinematics.CeresDestruction { LandingRoom = save.Room, LandingEntry = save.EntryPoint };
         CartridgeSounds.Of(session).SavedGameAppears = appears;
         return new Arrival(new PlayingMode(save.Room, save.EntryPoint), Arrival.OrdinaryWaits, samusAppears: appears);
     });

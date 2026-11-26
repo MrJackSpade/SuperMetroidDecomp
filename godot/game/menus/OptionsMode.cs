@@ -268,10 +268,11 @@ public partial class OptionsMode : GameMode
         switch (PrimaryRows[_row])
         {
             case "start_game":
-                // As in the old game, a saved game starts on the next update with no fade; a new game fades out first and
-                // starts on the update after the screen is black. A saved game shows where it was saved before it
-                // starts; anything else starts at once.
-                if (Session.Saves.Has(Session.Slot))
+                // As in the old game, a saved game the map shows starts on the next update with no fade, and shows
+                // where it was saved before it starts. A new game, and a game the cartridge saved by itself on
+                // arriving at Ceres or on leaving it, fades out first and starts on the update after the screen is
+                // black.
+                if (SaveMapMode.Shows(Session))
                     _starting = true;
                 else
                     FadeOutTo(Start);

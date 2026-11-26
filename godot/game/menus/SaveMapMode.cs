@@ -181,6 +181,18 @@ public partial class SaveMapMode : GameMode
         return data.Get("stations").Has(save.EntryPoint) ? new SaveMapMode(save, data) : null;
     }
 
+    /// <summary>
+    /// Whether the saved game in <paramref name="session"/>'s slot is one the map shows before it starts: one saved
+    /// at a place the map marks. The two games the cartridge saves by itself about Ceres, on arriving there and on
+    /// leaving it, are not, and neither is an empty slot.
+    /// </summary>
+    public static bool Shows(GameSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return session.Saves.Has(session.Slot)
+            && session.Content.ReadData(DataFile).Get("stations").Has(session.Saves.Read(session.Slot).EntryPoint);
+    }
+
     private Vector2I Screen => new(_data.Get("room").Get("map").Int("screen_width"), _data.Get("room").Get("map").Int("screen_height"));
 
     /// <inheritdoc/>

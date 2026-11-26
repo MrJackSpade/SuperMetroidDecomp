@@ -1267,7 +1267,9 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 **Solid actors.** Any actor may have a solid collider, switched on or off. A solid blocks the player and can be
 stood on, and a solid that moves carries what stands on it; that is the `Mover`'s job, the same for a platform, a
 frozen enemy and a boss's back. Frozen is a status: the enemy stops, its solid switches on, and a countdown ends
-it. There is no special case for standing on enemies.
+it. An enemy whose scene gives it a body and no solid is given one by the engine for that status alone, the shape
+of its body and off at every other time: the cartridge's frozen enemy is solid whatever else it is, and no scene
+has to say so. There is no special case for standing on enemies.
 
 **Shared movement.** Ways of moving that more than one enemy uses are components in `engine/actors/movement/`, each
 moving its owner by the shared `Mover` and reporting what happened (hit a wall, reached an edge, landed). The enemy

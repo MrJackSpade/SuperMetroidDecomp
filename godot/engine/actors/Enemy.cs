@@ -174,8 +174,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>The collider it moves through terrain with, if it has one.</summary>
     protected Collider? Body { get; private set; }
 
-    /// <summary>The collider that blocks and carries the player, if it has one.</summary>
+    /// <summary>The collider that blocks and carries the player, if its scene gives it one.</summary>
     protected Collider? Solid { get; private set; }
+
+    /// <summary>
+    /// The solid the engine gives an enemy that has a body and no solid of its own, for the one state in which every
+    /// enemy is solid: frozen, it blocks and carries by the shape its body then has. It is off at every other time,
+    /// and is not the enemy's <see cref="Solid"/>.
+    /// </summary>
+    private Collider? _frozenSolid;
 
     /// <summary>What shows it, if its scene gives it a visual.</summary>
     protected ActorVisual? Visual { get; private set; }
@@ -203,6 +210,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Body = EntityNode.ColliderOf(this, ColliderRole.Body);
         Solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
         _solidWhenNotFrozen = Solid is { Enabled: true };
+        if (Solid is null && Body is not null && _frozenSolid is null)
+        {
+            _frozenSolid = new Collider { Name = "FrozenSolid", Role = ColliderRole.Solid, Enabled = false };
+            AddChild(_frozenSolid);
+        }
         // Its own visual is the one named "Visual", wherever among its visuals that stands; failing that, the first.
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
@@ -705,7 +717,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
     }
 
-    /// <summary>Puts the enemy in a status for a number of updates. Frozen, it stops and its solid collider blocks and carries.</summary>
+    /// <summary>
+    /// Puts the enemy in a status for a number of updates. Frozen, it stops and blocks and carries: by its solid
+    /// collider, or, having none, by one the shape of its body.
+    /// </summary>
     public void BeginStatus(string status, int updates)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(status);
@@ -714,6 +729,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _statusLeft = Countdown.Of(updates);
         if (IsFrozen && Solid is not null)
             Solid.Enabled = true;
+        if (IsFrozen && _frozenSolid is not null && Body is not null)
+        {
+            _frozenSolid.Rect = Body.Rect;
+            _frozenSolid.Enabled = true;
+        }
         if (IsFrozen != wasFrozen || !wasFrozen)
             Sound(_statusSounds.GetValueOrDefault(status, ""));
         OnStatusBegan(status);
@@ -958,6 +978,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (IsFrozen && Solid is not null)
             Solid.Enabled = _solidWhenNotFrozen;
+        if (_frozenSolid is not null)
+            _frozenSolid.Enabled = false;
         string ended = Status;
         Status = "";
         OnStatusEnded(ended);

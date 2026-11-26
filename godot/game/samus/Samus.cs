@@ -1286,8 +1286,11 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeMoving()
     {
-        // Her shots have been fired: the record of her moves that they inherit from starts over before she moves.
-        _shotInheritance.Clear();
+        // Her shots have been fired: the record of her moves that they inherit from starts over before she moves. Not
+        // on an update time is frozen through or she is dying on: the cartridge clears it only where it handles her
+        // firing, so what her last moves recorded is still there for the first shot afterwards.
+        if (!State.Stops.HasFlag(Stopped.Enemies))
+            _shotInheritance.Clear();
 
         // Each update's movement says anew which of her body's powers are at work; they stay so for what touches her
         // afterwards, the enemies of the next update among it. The speed booster's is at work from the update after

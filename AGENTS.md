@@ -335,6 +335,10 @@ reproducing a reported bug.
   one, what was done and what is left; `awaiting-player-validation` on one that is finished;
   `high` in place of `low` on one that was stopped; and a new ticket, labelled, for each
   difference an agent found.
+- That holds for agents that change code. While agents that only investigate are running (they change no file
+  and commit nothing), the main session goes on developing on main. The owner's answer, 2026-11-25, to the
+  question "May I keep fixing code on main ... while they read?", asked while three read-only investigation
+  agents ran: "Yes, develop meanwhile".
 - Every agent prompt includes the v1.0.0 manifesto's section 6 rules and this section.
 - Before branching agents off for a ticket, merge that ticket's pre-existing WIP branches into main first, so
   agents start from all existing work.

@@ -222,8 +222,8 @@ public partial class FileSelectMode : GameMode
                 break;
             case Asking.CopyDone:
             case Asking.ClearDone:
-                if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Cancel) || input.WasPressed(GameAction.Up)
-                    || input.WasPressed(GameAction.Down))
+                // Any button newly pressed leaves the page.
+                if (input.AnyPressed)
                 {
                     MoveSound();
                     _row = Math.Clamp(Session.Slot, 1, SavedGames) - 1;

@@ -18,6 +18,13 @@ public sealed record RoomEntry(string EntryPoint, PixelVelocity Velocity, Facing
     public PixelPosition? At { get; init; }
 
     /// <summary>
+    /// Where the view's top-left corner is put as the room is set up, for an arrival that says: a demonstration
+    /// that begins with the view somewhere of its own. Null for a view put where the way in has it, or about the
+    /// player.
+    /// </summary>
+    public (int X, int Y)? ViewAt { get; init; }
+
+    /// <summary>
     /// Whether the view is left as it stands, with what it was tracking, for whoever brings the player in to place:
     /// a passage that scrolls the room in. Otherwise the room places the view on the player as it is set up.
     /// </summary>

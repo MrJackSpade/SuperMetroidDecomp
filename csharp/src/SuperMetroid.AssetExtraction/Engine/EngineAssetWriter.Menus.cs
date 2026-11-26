@@ -235,6 +235,9 @@ public sealed partial class EngineAssetWriter
             _ => throw new InvalidDataException($"A demo stages Samus as {scene.Samus.Setup}, which the Godot demo has no start for."),
         };
         data["start"] = start;
+
+        // The demo says where the view is as it begins; it is not put about her.
+        data["view"] = At(scene.CameraPosition.X, scene.CameraPosition.Y);
         data["lasts_updates"] = scene.Duration;
 
         // One demo plays in Kraid's room with Kraid already beaten.

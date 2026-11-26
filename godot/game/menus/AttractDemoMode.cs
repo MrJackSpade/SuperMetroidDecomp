@@ -17,7 +17,8 @@ namespace Game.Menus;
 /// A demo's file is a recording, with the room it plays in; it gives where in the room Samus starts ("start": "x",
 /// "y", the way she is "facing", and what she starts "as": "standing", "facing_forward" as her ship leaves her,
 /// "rolling" in the morph ball, "falling", or already flying a "shinespark_across" or a "shinespark_diagonal"; the
-/// place is her middle in that body), how long it lasts ("lasts_updates"), and may list the "equipment" she has,
+/// place is her middle in that body), where the view's top-left corner is as it begins ("view": "x", "y"), how long
+/// it lasts ("lasts_updates"), and may list the "equipment" she has,
 /// which of it is switched "off", how much of each thing she can carry ("capacities") and how much she has
 /// ("amounts"), and the "facts" that are so before its room is entered.
 /// </remarks>
@@ -91,7 +92,12 @@ public partial class AttractDemoMode : PlayingMode
             "right" => Facing.Right,
             _ => throw start.Get("facing").Problem("must be \"left\" or \"right\""),
         };
-        return new RoomEntry("", PixelVelocity.Zero, facing) { At = PixelPosition.FromWhole(start.Int("x"), start.Int("y")) };
+        DataNode view = data.Get("view");
+        return new RoomEntry("", PixelVelocity.Zero, facing)
+        {
+            At = PixelPosition.FromWhole(start.Int("x"), start.Int("y")),
+            ViewAt = (view.Int("x"), view.Int("y")),
+        };
     }
 
     /// <summary>

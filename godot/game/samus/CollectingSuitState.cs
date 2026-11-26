@@ -5,7 +5,8 @@ namespace Game;
 
 /// <summary>
 /// Collecting a suit: she is put at a fixed place of the screen and held there, bathed in light, while the suit
-/// becomes hers, and then let go from there. Nothing can hurt her meanwhile, and everything else in the room waits.
+/// is put on, and then let go from there. The suit is first seen on her part way through, on the update the light
+/// shows it. Nothing can hurt her meanwhile, and everything else in the room waits.
 /// </summary>
 public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
 {
@@ -49,7 +50,13 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
+        var samus = (Samus)owner;
         _left = _left.Stepped();
+        if (samus.SuitPickupUpdates - _left.Remaining == samus.SuitShownOnUpdate)
+            samus.ShowSuitPutOn();
         return _left.IsRunning ? null : owner.StateAtRest();
     }
+
+    /// <summary>However she leaves it, the suit is seen on her from then.</summary>
+    public override void Exit(Player owner) => ((Samus)owner).ShowSuitPutOn();
 }

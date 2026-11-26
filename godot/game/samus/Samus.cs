@@ -280,6 +280,13 @@ public partial class Samus : Player
     [Export, DataValue("suit_pickup_updates")]
     public int SuitPickupUpdates { get; set; } = 164;
 
+    /// <summary>
+    /// On which update of collecting a suit the suit is first seen on her: the cartridge's light shows it on its
+    /// 66th step, once it has waited, appeared and widened. Until then she is seen as she was.
+    /// </summary>
+    [Export, DataValue("suit_shown_on_update")]
+    public int SuitShownOnUpdate { get; set; } = 66;
+
     /// <summary>How far the X-ray scope sees, in pixels.</summary>
     [Export, DataValue("xray_reach")]
     public int XrayReach { get; set; } = 256;
@@ -1197,6 +1204,15 @@ public partial class Samus : Player
     /// <summary>Whether an item collected this update gave her a suit, which is put on as the item's message closes.</summary>
     private bool _suitToPutOn;
 
+    /// <summary>
+    /// The suit that is hers but is not seen on her yet: one just collected, from the item's touch until the light
+    /// that puts it on shows it. Empty when every suit she wears is seen.
+    /// </summary>
+    private string _suitUnseen = "";
+
+    /// <summary>The suit being put on is seen on her from now, as its light shows it.</summary>
+    public void ShowSuitPutOn() => _suitUnseen = "";
+
     /// <summary>Shows the colours of the beams she has switched on, if she owns a beam she did not when this last looked.</summary>
     private void ShowNewBeamColours()
     {
@@ -1216,6 +1232,7 @@ public partial class Samus : Player
         {
             ForgetCharge();
             _suitToPutOn = true;
+            _suitUnseen = gravity && !_woreGravity ? Equipment.GravitySuit : Equipment.VariaSuit;
         }
 
         (_woreVaria, _woreGravity) = (varia, gravity);

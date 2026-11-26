@@ -94,8 +94,15 @@ public partial class Samus
     /// <summary>Whether the charge's sound is to be asked for again at the next look after she is shown.</summary>
     private bool _chargingSoundArmed;
 
-    /// <summary>The suit whose colours she shows: the gravity suit's before the varia suit's, and the power suit's with neither on.</summary>
-    public string SuitWorn => Inventory.IsOn(Equipment.GravitySuit) ? "gravity" : Inventory.IsOn(Equipment.VariaSuit) ? "varia" : "power";
+    /// <summary>
+    /// The suit she is seen in, whose colours she shows: the gravity suit's before the varia suit's, and the power
+    /// suit's with neither on. A suit just collected is not seen until the light that puts it on shows it
+    /// (<see cref="ShowSuitPutOn"/>); what it does for her is hers from the item's touch all the same.
+    /// </summary>
+    public string SuitWorn =>
+        Inventory.IsOn(Equipment.GravitySuit) && _suitUnseen != Equipment.GravitySuit ? "gravity"
+        : Inventory.IsOn(Equipment.VariaSuit) && _suitUnseen != Equipment.VariaSuit ? "varia"
+        : "power";
 
     /// <summary>
     /// The colours a scene shows her suit and her beams in, whatever she wears and has switched on: the opening's

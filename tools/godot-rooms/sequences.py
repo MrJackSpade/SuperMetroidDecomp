@@ -58,6 +58,11 @@ ESCAPE_PATCHES = {'TurnWallIntoShotBlocksDuringEscape': 'wall_shot_blocks'}
 # middle of the wall its blast is left about and how far chance throws that
 # (OldTourianEscapeShaftWallExplosionAnimationDefinitions: XPosition, YPosition, Scatter), and the blast and its sound.
 ESCAPE_WALL_SETUP = 'AutoDestroyWallDuringEscape'
+
+# Shaktool's room: the old setup routine that places its controller, and how far across Samus's place must have
+# passed for the path to count as cleared (ShaktoolRoomDefinitions.ClearedPathXBoundary).
+SHAKTOOL_SETUP = 'SpawnShaktoolController'
+SHAKTOOL_PATH_END = 840
 ESCAPE_WALL = {'Patch': 'escape_wall_destroyed', 'BlastAt': (272, 2184), 'BlastSpread': (8, 16),
                'BlastEffect': 'effects/small_explosion.json', 'BlastSound': 'enemy_small_explosion'}
 ESCAPE_WALL_POINT = (240, 2080)
@@ -161,6 +166,10 @@ class Sequences:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
                 'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),
                 **{name: quoted(value) for name, value in ESCAPE_BLASTS.items()}}))
+        if state.setup == SHAKTOOL_SETUP:
+            # The watch on Shaktool's room, which records the path cleared once Samus is past its far end.
+            self.placed.append(sequence('maridia/ShaktoolPath.cs', 'ShaktoolPath', {
+                'StartsWhen': ctx.always(), 'ClearedPast': str(SHAKTOOL_PATH_END), 'RememberedAs': quoted('shaktool_cleared_path')}))
         if state.setup == ESCAPE_WALL_SETUP:
             # The wall stands until Samus passes its point, and then gives way with a blast.
             wall = sequence('crateria/EscapeShaftWall.cs', 'EscapeWall', {

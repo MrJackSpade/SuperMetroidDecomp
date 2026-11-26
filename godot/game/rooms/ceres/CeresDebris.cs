@@ -33,11 +33,17 @@ public partial class CeresDebris : RoomSequence
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
+        // The hall sets up no wait of its own: its first piece waits by what the shaft's turn, or its own count the
+        // last time it was here, left; and it leaves the updates before its next piece as it goes.
+        CeresDebrisCount count = room.Session.Service<CeresDebrisCount>();
         if (elapsed == 0)
+            _wait = count.FirstWait;
+        bool falls = --_wait <= 0;
+        if (falls)
             _wait = Interval;
-        if (--_wait > 0)
+        count.LeftByHall(_wait - 1);
+        if (!falls)
             return false;
-        _wait = Interval;
         RandomDraw draw = room.Session.Random.Last;
         string piece = draw.Part(15, 1) == 1 ? DarkPiece : LightPiece;
         ShotType shot = ShotType.Read(room.Content.ReadData(piece));

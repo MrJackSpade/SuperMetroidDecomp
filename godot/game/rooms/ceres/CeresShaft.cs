@@ -68,6 +68,12 @@ public partial class CeresShaft : RoomSequence
         if (!room.Session.Progress.Has(StoryEvents.CeresElevatorDoorDestroyed))
             return false;
 
+        // The shaft leaves each step of its turn for the hall's falling pieces to count from: its level start as its
+        // turn is set up, and every step after as it is reached.
+        CeresDebrisCount count = room.Session.Service<CeresDebrisCount>();
+        if (elapsed == 0)
+            count.LeftByShaft(_tilt + FullTilt, _backward);
+
         Player samus = room.Player;
         if (!_taken && IsOnElevator(samus))
         {
@@ -121,6 +127,7 @@ public partial class CeresShaft : RoomSequence
             _tilt++;
         }
 
+        count.LeftByShaft(_tilt + FullTilt, _backward);
         return false;
     }
 

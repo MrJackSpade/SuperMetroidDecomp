@@ -42,8 +42,8 @@ public partial class SuperMetroid : GameDefinition
 
     /// <summary>
     /// This game adds the escape countdown, the random number the cartridge drew every frame, which of the title's
-    /// demos is due, the elevator's journey, what was held on the pause screen from one pause to the next, and the
-    /// count of steps the cartridge's gradual fades share.
+    /// demos is due, the elevator's journey, what was held on the pause screen from one pause to the next, the
+    /// count of steps the cartridge's gradual fades share, and the count Ceres's falling ceiling goes by.
     /// </summary>
     public override IReadOnlyList<ISessionService> CreateServices() =>
     [
@@ -53,6 +53,7 @@ public partial class SuperMetroid : GameDefinition
         new ElevatorJourney(),
         new PauseHeldButtons(),
         new Compatibility.SharedFadeCount(),
+        new Rooms.Ceres.CeresDebrisCount(),
     ];
 
     /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>

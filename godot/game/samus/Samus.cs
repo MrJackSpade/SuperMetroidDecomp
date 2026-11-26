@@ -428,20 +428,25 @@ public partial class Samus : Player
     /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
     public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
 
-    /// <summary>The power bomb of hers whose blast ended as this update opened, and on which update; none if none.</summary>
-    private (PowerBomb Bomb, long Update)? _blastEnded;
+    /// <summary>The power bomb of hers whose blast ended as this update opened; none if none.</summary>
+    private PowerBomb? _blastEnded;
 
     /// <summary>The power bomb kept for the crystal flash its blast started, until the flash's own blast begins.</summary>
     private PowerBomb? _flashBomb;
 
     /// <summary>
     /// A power bomb of hers has ended its blast as this update opens: a crystal flash may start this update, if she
-    /// lies exactly where it lies, and her sounds are then asked for again. The bomb waits to be told.
+    /// lies exactly where it lies, and her sounds are then asked for again. The bomb waits to be told. Beneath a
+    /// message, on an update she does not play, the flash is offered at once, by what was held on the last update she
+    /// played, as the cartridge offers it whatever the game is doing; nothing is asked for again then.
     /// </summary>
     public void PowerBombBlastEnded(PowerBomb bomb)
     {
         ArgumentNullException.ThrowIfNull(bomb);
-        _blastEnded = (bomb, Room.Session.UpdateNumber);
+        if (Room.UpdateIsSuspended)
+            OfferCrystalFlash(bomb);
+        else
+            _blastEnded = bomb;
     }
 
     /// <summary>
@@ -482,33 +487,34 @@ public partial class Samus : Player
     /// <summary>
     /// Starts a crystal flash if a power bomb's blast ended where she lies as this update opened, as the cartridge
     /// offers one only then; she may be doing anything. Her sounds are then asked for again, by what she is doing
-    /// once the flash has been offered: a flash begun from a spin asks for the charge's sound, not the spin's. A blast
-    /// that ended beneath a message, on an update she did not play, offers nothing and asks for nothing again.
+    /// once the flash has been offered: a flash begun from a spin asks for the charge's sound, not the spin's.
     /// </summary>
     private void StartCrystalFlashIfOffered()
     {
-        if (_blastEnded is not { } ended)
+        if (_blastEnded is not { } bomb)
             return;
         _blastEnded = null;
-        if (ended.Update != Room.Session.UpdateNumber)
-        {
-            ended.Bomb.LeaveAfterBlast(Room);
-            return;
-        }
+        OfferCrystalFlash(bomb);
+        ResumeSoundsAfterBlast();
+    }
 
-        PixelPosition at = ended.Bomb.Position;
+    /// <summary>
+    /// Offers her the crystal flash as <paramref name="bomb"/>'s blast ends: it starts if she lies exactly where the
+    /// bomb lies and may start one, and otherwise the bomb leaves.
+    /// </summary>
+    private void OfferCrystalFlash(PowerBomb bomb)
+    {
+        PixelPosition at = bomb.Position;
         if (at.X.Whole == Position.X.Whole && at.Y.Whole == Position.Y.Whole && CrystalFlashState.CanStart(this))
         {
             // The bomb is kept, and with it the hold that allows one power bomb at a time, until the flash's own blast begins.
-            _flashBomb = ended.Bomb;
+            _flashBomb = bomb;
             ChangeState(new CrystalFlashState());
         }
         else
         {
-            ended.Bomb.LeaveAfterBlast(Room);
+            bomb.LeaveAfterBlast(Room);
         }
-
-        ResumeSoundsAfterBlast();
     }
 
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>

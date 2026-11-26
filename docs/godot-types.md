@@ -1195,7 +1195,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   (`PowerBomb.BeginFlashBlast`, by its `flash_blast_reaches`): it sweeps the enemies as any blast does, strikes
   no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended. The sounds a blast
   turned away are asked for again as it ends, once the flash has been offered and by what she is doing then; a
-  blast that ends beneath a message offers no flash and asks for nothing again.
+  blast that ends beneath a message offers the flash at once, by what was held on the last update she played, and
+  asks for nothing again.
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
   form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three

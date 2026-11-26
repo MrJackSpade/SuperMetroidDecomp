@@ -63,7 +63,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `cinematics/intro_mother_brain.json` | `IntroMotherBrain` | big_explosion, contact_damage, health, ring, small_explosion |
 | `enemies/alcoon.json` | `Alcoon` | contact_damage, emerge_across_distance, emerge_down_distance, emerge_jump_speed, emerge_sound, gravity, health, hide_distance, hide_jump_speed, muzzle_across, muzzle_up, stride |
 | `enemies/alcoon_fireball.json` | `AlcoonFireball` | slowing, steady_speed |
-| `enemies/armored_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/armored_zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/atomic.json` | `Atomic` | contact_damage, health |
 | `enemies/baby_metroid.json` | `BabyMetroid` | beats_a_cry, calm_pulse_updates, contact_damage, cry_beat, cry_sound, feeding_cry_sound, feeding_pulse_updates, fly_away_cry_sound, health, pulse_beats, remorse_cry_sound, walls_down_patch, walls_up_patch |
 | `enemies/baby_turtle.json` | `BabyTurtle` | contact_damage, crawl_speed, health, hide_updates, rider_left_delay, spin_fall_speed, spin_speed, travel_distance |
@@ -124,7 +124,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/ninja_pirate_gold.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
 | `enemies/ninja_pirate_silver.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
 | `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_damage, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
-| `enemies/orange_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/orange_zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/oum.json` | `Oum` | attack_cooldown, attack_reach, bounce_step, contact_damage, fastest_fall_mark, health, impact_loss_marks, pushing_reach_across, pushing_reach_down, roll_speed, settling_bounces, shove_distance, speed_curve |
 | `enemies/owtch.json` | `Owtch` | burial_depth, contact_damage, health, sink_chance |
 | `enemies/pirate_claw.json` | `PirateClaw` | sink, speed_change |
@@ -136,7 +136,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/rio.json` | `Rio` | across_speed, contact_damage, dive_sound, dive_speed, health, lift, reach, return_speed |
 | `enemies/ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/sbug.json` | `Sbug` | contact_damage, dash_updates, health, zigzag_leg_updates |
-| `enemies/sciser.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/sciser.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/shaktool.json` | `Shaktool` | contact_damage, convergence_shares, health, part_half_size, straighten_at, straighten_restart, straightening_turn |
 | `enemies/shutter_destroyable.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/shutter_growing.json` | `GrowingShutter` | activation_sound, contact_damage, health |
@@ -146,12 +146,12 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/sidehopper_tourian.json` | `Hopper` | across_speed, big_hop_height, big_hop_step, contact_damage, fastest_mark, health, small_hop_height, small_hop_step, speed_curve |
 | `enemies/skree.json` | `Diver` | burrow_sound, burrow_updates, contact_damage, debris_at, distance_per_speed, dive_sound, dive_speed, drift, health, reach |
 | `enemies/skultera.json` | `Skultera` | contact_damage, health |
-| `enemies/sova.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/sova.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/spark.json` | `Spark` | contact_damage, drip_below, extra_off_updates, health |
 | `enemies/squeept.json` | `Squeept` | block_height, contact_damage, flip_speed, gravity, health, jump_sound, screen_height |
 | `enemies/suspensor_platform.json` | `Tripper` | contact_damage, health, resting_depth, speed_curve |
 | `enemies/tripper.json` | `Tripper` | contact_damage, health, resting_depth, speed_curve |
-| `enemies/viola.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/viola.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/walking_pirate_gold.json` | `WalkingPirate` | contact_damage, firing_band, flinch_reach, health, ledge_reach_left, ledge_reach_right, muzzle_ahead, walk_speed_left, walk_speed_right |
 | `enemies/walking_pirate_green.json` | `WalkingPirate` | contact_damage, firing_band, flinch_reach, health, ledge_reach_left, ledge_reach_right, muzzle_ahead, walk_speed_left, walk_speed_right |
 | `enemies/walking_pirate_grey.json` | `WalkingPirate` | contact_damage, firing_band, flinch_reach, health, ledge_reach_left, ledge_reach_right, muzzle_ahead, walk_speed_left, walk_speed_right |
@@ -169,10 +169,10 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/zeb.json` | `PipeBug` | contact_damage, emergence_height, flight_step, health, respawn_wait, trigger_top, trigger_width |
 | `enemies/zebbo.json` | `PipeBug` | contact_damage, emergence_height, flight_step, health, respawn_wait, trigger_top, trigger_width |
 | `enemies/zebetite.json` | `Zebetite` | contact_damage, fall_effect, health, pair_offset, shot_sound |
-| `enemies/zeela.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
-| `enemies/zero.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/zeela.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
+| `enemies/zero.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/zoa.json` | `Zoa` | contact_damage, health, reach, rise_speed |
-| `enemies/zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
+| `enemies/zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `hud/hud.json` | `Hud` | area_folder, select_sound |
 | `objects/ceres_door_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |

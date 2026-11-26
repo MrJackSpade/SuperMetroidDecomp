@@ -163,11 +163,11 @@ public sealed partial class EngineAssetWriter
         if (TitleSequenceDefinitions.Scenes.Rotation != RotationAngle.Zero)
             throw new InvalidDataException("The title's backdrop is turned, which the Godot title does not turn it.");
 
-        JsonObject Sprite(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, string name, params string[] over)
+        JsonObject Sprite(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, string name)
         {
             (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.Title, frame);
             JsonObject at = At(origin.X - originX, origin.Y - originY);
-            at["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.Title, frame, $"{folder}/{name}.png", [TitleShades.Drawn(colouring).Key, .. over]);
+            at["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.Title, frame, $"{folder}/{name}.png", [TitleShades.Drawn(colouring).Key]);
             return at;
         }
 
@@ -202,13 +202,10 @@ public sealed partial class EngineAssetWriter
             ["floor_per_pixel"] = 1,
             ["floor_centre"] = At(TitleSequenceDefinitions.Scenes.FloorCentre.X, TitleSequenceDefinitions.Scenes.FloorCentre.Y),
             ["floor_scroll"] = At(resting.Position.X, resting.Position.Y),
-            // The copyright is never at rest in its drawn colours alone: come to rest by itself it keeps its fade's last
-            // look, which lies over the restored colours, and rebuilt it shows the restored colours.
+            // The copyright is not among them: at rest it shows its fade's last look, which is how the old game restores
+            // its colours once a skip has rebuilt the title.
             ["pictures"] = new JsonArray(
                 Sprite("Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring, "logo")),
-            // The copyright with its colours as the old game restores them once a skip has rebuilt the title.
-            ["restored_copyright"] = Sprite("Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin,
-                TitleSequenceDefinitions.Sprites.CopyrightColouring, "copyright_restored", TitleShades.RestoredCopyright.Key),
             ["opening"] = TitleOpening(folder),
             ["baby"] = TitleBaby(folder),
             ["demo_after_updates"] = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,

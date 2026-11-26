@@ -83,8 +83,10 @@ public partial class ShinesparkEcho : Projectile
     private void Place(Player samus)
     {
         // Flying, it is placed by how far it has flown counted within 256.
-        Pixels reach = Pixels.FromWhole(_flying ? _radius % ReachCountedWithin : _radius);
+        // Each way it lies from her is the reach times the cartridge's own sine, cut toward nothing.
+        int reach = _flying ? _radius % ReachCountedWithin : _radius;
         Position = PixelPosition.FromWhole(
-            samus.Position.X.Whole + Turns.Sine(_angle, reach).Whole, samus.Position.Y.Whole - Turns.Cosine(_angle, reach).Whole);
+            samus.Position.X.Whole + Compatibility.CartridgeAngles.ReachCutShort(_angle, reach),
+            samus.Position.Y.Whole + Compatibility.CartridgeAngles.ReachCutShort(_angle - Turns.PerTurn / 4, reach));
     }
 }

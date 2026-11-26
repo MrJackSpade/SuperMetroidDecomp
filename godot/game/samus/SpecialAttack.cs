@@ -293,10 +293,10 @@ public partial class SpecialAttack : Projectile
     /// <summary>Puts the light at its angle and distance from her, or from a point above her.</summary>
     private void Place(Player samus, int above)
     {
-        Pixels reach = Pixels.FromWhole(_radius);
+        // Each way it lies from her is the radius times the cartridge's own sine, cut toward nothing.
         Position = PixelPosition.FromWhole(
-            samus.Position.X.Whole + Turns.Sine(_angle, reach).Whole,
-            samus.Position.Y.Whole - Turns.Cosine(_angle, reach).Whole - above);
+            samus.Position.X.Whole + Compatibility.CartridgeAngles.ReachCutShort(_angle, _radius),
+            samus.Position.Y.Whole + Compatibility.CartridgeAngles.ReachCutShort(_angle - Turns.PerTurn / 4, _radius) - above);
     }
 
     private bool HasLeftView(Room room)

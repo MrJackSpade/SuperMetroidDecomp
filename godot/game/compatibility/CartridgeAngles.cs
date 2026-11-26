@@ -131,6 +131,12 @@ public static class CartridgeAngles
     public static int ReachRoundedDown(int angle, int length) => SignedSine(angle) * length >> 8;
 
     /// <summary>
+    /// The same reach cut toward nothing: what falls short of a whole pixel is dropped on either side. Samus's
+    /// shinespark echoes and the lights of her special attacks are placed so.
+    /// </summary>
+    public static int ReachCutShort(int angle, int length) => SignedSine(angle) * length / 256;
+
+    /// <summary>
     /// The angle of the point <paramref name="across"/> pixels right and <paramref name="down"/> pixels below a
     /// place as the cartridge's grapple beam reckons it, which Mother Brain's great beam and the giant Metroid use
     /// too. Unlike every other angle here it counts clockwise from straight up: none up, a quarter turn right, a half

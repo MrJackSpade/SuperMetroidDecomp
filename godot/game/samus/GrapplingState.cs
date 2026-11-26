@@ -372,7 +372,14 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         PixelPosition end = PointAt(rules, WholeStep, _length);
         IReadOnlyList<PixelOffset> places = owner.Facing == Facing.Left ? rules.BodyLeft : rules.BodyRight;
         owner.Position = end + places[Way(places.Count)];
+        RopeStart = end;
     }
+
+    /// <summary>
+    /// Where the line ends by her as she swings: at the line's length from what holds it. Her body hangs from there,
+    /// so it is where the line's pictures are laid from, not her arm's place for a shot. None before she is first placed.
+    /// </summary>
+    public PixelPosition? RopeStart { get; private set; }
 
     /// <summary>
     /// Lets go of the line. Hanging still and exactly straight down she drops, her speeds cleared. Otherwise she

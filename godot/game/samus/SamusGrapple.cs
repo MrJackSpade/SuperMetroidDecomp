@@ -405,7 +405,15 @@ public partial class SamusGrapple : Node2D
             IReadOnlyList<string> pictures = line.Rope[line.RopeOfAngle[_lineAngle]];
             if (--_ropeLeft == 0)
                 (_ropePicture, _ropeLeft) = ((_ropePicture + 1) % pictures.Count, line.PictureUpdates);
-            PixelPosition from = samus.GrapplePoint, end = IsLatched ? Anchor : _tip;
+            // The line is laid from where it ends by her: swinging, the point her body hangs from; held in place,
+            // where it leaves her standing body; reaching out, her arm.
+            PixelPosition from = samus.State switch
+            {
+                GrapplingState swing => swing.RopeStart ?? samus.GrapplePoint,
+                GrappleLockedState => samus.Position + samus.StandingGrappleOrigin,
+                _ => samus.GrapplePoint,
+            };
+            PixelPosition end = IsLatched ? Anchor : _tip;
             int toward = GrapplingState.AngleOf(end.X.Whole - from.X.Whole, end.Y.Whole - from.Y.Whole);
             long across = (long)CartridgeAngles.SignedSine(toward) * line.Spacing * 256;
             long down = (long)CartridgeAngles.SignedSine(toward - Turns.PerTurn / 4) * line.Spacing * 256;

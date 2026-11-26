@@ -174,47 +174,47 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/zoa.json` | `Zoa` | contact_damage, health, reach, rise_speed |
 | `enemies/zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `hud/hud.json` | `Hud` | area_folder, select_sound |
-| `objects/ceres_door_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/ceres_door_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/ceres_elevator_door.json` | `CeresElevatorDoor` | blocked, explosion, explosion_sound, smoke |
-| `objects/ceres_ridley_room_door.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/ceres_ridley_room_door.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/ceres_steam_down.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/ceres_steam_left.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/ceres_steam_right.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/ceres_steam_up.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/dachora.json` | `Dachora` | activation_sound, ceiling_sound, charge_sound, echo_effect, launch_sound, speed_sound, speed_stop_sound |
-| `objects/door_cap_blue_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_blue_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_eye_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_eye_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_green_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_green_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_grey_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_grey_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_grey_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_grey_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_red_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_red_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_yellow_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_yellow_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_yellow_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/door_cap_yellow_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_blue_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_blue_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_eye_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_eye_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_green_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_green_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_grey_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_grey_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_grey_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_grey_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_red_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_red_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/elevator.json` | `Elevator` |  |
 | `objects/escape_dachora.json` | `EscapeDachora` |  |
 | `objects/escape_etecoon.json` | `EscapeEtecoon` |  |
 | `objects/etecoon.json` | `Etecoon` | jump_sound, wake_sound, wall_sound |
-| `objects/gate.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/gate_switch_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/gate_switch_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/gate_switch_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
-| `objects/gate_switch_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/gate.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/gate_switch_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/gate_switch_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/gate_switch_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/gate_switch_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/glass_tube.json` | `GlassTube` | break_sound, bubble, crack, cracking, dud_sound, intact, open_patch, shattered |
 | `objects/gunship.json` | `Gunship` | bottom, bottom_below_top, glow, hover_sound, pad_above_top, pad_closed, pad_closing, pad_closing_sound, pad_opening, pad_opening_sound, saved_message_before_opening_updates, saved_message_hold_updates, saving_sound, saving_updates, top |
-| `objects/item_shell.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/item_shell.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/morph_ball_eye.json` | `MorphBallEye` | activation_sound, beam_stop_sound, transition_updates |
 | `objects/samus_eater.json` | `SamusEaters` |  |
 | `rooms/tourian_statue_hall.json` | `TourianStatueHall` |  |

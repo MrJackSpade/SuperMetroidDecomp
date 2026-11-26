@@ -16,7 +16,10 @@ namespace Engine.World.Objects;
 /// Its data may name the timelines that show it: "closed", "sealed" (while its condition holds it shut), "hurt"
 /// (played once when a hit wears it down without opening it), "opening", "open" and "closing", and "sealing"
 /// (played once as the room is entered while it is held shut, before "sealed"). One with an "opening" timeline goes
-/// on blocking until that has played. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
+/// on blocking until that has played. A look's steps may say how the barrier stands in the way from that step on:
+/// "passable" and "blocking", and "solid_height:" with how many pixels down from its top its solid part reaches, for
+/// one that comes down or goes up bit by bit; what the first step of "open" or "closed" says holds from the moment
+/// that look is taken up. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
 /// "sealed_sound", and its "refused_sound" for a hit of no kind that wears it down. One that is plain, having once been opened and remembered so, shows the timeline named with
 /// "plain_" before each of those names where its data has one, and is opened by the kinds its data lists under
 /// "plain_opened_by", or by any hit where it lists none: a red door's cap comes back as a blue one.
@@ -87,6 +90,13 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// </summary>
     [Export]
     public int OpensWhenNear { get; set; }
+
+    /// <summary>
+    /// Whether, resting shut, it opens for good as the middle of the player comes to lie inside its solid part, as
+    /// when it shut on them: a gate never keeps the player in its column ("opens_around_player").
+    /// </summary>
+    [Export, DataValue("opens_around_player")]
+    public bool OpensAroundPlayer { get; set; }
 
     /// <summary>The sound of it opening, by name; empty for none.</summary>
     [Export, DataValue("open_sound")]
@@ -268,6 +278,12 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     protected override void OnStep()
     {
         StepLook();
+        if (OpensAroundPlayer && !IsOpen && _showingName == "closed" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } around
+            && around.RoomRect.Contains(Room.Player.Position.X.Whole, Room.Player.Position.Y.Whole))
+        {
+            Open();
+        }
+
         if (OpensWhenNear > 0)
         {
             StepNearness();
@@ -380,12 +396,8 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         }
         else
         {
-            // A look may say, step by step, whether the barrier stands in the way meanwhile.
-            foreach (string cue in _showing.Step())
-            {
-                if (cue is "passable" or "blocking" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } solid)
-                    solid.Enabled = cue == "blocking";
-            }
+            // A look may say, step by step, how the barrier stands in the way meanwhile.
+            StandAs(_showing.Step());
 
             if (_showingName is "closed" or "sealed")
             {
@@ -427,6 +439,25 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         (_showing, _showingName) = (new TimelinePlayer(_timelines.Get(Named(shown))), shown);
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
             visual.Show(_showing.Shown);
+
+        // A look it rests in says how it stands from the moment it is taken up; one it moves through, as its steps come.
+        if (shown is "open" or "closed")
+            StandAs(_showing.Current.Cues);
+    }
+
+    /// <summary>Stands in the way as a look's step says: blocking or not, and with its solid part so many pixels tall from its top.</summary>
+    private void StandAs(IEnumerable<string> cues)
+    {
+        const string height = "solid_height:";
+        foreach (string cue in cues)
+        {
+            if (EntityNode.ColliderOf(this, ColliderRole.Solid) is not { } solid)
+                continue;
+            if (cue is "passable" or "blocking")
+                solid.Enabled = cue == "blocking";
+            else if (cue.StartsWith(height, StringComparison.Ordinal))
+                solid.Size = new Vector2I(solid.Size.X, int.Parse(cue[height.Length..], System.Globalization.CultureInfo.InvariantCulture));
+        }
     }
 
     private void Sound(string sound)

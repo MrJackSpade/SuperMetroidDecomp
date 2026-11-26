@@ -663,7 +663,11 @@ Every kind here is the engine's except `Gunship`.
 that plays once gives way on the update after its last, so a barrier hit on one update whose opening lasts eighteen
 stops blocking as the eighteenth update after that one is played, and what moves next passes. A look's
 steps may say whether the barrier stands in the way meanwhile, by the cues "passable" and "blocking" (an item's
-shell is air, then solid, then air as it bursts). An `Item` under a barrier that has not finished opening
+shell is air, then solid, then air as it bursts), and how far down from its top its solid part reaches, by
+"solid_height:" and the pixels (a gate is solid a block further at each image of its closing, and its housing
+stays solid while it is open); what the first step of its open or shut look says holds from the moment the look is
+taken up. One whose data says so (`opens_around_player`) opens, resting shut, as the player's middle comes to lie
+inside its solid part: a gate never keeps the player in its column. An `Item` under a barrier that has not finished opening
 (`Barrier.HasOpened`) can be neither seen nor touched, however passable the barrier is. A `BlockType` that
 `blocks_while_crumbling` goes on blocking, broken, while the pictures of its breaking or regrowing show: the block
 an item is hidden in does, so the item can be reached only between them. | A door cap flashes when a missile wears it down and swings open. |

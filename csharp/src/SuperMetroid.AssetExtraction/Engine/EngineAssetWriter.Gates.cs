@@ -69,8 +69,25 @@ public sealed partial class EngineAssetWriter
                 directory, frame, folder, name: $"{frame}-{pixels:00}", over: (column, width, height, 0, top), rows: DownwardGateDefinitions.GateHeightInBlocks);
         }
 
+        // How far down from its top an image's blocks are solid: the old gate's blocks are filled a row at each image,
+        // its housing's one row always, whatever the column's sprite shows between.
+        static int SolidHeight(DownwardGateImage image)
+        {
+            DownwardGateDraw draw = image.Draw is RoomObjectFrameDraw<DownwardGateDraw> framed
+                ? framed.Frame
+                : throw new InvalidDataException("A gate shows something that is not one of its own frames.");
+            int rows = DownwardGateObjectDraws.Describe(draw).Blocks.Cells.Count(cell => cell.Collision != SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air);
+            if (rows == 0 || DownwardGateObjectDraws.Describe(draw).Blocks.Cells.Take(rows).Any(cell => cell.Collision == SuperMetroid.Core.Rooms.LevelData.RoomCollisionType.Air))
+                throw new InvalidDataException($"A gate's {draw} is not solid from its housing down without a gap, which the Godot gate's one solid part is.");
+            return rows * block;
+        }
+
+        static JsonArray Standing(DownwardGateImage image) =>
+            ["blocking", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"solid_height:{SolidHeight(image)}")];
+
         // A movement, an update a step: the images of the housing in turn, each for its own updates, and the column a
-        // pixel further each update from the image that starts it moving, until its way is done.
+        // pixel further each update from the image that starts it moving, until its way is done. The first step of
+        // each image says how far down the gate is solid from then.
         JsonObject Moving(IReadOnlyList<DownwardGateImage> images, DownwardGateMovement movement)
         {
             bool rising = movement == DownwardGateMovement.Rising;
@@ -86,10 +103,12 @@ public sealed partial class EngineAssetWriter
                         moved = so + 1;
                     int lowered = moved is { } far ? rising ? way - far : far : rising ? way : 0;
                     string picture = Lowered(image, lowered, rising);
-                    if (steps.Count > 0 && steps[^1]!["picture"]!.GetValue<string>() == picture)
+                    if (update > 0 && steps[^1]!["picture"]!.GetValue<string>() == picture)
                         steps[^1]!["updates"] = steps[^1]!["updates"]!.GetValue<int>() + 1;
                     else
                         steps.Add(new JsonObject { ["picture"] = picture, ["updates"] = 1 });
+                    if (update == 0)
+                        steps[^1]!["cues"] = Standing(image);
                 }
             }
 
@@ -100,15 +119,17 @@ public sealed partial class EngineAssetWriter
 
         JsonObject Resting(DownwardGateImage image, int lowered) => new()
         {
-            ["steps"] = new JsonArray(new JsonObject { ["picture"] = Lowered(image, lowered, rising: false), ["updates"] = 1 }),
+            ["steps"] = new JsonArray(new JsonObject { ["picture"] = Lowered(image, lowered, rising: false), ["updates"] = 1, ["cues"] = Standing(image) }),
             ["loops_to"] = 0,
         };
 
-        // Nothing wears a gate down: only its switch moves it. It starts shut. With no hit taking anything off it, it
-        // never shows itself hurt, so it has no look for that.
+        // Nothing wears a gate down: only its switch moves it, and, shut, Samus inside its column, for whom the old
+        // gate rises as for its switch. It starts shut. With no hit taking anything off it, it never shows itself
+        // hurt, so it has no look for that.
         new EngineObjectFile(_tree, "objects/gate.json", "Barrier")
             .Value("health", 1)
             .Value("any_hit", 0)
+            .Value("opens_around_player", true)
             .Value("open_sound", EngineNames.Sound(DownwardGateDefinitions.MovementSound))
             .Value("close_sound", EngineNames.Sound(DownwardGateDefinitions.MovementSound))
             .Collider("Solid", 0, 0, block, DownwardGateDefinitions.GateHeightInBlocks * block)

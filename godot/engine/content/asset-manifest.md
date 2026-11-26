@@ -165,7 +165,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/waver.json` | `Waver` | contact_damage, health, speed, spins_at, wave_height, wave_step |
 | `enemies/work_robot.json` | `WorkRobot` | contact_damage, footstep_sound, gravity, health, laser_cooldown, laser_slant_speed, laser_sound, muzzle_above, muzzle_ahead, recoil_delay, turn_delay |
 | `enemies/yapping_maw.json` | `YappingMaw` | bite_sound, contact_damage, grab_cooldown, health, longest_reach, retracted_hold, root_distance, safety_distance, speed_curve |
-| `enemies/yard.json` | `Yard` | aggressive_crawl_speed, air_drag, bounce_sound, contact_damage, fall_speed_limit, falls_at_shake, gravity, health, hiding_probe_reach, hiding_reach_above, landing_speed_limit, shot_launch_speed, turn_lookahead, turn_rest_updates |
+| `enemies/yard.json` | `Yard` | aggressive_crawl_speed, air_drag, bounce_sound, contact_damage, fall_speed_limit, gravity, health, hiding_probe_reach, hiding_reach_above, landing_speed_limit, shot_launch_speed, turn_lookahead, turn_rest_updates |
 | `enemies/zeb.json` | `PipeBug` | contact_damage, emergence_height, flight_step, health, respawn_wait, trigger_top, trigger_width |
 | `enemies/zebbo.json` | `PipeBug` | contact_damage, emergence_height, flight_step, health, respawn_wait, trigger_top, trigger_width |
 | `enemies/zebetite.json` | `Zebetite` | contact_damage, fall_effect, health, pair_offset, shot_sound |

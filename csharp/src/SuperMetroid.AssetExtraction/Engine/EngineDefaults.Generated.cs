@@ -19,6 +19,7 @@ internal static partial class EngineDefaults
         ["AttractDemoMode"] = "PlayingMode",
         ["BabyMetroid"] = "Enemy",
         ["BabyTurtle"] = "Enemy",
+        ["BandedBackdrop"] = "Backdrop",
         ["Barrier"] = "RoomObject",
         ["Beetom"] = "Enemy",
         ["Bomb"] = "Projectile",
@@ -319,7 +320,7 @@ internal static partial class EngineDefaults
         ["Waver"] = [("speed", "1.5"), ("wave_height", "4"), ("wave_step", "2"), ("spins_at", "56")],
         ["WorkRobot"] = [("gravity", "0.5"), ("laser_cooldown", "16"), ("turn_delay", "8"), ("recoil_delay", "64"), ("muzzle_ahead", "4"), ("muzzle_above", "16"), ("laser_slant_speed", "0.5"), ("footstep_sound", "\"\""), ("laser_sound", "\"\"")],
         ["YappingMaw"] = [("safety_distance", "32"), ("longest_reach", "64"), ("grab_cooldown", "48"), ("retracted_hold", "65"), ("root_distance", "8"), ("bite_sound", "\"\""), ("speed_curve", "\"\"")],
-        ["Yard"] = [("aggressive_crawl_speed", "2.25"), ("hiding_reach_above", "96"), ("hiding_probe_reach", "7"), ("turn_lookahead", "7"), ("turn_rest_updates", "16"), ("landing_speed_limit", "3"), ("gravity", "0.125"), ("fall_speed_limit", "4"), ("air_drag", "0.0625"), ("shot_launch_speed", "1"), ("falls_at_shake", "2"), ("bounce_sound", "\"\"")],
+        ["Yard"] = [("aggressive_crawl_speed", "2.25"), ("hiding_reach_above", "96"), ("hiding_probe_reach", "7"), ("turn_lookahead", "7"), ("turn_rest_updates", "16"), ("landing_speed_limit", "3"), ("gravity", "0.125"), ("fall_speed_limit", "4"), ("air_drag", "0.0625"), ("shot_launch_speed", "1"), ("bounce_sound", "\"\"")],
         ["Zebetite"] = [("pair_offset", "40"), ("fall_effect", "\"\""), ("shot_sound", "\"\"")],
         ["Zoa"] = [("reach", "128"), ("rise_speed", "0.5")],
     }.ToFrozenDictionary();

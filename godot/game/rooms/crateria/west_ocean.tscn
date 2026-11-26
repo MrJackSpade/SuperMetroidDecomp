@@ -13,7 +13,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/BandedBackdrop.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -247,4 +247,5 @@ HighSurface = 1264
 script = ExtResource("14")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/scrolling_sky_west_ocean.png"
-ScrollShare = Vector2(0.5, 0)
+ScrollShare = Vector2(0, 1)
+BandsFile = "backdrops/scrolling_sky_bands.json"

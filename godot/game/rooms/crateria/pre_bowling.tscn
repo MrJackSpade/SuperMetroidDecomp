@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/BandedBackdrop.cs" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -72,4 +72,5 @@ DataFile = "objects/door_cap_blue_left.json"
 script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/scrolling_sky_pre_bowling.png"
-ScrollShare = Vector2(0.5, 0)
+ScrollShare = Vector2(0, 1)
+BandsFile = "backdrops/scrolling_sky_bands.json"

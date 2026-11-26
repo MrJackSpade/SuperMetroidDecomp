@@ -70,6 +70,9 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     /// <summary>The size of the room the layer fills, in pixels.</summary>
     private Vector2I _roomSize;
 
+    /// <summary>The size of the room the layer fills, for a kind of backdrop that draws its picture its own way.</summary>
+    protected Vector2I RoomSize => _roomSize;
+
     /// <summary>Loads the layer's picture.</summary>
     internal virtual void Setup(ContentLibrary content, Vector2I roomSize)
     {

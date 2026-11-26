@@ -133,9 +133,22 @@ public sealed partial class EngineAssetWriter
         }
     }
 
+    /// <summary>The file of the bands a scrolling sky drifts in, which every room with such a sky shares.</summary>
+    internal const string SkyBandsFile = "backdrops/scrolling_sky_bands.json";
+
+    /// <summary>Writes the bands of the scrolling sky: from the top of the room down, the row each begins at and how far it drifts an update.</summary>
+    private void WriteSkyBands()
+    {
+        var bands = new JsonArray();
+        foreach (SuperMetroid.Core.Fx.SkyBand band in SuperMetroid.Core.Fx.ScrollingSkyBandDefinitions.Bands)
+            bands.Add(new JsonObject { ["from"] = band.TopRow, ["drift"] = EngineNames.Number(band.Drift.Speed) });
+        _tree.WriteData(SkyBandsFile, new JsonObject { ["bands"] = bands, ["to"] = SuperMetroid.Core.Fx.ScrollingSkyBandDefinitions.EndRow });
+    }
+
     /// <summary>Writes the picture behind every room that has one of its own, once for each set of graphics it is coloured by.</summary>
     private void WriteBackdrops()
     {
+        WriteSkyBands();
         foreach ((RoomDefinition _, RoomStateSettings state) in EngineLayouts.States())
         {
             if (BackdropSheet(state) is not { } sheet)

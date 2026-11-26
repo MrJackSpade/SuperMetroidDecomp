@@ -72,7 +72,6 @@ internal static class AcidStatueFirstEntryVerification
             "completed Chozo event survives source-room staging");
         int destinationFrames = 0;
         bool sawDestinationFade = false;
-        RgbaPixel[]? lastDestinationFadePixels = null;
         int lastDestinationFadeSurfaceRow = 0;
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
@@ -85,7 +84,8 @@ internal static class AcidStatueFirstEntryVerification
             LayeredScene? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (snapshot is null)
                 continue;
-            RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
+            // Every destination frame draws (#3036, #3047): its colours and its overlay, as the frame boundary latched them.
+            _ = DisplayRendering.Render(snapshot);
             if (phase is DoorTransitionPhase.Running.FinishDoorOpeningScroll or DoorTransitionPhase.Running.FadeInDestinationRoom)
             {
                 sawDestinationFade = true;
@@ -93,7 +93,6 @@ internal static class AcidStatueFirstEntryVerification
                     "destination fade retains the room's acid FX type");
                 AssertEqual(drainedAcidY, displayed.Value.NamedSurface,
                     "destination fade presents the event-restored acid height");
-                lastDestinationFadePixels = pixels;
                 lastDestinationFadeSurfaceRow = displayed.Value.NamedSurfaceScreenY;
             }
 
@@ -103,14 +102,14 @@ internal static class AcidStatueFirstEntryVerification
         AssertTrue(!transition.IsActive, "Acid Statue room transition completes");
         AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Definition, "transition reaches the reported room");
         AssertTrue(sawDestinationFade, "transition captures the presented destination fade");
-        // High acid ($00C8) would cover this whole screen. Just above the drained surface
-        // the room's dark background must show; just below it the drained acid is drawn.
-        AssertTrue(lastDestinationFadeSurfaceRow is > 8 and < 216, $"drained acid surface lies on the captured screen (row {lastDestinationFadeSurfaceRow})");
-        RgbaPixel background = new(66, 0, 24);
-        AssertEqual(background, (lastDestinationFadePixels ?? throw new InvalidOperationException("Verification requires lastDestinationFadePixels."))[(lastDestinationFadeSurfaceRow - 8) * 256 + 16],
-            "first-entry fade shows the dark room above the drained surface, not the high-acid flash");
-        AssertTrue(lastDestinationFadePixels[(lastDestinationFadeSurfaceRow + 8) * 256 + 16] != background,
-            "first-entry fade draws the drained acid below its surface");
+        // The fade shows the drained surface where it lies below the camera (#3047), as the cartridge's HDMA objects place it on
+        // every update of the fade in: the door enters at the room's top, so the drained acid lies below the screen and the
+        // fade shows none of it, not the high acid's surface that the room's load first placed.
+        int cameraY = (runtime.Room.LoadedScope.Camera.PixelPosition - Position16<RoomPixels>.Zero).Y;
+        AssertEqual(drainedAcidY - cameraY, lastDestinationFadeSurfaceRow,
+            "first-entry fade places the drained acid's surface below the camera");
+        AssertTrue(lastDestinationFadeSurfaceRow >= ScreenGeometry.ScreenSize.Y,
+            $"first-entry fade shows no acid: the drained surface lies below the screen (row {lastDestinationFadeSurfaceRow})");
         int transitionEndY = runtime.RoomFxOverlay.NamedSurface;
         for (int frame = 0; frame < 8; frame++)
         {

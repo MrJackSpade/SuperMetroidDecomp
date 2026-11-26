@@ -149,6 +149,7 @@ internal sealed partial class DoorTransitionState
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 // Each colour step is one update, with its own effects and random draw.
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 if (transition.FadeSteps.Step())
                 {
                     runtime.DoorFade.Darken();
@@ -258,7 +259,7 @@ internal sealed partial class DoorTransitionState
                 // Every update finishes an empty sprite frame even while the transition
                 // only waits on the door's scroll, so no faded enemy of the room left behind shows over the moving
                 // destination doorway.
-                runtime.RunBlankGameplayFrame(controllerInput);
+                BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 if (runtime.RoomLoader.StepDoorOpeningScroll(transition.Scroll, loaderProgress, loaded))
                 {
                     // The room's objects run on the scroll's final update, before the frame
@@ -275,7 +276,7 @@ internal sealed partial class DoorTransitionState
             case DoorTransitionPhase.Running.AlignSamusWithDoorway:
                 // The transition waits one update after the room objects run. This continues the
                 // same update's work, so it aligns X without another random draw.
-                runtime.RunBlankGameplayFrame(controllerInput);
+                BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 runtime.RoomLoader.AlignSamusAfterDoorLoading(transition.Scroll);
                 transition.Enter(new DoorTransitionPhase.Running.StepDestinationBlockAnimations());
                 break;
@@ -283,15 +284,17 @@ internal sealed partial class DoorTransitionState
             case DoorTransitionPhase.Running.StepDestinationBlockAnimations:
                 // LoadRoom already initialized the destination's block animations; the
                 // transition gives them one explicit step before polling the music queue.
-                runtime.RunBlankGameplayFrame(controllerInput);
+                BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
-                loaded.StepBlockAnimations(samus, runtime.System);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
+                loaded.StepAnimatedTilesDuringDoor(samus, runtime.System);
                 transition.Enter(new DoorTransitionPhase.Running.WaitForMusicQueue());
                 break;
 
             case DoorTransitionPhase.Running.WaitForMusicQueue:
-                runtime.RunBlankGameplayFrame(controllerInput);
+                BeginDestinationFrame(runtime, loaded, controllerInput, blank: true);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 if (!audio.HasQueuedMusic)
                 {
                     transition.Enter(new DoorTransitionPhase.Running.FinishDoorOpeningScroll());
@@ -305,8 +308,9 @@ internal sealed partial class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.Running.FinishDoorOpeningScroll:
-                runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+                BeginDestinationFrame(runtime, loaded, controllerInput, blank: false);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 // Samus's nudges off the screen's edges and an elevator door's control setup apply only once the
                 // opening scroll has finished and the music is queued, not during the visible scroll.
                 runtime.RoomLoader.FinishDoorOpeningScroll(transition.Scroll, loaded);
@@ -317,11 +321,12 @@ internal sealed partial class DoorTransitionState
 
             case DoorTransitionPhase.Running.DrawFirstDestinationFrame:
             case DoorTransitionPhase.Running.FadeInDestinationRoom:
-                runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+                BeginDestinationFrame(runtime, loaded, controllerInput, blank: false);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(loaded, samus);
+                runtime.DoorTransition.StepEffectDisplay(loaded);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
-                loaded.StepBlockAnimations(samus, runtime.System);
+                loaded.StepAnimatedTilesDuringDoor(samus, runtime.System);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, loaded, samus);
                 transition.Enter(new DoorTransitionPhase.Running.FadeInDestinationRoom());
                 // The destination fades in toward the colours its owners show, which enemy scripts running
@@ -347,5 +352,21 @@ internal sealed partial class DoorTransitionState
             default:
                 throw new InvalidOperationException($"Door transition phase {transition.Phase} does not run once the destination has loaded.");
         }
+    }
+
+    /// <summary>
+    /// Starts an update of the transition once the destination has loaded: its frame boundary, an empty sprite frame when
+    /// <paramref name="blank"/>, then the destination's own layers chosen for the next frame (#3047). The cartridge's
+    /// layer blending runs at the top of every update from the destination's load on (<c>HDMAObjectHandler_HandleMusicQueue</c>,
+    /// re-enabled once the door's scroll finishes), whatever the game state, so the room's own layers and blend are ready
+    /// when the door hands the screen back for the fade in, not those the room left last chose.
+    /// </summary>
+    private static void BeginDestinationFrame(SuperMetroidRuntime runtime, RoomScope loaded, ControllerButton controllerInput, bool blank)
+    {
+        if (blank)
+            runtime.RunBlankGameplayFrame(controllerInput);
+        else
+            runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        runtime.ScreenLayers.Choose(loaded);
     }
 }

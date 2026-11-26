@@ -21,17 +21,17 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static partial class RoomSheetShades
 {
     /// <summary>
-    /// The shades of <paramref name="tileset"/>'s room pictures, its blocks, backgrounds, written pictures and floor: the
-    /// records its rooms' palette effects show, and the colours of the bosses its rooms hold that recolour the room.
+    /// The shades of <paramref name="tileset"/>'s room pictures, its blocks, backgrounds and floor: the records its rooms'
+    /// palette effects show, a door's dark shades, and the colours of the bosses its rooms hold that recolour the room.
     /// </summary>
     internal static IReadOnlyList<SheetShade> Room(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
         SelectedRoom[] rooms = [.. RoomsOf(tileset)];
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
-
-        // What a door's fade leaves of the room, which the Godot game's assets are written from.
-        shades.AddRange(DoorFadeRoomShades.Of());
+        // A door's dark shades, which every background picture a door shows is pre-coloured in (#3036). The Godot
+        // game's assets are written from them too: which of a room's colours a door keeps lit.
+        shades.AddRange(DoorFadeBackgroundShades.Of());
         foreach ((EnemyDefinitionId[] enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> roomShades) in EnemyRoomShades)
         {
             if (enemies.Any(enemy => Places(rooms, enemy)))
@@ -64,13 +64,15 @@ internal static partial class RoomSheetShades
 
     /// <summary>
     /// The shades of the pictures <paramref name="writers"/> write over a room (#1544): each writer's own effects alone,
-    /// the self-destruct warning's alarm; no colour effect of the room recolours them.
+    /// the self-destruct warning's alarm; no colour effect of the room recolours them. A door's dark shades darken them as
+    /// they darken every background picture (#3036).
     /// </summary>
     /// <exception cref="InvalidDataException">A writer is undefined, or the Ceres colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Written(RoomBlockSheetInputs inputs, IEnumerable<TileWordWriter> writers)
     {
         Ensure.NotNull(inputs);
-        return [.. Ensure.NotNull(writers).OrderBy(WrittenPictureSheetComposer.WriterOrder.PlaceOf).SelectMany(writer => WrittenBy(inputs, writer))];
+        return [.. Ensure.NotNull(writers).OrderBy(WrittenPictureSheetComposer.WriterOrder.PlaceOf).SelectMany(writer => WrittenBy(inputs, writer)),
+            .. DoorFadeBackgroundShades.Of()];
     }
 
     /// <summary>The shades of the pictures <paramref name="writer"/> writes.</summary>
@@ -124,13 +126,14 @@ internal static partial class RoomSheetShades
 
     /// <summary>
     /// The shades of <paramref name="tileset"/>'s room effects' pictures on the effect overlay: the room effects' palette
-    /// blends and, where its rooms hold Phantoon, the Wrecked Ship's power coming on.
+    /// blends, where its rooms hold Phantoon the Wrecked Ship's power coming on, and a door's dark shades (#3036).
     /// </summary>
     internal static IReadOnlyList<SheetShade> RoomEffects(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
         return [.. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
-            .. Places(RoomsOf(tileset), EnemyDefinitionId.PhantoonBody) ? PhantoonSheetShades.PowerOn(inputs.Bosses) : []];
+            .. Places(RoomsOf(tileset), EnemyDefinitionId.PhantoonBody) ? PhantoonSheetShades.PowerOn(inputs.Bosses) : [],
+            .. DoorFadeBackgroundShades.Of()];
     }
 
     /// <summary>
@@ -138,7 +141,7 @@ internal static partial class RoomSheetShades
     /// palette blends, which shade the HUD as they shade the effects.
     /// </summary>
     internal static IReadOnlyList<SheetShade> Hud(RoomBlockSheetInputs inputs) =>
-        [.. DoorFadeHudShades.Of(), .. RoomFxBlendSheetShades.Of(Ensure.NotNull(inputs).Maps.RoomFxPaletteBlends)];
+        [.. DoorFadeBackgroundShades.Of(), .. RoomFxBlendSheetShades.Of(Ensure.NotNull(inputs).Maps.RoomFxPaletteBlends)];
 
     /// <summary><paramref name="sheet"/>, also pre-coloured in <paramref name="shades"/>.</summary>
     internal static ComposedWrittenPictureSheet With(ComposedWrittenPictureSheet sheet, IReadOnlyList<SheetShade> shades) =>

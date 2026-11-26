@@ -382,6 +382,18 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
+    /// Passes the effect's own block animation (lava, acid, rain or spores) once, selecting the frame its pictures show: the
+    /// cartridge's animated tiles object of the effect, which its animated tiles handler steps with the room's others,
+    /// during a door's transition as in play (#3037).
+    /// </summary>
+    internal void StepAnimation(ArtworkFrameSelections frames)
+    {
+        Ensure.NotNull(frames);
+        if (effectOverlayAnimation is not null)
+            BlockAnimationLoops.Pass(effectOverlayAnimation, frames);
+    }
+
+    /// <summary>
     /// Runs the active effect's step for one update and its overlay's block animation. A liquid's surface is where
     /// its motion pass (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>), which runs earlier in the update, left it.
     /// </summary>
@@ -399,31 +411,53 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         // The shared block animations run independently of the liquid motion's
         // per-frame step. In particular, lava and acid select the animation frame their pictures
         // show here, before the surface step that follows.
-        if (effectOverlayAnimation is not null)
-            BlockAnimationLoops.Pass(effectOverlayAnimation, frames);
+        StepAnimation(frames);
+        StepOverlayDisplay(frame.Camera);
+    }
 
+    /// <summary>
+    /// Runs the effect's overlay display for one update of a door's transition (#3047): where the cartridge's HDMA objects
+    /// run, through the room left's waits and fade out until the door's header deletes them, and through the room entered's
+    /// updates from its animated tiles' step on. The overlay of a Fireflea room, or of an effect that shows none, has
+    /// nothing placed there; while time is frozen nothing moves.
+    /// </summary>
+    /// <param name="camera">The camera the overlay is placed against.</param>
+    /// <param name="timeIsFrozen">Whether time is frozen.</param>
+    internal void StepDisplayDuringDoor(Position16<RoomPixels> camera, bool timeIsFrozen)
+    {
+        if (Fireflea is not null || !IsRenderable || timeIsFrozen)
+            return;
+        StepOverlayDisplay(camera);
+    }
+
+    /// <summary>
+    /// The cartridge's HDMA objects of the effect, for one update: the liquid placed on the screen from its surface with its
+    /// waves or haze, or the rain's, spores' or fog's scroll moved on.
+    /// </summary>
+    private void StepOverlayDisplay(Position16<RoomPixels> camera)
+    {
         if (Motion.IsStopped && HasMovingLiquid)
             return;
 
         if (RoomFxTypes.IsLavaOrAcid(Type))
         {
-            StepLavaAcid(frame.Camera);
+            StepLavaAcid(camera);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(frame.Camera);
+            StepWater(camera);
             return;
         }
 
         if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Rain)
         {
-            Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
+            Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - camera.AsOverlayScroll();
             Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.Whole;
             drift += rainWind;
             drift += RainFall;
-            previousCamera = frame.Camera;
+            previousCamera = camera;
             return;
         }
 
@@ -431,13 +465,13 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         {
             // Spores sample each signed running sum before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
-            Scroll = frame.Camera.AsOverlayScroll() + drift.Whole;
+            Scroll = camera.AsOverlayScroll() + drift.Whole;
             drift += SporesRise;
             return;
         }
 
         // Fog anchors to the foreground; its texture drifts right as it rises.
-        Scroll = frame.Camera.AsOverlayScroll() + drift.Whole;
+        Scroll = camera.AsOverlayScroll() + drift.Whole;
         drift += FogDrift;
     }
 

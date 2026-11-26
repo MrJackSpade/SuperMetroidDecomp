@@ -19,6 +19,9 @@ internal sealed partial record AcceptedFrameBoundaryDependencies
     /// <summary>Where the layers stand, which the shown frame captures.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
+    /// <summary>The frame's colours, which the shown frame latches with its scene (#3036).</summary>
+    public required IFrameColourLatch Colours { get; init; }
+
     /// <summary>What the gameplay display shows, which the shown frame latches.</summary>
     public required GameplayDisplayState Display { get; init; }
 

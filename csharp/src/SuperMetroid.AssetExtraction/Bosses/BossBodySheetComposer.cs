@@ -122,10 +122,11 @@ internal static partial class BossBodySheetComposer
             painter.Add(frame);
         // The cleared layer's blank shows nothing, which the painter confirms.
         ComposedBossBodySheet composed = painter.Compose(BlankOf(owner));
-        // The body is pre-coloured in the shades the boss's colour state names (#1512).
+        // The body is pre-coloured in the shades the boss's colour state names (#1512) and a door's dark shades (#3036).
         return composed with { Sheet = ShadedSheets.With(composed.Sheet,
             [.. BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.Inks, composed.Sheet.Manifest.Palette, colours),
-                .. LayerShades.TryGetValue(owner, out Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>? layer) ? layer(inputs) : []]) };
+                .. LayerShades.TryGetValue(owner, out Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>? layer) ? layer(inputs) : [],
+                .. DoorFadeBackgroundShades.Of()]) };
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>

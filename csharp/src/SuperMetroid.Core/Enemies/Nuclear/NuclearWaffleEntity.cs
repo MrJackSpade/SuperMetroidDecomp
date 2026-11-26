@@ -30,11 +30,11 @@ internal sealed partial class NuclearWaffleEntity(NuclearWaffleBehavior species,
     internal NuclearWaffleSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly NuclearWaffleEnemyState state = state;
+    internal NuclearWaffleEnemyState State { get; } = state;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Settings, Place, state);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Settings, Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, State);
 }

@@ -140,8 +140,8 @@ public sealed partial class EngineAssetWriter
                 new([.. _sheets.ShadeKeeps(RoomBlockFamily, sheet, dark.Key).Select(kept => (JsonNode)Written(kept.Colour, kept.Region))]);
             _tree.WriteData($"tiles/{EngineRoomObjects.GraphicsName(sheet)}/door_lit.json", new JsonObject
             {
-                ["lit"] = Lit(SuperMetroid.AssetExtraction.Rooms.DoorFadeRoomShades.Dark),
-                ["lit_between_common_rooms"] = Lit(SuperMetroid.AssetExtraction.Rooms.DoorFadeRoomShades.DarkBetweenCommonRooms),
+                ["lit"] = Lit(SuperMetroid.Core.World.DoorFadeShades.BackgroundDark),
+                ["lit_between_common_rooms"] = Lit(SuperMetroid.Core.World.DoorFadeShades.BackgroundDarkBetweenCommonRooms),
             });
         }
     }

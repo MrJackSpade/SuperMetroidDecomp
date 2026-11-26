@@ -878,7 +878,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <param name="from">The state the player moved as.</param>
     /// <param name="to">The state they are about to be in.</param>
     /// <param name="unasked">Whether this update's input asked for nothing.</param>
-    protected virtual PlayerState Entering(PlayerState from, PlayerState to, bool unasked) => to;
+    protected abstract PlayerState Entering(PlayerState from, PlayerState to, bool unasked);
 
     /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
     internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
@@ -1098,8 +1098,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Whether a hit can land on the player at the moment. A game with states in which the player cannot be hit says so here.</summary>
     protected virtual bool AcceptsHit(Hit hit) => true;
 
-    /// <summary>The energy a hit takes from the player. A game whose equipment lessens hits says so here.</summary>
-    protected virtual int DamageFrom(Hit hit) => hit.Damage;
+    /// <summary>The energy a hit takes from the player, which the game says: its equipment may lessen a hit.</summary>
+    protected abstract int DamageFrom(Hit hit);
 
     /// <summary>
     /// Called when the player's energy has run out, before they die. A game that has something to fall back on, such

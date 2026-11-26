@@ -8,7 +8,8 @@ namespace Engine.Tests.Core;
 /// The stand-in game's player: the plainest answer to each thing the engine's player leaves to a game. Gravity is
 /// capped at the medium's fall limit; the aim is up, down in the air, or a diagonal with a direction held; a hurt
 /// knocks them back while they are in control; a wall leaves a runner standing; ongoing damage is kept in hundredths
-/// until they make a point; and a shot fired the way they are moving has their speed across added to its own.
+/// until they make a point; a shot fired the way they are moving has their speed across added to its own; a hit
+/// takes the energy it says; and the state they are about to be in is the one they are in next.
 /// </summary>
 public partial class StandInPlayer : Player
 {
@@ -38,6 +39,12 @@ public partial class StandInPlayer : Player
 
     /// <inheritdoc/>
     protected internal override PlayerState StoppedByWall() => new StandingState();
+
+    /// <inheritdoc/>
+    protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked) => to;
+
+    /// <inheritdoc/>
+    protected override int DamageFrom(Hit hit) => hit.Damage;
 
     /// <inheritdoc/>
     public override bool MovedAgainstWall => MovedAs is RunningState;

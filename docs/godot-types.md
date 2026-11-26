@@ -772,12 +772,13 @@ with a rule" or has become an object; if it needs its own state machine, it is a
 ### Player (base)
 
 The engine's player controller: what a metroidvania's player character is. A real class with real behaviour. Lives
-in `engine/actors/player/`. It is abstract: seven things are a game's to say and have no answer here, since this
+in `engine/actors/player/`. It is abstract: nine things are a game's to say and have no answer here, since this
 game gives its own for every one. They are how gravity adds to a fall and where it stops (`AfterGravity`), the aim
 the input asks for (`AimFromInput`), what a hurt does beyond its damage (`OnHurt`), the state a wall leaves a
 runner in and when the player has moved as one run into a wall (`StoppedByWall`, `MovedAgainstWall`), how ongoing
-damage becomes whole points (`OngoingPointsTaken`), and what a shot inherits of the player's movement
-(`ShotVelocity`). The engine's checks play a stand-in player that gives the plainest answer to each
+damage becomes whole points (`OngoingPointsTaken`), what a shot inherits of the player's movement
+(`ShotVelocity`), the energy a hit takes (`DamageFrom`), and the state the player is in next as one gives way to
+another (`Entering`). The engine's checks play a stand-in player that gives the plainest answer to each
 (`StandInPlayer`, with the checks).
 
 - **Owns:** position and velocity, facing and aim, the state machine that says what the player is doing, the

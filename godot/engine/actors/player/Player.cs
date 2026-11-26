@@ -692,6 +692,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         BeforeState();
         if (State.CanAttack)
             Attack(input);
+        else
+            WaitToAttack();
         PlayerState state = State;
         _asked = AskedOf(state);
         _askedOf = state;
@@ -905,6 +907,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (_interruption is not null)
             _interruptionWaited++;
     }
+
+    /// <summary>
+    /// Passes an update in a state the player cannot attack in: the wait between their shots counts down all the
+    /// same. A game with states in which it stands still says so here.
+    /// </summary>
+    protected virtual void WaitToAttack() => Weapons.StepCooldown();
 
     /// <summary>Uses the player's weapons for one update. A game whose player attacks in ways of its own does so here.</summary>
     protected virtual void Attack(GameInput input) => Weapons.Step(this, input);

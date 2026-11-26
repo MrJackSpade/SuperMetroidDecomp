@@ -1243,6 +1243,17 @@ public partial class Samus : Player
     /// <summary>Her X-ray scope, when her scene gives her one.</summary>
     public SamusXray? Xray => GetNodeOrNull<SamusXray>("Xray");
 
+    /// <summary>
+    /// The wait between her shots counts down whatever she is doing, as the cartridge counts it before it asks what
+    /// her movement lets her weapons do; only facing out of the screen, where the cartridge does nothing of her
+    /// weapons at all, does it stand.
+    /// </summary>
+    protected override void WaitToAttack()
+    {
+        if (SamusLooks.Of(this) != "facing_forward")
+            base.WaitToAttack();
+    }
+
     /// <inheritdoc/>
     protected override void Attack(GameInput input)
     {

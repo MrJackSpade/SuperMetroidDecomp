@@ -196,7 +196,6 @@ internal static partial class EngineDefaults
         ["WallPirate"] = "SpacePirate",
         ["Waver"] = "Enemy",
         ["WorkRobot"] = "Enemy",
-        ["WorkRobotGlow"] = "RoomObject",
         ["YappingMaw"] = "Enemy",
         ["Yard"] = "Enemy",
         ["ZebesDeparture"] = "RoomSequence",

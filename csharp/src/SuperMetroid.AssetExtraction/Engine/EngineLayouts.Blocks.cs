@@ -514,6 +514,10 @@ internal sealed partial class EngineLayouts
     private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> Frames(BlockReactionChange change) =>
         change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore, frame.SoundPriority));
 
+    /// <summary>The frames of a change to the terrain that is a single block breaking up.</summary>
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> Frames(TerrainChange change) =>
+        change.Frames.Select(frame => (Shown(new BlockReactionImage.Drawn(frame.Draw)), frame.Updates, frame.SoundBefore, frame.SoundPriority));
+
     /// <summary>The frames of a change to a block that lasts.</summary>
     private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound, SoundRequestPriority Priority)> Frames(LastingBlockReactionChange change) =>
         change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore, frame.SoundPriority));

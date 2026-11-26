@@ -624,6 +624,9 @@ internal sealed partial class EngineLayouts
     /// <summary>A block that reacts: the rules it follows, by a name, and how many tiles it covers.</summary>
     private sealed partial record ReactingBlock(string Name, JsonObject Rules, int Width = 1, int Height = 1, IReadOnlyList<int>? Pictures = null);
 
+    /// <summary>The hit kind of the Godot game by which an enemy cuts through the blocks an enemy breaks, as its Shaktool's saws do.</summary>
+    private const string EnemyCutKind = "saw";
+
     /// <summary>The hit kinds of the Godot game that are "any weapon" to a block.</summary>
     internal static JsonArray AnyWeapon() => ["beam", "missile", "super_missile", "bomb", "power_bomb"];
 
@@ -734,6 +737,16 @@ internal sealed partial class EngineLayouts
             {
                 if (behavior.Spike is not { } spike)
                     return null;
+
+                // A block an enemy breaks: nothing of Samus's does, and an enemy that cuts its way through, by a hit
+                // of the saw's kind, clears it at once. It breaks up as a single block does, with the crumble's sound.
+                if (SuperMetroid.Core.Enemies.EnemyBreakableTerrain.IsEnemyBreakable(spike))
+                {
+                    var cut = new JsonObject { ["solid"] = solid, ["broken_by"] = new JsonArray(EnemyCutKind) };
+                    List<int> shown = AddBreakup(cut, Frames(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
+                    return new ReactingBlock($"spike_{body}_{EngineSheets.FileName(spike.ToString())}", cut, Pictures: shown);
+                }
+
                 int damage = spike switch
                 {
                     // An area whose machinery has no power until its boss is beaten has harmless heavy spikes until

@@ -162,6 +162,24 @@ public sealed class Options
         }
     }
 
+    /// <summary>
+    /// Puts back the buttons each of <paramref name="actions"/> has until the player chooses otherwise: the engine's
+    /// own for its actions and <paramref name="gameStandard"/> for the game's.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An action has no standard buttons.</exception>
+    public void RestoreBindings(IEnumerable<string> actions, IReadOnlyDictionary<string, List<string>> gameStandard)
+    {
+        ArgumentNullException.ThrowIfNull(actions);
+        ArgumentNullException.ThrowIfNull(gameStandard);
+        Dictionary<string, List<string>> engineStandard = StandardBindings;
+        foreach (string action in actions)
+        {
+            List<string> standard = engineStandard.GetValueOrDefault(action) ?? gameStandard.GetValueOrDefault(action)
+                ?? throw new InvalidOperationException($"The action \"{action}\" has no standard buttons to be put back.");
+            Bindings[action] = [.. standard];
+        }
+    }
+
     /// <summary>A binding's text as the Godot input event it stands for.</summary>
     private static InputEvent ReadButton(string action, string button)
     {

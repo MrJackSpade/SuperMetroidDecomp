@@ -329,12 +329,13 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     private void WriteMenuWords()
     {
-        Words("options_press_a_button", "PRESS A BUTTON");
         Words("options_exit", "EXIT");
+        Words("options_reset", "RESET TO DEFAULT");
+
+        // The seven actions the old page lists, which are the ones the Godot page lists.
         (string Action, string Shown)[] actions =
         [
-            ("left", "LEFT"), ("right", "RIGHT"), ("up", "UP"), ("down", "DOWN"), ("jump", "JUMP"), ("attack", "SHOT"), ("pause", "START"),
-            ("confirm", "CONFIRM"), ("cancel", "CANCEL"), ("run", "DASH"), ("item_select", "ITEM SELECT"), ("item_cancel", "ITEM CANCEL"),
+            ("attack", "SHOT"), ("jump", "JUMP"), ("run", "DASH"), ("item_select", "ITEM SELECT"), ("item_cancel", "ITEM CANCEL"),
             ("angle_up", "ANGLE UP"), ("angle_down", "ANGLE DOWN"),
         ];
         foreach ((string action, string shown) in actions)

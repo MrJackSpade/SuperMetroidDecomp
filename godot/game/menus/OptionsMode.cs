@@ -10,8 +10,9 @@ namespace Game.Menus;
 /// <summary>
 /// The options, come to from the choice of saved game. Its first page starts the game, changes the language of the
 /// game's words, and leads to the page of buttons and the page of special settings; a missile points at the row
-/// chosen. The page of buttons lists each action with the button it is bound to: confirming one waits for a button
-/// and binds the action to it. The page of special settings shows each of the game's toggles, and confirming one
+/// chosen. The page of buttons lists each action of play with what it is bound to: with the mark on an action's row,
+/// the next button pressed becomes that action's, and the action that had it takes the one given up; its last two
+/// rows leave the page and put the standard buttons back. The page of special settings shows each of the game's toggles, and confirming one
 /// changes it. Cancelling on the first page goes back to the choice of saved game. Leaving saves them.
 /// </summary>
 /// <remarks>
@@ -26,7 +27,7 @@ namespace Game.Menus;
 /// "buttons" starts; the sounds of the cursor moving and of a row confirmed ("move_sound", "select_sound"); the updates
 /// it holds black as it is come to before it fades in ("entry_black_updates"); the levels of brightness its fades go
 /// through, a level an update ("fade_levels"); and the timeline "cursor". The words of its list of buttons are "options_action_" and an action's name (with {button}),
-/// "options_press_a_button" and "options_exit".
+/// "options_exit" and "options_reset".
 /// </remarks>
 public partial class OptionsMode : GameMode
 {
@@ -57,7 +58,6 @@ public partial class OptionsMode : GameMode
     private Func<GameMode?>? _afterFade;
     private Page _page;
     private int _row;
-    private string? _binding;
     private string? _pressed;
     private int _blackUpdates;
     private int _levels;
@@ -73,7 +73,11 @@ public partial class OptionsMode : GameMode
     /// <summary>The languages the game's words come in, the first being the one its first language row names.</summary>
     public string[] Languages { get; set; } = ["english", "japanese"];
 
-    private IReadOnlyList<string> Actions => [.. GameAction.Standard.Select(action => action.Name), .. Session.Definition.Actions];
+    /// <summary>
+    /// The actions of play, in the order of the page's rows: the shot, the jump, and the game's own. No two of them
+    /// keep one button: binding one to a button another has swaps the two, as the cartridge's page does with its seven.
+    /// </summary>
+    private IReadOnlyList<string> PlayActions => [GameAction.Attack.Name, GameAction.Jump.Name, .. Session.Definition.Actions];
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -113,22 +117,20 @@ public partial class OptionsMode : GameMode
     /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
-        // While an action waits to be bound, the next button pressed is its button: a key, a controller's button,
-        // or a controller's axis pushed, which is how a trigger and some pads' shoulder buttons reach the game. An
-        // axis that was already past its mark as the wait began is one that rests there, and is not a press.
-        if (_binding is null || _pressed is not null)
-            return;
-        if (Options.ButtonOf(@event) is { } button && !_restingAxes.Contains(button))
+        // On the page of buttons whatever is pressed is taken as it comes from the device: a key, a controller's
+        // button, or a controller's axis pushed, which is how a trigger and some pads' shoulder buttons reach the
+        // game. An axis that was past its mark as the page was shown is one that rests there, and is no press.
+        if (_page == Page.Buttons && Options.ButtonOf(@event) is { } button && !_restingAxes.Contains(button))
             _pressed = button;
     }
 
-    /// <summary>The axes that read as pushed as the wait for a button began, as a binding would write each.</summary>
+    /// <summary>The axes that read as pushed as the page of buttons was shown, as a binding would write each.</summary>
     private readonly HashSet<string> _restingAxes = [];
 
-    /// <summary>Begins the wait for the button an action is to be bound to.</summary>
-    private void AwaitButtonFor(string action)
+    /// <summary>Takes note of the axes that rest past their mark, and forgets whatever was pressed before the page was shown.</summary>
+    private void BeginTakingButtons()
     {
-        (_binding, _pressed) = (action, null);
+        _pressed = null;
         _restingAxes.Clear();
         foreach (int controller in Godot.Input.GetConnectedJoypads())
         {
@@ -142,10 +144,14 @@ public partial class OptionsMode : GameMode
     }
 
     /// <summary>
-    /// The actions of play, which no two of keep one button: binding one of them to a button another has swaps the
-    /// two, as the cartridge's page of buttons does with its seven.
+    /// The buttons no action of play can be given: those that move about and the one that is Start, which the
+    /// cartridge's page keeps as they are.
     /// </summary>
-    private IReadOnlyCollection<string> PlayActions => [GameAction.Jump.Name, GameAction.Attack.Name, .. Session.Definition.Actions];
+    private HashSet<string> KeptButtons() =>
+    [
+        .. new[] { GameAction.Up, GameAction.Down, GameAction.Left, GameAction.Right, GameAction.Pause }
+            .SelectMany(action => Session.Options.Bindings.GetValueOrDefault(action.Name) ?? []),
+    ];
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
@@ -269,44 +275,48 @@ public partial class OptionsMode : GameMode
         }
     }
 
-    /// <summary>Moves on the list of buttons, and binds an action to the next button pressed when one is asked for.</summary>
+    /// <summary>
+    /// Plays the page of buttons as the cartridge's: up and down move the mark; any other button newly pressed is
+    /// heard; on an action's row it becomes that action's button, and on the last two rows the confirm button or
+    /// Start leaves the page or puts the standard buttons back.
+    /// </summary>
     private void StepButtons(GameInput input)
     {
         ChoiceList list = _list ?? throw NotShown();
-        if (_binding is { } action)
+        string? pressed = _pressed;
+        _pressed = null;
+        int move = input.WasPressed(GameAction.Down) ? 1 : input.WasPressed(GameAction.Up) ? -1 : 0;
+        if (move != 0)
         {
-            if (_pressed is not { } button)
+            list.Move(move);
+            Sound("move_sound");
+            return;
+        }
+
+        if (pressed is null)
+            return;
+        Sound("select_sound");
+        if (list.Chosen < PlayActions.Count)
+        {
+            if (KeptButtons().Contains(pressed))
                 return;
-            Session.Options.Bind(action, button, PlayActions);
+            Session.Options.Bind(PlayActions[list.Chosen], pressed, PlayActions);
             Session.Options.ApplyBindings([]);
-            (_binding, _pressed) = (null, null);
             ShowButtons(list.Chosen);
             return;
         }
 
-        switch (list.Step(input))
+        if (!input.WasPressed(GameAction.Confirm) && !input.WasPressed(GameAction.Pause))
+            return;
+        if (list.Chosen == PlayActions.Count)
         {
-            case ChoiceList.Outcome.Moved:
-                Sound("move_sound");
-                break;
-            case ChoiceList.Outcome.Confirmed:
-                Sound("select_sound");
-                if (list.Chosen < Actions.Count)
-                {
-                    AwaitButtonFor(Actions[list.Chosen]);
-                    ShowButtons(list.Chosen);
-                }
-                else
-                {
-                    FadeOutTo(() => Turn(Page.Primary));
-                }
-
-                break;
-            case ChoiceList.Outcome.Cancelled:
-                Sound("select_sound");
-                FadeOutTo(() => Turn(Page.Primary));
-                break;
+            FadeOutTo(() => Turn(Page.Primary));
+            return;
         }
+
+        Session.Options.RestoreBindings(PlayActions, Session.Definition.StandardBindings);
+        Session.Options.ApplyBindings([]);
+        ShowButtons(list.Chosen);
     }
 
     /// <summary>Moves on the page of special settings.</summary>
@@ -432,6 +442,7 @@ public partial class OptionsMode : GameMode
                 break;
             case Page.Buttons:
                 heading = "controller";
+                BeginTakingButtons();
                 ShowButtons(0);
                 break;
             default:
@@ -445,21 +456,20 @@ public partial class OptionsMode : GameMode
         PlaceCursor();
     }
 
-    /// <summary>Lists each action with its button, and the way out.</summary>
+    /// <summary>Lists each action of play with its button, the way out, and the row that puts the standard buttons back.</summary>
     private void ShowButtons(int chosen)
     {
         Options options = Session.Options;
         GameText text = Session.Text;
         var lines = new List<string>();
-        foreach (string action in Actions)
+        foreach (string action in PlayActions)
         {
-            string button = action == _binding
-                ? text.Get("options_press_a_button")
-                : InFont(string.Join(", ", options.Bindings.GetValueOrDefault(action) ?? []));
+            string button = InFont(string.Join(", ", options.Bindings.GetValueOrDefault(action) ?? []));
             lines.Add(text.Get($"options_action_{action}").Replace("{button}", button, StringComparison.Ordinal));
         }
 
         lines.Add(text.Get("options_exit"));
+        lines.Add(text.Get("options_reset"));
         (_list ?? throw NotShown()).Present(lines, chosen);
     }
 

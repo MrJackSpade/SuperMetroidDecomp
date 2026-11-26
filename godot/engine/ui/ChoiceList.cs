@@ -86,6 +86,15 @@ public partial class ChoiceList : VBoxContainer
         return Outcome.Moved;
     }
 
+    /// <summary>Moves the mark so many lines down, or up when negative, round the list's ends.</summary>
+    public void Move(int by)
+    {
+        if (_lines.Count == 0)
+            throw new InvalidOperationException("The list has been given no lines to choose from.");
+        Chosen = (((Chosen + by) % _lines.Count) + _lines.Count) % _lines.Count;
+        ShowLines();
+    }
+
     private void ShowLines()
     {
         string blank = new(' ', Mark.Length);

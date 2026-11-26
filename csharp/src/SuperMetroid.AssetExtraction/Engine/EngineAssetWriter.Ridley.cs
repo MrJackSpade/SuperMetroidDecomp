@@ -90,6 +90,59 @@ public sealed partial class EngineAssetWriter
         return change;
     }
 
+    /// <summary>
+    /// Ridley's showing himself as a fade of opacity: unseen, then his eyes alone a step at a time, then the rest of
+    /// him. The owner has it so (#3273): the old game brings his colours up from black and moves him among its layers
+    /// as it does; here he stands at one depth and is faded in, the same number of steps for his eyes and for the
+    /// rest, each step as much more opaque as the last.
+    /// </summary>
+    /// <param name="unseen">The old game's change that hides him: it names every colour of his pictures.</param>
+    /// <param name="firstOfBody">The old change for the first step of his body's showing: the colours it leaves alone are his eyes'.</param>
+    /// <param name="shown">The old change for the last step: his own colours, where they are not his pictures'.</param>
+    /// <param name="steps">How many steps each of the two fades takes.</param>
+    /// <exception cref="InvalidDataException">The old changes are not of one place, or tell no eyes from the rest.</exception>
+    private static JsonObject RidleyFadeByOpacity(JsonObject unseen, JsonObject firstOfBody, JsonObject shown, int steps)
+    {
+        if (unseen.Count != 1 || firstOfBody.Count != 1 || shown.Count > 1)
+            throw new InvalidDataException("Ridley's colours change in more places than his one set of pictures.");
+        string place = unseen.First().Key;
+        JsonObject hidden = unseen[place]!.AsObject(), body = firstOfBody[place]!.AsObject();
+        JsonObject? own = shown.Count == 1 ? shown[place]!.AsObject() : null;
+        List<string> every = [.. hidden.Select(colour => colour.Key)];
+        var eyes = every.Where(colour => !body.ContainsKey(colour)).ToHashSet(StringComparer.Ordinal);
+        if (eyes.Count == 0 || eyes.Count == every.Count)
+            throw new InvalidDataException("The first step of Ridley's body showing itself does not tell his eyes' colours from the rest.");
+
+        // A colour as he shows it once he is wholly seen, and that colour so many parts of the steps opaque.
+        string Own(string colour) => own is not null && own[colour] is { } changed ? changed.GetValue<string>() : colour;
+        string Faded(string colour, int parts) => Own(colour) + ((int)Math.Round(255.0 * parts / steps)).ToString("x2", System.Globalization.CultureInfo.InvariantCulture);
+        JsonObject Step(Func<string, string?> shownAs)
+        {
+            var change = new JsonObject();
+            foreach (string colour in every)
+            {
+                if (shownAs(colour) is { } to)
+                    change[colour] = to;
+            }
+
+            return new JsonObject { [place] = change };
+        }
+
+        var eyeSteps = new JsonArray();
+        var bodySteps = new JsonArray();
+        for (int step = 0; step < steps; step++)
+        {
+            int parts = step + 1;
+            eyeSteps.Add(Step(colour => Faded(colour, eyes.Contains(colour) ? parts : 0)));
+
+            // The body's last step is his own colours, which his fight gives.
+            if (step < steps - 1)
+                bodySteps.Add(Step(colour => eyes.Contains(colour) ? (Own(colour) == colour ? null : Own(colour)) : Faded(colour, parts)));
+        }
+
+        return new JsonObject { ["hidden"] = Step(colour => Faded(colour, 0)), ["eyes"] = eyeSteps, ["body"] = bodySteps };
+    }
+
     /// <summary>Begins the data file of one of Ridley's fights with what both fights share.</summary>
     private EngineEnemy RidleyFight(string file, EnemyDefinitionId id, bool onCeres)
     {
@@ -219,12 +272,11 @@ public sealed partial class EngineAssetWriter
         if (eyes.Count != body.Count)
             throw new InvalidDataException("Ridley's eyes and body come out of the dark in different numbers of steps, where the Godot Ridley has one number for both.");
         string eyesShown = RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End).Key;
-        var colours = new JsonObject
-        {
-            ["hidden"] = RidleyLook(ridley, onCeres),
-            ["eyes"] = EngineNames.List(eyes.Select(image => (JsonNode)RidleyLook(ridley, onCeres, RidleyShades.Fade(image).Key))),
-            ["body"] = EngineNames.List(body.Take(body.Count - 1).Select(image => (JsonNode)RidleyLook(ridley, onCeres, eyesShown, RidleyShades.Fade(image).Key))),
-        };
+        JsonObject colours = RidleyFadeByOpacity(
+            RidleyLook(ridley, onCeres),
+            RidleyLook(ridley, onCeres, eyesShown, RidleyShades.Fade(body[0]).Key),
+            RidleyLook(ridley, onCeres, eyesShown, RidleyShades.Fade(body[^1]).Key),
+            eyes.Count);
         if (onCeres)
             colours["own"] = RidleyLook(ridley, onCeres, RidleyShownShades);
 

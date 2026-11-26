@@ -8,6 +8,9 @@
 script = ExtResource("1")
 DataFile = "bosses/ridley.json"
 
+[node name="Baby" type="Node2D" parent="."]
+script = ExtResource("3")
+
 [node name="Tail0" type="Node2D" parent="."]
 script = ExtResource("3")
 
@@ -33,9 +36,6 @@ script = ExtResource("3")
 script = ExtResource("3")
 
 [node name="Visual" type="Node2D" parent="."]
-script = ExtResource("3")
-
-[node name="Baby" type="Node2D" parent="."]
 script = ExtResource("3")
 
 [node name="Body" type="Node2D" parent="."]

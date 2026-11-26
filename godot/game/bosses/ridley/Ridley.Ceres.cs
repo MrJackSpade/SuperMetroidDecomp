@@ -17,7 +17,9 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// As well as what both fights share it plays "ceres_lunge_left", "ceres_lunge_right", "retrieve_baby_left",
-/// "retrieve_baby_right", "fireballing_end_left" and "fireballing_end_right". Its visual "Baby" is the capsule, which
+/// "retrieve_baby_right", "fireballing_end_left" and "fireballing_end_right". Its visual "Baby" is the capsule,
+/// the first of its visuals and so drawn behind all the rest of it: while it is unseen the capsule shows alone, and
+/// once it has faded in it holds the capsule in front of itself no more than its claws do. The capsule
 /// plays "baby_idle" and "baby_expressive"; their cue "reacts" livens it when it is falling, and "cries" has it cry
 /// or, as often as not when it is still, settle. Its data's "retreat_colours" is the change of colours its going
 /// gives the chamber's own pictures, which stays for as long as the room is there; under its "colours", "own" is

@@ -29,9 +29,11 @@ namespace Game.Enemies;
 /// "tail_tip_arc_start", in turn toward the right. Its hurtboxes "TailTip" and "TailJoint" stop shots. Its shot is
 /// "fireball".</para>
 /// <para>It has one set of pictures, and the colours it is in are changes of their colours, shown on all its
-/// visuals at once. Its data's "colours" gives them: "hidden", the dark it waits in from the moment it is set up;
-/// "eyes", each step of its eyes coming out of the dark; and "body", each step of the rest of it doing so but the
-/// last, which is its own colours as its fight gives them. Under "pose_boxes" its data gives, for each picture of
+/// visuals at once. Its data's "colours" gives them: "hidden", in which none of it is seen, from the moment it is
+/// set up; "eyes", each step of its eyes fading in alone; and "body", each step of the rest of it fading in but the
+/// last, which is its own colours as its fight gives them. The fade is one of opacity: it stands where it always
+/// stands among the room's things, unseen and then seen, and what is behind it shows through it until it is. Under
+/// "pose_boxes" its data gives, for each picture of
 /// its body, the parts of it that can be touched and shot in that pose, each from its place; they are its colliders
 /// "Part1" and on, which shots meet, and "Part1Touch" and on, which hurt. "flight_bounds" gives the least and
 /// greatest places its middle may be ("left", "top", "right", "bottom"), in the room's pixels.</para>
@@ -295,7 +297,7 @@ public partial class Ridley : Enemy
         else
             EnterNorfair();
 
-        // It arrives with its own colours hidden in black.
+        // It arrives unseen: every colour of it shown wholly see-through.
         _fadeColours = _hiddenColours;
         ShowColours();
     }
@@ -346,7 +348,7 @@ public partial class Ridley : Enemy
                 break;
 
             case Reveal.FadeInEyes:
-                // Its eyes brighten a step at a time, and then glow alone a while.
+                // Its eyes fade in a step at a time, and then glow alone a while.
                 _fadeColours = _eyeColours[Math.Min(FadeSteps - 1, _fade / EyeFadeStepUpdates)];
                 if (++_fade < FadeSteps * EyeFadeStepUpdates + EyeHoldUpdates)
                     break;
@@ -355,7 +357,7 @@ public partial class Ridley : Enemy
                 break;
 
             case Reveal.FadeInBody:
-                // The rest of it brightens a step at a time; its last step is its own colours. Each step, the first
+                // The rest of it fades in a step at a time; its last step is its own colours. Each step, the first
                 // too, shows on the last of its updates, as the old game's fade starts a step's length late.
                 if (++_fade % BodyFadeStepUpdates != 0)
                     break;

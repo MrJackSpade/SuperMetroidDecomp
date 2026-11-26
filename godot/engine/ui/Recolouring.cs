@@ -7,6 +7,7 @@ namespace Engine.Ui;
 /// The changed colours of one drawn thing: what each source has asked to be shown as what, and the shader that shows
 /// it. A thing that can be recoloured keeps one and hands its own drawing to it. The shader swaps exact colours, so a
 /// picture's shapes are untouched and nothing is drawn twice; with nothing asked for the thing has no shader at all.
+/// A colour may be shown see-through (<see cref="ColourSwap.To"/>): its pixels are then drawn that much less opaque.
 /// A swap may be of one region of a picture only: the shader reads the region of each pixel from the picture's map
 /// of regions, which a picture that has one is drawn with (<see cref="Content.ContentLibrary.LoadTexture"/>).
 /// </summary>
@@ -25,6 +26,7 @@ public sealed class Recolouring
         uniform int swap_count = 0;
         uniform vec3 swap_from[64];
         uniform vec3 swap_to[64];
+        uniform float swap_opacity[64];
         uniform int swap_region[64];
         varying vec4 tint;
         void vertex() {
@@ -45,6 +47,7 @@ public sealed class Recolouring
                 vec3 apart = abs(shown.rgb - swap_from[i]);
                 if (max(apart.r, max(apart.g, apart.b)) < 0.002) {
                     shown.rgb = swap_to[i];
+                    shown.a *= swap_opacity[i];
                     break;
                 }
             }
@@ -109,6 +112,7 @@ public sealed class Recolouring
 
         var from = new Vector3[MostSwaps];
         var to = new Vector3[MostSwaps];
+        var opacity = new float[MostSwaps];
         var region = new int[MostSwaps];
         int count = 0;
         foreach ((string source, IReadOnlyList<ColourSwap> swaps) in _asked)
@@ -119,6 +123,7 @@ public sealed class Recolouring
                     throw new InvalidOperationException($"\"{_item.Name}\" is asked to show more than {MostSwaps} colours changed at once; the last asked for is one of \"{source}\".");
                 from[count] = new Vector3(swap.From.R, swap.From.G, swap.From.B);
                 to[count] = new Vector3(swap.To.R, swap.To.G, swap.To.B);
+                opacity[count] = swap.To.A;
                 region[count] = swap.Region;
                 count++;
             }
@@ -128,6 +133,7 @@ public sealed class Recolouring
         _material.SetShaderParameter("swap_count", count);
         _material.SetShaderParameter("swap_from", from);
         _material.SetShaderParameter("swap_to", to);
+        _material.SetShaderParameter("swap_opacity", opacity);
         _material.SetShaderParameter("swap_region", region);
         if (!ReferenceEquals(_item.Material, _material))
             _item.Material = _material;

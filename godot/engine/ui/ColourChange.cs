@@ -15,7 +15,8 @@ namespace Engine.Ui;
 /// { "tiles/norfair": { "f8a800": "f8d038", "c05800/1": "e08010" }, "backdrops/norfair_cave": { "301808": "000000" } }
 /// </code>
 /// A colour is six hexadecimal digits, red, green and blue. One written with a number after a stroke is changed only
-/// in that region of the pictures, as their maps of regions number it.
+/// in that region of the pictures, as their maps of regions number it. The colour a colour is shown as may have two
+/// digits more, how opaque it is shown: "00" not at all, "ff" wholly, which is what six digits alone mean.
 /// </remarks>
 public sealed class ColourChange
 {
@@ -48,7 +49,7 @@ public sealed class ColourChange
             int region = ColourSwap.Everywhere;
             if (stroke >= 0 && (!int.TryParse(from[(stroke + 1)..], out region) || region < 0))
                 throw colours.Problem($"names the region \"{from[(stroke + 1)..]}\", which is not a region's number");
-            swaps.Add(new ColourSwap(ReadColour(colours, stroke < 0 ? from : from[..stroke]), ReadColour(to, to.AsText()), region));
+            swaps.Add(new ColourSwap(ReadColour(colours, stroke < 0 ? from : from[..stroke]), ReadShownColour(to, to.AsText()), region));
         }
 
         return [.. swaps];
@@ -68,6 +69,17 @@ public sealed class ColourChange
 
     /// <summary>Shows it on <paramref name="target"/> at once, in place of whatever <paramref name="source"/> last asked for there.</summary>
     public void ShowOn(IRecoloured target, string source) => target.Recolour(source, On(target));
+
+    /// <summary>A colour a colour is shown as: six hexadecimal digits, or eight, the last two how opaque it is shown.</summary>
+    private static Color ReadShownColour(DataNode where, string text)
+    {
+        if (text.Length != 8)
+            return ReadColour(where, text);
+        if (!text.All(Uri.IsHexDigit))
+            throw where.Problem($"names the colour \"{text}\", which is not hexadecimal digits");
+        Color colour = ReadColour(where, text[..6]);
+        return new Color(colour.R, colour.G, colour.B, Convert.ToInt32(text[6..], 16) / 255f);
+    }
 
     /// <summary>A colour written as six hexadecimal digits, red, green and blue.</summary>
     private static Color ReadColour(DataNode where, string text)

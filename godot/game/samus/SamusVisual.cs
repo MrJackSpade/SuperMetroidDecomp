@@ -253,16 +253,23 @@ public partial class SamusVisual : Node2D
     {
         string facing = samus.Facing == Facing.Right ? "right" : "left";
         string aim = samus.HoldName;
-        string[] candidates = [$"{look}_{facing}_{aim}", $"{look}_{facing}", look];
+        // The timeline that says most exactly how she stands, faces and aims is the one shown: her aim's before the
+        // one for the way she faces, that before the look's own. Each of those may have another in its stead for
+        // the suit she wears (she faces out of the screen in another pose) or for being short of energy (she
+        // breathes faster), which is tried first; such a one never takes the place of a more exact timeline, so
+        // short of energy she still shows her aim.
+        bool suited = samus.SuitWorn != "power", low = samus.Inventory.Amount(Amounts.Energy) <= samus.LowEnergy;
+        foreach (string name in (string[])[$"{look}_{facing}_{aim}", $"{look}_{facing}", look])
+        {
+            string[] inItsStead = [name + "_suited_low", name + "_low", name + "_suited", name];
+            bool[] applies = [suited && low, low, suited, true];
+            for (int index = 0; index < inItsStead.Length; index++)
+            {
+                if (applies[index] && samus.Timelines.Has(inItsStead[index]))
+                    return inItsStead[index];
+            }
+        }
 
-        // Wearing the varia or the gravity suit, a look that has a timeline of its own for that shows it: she faces
-        // out of the screen in another pose.
-        if (samus.SuitWorn != "power")
-            candidates = [.. candidates.Select(name => name + "_suited"), .. candidates];
-
-        // Short of energy, a look that has a timeline of its own for that shows it: she breathes faster.
-        if (samus.Inventory.Amount(Amounts.Energy) <= samus.LowEnergy)
-            candidates = [.. candidates.Select(name => name + "_low"), .. candidates];
-        return candidates.FirstOrDefault(samus.Timelines.Has) ?? "";
+        return "";
     }
 }

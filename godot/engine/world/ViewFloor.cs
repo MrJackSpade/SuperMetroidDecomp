@@ -10,10 +10,6 @@ namespace Engine.World;
 [Tool]
 public partial class ViewFloor : Node2D, IPlaced, ITriggerTarget
 {
-    /// <summary>Whether it holds the view when the room is set up.</summary>
-    [Export]
-    public bool StartsHolding { get; set; } = true;
-
     /// <inheritdoc/>
     [Export]
     public Condition? PresentWhen { get; set; }
@@ -24,8 +20,8 @@ public partial class ViewFloor : Node2D, IPlaced, ITriggerTarget
     /// <summary>The highest the view's top may stand while this holds, in room pixels.</summary>
     public int LowestTop => Mathf.FloorToInt(Position.Y);
 
-    /// <summary>Puts it in its starting state.</summary>
-    internal void Setup() => IsHolding = StartsHolding;
+    /// <summary>Puts it in its starting state: holding the view.</summary>
+    internal void Setup() => IsHolding = true;
 
     /// <inheritdoc/>
     public void Triggered(string what)

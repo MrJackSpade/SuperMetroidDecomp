@@ -44,19 +44,6 @@ public partial class Station : RoomObject
         RunningAgainst,
     }
 
-    /// <summary>Which way the player must face to use a station.</summary>
-    public enum Faces
-    {
-        /// <summary>Either way.</summary>
-        EitherWay,
-
-        /// <summary>Left.</summary>
-        Left,
-
-        /// <summary>Right.</summary>
-        Right,
-    }
-
     /// <summary>What the station does.</summary>
     [Export]
     public Does Kind { get; set; }
@@ -76,10 +63,6 @@ public partial class Station : RoomObject
     /// <summary>How many updates the station works for.</summary>
     [Export]
     public int WorkUpdates { get; set; } = 60;
-
-    /// <summary>Which way the player must face to use it.</summary>
-    [Export]
-    public Faces MustFace { get; set; }
 
     /// <summary>
     /// For a station that saves: the entry point of its room a game saved here resumes at. Empty for the station
@@ -244,7 +227,7 @@ public partial class Station : RoomObject
             return;
         }
 
-        if (resting || !FacesRightWay(player) || !CanBeUsed(player))
+        if (resting || !CanBeUsed(player))
             return;
         string effect;
         if (HowUsed == Use.StandingIn)
@@ -328,13 +311,6 @@ public partial class Station : RoomObject
             Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), Position + PixelOffset.FromWhole(WorkingEffectAt.X, WorkingEffectAt.Y)));
     }
 
-    private bool FacesRightWay(Player player) => MustFace switch
-    {
-        Faces.EitherWay => true,
-        Faces.Left => player.Facing == Facing.Left,
-        Faces.Right => player.Facing == Facing.Right,
-        _ => throw new InvalidOperationException($"Undefined facing {MustFace}."),
-    };
 
     /// <summary>
     /// Whether the station has anything to do for the player: a refill station does nothing for one who is full, and

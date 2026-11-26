@@ -22,10 +22,6 @@ public partial class Spawner : RoomObject
     [Export]
     public int MaxAlive { get; set; } = 1;
 
-    /// <summary>A condition that must hold for it to produce enemies; null when it always may.</summary>
-    [Export]
-    public Condition? ActiveWhen { get; set; }
-
     private readonly List<Enemy> _alive = [];
     private Countdown _wait = Countdown.Over;
 
@@ -37,7 +33,7 @@ public partial class Spawner : RoomObject
     {
         _alive.RemoveAll(enemy => enemy.IsDead || Room.IsLeaving(enemy));
         _wait = _wait.Stepped();
-        if (_wait.IsRunning || _alive.Count >= MaxAlive || (ActiveWhen is not null && !ActiveWhen.IsTrue(Room)))
+        if (_wait.IsRunning || _alive.Count >= MaxAlive)
             return;
         Enemy enemy = CreateEnemy();
         enemy.Position = Position;

@@ -62,6 +62,16 @@ public partial class GameLoop : Node
             GameDefinition definition = ResourceLoader.Load<GameDefinition>(path)
                 ?? throw new InvalidOperationException($"\"{path}\" is not a game definition.");
 
+#if !TOOLS
+            // An exported game with no assets installed says where they belong and starts nothing: there is nothing
+            // of the game it could show.
+            if (!Directory.Exists(ContentLibrary.InstalledFolder))
+            {
+                ShowNoAssets(ContentLibrary.InstalledFolder);
+                return;
+            }
+#endif
+
             var actions = GameAction.Standard.Concat(definition.Actions.Select(name => new GameAction(name))).ToList();
             Options options = Options.Load(ProjectSettings.GlobalizePath("user://options.json"));
             options.AddMissingBindings(definition.StandardBindings);
@@ -78,6 +88,31 @@ public partial class GameLoop : Node
             Fail(exception);
         }
     }
+
+#if !TOOLS
+    /// <summary>Fills the screen with where the game's assets belong, in the engine's own font.</summary>
+    private void ShowNoAssets(string folder)
+    {
+        Vector2 size = GetViewport().GetVisibleRect().Size;
+        var words = new Label
+        {
+            Name = "NoAssets",
+            Text = string.Join(
+                "\n\n",
+                "The game's assets are not installed.",
+                "Make them from your own ROM on a computer and copy them to:",
+                folder),
+            AutowrapMode = TextServer.AutowrapMode.Arbitrary,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Position = Vector2.Zero,
+            Size = size,
+        };
+        words.AddThemeFontSizeOverride("font_size", 8);
+        AddChild(words);
+        GD.PrintErr($"No assets are installed at \"{folder}\".");
+    }
+#endif
 
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta)

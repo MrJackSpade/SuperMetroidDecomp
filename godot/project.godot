@@ -31,12 +31,9 @@ project/assembly_name="Engine"
 
 game_definition="res://game/game_definition.tres"
 
-[physics]
-
-common/physics_ticks_per_second=60
-
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

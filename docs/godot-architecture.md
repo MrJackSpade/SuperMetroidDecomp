@@ -352,7 +352,9 @@ it is remembered.
 - A meaningful blank frame keeps its identity and duration. Missing artwork is an error, never a silent blank.
 - No node per tile, and no baking of every possible combination of parts.
 - Assets never ship with the exported project. They are loaded from the installed assets folder, through
-  `ContentLibrary` only.
+  `ContentLibrary` only: a folder named `assets` beside the exported game's executable, or on Android in the
+  game's own folder of the device's storage (`ContentLibrary.InstalledFolder`). An exported game that finds none
+  says where they belong and starts nothing.
 
 **Why, and extending it.** Presentation follows the game and never leads it: the game must play identically with
 the screen off. So everything shown is derived from gameplay state at the end of an update, and nothing shown is

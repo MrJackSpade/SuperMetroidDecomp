@@ -15,18 +15,22 @@
 - The C# port is legacy reference material: it documents what the game does. It is not a
   blueprint. The Godot project lives in its own directory with no references to the old
   code, reuses none of it, and does not copy its structure. The old code is not deleted.
+- Both games are kept, on one branch, and a release carries a build of each: the old one named
+  **Classic**, the Godot one named **Rebirth**. The owner's words, 2026-11-25: "The pipeline
+  needs to now emit both the old (named classic) EXE, as well as the new (named Rebirth) exe,
+  as well as a Rebirth APK. The APK should be properly signed and all that jazz, and the key
+  should be stored up in the github actions", "since we're maintaining both the classic and the
+  rebirth code bases"; and of the ticket that would have deleted the old code (#2910, closed):
+  "I was going to keep them on different branches but two artifacts on the same branch is a lot
+  easier."
 - 0.9.x is still in testing: new 0.9.x bugs may arrive, in new milestones of their own, and
   they are fixed in `csharp/`. Apart from those the old code is frozen as a reference.
-- The asset extractor still reads the old code's definitions. It is to become self-contained,
-  holding its own definitions, once the Godot game is at parity and the old code is deleted.
-  That is v1.1.0 work (#2910); it is not part of v1.0.0 and cannot be. Isolating the
-  extractor properly means deleting the old code, since full isolation cannot be guaranteed
-  while the old references are still there to be reached; and the old code is the reference
-  the new code is written from, which it cannot be once deleted. Until then, whether a
-  value is read from the old definitions or typed does not matter, so long as it is right: a
-  typed value is not a difference from the cartridge and gets no parity ticket, and a small
-  change to the old code made so that the extractor can read a value is not a question of
-  the rules.
+- The asset extractor reads the old code's definitions. The plan to make it self-contained
+  by deleting the old code (#2910) was closed by the owner on 2026-11-25, with the words
+  above. Whether a value is read from the old definitions or typed does not matter, so long
+  as it is right: a typed value is not a difference from the cartridge and gets no parity
+  ticket, and a small change to the old code made so that the extractor can read a value is
+  not a question of the rules.
 - For Godot work, parity means the same observable results from the same inputs, not the
   same internal order or state (v1.0.0 manifesto, section 4). The recorded movies are off
   limits until the owner opens testing.
@@ -248,9 +252,8 @@ reproducing a reported bug.
 - Minor versions (`0.x.0`) are planned release bands; read each milestone's description
   for its scope. Patch versions (`0.x.y`) are reserved for bugfix releases.
 - `v1.0.0` is the game written new in Godot (umbrella #1393). `v1.1.0` collects low-hanging
-  enhancements on top of the port, widescreen support (#1394) among them, and making the
-  asset extractor self-contained (#2910); more complex enhancements go to later `1.x`
-  versions.
+  enhancements on top of the port, widescreen support (#1394) among them; more complex
+  enhancements go to later `1.x` versions.
 
 ## Issue-fix workflow
 

@@ -1,4 +1,5 @@
 """ROM-free packaging, GitHub release publication, and receipted Discord announcements."""
+import base64
 import hashlib
 import json
 import os
@@ -7,6 +8,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -57,10 +59,28 @@ def check_archive(path):
             raise ValueError(f"Corrupt release archive: {path.name}")
 
 
+# The two games a release carries: Classic, the C# port under csharp/, and Rebirth, the Godot game under godot/.
+ARTIFACTS = {
+    "classic-windows": "SuperMetroid-Classic-windows-x64.zip",
+    "rebirth-windows": "SuperMetroid-Rebirth-windows-x64.zip",
+    "rebirth-android": "SuperMetroid-Rebirth-android-arm64.apk",
+}
+REBIRTH_WINDOWS_FILES = ("SuperMetroidRebirth.exe", "SuperMetroidRebirthAssets.exe", "REBIRTH-SETUP.md")
+
+
+def zip_folder(source, target, files):
+    with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(files):
+            archive.write(path, path.relative_to(source))
+
+
 def package(kind, source, output):
+    if kind not in ARTIFACTS:
+        raise ValueError(f"Unknown artifact: {kind}")
     source, output = Path(source), Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    if kind == "windows":
+    target = output / ARTIFACTS[kind]
+    if kind == "classic-windows":
         files = [p for p in source.rglob("*") if p.is_file()]
         check_names(str(p.relative_to(source)) for p in files)
         if not (source / "SuperMetroid.Game.exe").is_file():
@@ -68,16 +88,82 @@ def package(kind, source, output):
         if not (source / DEFAULT_INI_NAME).is_file():
             raise ValueError("Desktop publish is missing its documented default INI.")
         check_default_ini((source / DEFAULT_INI_NAME).read_bytes())
-        target = output / "SuperMetroid-windows-x64.zip"
-        with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
-            for path in sorted(files):
-                archive.write(path, path.relative_to(source))
+        zip_folder(source, target, files)
+    elif kind == "rebirth-windows":
+        files = [p for p in source.rglob("*") if p.is_file()]
+        check_names(str(p.relative_to(source)) for p in files)
+        for name in REBIRTH_WINDOWS_FILES:
+            if not (source / name).is_file():
+                raise ValueError(f"Rebirth export is missing {name}.")
+        if (source / "assets").exists():
+            raise ValueError("Rebirth export carries an assets folder; the game's assets never ship.")
+        zip_folder(source, target, files)
     else:
         check_archive(source)
-        target = output / "SuperMetroid-android-arm64.apk"
         shutil.copyfile(source, target)
     check_archive(target)
     print(f"Verified game-data-free artifact: {target.name}")
+
+
+def stamp_android(presets, version_name, code):
+    # The Android package's version is the release's: Android takes an update only with a higher code.
+    if not TAG.fullmatch("v" + version_name) or not re.fullmatch(r"[1-9]\d*", code):
+        raise ValueError("The Android version must be the release's version and a positive whole code.")
+    path = Path(presets)
+    text = path.read_text(encoding="utf-8")
+    for key, value in (("version/code", code), ("version/name", f'"{version_name}"')):
+        text, count = re.subn(rf"(?m)^{re.escape(key)}=.*$", f"{key}={value}", text)
+        if count != 1:
+            raise ValueError(f"The export presets set {key} {count} times; exactly one Android preset is expected.")
+    path.write_text(text, encoding="utf-8")
+    print(f"Android version {version_name} ({code})")
+
+
+def android_tool(name):
+    # The newest build tools of the SDK the runner names; apksigner is a script, a batch file on Windows.
+    builds = sorted((Path(os.environ["ANDROID_HOME"]) / "build-tools").iterdir(),
+                    key=lambda p: [int(n) if n.isdigit() else 0 for n in re.split(r"[.-]", p.name)])
+    if not builds:
+        raise ValueError("The Android SDK has no build tools.")
+    for candidate in (builds[-1] / name, builds[-1] / f"{name}.bat", builds[-1] / f"{name}.exe"):
+        if candidate.is_file():
+            return str(candidate)
+    raise ValueError(f"The Android SDK's build tools have no {name}.")
+
+
+def run_tool(*args):
+    # A batch file is not something Windows starts by itself.
+    command = ["cmd", "/c", *args] if args[0].endswith(".bat") else list(args)
+    result = subprocess.run(command, text=True, capture_output=True)
+    if result.returncode:
+        raise RuntimeError(f"{Path(args[0]).name} failed: {(result.stderr or result.stdout).strip()}")
+    return result.stdout
+
+
+def sign_android(unsigned, signed):
+    # The release key is held in the repository's Actions secrets and reaches this process only through its
+    # environment. It is written to a file of its own for the signing and removed again whatever happens; the
+    # passwords are handed to apksigner by the names of their variables, never on a command line.
+    for name in ("ANDROID_KEYSTORE_BASE64", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD", "ANDROID_STORE_PASSWORD"):
+        if not os.environ.get(name):
+            raise ValueError(f"The Android signing secret {name} is not set.")
+    unsigned, signed = Path(unsigned), Path(signed)
+    aligned = signed.with_name(signed.stem + ".aligned.apk")
+    keystore = Path(tempfile.mkdtemp(prefix="release-key-")) / "release.jks"
+    try:
+        keystore.write_bytes(base64.b64decode(os.environ["ANDROID_KEYSTORE_BASE64"], validate=True))
+        run_tool(android_tool("zipalign"), "-f", "-p", "4", str(unsigned), str(aligned))
+        run_tool(android_tool("apksigner"), "sign", "--ks", str(keystore), "--ks-key-alias", os.environ["ANDROID_KEY_ALIAS"],
+                 "--ks-pass", "env:ANDROID_STORE_PASSWORD", "--key-pass", "env:ANDROID_KEY_PASSWORD",
+                 "--out", str(signed), str(aligned))
+    finally:
+        shutil.rmtree(keystore.parent, ignore_errors=False)
+        if aligned.exists():
+            aligned.unlink()
+    report = run_tool(android_tool("apksigner"), "verify", "--verbose", str(signed))
+    if "Verifies" not in report:
+        raise ValueError("The signed Android package does not verify.")
+    print(f"Signed and verified: {signed.name}")
 
 
 def gh(*args, data=None, optional=False):
@@ -105,8 +191,8 @@ def publish(directory):
     tag = os.environ["RELEASE_TAG"]
     version(tag)
     root = Path(directory)
-    # The Android host is dormant until the Godot port supplies it (#1408), so a release ships Windows only.
-    assets = [root / "SuperMetroid-windows-x64.zip"]
+    # A release carries both games: Classic for Windows, and Rebirth for Windows and for Android (#3258).
+    assets = [root / name for name in ARTIFACTS.values()]
     for asset in assets:
         check_archive(asset)
     checksums = root / "SHA256SUMS.txt"
@@ -123,13 +209,14 @@ def publish(directory):
     if not release:
         gh("release", "create", tag, "--verify-tag", "--draft", "--title", tag, "--generate-notes")
         release = release_info(tag)
-        set_body(release, (release["body"] or "") + "\n\nDownloads: Windows x64 (self-contained ZIP). "
-                 "No game assets are bundled.\n")
+        set_body(release, (release["body"] or "") + "\n\nDownloads: Classic for Windows x64 (self-contained ZIP); "
+                 "Rebirth for Windows x64 (ZIP) and for Android arm64 (APK). No game assets are bundled: each is set up "
+                 "from your own ROM, as the setup notes in its download say.\n")
     gh("release", "upload", tag, *(str(p) for p in assets), "--clobber")
     args = ["release", "edit", tag, "--tag", tag, "--draft=false"]
     args.append("--prerelease" if "-" in tag else "--latest")
     gh(*args)
-    print(f"Published {tag} with the verified Windows application and SHA-256 checksums.")
+    print(f"Published {tag} with the verified Classic and Rebirth builds and SHA-256 checksums.")
 
 
 def webhook_request(url, method="GET", payload=None):
@@ -202,6 +289,10 @@ def main():
             output.write(values)
     elif command.startswith("package-"):
         package(command.removeprefix("package-"), *sys.argv[2:])
+    elif command == "stamp-android":
+        stamp_android(*sys.argv[2:])
+    elif command == "sign-android":
+        sign_android(*sys.argv[2:])
     elif command == "publish":
         publish(sys.argv[2])
     elif command == "notify":

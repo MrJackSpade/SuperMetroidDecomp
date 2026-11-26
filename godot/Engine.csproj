@@ -1,6 +1,10 @@
 <Project Sdk="Godot.NET.Sdk/4.7.2">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- Godot's export template for Android runs .NET 9, so the Android build targets it. The language is the same for
+         both: the one .NET 10 gives. -->
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>Engine</RootNamespace>
     <Nullable>enable</Nullable>

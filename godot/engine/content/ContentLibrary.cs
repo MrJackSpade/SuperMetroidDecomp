@@ -9,8 +9,17 @@ namespace Engine.Content;
 /// </summary>
 public sealed class ContentLibrary
 {
-    /// <summary>The project setting naming the folder an exported game's assets are installed in.</summary>
-    public const string InstalledFolderSetting = "engine/installed_assets";
+    /// <summary>
+    /// The folder an exported game's assets are installed in. They are made from the player's own ROM and never
+    /// ship with the game, so they lie outside it, in a folder named "assets": beside the game's executable, or on
+    /// Android in the game's own folder of the device's storage, which a computer can copy into and the game needs
+    /// no permission to read.
+    /// </summary>
+    public static string InstalledFolder => Path.Combine(
+        OS.GetName() == "Android"
+            ? OS.GetSystemDir(OS.SystemDir.Documents, sharedStorage: false)
+            : Path.GetDirectoryName(OS.GetExecutablePath()) ?? throw new InvalidOperationException("The game's executable has no folder."),
+        "assets");
 
     /// <summary>The assets tree's folder, as an absolute path.</summary>
     private readonly string _root;
@@ -60,10 +69,7 @@ public sealed class ContentLibrary
 #if TOOLS
         return new ContentLibrary(ProjectSettings.GlobalizePath("res://assets"));
 #else
-        string folder = ProjectSettings.GetSetting(InstalledFolderSetting, "").AsString();
-        if (folder.Length == 0)
-            throw new InvalidOperationException($"The project setting \"{InstalledFolderSetting}\" names no installed assets folder.");
-        return new ContentLibrary(ProjectSettings.GlobalizePath(folder));
+        return new ContentLibrary(InstalledFolder);
 #endif
     }
 

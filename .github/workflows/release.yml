@@ -1,8 +1,12 @@
 name: Tagged release
 
+# A pushed version tag builds both games and publishes them as one release: Classic (the C# port, csharp/) for
+# Windows, and Rebirth (the Godot game, godot/) for Windows and for Android. Started by hand it builds the same
+# three artifacts and publishes nothing: they are left on the run, for trying a build before it is tagged.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,7 +32,7 @@ jobs:
         run: python tools/release.py version
       - run: python -m unittest discover -s tests -p 'test_release.py'
 
-  windows:
+  classic:
     needs: version
     runs-on: windows-2025
     timeout-minutes: 30
@@ -48,19 +52,105 @@ jobs:
           dotnet publish csharp/src/SuperMetroid.Game -c Release -r win-x64 --self-contained true -p:Version=$env:RELEASE_VERSION -o out/windows
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           Copy-Item csharp/ROM-SETUP.md out/windows/ROM-SETUP.md
-          dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -p:Version=$env:RELEASE_VERSION -- --configuration-package-audit out/windows/SuperMetroid.Game.dll
+          dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -p:Version=$env:RELEASE_VERSION -- --configuration-package-audit out/windows
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -p:Version=$env:RELEASE_VERSION -- --session-log-audit out/windows/SuperMetroid.Game.dll
+          dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -p:Version=$env:RELEASE_VERSION -- --session-log-audit out/windows/SuperMetroid.Game.exe
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          python tools/release.py package-windows out/windows out/artifacts
+          python tools/release.py package-classic-windows out/windows out/artifacts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: windows-release
+          name: classic-windows-release
           path: out/artifacts/*.zip
           if-no-files-found: error
 
+  rebirth:
+    needs: version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      GODOT_RELEASE: 4.7.2-stable
+      GODOT_TEMPLATES: 4.7.2.stable.mono
+      RELEASE_VERSION: ${{ needs.version.outputs.version }}
+      RELEASE_CODE: ${{ needs.version.outputs.code }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.401'
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/godot-download
+          key: godot-${{ env.GODOT_RELEASE }}-mono-linux-and-templates
+      - name: Fetch the Godot editor and its export templates
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot-download && cd ~/godot-download
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE}"
+          editor="Godot_v${GODOT_RELEASE}_mono_linux_x86_64.zip"
+          templates="Godot_v${GODOT_RELEASE}_mono_export_templates.tpz"
+          for file in "$editor" "$templates" SHA512-SUMS.txt; do
+            [ -f "$file" ] || curl --fail --silent --show-error --location --output "$file" "$base/$file"
+          done
+          # What was fetched is what Godot published under those names.
+          grep -F -e "  $editor" -e "  $templates" SHA512-SUMS.txt > wanted.txt
+          [ "$(wc -l < wanted.txt)" = 2 ]
+          sha512sum --check wanted.txt
+          unzip -q "$editor" -d "$RUNNER_TEMP/godot"
+          unzip -q "$templates" -d "$RUNNER_TEMP/templates"
+          mkdir -p ~/.local/share/godot/export_templates ~/.config/godot
+          mv "$RUNNER_TEMP/templates/templates" ~/.local/share/godot/export_templates/"$GODOT_TEMPLATES"
+          # The editor is told where Java and the Android SDK are, as its settings screen would be.
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/java_sdk_path = "%s"\nexport/android/android_sdk_path = "%s"\n' \
+            "$JAVA_HOME" "$ANDROID_HOME" > ~/.config/godot/editor_settings-4.7.tres
+          godot="$(find "$RUNNER_TEMP/godot" -type f -name 'Godot_v*_mono_linux.x86_64')"
+          [ -x "$godot" ]
+          echo "GODOT=$godot" >> "$GITHUB_ENV"
+      - name: Build the game and import the project
+        run: |
+          set -euo pipefail
+          dotnet build godot/Engine.csproj --configuration Debug --nologo
+          "$GODOT" --headless --path godot --import
+      - name: Export Rebirth for Windows
+        run: |
+          set -euo pipefail
+          mkdir -p out/rebirth-windows
+          "$GODOT" --headless --path godot --export-release "Windows Desktop" "$PWD/out/rebirth-windows/SuperMetroidRebirth.exe"
+          [ -s out/rebirth-windows/SuperMetroidRebirth.exe ]
+          # The program that makes the game's assets from the player's own ROM goes beside the game.
+          dotnet publish csharp/src/SuperMetroid.RebirthAssets -c Release -r win-x64 --self-contained true \
+            -p:PublishSingleFile=true -p:Version="$RELEASE_VERSION" -o out/rebirth-assets-tool
+          cp out/rebirth-assets-tool/SuperMetroidRebirthAssets.exe out/rebirth-windows/
+          cp godot/REBIRTH-SETUP.md out/rebirth-windows/
+          python tools/release.py package-rebirth-windows out/rebirth-windows out/artifacts
+      - name: Export Rebirth for Android and sign it
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          python tools/release.py stamp-android godot/export_presets.cfg "$RELEASE_VERSION" "$RELEASE_CODE"
+          mkdir -p out/rebirth-android
+          "$GODOT" --headless --path godot --export-release "Android" "$PWD/out/rebirth-android/unsigned.apk"
+          [ -s out/rebirth-android/unsigned.apk ]
+          python tools/release.py sign-android out/rebirth-android/unsigned.apk out/rebirth-android/signed.apk
+          python tools/release.py package-rebirth-android out/rebirth-android/signed.apk out/artifacts
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: rebirth-release
+          path: |
+            out/artifacts/*.zip
+            out/artifacts/*.apk
+          if-no-files-found: error
+
   publish:
-    needs: [version, windows]
+    needs: [version, classic, rebirth]
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write

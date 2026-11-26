@@ -467,6 +467,8 @@ internal sealed partial class EngineLayouts
                     : placed.TryGetValue(cell, out JsonObject? put)
                         ? put
                         : Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
+                if (terrain.Collision is RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension && !capCells.ContainsKey(cell) && !placed.ContainsKey(cell))
+                    RequireNoHoleAt(level, room, x, y, path);
                 row.Append(Letter(layout, tile, path));
             }
 
@@ -476,6 +478,47 @@ internal sealed partial class EngineLayouts
         _graphicsSets.Add(tileset);
         foreach ((int x, int y, SpecialAirReaction kind) in plants)
             PatchPlant(room, state, x, y, kind);
+    }
+
+    /// <summary>
+    /// Refuses a cell that continues another block and is written as open space where the block it stands for is
+    /// something there. On the cartridge such a cell collides and reacts as the block its links lead to
+    /// (ContinuedBlocks); here it is open, which is right in three cases only: its links end in nothing or lead to
+    /// open air; they lead to a reacting block of several cells that covers it by its size; or they lead to a plant,
+    /// whose mouth the plants themselves reach across. Anything else would be a hole in the room.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The cell stands for a block it is not covered by, or its links leave the level or never end.</exception>
+    private void RequireNoHoleAt(InstalledRoomLevel level, RoomDefinition room, int x, int y, string path)
+    {
+        int width = level.Size.X, cells = width * level.Size.Y;
+        int at = y * width + x;
+        for (int hops = 0; hops < cells; hops++)
+        {
+            RoomTerrainBlock here = level.Foreground[at];
+            RoomBlockBehavior does = level.Behaviors[at].In(room.Area);
+            if (here.Collision is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
+            {
+                int column = at % width, row = at / width;
+                if (here.Collision == RoomCollisionType.Air)
+                    return;
+                if (here.Collision == RoomCollisionType.SpecialAir && does.SpecialAir is { } air && PlantOf(air) is not null)
+                    return;
+                if (Reacting(here.Collision, does) is { } whole && x >= column && x < column + whole.Width && y >= row && y < row + whole.Height)
+                    return;
+                throw new InvalidDataException(
+                    $"The block {x} across and {y} down of the layout {path} continues the block {column} across and {row} down, a {here.Collision} that does not cover it: it would be a hole.");
+            }
+
+            if (does.EndsExtension)
+                return;
+
+            // A link along a row counts blocks in the room's reading order; one along a column counts rows.
+            at += here.Collision == RoomCollisionType.HorizontalExtension ? does.ExtensionOffset : does.ExtensionOffset * width;
+            if (at < 0 || at >= cells)
+                throw new InvalidDataException($"The block {x} across and {y} down of the layout {path} continues a block outside its level.");
+        }
+
+        throw new InvalidDataException($"The block {x} across and {y} down of the layout {path} continues blocks that lead back to themselves.");
     }
 
     /// <summary>What one block of a level is as a tile of a layout.</summary>

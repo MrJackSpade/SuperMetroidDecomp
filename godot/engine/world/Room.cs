@@ -381,6 +381,16 @@ public partial class Room : Node2D
             // An effect left later in the update first takes a turn on the next.
             StepEffects();
         }
+        else
+        {
+            // Held still, the enemies whose turn it would have been do nothing but count on the time they cannot be
+            // hit for: the cartridge's pass still goes through them while time is frozen, and counts that alone.
+            foreach (Enemy enemy in _enemyPass.OfType<Enemy>().ToList())
+            {
+                if (_takingTurns.Contains(enemy) && !_leaving.Contains(enemy))
+                    enemy.CountWhileHeldStill();
+            }
+        }
 
         // The pass is counted whether or not the enemies were held still through it.
         Session.CountEnemyPass();

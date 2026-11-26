@@ -1292,6 +1292,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   `EnemyTurnMarginBelow`), and to either side by the enemy's own half-width besides (its body collider's, which
   no pose reshapes; of one with no body, its first hurtbox's); the edges count as within.
   This game's are nothing across, eight pixels above and twenty-four below, which is the cartridge's window.
+  On an update the enemies are held still, each that would have taken a turn still counts on the time it cannot
+  be hit for, and does nothing else: the cartridge's pass goes through its enemies in frozen time and counts that alone.
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
   and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then

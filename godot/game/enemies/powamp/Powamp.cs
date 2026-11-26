@@ -96,7 +96,7 @@ public partial class Powamp : Enemy, ILatchable
     public PixelPosition LatchPoint => Position;
 
     /// <inheritdoc/>
-    public void Latched() => _latched = true;
+    public void Latched(PixelPosition at) => _latched = true;
 
     /// <inheritdoc/>
     public void Unlatched() => _latched = false;

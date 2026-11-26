@@ -367,7 +367,7 @@ public partial class SamusGrapple : Node2D
         _held = held;
         _heldBlock = block;
         _phase = Phase.Latched;
-        held?.Latched();
+        held?.Latched(_tip);
         if (block is not null)
             samus.Room.Terrain.LatchedOnto(block);
         samus.Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons");

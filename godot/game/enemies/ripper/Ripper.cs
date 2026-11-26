@@ -37,7 +37,7 @@ public partial class Ripper : Enemy, ILatchable
     public PixelPosition LatchPoint => Position;
 
     /// <inheritdoc/>
-    public void Latched()
+    public void Latched(PixelPosition at)
     {
     }
 

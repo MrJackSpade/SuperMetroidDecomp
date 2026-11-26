@@ -54,11 +54,25 @@ public partial class DraygonCannon : Enemy, ILatchable
     /// <inheritdoc/>
     public bool CanBeLatched => IsBroken;
 
-    /// <inheritdoc/>
-    public PixelPosition LatchPoint => Position;
+    /// <summary>Whether the line that holds it took hold of the lower of its two blocks.</summary>
+    private bool _latchedLower;
+
+    /// <summary>
+    /// Broken, it is two spike blocks, one above the other, and a line holds at the middle of whichever of the two
+    /// its end reached, as the cartridge's line holds a block.
+    /// </summary>
+    public PixelPosition LatchPoint
+    {
+        get
+        {
+            int block = Room.Terrain.TileSize;
+            return PixelPosition.FromWhole(Position.X.Whole + block / 2, Position.Y.Whole + block / 2 + (_latchedLower ? block : 0));
+        }
+    }
 
     /// <inheritdoc/>
-    public void Latched() => _latched = true;
+    public void Latched(PixelPosition at) =>
+        (_latched, _latchedLower) = (true, at.Y.Whole >= Position.Y.Whole + Room.Terrain.TileSize);
 
     /// <inheritdoc/>
     public void Unlatched() => _latched = false;

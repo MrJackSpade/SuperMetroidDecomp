@@ -42,6 +42,9 @@ public partial class Ending
     /// <summary>How long her words wait before they are typed, how long each letter takes, and how long the share of items is held.</summary>
     private const int TypingDelay = 64, TypingLetterUpdates = 4, PercentageUpdates = 128;
 
+    /// <summary>How many updates the white flash after her shot lasts before her emblem begins.</summary>
+    private const int WhiteFlashUpdates = 32;
+
     private CinematicSprite? _jumpBody;
     private CinematicSprite? _jumpHead;
     private bool _bodyRising, _bodyFalling, _headRising;
@@ -147,7 +150,7 @@ public partial class Ending
                 break;
 
             case Phase.WhiteFlash:
-                (_white ?? throw NotEntered()).Step();
+                StepWhiteWash();
                 StepJump();
                 if (--_whiteLeft <= 0)
                     BeginLogo();
@@ -244,11 +247,19 @@ public partial class Ending
                 _jumpSpeed += JumpGravity;
                 _headY += _jumpSpeed;
                 head.Place = PixelPosition.FromWhole(head.Place.X.Whole, (int)Math.Floor(_headY));
-                head.Visible = _headY >= FallStartY;
             }
 
-            foreach (string cue in head.Step())
-                shoots |= OnJumpCue(cue);
+            if (_headY < FallStartY)
+            {
+                // Above the screen her helmet or head is gone, before it plays again.
+                head.QueueFree();
+                _jumpHead = null;
+            }
+            else
+            {
+                foreach (string cue in head.Step())
+                    shoots |= OnJumpCue(cue);
+            }
         }
 
         if (_bodyRising || _bodyFalling)
@@ -328,12 +339,11 @@ public partial class Ending
 
         if (--_wait > 0)
             return;
-        ScreenFade white = _white ?? throw NotEntered();
-        white.FadeOut(1);
-        white.Step();
-        white.FadeIn(32);
+
+        // All is white, and clears a step an update; the emblem begins once the flash has lasted its while.
+        BeginWhiteWash(1);
         (_floor ?? throw NotEntered()).Visible = false;
-        (_phase, _whiteLeft) = (Phase.WhiteFlash, 32);
+        (_phase, _whiteLeft) = (Phase.WhiteFlash, WhiteFlashUpdates);
     }
 
     /// <summary>The two halves of her emblem set out from the corners of the screen.</summary>
@@ -371,6 +381,8 @@ public partial class Ending
     /// </summary>
     private bool StepLogo()
     {
+        // The crossfade takes a step from the update after the grey-out, before the pieces move and play, which they go
+        // on doing until its last step.
         if (_logoFade >= 0)
         {
             _logoFade++;
@@ -378,13 +390,14 @@ public partial class Ending
             (_logoPicture ?? throw NotEntered()).Modulate = new Color(1, 1, 1, shown);
             foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
                 piece.Tint(new Color(1, 1, 1, 1 - shown));
-            if (_logoFade < 16)
-                return false;
-            foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
-                piece.QueueFree();
-            _logoHalves.Clear();
-            _logoCircles.Clear();
-            return true;
+            if (_logoFade >= 16)
+            {
+                foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
+                    piece.QueueFree();
+                _logoHalves.Clear();
+                _logoCircles.Clear();
+                return true;
+            }
         }
 
         for (int index = 0; index < _logoHalves.Count; index++)
@@ -441,17 +454,22 @@ public partial class Ending
             Position = new Vector2(subtitle.Int("x"), subtitle.Int("y")), TextureFilter = CanvasItem.TextureFilterEnum.Nearest, Visible = false,
         };
         picture.AddChild(_subtitle);
-        (_typed, _typeWait, _percentageShown, _phase) = (0, TypingDelay, false, phase);
+        // The typing begins on the update after this one, which starts its delay.
+        (_typed, _typeWait, _percentageShown, _phase) = (0, 1 + TypingDelay, false, phase);
     }
 
-    /// <summary>Types the next letter when it is due, and returns whether the text is all there.</summary>
+    /// <summary>
+    /// Types the next letter when it is due, and returns whether the text is all there and its last letter has had
+    /// its while.
+    /// </summary>
     private bool StepLastWords()
     {
         PixelText words = _lastWords ?? throw NotEntered();
+        _typeWait = Math.Max(0, _typeWait - 1);
+        if (_typeWait > 0)
+            return false;
         if (_typed >= words.Text.Length)
             return true;
-        if (--_typeWait > 0)
-            return false;
         _typed++;
         while (_typed < words.Text.Length && char.IsControl(words.Text[_typed]))
             _typed++;

@@ -31,8 +31,14 @@ public partial class Ending
         }
         """;
 
-    /// <summary>How long the screen stays dark after the credits, and how long it takes to come up again.</summary>
-    private const int BlankUpdates = 60, PostCreditsFadeUpdates = 60;
+    /// <summary>How long the screen stays dark after the credits.</summary>
+    private const int BlankUpdates = 60;
+
+    /// <summary>
+    /// The screen then comes up a level on the second update and every fourth after it, so that it is fully lit on the
+    /// fifty-eighth.
+    /// </summary>
+    private const int PostCreditsFadeFirstStep = 2, PostCreditsFadeStepUpdates = 4;
 
     /// <summary>How long the waiting backdrop takes to come in, how long it is watched, and how long the result is shown.</summary>
     private const int BackdropFadeUpdates = 32, BackdropUpdates = 180, ResultUpdates = 180;
@@ -104,13 +110,15 @@ public partial class Ending
             case Phase.PostCreditsBlank:
                 if (--_wait > 0)
                     break;
-                fade.FadeIn(PostCreditsFadeUpdates);
-                _phase = Phase.PostCreditsFadeIn;
+                fade.Cover(FadeLevels, FadeLevels);
+                (_phase, _age) = (Phase.PostCreditsFadeIn, 0);
                 break;
 
             case Phase.PostCreditsFadeIn:
-                fade.Step();
-                if (!fade.IsDone)
+                _age++;
+                int lit = _age < PostCreditsFadeFirstStep ? 0 : Math.Min(FadeLevels, 1 + (_age - PostCreditsFadeFirstStep) / PostCreditsFadeStepUpdates);
+                fade.Cover(FadeLevels - lit, FadeLevels);
+                if (lit < FadeLevels)
                     break;
                 (_waitingBackdrop ?? throw NotEntered()).Visible = true;
                 (_phase, _age) = (Phase.ShootingStars, 0);
@@ -175,7 +183,8 @@ public partial class Ending
         _starSprites.Clear();
         foreach ((_, _, _, int delay) in ShootingStars)
         {
-            _stars.Add((128 * 256, 128 * 256, 0, 0, 0, delay));
+            // A star that waits counts its wait, and one update more on which its wait runs out.
+            _stars.Add((128 * 256, 128 * 256, 0, 0, 0, delay == 0 ? 0 : delay + 1));
             DataNode offset = Data().Get("shooting_star_offset");
             var sprite = new Sprite2D { Name = "ShootingStar", Centered = false, Offset = new Vector2(offset.Int("x"), offset.Int("y")), Visible = false, ZIndex = -2 };
             (_sprites ?? throw NotEntered()).AddChild(sprite);
@@ -265,12 +274,13 @@ public partial class Ending
             Sprite2D sprite = _starSprites[index];
             if (delay > 0)
             {
-                _stars[index] = (x, y, speedX, speedY, age, delay - 1);
+                // On the update its wait runs out it does not move, but its flight begins: it is a step into its lead-in.
+                _stars[index] = (x, y, speedX, speedY, delay == 1 ? 1 : 0, delay - 1);
                 continue;
             }
 
-            // Its look by its age: unseen, faint, and for one that brightens, bright, dim and full.
-            int look = age < StarLeadIn ? -1 : period == 0 ? 0 : Math.Min(3, (age - StarLeadIn) / period);
+            // It gains speed by the look it had as the update began, and shows the look its flight has come to.
+            int look = StarLook(age, period);
             int gain = look <= 0 ? 1 : 2;
             (speedX, speedY) = (speedX + across * gain, speedY + down * gain);
             (x, y) = (x + speedX, y + speedY);
@@ -283,11 +293,19 @@ public partial class Ending
             }
 
             _stars[index] = (x, y, speedX, speedY, age + 1, 0);
-            sprite.Visible = look >= 0;
-            if (look < 0)
+            int shown = StarLook(age + 1, period);
+            sprite.Visible = shown >= 0;
+            if (shown < 0)
                 continue;
-            sprite.Texture = Session.Content.LoadTexture(Data().List("shooting_star")[look].AsText());
+            sprite.Texture = Session.Content.LoadTexture(Data().List("shooting_star")[shown].AsText());
             sprite.Position = new Vector2(shownX, shownY);
         }
     }
+
+    /// <summary>
+    /// A star's look once its flight has played <paramref name="age"/> updates: unseen through its lead-in, then faint,
+    /// and for one that brightens, bright, dim and full, each for its period.
+    /// </summary>
+    private static int StarLook(int age, int period) =>
+        age < StarLeadIn ? -1 : period == 0 ? 0 : Math.Min(3, (age - StarLeadIn) / period);
 }

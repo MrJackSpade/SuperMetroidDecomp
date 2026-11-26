@@ -27,6 +27,9 @@ public partial class Ending
     /// <summary>How long each figure of the clear time takes to follow the one before, and how long the whole is shown.</summary>
     private const int FigureUpdates = 8, ClearTimeUpdates = 128;
 
+    /// <summary>How many updates each step of the white the blast left takes to clear, once it has been held.</summary>
+    private const int FlyawayWashPace = 8;
+
     /// <summary>Where the figures of the clear time go across the screen: hours, a colon, minutes.</summary>
     private static readonly int[] FigureX = [156, 164, 172, 180, 188];
 
@@ -222,14 +225,16 @@ public partial class Ending
 
             case "finale":
                 ShowExplosion("finale_explosion", "finale_glow");
-                Spawn("explosion_afterglow", "explosion_afterglow", 128, 128, Motion.FinaleExit);
+
+                // The afterglow plays ahead of the starfields, so it first plays on the next update.
+                Actor afterglow = Spawn("explosion_afterglow", "explosion_afterglow", 128, 128, Motion.FinaleExit);
+                _actors.Remove(afterglow);
+                _actors.Insert(_actors.FindIndex(actor => actor.Motion == Motion.FlyawayStars), afterglow);
                 break;
 
             case "end":
                 // The screen goes white, and stays so until the gunship is seen flying out of it.
-                ScreenFade white = _white ?? throw NotEntered();
-                white.FadeOut(1);
-                white.Step();
+                BeginWhiteWash(FlyawayWashPace);
                 (_explosionPicture ?? throw NotEntered()).Visible = false;
                 (_explosionGlow ?? throw NotEntered()).Visible = false;
                 foreach (Actor stars in _actors.Where(actor => actor.Motion == Motion.FlyawayStars))
@@ -326,18 +331,19 @@ public partial class Ending
         (_slowShake, _shake, _whiteHold) = (false, 0, 192);
     }
 
-    /// <summary>The white the blast left is held a while and then clears, a step every eighth update.</summary>
+    /// <summary>
+    /// The white the blast left is held a while and then clears, a step on the first update after the hold and every
+    /// eighth update after that.
+    /// </summary>
     private void StepWhiteOut()
     {
-        ScreenFade white = _white ?? throw NotEntered();
         if (_whiteHold > 0)
         {
-            if (--_whiteHold == 0)
-                white.FadeIn(15 * 8);
+            _whiteHold--;
             return;
         }
 
-        white.Step();
+        StepWhiteWash();
     }
 
     private void ShakeGunship()
@@ -349,7 +355,7 @@ public partial class Ending
 
     private static int Wrapped(int angle) => ((angle % 256) + 256) % 256;
 
-    /// <summary>Starts typing one of the result's lines.</summary>
+    /// <summary>Starts typing one of the result's lines, its first letter on the next update.</summary>
     private void BeginTyping(string words)
     {
         // Each line of the result is typed in its own place, the ones before it staying.
@@ -357,6 +363,19 @@ public partial class Ending
         label.VisibleCharacters = 0;
         label.Visible = true;
         (_typing, _typed, _typeWait, _digitsShown) = (words, 0, 1, 0);
+    }
+
+    /// <summary>Shows the next letter of the line being typed, a space coming with it, and how long it shows before the next.</summary>
+    private void TypeResultLetter()
+    {
+        PixelText label = _resultTexts[_typing];
+        string words = label.Text;
+        _typed++;
+        while (_typed < words.Length && char.IsWhiteSpace(words[_typed - 1]))
+            _typed++;
+        label.VisibleCharacters = _typed;
+        bool endsWord = _typed == words.Length || char.IsWhiteSpace(words[_typed]);
+        _typeWait = endsWord ? LastLetterUpdates : LetterUpdates;
     }
 
     /// <summary>
@@ -367,27 +386,23 @@ public partial class Ending
     {
         if (--_typeWait > 0)
             return;
-        PixelText label = _resultTexts[_typing];
-        string words = label.Text;
-        if (_typed < words.Length)
+        if (_typed < _resultTexts[_typing].Text.Length)
         {
-            _typed++;
-            while (_typed < words.Length && char.IsWhiteSpace(words[_typed - 1]))
-                _typed++;
-            label.VisibleCharacters = _typed;
-            bool endsWord = _typed == words.Length || char.IsWhiteSpace(words[_typed]);
-            _typeWait = endsWord ? LastLetterUpdates : LetterUpdates;
+            TypeResultLetter();
             return;
         }
 
+        // A line's last letter has had its while: the next line shows its first letter on this same update.
         switch (_typing)
         {
             case "ending_operation_was":
                 BeginTyping("ending_completed_successfully");
+                TypeResultLetter();
                 break;
 
             case "ending_completed_successfully":
                 BeginTyping("ending_clear_time");
+                TypeResultLetter();
                 break;
 
             default:
@@ -397,7 +412,8 @@ public partial class Ending
                     [
                         $"digit_{ClearHours / 10 % 10}", $"digit_{ClearHours % 10}", "colon", $"digit_{ClearMinutes / 10}", $"digit_{ClearMinutes % 10}",
                     ];
-                    Spawn("clear_time_figure", figures[_digitsShown], FigureX[_digitsShown], 160, Motion.Still);
+                    // A figure shows its first look on the update it is put up.
+                    Spawn("clear_time_figure", figures[_digitsShown], FigureX[_digitsShown], 160, Motion.Still).Sprite.Step();
                     _digitsShown++;
                     _typeWait = _digitsShown < FigureX.Length ? FigureUpdates : ClearTimeUpdates;
                     break;

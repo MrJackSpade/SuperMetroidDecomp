@@ -95,7 +95,9 @@ public sealed partial class EngineAssetWriter
             _tree.WriteData(file, new JsonObject
             {
                 ["damage"] = old.Damage,
-                ["speed"] = EngineNames.Number(CeresFallingDebrisDefinitions.StartingFallSpeed),
+                // The old piece gains speed before it first moves; the Godot one after. So it is launched with the
+                // first gain already in its speed.
+                ["speed"] = EngineNames.Number(CeresFallingDebrisDefinitions.StartingFallSpeed + CeresFallingDebrisDefinitions.FallAcceleration),
                 ["projectile"] = new JsonObject
                 {
                     ["width"] = old.Radius.X * 2,
@@ -103,6 +105,10 @@ public sealed partial class EngineAssetWriter
                     ["meeting_target"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
                     ["met_by_shot"] = "ignored",
                     ["view_margin"] = -1,
+
+                    // A piece starts with its top in the hall's ceiling. It meets the room's blocks as the cartridge's
+                    // enemy shots do: by the side it leads with, where each move ends.
+                    ["terrain_by"] = "leading_side",
                     ["motion"] = "falling",
                     ["acceleration"] = EngineNames.Number(CeresFallingDebrisDefinitions.FallAcceleration),
                     ["picture"] = pictures.Of(frame),

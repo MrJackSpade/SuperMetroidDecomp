@@ -62,6 +62,15 @@ public sealed record ProjectileSettings
         /// way out of the room does. It cannot bounce.
         /// </summary>
         FrontEdge,
+
+        /// <summary>
+        /// The side it leads with, tried once for each way it moves, where the move ended: it moves the whole of its
+        /// speed across and that side is tried, then, if that did not stop it, the whole of its speed down. Any tile
+        /// the side lies in that stops a body stops it (<see cref="Engine.World.Terrain.StopsEdge"/>), and it comes to
+        /// rest against that tile on whole pixels, unless that would put it back behind where the move began. So one
+        /// launched with its body in a ceiling and its leading side clear falls out of the ceiling. It cannot bounce.
+        /// </summary>
+        LeadingSide,
     }
 
     /// <summary>What a projectile does on hurting a target.</summary>
@@ -278,8 +287,8 @@ public sealed record ProjectileSettings
         };
         if (settings.Width <= 0 || settings.Height <= 0 || settings.LastsUpdates < 0)
             throw data.Problem("gives a size that is not positive or a negative lifetime");
-        if (settings.MeetsTerrainBy == TerrainBy.FrontEdge && settings.MeetingTerrain == Terrain.Bounces)
-            throw data.Problem("meets terrain by its front edge and bounces, which no projectile does");
+        if (settings.MeetsTerrainBy is TerrainBy.FrontEdge or TerrainBy.LeadingSide && settings.MeetingTerrain == Terrain.Bounces)
+            throw data.Problem("meets terrain by the edge or the side it leads with and bounces, which no projectile does");
         return settings;
     }
 }

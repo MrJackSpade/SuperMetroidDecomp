@@ -1637,8 +1637,8 @@ public partial class Samus : Player
 
     /// <summary>
     /// Her body's blow on an enemy asks for the contact's sound, only when no sound of the enemies' waits, on every
-    /// blow that harms; and being her attack on it, it ends whatever invincibility a hurt had left her, as the
-    /// cartridge's does. A charged spin's touch on an enemy spends its charge whether or not it harmed.
+    /// blow that harms. A charged spin's touch on an enemy spends its charge whether or not it harmed. The safety a
+    /// hurt left her is ended by the enemies' own turns while her body is an attack, not here.
     /// </summary>
     protected override void OnBodyPowerLanded(BodyPower power, IHittable target, HitResult result)
     {
@@ -1649,7 +1649,6 @@ public partial class Samus : Player
         if (result is not (HitResult.Hurt or HitResult.Destroyed))
             return;
         Room.Session.Sounds.Request(Sounds.EnemyContactKill, channel: "enemies", priority: SoundPriority.WhenIdle);
-        BeInvincibleFor(0);
     }
 
     /// <inheritdoc/>

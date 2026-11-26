@@ -281,7 +281,8 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         // shaken for a while where it is shown.
         if (ready)
         {
-            bool launches = owner.JumpPressed && gap < owner.WallJumpReach;
+            // With no room for the wall jump's taller body she does not jump, as the cartridge's does not: she spins on.
+            bool launches = owner.JumpPressed && gap < owner.WallJumpReach && WallJumpingState.HasRoom(owner);
             if (launches)
                 enemy?.ShakeFor(LaunchShakeUpdates);
             return launches;

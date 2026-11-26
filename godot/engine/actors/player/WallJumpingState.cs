@@ -17,7 +17,16 @@ public sealed class WallJumpingState : PlayerState
     /// Whether the player can start a wall jump now: the game allows it, they are in the air within reach of a wall,
     /// the jump was just pressed, and, where the game asks it, they are steering away from that wall.
     /// </summary>
-    public static bool CanStart(Player owner) => WallToJumpFrom(owner) is not null;
+    public static bool CanStart(Player owner) => WallToJumpFrom(owner) is not null && HasRoom(owner);
+
+    /// <summary>
+    /// Whether the body of a wall jump fits where the player is. A wall jump with no room for its body does not
+    /// happen: the player goes on as they were.
+    /// </summary>
+    public static bool HasRoom(Player owner) => owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
+
+    /// <inheritdoc/>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true);
 
     /// <summary>The side of the wall the player can jump off right now, or null when they cannot.</summary>
     public static Facing? WallToJumpFrom(Player owner) =>
@@ -43,7 +52,6 @@ public sealed class WallJumpingState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         if (owner.WallJumpSteered)
         {
             // The player keeps the way they face and whatever dash carries them; their own speed starts from rest.

@@ -10,8 +10,12 @@ namespace Game.Menus;
 
 /// <summary>
 /// One of the demos the title screen shows when it is left alone: play in a room, with the buttons pressed by a
-/// recording. It ends when the recording does or its time is up, and the next demo of its set follows, or the title
-/// when it was the last; it goes back to the title at once when Samus dies or the player presses confirm or pause.
+/// recording. It takes the cartridge's updates: the screen is black for eight while its room is made ready; play is
+/// shown for one update and then for as many as the demo lasts, whatever the recording's length; its last picture is
+/// held for ninety, nothing moving; and the screen is black for two more, on the second of which the next demo of
+/// its set follows, or the title when it was the last. Anything pressed after its first update of play, or while its
+/// last picture is held, ends it there: the two black updates, and the title at rest. It goes back to the title at
+/// once when play leads anywhere but through a door, as when Samus dies.
 /// </summary>
 /// <remarks>
 /// A demo's file is a recording, with the room it plays in; it gives where in the room Samus starts ("start": "x",
@@ -29,8 +33,35 @@ public partial class AttractDemoMode : PlayingMode
 {
     private readonly DataNode _data;
     private readonly RecordedInputSource _recording;
-    private bool _equipped;
+
+    /// <summary>The updates the screen is black before play: the one its room is made ready on, and seven after.</summary>
+    private const int LoadingUpdates = 8;
+
+    /// <summary>The updates its last picture is held.</summary>
+    private const int HoldUpdates = 90;
+
+    /// <summary>The updates the screen is black after it: one on which what follows is chosen, and the one it follows on.</summary>
+    private const int LeavingUpdates = 2;
+
+    private enum Part
+    {
+        Loading,
+        Playing,
+        Holding,
+        Leaving,
+    }
+
+    private Part _part;
+
+    /// <summary>The updates left of the part it is in, but of its play.</summary>
+    private int _left = LoadingUpdates;
+
+    /// <summary>The updates of play it has shown.</summary>
     private int _played;
+
+    /// <summary>Whether a press ended it, and the demo that follows it when none did and one does.</summary>
+    private bool _cancelled;
+    private string? _next;
 
     private AttractDemoMode(DataNode data, DemoRecording recording) : base(recording.Room, StartOf(data))
     {
@@ -52,6 +83,9 @@ public partial class AttractDemoMode : PlayingMode
 
         // While a demonstration plays every sound asked for is turned away.
         CartridgeSounds.Of(Session).DemoPlaying = true;
+
+        // The screen is black until its first update of play.
+        Session.Darkness.Show(Session.Darkness.Levels);
     }
 
     /// <summary>The demo in the file at <paramref name="file"/>, a path within the assets tree.</summary>
@@ -65,25 +99,69 @@ public partial class AttractDemoMode : PlayingMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        if (!_equipped)
+        switch (_part)
         {
-            _equipped = true;
-            Equip(Session.Player.Inventory);
-            Stage((Samus)Session.Player);
-            SetUpRoom();
+            case Part.Loading:
+                // On the first of its black updates Samus is given what the demo gives her and its room is set up.
+                if (_left == LoadingUpdates)
+                {
+                    Equip(Session.Player.Inventory);
+                    Stage((Samus)Session.Player);
+                    SetUpRoom();
+                }
+
+                if (--_left == 0)
+                    _part = Part.Playing;
+                return this;
+
+            case Part.Playing:
+                if (_played == 0)
+                    Session.Darkness.Show(0);
+                _played++;
+                GameMode next = base.Step(_recording.Next());
+
+                // Nothing a demo leads to is followed but the change from one room to the next.
+                if (!ReferenceEquals(next, this) && next is not DoorTransitionMode)
+                    return BackToTitle();
+
+                // Its first update of play listens for nothing; on the others anything pressed ends it.
+                if (_played > 1 && input.AnyPressed)
+                {
+                    Leave(cancelled: true);
+                    return this;
+                }
+
+                // It plays one update and then for as long as it lasts; a recording that ends sooner presses nothing more.
+                if (_played > _data.Int("lasts_updates"))
+                    (_part, _left) = (Part.Holding, HoldUpdates);
+                return next;
+
+            case Part.Holding:
+                // Its last picture is held, nothing of the room taking a turn.
+                if (input.AnyPressed)
+                    Leave(cancelled: true);
+                else if (--_left == 0)
+                    Leave(cancelled: false);
+                return this;
+
+            default:
+                // On the first black update what follows is chosen; on the second it follows.
+                if (--_left > 0)
+                {
+                    if (!_cancelled)
+                        _next = Session.Service<DemoSchedule>().AfterDemo();
+                    return this;
+                }
+
+                return _cancelled ? BackToTitle() : PlayedOut();
         }
+    }
 
-        if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause))
-            return BackToTitle();
-        if (_recording.IsOver || _played >= _data.Int("lasts_updates"))
-            return PlayedOut();
-        _played++;
-        GameMode next = base.Step(_recording.Next());
-
-        // Nothing a demo leads to is followed but the change from one room to the next.
-        if (ReferenceEquals(next, this) || next is DoorTransitionMode)
-            return next;
-        return BackToTitle();
+    /// <summary>Ends what the demo shows: the screen is black from this update, for the two the demo takes to leave.</summary>
+    private void Leave(bool cancelled)
+    {
+        (_part, _left, _cancelled) = (Part.Leaving, LeavingUpdates, cancelled);
+        Session.Darkness.Show(Session.Darkness.Levels);
     }
 
     /// <summary>Where Samus starts, as the demo's file says.</summary>
@@ -166,11 +244,10 @@ public partial class AttractDemoMode : PlayingMode
     /// </summary>
     private GameMode PlayedOut()
     {
-        string? next = Session.Service<DemoSchedule>().AfterDemo();
         CartridgeSounds.Of(Session).DemoPlaying = false;
         Session.BeginAgain();
-        if (next is not null)
-            return Of(Session.Content, next);
+        if (_next is not null)
+            return Of(Session.Content, _next);
         Session.Sounds.RequestMusic("");
         return new TitleMode(TitleMode.Beginning.AfterDemos);
     }

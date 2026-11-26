@@ -146,6 +146,27 @@ public sealed class GameSession
     }
 
     /// <summary>
+    /// Makes the player anew within the game being played: a new one as the game definition makes it, carrying only
+    /// what the one before carried (<see cref="Inventory.TakeAllOf"/>). Whatever else the one before was doing, held
+    /// or had left of a hurt goes with it, and what has happened in the game stays. For a game that sets its player
+    /// up afresh partway through, between rooms.
+    /// </summary>
+    public void RenewPlayer()
+    {
+        Player before = Player;
+        Player made = Definition.CreatePlayer();
+        made.Inventory.TakeAllOf(before.Inventory);
+
+        // As when the game begins again: a player left in a room goes with the room; one in no room is done with here.
+        if (before.GetParent() is null)
+            before.Free();
+        _player = made;
+
+        // The view's measure of how far the player last moved across starts again with the new player.
+        Camera.TakePlayerAsNew();
+    }
+
+    /// <summary>
     /// Starts the session's game afresh and, when the session's save slot holds a save, puts the saved game into it.
     /// Returns the save, which says where play resumes, or null when the slot holds none.
     /// </summary>

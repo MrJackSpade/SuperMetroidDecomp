@@ -116,4 +116,28 @@ public sealed class Inventory
 
     /// <summary>Puts an amount back to a saved value, within its capacity.</summary>
     public void Restore(string amount, int quantity) => _amounts[amount] = Math.Clamp(quantity, 0, Capacity(amount));
+
+    /// <summary>
+    /// Takes everything <paramref name="other"/> holds in place of what this one held: what is owned and what is
+    /// switched on, each amount and the most of it, and each need. For a player made anew who carries what the one
+    /// before carried.
+    /// </summary>
+    public void TakeAllOf(Inventory other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        if (ReferenceEquals(other, this))
+            return;
+        _owned.Clear();
+        _owned.UnionWith(other._owned);
+        _switchedOn.Clear();
+        _switchedOn.UnionWith(other._switchedOn);
+        _needs.Clear();
+        _needs.UnionWith(other._needs);
+        _capacities.Clear();
+        foreach ((string amount, int capacity) in other._capacities)
+            _capacities[amount] = capacity;
+        _amounts.Clear();
+        foreach ((string amount, int quantity) in other._amounts)
+            _amounts[amount] = quantity;
+    }
 }

@@ -1080,6 +1080,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The view's measure of her last move across** (`Camera.Speed`) is one pixel whenever the session's game starts
   afresh and its player is a new one (`GameSession.BeginAgain`, `Camera.TakePlayerAsNew`): what reads it before
   the view next follows a move, as a kicked Yard does, reads that.
+- **Landing on Zebes after Ceres she is made anew** (`GameSession.RenewPlayer`, which a game calls between rooms to
+  set its player up afresh partway through): a new player as the game definition makes one, carrying only what the
+  one before carried (`Inventory.TakeAllOf`), her energy filled by the landing's load. Her speeds, a charge held,
+  the safety a hurt left and what she had selected do not come with her, as on the cartridge.
 - **How far a spin's pictures have got** is counted by her, not asked of her visual (`Samus.CountSpin`, as her
   update ends, where the visual steps the same pictures): how many updates she has been in a spin, and how many
   since a wall jump began, through the spin state it lets go into. A wall jump shows its launch and then, chosen

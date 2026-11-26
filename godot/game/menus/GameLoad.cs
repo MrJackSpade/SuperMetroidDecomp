@@ -41,15 +41,18 @@ public partial class GameLoad : GameMode
 
     /// <summary>
     /// Play going on in <paramref name="room"/>, entered at <paramref name="entryPoint"/>, with the game as it
-    /// stands: the landing on Zebes after Ceres, whose black lasts longer than any other load's.
+    /// stands and Samus made anew: the landing on Zebes after Ceres, whose black lasts longer than any other load's.
     /// </summary>
     public static GameLoad OfLanding(string room, string entryPoint)
     {
         ArgumentException.ThrowIfNullOrEmpty(room);
         return new(session =>
         {
-            // She is set up anew for the landing, which starts the view's measure of her last move across again.
-            session.Camera.TakePlayerAsNew();
+            // She is made anew for the landing, as the cartridge's is: only what she carries comes with her, with her
+            // energy full, and whatever else Ceres left her (her speeds, a charge held, the safety of a hurt, what
+            // she had selected) is gone. That starts the view's measure of her last move across again too.
+            session.RenewPlayer();
+            session.Player.Inventory.Fill(Engine.Actors.Inventory.Energy);
             return new Arrival(new PlayingMode(room, entryPoint), Arrival.LandingWaits);
         });
     }

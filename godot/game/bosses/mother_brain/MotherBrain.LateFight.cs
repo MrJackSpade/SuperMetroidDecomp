@@ -27,9 +27,15 @@ public partial class MotherBrain
     [Export]
     public PackedScene? Baby { get; set; }
 
-    /// <summary>What is told of the turns of her fight that change the room: "lights_out", "lights_back" and "escape".</summary>
-    [Export]
-    public Godot.Collections.Array<NodePath> ToldOfFight { get; set; } = [];
+    /// <summary>
+    /// Her room's colours with its lights out, and at each step of their coming back, as her data gives them
+    /// ("room_lights": "out", and the list "back", whose last stays).
+    /// </summary>
+    private Engine.Ui.ColourChange _lightsOut = Engine.Ui.ColourChange.None;
+    private readonly List<Engine.Ui.ColourChange> _lightsBack = [];
+
+    /// <summary>The name her room's lights are shown under.</summary>
+    private const string RoomLights = "MotherBrainLights";
 
     /// <summary>What is told to "start" as the alarm of her death begins: the room sequence that writes the warning out, which she waits for.</summary>
     [Export]
@@ -744,12 +750,14 @@ public partial class MotherBrain
         _baby = null;
     }
 
-    /// <summary>Tells whatever listens of a turn of her fight that changes the room.</summary>
-    internal void TellRoom(string what)
-    {
-        foreach (NodePath path in ToldOfFight)
-            (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Mother Brain is to tell \"{path}\" of her fight, but that is nothing that can be told.")).Triggered(what);
-    }
+    /// <summary>Puts her room's lights out: the room's own pictures in the colours her data gives for it.</summary>
+    internal void PutLightsOut() => Room.Recolour(RoomLights, _lightsOut);
+
+    /// <summary>How many steps her room's lights come back by.</summary>
+    internal int LightsBackSteps => _lightsBack.Count;
+
+    /// <summary>Shows one step of her room's lights coming back; the last stays.</summary>
+    internal void ShowLightsBack(int step) => Room.Recolour(RoomLights, _lightsBack[step]);
 
     // ---- Drained by the giant Metroid ----
 

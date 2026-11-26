@@ -193,6 +193,10 @@ public partial class MotherBrain : Enemy, IClosingStep
         // Her brain's hurtbox goes where her head goes, keeping where it lies from it.
         _brainRect = GetNode<Collider>("Brain").Rect;
         ReadFakeDeathValues(data);
+        DataNode lights = data.Get("room_lights");
+        _lightsOut = Engine.Ui.ColourChange.Read(lights.Get("out"));
+        _lightsBack.Clear();
+        _lightsBack.AddRange(lights.List("back").Select(Engine.Ui.ColourChange.Read));
     }
 
     /// <inheritdoc/>

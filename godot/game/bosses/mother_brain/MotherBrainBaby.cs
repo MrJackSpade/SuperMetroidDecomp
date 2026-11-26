@@ -142,7 +142,7 @@ public partial class MotherBrainBaby : Enemy
     private int _fadeWait;
     private int _blastWait;
     private int _nextBlast;
-    private int _lightsWait;
+    private int _lightsShown;
     private SamusGlow _samusGlow;
     private int _glowPart;
     private Color _tint = Colors.White;
@@ -391,7 +391,7 @@ public partial class MotherBrainBaby : Enemy
                 (_phase, _timer) = (Phase.TakeFinalBlow, 17);
                 _struckAt = Position;
                 Sound(DeathSound);
-                mother.TellRoom("lights_out");
+                mother.PutLightsOut();
                 Room.Session.Sounds.RequestMusic("");
                 return true;
 
@@ -455,13 +455,18 @@ public partial class MotherBrainBaby : Enemy
             case Phase.LetSamusGlow:
                 if (--_timer > 0)
                     return false;
-                mother.TellRoom("lights_back");
-                (_phase, _lightsWait) = (Phase.LightsReturn, 7);
+                (_phase, _lightsShown) = (Phase.LightsReturn, 0);
                 return true;
 
             case Phase.LightsReturn:
-                if (--_lightsWait > 0)
+                // Each update shows the next step of the lights' coming back, the first on the update the glow's wait
+                // ran out; the update after the last ends the scene.
+                if (_lightsShown < mother.LightsBackSteps)
+                {
+                    mother.ShowLightsBack(_lightsShown++);
                     return false;
+                }
+
                 mother.BeginThirdPhase();
                 // Samus stops glowing, gets to her feet, and has the hyper beam.
                 if (samus.State is DrainedState drained)

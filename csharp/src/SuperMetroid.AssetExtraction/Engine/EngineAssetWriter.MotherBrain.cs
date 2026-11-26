@@ -467,6 +467,15 @@ public sealed partial class EngineAssetWriter
                 ["rise"] = EngineNames.Number(piece.Velocity.Y),
             })))
             .Group("escape_door_patch", JsonValue.Create(escapeDoor))
+
+            // Her room's lights: out as the giant Metroid is struck its last, and each step of their coming back,
+            // the last of which stays. The changes are of her room's own pictures, its blocks and what lies behind.
+            .Group("room_lights", new JsonObject
+            {
+                ["out"] = ShadeChange(MotherBrainShades.LightsOut.Key, RoomPlacesOf(EnemyDefinitionId.MotherBrainBody)),
+                ["back"] = EngineNames.List(MotherBrainFadeDefinitions.RecoveryLights.Images.Select(
+                    image => (JsonNode)ShadeChange(MotherBrainShades.Fade(image).Key, RoomPlacesOf(EnemyDefinitionId.MotherBrainBody)))),
+            })
             .Write();
     }
 

@@ -461,7 +461,6 @@ public partial class MotherBrain : ITriggerTarget
                     Room.Session.Sounds.RequestMusic(EscapeMusic);
                 Room.Shake(2, 600);
                 _escapeTextDone = false;
-                TellRoom("escape");
                 foreach (NodePath path in ToldWhenEscapeBegins)
                 {
                     (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Mother Brain is to tell \"{path}\" that her alarm begins, but that is nothing that can be told."))

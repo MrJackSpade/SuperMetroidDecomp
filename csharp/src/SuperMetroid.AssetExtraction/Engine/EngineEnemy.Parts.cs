@@ -113,12 +113,6 @@ internal sealed partial class EngineEnemy
         ["left"] = left, ["top"] = top, ["width"] = right - left + 1, ["height"] = bottom - top + 1,
     };
 
-    /// <summary>One of the old game's hitboxes as a collider's rectangle, from the enemy's place.</summary>
-    internal static JsonObject Rect(EnemyCollisionHitbox hitbox) => new()
-    {
-        ["left"] = hitbox.Left, ["top"] = hitbox.Top, ["width"] = hitbox.Right - hitbox.Left, ["height"] = hitbox.Bottom - hitbox.Top,
-    };
-
     /// <summary>
     /// Cuts the pictures of one of its timelines of what it spawns (<see cref="SpawnedLook{TFrame, TEvent}"/>) again
     /// in one of their sheet's shades, into the folder a set of its pictures named <paramref name="after"/> keeps them in.

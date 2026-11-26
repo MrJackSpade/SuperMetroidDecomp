@@ -491,8 +491,10 @@ public sealed partial class EngineAssetWriter
                     if (piece.Shot != KraidReactions.ArmShot)
                         throw new InvalidDataException($"A piece of Kraid's arm in its frame {frame} meets shots otherwise than with the arm's explosion, which its poses do not say.");
                     pieces++;
-                    colliders[$"Arm{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
-                    colliders[$"ArmShield{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                    // The arm's piece touches Samus and its shield takes shots: the old probe meets the two on different
+                    // edges of the one box, a pixel apart.
+                    colliders[$"Arm{pieces}"] = EngineEnemy.TouchRect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                    colliders[$"ArmShield{pieces}"] = EngineEnemy.ShotRect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
                 }
             }
 
@@ -521,7 +523,7 @@ public sealed partial class EngineAssetWriter
                     if (piece.Shot != EnemyReaction.Ignore)
                         throw new InvalidDataException($"A piece of Kraid's foot in its frame {frame} meets shots otherwise than by stopping them, which its poses do not say.");
                     pieces++;
-                    colliders[$"FootShield{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                    colliders[$"FootShield{pieces}"] = EngineEnemy.ShotRect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
                 }
             }
 

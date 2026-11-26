@@ -178,10 +178,10 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/ceres_elevator_door.json` | `CeresElevatorDoor` | blocked, explosion, explosion_sound, smoke |
 | `objects/ceres_ridley_room_door.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
-| `objects/ceres_steam_down.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
-| `objects/ceres_steam_left.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
-| `objects/ceres_steam_right.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
-| `objects/ceres_steam_up.json` | `Hazard` | bite_damage, hit_damage, hits_without_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
+| `objects/ceres_steam_down.json` | `Hazard` | hit_damage, hits_without_damage |
+| `objects/ceres_steam_left.json` | `Hazard` | hit_damage, hits_without_damage |
+| `objects/ceres_steam_right.json` | `Hazard` | hit_damage, hits_without_damage |
+| `objects/ceres_steam_up.json` | `Hazard` | hit_damage, hits_without_damage |
 | `objects/dachora.json` | `Dachora` | activation_sound, ceiling_sound, charge_sound, echo_effect, launch_sound, speed_sound, speed_stop_sound |
 | `objects/door_cap_blue_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/door_cap_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |

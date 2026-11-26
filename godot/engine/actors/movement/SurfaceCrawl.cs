@@ -116,13 +116,20 @@ public sealed class SurfaceCrawl
     /// <summary>
     /// How a crawler's moves are tried: only where each would end. Its leading edge alone is tried, so one that
     /// stands a little way into the terrain it clings to works free of it, and it rests against what stops it and
-    /// never further back than it began. Sloped ground that holds things up by their middle stops none of its moves
-    /// across: it is put on such ground's surface under its own middle after a move across, and a move up or down
-    /// meets such ground under its middle alone. So it crosses a slope on the picture of the floor or ceiling it is
-    /// on, and turns only at a wall, a step or the end of its surface.
+    /// never further back than it began. A move up or down meets sloped ground that holds things up by their middle
+    /// under its middle alone.
     /// </summary>
     private static readonly MoveOptions Moves =
         MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>
+    /// How a crawler's moves across are tried, feeling for a wall or going along a floor or ceiling: as its other
+    /// moves, and sloped ground that holds things up by their middle is no part of them, neither stopping one nor
+    /// putting the crawler anywhere. Such ground holds it afterwards, where it then is (<see cref="RestOnSlope"/>).
+    /// So it crosses a slope on the picture of the floor or ceiling it is on, and turns only at a wall, a step or the
+    /// end of its surface.
+    /// </summary>
+    private static readonly MoveOptions Across = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
 
     /// <summary>
     /// Moves <paramref name="mover"/> for one update. With <paramref name="pursued"/> given, a crawler that is free to
@@ -140,27 +147,29 @@ public sealed class SurfaceCrawl
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        MoveOptions crawl = Moves;
         // It feels for the wall from where it will be, and keeps however far that pressed it.
         var ahead = new PixelOffset(Pixels.Zero, Pixels.FromWhole(Lookahead * _down));
         mover.Position += ahead;
-        bool found = room.MoveAcross(body, (Speed + Pixels.FromWhole(1)) * _across, crawl).Blocked;
+        bool found = room.MoveAcross(body, (Speed + Pixels.FromWhole(1)) * _across, Across).Blocked;
         mover.Position -= ahead;
         if (found)
         {
             _misses = 0;
-            if (room.MoveDown(body, Speed * _down, crawl).Blocked)
+
+            // Sloped ground holds it where it is, not where it felt from, before it moves along the wall.
+            bool held = RestOnSlope(mover);
+            if (room.MoveDown(body, Speed * _down, Moves).Blocked)
             {
                 // An inside corner: what stopped it is its new surface, and it goes on along that away from the wall.
                 _across = -_across;
                 Side = _down > 0 ? Clings.Below : Clings.Above;
-                return new MoveReport(false, _down > 0, _down < 0, true, false);
+                return new MoveReport(false, _down > 0, _down < 0, true, false) { MovedBySlope = held };
             }
 
             if (pursued is { } target && (target.Y.Whole >= mover.Position.Y.Whole) == (_down < 0))
                 _down = -_down;
             Show(mover);
-            return MoveReport.Nothing;
+            return MoveReport.Nothing with { MovedBySlope = held };
         }
 
         if (++_misses >= MissesBeforeFalling)
@@ -180,25 +189,27 @@ public sealed class SurfaceCrawl
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        MoveOptions press = Moves, along = Moves;
         var ahead = new PixelOffset(Pixels.FromWhole(Lookahead * _across), Pixels.Zero);
         mover.Position += ahead;
-        bool found = room.MoveDown(body, (Speed + Pixels.FromWhole(1)) * _down, press).Blocked;
+        bool found = room.MoveDown(body, (Speed + Pixels.FromWhole(1)) * _down, Moves).Blocked;
         mover.Position -= ahead;
         if (found)
         {
             _misses = 0;
-            if (room.MoveAcross(body, Along(mover), along).Blocked)
+            if (room.MoveAcross(body, Along(mover), Across).Blocked)
             {
+                // An inside corner: it turns onto what stopped it from where the stop left it, and no slope holds it.
                 _down = -_down;
                 Side = _across > 0 ? Clings.Right : Clings.Left;
                 return new MoveReport(true, false, false, true, false);
             }
 
+            // Having gone along, sloped ground holds it where it now is.
+            bool held = RestOnSlope(mover);
             if (pursued is { } target && (target.X.Whole >= mover.Position.X.Whole) == (_across < 0))
                 _across = -_across;
             Show(mover);
-            return MoveReport.Nothing;
+            return MoveReport.Nothing with { MovedBySlope = held };
         }
 
         if (++_misses >= MissesBeforeFalling)
@@ -210,6 +221,20 @@ public sealed class SurfaceCrawl
         _across = -_across;
         Side = _across > 0 ? Clings.Right : Clings.Left;
         return new MoveReport(false, false, false, true, false);
+    }
+
+    /// <summary>
+    /// Puts the crawler where sloped ground that holds things up by their middle has it under its middle, where it is
+    /// now: up out of a floor's slope its feet are in, then down from a ceiling's its head is in. Returns whether that
+    /// moved it; lying exactly against such ground it is held and not moved.
+    /// </summary>
+    private static bool RestOnSlope(IMoves mover)
+    {
+        Pixels before = mover.Position.Y;
+
+        // A move across of no distance meets nothing, and ends as every move across that climbs such ground does.
+        mover.Room.Mover.MoveAcross(mover.MovingBody, Pixels.Zero, Moves);
+        return mover.Position.Y != before;
     }
 
     /// <summary>

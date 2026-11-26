@@ -8,6 +8,12 @@ namespace Engine.Actors.Movement;
 /// <param name="Finished">It reached the end of what it was doing: a path walked, a dive completed.</param>
 public readonly record struct MoveReport(bool HitWall, bool HitFloor, bool HitCeiling, bool ReachedEdge, bool Finished)
 {
+    /// <summary>
+    /// Whether sloped ground moved it up or down this update to hold it under its middle: a crawl that went up a
+    /// floor's slope, or came down under a ceiling's.
+    /// </summary>
+    public bool MovedBySlope { get; init; }
+
     /// <summary>Nothing happened.</summary>
     public static MoveReport Nothing => default;
 }

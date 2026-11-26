@@ -298,7 +298,8 @@ public partial class Yard : Enemy
 
         if (!report.ReachedEdge)
         {
-            _turnRest = _turnRest.Stepped();
+            // An update that sloped ground moved it on starts the rest over; any other is one update of it.
+            _turnRest = report.MovedBySlope ? Countdown.Of(TurnRestUpdates) : _turnRest.Stepped();
             return;
         }
 

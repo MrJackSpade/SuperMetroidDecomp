@@ -133,6 +133,12 @@ public partial class Yard : Enemy
     private Countdown _turnRest;
 
     /// <summary>
+    /// The crawl it takes up at its next "crawl" cue: the surface and the way round of a way it was turned round
+    /// into and has begun by another's rule (<see cref="TurnRound"/>). Null when it crawls by its own.
+    /// </summary>
+    private (SurfaceCrawl.Clings Side, bool Clockwise)? _settlesAs;
+
+    /// <summary>
     /// The shake that shakes it off what it clings to, as its data gives it ("falls_with_shake": a super missile
     /// striking a wall). Only that shake does, and only as it begins.
     /// </summary>
@@ -162,13 +168,28 @@ public partial class Yard : Enemy
     }
 
     /// <summary>The way it crawls: the surface it is on and the way along it.</summary>
-    private string Way => _crawl.Side switch
+    private string Way => WayOf(_crawl.Side, Clockwise);
+
+    /// <summary>The name of crawling on a surface one way round.</summary>
+    private static string WayOf(SurfaceCrawl.Clings side, bool clockwise) => side switch
     {
-        SurfaceCrawl.Clings.Below => Clockwise ? "floor_right" : "floor_left",
-        SurfaceCrawl.Clings.Above => Clockwise ? "ceiling_left" : "ceiling_right",
-        SurfaceCrawl.Clings.Left => Clockwise ? "left_wall_down" : "left_wall_up",
-        SurfaceCrawl.Clings.Right => Clockwise ? "right_wall_up" : "right_wall_down",
-        _ => throw new InvalidOperationException($"Undefined side {_crawl.Side}."),
+        SurfaceCrawl.Clings.Below => clockwise ? "floor_right" : "floor_left",
+        SurfaceCrawl.Clings.Above => clockwise ? "ceiling_left" : "ceiling_right",
+        SurfaceCrawl.Clings.Left => clockwise ? "left_wall_down" : "left_wall_up",
+        SurfaceCrawl.Clings.Right => clockwise ? "right_wall_up" : "right_wall_down",
+        _ => throw new InvalidOperationException($"Undefined side {side}."),
+    };
+
+    /// <summary>
+    /// The surface by whose rule a crawl it is turned round into begins, where that is not its own. The original's
+    /// table of ways gives two of them the other's: going up a wall on its left begins as going leftward under a
+    /// ceiling, and that as this.
+    /// </summary>
+    private static SurfaceCrawl.Clings? BegunAs(SurfaceCrawl.Clings side, bool clockwise) => (side, clockwise) switch
+    {
+        (SurfaceCrawl.Clings.Left, false) => SurfaceCrawl.Clings.Above,
+        (SurfaceCrawl.Clings.Above, true) => SurfaceCrawl.Clings.Left,
+        _ => null,
     };
 
     /// <summary>Whether a hit is a shot, which only knocks its shell into the air: bombs alone do it harm.</summary>
@@ -193,6 +214,13 @@ public partial class Yard : Enemy
         switch (parts[0])
         {
             case "crawl":
+                // A crawl begun by another's rule is its own from here.
+                if (_settlesAs is { } own)
+                {
+                    (Clockwise, _settlesAs) = (own.Clockwise, null);
+                    _crawl.Start(own.Side, own.Clockwise);
+                }
+
                 _doing = Doing.Crawling;
                 _hide = $"hide_{Way}";
                 _feelsAcross = _crawl.Side is SurfaceCrawl.Clings.Left or SurfaceCrawl.Clings.Right;
@@ -303,6 +331,9 @@ public partial class Yard : Enemy
             return;
         }
 
+        // Round a corner it is on a surface of its own again, whatever rule brought it there.
+        _settlesAs = null;
+
         // Something in its way is an inside corner; its surface ending is an outside one.
         bool inside = report.HitWall || report.HitFloor || report.HitCeiling;
         Play(stopsToTurn ? $"{(inside ? "inside" : "outside")}_turn_{before}" : $"crawl_{Way}", restart: true);
@@ -341,19 +372,36 @@ public partial class Yard : Enemy
         _mood = Mood.Calm;
     }
 
-    /// <summary>Turns it to crawl the other way round.</summary>
+    /// <summary>
+    /// Turns it to crawl the other way round. The picture showing stays out its time, and the new crawl's timeline
+    /// begins where the next picture would have. It faces and hides the new way at once. Until that timeline's first
+    /// cue, one turned into a way the original begins by another's rule (<see cref="BegunAs"/>) crawls by that rule:
+    /// on the other's surface and the way round it went before, which presses just as the way turned to does; so
+    /// it feels for a ceiling where its wall is, or for a wall where its ceiling is, and finding none turns as from
+    /// there.
+    /// </summary>
     private void TurnRound()
     {
         if (_mood == Mood.Hiding || _doing == Doing.Still)
             return;
-        Clockwise = !Clockwise;
+        (SurfaceCrawl.Clings side, bool was) = _settlesAs ?? (_crawl.Side, Clockwise);
+        bool clockwise = !was;
+        string way = WayOf(side, clockwise);
         _crawl.Speed = _speed;
-        _crawl.Start(_crawl.Side, Clockwise);
-        _faces = Clockwise ? Facing.Right : Facing.Left;
-        _hide = $"hide_{Way}";
+        _faces = clockwise ? Facing.Right : Facing.Left;
+        _hide = $"hide_{way}";
         _doing = Doing.Crawling;
         _turnRest = Countdown.Of(TurnRestUpdates);
-        Play($"crawl_{Way}", restart: true);
+        PlayAfterStep($"crawl_{way}");
+        if (BegunAs(side, clockwise) is { } other)
+        {
+            (Clockwise, _settlesAs) = (was, (side, clockwise));
+            _crawl.Start(other, was);
+            return;
+        }
+
+        (Clockwise, _settlesAs) = (clockwise, null);
+        _crawl.Start(side, clockwise);
     }
 
     /// <summary>Lets it fall off what it clings to.</summary>
@@ -370,6 +418,7 @@ public partial class Yard : Enemy
     private void TakeOff()
     {
         _doing = Doing.Airborne;
+        _settlesAs = null;
         string side = _faces == Facing.Left ? "left" : "right";
         _landing = $"landed_{side}";
         _hide = _landing;

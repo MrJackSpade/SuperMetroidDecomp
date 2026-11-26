@@ -14,6 +14,12 @@ public sealed class TimelinePlayer
     /// <summary>The cues of the step that has just begun and has not yet been through an update.</summary>
     private IReadOnlyList<string> _pendingCues = [];
 
+    /// <summary>The timeline that begins, from its first step, where the step it is on ends; null for this one's own next step.</summary>
+    private FrameTimeline? _followedBy;
+
+    /// <summary>Whether another timeline begins where the step it is on ends (<see cref="FollowWith"/>).</summary>
+    public bool IsFollowed => _followedBy is not null;
+
     /// <summary>A player at the start of <paramref name="timeline"/>.</summary>
     public TimelinePlayer(FrameTimeline timeline) => Play(timeline);
 
@@ -63,8 +69,31 @@ public sealed class TimelinePlayer
     {
         ArgumentNullException.ThrowIfNull(timeline);
         Timeline = timeline;
+        _followedBy = null;
         Begin(0);
         Shown = Current;
+        IsOver = false;
+    }
+
+    /// <summary>
+    /// Has <paramref name="timeline"/> follow the step it is on: the step keeps the updates it has left, and where
+    /// its own next step would have begun the timeline begins from its first, so the picture showing stays out its
+    /// time and none of the cues left of the timeline it leaves come. On a step no update has fallen in yet, or with
+    /// its timeline played out, the timeline begins at once, and that step's cues never come; what is shown stays
+    /// until the next update is played.
+    /// </summary>
+    public void FollowWith(FrameTimeline timeline)
+    {
+        ArgumentNullException.ThrowIfNull(timeline);
+        if (!IsOver && !IsAtStepStart)
+        {
+            _followedBy = timeline;
+            return;
+        }
+
+        Timeline = timeline;
+        _followedBy = null;
+        Begin(0);
         IsOver = false;
     }
 
@@ -83,7 +112,12 @@ public sealed class TimelinePlayer
         _updatesLeft--;
         if (_updatesLeft == 0)
         {
-            if (StepIndex + 1 < Timeline.Steps.Count)
+            if (_followedBy is { } next)
+            {
+                (Timeline, _followedBy) = (next, null);
+                Begin(0);
+            }
+            else if (StepIndex + 1 < Timeline.Steps.Count)
                 Begin(StepIndex + 1);
             else if (Timeline.LoopsTo is int loop)
                 Begin(loop);

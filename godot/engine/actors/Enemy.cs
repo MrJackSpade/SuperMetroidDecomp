@@ -404,6 +404,19 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
+    /// Shows the timeline named <paramref name="name"/> from its start once the step showing has had its time: the
+    /// picture showing stays out its updates, none of the cues left of the timeline it leaves come, and the new
+    /// timeline's first cues come as its first step begins. It is the timeline playing from now.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">It shows no timeline for another to follow.</exception>
+    protected void PlayAfterStep(string name)
+    {
+        TimelinePlayer playing = _animation ?? throw new InvalidOperationException($"The enemy \"{Name}\" shows no timeline for \"{name}\" to follow.");
+        Playing = name;
+        playing.FollowWith(Timelines.Get(name));
+    }
+
+    /// <summary>
     /// The place its timeline has reached, to pick it up from again later. Asked while a cue is being acted on, that is
     /// just past that cue, with the rest of the step still to come; asked at any other time, it is the start of the
     /// step that follows the one showing.
@@ -416,8 +429,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return new TimelineMark(Playing, _cueStep, _cueBeingActedOn + 1);
         if (playing.IsOver)
             throw new InvalidOperationException($"The timeline \"{Playing}\" of the enemy \"{Name}\" has ended and has no place to mark.");
-        if (playing.IsAtStepStart)
-            return new TimelineMark(Playing, playing.StepIndex, 0);
+        if (playing.IsAtStepStart || playing.IsFollowed)
+            return new TimelineMark(Playing, playing.IsFollowed ? 0 : playing.StepIndex, 0);
         int next = playing.StepIndex + 1 < playing.Timeline.Steps.Count
             ? playing.StepIndex + 1
             : playing.Timeline.LoopsTo ?? throw new InvalidOperationException($"The timeline \"{Playing}\" of the enemy \"{Name}\" ends after the step showing.");
@@ -787,12 +800,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             if (switches > MostTimelineSwitches)
                 throw new InvalidOperationException($"The timelines of the enemy \"{Name}\" start one another without end; the last was \"{Playing}\".");
             TimelinePlayer playing = _animation;
+            FrameTimeline stepped = playing.Timeline;
             _cueStep = playing.StepIndex;
             IReadOnlyList<string> cues = playing.Step();
             for (int index = 0; index < cues.Count && _animation == playing; index++)
             {
                 string cue = cues[index];
-                _cueBeingActedOn = playing.Timeline.Steps[_cueStep].Cues.Count - cues.Count + index;
+                _cueBeingActedOn = stepped.Steps[_cueStep].Cues.Count - cues.Count + index;
                 // Three cues mean the same for every enemy; the rest are the enemy's own.
                 if (cue.StartsWith("sound:", StringComparison.Ordinal))
                     Sound(cue["sound:".Length..]);

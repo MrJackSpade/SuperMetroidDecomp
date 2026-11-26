@@ -74,14 +74,23 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// <summary>A spin that begins as <paramref name="start"/> says.</summary>
     public SpinJumpingState(Start start) => _start = start;
 
-    /// <summary>The look of the spin she is in: the screw attack's, the space jump's or the plain one.</summary>
-    public string Look { get; private set; } = "spin_jumping";
+    /// <summary>The kind of spin she is in, by its look: the screw attack's, the space jump's or the plain one.</summary>
+    private string _spin = "spin_jumping";
+
+    /// <summary>Whether this update is one on which the spin is ready to jump off a wall it has found.</summary>
+    private bool _showsReady;
+
+    /// <summary>
+    /// The look of the spin she is in, or of that spin braced against a wall on the updates it is ready to jump off
+    /// one: the picture a wall jump is waited for in.
+    /// </summary>
+    public string Look => _showsReady ? _spin + "_wall_ready" : _spin;
 
     /// <summary>
     /// The sound of the spin she shows, asked for again as a door's passage ends: chosen by her look alone, never the
     /// underwater one, as the cartridge picks it from her pose.
     /// </summary>
-    public string ShownSound => Look switch
+    public string ShownSound => _spin switch
     {
         "screw_attacking" => Sounds.ScrewAttack,
         "space_jumping" => Sounds.SpaceJump,
@@ -96,7 +105,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     {
         bool swamped = owner.IsWhollyInLiquid;
         bool screw = !swamped && owner.Inventory.IsOn(Equipment.ScrewAttack), space = !swamped && owner.Inventory.IsOn(Equipment.SpaceJump);
-        Look = screw ? "screw_attacking" : space ? "space_jumping" : "spin_jumping";
+        _spin = screw ? "screw_attacking" : space ? "space_jumping" : "spin_jumping";
         switch (_start)
         {
             case Start.FromGround:
@@ -210,7 +219,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         owner.TurnAround();
         owner.EndMomentum();
         _looksForWalls = true;
-        if (Look == "space_jumping")
+        if (_spin == "space_jumping")
             owner.Room.Session.Sounds.Request(Sounds.SpaceJump, channel: "samus");
     }
 
@@ -262,6 +271,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     {
         var samus = (Samus)owner;
         bool ready = _ready.IsRunning;
+        _showsReady = ready;
         _ready = _ready.Stepped();
         if (!_looksForWalls || !owner.MayWallJump || FeelForWall(owner) is not { } gap)
             return false;

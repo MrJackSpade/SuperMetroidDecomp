@@ -278,6 +278,11 @@ public sealed partial class EngineAssetWriter
         Look("spin_jumping", null, P.SpinJumpRightPose, P.SpinJumpLeftPose);
         Look("space_jumping", null, P.SpaceJumpRightPose, P.SpaceJumpLeftPose);
         Look("screw_attacking", null, P.ScrewAttackRightPose, P.ScrewAttackLeftPose);
+
+        // The braced picture each kind of spin shows for as long as it is ready to jump off a wall it has found.
+        Look("spin_jumping_wall_ready", null, P.SpinJumpRightPose, P.SpinJumpLeftPose, from: Seg.WallJumpReady, oneSegment: true);
+        Look("space_jumping_wall_ready", null, P.SpaceJumpRightPose, P.SpaceJumpLeftPose, from: Seg.WallJumpReady, oneSegment: true);
+        Look("screw_attacking_wall_ready", null, P.ScrewAttackRightPose, P.ScrewAttackLeftPose, from: Seg.WallJumpReady, oneSegment: true);
         Look("morph_ball", null, P.MorphBallGroundRightPose, P.MorphBallGroundLeftPose);
         Look("knocked_back", null, P.KnockbackRightPose, P.KnockbackLeftPose);
         Look("damage_boost", null, P.DamageBoostRightPose, P.DamageBoostLeftPose);
@@ -383,7 +388,11 @@ public sealed partial class EngineAssetWriter
             Passing(from, "standing", P.LandingAimDiagonalDownRightPose, P.LandingAimDiagonalDownLeftPose, held: "diagonal_down");
             Passing(from, "standing", P.FiringLandingRightPose, P.FiringLandingLeftPose, held: "firing");
         }
-        foreach (string spin in new[] { "spin_jumping", "space_jumping", "screw_attacking" })
+        foreach (string spin in new[]
+                 {
+                     "spin_jumping", "space_jumping", "screw_attacking",
+                     "spin_jumping_wall_ready", "space_jumping_wall_ready", "screw_attacking_wall_ready",
+                 })
         {
             Passing(spin, "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
             Passing(spin, "morph_ball", P.MorphingTransitionRightPose, P.MorphingTransitionLeftPose);

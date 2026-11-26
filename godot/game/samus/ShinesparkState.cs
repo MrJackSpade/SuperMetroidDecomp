@@ -267,13 +267,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <inheritdoc/>
     public override void Exit(Player owner)
     {
-        // Echoes still circling when she is taken out of this some other way go with it.
-        if (_stage == Stage.Crashed && _crash != Crash.Holding)
-        {
-            _firstEcho?.Dismiss(owner.Room);
-            _secondEcho?.Dismiss(owner.Room);
-        }
-
+        // Echoes the crash still has when she is taken out of it some other way go with it: circling, or drawn in
+        // and waiting out its hold. Those it has let go are no longer its own.
+        _firstEcho?.Dismiss(owner.Room);
+        _secondEcho?.Dismiss(owner.Room);
         (_firstEcho, _secondEcho) = (null, null);
     }
 
@@ -307,6 +304,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         {
             second.Dismiss(samus.Room);
         }
+
+        // Flying or gone, they are the crash's no longer.
+        (_firstEcho, _secondEcho) = (null, null);
     }
 
     private static ShinesparkEcho Echo(Samus samus, ShotType shot, int angle)

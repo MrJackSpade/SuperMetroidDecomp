@@ -68,7 +68,7 @@ public sealed partial class EngineAssetWriter
         foreach ((RoomDefinition _, RoomStateSettings state) in EngineLayouts.States())
         {
             if (state.TurningFloor != RoomTurningFloor.ElevatorShaft ||
-                !state.EnemyPopulation.Placements.Span.Any(placed => placed.DefinitionId == EnemyDefinitionId.CeresElevatorDoor))
+                !state.EnemyPopulation.Placements.ToArray().Any(placed => placed.DefinitionId == EnemyDefinitionId.CeresElevatorDoor))
             {
                 continue;
             }

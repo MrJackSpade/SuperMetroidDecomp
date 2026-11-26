@@ -218,11 +218,10 @@ class Sequences:
         if state.setup == 'RunStatueUnlockingAnimations':
             self.statue_hall(ctx, named)
         if state.main == 'DachoraShaftCamera':
-            # Once the screen over the top of the shaft is open to the view, the screen beside it is closed.
+            # While the screen over the top of the shaft is open to the view, the view is drawn toward the shaft.
             shaft = sequence('brinstar/DachoraShaftCamera.cs', 'ShaftCamera', {'StartsWhen': ctx.always()})
             self.placed.append(shaft)
             self.links.append((shaft, 'ShaftTop', named['Screen4x1']))
-            self.links.append((shaft, 'Beside', named['Screen3x1']))
         if state.main == 'MaridiaElevatube':
             # The tube takes whoever comes in at one end out at the other: a ride for each end, started by coming
             # in there.

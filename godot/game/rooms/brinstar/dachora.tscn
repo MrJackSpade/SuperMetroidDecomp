@@ -415,4 +415,3 @@ DataFile = "objects/samus_eater.json"
 script = ExtResource("16")
 StartsWhen = SubResource("r2")
 ShaftTop = NodePath("../Screen4x1")
-Beside = NodePath("../Screen3x1")

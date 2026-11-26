@@ -99,6 +99,23 @@ public sealed partial class EngineAssetWriter
             TourianStatueAnimationDefinition definition = TourianStatueAnimationDefinitions.Statues[statue];
             string name = EngineSheets.FileName(statue.ToString()), folder = $"{StatueHallFolder}/{name}";
             var data = new JsonObject();
+
+            // As it is let go it greys in steps, each held so many updates and the last left in place. The cartridge
+            // steps its colours through colourings that are the straight blend from its own colours to its grey: the
+            // first is its own, the last its grey, and each between a step further, to within the cartridge's
+            // rounding of a colour (read from the installation's sheets, 2026-11-26). So the Godot hall shows the
+            // grey picture over it so much the more opaque at each step.
+            var greyingUpdates = new JsonArray();
+            foreach (AnimationBeat<int, SuperMetroid.Core.Fx.ColourEffects.ColourEffectCue>.Frame step in
+                     SuperMetroid.Core.Fx.ColourEffects.ColourEffectShownFrames.Steps(definition.ColourEffect)
+                         .OfType<AnimationBeat<int, SuperMetroid.Core.Fx.ColourEffects.ColourEffectCue>.Frame>())
+            {
+                greyingUpdates.Add(step.Duration);
+            }
+
+            if (greyingUpdates.Count < 2)
+                throw new InvalidDataException($"The grey-out {definition.ColourEffect} of the statue of {statue} has fewer than two colourings, and so no steps from its own colours to grey.");
+            data["greying_updates"] = greyingUpdates;
             if (definition.GreyedSprite is { } sprite)
             {
                 // A figure that is a sprite: each look of its eyes is a picture of the whole figure.

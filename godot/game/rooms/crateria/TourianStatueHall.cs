@@ -21,7 +21,8 @@ namespace Game.Rooms.Crateria;
 /// of. Under the statue are a visual for each guardian, named "Kraid", "Phantoon", "Draygon" and "Ridley", one over
 /// each for it turned grey, named with "Grey" after, and one named "Base". Its data names, under "statues", each
 /// guardian's pictures ("bright", "dim", "dark", "released", "grey"), where they lie from the statue ("offset",
-/// "grey_offset"), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
+/// "grey_offset"), the steps it greys by as it is let go ("greying_updates": how many updates each is held, the
+/// first showing none of its grey, the last all of it, and each between as much more as the one before), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
 /// stays with the view as it moves up and down, and what is part of it stays with it and lies behind the room's
 /// tiles), and its effects: "eye_glow",
 /// "particle", "tail", "splash" and "soul" by the data files of their timelines (those of the particle and the
@@ -89,6 +90,21 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         public int Frame { get; set; } = -1;
         public int Left { get; set; }
         public int GreyingFor { get; set; } = -1;
+
+        /// <summary>How many updates each step of its greying is held.</summary>
+        public IReadOnlyList<int> GreyingUpdates { get; set; } = [];
+
+        /// <summary>How much of its grey shows once it has been greying <see cref="GreyingFor"/> updates: none in its first step, all in its last.</summary>
+        public float GreyShown
+        {
+            get
+            {
+                int step = 0;
+                for (int passed = GreyingFor - 1; step < GreyingUpdates.Count - 1 && passed >= GreyingUpdates[step]; step++)
+                    passed -= GreyingUpdates[step];
+                return (float)step / (GreyingUpdates.Count - 1);
+            }
+        }
     }
 
     /// <summary>How long the statue waits once all four are grey, how far it sinks, and how far each update.</summary>
@@ -98,8 +114,8 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     /// <summary>How long a shake is kept going each time it is asked for.</summary>
     private const int ShakeUpdates = 32;
 
-    /// <summary>How long a guardian takes to turn grey, and how long after entering the hall may settle.</summary>
-    private const int GreyingUpdates = 128, SettleUpdates = 128;
+    /// <summary>How long after entering the hall may settle.</summary>
+    private const int SettleUpdates = 128;
 
     /// <summary>How long a light at a guardian's eyes lasts before it bursts, and how many sparks it bursts into.</summary>
     private const int EyeGlowUpdates = 111, Sparks = 4;
@@ -188,6 +204,9 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         {
             (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor) = (Stage.Entering, -1, 0, -1);
             DataNode pictures = Data().Get("statues").Get(guardian.Name.ToLowerInvariant());
+            guardian.GreyingUpdates = [.. pictures.List("greying_updates").Select(updates => updates.AsInt())];
+            if (guardian.GreyingUpdates.Count < 2)
+                throw pictures.Problem("gives fewer than two steps of greying");
             Visual(guardian.Name).Bind(room.Content);
             Visual(guardian.Name).PictureOffset = Offset(pictures.Get("offset"));
             Visual(guardian.Name + "Grey").PictureOffset = Offset(pictures.Get("grey_offset"));
@@ -223,10 +242,11 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     {
         foreach (Guardian guardian in _guardians)
         {
-            if (guardian.GreyingFor >= 0 && guardian.GreyingFor < GreyingUpdates)
+            // It greys a step at a time: each step shows so much more of its grey, and the last leaves it grey.
+            if (guardian.GreyingFor >= 0 && guardian.GreyingFor < guardian.GreyingUpdates.Sum())
             {
                 guardian.GreyingFor++;
-                Visual(guardian.Name + "Grey").Tint(new Color(1, 1, 1, (float)guardian.GreyingFor / GreyingUpdates));
+                Visual(guardian.Name + "Grey").Tint(new Color(1, 1, 1, guardian.GreyShown));
             }
 
             if (guardian.Stage == Stage.Done || (guardian.Left > 0 && --guardian.Left > 0))

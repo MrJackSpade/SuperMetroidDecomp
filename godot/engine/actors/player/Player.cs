@@ -935,7 +935,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public virtual bool MovedAgainstWall => MovedAs is RunningState;
 
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
-    public void Hold() => ChangeState(new HeldState());
+    public void Hold() => ChangeState(new HeldState(State is HeldState held ? held.Was : State));
 
     /// <summary>Holds the player at a station until released.</summary>
     /// <param name="facingOut">Whether the player turns to face out of the screen while held.</param>

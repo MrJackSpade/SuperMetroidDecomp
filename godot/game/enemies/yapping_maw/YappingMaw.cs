@@ -328,8 +328,13 @@ public partial class YappingMaw : Enemy
     /// <summary>Where the <paramref name="link"/>th of its links is, the last being its mouth: the root, then each link's far end as last bent.</summary>
     private PixelPosition Along(int link) => link == 0 ? _origin : _origin + _linkAt[link - 1];
 
-    /// <summary>Keeps Samus in its mouth.</summary>
-    private void HoldSamus() => Room.Player.Position = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + _heldAt;
+    /// <summary>Keeps Samus in its mouth: at the whole pixel its hold puts her, with the part of a pixel she had.</summary>
+    private void HoldSamus()
+    {
+        PixelPosition at = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + _heldAt;
+        Engine.Actors.Player samus = Room.Player;
+        samus.Position = new PixelPosition(samus.Position.X.WithWhole(at.X.Whole), samus.Position.Y.WithWhole(at.Y.Whole));
+    }
 
     /// <summary>Lets Samus go, if it holds her.</summary>
     private void LetGo()

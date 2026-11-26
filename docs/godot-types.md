@@ -1206,7 +1206,10 @@ decides what to do about it.
 | Pursuit | Working out the speed of a flier drawn toward a place: harder the farther off, turned about sharply when going the wrong way, more sharply when well out of view. The flier moves itself. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
-player to enter the held state, moves with them, and adds ongoing damage while it holds.
+player to enter the held state, moves with them, and, where it is one that hurts by its hold, adds ongoing damage
+while it holds (a Yapping Maw only holds: its touch on the cartridge takes hold of her and does nothing else). The
+held state keeps what the player was doing as they were taken hold of (`HeldState.Was`), and this game goes on
+showing Samus so while she is held.
 
 This set was checked against the old code by counting which enemies do each: every one of the nine is used by
 several enemies. The old code shares almost none of it, so each must be worked out from the enemies that use it,

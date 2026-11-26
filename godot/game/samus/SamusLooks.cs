@@ -31,6 +31,11 @@ public static class SamusLooks
         CrawlingState => "morph_ball",
         KnockedBackState => samus.Form == Player.Crawling ? "morph_ball" : "knocked_back",
         DyingState => samus.DeathLook,
+
+        // Held, she goes on showing what she was doing as she was taken hold of; out of a spin or a wall jump she is
+        // stood up, as the cartridge's Yapping Maw stands her.
+        HeldState { Was: SpinJumpingState or WallJumpingState } => "standing",
+        HeldState held => Of(samus, held.Was),
         _ => samus.Form == Player.Crawling ? "morph_ball" : "standing",
     };
 }

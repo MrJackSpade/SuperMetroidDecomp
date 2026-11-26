@@ -1872,7 +1872,8 @@ public partial class Samus : Player
         ? grabbed.Hold
         : Aim != Aim.Forward
             ? AimName(Aim)
-            : State switch
+            // Held, it is that of what she was doing as she was taken hold of.
+            : (State is HeldState held ? held.Was : State) switch
             {
                 JumpingState { Arm: AirArm.Forward } => "moving",
                 JumpingState { Arm: AirArm.Out } or FallingState { Arm: AirArm.Out } => "arm_out",

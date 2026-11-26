@@ -19,17 +19,21 @@ public partial class Samus
     public string DeathLook { get; private set; } = "standing";
 
     /// <summary>She begins to die out of the state <paramref name="from"/>, whose look she keeps.</summary>
-    private void NoteDying(PlayerState from)
+    protected override void OnDying(PlayerState from)
     {
         DeathLook = SamusLooks.Of(this, from);
         _diedSpinning = from is SpinJumpingState;
     }
 
-    /// <summary>Her death's last pass of play is done: she holds her beam alone, and a hurt's flicker ends.</summary>
+    /// <summary>
+    /// Her death's last pass of play is done: she holds her beam alone, a hurt's flicker ends, and a knockback that
+    /// carried her through that pass carries her no further.
+    /// </summary>
     public void SettleForDeath()
     {
         SelectBeam();
         BeInvincibleFor(0);
+        EndThrow();
     }
 
     /// <summary>Her death takes up its pose, which she shows from now. A spin she died in has its sound stopped.</summary>

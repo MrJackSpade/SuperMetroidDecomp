@@ -974,7 +974,10 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>Ends the throw carrying the player, if one is.</summary>
-    internal void EndThrow() => Thrown = null;
+    public void EndThrow() => Thrown = null;
+
+    /// <summary>Lets a throw that was carrying the player go on carrying them, as it stands, into the state they have just been put in.</summary>
+    internal void GoOnThrown(Throw thrown) => Thrown = thrown;
 
     /// <summary>Called as a throw takes the player. A game whose player does something of its own as a knockback begins does it here.</summary>
     protected virtual void OnThrown()
@@ -1046,8 +1049,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Starts the player dying. Play hands over to the game's death on the update the room settles it (<see cref="Core.GameDefinition.CreateDeathMode"/>).</summary>
     public void Die()
     {
-        if (State is not DyingState)
-            ChangeState(new DyingState());
+        if (State is DyingState)
+            return;
+        OnDying(State);
+        ChangeState(new DyingState(Thrown));
+    }
+
+    /// <summary>
+    /// Called as the player begins to die, still in <paramref name="from"/>, the state they were in. A game whose
+    /// player keeps something of what they were doing through their death notes it here.
+    /// </summary>
+    protected virtual void OnDying(PlayerState from)
+    {
     }
 
     /// <inheritdoc/>

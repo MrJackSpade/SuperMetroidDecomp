@@ -980,10 +980,6 @@ public partial class Samus : Player
     /// </summary>
     protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked)
     {
-        // Dying, she keeps the look she had.
-        if (to is DyingState && from is not DyingState)
-            NoteDying(from);
-
         // Crouching out of a run at full boost stores a shine.
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
             StoreShine();

@@ -470,7 +470,9 @@ select, options, game over, time up, and one per cinematic.
   asked again after. What was settled is the room's to tell (`Room.EnergySettled`: not gone, saved, dying or
   withheld). The room does not shake on the update a save or a death begins.
 - **Death.** There is no death mode in the engine. A player who begins to die is in `DyingState`, in which they
-  neither move nor act and time stands still for everything else, and on that update `PlayingMode` hands to the
+  neither move of themselves nor act and time stands still for everything else; a throw that was carrying them
+  goes on carrying them until the game playing the death ends it (`Player.EndThrow`), and the game's player is
+  told what they were doing as they began to die (`Player.OnDying`). On that update `PlayingMode` hands to the
   mode the `GameDefinition` makes to play the death (`CreateDeathMode`), which is given the play it takes over
   from and says what comes after. The engine's default reloads at once. This game's is `DeathMode`
   (`game/samus/`): a last update of play, everything but Samus going black over play that still goes on with

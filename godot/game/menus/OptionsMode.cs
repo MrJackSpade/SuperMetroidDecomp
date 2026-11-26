@@ -31,7 +31,9 @@ namespace Game.Menus;
 /// "buttons_scroll_step"); the sounds of the cursor moving and of a row confirmed ("move_sound", "select_sound"); the
 /// updates it holds black as it is come to before it fades in ("entry_black_updates"); the levels of brightness its
 /// fades go through, a level an update ("fade_levels"); and the timeline "cursor". A bound button is named in the
-/// game's font: the cartridge has pictures only of its own controller's buttons.
+/// game's font: the cartridge has pictures only of its own controller's buttons. An action has one button on that
+/// page: the one pressed for it, or, of its standard key and controller's button, the one of the device the player
+/// is on.
 /// </remarks>
 public partial class OptionsMode : GameMode
 {
@@ -128,7 +130,16 @@ public partial class OptionsMode : GameMode
         // game. An axis that was past its mark as the page was shown is one that rests there, and is no press.
         if (_page == Page.Buttons && Options.ButtonOf(@event) is { } button && !_restingAxes.Contains(button))
             _pressed = button;
+
+        // Which device the player is on is whichever they last pressed a key or a button of.
+        if (@event is InputEventKey { Pressed: true, Echo: false })
+            _onController = false;
+        else if (@event is InputEventJoypadButton { Pressed: true })
+            _onController = true;
     }
+
+    /// <summary>Whether the last key or button pressed in the options was a controller's.</summary>
+    private bool _onController;
 
     /// <summary>The axes that read as pushed as the page of buttons was shown, as a binding would write each.</summary>
     private readonly HashSet<string> _restingAxes = [];
@@ -329,7 +340,9 @@ public partial class OptionsMode : GameMode
             return;
         }
 
+        // The standard buttons are put back for the device the row was confirmed on.
         Session.Options.RestoreBindings(PlayActions, Session.Definition.StandardBindings);
+        Session.Options.KeepOneButton(PlayActions, _onController);
         Session.Options.ApplyBindings([]);
         ShowButtons();
     }
@@ -457,6 +470,11 @@ public partial class OptionsMode : GameMode
             case Page.Buttons:
                 heading = "controller";
                 picture.Texture = Session.Content.LoadTexture(data.Get("controller").Text(language));
+
+                // An action set here has one button. One that still has its standard two, a key and a controller's,
+                // keeps the one of the device the player came to the page on.
+                options.KeepOneButton(PlayActions, _onController);
+                options.ApplyBindings([]);
                 BeginTakingButtons();
                 ShowButtons();
                 break;

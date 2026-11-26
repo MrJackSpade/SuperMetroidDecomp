@@ -25,7 +25,8 @@ public sealed class Options
     /// The buttons bound to each action, by the action's name. A keyboard key is written "key:" and its name, such as
     /// "key:Space"; a controller button "pad:" and its number; a controller's axis pushed one way "axis:", its number
     /// and "+" or "-", such as "axis:5+", which is how a trigger, a stick or a pad that reports itself as axes is
-    /// bound. A controller's binding holds for whichever controller is used.
+    /// bound. A controller's binding holds for whichever controller is used. An action's standard buttons are a key
+    /// and a controller's button, so that either works; one the player has set has the one button they pressed.
     /// </summary>
     public Dictionary<string, List<string>> Bindings { get; set; } = [];
 
@@ -135,30 +136,46 @@ public sealed class Options
     private static bool IsKey(string button) => button.StartsWith("key:", StringComparison.Ordinal);
 
     /// <summary>
-    /// Binds an action to a button the player has pressed. The button takes the place of the action's binding of its
-    /// own kind (a key for a key; a controller's button or axis for either of those) and the other kind is left as it
-    /// is, so binding on a controller does not unbind the keyboard. Among the actions of
-    /// <paramref name="keptApart"/>, when the action is one of them, no two keep one button: the one that had this
-    /// button is given the one this action gives up, so the two swap.
+    /// Binds an action to a button the player has pressed: it becomes the action's one button, whatever the action
+    /// had. Among the actions of <paramref name="keptApart"/>, when the action is one of them, no two keep one
+    /// button: the one that had this button is given the one this action gives up, so the two swap.
     /// </summary>
     public void Bind(string action, string button, IReadOnlyCollection<string> keptApart)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(action);
         ArgumentException.ThrowIfNullOrWhiteSpace(button);
         ArgumentNullException.ThrowIfNull(keptApart);
-        bool key = IsKey(button);
         List<string> held = Bindings.GetValueOrDefault(action) ?? [];
-        string? givenUp = held.FirstOrDefault(other => IsKey(other) == key);
-        if (givenUp == button)
+        if (held.Count == 1 && held[0] == button)
             return;
-        Bindings[action] = [.. held.Where(other => IsKey(other) != key), button];
+
+        // What it gives up: its button of the pressed one's kind, where it still has one of each, or its only one.
+        string? givenUp = held.FirstOrDefault(other => IsKey(other) == IsKey(button)) ?? held.FirstOrDefault();
+        Bindings[action] = [button];
         if (!keptApart.Contains(action))
             return;
         foreach (string other in keptApart)
         {
             if (other == action || !Bindings.TryGetValue(other, out List<string>? theirs) || !theirs.Contains(button))
                 continue;
-            Bindings[other] = [.. theirs.Select(one => one == button ? givenUp : one).OfType<string>()];
+            Bindings[other] = givenUp is null ? [] : [givenUp];
+        }
+    }
+
+    /// <summary>
+    /// Leaves each of <paramref name="actions"/> one button: a controller's, when the player is on one and the
+    /// action has one, a key otherwise, and failing that the first it has. An action's standard buttons name one
+    /// for the keyboard and one for a controller, so that either works before anything is chosen; an action the
+    /// player sets has one, and this settles which, by the device they are using.
+    /// </summary>
+    public void KeepOneButton(IEnumerable<string> actions, bool onController)
+    {
+        ArgumentNullException.ThrowIfNull(actions);
+        foreach (string action in actions)
+        {
+            if (!Bindings.TryGetValue(action, out List<string>? held) || held.Count <= 1)
+                continue;
+            Bindings[action] = [held.FirstOrDefault(button => IsKey(button) != onController) ?? held[0]];
         }
     }
 

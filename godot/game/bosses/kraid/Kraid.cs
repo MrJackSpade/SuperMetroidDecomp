@@ -504,6 +504,10 @@ public partial class Kraid : Enemy
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
+
+        // Each of its parts takes its own depth as the fight goes (its body among the room's things, its head, arm
+        // and foot in front of the room's tiles), so it is not put in front of the tiles as a whole.
+        InFrontOfTiles = false;
         // Its fight keeps Samus where a boss's does in the view, from its setup until it has sunk.
         Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
         _initialHealth = Health.Current;

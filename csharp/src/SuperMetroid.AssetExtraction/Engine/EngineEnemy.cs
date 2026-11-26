@@ -61,6 +61,9 @@ internal sealed partial class EngineEnemy
             };
         }
 
+        // One whose every picture the cartridge draws in front of all the room's tiles is drawn there.
+        if (pictures.Depth == SuperMetroid.Core.Assets.ActorDepth.InFront)
+            Data["in_front_of_tiles"] = true;
         Data["reactions"] = EngineReactions.Of(Definition);
         if (EngineAssetWriter.Drops(Definition.Drops) is { } drops)
             Data["drops"] = drops;

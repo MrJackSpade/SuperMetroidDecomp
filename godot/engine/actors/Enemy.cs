@@ -26,6 +26,8 @@ namespace Engine.Actors;
 /// "picture_offset": { "x": -8, "y": -8 }, "standing": "in_front"
 /// </code>
 /// "standing" names where it stands against the player (<see cref="World.Standing"/>); without it, behind them.
+/// "in_front_of_tiles": true has it drawn in front of every tile of the room, the ones in front of the room's things
+/// too, and so over the player whatever its standing.
 /// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
 /// "death" names the timeline its death plays, which its <see cref="Remains"/> play out before its drop appears;
 /// "by_kind" names another for a death by a hit carrying a kind, the first listed that the hit carries.
@@ -222,8 +224,33 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         set
         {
             _standing = value;
-            RoomDepth.Stand(this, value);
+            ShowDepth();
         }
+    }
+
+    private bool _inFrontOfTiles;
+
+    /// <summary>
+    /// Whether its pictures lie in front of every tile of the room, the ones in front of the room's things too, as
+    /// its data says ("in_front_of_tiles"). It is then drawn there, over the player as well, whatever its standing:
+    /// the room draws in one order, and a thing in front of the tiles the player passes behind is in front of the
+    /// player.
+    /// </summary>
+    public bool InFrontOfTiles
+    {
+        get => _inFrontOfTiles;
+        set
+        {
+            _inFrontOfTiles = value;
+            ShowDepth();
+        }
+    }
+
+    private void ShowDepth()
+    {
+        RoomDepth.Stand(this, _standing);
+        if (_inFrontOfTiles)
+            ZIndex = RoomDepth.InFrontOfRoom;
     }
 
     /// <inheritdoc/>
@@ -234,6 +261,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Timelines = TimelineSet.ReadFrom(data);
         EntityNode.ReadColliders(this, data);
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
+        _inFrontOfTiles = data.Has("in_front_of_tiles") && data.Flag("in_front_of_tiles");
         Standing = data.Has("standing") ? data.Get("standing").AsEnum<Standing>() : Standing.Behind;
         StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
         _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";

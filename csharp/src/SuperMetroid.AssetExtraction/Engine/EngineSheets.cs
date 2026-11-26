@@ -362,13 +362,36 @@ internal sealed partial class EngineSheets
                 string path = $"{folder}/{FileName(name)}.png";
                 tree.WritePicture(path, width, height, canvas);
                 paths[name] = path;
+                if (image.RecolourRegions is { } regions)
+                {
+                    // The picture's map of regions lies beside it, where any pixel it shows is in a region but the
+                    // first: a change of colours that holds in one region of the sheet finds it by this.
+                    var canvasRegions = new int[width * height];
+                    bool told = false;
+                    for (int y = 0; y < frame.Size.Y; y++)
+                    {
+                        int from = (frame.Corner.Y + y) * document.Size.X + frame.Corner.X, to = (down + y) * width + across;
+                        for (int x = 0; x < frame.Size.X; x++)
+                        {
+                            if (image.Pixels[from + x].A == 0)
+                                continue;
+                            canvasRegions[to + x] = regions[from + x];
+                            told |= regions[from + x] != 0;
+                        }
+                    }
+
+                    if (told)
+                        tree.WriteRegionMap(path, width, height, canvasRegions);
+                }
             }
 
             foreach (string blank in document.Blank ?? [])
                 paths.TryAdd(blank, "");
         }
 
-        var pictures = new EngineSheetPictures(left, top, width, height, paths);
+        // Where the frames lie against the room's tiles, when every one of them lies at the one depth.
+        ActorDepth?[] depths = [.. documents.SelectMany(sheet => sheet.Document.Frames.Values).Select(frame => frame.Depth).Distinct()];
+        var pictures = new EngineSheetPictures(left, top, width, height, paths) { Depth = depths.Length == 1 ? depths[0] : null };
         _cut[(family, together, folder)] = pictures;
         return pictures;
     }
@@ -430,6 +453,12 @@ internal sealed partial class EngineSheets
 /// <param name="Paths">Each frame's picture, by the frame's name; empty for a frame that shows nothing.</param>
 internal sealed partial record EngineSheetPictures(int OffsetX, int OffsetY, int Width, int Height, IReadOnlyDictionary<string, string> Paths)
 {
+    /// <summary>
+    /// The depth against the room's tiles that every frame cut has, where they all have the one and the cut says it;
+    /// null where they differ, have none, or the cut does not say.
+    /// </summary>
+    internal ActorDepth? Depth { get; init; }
+
     /// <summary>The picture of the frame named <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
     internal string Of(string frame) => Paths.TryGetValue(frame, out string? path)

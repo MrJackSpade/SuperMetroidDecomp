@@ -1173,7 +1173,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
   landing, a crouch, curling up); with "_suited" after any of them while she wears the varia or the gravity suit
-  (she faces out of the screen in another pose). Her pictures are written once, in their sheet's own colours.
+  (she faces out of the screen in another pose). Running, the timeline is not played by itself: its step shown is
+  the picture of the stride play counts her boost by (`Samus.StridePicture`), so the stride shown quickens through
+  the boost's stages as play's does. Her pictures are written once, in their sheet's own colours.
 - **The view's measure of her last move across** (`Camera.Speed`) is one pixel whenever the session's game starts
   afresh and its player is a new one (`GameSession.BeginAgain`, `Camera.TakePlayerAsNew`): what reads it before
   the view next follows a move, as a kicked Yard does, reads that.

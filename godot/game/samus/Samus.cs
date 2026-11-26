@@ -362,6 +362,9 @@ public partial class Samus : Player
     /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the last when boosting.</summary>
     public int BoostStage => Math.Max(0, _boostStage);
 
+    /// <summary>The picture of her running stride she is at, counted from nought: the stride the boost is counted by, each picture lasting as her dash and the boost's stage have it.</summary>
+    public int StridePicture => _strideAt;
+
     /// <summary>The last stage of the boost: the one at which she is boosting.</summary>
     private int FullBoostStage => BoostStrideCounts.Length - 1;
 

@@ -84,7 +84,7 @@ public partial class SamusVisual : Node2D
             _playing = name;
             _player = new TimelinePlayer(samus.Timelines.Get(name));
         }
-        else
+        else if (!ShowsStride(samus))
         {
             _player.Step();
             if (_passing && _player.IsOver)
@@ -104,8 +104,9 @@ public partial class SamusVisual : Node2D
         }
 
         // Her animation's start is its first picture's first update, as on the cartridge, and is not stepped: so the
-        // step the next update falls in is the one this update shows.
-        _shown = _player.Current;
+        // step the next update falls in is the one this update shows. Running, she shows the picture of the stride
+        // play counts her boost by, so her stride quickens through the boost's stages as play's does.
+        _shown = ShowsStride(samus) ? _player.Timeline.Steps[samus.StridePicture] : _player.Current;
         picture.Show(_shown);
         samus.Colours.ShowOn(picture);
 
@@ -242,6 +243,9 @@ public partial class SamusVisual : Node2D
         foreach (string echo in (string[])["Echo1", "Echo2"])
             GetNodeOrNull<ActorVisual>(echo)?.Show("");
     }
+
+    /// <summary>Whether her running look is shown by the picture of her stride play is at, rather than played by itself: while she runs, once any pictures passed through on the way into the run are done.</summary>
+    private bool ShowsStride(Samus samus) => !_passing && samus.State is RunningState;
 
     /// <summary>Takes her echoes away at once, as switching the speed booster off on the pause screen does.</summary>
     public void ClearEchoes() => (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);

@@ -308,8 +308,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>
     /// Plays one update, its turn: its timers move on; its hits are settled, the player's shots tried against it and
-    /// then its touch against the player, where it stood before moving; and it behaves and its timeline moves on,
-    /// unless a status or a hurt stops it.
+    /// then its touch against the player, where it stood before moving; it behaves, unless a status or a hurt stops
+    /// it; and its timeline moves on, unless it is frozen.
     /// </summary>
     internal void Step()
     {
@@ -355,9 +355,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         else if (behaves)
             Behave();
 
-        // Its own count moves on once the turn has been acted, whatever held it, and before its timeline does.
+        // Its own count moves on once the turn has been acted, whatever held it, and before its timeline does. The
+        // timeline moves on through a hurt, whose hold is on the behaviour alone; only being frozen stops it.
         Updates++;
-        if (behaves && !IsDead)
+        if (!IsFrozen && !IsDead)
             StepAnimation();
 
         if (IsDead)

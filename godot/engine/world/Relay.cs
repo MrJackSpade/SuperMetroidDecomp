@@ -5,7 +5,7 @@ namespace Engine.World;
 /// <summary>
 /// Something placed in a room that turns one word into what the room does about it. Things that only know that
 /// something has happened to them (a boss that has woken, a wall that has opened) tell a relay a word, and its rules
-/// say what follows: which camera zone opens, which patch of terrain changes, what the music becomes, what appears. It holds no
+/// say what follows: which camera zone opens, which patch of terrain changes, what the music becomes. It holds no
 /// behaviour of its own, and a word none of its rules is for is a mistake.
 /// </summary>
 public partial class Relay : Node, ITriggerTarget, IPlaced
@@ -43,13 +43,6 @@ public partial class Relay : Node, ITriggerTarget, IPlaced
                 room.Session.Sounds.RequestMusic(rule.Music);
             if (rule.ShakeStrength > 0)
                 room.Shake(rule.ShakeStrength, rule.ShakeUpdates);
-            if (rule.Spawns is { } scene)
-            {
-                Node2D thing = scene.Instantiate<Node2D>();
-                thing.Position = rule.SpawnsAt;
-                room.Spawn(thing);
-            }
-
             if (rule.Records.Length > 0)
                 room.Session.Progress.Record(rule.Records);
         }

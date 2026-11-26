@@ -46,14 +46,6 @@ public partial class RelayRule : Resource
     [Export]
     public int ShakeUpdates { get; set; }
 
-    /// <summary>A thing put into the room, as its scene; null for none.</summary>
-    [Export]
-    public PackedScene? Spawns { get; set; }
-
-    /// <summary>Where it is put, in the room.</summary>
-    [Export]
-    public Vector2I SpawnsAt { get; set; }
-
     /// <summary>The fact recorded, by name; empty for none.</summary>
     [Export]
     public string Records { get; set; } = "";

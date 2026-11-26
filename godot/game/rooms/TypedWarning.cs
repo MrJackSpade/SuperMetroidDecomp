@@ -30,14 +30,6 @@ public partial class TypedWarning : RoomSequence
     [Export]
     public string LetterSound { get; set; } = "";
 
-    /// <summary>The things told once it is all typed.</summary>
-    [Export]
-    public Godot.Collections.Array<NodePath> ToldWhenDone { get; set; } = [];
-
-    /// <summary>What they are told.</summary>
-    [Export]
-    public string Tells { get; set; } = "done";
-
     private TypedText? _text;
 
     /// <inheritdoc/>
@@ -68,15 +60,6 @@ public partial class TypedWarning : RoomSequence
 
         TypedText text = _text ?? throw new InvalidOperationException("The warning is not being typed.");
         text.Step(room.Session.Sounds);
-        if (!text.IsOver)
-            return false;
-        foreach (NodePath path in ToldWhenDone)
-        {
-            (GetNode(path) as ITriggerTarget
-                ?? throw new InvalidOperationException($"The warning \"{Name}\" is to tell \"{path}\" that it is over, but that is nothing that can be told."))
-                .Triggered(Tells);
-        }
-
-        return true;
+        return text.IsOver;
     }
 }

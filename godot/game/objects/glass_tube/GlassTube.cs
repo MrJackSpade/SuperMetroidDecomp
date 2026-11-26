@@ -24,10 +24,6 @@ namespace Game.Objects;
 /// </remarks>
 public partial class GlassTube : RoomObject, IHittable
 {
-    /// <summary>What is told "break" once it has burst, so the water can come in.</summary>
-    [Export]
-    public Godot.Collections.Array<NodePath> ToldWhenBroken { get; set; } = [];
-
     /// <summary>The picture of it whole.</summary>
     [Export, DataValue("intact")]
     public string IntactPicture { get; set; } = "";
@@ -123,7 +119,6 @@ public partial class GlassTube : RoomObject, IHittable
             // It was broken before: it is open, and the water is in.
             Room.Liquid?.LetIn();
             Room.Terrain.ApplyPatch(OpenPatch);
-            Tell();
             Room.Remove(this);
             return;
         }
@@ -202,7 +197,6 @@ public partial class GlassTube : RoomObject, IHittable
                     break;
                 Room.Session.Progress.Record(StoryEvents.MaridiaTubeBroken);
                 Room.Liquid?.LetIn();
-                Tell();
                 if (samus.State is HeldState)
                     samus.Release();
                 Room.Remove(this);
@@ -256,12 +250,6 @@ public partial class GlassTube : RoomObject, IHittable
         left.Velocity = speed;
         Room.Spawn(left);
         return left;
-    }
-
-    private void Tell()
-    {
-        foreach (NodePath path in ToldWhenBroken)
-            (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"The glass tube is to tell \"{path}\" that it has broken, but that is nothing that can be told.")).Triggered("break");
     }
 
     private void Show(string picture)

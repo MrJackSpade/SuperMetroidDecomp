@@ -40,10 +40,6 @@ public partial class ChozoStatue : Enemy
     [Export]
     public string RecordsFact { get; set; } = "";
 
-    /// <summary>What is told "wake" as it wakes and "release" once it has set Samus down.</summary>
-    [Export]
-    public Godot.Collections.Array<NodePath> ToldOfIt { get; set; } = [];
-
     /// <summary>The terrain patch that clears its hand as it wakes; empty for none.</summary>
     [Export, DataValue("hand_patch")]
     public string HandPatch { get; set; } = "";
@@ -169,7 +165,6 @@ public partial class ChozoStatue : Enemy
                 LetGo(samus);
                 if (WayPatch.Length > 0)
                     Room.Terrain.RevertPatch(WayPatch);
-                Tell("release");
                 break;
 
             default:
@@ -226,7 +221,6 @@ public partial class ChozoStatue : Enemy
             Room.Terrain.ApplyPatch(HandPatch);
         if (WayPatch.Length > 0)
             Room.Terrain.ApplyPatch(WayPatch);
-        Tell("wake");
     }
 
     /// <summary>Takes one stride with Samus in its hand, pressing down as far as it strode so that its feet stay on the ground.</summary>
@@ -269,12 +263,6 @@ public partial class ChozoStatue : Enemy
         _carrying = false;
         if (samus.State is HeldState)
             samus.Release();
-    }
-
-    private void Tell(string what)
-    {
-        foreach (NodePath path in ToldOfIt)
-            (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"The Chozo statue is to tell \"{path}\" that it has woken, but that is nothing that can be told.")).Triggered(what);
     }
 
     private static int Number(string text) => int.Parse(text, System.Globalization.CultureInfo.InvariantCulture);

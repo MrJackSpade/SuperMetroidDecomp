@@ -136,6 +136,7 @@ HeadingPicture = "text/emergency.png"
 Message = "ceres_self_destruct_warning"
 Subtitle = "ceres_self_destruct_subtitle"
 LetterSound = "room_typewriter:low"
+GetawaySound = "enemy_ceres_ridley_getaway"
 Floor = NodePath("../Floor")
 ToldWhenCountdownBegins = Array[NodePath]([NodePath("../Shaking")])
 

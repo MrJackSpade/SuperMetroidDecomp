@@ -40,6 +40,9 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
         owner.Position = new PixelPosition(owner.Position.X.WithWhole(across), owner.Position.Y.WithWhole(down));
         view.TakePlayerToHaveStoodAtX(across);
         view.TakePlayerToHaveStoodAtY(down);
+
+        // The suit's own sound is asked for as she is put there.
+        owner.Room.Session.Sounds.Request(Game.Data.Sounds.SuitAcquired, channel: "samus");
         _left = Countdown.Of(((Samus)owner).SuitPickupUpdates);
     }
 

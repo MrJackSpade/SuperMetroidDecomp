@@ -125,6 +125,14 @@ public partial class Shaktool : Enemy
         }
 
         AlwaysActive = true;
+        // Its saws and head stand in front of Samus, its arms just behind her.
+        Standing = Standing.InFront;
+        for (int part = 1; part < Parts - 1; part++)
+        {
+            if (part != Head && GetNodeOrNull<ActorVisual>($"Part{part + 1}") is { } arm)
+                RoomDepth.Stand(arm, Standing.JustBehind);
+        }
+
         Play(_look[Head]);
         ShowParts();
     }

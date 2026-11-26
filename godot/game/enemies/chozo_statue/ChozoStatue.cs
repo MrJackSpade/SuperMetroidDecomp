@@ -107,6 +107,8 @@ public partial class ChozoStatue : Enemy
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
+        // It stands in front of everything, Samus in its hand too.
+        Standing = Standing.Frontmost;
         (_ready, _handTaken, _awake, _carrying, _lowerIn) = (false, false, false, false, 0);
         _hand = GetNode<Collider>("Hand");
         _hand.Enabled = false;

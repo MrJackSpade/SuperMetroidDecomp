@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Shared;
+using Engine.World;
 using Game.Compatibility;
 using Godot;
 
@@ -36,7 +37,7 @@ public partial class Skultera : Enemy
     protected override void OnEnterRoom()
     {
         _lastBob = Bob();
-        Play(Facing == Facing.Left ? "swimming_left" : "swimming_right");
+        Swim(restart: false);
     }
 
     /// <inheritdoc/>
@@ -54,7 +55,7 @@ public partial class Skultera : Enemy
             if (!_turned)
                 return;
             _turning = false;
-            Play(Facing == Facing.Left ? "swimming_left" : "swimming_right", restart: true);
+            Swim();
             return;
         }
 
@@ -74,6 +75,16 @@ public partial class Skultera : Enemy
 
     /// <summary>How far below its line the wave puts it now, in whole pixels: the cartridge's short product a half turn on.</summary>
     private int Bob() => CartridgeAngles.CircleSine(_angle + Turns.PerTurn / 2, Radius).Whole;
+
+    /// <summary>
+    /// Sets it swimming the way it faces, standing in front of Samus swimming left and far behind her swimming right.
+    /// It keeps that standing through a turn, until it swims again.
+    /// </summary>
+    private void Swim(bool restart = true)
+    {
+        Standing = Facing == Facing.Left ? Standing.InFront : Standing.FarBehind;
+        Play(Facing == Facing.Left ? "swimming_left" : "swimming_right", restart);
+    }
 
     /// <summary>Starts it turning to swim the other way.</summary>
     private void BeginTurn()

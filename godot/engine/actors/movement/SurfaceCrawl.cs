@@ -113,6 +113,16 @@ public sealed class SurfaceCrawl
     }
 
     /// <summary>
+    /// How a crawler's moves are tried: only where each would end. Its leading edge alone is tried, so one that
+    /// stands a little way into the terrain it clings to works free of it, and it rests against what stops it and
+    /// never further back than it began. Sloped ground that holds things up by their middle stops none of its moves
+    /// across: it is put on such ground's surface under its own middle after a move across, and a move up or down
+    /// meets such ground under its middle alone. So it crosses a slope on the picture of the floor or ceiling it is
+    /// on, and turns only at a wall, a step or the end of its surface.
+    /// </summary>
+    private static readonly MoveOptions Moves = MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle };
+
+    /// <summary>
     /// Moves <paramref name="mover"/> for one update. With <paramref name="pursued"/> given, a crawler that is free to
     /// go either way along its surface goes toward that place.
     /// </summary>
@@ -128,7 +138,7 @@ public sealed class SurfaceCrawl
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        MoveOptions crawl = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        MoveOptions crawl = Moves;
         // It feels for the wall from where it will be, and keeps however far that pressed it.
         var ahead = new PixelOffset(Pixels.Zero, Pixels.FromWhole(Lookahead * _down));
         mover.Position += ahead;
@@ -168,9 +178,7 @@ public sealed class SurfaceCrawl
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        MoveOptions press = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
-        // Along a floor it climbs and follows slopes as anything walking does.
-        MoveOptions along = Side == Clings.Below ? MoveOptions.Plain with { ClimbPerPixel = 2, FollowGroundDown = 2 } : press;
+        MoveOptions press = Moves, along = Moves;
         var ahead = new PixelOffset(Pixels.FromWhole(Lookahead * _across), Pixels.Zero);
         mover.Position += ahead;
         bool found = room.MoveDown(body, (Speed + Pixels.FromWhole(1)) * _down, press).Blocked;
@@ -205,7 +213,7 @@ public sealed class SurfaceCrawl
     /// <summary>Falls until something stops it, and then crawls on from where it landed.</summary>
     private MoveReport StepFalling(IMoves mover)
     {
-        MoveOptions fall = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        MoveOptions fall = Moves;
         if (!mover.Room.Mover.MoveDown(mover.MovingBody, _fallSpeed, fall).Blocked)
         {
             if (_fallSpeed < FallSpeedLimit)

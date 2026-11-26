@@ -50,9 +50,12 @@ public partial class Crawler : Enemy
 
     private readonly SurfaceCrawl _crawl = new();
 
+    private bool _settled;
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        _settled = false;
         _crawl.Speed = Pixels.FromNumber(CrawlSpeed);
         _crawl.SpeedOnLanding = CrawlSpeed == 0 ? Pixels.FromNumber(LandingSpeed) : null;
         _crawl.Start(StartsOn, PressesLeft, PressesUp);
@@ -62,6 +65,13 @@ public partial class Crawler : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
+        // Its first update only settles it on its surface: it moves from the next.
+        if (!_settled)
+        {
+            _settled = true;
+            return;
+        }
+
         if (Room.ShakeStrength >= FallsAtShake)
             _crawl.LetGo();
         MoveReport report = _crawl.Step(this, Pursues ? Target : null);

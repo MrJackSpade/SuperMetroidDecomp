@@ -245,18 +245,6 @@ public sealed class ObjectsChecks
     }
 
     [Check]
-    public void AHazardThatHoldsKeepsThePlayerForAWhile()
-    {
-        using var world = new StandInWorld(OpenRoom).StartAt(100, 80);
-        world.Place(new Hazard { Name = "Plant", Size = new Vector2I(32, 16), HoldUpdates = 10, OngoingHundredths = 100 }, 84, 64);
-        world.Step(1);
-        Expect.True(world.Player.State is HeldState);
-        world.Step(12);
-        Expect.True(world.Player.State.InControl);
-        Expect.True(world.Player.Inventory.Amount(Inventory.Energy) < 95);
-    }
-
-    [Check]
     public void ABossEncounterWakesTheBossAndRecordsItsDefeat()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80);

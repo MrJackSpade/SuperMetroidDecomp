@@ -252,7 +252,7 @@ internal static partial class EngineDefaults
         ["GlassTube"] = [("intact", "\"\""), ("cracking", "\"\""), ("shattered", "\"\""), ("crack", "\"\""), ("bubble", "\"\""), ("open_patch", "\"\""), ("break_sound", "\"\""), ("dud_sound", "\"\"")],
         ["GrowingShutter"] = [("activation_sound", "\"\"")],
         ["Gunship"] = [("pad_closed", "\"\""), ("pad_opening", "\"\""), ("pad_closing", "\"\""), ("top", "\"\""), ("glow", "\"\""), ("bottom", "\"\""), ("bottom_below_top", "0"), ("pad_above_top", "0"), ("hover_sound", "\"\""), ("pad_opening_sound", "\"\""), ("pad_closing_sound", "\"\""), ("saving_sound", "\"\""), ("saving_updates", "0"), ("saved_message_hold_updates", "0"), ("saved_message_before_opening_updates", "0")],
-        ["Hazard"] = [("hit_damage", "0"), ("hits_without_damage", "false"), ("ongoing_hundredths", "0"), ("hold_updates", "0"), ("bite_damage", "0"), ("release_invincible_updates", "0")],
+        ["Hazard"] = [("hit_damage", "0"), ("hits_without_damage", "false")],
         ["Hibashi"] = [("first_wait", "1"), ("half_width", "8")],
         ["Hopper"] = [("speed_curve", "\"\""), ("across_speed", "3"), ("small_hop_height", "16"), ("small_hop_step", "768"), ("big_hop_height", "48"), ("big_hop_step", "1024"), ("fastest_mark", "64")],
         ["Hud"] = [("select_sound", "\"\""), ("area_folder", "\"areas\"")],

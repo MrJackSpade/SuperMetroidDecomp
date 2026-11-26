@@ -492,6 +492,16 @@ public sealed partial class EngineAssetWriter
                 ["drain"] = AcidMotion(MotherBrainRoomFxDefinitions.AcidDrains),
             })
 
+            // Her room's flash as her false death starts: its colours at each image, each shown so many updates and over
+            // again, until her brain lands and the room keeps its steady grey. The changes are of her room's own pictures.
+            .Group("room_flash", new JsonObject
+            {
+                ["images"] = EngineNames.List(MotherBrainRoomFlashImage.All.Select(
+                    image => (JsonNode)ShadeChange(MotherBrainShades.Flash(image).Key, RoomPlacesOf(EnemyDefinitionId.MotherBrainBody)))),
+                ["image_updates"] = MotherBrainRoomFlashDefinitions.FlashImageTicks,
+                ["grey"] = ShadeChange(MotherBrainShades.FinalRoom.Key, RoomPlacesOf(EnemyDefinitionId.MotherBrainBody)),
+            })
+
             // Her room's lights: out as the giant Metroid is struck its last, and each step of their coming back,
             // the last of which stays. The changes are of her room's own pictures, its blocks and what lies behind.
             .Group("room_lights", new JsonObject

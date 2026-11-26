@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -258,6 +259,8 @@ public sealed partial class EngineAssetWriter
             .Value("submerged_pause", CrocomireBridgeCollapseDefinitions.SubmergedPauseUpdates)
             .Value("melt_updates", CrocomireMeltUpdates())
             .Value("acid_sound_updates", CrocomireBridgeCollapseDefinitions.AcidSoundInterval)
+            .Value("acid_smoke_updates", CrocomireBridgeCollapseDefinitions.AcidSmokeInterval)
+            .Value("acid_smoke_depth", CrocomireBridgeCollapseDefinitions.AcidSmokeDepth)
             .Value("wall_approach_x", CrocomireSkeletonDefinitions.WallApproachX)
             .Value("spiked_wall_updates", CrocomireSkeletonDefinitions.SpikedWallUpdates)
             .Value("fall_delay", CrocomireSkeletonDefinitions.FallDelay)
@@ -279,6 +282,7 @@ public sealed partial class EngineAssetWriter
             .Value("claw_push", CrocomireFightDefinitions.ClawPush)
             .Value("tongue_across", CrocomireFightDefinitions.TongueBodyXOffset)
             .Value("dust_effect", DustFile(DustExplosionAnimation.BigDustCloud))
+            .Value("acid_smoke_effect", EffectFile(RoomEffectActorKind.BigDustCloud))
             .Value("dud_effect", DustFile(DustExplosionAnimation.DudShotTinyExplosion))
             .Value("big_dud_effect", DustFile(DustExplosionAnimation.BigExplosion))
             .Value("spit_sound", EngineNames.Sound(CrocomireSoundDefinitions.ProjectileSpit))

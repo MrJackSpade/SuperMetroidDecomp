@@ -108,6 +108,14 @@ public partial class Crocomire : Enemy, ILatchable
     [Export, DataValue("acid_sound_updates")]
     public int AcidSoundUpdates { get; set; } = 32;
 
+    /// <summary>How many updates apart the acid smokes about it while it sinks, rises and melts.</summary>
+    [Export, DataValue("acid_smoke_updates")]
+    public int AcidSmokeUpdates { get; set; } = 6;
+
+    /// <summary>How far below the acid's surface its smoke starts before its rise, in pixels.</summary>
+    [Export, DataValue("acid_smoke_depth")]
+    public int AcidSmokeDepth { get; set; } = 16;
+
     /// <summary>How far across the room Samus must have come back, in pixels, for its skeleton to break out.</summary>
     [Export, DataValue("wall_approach_x")]
     public int WallApproachX { get; set; } = 640;
@@ -227,6 +235,10 @@ public partial class Crocomire : Enemy, ILatchable
     /// <summary>The effect of a cloud of dust, by the data file of its timeline.</summary>
     [Export, DataValue("dust_effect")]
     public string DustEffect { get; set; } = "";
+
+    /// <summary>The effect of the smoke the acid raises about it.</summary>
+    [Export, DataValue("acid_smoke_effect")]
+    public string AcidSmokeEffect { get; set; } = "";
 
     /// <summary>The effect of a shot bursting harmlessly on it.</summary>
     [Export, DataValue("dud_effect")]
@@ -370,6 +382,7 @@ public partial class Crocomire : Enemy, ILatchable
     private Pixels _downSpeed;
     private Pixels _downQuickening;
     private int _acidSoundIn = 1;
+    private int _acidSmokeIn = 1;
     private int _rumble;
     private int _rumbleRepeats;
     private int _rumbleOffset;
@@ -883,6 +896,8 @@ public partial class Crocomire : Enemy, ILatchable
         _acidStep = 0;
         _acidBody = "whole";
         _fragmentsFallen = 0;
+        // The acid smokes on its first update in the acid.
+        _acidSmokeIn = 1;
         _hold = 0;
         Play("bridge_collapsed", restart: true);
         _downSpeed = Pixels.Zero;
@@ -1058,6 +1073,9 @@ public partial class Crocomire : Enemy, ILatchable
         }
 
         AcidStep step = _acidScript[_acidStep];
+        // The acid smokes about it as it sinks, rises and melts, by where it is before it moves.
+        if (step.Does is Acid.Sink or Acid.Rise or Acid.Melt)
+            SmokeAcid();
         switch (step.Does)
         {
             case Acid.Sink:
@@ -1117,6 +1135,26 @@ public partial class Crocomire : Enemy, ILatchable
         }
 
         ShowMelting();
+    }
+
+    /// <summary>
+    /// Each time its wait runs out the acid raises a cloud of smoke about it, by the number last drawn: up to 63 pixels
+    /// to one side of it, and up to 31 above a line a little under the acid's surface.
+    /// </summary>
+    private void SmokeAcid()
+    {
+        if (--_acidSmokeIn > 0)
+            return;
+        _acidSmokeIn = AcidSmokeUpdates;
+        if (AcidSmokeEffect.Length == 0)
+            return;
+        Liquid acid = Room.Liquid ?? throw new InvalidOperationException($"Crocomire \"{Name}\" is in the acid of a room with no liquid.");
+        RandomDraw last = Random.Last;
+        int across = last.Part(0, 6);
+        // Smoke on the left rises a pixel further from it than its mirror on the right.
+        if (last.Part(1, 1) == 0)
+            across = -(across + 1);
+        LeaveEffect(AcidSmokeEffect, PixelPosition.FromWhole(Position.X.Whole + across, acid.Surface.Whole + AcidSmokeDepth - last.Part(8, 5)));
     }
 
     /// <summary>Shows as much of its melting body as stands above the acid at the height it is at.</summary>

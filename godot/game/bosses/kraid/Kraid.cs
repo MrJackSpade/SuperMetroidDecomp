@@ -623,7 +623,7 @@ public partial class Kraid : Enemy
                 _rise = Rise.SlowRocks;
                 _rocksWait = 120;
                 _wait = 496;
-                Room.Shake(2, 496);
+                Room.Shake(2, 496, ShakeWay.Both);
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
                 break;

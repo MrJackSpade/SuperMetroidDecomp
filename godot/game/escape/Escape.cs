@@ -45,6 +45,7 @@ public sealed class Escape : ISessionService
     private enum Phase
     {
         Inactive,
+        Starting,
         InitialDelay,
         CountingAtCentre,
         MovingIntoPlace,
@@ -75,8 +76,8 @@ public sealed class Escape : ISessionService
     private PixelPosition _place;
     private bool _played;
 
-    /// <summary>Whether the countdown is running or has run out.</summary>
-    public bool IsRunning => _phase is not (Phase.Inactive or Phase.Stopped);
+    /// <summary>Whether the countdown is running or has run out. One begun is not running until it starts.</summary>
+    public bool IsRunning => _phase is not (Phase.Inactive or Phase.Starting or Phase.Stopped);
 
     /// <summary>
     /// Whether its readout shows: while it runs, on the updates it plays. It does not play, or show, while Samus is
@@ -105,7 +106,10 @@ public sealed class Escape : ISessionService
     /// <summary>Where its readout is on the screen, in pixels.</summary>
     public (int X, int Y) ScreenPlace => (_place.X.Whole, _place.Y.Whole);
 
-    /// <summary>Begins the countdown from <paramref name="hundredths"/> of a second.</summary>
+    /// <summary>
+    /// Begins the countdown from <paramref name="hundredths"/> of a second. It starts on the next update of its own,
+    /// which may be this one, and its first wait is counted from the update after.
+    /// </summary>
     public void Begin(int hundredths)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hundredths);
@@ -113,7 +117,7 @@ public sealed class Escape : ISessionService
         (_played, ShowsWhileHeld) = (false, false);
         (_timeUpDue, _whiteOutSteps) = (false, 0);
         _place = PixelPosition.FromWhole(CentreX, CentreY);
-        (_phase, _wait) = (Phase.InitialDelay, InitialDelay);
+        _phase = Phase.Starting;
     }
 
     /// <summary>Samus has left Zebes: the countdown stops, and after this update the ending follows.</summary>
@@ -166,6 +170,11 @@ public sealed class Escape : ISessionService
             case Phase.Inactive:
             case Phase.Expired:
             case Phase.Stopped:
+                break;
+
+            case Phase.Starting:
+                // Starting takes no step of the first wait.
+                (_phase, _wait) = (Phase.InitialDelay, InitialDelay);
                 break;
 
             case Phase.InitialDelay:

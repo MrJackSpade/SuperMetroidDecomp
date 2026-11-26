@@ -87,6 +87,9 @@ public partial class FileSelectMode : GameMode
     private Node2D? _fields;
     private CinematicSprite? _cursor;
     private CinematicSprite? _arrow;
+    private FrameTimeline? _arrowPlaying;
+    private int _arrowUpdates;
+    private int _arrowTurns;
     private ScreenFade? _fade;
     private Func<GameMode?>? _afterFade;
     private Asking _asking;
@@ -211,6 +214,7 @@ public partial class FileSelectMode : GameMode
                 break;
             case Asking.CopyConfirm:
                 (_arrow ?? throw NotShown()).Step();
+                _arrowUpdates++;
                 StepConfirm(input);
                 break;
             case Asking.ClearConfirm:
@@ -469,6 +473,8 @@ public partial class FileSelectMode : GameMode
     /// <summary>Shows the page of <paramref name="asking"/>: its picture, its heading, what each saved game holds, and the letters it names saved games with.</summary>
     private void Show(Asking asking)
     {
+        if (_asking == Asking.CopyConfirm)
+            CountArrowTurns();
         _asking = asking;
         DataNode data = ScreenData();
         bool main = asking is Asking.Main or Asking.HelmetTurns;
@@ -522,9 +528,11 @@ public partial class FileSelectMode : GameMode
         if (arrow.Visible)
         {
             string route = $"{_from + 1}_{_to + 1}";
-            arrow.Play(Timelines().Get(data.Get("arrows").Text(route)));
+            _arrowPlaying = ArrowCarryingOn(Timelines().Get(data.Get("arrows").Text(route)));
+            arrow.Play(_arrowPlaying);
             arrow.Place = Place("arrow_" + route);
             arrow.Step();
+            _arrowUpdates = 1;
         }
 
         (_cursor ?? throw NotShown()).Visible = asking is not (Asking.CopyDone or Asking.ClearDone);
@@ -592,6 +600,40 @@ public partial class FileSelectMode : GameMode
             _ => _dataRow < SavedGames ? At(data.List("data_slots")[_dataRow].Get("cursor")) : Place("cursor_data_exit"),
         };
         cursor.ShowPlace();
+    }
+
+    /// <summary>
+    /// The copy arrow's <paramref name="timeline"/>, begun on the colours the arrows last stopped on: as on the
+    /// cartridge, each copy asked holds them its first while and then turns them on from there, not from the first.
+    /// </summary>
+    /// <remarks>
+    /// The timeline's first step holds the first colours, and the steps it loops through turn them once each; the
+    /// arrows of every copy turn through the same colours.
+    /// </remarks>
+    private FrameTimeline ArrowCarryingOn(FrameTimeline timeline)
+    {
+        int loop = timeline.LoopsTo ?? throw new InvalidOperationException("The copy arrow's timeline turns its colours round a loop.");
+        TimelineStep[] turns = [.. timeline.Steps.Skip(loop)];
+        TimelineStep shown = _arrowTurns == 0 ? timeline.Steps[0] : turns[(_arrowTurns - 1) % turns.Length];
+        TimelineStep[] steps =
+        [
+            shown with { Updates = timeline.Steps[0].Updates },
+            .. Enumerable.Range(0, turns.Length).Select(turn => turns[(_arrowTurns + turn) % turns.Length]),
+        ];
+        return new FrameTimeline(steps, 1);
+    }
+
+    /// <summary>Counts the turns the arrow's colours took while the copy was asked, to carry them on to the next.</summary>
+    private void CountArrowTurns()
+    {
+        FrameTimeline playing = _arrowPlaying ?? throw NotShown();
+        int step = 0;
+        // A step begins on the update after the one before it has shown its while; the first on the update the arrow shows.
+        for (int begins = playing.Steps[0].Updates + 1; begins <= _arrowUpdates; begins += playing.Steps[step].Updates)
+        {
+            step = step + 1 < playing.Steps.Count ? step + 1 : playing.LoopsTo!.Value;
+            _arrowTurns++;
+        }
     }
 
     /// <summary>A picture drawn from its corner at <paramref name="at"/>.</summary>

@@ -50,13 +50,12 @@ public partial class FirefleaDarkness : RoomEffect
     /// <inheritdoc/>
     protected override void OnStep(Room room)
     {
-        // At its darkest the pulse stops at its darkest too.
-        if (_killed >= DarknessLevels.Length - 1)
-            _pulse = Array.IndexOf(Pulse, 6);
-        else if (--_wait <= 0)
+        // The step showing plays out its time whatever happens. With the room at its darkest, the step that follows
+        // is the pulse's own darkest, and it is held there: the pulse does not jump to it.
+        if (--_wait <= 0)
         {
             _wait = PulseStepUpdates;
-            _pulse = (_pulse + 1) % Pulse.Length;
+            _pulse = _killed >= DarknessLevels.Length - 1 ? Array.IndexOf(Pulse, 6) : (_pulse + 1) % Pulse.Length;
         }
 
         QueueRedraw();

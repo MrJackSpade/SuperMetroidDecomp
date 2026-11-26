@@ -40,9 +40,10 @@ def opens_a_ticket(text: str) -> bool:
 
 
 HOW = ("Open a ticket with `python tools/new-ticket.py --title ... --body-file ... --milestone ... --label ... "
-       "--presentation-only true|false [--idiomatic true|false] [--design-justification \"...\"]`: every ticket says whether "
-       "its change is exclusively presentation; one that is says whether it is idiomatic; one that is exclusively presentation "
-       "and not idiomatic gives the justification for its design pattern (the owner's rule, 2026-11-26).")
+       "--presentation-only true|false [--idiomatic true|false] [--design-justification \"...\" --why-not-idiomatic \"...\"]`: "
+       "every ticket says whether its change is exclusively presentation; one that is says whether it is idiomatic; one that is "
+       "exclusively presentation and not idiomatic gives the justification for its design pattern and why the same effect "
+       "cannot be produced idiomatically (the owner's rule, 2026-11-26).")
 
 payload = json.load(sys.stdin)
 command = payload.get("tool_input", {}).get("command", "")
@@ -74,3 +75,6 @@ if RUNS_TOOL.search(command):
         if idiomatic.group(1) == "false" and re.search(r"--design-justification[=\s]+[\"']?[^\s\"'-]", command) is None:
             deny("A ticket that is exclusively presentation and not idiomatic gives the justification for its design pattern: "
                  "--design-justification \"...\". " + HOW)
+        if idiomatic.group(1) == "false" and re.search(r"--why-not-idiomatic[=\s]+[\"']?[^\s\"'-]", command) is None:
+            deny("A ticket that is exclusively presentation and not idiomatic also says why the same effect cannot be produced "
+                 "idiomatically: --why-not-idiomatic \"...\". If it can be, that is the route to take. " + HOW)

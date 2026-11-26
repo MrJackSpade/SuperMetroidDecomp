@@ -9,7 +9,11 @@ actual difference a player sees or hears. A ticket that is not exclusively prese
 nothing further.
 
     python tools/new-ticket.py --title "..." --body-file body.md --milestone v1.0.0 --label low
-        --presentation-only true|false [--idiomatic true|false] [--design-justification "..."]
+        --presentation-only true|false [--idiomatic true|false]
+        [--design-justification "..." --why-not-idiomatic "..."]
+
+A change that is exclusively presentation and not idiomatic needs both of the last two: why it matters more than an
+idiomatic design, and why the same effect cannot be produced idiomatically. Where it can be, that is the route taken.
 
 The hook tools/require-ticket-declaration.py refuses `gh issue create` by any other route. Prints the new ticket's
 address."""
@@ -29,7 +33,7 @@ def boolean(text: str) -> bool:
     return text == "true"
 
 
-def declaration(presentation_only: bool, idiomatic: bool | None, justification: str | None) -> str:
+def declaration(presentation_only: bool, idiomatic: bool | None, justification: str | None, why_not_idiomatic: str | None) -> str:
     """The declaration as it is written into the body, or an error saying what it lacks."""
     lines = [HEADING, "", f"- Presentation only: {str(presentation_only).lower()}"]
     if not presentation_only:
@@ -43,7 +47,12 @@ def declaration(presentation_only: bool, idiomatic: bool | None, justification: 
         raise ValueError(
             "A ticket that is exclusively presentation and not idiomatic gives the justification for its design pattern: "
             "give --design-justification with the reason in words.")
+    if why_not_idiomatic is None or not why_not_idiomatic.strip():
+        raise ValueError(
+            "A ticket that is exclusively presentation and not idiomatic also says why the same effect cannot be produced "
+            "idiomatically: give --why-not-idiomatic. If it can be, that is the route to take: make the ticket idiomatic.")
     lines.append(f"- Design justification: {justification.strip()}")
+    lines.append(f"- Why it cannot be idiomatic: {why_not_idiomatic.strip()}")
     return "\n".join(lines)
 
 
@@ -60,9 +69,13 @@ def main() -> int:
         help="For a presentation change that is not idiomatic: why implementing it is more important than an idiomatic design. "
              "It is justified when the owner says it is, and never without cause to believe a player sees or hears a difference: "
              "say what that difference is.")
+    parser.add_argument(
+        "--why-not-idiomatic",
+        help="For a presentation change that is not idiomatic: why the same effect cannot be produced idiomatically. "
+             "Where it can be, that is the route taken and the ticket is an idiomatic one.")
     arguments = parser.parse_args()
 
-    declared = declaration(arguments.presentation_only, arguments.idiomatic, arguments.design_justification)
+    declared = declaration(arguments.presentation_only, arguments.idiomatic, arguments.design_justification, arguments.why_not_idiomatic)
     with open(arguments.body_file, encoding="utf-8") as file:
         body = file.read().rstrip()
     if HEADING in body:

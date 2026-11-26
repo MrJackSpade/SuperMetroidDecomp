@@ -248,9 +248,15 @@ reproducing a reported bug.
   justified and its never justified if you have not cause to believe theres an actual visual difference."
   A ticket that says only that the two games differ, without what a player would see or hear differently, is
   not justified.
+- The justification also says why the work cannot be made idiomatic. The owner's words, 2026-11-26: "The
+  justification should also require why the work can not be made ideomatic. Its not just about why the change
+  is needed, its why the change is needed in a way that isn't ideomatic. If the agent cant produce the same
+  effect ideomatically, that should be the route taken". Where the same effect can be produced idiomatically,
+  that is the route taken and the ticket is an idiomatic one.
 - A ticket is opened only with `python tools/new-ticket.py`, which takes `--presentation-only true|false`,
   for a change that is exclusively presentation `--idiomatic true|false`, and for one that is not idiomatic
-  `--design-justification "..."`, and writes them into the ticket's body under "Design declaration".
+  both `--design-justification "..."` and `--why-not-idiomatic "..."`, and writes them into the ticket's body
+  under "Design declaration".
 - The hook `tools/require-ticket-declaration.py` (wired in `.claude/settings.json`) refuses `gh issue create`
   by any other route, a script that calls it, and a call of the tool that lacks what the rule asks.
 

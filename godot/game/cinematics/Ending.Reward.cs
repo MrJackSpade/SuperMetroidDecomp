@@ -137,7 +137,7 @@ public partial class Ending
                 if (!StepJump())
                     break;
                 Session.Sounds.Request(Data().Text("shot_sound"), channel: "weapons", priority: SoundPriority.Essential);
-                ShowFloorPicture("shot_floor", new Vector2(104, 112));
+                ShowFloorPicture("shot_floor", new Vector2(104, 112), repeats: false);
                 (_floorX, _floorY, _shotSize, _shotAngle, _shotHolding, _shotAge, _wait) = (-4, -8, 2304, 0, false, 0, 180);
                 _phase = Phase.Shot;
                 break;

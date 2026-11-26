@@ -107,14 +107,6 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("can_jump_while_crawling")]
     public bool CanJumpWhileCrawling { get; set; }
 
-    /// <summary>Whether the player can jump off a wall.</summary>
-    [Export, DataValue("can_wall_jump")]
-    public bool CanWallJump { get; set; }
-
-    /// <summary>The equipment that must be switched on for the player to crouch; empty when none is needed.</summary>
-    [Export, DataValue("crouch_needs")]
-    public string CrouchNeeds { get; set; } = "";
-
     /// <summary>The equipment that must be switched on for the player to take the low form; empty when none is needed.</summary>
     [Export, DataValue("crawl_needs")]
     public string CrawlNeeds { get; set; } = "";
@@ -123,36 +115,9 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("jump_while_crawling_needs")]
     public string JumpWhileCrawlingNeeds { get; set; } = "";
 
-    /// <summary>The equipment that must be switched on for the player to jump off a wall; empty when none is needed.</summary>
-    [Export, DataValue("wall_jump_needs")]
-    public string WallJumpNeeds { get; set; } = "";
-
-    /// <summary>How near a wall must be, in pixels, for the player to jump off it.</summary>
+    /// <summary>How near a wall must be, in pixels, for the player to jump off it: the game's player finds the wall.</summary>
     [Export, DataValue("wall_jump_reach")]
     public int WallJumpReach { get; set; } = 1;
-
-    /// <summary>How many updates after a wall jump the player cannot steer.</summary>
-    [Export, DataValue("wall_jump_lock_updates")]
-    public int WallJumpLockUpdates { get; set; } = 8;
-
-    /// <summary>The speed across a wall jump starts with, away from the wall.</summary>
-    [Export, DataValue("wall_jump_across_speed")]
-    public double WallJumpAcrossSpeed { get; set; } = 2;
-
-    /// <summary>Whether a wall jump can start from any jump or fall; when not, only from a state of the game's that allows it.</summary>
-    [Export, DataValue("wall_jump_from_any_jump")]
-    public bool WallJumpFromAnyJump { get; set; } = true;
-
-    /// <summary>
-    /// Whether the player steers a wall jump from its start, by the wall jump's move values; when not, they leave the
-    /// wall at the set speed and cannot steer until the lock is over.
-    /// </summary>
-    [Export, DataValue("wall_jump_steered")]
-    public bool WallJumpSteered { get; set; }
-
-    /// <summary>Whether a wall jump needs the player to be steering away from the wall.</summary>
-    [Export, DataValue("wall_jump_needs_steering_away")]
-    public bool WallJumpNeedsSteeringAway { get; set; }
 
     /// <summary>How many updates crouching down takes; zero crouches at once.</summary>
     [Export, DataValue("crouch_updates")]
@@ -237,17 +202,11 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("boosted_dash_cap")]
     public double BoostedDashCap { get; set; } = 2;
 
-    /// <summary>Whether the player may crouch now: the game allows it and the equipment it needs is switched on.</summary>
-    public bool MayCrouch => CanCrouch && HasWhatItNeeds(CrouchNeeds);
-
     /// <summary>Whether the player may take the low form now.</summary>
     public bool MayCrawl => CanCrawl && HasWhatItNeeds(CrawlNeeds);
 
     /// <summary>Whether the player may jump while in the low form now.</summary>
     public bool MayJumpWhileCrawling => CanJumpWhileCrawling && HasWhatItNeeds(JumpWhileCrawlingNeeds);
-
-    /// <summary>Whether the player may jump off a wall now.</summary>
-    public bool MayWallJump => CanWallJump && HasWhatItNeeds(WallJumpNeeds);
 
     /// <summary>Whether the player's jumps start with their boosted speeds now.</summary>
     public bool JumpsAreBoosted => JumpBoostNeeds.Length > 0 && Inventory.IsOn(JumpBoostNeeds);

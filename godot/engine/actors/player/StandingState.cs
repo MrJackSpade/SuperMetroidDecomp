@@ -39,7 +39,7 @@ public sealed class StandingState : PlayerState
             _settling = Countdown.Over;
         if (owner.JumpPressed)
             return new JumpingState();
-        if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
+        if (owner.CanCrouch && owner.Input.WasPressed(GameAction.Down))
             return owner.Crouch();
         if (owner.Intent == 0)
             return owner.Aim == Shared.Aim.Forward ? null : this;

@@ -27,19 +27,10 @@ public sealed class SamusChecks
     }
 
     [Check]
-    public void SheCanCrouchAndWallJumpFromTheStart()
-    {
-        Samus samus = MakeSamus();
-        Expect.True(samus.MayCrouch);
-        Expect.True(samus.MayWallJump);
-        samus.Free();
-    }
-
-    [Check]
     public void TheEquipmentHerSceneNamesIsEquipmentTheGameHas()
     {
         Samus samus = MakeSamus();
-        foreach (string needed in new[] { samus.CrouchNeeds, samus.CrawlNeeds, samus.JumpWhileCrawlingNeeds, samus.WallJumpNeeds })
+        foreach (string needed in new[] { samus.CrawlNeeds, samus.JumpWhileCrawlingNeeds })
             Expect.True(needed.Length == 0 || Equipment.All.Contains(needed), needed);
         samus.Free();
     }

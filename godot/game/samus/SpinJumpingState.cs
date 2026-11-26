@@ -273,7 +273,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         bool ready = _ready.IsRunning;
         _showsReady = ready;
         _ready = _ready.Stepped();
-        if (!_looksForWalls || !owner.MayWallJump || FeelForWall(owner, out Enemy? enemy) is not { } gap)
+        if (!_looksForWalls || FeelForWall(owner, out Enemy? enemy) is not { } gap)
             return false;
 
         // Ready, a fresh press of the jump launches her if the wall is nearer than her reach; something solid found

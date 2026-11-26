@@ -20,7 +20,7 @@ public sealed class RunningState : PlayerState
     {
         owner.AimFromInput();
         _hadSpeed = !owner.Velocity.X.IsZero;
-        if (owner.MayCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
+        if (owner.CanCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
             return owner.Crouch();
         if (owner.JumpPressed)
             return new JumpingState();

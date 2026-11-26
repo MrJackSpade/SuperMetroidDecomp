@@ -32,7 +32,7 @@ public sealed class WallStoppedState : PlayerState
             return Aiming(owner, Aim.DiagonalUp, new RunningState());
         if (forward && input.IsHeld(GameAction.Down))
             return Aiming(owner, Aim.DiagonalDown, new RunningState());
-        if (input.WasPressed(GameAction.Down) && owner.MayCrouch)
+        if (input.WasPressed(GameAction.Down) && owner.CanCrouch)
             return owner.Crouch();
         if (back && (angleDown || angleUp))
         {

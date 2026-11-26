@@ -970,11 +970,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   stood. A player who has stood since landing for as long as a landing takes to
   settle (`landing_updates`) is given the same chance once more. How long a landing takes to settle may differ by
   the state it ends, which the game's player says (`SettlingUpdatesAfter`, asked by `AirStance.FallAndLand`).
-- A wall jump of the plain kind leaves the wall at a set speed, facing away, with steering locked for a moment, and
-  then carries on as a jump. One of the steered kind (`wall_jump_steered`) leaves it with the player's own speed
-  across at rest (a dash and momentum kept) and the way they face unchanged, gains speed by the wall jump's own move
-  values whether or not a direction is held, and lasts for as long as the jump is held; let go, it carries on as a
-  jump.
+- A wall jump leaves the wall with the player's own speed across at rest (a dash and momentum kept) and the way
+  they face unchanged, gains speed by the wall jump's own move values whether or not a direction is held, and lasts
+  for as long as the jump is held; let go, it carries on as a jump. The engine does not find the wall: the game's
+  player says when one is within reach (`wall_jump_reach`) and enters the state, as this game's spin does.
 - **A knockback** interrupts: it takes the player when they have next moved. It throws them away from the hit,
   facing as they were, for as long as the player's knockbacks do unless whoever knocks them back says how long.
   The side a hit comes from is where it is, when it says (`Hit.At`, a shot's own place, compared with the player's

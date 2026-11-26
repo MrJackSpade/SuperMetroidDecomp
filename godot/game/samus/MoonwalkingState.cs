@@ -28,7 +28,7 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
     public override PlayerState? Asked(Player owner)
     {
         owner.Aim = AimOf(owner, angleDownFirst: owner.Facing == Facing.Left);
-        if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
+        if (owner.CanCrouch && owner.Input.WasPressed(GameAction.Down))
             return owner.Crouch();
         if (owner.JumpPressed)
             return TurnWithJump();

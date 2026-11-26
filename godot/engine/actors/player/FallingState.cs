@@ -44,9 +44,6 @@ public sealed class FallingState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
-        if (owner.WallJumpFromAnyJump && WallJumpingState.CanStart(owner))
-            return new WallJumpingState();
-
         owner.StepDash(building: false);
         owner.SteerAndMoveInAir(owner.Moves(FallingMoves));
 

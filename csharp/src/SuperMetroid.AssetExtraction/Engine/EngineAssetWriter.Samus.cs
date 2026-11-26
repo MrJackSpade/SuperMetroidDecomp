@@ -243,9 +243,6 @@ public sealed partial class EngineAssetWriter
             .Value("crawl_needs", "morph_ball")
             .Value("can_jump_while_crawling", true)
             .Value("jump_while_crawling_needs", "spring_ball")
-            .Value("can_wall_jump", true)
-            .Value("wall_jump_from_any_jump", false)
-            .Value("wall_jump_needs_steering_away", true)
             .Value("jump_boost_needs", "hi_jump_boots")
             .Value("dash_action", "run")
             .Value("dash_boost_needs", "speed_booster")
@@ -254,8 +251,6 @@ public sealed partial class EngineAssetWriter
             // values for as long as the jump is held. The spin is ready to jump off a wall it has found for as long as
             // its ready picture is shown.
             .Value("wall_jump_reach", SamusMovementDefinitions.WallJumpReachPixels)
-            .Value("wall_jump_steered", true)
-            .Value("wall_jump_across_speed", 0)
             .Value("wall_jump_ready_updates", SamusSegmentUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
 
             // A wall jump kicks up the dust a landing raises, behind her as she leaves the wall.

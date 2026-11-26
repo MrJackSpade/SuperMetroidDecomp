@@ -166,28 +166,6 @@ public sealed class PlayerChecks
     }
 
     [Check]
-    public void AWallJumpLeavesTheWallOnlyWhenTheGameAllowsIt()
-    {
-        string[] shaft = ["#......#", "#......#", "#......#", "#......#", "#......#", "#......#", "#......#", "########"];
-
-        using (var without = new StandInWorld(shaft).StartAt(21, 60).Setup())
-        {
-            without.Step(1, GameAction.Left);
-            without.Press(GameAction.Jump, GameAction.Left);
-            Expect.False(without.Player.State is WallJumpingState);
-        }
-
-        using var world = new StandInWorld(shaft).StartAt(21, 60).Setup();
-        world.Player.CanWallJump = true;
-        world.Step(1, GameAction.Left);
-        world.Press(GameAction.Jump, GameAction.Left);
-        Expect.True(world.Player.State is WallJumpingState);
-        world.Step(3);
-        Expect.True(world.Player.Velocity.X > Pixels.Zero || world.Player.Position.X > Pixels.FromWhole(21));
-        Expect.Equal(Facing.Right, world.Player.Facing);
-    }
-
-    [Check]
     public void AHitCostsEnergyKnocksThePlayerBackAndLeavesThemBrieflyUnhurtable()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(100, 80).Setup();

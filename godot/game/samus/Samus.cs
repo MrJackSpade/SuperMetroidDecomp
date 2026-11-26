@@ -1339,7 +1339,7 @@ public partial class Samus : Player
                 {
                     // A jump from a run is a spin; from standing or a crouch it is a plain jump, whatever is held. A
                     // press of down in the same update crouches her instead.
-                    if (current is RunningState && !(MayCrouch && CrouchWhileRunning && input.WasPressed(GameAction.Down)))
+                    if (current is RunningState && !(CanCrouch && CrouchWhileRunning && input.WasPressed(GameAction.Down)))
                         return new SpinJumpingState();
                     return null;
                 }

@@ -213,4 +213,7 @@ public sealed class CrawlingState : PlayerState
         owner.FallFromRest();
         owner.ComeToRest();
     }
+
+    /// <summary>Left and right held together are read as rightward, whichever way the player faces.</summary>
+    public override int ReadsBothAcross(Player owner) => 1;
 }

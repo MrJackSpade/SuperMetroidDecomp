@@ -88,4 +88,7 @@ public sealed class WallJumpingState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Ended(Player owner) =>
         owner.WallJumpSteered || _locked.IsRunning ? null : new JumpingState(keepsSpeed: true);
+
+    /// <summary>Left and right held together are read as the way behind.</summary>
+    public override int ReadsBothAcross(Player owner) => -Forward(owner);
 }

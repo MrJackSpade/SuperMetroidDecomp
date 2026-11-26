@@ -88,4 +88,7 @@ public sealed class TurningState : PlayerState
         owner.EndMomentum();
         return null;
     }
+
+    /// <summary>Left and right held together are read as the way turned to, which the player now faces: the turn is kept.</summary>
+    public override int ReadsBothAcross(Player owner) => Forward(owner);
 }

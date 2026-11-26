@@ -64,6 +64,16 @@ public abstract class PlayerState : State<Player>
     public virtual SlowFollowing? ViewFollowsSlowly(Player owner) => null;
 
     /// <summary>
+    /// How this state reads left and right held together (<see cref="Player.Intent"/>): 1 as rightward, -1 as
+    /// leftward, 0 as neither. A state reads them as neither unless it says otherwise; most of those the player moves
+    /// in read them as one way, the way ahead or the way behind, and so go on or turn.
+    /// </summary>
+    public virtual int ReadsBothAcross(Player owner) => 0;
+
+    /// <summary>The way the player faces, as a way across: 1 rightward, -1 leftward.</summary>
+    protected static int Forward(Player owner) => owner.Facing == Engine.Shared.Facing.Right ? 1 : -1;
+
+    /// <summary>
     /// The form the player is in for this state, taken as the state is entered; null for a state that takes them in
     /// the form they have. The player fits the form before anything of the state is entered
     /// (<see cref="Player.FitForm"/>): where it fits they are put where the fitting leaves them and the state is

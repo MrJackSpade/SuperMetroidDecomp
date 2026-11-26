@@ -50,4 +50,7 @@ public sealed class CrouchingState : PlayerState
         owner.EndMomentum();
         return null;
     }
+
+    /// <summary>Left and right held together are read as the way ahead, which stands the player up.</summary>
+    public override int ReadsBothAcross(Player owner) => Forward(owner);
 }

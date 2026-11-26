@@ -70,4 +70,7 @@ public sealed class StandingState : PlayerState
 
         return grounded ? null : new FallingState(offFloor: true);
     }
+
+    /// <summary>Left and right held together are read as the way behind: the player turns, and turns again once turned.</summary>
+    public override int ReadsBothAcross(Player owner) => -Forward(owner);
 }

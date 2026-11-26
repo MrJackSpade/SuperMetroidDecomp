@@ -68,4 +68,7 @@ public sealed class WallStoppedState : PlayerState
         owner.StopAcross();
         return grounded ? null : new FallingState(offFloor: true);
     }
+
+    /// <summary>Left and right held together are read as the way behind: she turns from the wall.</summary>
+    public override int ReadsBothAcross(Player owner) => -Forward(owner);
 }

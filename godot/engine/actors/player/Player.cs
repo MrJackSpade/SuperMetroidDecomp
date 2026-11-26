@@ -458,8 +458,19 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The middle of the top of the player's body.</summary>
     public PixelPosition Head => new(Position.X, Pixels.FromWhole(Position.Y.Whole - HalfHeight));
 
-    /// <summary>Which way the player is steering: -1 left, 1 right, 0 neither or both.</summary>
-    public int Intent => (_input.IsHeld(GameAction.Right) ? 1 : 0) - (_input.IsHeld(GameAction.Left) ? 1 : 0);
+    /// <summary>
+    /// Which way the player is steering: -1 left, 1 right, 0 neither. Left and right held together are no direction of
+    /// their own: they are read as the state the player is in reads them (<see cref="PlayerState.ReadsBothAcross"/>),
+    /// one way, the other, or neither.
+    /// </summary>
+    public int Intent
+    {
+        get
+        {
+            bool right = _input.IsHeld(GameAction.Right), left = _input.IsHeld(GameAction.Left);
+            return right && left ? State.ReadsBothAcross(this) : (right ? 1 : 0) - (left ? 1 : 0);
+        }
+    }
 
     /// <summary>
     /// How the player's body meets terrain: stopped by terrain and solids, held up by sloped ground under its middle

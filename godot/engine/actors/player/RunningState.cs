@@ -74,4 +74,7 @@ public sealed class RunningState : PlayerState
         owner.EndMomentum();
         return null;
     }
+
+    /// <summary>Left and right held together are read as the way ahead: the run goes on.</summary>
+    public override int ReadsBothAcross(Player owner) => Forward(owner);
 }

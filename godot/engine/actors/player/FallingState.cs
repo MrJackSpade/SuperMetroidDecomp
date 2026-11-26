@@ -72,4 +72,10 @@ public sealed class FallingState : PlayerState
         owner.LoseMomentum();
         return null;
     }
+
+    /// <summary>
+    /// Left and right held together are read as the way behind by a player falling upright, who turns in the air, and
+    /// as the way ahead by one falling in the low form, who falls on as they are.
+    /// </summary>
+    public override int ReadsBothAcross(Player owner) => owner.Form == Player.Crawling ? Forward(owner) : -Forward(owner);
 }

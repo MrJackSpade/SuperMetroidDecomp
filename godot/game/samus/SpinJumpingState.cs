@@ -330,4 +330,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         : owner.Inventory.IsOn(Equipment.ScrewAttack) ? Sounds.ScrewAttack
         : owner.Inventory.IsOn(Equipment.SpaceJump) ? Sounds.SpaceJump
         : Sounds.SpinJump;
+
+    /// <summary>Left and right held together are read as the way ahead: the spin keeps its way.</summary>
+    public override int ReadsBothAcross(Player owner) => Forward(owner);
 }

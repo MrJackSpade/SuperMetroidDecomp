@@ -80,4 +80,10 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
         owner.Facing = owner.Facing.Opposite();
         return new FallingState(offFloor: true);
     }
+
+    /// <summary>
+    /// Left and right held together are read as the way behind while the attack is held, so she walks on backwards,
+    /// and as the way ahead without it, which sets her running.
+    /// </summary>
+    public override int ReadsBothAcross(Player owner) => owner.Input.IsHeld(GameAction.Attack) ? -Forward(owner) : Forward(owner);
 }

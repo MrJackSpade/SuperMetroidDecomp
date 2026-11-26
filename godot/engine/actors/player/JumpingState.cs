@@ -215,4 +215,7 @@ public sealed class JumpingState : PlayerState
         else if (owner.Velocity.Y < cut)
             owner.Velocity = owner.Velocity.WithY(cut);
     }
+
+    /// <summary>Left and right held together are read as the way behind: the player turns in the air.</summary>
+    public override int ReadsBothAcross(Player owner) => -Forward(owner);
 }

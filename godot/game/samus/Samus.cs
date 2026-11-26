@@ -1177,8 +1177,8 @@ public partial class Samus : Player
         int before = _hurt;
 
         // Pinned in a beam, thrown back, her hurt is not heard: it is still counted and colours her. Nor is it heard
-        // while a scene shows her in its own colours, as the opening's flashbacks do.
-        if (before == HurtSoundCount && SceneColours.Length == 0 && State is not DrainedState { Posed: DrainedState.Pose.Pinned })
+        // while a scene shows her, as the opening's flashbacks do.
+        if (before == HurtSoundCount && !IsShownByScene && State is not DrainedState { Posed: DrainedState.Pose.Pinned })
             Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
         int after = ++_hurt;
         if (after == HurtRecoveryCount)

@@ -83,22 +83,10 @@ public partial class Samus
         : "power";
 
     /// <summary>
-    /// The colours a scene shows her suit and her beams in, whatever she wears and has switched on: the opening's
-    /// flashbacks show her in the opening's own. Nothing while she is shown in her own.
+    /// Whether a scene is showing her, played from a recording, and she is not being played: the opening's flashbacks
+    /// do. Her hurt is not heard then. What such a scene looks like is the scene's own affair, not hers.
     /// </summary>
-    public string SceneColours { get; private set; } = "";
-
-    /// <summary>The colouring her suit rests in: the scene's while one shows her in its own, else that of the suit she wears.</summary>
-    private string SuitShown => SceneColours.Length > 0 ? SceneColours : SuitWorn;
-
-    /// <summary>Has her shown in the colours of the scene named, or, with nothing named, in her own again.</summary>
-    public void ShowInSceneColours(string scene)
-    {
-        ArgumentNullException.ThrowIfNull(scene);
-        SceneColours = scene;
-        Colours.ShowSuit(Colours.SuitOf(SuitShown));
-        ShowBeamColours();
-    }
+    public bool IsShownByScene { get; set; }
 
     /// <summary>The beams whose colours her pictures draw on, in the order their colourings are named for them.</summary>
     private static readonly (string Equipment, string Name)[] ColouredBeams =
@@ -120,12 +108,6 @@ public partial class Samus
     /// </summary>
     public void ShowBeamColours()
     {
-        if (SceneColours.Length > 0)
-        {
-            Colours.ShowBeams(Colours.BeamsOf(SceneColours));
-            return;
-        }
-
         Colours.ShowBeams(Colours.BeamsOf(BeamsSwitchedOn));
     }
 
@@ -167,7 +149,7 @@ public partial class Samus
     private void ReadColours()
     {
         _colours = SamusColours.Read(Room.Content.ReadData(ColoursFile));
-        Colours.ShowSuit(Colours.SuitOf(SuitShown));
+        Colours.ShowSuit(Colours.SuitOf(SuitWorn));
         ShowBeamColours();
         _beamsOwned = BeamsOwned;
         _energyAtLastCheck = Inventory.Amount(Amounts.Energy);
@@ -210,7 +192,7 @@ public partial class Samus
     /// </summary>
     private void StepColours(int hurtCount)
     {
-        string suit = Colours.SuitOf(SuitShown);
+        string suit = Colours.SuitOf(SuitWorn);
         if (State is CollectingSuitState)
         {
             Colours.ShowSuit(suit);

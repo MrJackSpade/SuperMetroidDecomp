@@ -180,6 +180,9 @@ public sealed partial class EngineAssetWriter
             // How long a letter shows each colouring of its glow: the old game's five updates, which is also how
             // long it takes to type the next.
             ["glow_step_updates"] = 5,
+            // The flashbacks are seen through one grading of the view: every colour goes to the nearest in
+            // brightness of these, which are black and the colours the opening shows Samus's suit in.
+            ["flashback_ramp"] = FlashbackRamp(),
             ["mother_brain_demo"] = "cinematics/demos/intro_mother_brain.json",
             ["discovery_run_demo"] = "cinematics/demos/intro_discovery_run.json",
             ["discovery_look_demo"] = "cinematics/demos/intro_discovery_look.json",
@@ -222,6 +225,29 @@ public sealed partial class EngineAssetWriter
         WriteIntroRoom(
             "cinematics/intro_discovery_room.json", IntroScenePage.BabyDiscoveryRoom, IntroBabyDiscoveryCollisionDefinitions.Columns,
             IntroBabyDiscoveryCollisionDefinitions.RoomRows, IntroBabyDiscoveryCollision.CreateCollision());
+    }
+
+    /// <summary>
+    /// The colours a flashback's view is graded to, darkest first: black, and each colour the opening's colouring of
+    /// Samus's suit shows on her body's pictures.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The opening's colouring changes nothing of her body's pictures.</exception>
+    private JsonArray FlashbackRamp()
+    {
+        static int Brightness(string colour)
+        {
+            int rgb = int.Parse(colour, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture);
+            return (299 * ((rgb >> 16) & 0xFF)) + (587 * ((rgb >> 8) & 0xFF)) + (114 * (rgb & 0xFF));
+        }
+
+        JsonObject suit = ShadeChange(SuperMetroid.Core.Samus.Colours.SamusShades.IntroSuit.Key, SpriteFamily, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+        {
+            [SamusBodyPlace] = [SamusBodySheet],
+        });
+        if (suit[SamusBodyPlace] is not JsonObject body || body.Count == 0)
+            throw new InvalidDataException("The opening's colouring of Samus's suit changes nothing of her body's pictures.");
+        string[] colours = [.. body.Select(swap => swap.Value!.GetValue<string>()).Append("000000").Distinct(StringComparer.Ordinal).OrderBy(Brightness)];
+        return new JsonArray([.. colours.Select(colour => (JsonNode)colour)]);
     }
 
     /// <summary>

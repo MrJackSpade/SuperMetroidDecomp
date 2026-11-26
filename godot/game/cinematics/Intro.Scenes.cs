@@ -21,9 +21,6 @@ namespace Game.Cinematics;
 /// </remarks>
 public partial class Intro
 {
-    /// <summary>The colours Samus is shown in through a flashback, as her colours' data names them.</summary>
-    private const string FlashbackColours = "opening";
-
     /// <summary>How near the egg Samus runs before she stops to look.</summary>
     private const int DiscoveryStopX = 178;
 
@@ -124,7 +121,8 @@ public partial class Intro
     {
         if (_room is { } room)
         {
-            ((Samus)Session.Player).ShowInSceneColours("");
+            ((Samus)Session.Player).IsShownByScene = false;
+            (_sceneRoot ?? throw NotEntered()).Grade([]);
             room.Teardown();
             room.QueueFree();
         }
@@ -161,8 +159,10 @@ public partial class Intro
 
         ((Samus)samus).Select(data.Has("selected") ? data.Text("selected") : "");
 
-        // A flashback shows her in the opening's own colours, whatever she wears.
-        ((Samus)samus).ShowInSceneColours(FlashbackColours);
+        // A flashback is seen through the opening's own colours, all of it alike: the room, Samus, her shots and
+        // what she meets there are each shown as they are anywhere, and the scene's view is graded as one.
+        ((Samus)samus).IsShownByScene = true;
+        (_sceneRoot ?? throw NotEntered()).Grade([.. Data().List("flashback_ramp").Select(colour => new Color(colour.AsText()))]);
         Record(recording);
     }
 

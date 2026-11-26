@@ -89,7 +89,7 @@ public partial class KraidLint : Enemy
     private ColourChange? _kraidColours;
 
     /// <summary>The colours last shown on it.</summary>
-    private ColourChange? _shown;
+    private ColourChange? _coloursShown;
 
     /// <summary>The colours of its hurt flash, which it shows as it gathers.</summary>
     private ColourChange _flashColours = ColourChange.None;
@@ -139,10 +139,10 @@ public partial class KraidLint : Enemy
     private void ShowColours()
     {
         ColourChange? colours = _flashing ? _flashColours : _kraidColours;
-        if (colours is null || Visual is not { } visual || visual.Picture.Length == 0 || ReferenceEquals(_shown, colours))
+        if (colours is null || Visual is not { } visual || visual.Picture.Length == 0 || ReferenceEquals(_coloursShown, colours))
             return;
         colours.ShowOn(visual, nameof(Kraid));
-        _shown = colours;
+        _coloursShown = colours;
     }
 
     /// <summary>Has it show its flash's colours, or Kraid's again.</summary>

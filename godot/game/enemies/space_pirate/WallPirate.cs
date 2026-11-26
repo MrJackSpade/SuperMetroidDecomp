@@ -155,12 +155,16 @@ public partial class WallPirate : Enemy
     /// <summary>The name of its climbing timeline for its wall and the way it climbs.</summary>
     private string ClimbTimeline => $"moving_{(_climbsUp ? "up" : "down")}_{(Wall == Facing.Left ? "left" : "right")}_wall";
 
-    /// <summary>Puts it half a block out from the wall it has reached.</summary>
+    /// <summary>
+    /// Puts it against the wall it has reached: less than eleven pixels into its block it goes back to the half
+    /// block it is in, the block's start or its middle, and further in it goes on to the next block's start.
+    /// </summary>
     private void SnapToWall()
     {
         int x = Position.X.Whole;
         int within = ((x % BlockSize) + BlockSize) % BlockSize;
         int start = x - within;
-        Position = new PixelPosition(Position.X.WithWhole(within < BlockSize * 11 / 16 ? start + BlockSize / 2 : start + BlockSize), Position.Y);
+        int half = BlockSize / 2;
+        Position = new PixelPosition(Position.X.WithWhole(within < BlockSize * 11 / 16 ? start + within / half * half : start + BlockSize), Position.Y);
     }
 }

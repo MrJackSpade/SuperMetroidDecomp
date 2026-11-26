@@ -701,6 +701,9 @@ public partial class Samus : Player
         return null;
     }
 
+    /// <summary>Empties one of her shots' places, counted from nought: what holds it is gone with no ending of its own.</summary>
+    public void ClearShotPlace(int place) => Weapons.ClearPlace(ShotsPool, place, Room);
+
     /// <summary>The pool her beams, missiles and super missiles share their places in.</summary>
     private string ShotsPool => Weapons.All.First(weapon => weapon.Name == Arsenal.Beam).Pool;
 
@@ -1440,6 +1443,10 @@ public partial class Samus : Player
             // The leading pair become the trailing pair's shot as they start to fall, as the cartridge's do.
             if (part < 2 && !ReferenceEquals(trailing, shot))
                 lights[part].FallsAs = trailing;
+
+            // Each light takes the place of its part among her shots, the first four: a shot there, flying or burst,
+            // is gone without a sound.
+            Weapons.TakePlace(ShotsPool, part, lights[part], Room);
             Room.Spawn(lights[part]);
         }
 

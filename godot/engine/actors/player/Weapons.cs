@@ -83,6 +83,49 @@ public sealed class Weapons
         _held.Add(alone);
     }
 
+    /// <summary>
+    /// Has a projectile that no weapon fired take a numbered place of <paramref name="pool"/> over, the places
+    /// counted from nought: whatever holds the place, shots still flying and what shots left alike, is taken out of
+    /// <paramref name="room"/> with no ending of its own, and the projectile holds the place until it has ended and
+    /// what it left is gone. What a game launches into particular places of the player's shots, whatever is there.
+    /// </summary>
+    public void TakePlace(string pool, int place, Projectile projectile, Room room)
+    {
+        ArgumentNullException.ThrowIfNull(projectile);
+        ArgumentNullException.ThrowIfNull(room);
+        ClearPlace(pool, place, room);
+        var taken = new Held(pool, 1, [place]);
+        taken.Shots.Add(projectile);
+        projectile.LeftOnEnding += taken.Left.Add;
+        _held.Add(taken);
+    }
+
+    /// <summary>
+    /// Empties a numbered place of <paramref name="pool"/>, the places counted from nought: whatever holds it, shots
+    /// still flying and what shots left alike, is taken out of <paramref name="room"/> with no ending of its own. An
+    /// empty place stays empty.
+    /// </summary>
+    public void ClearPlace(string pool, int place, Room room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        if (place < 0 || place >= PlacesIn(pool))
+            throw new ArgumentOutOfRangeException(nameof(place), place, $"The pool \"{pool}\" has places 0 through {PlacesIn(pool) - 1}.");
+        foreach (Held before in _held.Where(held => held.Pool == pool && held.StillHolds && held.Numbers.Contains(place)).ToList())
+        {
+            foreach (Projectile shot in before.Shots.Where(shot => GodotObject.IsInstanceValid(shot) && !shot.HasEnded))
+                room.Remove(shot);
+            foreach (Node left in before.Left.Where(GodotObject.IsInstanceValid))
+            {
+                if (left is IRoomEntity entity)
+                    room.Remove(entity);
+                else
+                    left.QueueFree();
+            }
+
+            _held.Remove(before);
+        }
+    }
+
     /// <summary>Has <paramref name="projectiles"/> hold places of <paramref name="weapon"/>'s pool: together, or each its own.</summary>
     private void HoldPlaces(WeaponStats weapon, IReadOnlyList<Projectile> projectiles)
     {

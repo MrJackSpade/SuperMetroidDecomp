@@ -247,11 +247,18 @@ public partial class SpecialAttack : Projectile
         }
     }
 
-    /// <summary>A spazer light spent before it falls takes its partner with it.</summary>
+    /// <summary>
+    /// A spazer light spent before it falls takes its partner with it; and with its partner already gone it empties
+    /// the partner's place among her shots all the same, whatever shot of hers has taken that place since.
+    /// </summary>
     protected override void OnEnded(Room room)
     {
-        if (_partner is { HasEnded: false } partner && _stage != Stage.Last)
+        if (_partner is not { } partner || _stage == Stage.Last)
+            return;
+        if (!partner.HasEnded)
             partner._partnerSpentOn = room.Session.UpdateNumber;
+        else
+            ((Samus)room.Player).ClearShotPlace(_part ^ 2);
     }
 
     /// <summary>

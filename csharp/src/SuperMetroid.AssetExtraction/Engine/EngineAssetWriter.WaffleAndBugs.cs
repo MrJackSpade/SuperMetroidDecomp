@@ -64,7 +64,8 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Writes the bug a Kago lets out, which the old game made a projectile of the Kago: it has no health to speak of,
-    /// hurts as the projectile did, and any shot ends it in a burst that leaves what a Kago leaves.
+    /// hurts as the projectile did, and any shot ends it in a burst where it is, which still hurts to the touch and
+    /// leaves what a Kago leaves.
     /// </summary>
     private void WriteKagoBug()
     {
@@ -97,17 +98,22 @@ public sealed partial class EngineAssetWriter
             .SelectMany(look => look.Beats.Lead.Concat(look.Beats.Cycle ?? []))
             .Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value)));
 
-        // Its end: the burst a shot makes of it, which leaves the drop.
+        // Its end: the burst a shot makes of it where it is, which leaves the drop and is gone at once after it. The
+        // Godot bug goes as its drop is left, so the drop must be the burst's last cue but its taking itself away.
         (List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>> burst, List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>>? burstCycle) =
             EngineTimelines.Played(KagoBugProjectileAnimations.Segments, KagoBugProjectileAnimations.StartingAt[KagoBugProjectileSegment.Shot]);
         if (burstCycle is not null)
             throw new InvalidDataException("The burst of a Kago's bug never ends.");
-        string death = $"{folder}/shot.json";
-        EngineSheetPictures burstPictures = _sheets.CutSpawned(_tree, death[..death.LastIndexOf('.')], spawner,
+        if (burst.Count < 2
+            || burst[^2] is not AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Event { Raised.Kind: KagoBugProjectileCueKind.SpawnDrop }
+            || burst[^1] is not AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Event { Raised.Kind: KagoBugProjectileCueKind.Delete })
+            throw new InvalidDataException("The burst of a Kago's bug does not end by leaving its drop and then taking itself away.");
+        string burstFolder = $"{folder}/shot";
+        EngineSheetPictures burstPictures = _sheets.CutSpawned(_tree, burstFolder, spawner,
             burst.Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value)));
-        JsonObject deathTimeline = EngineTimelines.Of(burst, null, frame => burstPictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), Cue);
-        deathTimeline["offset"] = new JsonObject { ["x"] = burstPictures.OffsetX, ["y"] = burstPictures.OffsetY };
-        _tree.WriteData(death, deathTimeline);
+        JsonObject burstTimeline = EngineTimelines.Of(burst, null, frame => burstPictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), Cue);
+        // Its pictures are cut to a size of their own, so the timeline says where they lie beyond the bug's own.
+        burstTimeline["offset"] = new JsonObject { ["x"] = burstPictures.OffsetX - pictures.OffsetX, ["y"] = burstPictures.OffsetY - pictures.OffsetY };
 
         // Samus's own body does a projectile no harm; everything she fires ends it.
         var reactions = new JsonArray();
@@ -132,7 +138,7 @@ public sealed partial class EngineAssetWriter
             .Value("sound", EngineNames.Sound(EnemySoundEffectDefinitions.KagoBugSoundEffect))
             .Value("first_sound_after", KagoDefinitions.FirstSoundPastFirstHop)
             .Group("reactions", reactions)
-            .Group("death", new JsonObject { ["effect"] = death })
+            .Timeline("burst", burstTimeline)
             .Collider("Body", -old.Radius.X, -old.Radius.Y, old.Radius.X * 2, old.Radius.Y * 2)
             .Collider("Hurtbox", -old.Radius.X, -old.Radius.Y, old.Radius.X * 2, old.Radius.Y * 2);
         if (Drops(RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Kago].Drops) is { } drops)

@@ -224,7 +224,8 @@ public sealed partial class EngineAssetWriter
             : throw new InvalidDataException($"A rock of Kraid's raises {cue}, which this does not know.");
         string largeRock = kraid.SpawnedTimeline("rock", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.SharedPose), RockCue);
         string smallRock = kraid.SpawnedTimeline("rock_small", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.RisingRightPose), RockCue);
-        // A shot one stops where it is and breaks up, which the effect it leaves does.
+        // A shot one stops where it is and breaks up, harming to the touch while it does; on a wall or on Samus it is
+        // only taken away.
         string rockBurst = kraid.SpawnedTimeline("rock_burst", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.SpitRockShot), RockCue);
         void Rock(JsonObject shot, JsonObject projectile, string scene, string timeline)
         {
@@ -239,7 +240,7 @@ public sealed partial class EngineAssetWriter
             {
                 Rock(shot, projectile, rockScene, largeRock);
                 shot["sound"] = EngineNames.Sound(KraidSoundDefinitions.RockSpit);
-                projectile["ending_effect"] = rockBurst;
+                projectile["shot_timeline"] = rockBurst;
             })
             .Shot("rising_rock", RoomEnemyProjectileKind.KraidRisingRock, (_, shot, projectile) => Rock(shot, projectile, rockScene, largeRock))
             .Shot("rising_rock_small", RoomEnemyProjectileKind.KraidRisingRock, (_, shot, projectile) => Rock(shot, projectile, rockScene, smallRock))

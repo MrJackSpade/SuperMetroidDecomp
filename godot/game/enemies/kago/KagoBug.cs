@@ -11,11 +11,13 @@ namespace Game.Enemies;
 /// <summary>
 /// One of the bugs a Kago lets out: it waits on the ground for a moment, jumps, a random height and usually back
 /// toward its hive, falls, and waits again. Until it has got clear of its hive, shots pass it by; after that any
-/// shot destroys it. Bombs and power bombs never touch it. Touching Samus hurts her and is the end of it.
+/// shot destroys it: it bursts where it is, still hurting to the touch, and as the burst ends it leaves its drop and
+/// is gone. Bombs and power bombs never touch it. Touching Samus hurts her and is the end of it.
 /// </summary>
 /// <remarks>
 /// Its timelines are "waiting", curled up before its first jump; "jump_start", whose cue "jump" launches it;
-/// "falling"; and "landed", whose cue "wait" sets it waiting again, standing as it landed.
+/// "falling"; "landed", whose cue "wait" sets it waiting again, standing as it landed; and "burst", whose cue
+/// "drop" leaves its drop and ends it.
 /// </remarks>
 public partial class KagoBug : Enemy
 {
@@ -62,6 +64,7 @@ public partial class KagoBug : Enemy
         Jumping,
         Falling,
         Landed,
+        Bursting,
     }
 
     private Doing _doing;
@@ -97,7 +100,19 @@ public partial class KagoBug : Enemy
     }
 
     /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => _clear && base.IsHitBy(side);
+    public override bool IsHitBy(HitSide side) => _clear && _doing != Doing.Bursting && base.IsHitBy(side);
+
+    /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        // Shot down, it bursts where it is, as the cartridge's bug plays its shot animation: it moves no more, shows
+        // no hurt, and still hurts what touches it.
+        EndHurt();
+        Velocity = PixelVelocity.Zero;
+        _doing = Doing.Bursting;
+        Play("burst", restart: true);
+        return false;
+    }
 
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part) =>
@@ -114,6 +129,12 @@ public partial class KagoBug : Enemy
             // It waits standing, as it landed.
             _wait = Countdown.Of(ShortestWait + Random.Last.Part(0, 5));
             _doing = Doing.Waiting;
+        }
+        else if (cue == "drop")
+        {
+            // Its burst over, it leaves its drop where it is and is gone, a thing let out and no enemy killed.
+            Drop(Drops, Position);
+            Vanish();
         }
     }
 
@@ -134,7 +155,7 @@ public partial class KagoBug : Enemy
                 _doing = Doing.Poised;
                 return;
 
-            case Doing.Poised or Doing.Landed:
+            case Doing.Poised or Doing.Landed or Doing.Bursting:
                 return;
 
             case Doing.Jumping:

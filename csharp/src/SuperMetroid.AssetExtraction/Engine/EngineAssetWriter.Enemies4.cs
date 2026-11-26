@@ -52,8 +52,30 @@ public sealed partial class EngineAssetWriter
         foreach (string colour in new[] { "Green", "Red", "Yellow" })
         {
             EnemyDefinitionId id = Enum.Parse<EnemyDefinitionId>("Kihunter" + colour);
+            // Its loose wings meet the ground by the size the old game gives the wings.
+            RoomEnemyDefinition wings = RoomEnemyDefinitionCatalog.ById[Enum.Parse<EnemyDefinitionId>($"Kihunter{colour}Wings")];
             Enemy($"enemies/ki_hunter_{colour.ToLowerInvariant()}.json", "KiHunter", id, $"Kihunter{colour}", $"Kihunter{colour}Wings")
                 .BodyColliders(Ordinary)
+                .Value("swoop_distance", KiHunterMotionDefinitions.SwoopTriggerDistance)
+                .Value("swoop_least_depth", KiHunterMotionDefinitions.SwoopLeastDepth)
+                .Value("patrol_speed", KiHunterMotionDefinitions.PatrolSpeed)
+                .Value("patrol_rise", KiHunterMotionDefinitions.PatrolRise)
+                .Value("patrol_depth", KiHunterMotionDefinitions.PatrolDepth)
+                .Value("swoop_quickening", KiHunterMotionDefinitions.SwoopAcceleration.FractionsOfStep)
+                .Value("swoop_fastest_turn", KiHunterMotionDefinitions.SwoopMaximumAngularVelocity.WholeSteps)
+                .Value("strike_after_steps",
+                    KiHunterMotionDefinitions.RightSwoopAnimationChangeAngle.TurnFrom(KiHunterMotionDefinitions.RightSwoopStartAngle) / RotationAngle.FractionsPerStep)
+                .Value("gravity", EngineNames.Number(KiHunterMotionDefinitions.Gravity))
+                .Value("hop_across_speed", KiHunterMotionDefinitions.GroundJumpHorizontalSpeed)
+                .Value("hop_up_speed", KiHunterMotionDefinitions.GroundJumpUpwardSpeed)
+                .Value("landing_wait", KiHunterMotionDefinitions.LandingWait)
+                .Value("spit_wait", KiHunterMotionDefinitions.SpitWait)
+                .Value("spit_range", KiHunterMotionDefinitions.SpitRange)
+                .Value("wing_arc_radius", KiHunterMotionDefinitions.DetachedWingRadius)
+                .Value("wing_arc_climb", KiHunterMotionDefinitions.DetachedWingClimb.Height.WholePixels)
+                .Value("wing_arc_step", KiHunterMotionDefinitions.DetachedWingClimb.StepPerPass.InTwoHundredFiftySixthsOfMark)
+                .Value("wing_half_width", wings.Radius.X)
+                .Value("wing_half_height", wings.Radius.Y)
                 .Value("spit_reach", KiHunterMotionDefinitions.AcidSpitReach)
                 .Value("spit_height", KiHunterMotionDefinitions.AcidSpitHeight)
                 // Its acid gathers at its mouth, shoots forward and falls; where it meets the floor it splashes.
@@ -267,6 +289,10 @@ public sealed partial class EngineAssetWriter
                     ("skitter_times", FallingSparkMotionDefinitions.ImpactDriftScale),
                     ("skip_speed", EngineNames.Number(-FallingSparkMotionDefinitions.ImpactBounce)),
                     ("skip_lift", FallingSparkMotionDefinitions.ImpactLift),
+                    // The Godot spark leaves its trail on the first update of each period.
+                    ("trail_every", FallingSparkCadenceDefinitions.SparkTrail.Phase == 0
+                        ? FallingSparkCadenceDefinitions.SparkTrail.Period
+                        : throw new InvalidDataException("A falling spark's trail falls on a place of its period other than the first.")),
                     ("skitter_timeline", spark.SpawnedTimeline("falling_spark_skitter", FallingSparkAnimations.Segments,
                         FallingSparkAnimations.StartingAt[FallingSparkSegment.HitFloor], EngineEnemy.EndsOnly)),
                     ("trail_effect", spark.SpawnedEffect("falling_spark_trail", SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind.FallingSparkTrail)));

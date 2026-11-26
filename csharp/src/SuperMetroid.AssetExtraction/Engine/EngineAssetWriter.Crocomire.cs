@@ -202,7 +202,7 @@ public sealed partial class EngineAssetWriter
             return listed;
         }
 
-        // Its fire: aimed on a slant, gone on the first wall, and bursting and perhaps leaving something when shot.
+        // Its fire: aimed on a slant, gone on the first wall, and bursting in place and perhaps leaving something when shot.
         static string? ShotCue(CrocomireProjectileCue cue) => cue is CrocomireProjectileCue.SpawnDrops or CrocomireProjectileCue.Delete
             ? null
             : throw new InvalidDataException($"Something Crocomire launches raises {cue}, which this does not know.");
@@ -216,7 +216,9 @@ public sealed partial class EngineAssetWriter
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
                 // It moves itself and meets terrain its own way, carrying on past a block on its first move.
                 projectile["meeting_terrain"] = "passes_through";
-                projectile["ending_effect"] = croc.SpawnedTimeline("fire_burst", CrocomireAnimations.ProjectileSegments,
+                // Shot down, it bursts where it is, harming to the touch, and leaves its drop as the burst ends; on a
+                // wall or on Samus it is gone without one.
+                projectile["shot_timeline"] = croc.SpawnedTimeline("fire_burst", CrocomireAnimations.ProjectileSegments,
                     CrocomireAnimations.ProjectileStartingWith(CrocomireProjectileSegment.Shot), ShotCue);
                 if (Drops(croc.Definition.Drops) is { } drops)
                     projectile["drops"] = drops;

@@ -39,11 +39,11 @@ public partial class SamusGrapple : Node2D
 {
     /// <summary>How far the line reaches out each update, as a number of pixels, fired straight across, up or down.</summary>
     [Export]
-    public double ExtendSpeed { get; set; } = 12;
+    public double ExtendSpeed { get; set; } = 11.953125;
 
     /// <summary>How far the line reaches out along each axis each update, fired diagonally.</summary>
     [Export]
-    public double DiagonalExtendSpeed { get; set; } = 8.5;
+    public double DiagonalExtendSpeed { get; set; } = 8.484375;
 
     /// <summary>How much its length is counted on each update it reaches out.</summary>
     [Export]

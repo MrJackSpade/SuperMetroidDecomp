@@ -545,16 +545,18 @@ public sealed partial class EngineAssetWriter
                 ("hatch_updates", TorizoMotionDefinitions.EggHatchUpdates),
                 ("quickening", EngineNames.Number(TorizoMotionDefinitions.EggAcceleration)),
                 ("bounce_drag", EngineNames.Number(TorizoMotionDefinitions.EggBounceDrag)));
-            // The old egg is made not stopping her shots, and its hatching has them meet it: a hatchling can be shot,
-            // and goes at once, as anything of the old game's that a shot meets and has no end of its own to play does.
+            // The old egg is made not stopping her shots, and its hatching has them meet it: a hatchling can be shot.
             if (EnemyProjectileDefinitionCatalog.Definitions[RoomEnemyProjectileKind.GoldenTorizoEgg].Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots))
                 throw new InvalidDataException("The Golden Torizo's egg stops shots from the start, which its timelines are written not to.");
             Timeline("egg_left", TorizoProjectileSegment.EggBouncingLeft, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEgg), startsPassedByShots: true);
             Timeline("egg_right", TorizoProjectileSegment.EggBouncingRight, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEgg), startsPassedByShots: true);
+            // Shot down, it bursts where it is as an orb bursts on a wall, harming to the touch, and leaves nothing.
+            string eggShot = EffectOfTorizoShot($"{folder}/egg_shot.json", spawner, TorizoProjectileSegment.ChozoOrbWallImpact);
             torizo.Shot("egg", RoomEnemyProjectileKind.GoldenTorizoEgg, (_, shot, projectile) =>
             {
                 Thrown(shot, projectile, "torizo_egg.tscn", $"{folder}/egg_{{side}}.json");
                 projectile["met_by_shot"] = "destroyed";
+                projectile["shot_timeline"] = eggShot;
             });
 
             // The super missile it catches and throws back.

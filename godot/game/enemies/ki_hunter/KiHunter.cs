@@ -109,11 +109,11 @@ public partial class KiHunter : Enemy
 
     /// <summary>Half the width of its loose wings, in pixels, for meeting the ground.</summary>
     [Export, DataValue("wing_half_width")]
-    public int WingHalfWidth { get; set; } = 8;
+    public int WingHalfWidth { get; set; } = 10;
 
     /// <summary>Half the height of its loose wings, in pixels, for meeting the ground.</summary>
     [Export, DataValue("wing_half_height")]
-    public int WingHalfHeight { get; set; } = 8;
+    public int WingHalfHeight { get; set; } = 10;
 
     /// <summary>The data file of the speed curve its loose wings turn by.</summary>
     [Export, DataValue("speed_curve")]

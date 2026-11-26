@@ -258,6 +258,53 @@ internal sealed partial class EngineLayouts
     }
 
     /// <summary>
+    /// Gives the layout of one state of a room the patch that is its treadmill running one way, as the old game's
+    /// entrance treadmill makes it once the area has power: the row of blocks it runs along, which show nothing and
+    /// carry what is on foot that way, and every block of the room the belt's animation moves, shown moving that
+    /// way. The state's own effect does not set that animation going; the door come in by does.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The layout has not been built.</exception>
+    internal void PatchTreadmill(RoomDefinition room, RoomStateSettings state, string name, WreckedShipTreadmillDirection direction)
+    {
+        string path = PathOf(room, state);
+        Layout layout = _layouts.TryGetValue(path, out Layout? built)
+            ? built
+            : throw new InvalidDataException($"The layout {path} has not been built, and is given the treadmill {name}.");
+        BlockAnimation belt = BlockAnimationLoopDefinitions.TreadmillAnimations[direction];
+        var origin = new Position16<RoomBlocks>(
+            SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions.BlockX,
+            SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions.BlockY);
+        var cells = new List<PatchCell>();
+
+        // The blocks the belt's animation moves, each as the level has it.
+        _moving = [belt];
+        for (int y = 0; y < layout.Level.Size.Y; y++)
+        {
+            for (int x = 0; x < layout.Level.Size.X; x++)
+            {
+                RoomTerrainBlock block = layout.Level.Foreground[y * layout.Level.Size.X + x];
+                if (block.Appearance.Shows == RoomBlockShown.Block
+                    && MovingPictures(layout.Tileset, block.Appearance.Block, block.Appearance.Mirroring) is { } moving && moving.Pictures.Count > 1)
+                {
+                    cells.Add(new PatchCell(x - origin.X, y - origin.Y, block.Collision, block.Appearance.Block, block.Appearance.Mirroring));
+                }
+            }
+        }
+
+        // The row it runs along, over whatever else is there.
+        RoomBlockBehavior carries = direction == WreckedShipTreadmillDirection.Rightwards
+            ? SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
+            : SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior;
+        for (int across = 0; across < SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions.BlockCount; across++)
+        {
+            cells.Add(new PatchCell(
+                across, 0, SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillBlockDefinitions.RunningCollision, null, BlockMirroring.None, carries));
+        }
+
+        Patch(room, state, name, origin, cells, alsoMoving: belt);
+    }
+
+    /// <summary>
     /// The rules of the surface of quicksand, from the old game's own: one whose feet are in it stands there and is
     /// drawn down, faster while rising or falling; it lets her rise only so fast and takes her momentum; and the
     /// Gravity Suit eases it.

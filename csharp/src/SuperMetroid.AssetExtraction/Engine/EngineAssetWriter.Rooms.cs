@@ -69,6 +69,13 @@ public sealed partial class EngineAssetWriter
                     OldTourianEscapeShaftWallObjectDefinitions.OpenedWall)));
         }
 
+        // The entrance's treadmill: the door come in by starts its belt one way, and with the ship's power it carries.
+        foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => placed.Room == RoomDefinitions.WreckedShipEntrance))
+        {
+            Layouts.PatchTreadmill(room, state, "treadmill_rightwards", WreckedShipTreadmillDirection.Rightwards);
+            Layouts.PatchTreadmill(room, state, "treadmill_leftwards", WreckedShipTreadmillDirection.Leftwards);
+        }
+
         // The old game makes the door's blocks a door that nothing opens; here they are wall, and the door's cap is put away.
         foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => placed.Room == RoomDefinitions.Phantoon))
         {

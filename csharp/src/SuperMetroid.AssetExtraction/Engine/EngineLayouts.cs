@@ -165,13 +165,18 @@ internal sealed partial class EngineLayouts
     /// patch given again to a layout several states share is the one patch.
     /// </summary>
     /// <exception cref="InvalidDataException">The patch has no blocks, lies outside the level, or is given twice with different blocks.</exception>
-    internal void Patch(RoomDefinition room, RoomStateSettings state, string name, Position16<RoomBlocks> origin, IEnumerable<PatchCell> cells)
+    /// <param name="alsoMoving">
+    /// An animation of blocks that is going where the patch is applied though the state's own effect does not set it
+    /// going: something else of the room starts it, as a door's setup starts a belt.
+    /// </param>
+    internal void Patch(
+        RoomDefinition room, RoomStateSettings state, string name, Position16<RoomBlocks> origin, IEnumerable<PatchCell> cells, BlockAnimation? alsoMoving = null)
     {
         string path = PathOf(room, state);
         Layout layout = _layouts.TryGetValue(path, out Layout? built)
             ? built
             : throw new InvalidDataException($"The layout {path} has not been built, and is given the patch {name}.");
-        _moving = MovedIn(state);
+        _moving = alsoMoving is { } more ? [.. MovedIn(state), more] : MovedIn(state);
         _heavySpikesHurt = HeavySpikeDamageIn(room, state);
         // Later blocks of a change lie over earlier ones.
         var last = new Dictionary<(int Across, int Down), PatchCell>();

@@ -81,6 +81,13 @@ SPEED_BOOSTER_LAVA_RISE = 0.125
 CHOZO_ACID_FALL = 0.25
 CHOZO_ACID_LOWERED = 'lower_norfair_acid_lowered'
 
+# The door setups that start the Wrecked Ship's entrance treadmill, with the way each starts it, as the layouts'
+# treadmill patches are named for it.
+TREADMILLS = {
+    'WreckedShipEntranceStartsTreadmillRightwards': 'rightwards',
+    'WreckedShipEntranceStartsTreadmillLeftwards': 'leftwards',
+}
+
 # The acid of the escape room before the old Tourian shaft: the old setup routine that places what sets it rising,
 # the point Samus passes to set it off, and how fast and after how long it then rises, in pixels an update and in
 # updates (EscapeAcidRiseObjectDefinitions: TriggerPoint, RiseSpeed of 13/32, RiseDelay).
@@ -527,6 +534,16 @@ class Generator:
             things.extend(view.placed)
             for trigger, zone in view.links:
                 links[id(trigger)] = {'Target': zone}
+            # A door whose setup starts a treadmill starts its belt the way that door has it, once the ship has
+            # power: the old treadmill runs only if Phantoon was beaten as it was made.
+            for point, setup in entry_points:
+                if setup in TREADMILLS:
+                    belt = enemies.Placed('res://engine/world/Relay.cs', 'Belt' + TREADMILLS[setup].title(),
+                                          {'Rules': 'patches:start:treadmill_' + TREADMILLS[setup]}, at=None, enemy=False, kind='Node')
+                    starts = enemies.Placed(camera.TRIGGER, 'BeltStarts' + TREADMILLS[setup].title(), {
+                        'AtEntry': quoted(point), 'What': quoted('start'), 'OnlyWhen': ctx.fact('phantoon_defeated')}, at=(0, 0), enemy=False)
+                    things += [belt, starts]
+                    links[id(starts)] = {'Target': belt}
             # Its liquid and its room effects.
             booster = placed_objects.raises_liquid
             lowers_acid = any(thing.chozo == 'LowerNorfair' for thing in things)
@@ -683,6 +700,11 @@ class Generator:
                     value = scene.packed(value[len('scene:'):])
                 elif value.startswith('fact:'):
                     value = scene.resource(CONDITION, {'Kind': '0', 'About': quoted(value[len('fact:'):])})
+                elif value.startswith('patches:'):
+                    # A relay's one rule: the word it hears and the terrain patch it applies, and nothing more.
+                    _, hears, patch = value.split(':')
+                    rule = 'res://engine/world/RelayRule.cs'
+                    value = scene.listed(rule, [scene.resource(rule, {'Hears': quoted(hears), 'AppliesPatch': quoted(patch)})])
                 elif value.startswith('rules:'):
                     # A relay's one rule: the word it hears and the terrain patch it applies, shaking the room.
                     _, hears, patch = value.split(':')

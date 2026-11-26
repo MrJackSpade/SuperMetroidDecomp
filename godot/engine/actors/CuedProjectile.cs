@@ -125,7 +125,8 @@ public partial class CuedProjectile : Projectile, IHasValues
                 Position += room.Session.Random.Scatter(Number(parts[1]), Number(parts[2]), Number(parts[3]), Number(parts[4]));
                 break;
             case "sometimes":
-                if (room.Session.Random.Draw().Part(0, 2) == 3)
+                // One time in four: when the number drawn lies in the top quarter of its range, its two highest digits.
+                if (room.Session.Random.Draw().Part(14, 2) == 3)
                     PlayTimeline(parts[1]);
                 break;
             case "sound":

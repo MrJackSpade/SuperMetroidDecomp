@@ -316,6 +316,29 @@ internal sealed partial class EngineLayouts
                     break;
                 }
 
+                case MotherBrainEscapeRoomGateSetup:
+                {
+                    // The gate that shuts behind Samus in the first room of the escape. Placed, the old gate is drawn
+                    // closed on its first update, and arriving by its door closes it through pictures that are solid
+                    // every one: its blocks are solid from the room's start, and are shown closed.
+                    const string directory = GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName;
+                    string closed = SuperMetroid.AssetExtraction.Rooms.MotherBrainEscapeGateDrawKeys.Installed.Of(MotherBrainEscapeGateDraw.Closed);
+                    foreach (RoomBlockShapeCell part in MotherBrainEscapeGateDraws.Family.Shape(MotherBrainEscapeGateDraw.Closed).Cells)
+                    {
+                        if (part.Collision != RoomCollisionType.SolidBlock)
+                            throw new InvalidDataException($"The escape room's gate has a block that is {part.Collision}, not solid.");
+                        int x = placement.Block.X + part.Cell.X, y = placement.Block.Y + part.Cell.Y;
+                        if (x >= level.Size.X || y >= level.Size.Y)
+                            throw new InvalidDataException($"The escape room's gate of the layout {path} does not lie inside its level.");
+                        var shut = new JsonObject { ["kind"] = "solid" };
+                        if (FrameBlock(directory, closed, part.Cell.X, part.Cell.Y) is { } drawn && Picture(tileset, drawn.Block, drawn.Mirroring) is { } picture)
+                            shut["picture"] = picture;
+                        tiles[y * level.Size.X + x] = shut;
+                    }
+
+                    break;
+                }
+
                 default:
                     break;
             }

@@ -1234,7 +1234,7 @@ public partial class Samus : Player
         }
 
         Weapons.Select(weapon);
-        int liveBefore = Weapons.LiveOf(weapon).Count;
+        Engine.Actors.Projectile[] liveBefore = [.. Weapons.LiveOf(weapon)];
         bool fullyCharged = Weapons.IsCharged;
         if (_shotHandedNow && weapon == Arsenal.Beam && Weapons.Selected is { } beam && beam.Charges(Inventory))
         {
@@ -1251,13 +1251,21 @@ public partial class Samus : Player
             base.Attack(input);
         }
 
-        bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
+        bool fired = Weapons.LiveOf(weapon).Count > liveBefore.Length;
 
-        // A shot is shown in her colours where they change its pictures: the opening's flashbacks show hers in theirs.
+        // A shot is shown in her colours where they change its pictures, and so is what it leaves as it ends, its
+        // effect and its burst: the opening's flashbacks show her missiles and their blasts in the opening's colours.
         if (fired)
         {
-            foreach (Engine.Actors.Projectile shot in Weapons.LiveOf(weapon))
+            foreach (Engine.Actors.Projectile shot in Weapons.LiveOf(weapon).Except(liveBefore))
+            {
                 Colours.ShowOnNew(shot);
+                shot.LeftOnEnding += left =>
+                {
+                    if (left is Engine.Ui.IRecoloured hers)
+                        Colours.ShowOnNew(hers);
+                };
+            }
         }
 
         if (fired && weapon == Arsenal.Beam)

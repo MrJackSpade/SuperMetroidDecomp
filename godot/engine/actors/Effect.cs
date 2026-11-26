@@ -11,8 +11,14 @@ namespace Engine.Actors;
 /// projectile or an enemy. A cue of its timeline that is "sound:" and a sound's name asks for that sound; one that
 /// is "drift:" and two numbers, pixels across and down an update, makes that its velocity from then on.
 /// </summary>
-public partial class Effect : Node2D, IRoomEntity
+public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
 {
+    /// <inheritdoc/>
+    public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => _visual?.Recolour(source, swaps);
+
+    /// <inheritdoc/>
+    public bool ShowsPicturesIn(string place) => _visual?.ShowsPicturesIn(place) ?? false;
+
     private FrameTimeline? _timeline;
     private TimelinePlayer? _player;
     private ActorVisual? _visual;

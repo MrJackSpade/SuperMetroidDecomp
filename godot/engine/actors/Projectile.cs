@@ -890,7 +890,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
     /// <summary>
     /// Told of each thing the projectile leaves in the room as it ends, its effect and its burst: for whoever counts
-    /// the projectile as out until what it left is gone too.
+    /// the projectile as out until what it left is gone too, or shows what it left in colours of their own.
     /// </summary>
     public event Action<Node>? LeftOnEnding;
 

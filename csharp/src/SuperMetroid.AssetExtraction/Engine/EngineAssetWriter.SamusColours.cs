@@ -106,7 +106,21 @@ public sealed partial class EngineAssetWriter
         var beams = new JsonObject();
         foreach (SuperMetroid.Core.Progression.SamusBeamCombination combination in Enum.GetValues<SuperMetroid.Core.Progression.SamusBeamCombination>())
             beams[EngineSheets.FileName(combination.ToString())] = Shade(SamusShades.Beam(combination));
-        beams[OpeningColours] = Shade(SamusShades.IntroBeams);
+        string openingBeams = Shade(SamusShades.IntroBeams);
+        beams[OpeningColours] = openingBeams;
+
+        // The old opening draws her shots from a sheet of its own: the power beam's sheet, frame for frame, in the
+        // opening's whole palette. The shade above changes her beams' own colours only, and a missile and what it
+        // leaves are drawn in others. So her shots' pictures are shown here in the colours that sheet has them in.
+        var openingShots = new JsonObject();
+        foreach (ShadeSwap swap in _sheets.SwapsBetween(
+            SpriteFamily, SpriteSheetDefinitions.FileNames[ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombination.Power)],
+            SpriteSheetDefinitions.FileNames[SpriteSheetId.IntroProjectiles]))
+        {
+            openingShots[swap.From.ToString("x6", System.Globalization.CultureInfo.InvariantCulture)] = swap.To.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        shades[openingBeams]![$"samus/shots/{BeamsName(SuperMetroid.Core.Progression.SamusBeamCombination.Power)}/pictures"] = openingShots;
 
         // Her death's colourings, step by step: her suit's in each suit, those of her body without the suit, and those
         // her beams' colours whiten through. Each changes the pictures of whichever of her sheets has it.

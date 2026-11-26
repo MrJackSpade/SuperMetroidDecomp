@@ -57,6 +57,43 @@ internal sealed partial class EngineSheets
     }
 
     /// <summary>
+    /// What turns one sheet's pictures into another's that holds the same frames drawn in other colours: each colour
+    /// of <paramref name="sheet"/> with the colour <paramref name="shownAs"/> has wherever that one is drawn, over
+    /// every frame of <paramref name="shownAs"/>. A colour the two have alike is left out.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The installation has no such sheet; a frame of <paramref name="shownAs"/> is not in <paramref name="sheet"/>
+    /// or is of another shape there; or one colour of <paramref name="sheet"/> is two colours of the other.
+    /// </exception>
+    internal IReadOnlyList<ShadeSwap> SwapsBetween(string family, string sheet, string shownAs)
+    {
+        var shown = new SortedDictionary<int, int>();
+        foreach ((string frame, InstalledSheetFrameDocument placed) in Document(family, shownAs).Frames)
+        {
+            if (placed.Picture is null)
+                continue;
+            RgbaPixel[] theirs = FramePixels(family, shownAs, frame, placed.Size.X, placed.Size.Y)
+                ?? throw new InvalidDataException($"The frame {frame} of the sheet {shownAs} shows nothing.");
+            RgbaPixel[] ours = FramePixels(family, sheet, frame, placed.Size.X, placed.Size.Y)
+                ?? throw new InvalidDataException($"The sheet {sheet} has no frame {frame}, which {shownAs} has.");
+            for (int i = 0; i < ours.Length; i++)
+            {
+                if ((ours[i].A == 0) != (theirs[i].A == 0))
+                    throw new InvalidDataException($"The frame {frame} is of one shape in the sheet {sheet} and of another in {shownAs}.");
+                if (ours[i].A == 0)
+                    continue;
+                int from = (ours[i].R << 16) | (ours[i].G << 8) | ours[i].B;
+                int to = (theirs[i].R << 16) | (theirs[i].G << 8) | theirs[i].B;
+                if (shown.TryGetValue(from, out int already) && already != to)
+                    throw new InvalidDataException($"The colour {from:x6} of the sheet {sheet} is {already:x6} in one place of {shownAs} and {to:x6} in another, in the frame {frame}.");
+                shown[from] = to;
+            }
+        }
+
+        return [.. shown.Where(swap => swap.Key != swap.Value).Select(swap => new ShadeSwap(swap.Key, ShadeSwap.Everywhere, swap.Value))];
+    }
+
+    /// <summary>
     /// The colours one shade of a sheet changes. A colour the shade shows alike in every region of the sheet's
     /// pictures that draws it is one swap that holds everywhere; a colour it changes in one region and leaves, or
     /// shows otherwise, in another is a swap for each region it changes. A colour the shade leaves as it is, or that

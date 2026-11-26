@@ -719,6 +719,9 @@ public partial class Room : Node2D
     /// <summary>Whether the room has a place free for something more the enemies launch or leave.</summary>
     public bool HasFreePlace => _places.HasFree;
 
+    /// <summary>Everything that holds one of the room's places for what its enemies launch and leave, in the order of their turns.</summary>
+    public IReadOnlyList<IRoomEntity> PlaceHolders => _places.Held();
+
     /// <summary>The place something the enemies launched or left holds in the room, counted from none; null when it holds none.</summary>
     public int? PlaceOf(IRoomEntity entity) => _places.PlaceOf(entity);
 

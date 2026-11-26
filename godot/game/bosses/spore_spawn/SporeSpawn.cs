@@ -314,8 +314,10 @@ public partial class SporeSpawn : Enemy
         _sporesHeldBack = false;
         // Its death begins at once, not when the flash of the hit that killed it is over.
         EndHurt();
-        foreach (Projectile spore in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
-            Room.Remove(spore);
+        // Everything the enemies have launched or left goes with its death, whatever it is and whoever made it:
+        // spores, dust, blasts, drops. Only its stalk stays, for its death to show, and its emitters, which go next.
+        foreach (IRoomEntity held in Room.PlaceHolders.Where(held => !_stalkHolds.Contains(held as Effect) && !_emitterHolds.Contains(held as Effect)).ToList())
+            Room.Remove(held);
         // The places its spores came from go with them, and give back the room's places they held.
         for (int emitter = 0; emitter < Emitters; emitter++)
         {

@@ -6,14 +6,16 @@ namespace Engine.Actors;
 /// <summary>
 /// Passing from one posture to another: crouching down, standing up, taking the low form or leaving it, where the
 /// game gives the change a length. The body takes its new form at once. For as long as the change lasts the input is
-/// not asked, the player moves across only as far as a dash carries them, and they cannot attack; a change into or
-/// out of the low form made in the air goes on falling, unless the player is adrift, who is pressed down as one on
-/// the ground is. Then the state it leads to follows.
+/// not asked and the player moves across only as far as a dash carries them. Through a change between crouching and
+/// standing they can attack, aiming as they did when it began; through one into or out of the low form they cannot.
+/// A change into or out of the low form made in the air goes on falling, unless the player is adrift, who is pressed
+/// down as one on the ground is. Then the state it leads to follows.
 /// </summary>
 public sealed class ChangingPostureState : PlayerState
 {
     private readonly string _form;
     private readonly bool _fallsInAir;
+    private readonly bool _attacks;
     private Countdown _left;
 
     /// <summary>A change of posture.</summary>
@@ -21,10 +23,11 @@ public sealed class ChangingPostureState : PlayerState
     /// <param name="then">The state the change leads to.</param>
     /// <param name="updates">How many updates the change lasts.</param>
     /// <param name="fallsInAir">Whether a change made in the air goes on rising and falling; otherwise the player hangs for its length.</param>
-    public ChangingPostureState(string form, PlayerState then, int updates, bool fallsInAir)
+    /// <param name="attacks">Whether the player can attack for as long as the change lasts.</param>
+    public ChangingPostureState(string form, PlayerState then, int updates, bool fallsInAir, bool attacks)
     {
         ArgumentNullException.ThrowIfNull(then);
-        (_form, Then, _fallsInAir) = (form, then, fallsInAir);
+        (_form, Then, _fallsInAir, _attacks) = (form, then, fallsInAir, attacks);
         _left = Countdown.Of(updates);
     }
 
@@ -32,7 +35,7 @@ public sealed class ChangingPostureState : PlayerState
     public PlayerState Then { get; }
 
     /// <inheritdoc/>
-    public override bool CanAttack => false;
+    public override bool CanAttack => _attacks;
 
     /// <inheritdoc/>
     public override bool HoldsOffInterruptions => true;

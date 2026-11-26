@@ -5,7 +5,9 @@ namespace Engine.Actors;
 
 /// <summary>
 /// Crouched on the ground: shorter, and keeping no speed across. Down again takes the low form; up stands; a press of
-/// the direction behind turns the player round, still crouched; the direction ahead held stands them at once.
+/// the direction behind turns the player round, still crouched; the direction ahead held stands them at once. A
+/// stand asked for where there is no room to stand is refused, and the player stays as they are: it was asked all
+/// the same, so nothing else is asked that update and their momentum is not ended.
 /// </summary>
 public sealed class CrouchingState : PlayerState
 {
@@ -17,16 +19,16 @@ public sealed class CrouchingState : PlayerState
     {
         owner.AimFromInput();
         GameInput input = owner.Input;
-        if (input.WasPressed(GameAction.Up) && owner.CanTakeForm(Player.Standing))
-            return owner.StandUp();
+        if (input.WasPressed(GameAction.Up))
+            return owner.CanTakeForm(Player.Standing) ? owner.StandUp() : this;
         if (input.WasPressed(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right))
             return new TurningState(crouched: true);
         if (owner.MayCrawl && input.WasPressed(GameAction.Down))
             return owner.TakeLowForm();
         if (owner.JumpPressed && owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true))
             return new JumpingState();
-        if (input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left) && owner.CanTakeForm(Player.Standing))
-            return new StandingState();
+        if (input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left))
+            return owner.CanTakeForm(Player.Standing) ? new StandingState() : this;
         return owner.Aim == Aim.Forward ? null : this;
     }
 

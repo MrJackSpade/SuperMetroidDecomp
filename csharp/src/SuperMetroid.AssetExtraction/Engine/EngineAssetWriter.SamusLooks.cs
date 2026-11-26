@@ -402,6 +402,17 @@ public sealed partial class EngineAssetWriter
             P.NormalJumpTransitionAimDiagonalUpRightPose, P.NormalJumpTransitionAimDiagonalUpLeftPose,
             P.NormalJumpTransitionAimDiagonalDownRightPose, P.NormalJumpTransitionAimDiagonalDownLeftPose);
 
+        // She can fire while she crouches down and while she stands up, from heights those poses have of their own,
+        // by the way she aims.
+        heights["changing_to_crouch"] = SamusShotHeight(P.CrouchingTransitionRightPose, P.CrouchingTransitionLeftPose);
+        heights["changing_to_stand"] = SamusShotHeight(P.StandingTransitionRightPose, P.StandingTransitionLeftPose);
+        heights["changing_to_crouch_up"] = SamusShotHeight(P.CrouchingTransitionAimUpRightPose, P.CrouchingTransitionAimUpLeftPose);
+        heights["changing_to_stand_up"] = SamusShotHeight(P.StandingTransitionAimUpRightPose, P.StandingTransitionAimUpLeftPose);
+        heights["changing_to_crouch_diagonal_up"] = SamusShotHeight(P.CrouchingTransitionAimDiagonalUpRightPose, P.CrouchingTransitionAimDiagonalUpLeftPose);
+        heights["changing_to_stand_diagonal_up"] = SamusShotHeight(P.StandingTransitionAimDiagonalUpRightPose, P.StandingTransitionAimDiagonalUpLeftPose);
+        heights["changing_to_crouch_diagonal_down"] = SamusShotHeight(P.CrouchingTransitionAimDiagonalDownRightPose, P.CrouchingTransitionAimDiagonalDownLeftPose);
+        heights["changing_to_stand_diagonal_down"] = SamusShotHeight(P.StandingTransitionAimDiagonalDownRightPose, P.StandingTransitionAimDiagonalDownLeftPose);
+
         foreach (string from in new[] { "falling", "jumping" })
         {
             Passing(from, "standing", P.NormalLandingRightPose, P.NormalLandingLeftPose);

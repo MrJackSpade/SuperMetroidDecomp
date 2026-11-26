@@ -869,7 +869,11 @@ in `engine/actors/player/`.
 - **Postures.** Crouching down, standing up, taking the low form and leaving it each take the updates the game
   gives them (`crouch_updates`, `stand_updates`, `crawl_enter_updates`, `crawl_leave_updates`; none is at once). For
   that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is
-  not asked, they cannot attack, and they move across only as far as a dash carries them, their own speed kept; a
+  not asked, and they move across only as far as a dash carries them, their own speed kept. Through a change between
+  crouching and standing they can attack, aiming as they did when it began (this game's Samus fires from heights of
+  the change's own, `changing_to_crouch` and `changing_to_stand` in her shot heights); through one into or out of the
+  low form they cannot. A stand asked of a crouch with no room to stand is refused and the player stays as they
+  are: it was asked, so nothing else is that update, and their momentum is not ended. A
   change into or out of the low form made in the air goes on rising and falling. The low form is taken as from a
   crouch wherever the player is: the body shrinks about its middle and the middle drops by as much as a crouch is
   taller, or as far as there is room. Leaving it leads to a crouch even in the air, which then walks off into a fall

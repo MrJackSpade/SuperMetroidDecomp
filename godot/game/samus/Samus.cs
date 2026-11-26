@@ -305,8 +305,12 @@ public partial class Samus : Player
     /// <summary>The jump from the ground she is in while it gathers itself; none once it has gathered.</summary>
     private JumpingState? _gatheringJump;
 
-    /// <summary>The names in her shot heights of the heights she fires from while settling from a landing and while a jump gathers.</summary>
-    private const string LandingHeights = "landing", JumpStartHeights = "jump_start";
+    /// <summary>
+    /// The names in her shot heights of the heights she fires from while settling from a landing, while a jump
+    /// gathers, and while she crouches down and stands up.
+    /// </summary>
+    private const string LandingHeights = "landing", JumpStartHeights = "jump_start",
+        CrouchChangeHeights = "changing_to_crouch", StandChangeHeights = "changing_to_stand";
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -786,11 +790,14 @@ public partial class Samus : Player
     /// <summary>A place her data gives from her own, raised by how high her pose holds her arm.</summary>
     private PixelPosition Raised(Vector2I offset)
     {
-        // Settling from a landing and gathering a jump hold her arm at heights of their own, as the cartridge's poses do.
+        // Settling from a landing, gathering a jump, crouching down and standing up hold her arm at heights of their
+        // own, as the cartridge's poses do. Coming out of the ball is a change she cannot fire through, and has none.
         string look = State switch
         {
             StandingState { IsSettling: true } => LandingHeights,
             JumpingState jump when ReferenceEquals(jump, _gatheringJump) => JumpStartHeights,
+            ChangingPostureState { CanAttack: true, Then: CrouchingState } => CrouchChangeHeights,
+            ChangingPostureState { CanAttack: true, Then: StandingState } => StandChangeHeights,
             _ => SamusLooks.Of(this),
         };
         int height = _shotHeights.TryGetValue($"{look}_{HoldName}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);

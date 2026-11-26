@@ -253,16 +253,16 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public bool JumpsAreBoosted => JumpBoostNeeds.Length > 0 && Inventory.IsOn(JumpBoostNeeds);
 
     /// <summary>The state that crouches the player down: the crouch, by way of the change into it where that takes time.</summary>
-    public PlayerState Crouch() => Changing(Crouching, new CrouchingState(), InMedium("crouch_updates", CrouchUpdates), fallsInAir: false);
+    public PlayerState Crouch() => Changing(Crouching, new CrouchingState(), InMedium("crouch_updates", CrouchUpdates), fallsInAir: false, attacks: true);
 
     /// <summary>The state that stands the player up from a crouch.</summary>
-    public PlayerState StandUp() => Changing(Standing, new StandingState(), InMedium("stand_updates", StandUpdates), fallsInAir: false);
+    public PlayerState StandUp() => Changing(Standing, new StandingState(), InMedium("stand_updates", StandUpdates), fallsInAir: false, attacks: true);
 
     /// <summary>The state that puts the player into the low form.</summary>
-    public PlayerState TakeLowForm() => Changing(Crawling, new CrawlingState(), InMedium("crawl_enter_updates", CrawlEnterUpdates), fallsInAir: true);
+    public PlayerState TakeLowForm() => Changing(Crawling, new CrawlingState(), InMedium("crawl_enter_updates", CrawlEnterUpdates), fallsInAir: true, attacks: false);
 
     /// <summary>The state that brings the player out of the low form, into a crouch.</summary>
-    public PlayerState LeaveLowForm() => Changing(Crouching, new CrouchingState(), InMedium("crawl_leave_updates", CrawlLeaveUpdates), fallsInAir: true);
+    public PlayerState LeaveLowForm() => Changing(Crouching, new CrouchingState(), InMedium("crawl_leave_updates", CrawlLeaveUpdates), fallsInAir: true, attacks: false);
 
     /// <summary>
     /// How many updates a timed change lasts where the player is now: the length the medium they are in gives for the
@@ -278,8 +278,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>A posture's state, by way of the change into it where that takes time.</summary>
-    private static PlayerState Changing(string form, PlayerState then, int updates, bool fallsInAir) =>
-        updates > 0 ? new ChangingPostureState(form, then, updates, fallsInAir) : then;
+    private static PlayerState Changing(string form, PlayerState then, int updates, bool fallsInAir, bool attacks) =>
+        updates > 0 ? new ChangingPostureState(form, then, updates, fallsInAir, attacks) : then;
 
     /// <summary>Whether the equipment a mechanic needs is switched on; a mechanic that needs none always has it.</summary>
     private bool HasWhatItNeeds(string equipment) => equipment.Length == 0 || Inventory.IsOn(equipment);

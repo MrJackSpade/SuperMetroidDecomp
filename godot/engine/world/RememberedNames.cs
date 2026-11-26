@@ -15,9 +15,6 @@ public sealed class RememberedNames
     /// <summary>The mistakes found so far.</summary>
     private readonly List<string> _mistakes = [];
 
-    /// <summary>The mistakes found so far, in the order they were found.</summary>
-    public IReadOnlyList<string> Mistakes => _mistakes;
-
     /// <summary>Looks at everything placed in <paramref name="room"/>, the room made from <paramref name="scene"/>.</summary>
     public void Add(string scene, Node room)
     {

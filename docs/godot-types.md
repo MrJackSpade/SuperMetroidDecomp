@@ -1026,7 +1026,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   another aim or the attack is asked; her body is compact for as long (`aiming_down`).
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
   aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
-  direction the way she faces does not start a run.
+  direction the way she faces does not start a run. Crouched, up does not aim: a press of it stands her up with her
+  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged

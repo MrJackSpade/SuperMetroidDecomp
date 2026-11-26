@@ -240,7 +240,7 @@ public partial class OptionsMode : GameMode
             return;
         }
 
-        if (!input.WasPressed(GameAction.Confirm))
+        if (!Confirms(input))
             return;
         Sound("select_sound");
         switch (PrimaryRows[_row])
@@ -321,7 +321,7 @@ public partial class OptionsMode : GameMode
             return;
         }
 
-        if (!input.WasPressed(GameAction.Confirm) && !input.WasPressed(GameAction.Left) && !input.WasPressed(GameAction.Right))
+        if (!Confirms(input) && !input.WasPressed(GameAction.Left) && !input.WasPressed(GameAction.Right))
             return;
         Sound("select_sound");
         if (_row >= _specialRows.Count)
@@ -337,6 +337,9 @@ public partial class OptionsMode : GameMode
         _row = row;
         PlaceCursor();
     }
+
+    /// <summary>Whether a choice is confirmed: by confirm or by the pause button, the cartridge's A or Start.</summary>
+    private static bool Confirms(GameInput input) => input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause);
 
     /// <summary>Moves the cursor up or down a page of <paramref name="rows"/> rows, round from one end to the other, and says whether it moved.</summary>
     private bool MovesRow(GameInput input, int rows)

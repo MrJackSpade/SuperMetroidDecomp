@@ -202,7 +202,7 @@ public partial class FileSelectMode : GameMode
             case Asking.HelmetTurns:
                 // The turn ends once its last picture has shown its while; confirming again cuts it short. The helmet
                 // keeps the picture it has through the fade.
-                if (--_turnLeft <= 0 || input.WasPressed(GameAction.Confirm))
+                if (--_turnLeft <= 0 || Confirms(input))
                     FadeOutTo(static () => new OptionsMode());
                 break;
             case Asking.CopyFrom:
@@ -267,7 +267,7 @@ public partial class FileSelectMode : GameMode
             return;
         }
 
-        if (!input.WasPressed(GameAction.Confirm))
+        if (!Confirms(input))
             return;
         if (_row < SavedGames)
         {
@@ -313,7 +313,7 @@ public partial class FileSelectMode : GameMode
             }
         }
 
-        bool confirmed = input.WasPressed(GameAction.Confirm);
+        bool confirmed = Confirms(input);
         if (input.WasPressed(GameAction.Cancel) || (confirmed && _dataRow == DataExitRow))
         {
             MoveSound();
@@ -362,7 +362,7 @@ public partial class FileSelectMode : GameMode
             return;
         }
 
-        if (!input.WasPressed(GameAction.Confirm))
+        if (!Confirms(input))
             return;
         MoveSound();
         if (_dataRow == DataExitRow)
@@ -393,7 +393,7 @@ public partial class FileSelectMode : GameMode
             MoveSound();
             declined = true;
         }
-        else if (input.WasPressed(GameAction.Confirm))
+        else if (Confirms(input))
         {
             Sound("confirm_sound");
             declined = !_yes;
@@ -417,6 +417,9 @@ public partial class FileSelectMode : GameMode
             Session.Saves.Clear(_from + 1);
         Show(copying ? Asking.CopyDone : Asking.ClearDone);
     }
+
+    /// <summary>Whether a choice is confirmed: by confirm or by the pause button, the cartridge's A or Start.</summary>
+    private static bool Confirms(GameInput input) => input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause);
 
     /// <summary>Whether any saved game holds anything.</summary>
     private bool AnySaved => Enumerable.Range(1, SavedGames).Any(Session.Saves.Has);

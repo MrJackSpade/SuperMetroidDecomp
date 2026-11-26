@@ -98,8 +98,24 @@ public partial class Dachora : Creature
     private Pixels _lift;
     private int _echoWait;
 
+    /// <summary>
+    /// The update at full speed on which the speed glow of a run begun after a wall or the ceiling stopped it first
+    /// shows; such a run asks for no speed sound. The cartridge finds that glow's count run out and counts it down
+    /// from the top, so its first frame comes sixteen updates after the 256th.
+    /// </summary>
+    private const int GlowAfterStopFirstUpdate = 272;
+
+    /// <summary>
+    /// The update at full speed on which a run begun after a stop would show a frame its speed glow does not have, as
+    /// the cartridge reads one past the glow's frames there. It runs out of its corridor long before.
+    /// </summary>
+    private const int GlowAfterStopStrayUpdate = 256;
+
     /// <summary>The updates it has glowed for, since its run reached full speed or since it began to gather itself.</summary>
     private int _glowing;
+
+    /// <summary>Whether its run began after a wall or the ceiling stopped it, and not from its blink or its turn.</summary>
+    private bool _runAfterStop;
 
     private string Side => Facing == Facing.Right ? "right" : "left";
 
@@ -145,7 +161,7 @@ public partial class Dachora : Creature
 
             case Doing.Blinking:
                 if (--_timer <= 0)
-                    BeginRun();
+                    BeginRun(afterStop: false);
                 break;
 
             case Doing.Running:
@@ -188,7 +204,7 @@ public partial class Dachora : Creature
                 if (_speed >= FastestFall)
                     _speed = FastestFall;
                 if (MoveDownBy(_speed))
-                    BeginRun();
+                    BeginRun(afterStop: true);
                 break;
 
             default:
@@ -196,10 +212,10 @@ public partial class Dachora : Creature
         }
     }
 
-    /// <summary>Starts a run from rest.</summary>
-    private void BeginRun()
+    /// <summary>Starts a run from rest: after a wall or the ceiling stopped it, or not.</summary>
+    private void BeginRun(bool afterStop)
     {
-        (_doing, _speed, _glowing) = (Doing.Running, Pixels.Zero, 0);
+        (_doing, _speed, _glowing, _runAfterStop) = (Doing.Running, Pixels.Zero, 0, afterStop);
         Play($"running_{Side}", restart: true);
         ShowColours([]);
     }
@@ -209,11 +225,16 @@ public partial class Dachora : Creature
     {
         if (_speed >= TopSpeed)
         {
-            // At full speed it glows the colours of speed, as Samus does, brighter and brighter, and is heard.
-            if (_glowing == 0)
+            // At full speed it glows the colours of speed, as Samus does, brighter and brighter; a run from its blink
+            // or its turn is heard as it reaches full speed and glows at once, one after a stop only much later.
+            int update = ++_glowing;
+            if (update == 1 && !_runAfterStop)
                 Sound(SpeedSound);
-            ShowColours(_speedGlow[Math.Min(_glowing / SpeedGlowFrameUpdates, _speedGlow.Length - 1)]);
-            _glowing++;
+            if (_runAfterStop && update == GlowAfterStopStrayUpdate)
+                throw new InvalidOperationException($"The Dachora has run {update} updates at full speed after a stop, where the cartridge shows a frame its speed glow does not have.");
+            int firstUpdate = _runAfterStop ? GlowAfterStopFirstUpdate : 1;
+            if (update >= firstUpdate)
+                ShowColours(_speedGlow[Math.Min((update - firstUpdate) / SpeedGlowFrameUpdates, _speedGlow.Length - 1)]);
         }
 
         MoveDownBy(Pixels.FromWhole(1), SlopeTreatment.Climb);
@@ -234,7 +255,7 @@ public partial class Dachora : Creature
             {
                 Sound(SpeedStopSound);
                 Facing = Facing.Left;
-                BeginRun();
+                BeginRun(afterStop: true);
                 return;
             }
 
@@ -250,7 +271,7 @@ public partial class Dachora : Creature
         if (!hitWall && Position.X.Whole >= TurnsBackAt)
             return;
         Facing = Facing.Right;
-        BeginRun();
+        BeginRun(afterStop: false);
     }
 
     /// <summary>Shows the shine glow's next frame, each update it gathers itself and flies: its frames over and over.</summary>

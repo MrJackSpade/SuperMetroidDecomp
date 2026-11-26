@@ -9,10 +9,14 @@ namespace Game;
 /// nothing, until right or left is held, which turns her to face that way, right before left. Nothing else she
 /// presses changes it. She makes no step down in it, so she does not stand at an elevator's door.
 /// </summary>
-public sealed class StandingForwardState : PlayerState, ISamusLook
+/// <param name="look">
+/// The look she stands in: the front view's own, or the one she is already shown in, which then goes on unbroken, as
+/// the last picture of her appearance does where a saved game is taken up.
+/// </param>
+public sealed class StandingForwardState(string look = "facing_forward") : PlayerState, ISamusLook
 {
     /// <inheritdoc/>
-    public string Look => "facing_forward";
+    public string Look => look;
 
     /// <inheritdoc/>
     public override bool CanAttack => false;

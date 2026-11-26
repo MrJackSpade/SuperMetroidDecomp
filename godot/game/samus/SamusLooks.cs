@@ -11,6 +11,9 @@ public static class SamusLooks
     /// <summary>The look of the state <paramref name="samus"/> is in.</summary>
     public static string Of(Samus samus) => Of(samus, samus.State);
 
+    /// <summary>Whether <paramref name="samus"/> is shown facing out of the screen: in the front view's own look, or in her appearance where a saved game is taken up.</summary>
+    public static bool FacesOut(Samus samus) => Of(samus) is "facing_forward" or AppearingState.Appearance;
+
     /// <summary>The look of <paramref name="state"/>: a change of posture has the look of what it leads to, and the picture between plays as that look is taken up.</summary>
     public static string Of(Samus samus, PlayerState state) => state switch
     {

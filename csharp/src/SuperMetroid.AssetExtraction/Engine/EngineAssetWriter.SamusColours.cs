@@ -91,6 +91,21 @@ public sealed partial class EngineAssetWriter
             glows.Add(EngineSheets.FileName(glow.Glow.ToString()) + (glow.Suit is { } suit ? "_" + SuitName(suit) : ""), written);
         }
 
+        // Her suit coming to its colours as she appears where a saved game is taken up, in each suit: one of the old
+        // game's colour effects, whose frames are colourings of her own pictures. It plays once through.
+        foreach ((SamusSuit suit, SuperMetroid.Core.Fx.ColourEffects.ColourEffectId effect) in new[]
+        {
+            (SamusSuit.Power, SuperMetroid.Core.World.SavedGameAppearanceDefinitions.PowerSuitGlow),
+            (SamusSuit.Varia, SuperMetroid.Core.World.SavedGameAppearanceDefinitions.VariaSuitGlow),
+            (SamusSuit.Gravity, SuperMetroid.Core.World.SavedGameAppearanceDefinitions.GravitySuitGlow),
+        })
+        {
+            var steps = new JsonArray();
+            foreach ((PictureShade shade, int updates) in ColourFramesPlayedOnce(effect))
+                steps.Add(new JsonObject { ["shade"] = Shade(shade), ["updates"] = updates });
+            glows.Add("loading_" + SuitName(suit), new JsonObject { ["steps"] = steps });
+        }
+
         var suits = new JsonObject();
         var drainFlash = new JsonObject();
         foreach ((string name, SamusSuit suit) in SamusSuits)

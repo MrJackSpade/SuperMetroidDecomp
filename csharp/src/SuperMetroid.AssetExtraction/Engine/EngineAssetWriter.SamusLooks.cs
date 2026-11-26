@@ -359,6 +359,16 @@ public sealed partial class EngineAssetWriter
         Add("facing_forward_suited", SamusHeld(P.ForwardFacingSuitedPose, still));
         Add("collecting_suit_suited", SamusHeld(P.ForwardFacingSuitedPose, still));
 
+        // Appearing where a saved game is taken up: the front view's appearance, played through to the picture it
+        // rests on. Its first picture is given as the game loads and counted down from her first update, so it shows
+        // for an update less than it is given.
+        foreach ((string name, P pose) in new[] { ("appearing", P.ForwardFacingPowerSuitPose), ("appearing_suited", P.ForwardFacingSuitedPose) })
+        {
+            (List<SamusStep> steps, int? loopsTo) = SamusPlayed(pose, Seg.Appearance);
+            steps[0] = steps[0] with { Updates = SuperMetroid.Core.World.SavedGameAppearanceDefinitions.FirstFrameTimer - 1 };
+            Add(name, (steps, loopsTo));
+        }
+
         // A crystal flash: she rises, glows while her ammunition is taken, and finishes standing.
         foreach ((string side, P pose, P standing) in new[]
         {

@@ -18,7 +18,8 @@ public partial class GameLoad : GameMode
 
     /// <summary>
     /// The game in the session's save slot. <paramref name="appears"/> says Samus appears where she saved, as when
-    /// the game is taken up from its map: her fanfare plays, and the room's music behind it. A game saved at the
+    /// the game is taken up from its map: she faces out of the screen while her suit comes to its colours
+    /// (<see cref="AppearingState"/>), her fanfare plays, and the room's music behind it. A game saved at the
     /// arrival on Ceres does not. With nothing in the slot a new game begins as this game's new games do.
     /// </summary>
     public static GameLoad OfSlot(bool appears) => new(session =>
@@ -26,7 +27,7 @@ public partial class GameLoad : GameMode
         if (session.LoadSlot() is not { } save)
             return session.Definition.CreateModeForNewGame();
         CartridgeSounds.Of(session).SavedGameAppears = appears;
-        return new Arrival(new PlayingMode(save.Room, save.EntryPoint), Arrival.OrdinaryWaits);
+        return new Arrival(new PlayingMode(save.Room, save.EntryPoint), Arrival.OrdinaryWaits, samusAppears: appears);
     });
 
     /// <summary>

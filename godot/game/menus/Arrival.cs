@@ -29,6 +29,7 @@ public partial class Arrival : GameMode
 
     private readonly PlayingMode _playing;
     private readonly bool _savesFirstArrival;
+    private readonly bool _samusAppears;
     private int _waitsLeft;
     private int _faded;
     private bool _begun;
@@ -37,15 +38,17 @@ public partial class Arrival : GameMode
     /// <summary>
     /// The arrival into <paramref name="playing"/>, the black held for <paramref name="waits"/> updates first.
     /// <paramref name="savesFirstArrival"/> says the game is saved as play is made, to resume in the game's first room
-    /// at its first entry point, as a new game's arrival on Ceres is.
+    /// at its first entry point, as a new game's arrival on Ceres is. <paramref name="samusAppears"/> says Samus
+    /// appears where play begins, as where a saved game is taken up: she is set appearing before play's first update.
     /// </summary>
-    public Arrival(PlayingMode playing, int waits, bool savesFirstArrival = false)
+    public Arrival(PlayingMode playing, int waits, bool savesFirstArrival = false, bool samusAppears = false)
     {
         ArgumentNullException.ThrowIfNull(playing);
         ArgumentOutOfRangeException.ThrowIfNegative(waits);
         _playing = playing;
         _waitsLeft = waits;
         _savesFirstArrival = savesFirstArrival;
+        _samusAppears = samusAppears;
     }
 
     /// <inheritdoc/>
@@ -67,6 +70,10 @@ public partial class Arrival : GameMode
         // Play, made beneath this, has its room and its player set up by now: the game is saved as it stands.
         if (_savesFirstArrival)
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, Session.Definition.FirstRoom, Session.Definition.FirstEntryPoint));
+
+        // Her appearance begins before play's first update, which is its first: the black's waits are none of it.
+        if (_samusAppears)
+            ((Samus)Session.Player).Appear();
     }
 
     /// <inheritdoc/>

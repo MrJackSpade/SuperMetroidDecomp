@@ -11,7 +11,7 @@ namespace Game;
 /// <summary>
 /// What colours her. Once an update, after she has moved and just before she is shown, each of her glows moves on
 /// while what makes it glow holds, and the colouring her suit shows is chosen from what she is doing: the first that
-/// holds of a drained Samus's glow in the hyper beam's colours, the flash of whatever drains her, a hurt's flash, the shine's glow, the screw attack's glow, the speed
+/// holds of her suit's glow as she appears where a saved game is taken up, a drained Samus's glow in the hyper beam's colours, the flash of whatever drains her, a hurt's flash, the shine's glow, the screw attack's glow, the speed
 /// booster's, a shot's glow and a full charge's pulse; with none, the colours of the suit she wears. Nothing sets her
 /// suit's colouring anywhere else while she is played. The count of a hurt's flash lives here with the sounds it times.
 /// </summary>
@@ -84,6 +84,9 @@ public partial class Samus
 
     /// <summary>The glow a charged shot or a hyper shot started, until it has shown its last colouring; none otherwise.</summary>
     private SamusGlowPlay? _shotGlow;
+
+    /// <summary>The glow of her suit coming to its colours as she appears where a saved game is taken up, until it has shown its last colouring; none otherwise.</summary>
+    private SamusGlowPlay? _appearanceGlow;
 
     /// <summary>Whether something that drains her has hold of her, and whether its flash shows its bright colouring this update.</summary>
     private bool _drainFlashing, _drainFlashBright;
@@ -205,6 +208,17 @@ public partial class Samus
     /// <summary>A shot of hers starts a glow of her suit: a charged shot's flash, or a hyper shot's glow. It takes the place of one still playing.</summary>
     private void BeginShotGlow(string glow) => _shotGlow = new SamusGlowPlay(Colours.Glow(glow));
 
+    /// <summary>
+    /// Has her appear where a saved game is taken up (<see cref="AppearingState"/>): she faces out of the screen in
+    /// no one's hands but the appearance's, and her suit comes to its colours through the glow of the suit she wears,
+    /// which plays from her next update.
+    /// </summary>
+    public void Appear()
+    {
+        ChangeState(new AppearingState());
+        _appearanceGlow = new SamusGlowPlay(Colours.Glow($"loading_{SuitWorn}"));
+    }
+
     /// <summary>The grapple beam's firing, like a beam shot, and the gift of the hyper beam take back the asking again of a charge's sound.</summary>
     public void ForgetChargingSoundResume() => _chargingSoundArmed = false;
 
@@ -225,16 +239,17 @@ public partial class Samus
             return;
         }
 
+        string? appearing = EndingGlowShade(ref _appearanceGlow);
         string? drained = State is DrainedState { Glows: true } glowing ? DrainedGlowShade(glowing.GlowStep) : null;
         string? hurt = StepHurtFlash(suit);
         string? drain = DrainFlashShade(suit);
         string? shine = ShineGlowShade();
         string? screw = ScrewGlowShade();
         string? speed = SpeedGlowShade();
-        string? shot = ShotGlowShade();
+        string? shot = EndingGlowShade(ref _shotGlow);
         string? pulse = ChargePulseShade();
         bool dulled = !Inventory.IsOn(Equipment.GravitySuit) && FeetAreInLiquid;
-        Colours.ShowSuit(drained ?? drain ?? hurt ?? shine ?? (dulled ? null : screw ?? speed) ?? shot ?? pulse ?? suit);
+        Colours.ShowSuit(appearing ?? drained ?? drain ?? hurt ?? shine ?? (dulled ? null : screw ?? speed) ?? shot ?? pulse ?? suit);
         StepCrystalFlashColouring();
     }
 
@@ -265,15 +280,18 @@ public partial class Samus
         return Colours.Glow($"{pulse}_{SuitWorn}").Next(ref _chargePulsePlace);
     }
 
-    /// <summary>A shot's glow: each of its colourings for its updates, and nothing once it has shown its last.</summary>
-    private string? ShotGlowShade()
+    /// <summary>
+    /// A glow that plays once through, a shot's or her appearance's: each of its colourings for its updates, and
+    /// nothing once it has shown its last, when it is let go.
+    /// </summary>
+    private static string? EndingGlowShade(ref SamusGlowPlay? played)
     {
-        if (_shotGlow is not { } glow)
+        if (played is not { } glow)
             return null;
         glow.Step();
         if (!glow.HasEnded)
             return glow.Shown;
-        _shotGlow = null;
+        played = null;
         return null;
     }
 

@@ -1341,7 +1341,7 @@ public partial class Samus : Player
     /// </summary>
     protected override void WaitToAttack()
     {
-        if (SamusLooks.Of(this) != "facing_forward")
+        if (!SamusLooks.FacesOut(this))
             base.WaitToAttack();
     }
 

@@ -141,6 +141,32 @@ public sealed partial class EngineAssetWriter
         return data;
     }
 
+    /// <summary>
+    /// The frames of a colour effect that plays once through and asks for nothing as it plays, in order: the shade
+    /// each shows and the updates it shows for, a part played several times over given as often.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The effect comes round again, or plays a beat that is not a frame.</exception>
+    private static IEnumerable<(SuperMetroid.Core.Assets.PictureShade Shade, int Updates)> ColourFramesPlayedOnce(ColourEffectId effect)
+    {
+        ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
+        Animation<ColourEffectSegment> animation = definition.Frames.Played;
+        if (animation.End is AnimationEnd.Loop)
+            throw new InvalidDataException($"The colour effect {effect} comes round again, where one that plays once through was asked for.");
+        foreach (AnimationPhase<ColourEffectSegment> phase in animation.Phases)
+        {
+            IReadOnlyList<AnimationBeat<int, ColourEffectCue>> beats = ColourEffectAnimations.Segments.Beats(phase.Segment);
+            for (int play = 0; play < phase.Plays; play++)
+            {
+                for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)
+                {
+                    if (beats[beat] is not AnimationBeat<int, ColourEffectCue>.Frame shown)
+                        throw new InvalidDataException($"The colour effect {effect} plays a beat that is not a frame: {beats[beat]}.");
+                    yield return (ColourEffectShades.Of(definition.Colours, new ColourEffectFrame(effect, shown.Shown)), shown.Duration);
+                }
+            }
+        }
+    }
+
     /// <summary>The most colours a thing drawn in the engine shows changed at once (its <c>Recolouring.MostSwaps</c>).</summary>
     private const int MostSwapsShown = 64;
 

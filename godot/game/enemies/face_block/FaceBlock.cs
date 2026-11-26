@@ -1,7 +1,9 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -10,7 +12,7 @@ namespace Game.Enemies;
 /// A face block: a carved face in the rock that does nothing until Samus has the Morph Ball. From then on it glows,
 /// with the one glow its room's face blocks share (<see cref="FaceBlockGlow"/>), and turns its eyes to her the first
 /// time she comes near on the side it watches. It is solid to her, a block wide and high; her shots and bombs
-/// pass it, and nothing harms it.
+/// take no notice of it and fly on, her grapple's line is stopped by it, and nothing harms it.
 /// </summary>
 /// <remarks>
 /// Its timelines are "looking_ahead", "samus_left" and "samus_right". Its data lists the glow's levels under "glow",
@@ -42,6 +44,13 @@ public partial class FaceBlock : Enemy
         base.ReadValues(data);
         _glowLevels = [.. data.List("glow").Select(ColourChange.Read)];
     }
+
+    /// <summary>
+    /// The cartridge's face block answers her grapple by giving its line up, and everything else by letting it pass:
+    /// a shot or a bomb goes on unspent, with no dud's flash.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part) =>
+        hit.Carries(new HitKind(Game.Data.HitKinds.Grapple)) ? HitResult.Absorbed : HitResult.Ignored;
 
     /// <summary>
     /// Set up, it joins its room's glow, starts it if Samus already has what wakes it, and in any case starts the

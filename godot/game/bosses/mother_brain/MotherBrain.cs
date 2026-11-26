@@ -417,10 +417,11 @@ public partial class MotherBrain : Enemy, IClosingStep
             return;
         Player samus = room.Player;
 
-        // She breathes out a little, as often as not, whenever her last breath has gone.
+        // She breathes out a little, as often as not, whenever her last breath has gone; a breath the room has no
+        // place for is not breathed, and she tries again.
         bool breathOut = _smallBreath is { } last && IsInstanceValid(last) && !Room.IsLeaving(last);
         if (_breathes && !breathOut && SmallBreathEffect.Length > 0 && Random.Last.Part(15, 1) == 0)
-            _smallBreath = LeaveEffect(SmallBreathEffect, _head + PixelOffset.FromWhole(6, 16));
+            _smallBreath = LeaveHoldingPlace(SmallBreathEffect, _head + PixelOffset.FromWhole(6, 16));
 
         TimelineStep? shown = PlayBrain(samus);
 
@@ -639,6 +640,16 @@ public partial class MotherBrain : Enemy, IClosingStep
     {
         if (effect.Length > 0)
             LeaveEffect(effect, at);
+    }
+
+    /// <summary>
+    /// Leaves an effect that is one of the enemies' shots on the cartridge: it holds one of the room's places while it
+    /// plays, and with none free it is not made. Returns it, or null when it was not made.
+    /// </summary>
+    private Effect? LeaveHoldingPlace(string effect, PixelPosition at)
+    {
+        Effect made = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true);
+        return Room.Spawn(made) ? made : null;
     }
 
     private static int Number(string text) => int.Parse(text, System.Globalization.CultureInfo.InvariantCulture);

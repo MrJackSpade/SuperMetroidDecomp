@@ -257,7 +257,14 @@ public partial class MotherBrain
         {
             if (_nextTube > 0 && --_tubeWait > 0)
                 return;
-            var tube = new FallingTube(LeaveEffect(drop.Effect, PixelPosition.FromWhole(drop.X, drop.Y)), drop) { Delay = drop.Delay };
+            _tubeFallen = true;
+
+            // The pipes about the top of her tank are shots on the cartridge: each holds one of the room's places, and
+            // one the room has no place for does not fall, nor raise its dust.
+            PixelPosition from = PixelPosition.FromWhole(drop.X, drop.Y);
+            if ((drop.Top ? LeaveHoldingPlace(drop.Effect, from) : LeaveEffect(drop.Effect, from)) is not { } sprite)
+                return;
+            var tube = new FallingTube(sprite, drop) { Delay = drop.Delay };
 
             // The pipes about the top of her tank are shots on the cartridge and hold no enemy's place.
             if (!drop.Top && _inFirstPlace is null)
@@ -269,7 +276,6 @@ public partial class MotherBrain
             _fallingTubes.Add(tube);
             if (drop.Top)
                 Leave(DustEffect, PixelPosition.FromWhole(drop.X, drop.Y + TopTubeDustBelow));
-            _tubeFallen = true;
             return;
         }
 

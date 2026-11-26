@@ -498,8 +498,8 @@ public partial class MotherBrain : ITriggerTarget
                 foreach (DoorFragment piece in _doorFragments)
                 {
                     PixelPosition at = PixelPosition.FromWhole(EscapeDoorPlace.X, EscapeDoorPlace.Y + piece.Down);
-                    if (DoorFragmentEffect.Length > 0)
-                        _flyingFragments.Add(new FlyingFragment(LeaveEffect(DoorFragmentEffect, at), new PixelVelocity(Pixels.FromWhole(5), piece.Rise)));
+                    if (DoorFragmentEffect.Length > 0 && LeaveHoldingPlace(DoorFragmentEffect, at) is { } fragment)
+                        _flyingFragments.Add(new FlyingFragment(fragment, new PixelVelocity(Pixels.FromWhole(5), piece.Rise)));
                 }
 
                 Room.Terrain.ApplyPatch(_escapeDoorPatch);
@@ -544,8 +544,8 @@ public partial class MotherBrain : ITriggerTarget
                 effect = roll < 2 ? ExplosionEffect : roll < 7 ? SmokeEffect : BigExplosionEffect;
             }
 
-            if (effect.Length > 0)
-                _bodyBlasts.Add((LeaveEffect(effect, Position + group[place]), group[place]));
+            if (effect.Length > 0 && LeaveHoldingPlace(effect, Position + group[place]) is { } blast)
+                _bodyBlasts.Add((blast, group[place]));
             Sound(ExplosionSound, SoundPriority.Low);
         }
     }

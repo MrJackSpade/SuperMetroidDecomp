@@ -539,7 +539,8 @@ public partial class MotherBrain
                 break;
 
             case "big_breath":
-                Leave(BigBreathEffect, _head + PixelOffset.FromWhole(6, 16));
+                if (BigBreathEffect.Length > 0)
+                    LeaveHoldingPlace(BigBreathEffect, _head + PixelOffset.FromWhole(6, 16));
                 break;
 
             case "neck":

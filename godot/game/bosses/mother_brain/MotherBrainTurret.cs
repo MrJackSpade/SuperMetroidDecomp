@@ -61,6 +61,12 @@ public partial class MotherBrainTurret : Enemy
     private int _turnWait;
     private int _fireWait;
 
+    /// <summary>
+    /// What holds its place among the room's places for what enemies launch: on the cartridge a turret is one of the
+    /// enemies' shots, and one the room has no place for is not there.
+    /// </summary>
+    private Effect? _place;
+
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => false;
 
@@ -69,8 +75,13 @@ public partial class MotherBrainTurret : Enemy
     {
         if (IsDead)
             return;
+
+        // It gives its place back first, and the smoke, one of the enemies' shots as well, takes the highest free.
+        if (_place is { } place)
+            Room.Remove(place);
+        _place = null;
         if (IsWatched() && SmokeEffect.Length > 0)
-            LeaveEffect(SmokeEffect, Position);
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(SmokeEffect)), Position, holdsPlace: true));
         Vanish();
     }
 
@@ -87,6 +98,15 @@ public partial class MotherBrainTurret : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        // It takes its place as it is set up; with none free it is not there at all, and draws nothing.
+        Effect place = Effect.HoldingPlace(Position);
+        if (!Room.Spawn(place))
+        {
+            Vanish();
+            return;
+        }
+
+        _place = place;
         AlwaysActive = true;
         _pointing = StartsPointing;
         _turnWait = Math.Max(Random.Draw().Part(0, 8), LeastTurnWait);

@@ -22,26 +22,20 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// <summary>Ridley, in Norfair and aboard Ceres station, and its fire.</summary>
 public sealed partial class EngineAssetWriter
 {
-    /// <summary>
-    /// The scene of a piece of one fight's fire: "fireball", "flare" or "flame". Each fight has its own, whose data
-    /// names that fight's pictures.
-    /// </summary>
-    private static string RidleyFireScene(EngineEnemy ridley, string what) =>
-        $"res://game/bosses/ridley/{ridley.Folder[(ridley.Folder.LastIndexOf('/') + 1)..]}_{what}.tscn";
+    /// <summary>The scene of a piece of Ridley's fire, which both fights use: "fireball", "flare" or "flame".</summary>
+    private static string RidleyFireScene(string what) => $"res://game/bosses/ridley/ridley_{what}.tscn";
 
-    /// <summary>The data file of the scene of a piece of one fight's fire.</summary>
-    private static string RidleyFireData(EngineEnemy ridley, string what) => $"{ridley.Folder}_{what}.json";
-
-    /// <summary>Writes Ridley's two fights, each with its fire as the rooms of that fight draw it.</summary>
+    /// <summary>Writes Ridley's two fights and the fire they both use.</summary>
     private void WriteRidley()
     {
         EngineEnemy norfair = RidleyFight("bosses/ridley.json", EnemyDefinitionId.Ridley, onCeres: false);
-        RidleyFireballShot(norfair, WriteRidleyFire(norfair), AreaId.Norfair);
+        string fireball = WriteRidleyFire(norfair);
+        RidleyFireballShot(norfair, fireball, AreaId.Norfair);
         WriteNorfairRidley(norfair);
         norfair.Write();
 
         EngineEnemy ceres = RidleyFight("bosses/ceres_ridley.json", EnemyDefinitionId.RidleyCeres, onCeres: true);
-        RidleyFireballShot(ceres, WriteRidleyFire(ceres), AreaId.Ceres);
+        RidleyFireballShot(ceres, fireball, AreaId.Ceres);
         WriteCeresRidley(ceres);
         ceres.Write();
     }
@@ -308,7 +302,7 @@ public sealed partial class EngineAssetWriter
         ridley.Shot("fireball", RoomEnemyProjectileKind.RidleyFireball, (_, shot, projectile) =>
         {
             shot["damage"] = RidleyProjectileDamage.ForArea(area);
-            shot["scene"] = RidleyFireScene(ridley, "fireball");
+            shot["scene"] = RidleyFireScene("fireball");
             shot["speed"] = EngineNames.Number(RidleyFireballDefinitions.FireballSpeed);
             projectile["timeline"] = timeline;
             projectile["picture_offset"] = EngineEnemy.NoOffset();
@@ -317,9 +311,9 @@ public sealed partial class EngineAssetWriter
         });
 
     /// <summary>
-    /// Writes one fight's fire, its pictures drawn as that fight's rooms draw them: the fireball's timeline, which is
-    /// returned, and the flare a fireball leaves where it strikes and the flames a flare sends along the surface, each
-    /// a shot of its own with its data.
+    /// Writes Ridley's fire, which both fights use, its pictures as the Ridley given draws them: the fireball's
+    /// timeline, which is returned, and the flare a fireball leaves where it strikes and the flames a flare sends
+    /// along the surface, each a shot of its own with its data.
     /// </summary>
     private string WriteRidleyFire(EngineEnemy ridley)
     {
@@ -370,13 +364,13 @@ public sealed partial class EngineAssetWriter
         if (right.X != down.Y || right.X != -RidleyAfterburnDefinitions.Left.X || down.Y != -RidleyAfterburnDefinitions.Up.Y)
             throw new InvalidDataException("Ridley's flames race at different speeds each way, where the Godot game has one speed for all.");
 
-        string flame = Shot("flame", RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyFireScene(ridley, "flame"), Timeline("flame", RidleyFireballSegment.DirectionalAfterburn));
-        string flareAcross = Shot("flare_across", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFireScene(ridley, "flare"), Timeline("flare_across", RidleyFireballSegment.HorizontalCenter));
-        string flareDown = Shot("flare_down", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFireScene(ridley, "flare"), Timeline("flare_down", RidleyFireballSegment.VerticalCenter));
+        string flame = Shot("flame", RoomEnemyProjectileKind.RidleyHorizontalAfterburn, RidleyFireScene("flame"), Timeline("flame", RidleyFireballSegment.DirectionalAfterburn));
+        string flareAcross = Shot("flare_across", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFireScene("flare"), Timeline("flare_across", RidleyFireballSegment.HorizontalCenter));
+        string flareDown = Shot("flare_down", RoomEnemyProjectileKind.RidleyAfterburnCenter, RidleyFireScene("flare"), Timeline("flare_down", RidleyFireballSegment.VerticalCenter));
         string final = Timeline("flame_final", RidleyFireballSegment.AfterburnFinal);
         foreach (string what in new[] { "fireball", "flare", "flame" })
         {
-            ridley.ProjectileData(RidleyFireData(ridley, what), "RidleyFireball",
+            ridley.ProjectileData($"bosses/ridley_{what}.json", "RidleyFireball",
                 ("is", what),
                 ("flare_across", flareAcross),
                 ("flare_down", flareDown),
@@ -550,9 +544,6 @@ public sealed partial class EngineAssetWriter
             timeline["offset"] = new JsonObject { ["x"] = capsule.OffsetX - ridley.Pictures.OffsetX, ["y"] = capsule.OffsetY - ridley.Pictures.OffsetY };
             return timeline;
         }
-
-        // The colours its retreat gives the chamber, on the pictures of each state of a room that places it.
-        ridley.Group("retreat_colours", ShadeChange($"{RidleyShades.RetreatRoom.Key}+{RidleyShades.RetreatShared.Key}", RoomPlacesOf(EnemyDefinitionId.RidleyCeres)));
 
         // The bands of hits taken that lay a look of its health over its own colours. A band with no look leaves the
         // colours as they are, which, as hits only add up, is the last band's look reached below it.

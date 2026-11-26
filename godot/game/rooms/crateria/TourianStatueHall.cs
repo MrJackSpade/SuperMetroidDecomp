@@ -2,7 +2,6 @@ using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
-using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -25,9 +24,7 @@ namespace Game.Rooms.Crateria;
 /// "grey_offset"), the steps it greys by as it is let go ("greying_updates": how many updates each is held, the
 /// first showing none of its grey, the last all of it, and each between as much more as the one before), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
 /// stays with the view as it moves up and down, and what is part of it stays with it and lies behind the room's
-/// tiles), the change of colours the light made at its eyes shows on the pictures that stand in the room and on the
-/// other guardians' effects from then on ("eye_glow_colours", by each picture's path and each effect's folder), and
-/// its effects: "eye_glow",
+/// tiles), and its effects, each cut in the colours of the light of its eyes: "eye_glow",
 /// "particle", "tail", "splash" and "soul" by the data files of their timelines (those of the particle and the
 /// soul loop). It names "base" (a "picture" and its "offset"); the "dust" the sinking statue raises, by the data
 /// file of its timeline, with "dust_puffs", "dust_rounds", "dust_updates" and the "dust_scatter" it is thrown by;
@@ -161,16 +158,6 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     /// </summary>
     private readonly List<Effect> _dustHolds = [];
     private readonly List<(Effect Soul, Pixels Speed)> _souls = [];
-
-    /// <summary>Every effect the guardians have let out, which shows the light last made while it plays; some may be gone.</summary>
-    private readonly List<Effect> _letOut = [];
-
-    /// <summary>The colours of the light last made at a guardian's eyes, which the pictures standing in the room show; null before any.</summary>
-    private ColourChange? _eyesLit;
-
-    /// <summary>The name the light's colours are shown on the pictures under.</summary>
-    private const string EyesLitSource = "eyes_lit";
-
     private DataNode? _data;
     private Vector2 _statueHome;
     private Releases _releases;
@@ -227,9 +214,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         _sparks.Clear();
         _tails.Clear();
         _souls.Clear();
-        _letOut.Clear();
         _dustHolds.Clear();
-        _eyesLit = null;
         foreach (Guardian guardian in _guardians)
         {
             (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor) = (Stage.Entering, -1, 0, -1);
@@ -360,11 +345,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                         // A light gathers at its eyes; it is the light that bursts, so one the room has no place
                         // for bursts into nothing.
                         if (Leave(room, guardian, "eye_glow", eye) is not null)
-                        {
                             _glows.Add((eye, EyeGlowUpdates, guardian));
-                            LightEyes(guardian);
-                        }
-
                         break;
                     case 3:
                         // Its spirit leaves it, and it begins to turn grey.
@@ -402,34 +383,8 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     private void Show(Guardian guardian, string picture, int updates)
     {
         Visual(guardian.Name).Show(Picture(guardian, picture));
-        if (_eyesLit is { } lit && StandsInRoom(guardian))
-            lit.ShowOn(Visual(guardian.Name), EyesLitSource);
         guardian.Left = updates;
     }
-
-    /// <summary>
-    /// The light at a guardian's eyes is made: the pictures that stand in the room and the effects the guardians have
-    /// let out show its colours from now on, in place of those of any light made before, as the cartridge colours all
-    /// the statue's sprites.
-    /// </summary>
-    private void LightEyes(Guardian guardian)
-    {
-        ColourChange lit = ColourChange.Read(Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Get("eye_glow_colours"));
-        _eyesLit = lit;
-        lit.ShowOn(Visual("Base"), EyesLitSource);
-        foreach (Guardian standing in _guardians.Where(StandsInRoom))
-        {
-            lit.ShowOn(Visual(standing.Name), EyesLitSource);
-            lit.ShowOn(Visual(standing.Name + "Grey"), EyesLitSource);
-        }
-
-        _letOut.RemoveAll(gone => !GodotObject.IsInstanceValid(gone));
-        foreach (Effect effect in _letOut)
-            lit.ShowOn(effect, EyesLitSource);
-    }
-
-    /// <summary>Whether a guardian stands in the room, a picture of its own, rather than being part of the backdrop.</summary>
-    private bool StandsInRoom(Guardian guardian) => Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Flag("in_room");
 
     /// <summary>Plays one update of the lights, sparks, tails and spirits the guardians have let out.</summary>
     private void StepEffects(Room room)
@@ -635,14 +590,8 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         // Each is one of the enemies' shots on the cartridge: it holds one of the room's places, and with none free it is
         // not made.
         Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(file)), at, holdsPlace: true);
-        if (!room.Spawn(effect))
-            return null;
-
-        // It is cut in its own guardian's light; a later light made since shows in its place.
-        _letOut.RemoveAll(gone => !GodotObject.IsInstanceValid(gone));
-        _letOut.Add(effect);
-        _eyesLit?.ShowOn(effect, EyesLitSource);
-        return effect;
+        // It is cut in its own guardian's light.
+        return room.Spawn(effect) ? effect : null;
     }
 
     private string Picture(Guardian guardian, string which) =>

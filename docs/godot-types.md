@@ -1693,8 +1693,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   (its head is the enemy, sized by a cue for the way it points, and the thirteen segments of its body are visuals
   with hurtboxes that stop shots and are not hurt; how hurt it is is a set of its pictures; its wall falls as a
   `PatchSequence` the room goes on playing after it is gone, and the `CameraZone` its wall kept shut is opened as
-  the wall begins to fall); Draygon (eye, tail, arms are parts; its body's pictures are kept once for each band of its health; its tail and arms
-  are recoloured, in its opening's colours until its first hurt and in its fight's from then on; its data, not
+  the wall begins to fall); Draygon (eye, tail, arms are parts; its body's pictures are kept once for each band of its health; its data, not
   its cannons, says which cannon fires on which of its turns and from where, and each cannon in the room says which
   it is);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
@@ -1805,8 +1804,8 @@ statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once
 statue's descent, which is its part of an update's opening (`IOpeningStep`), played before the update's random
 number is drawn; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
 guardian's eyes and for each turned grey (those of the guardians that are part of the backdrop's picture lie behind
-the room's tiles with it, at `RoomDepth.BehindRoom`; once the light at a guardian's eyes is made, the pictures that
-stand in the room, and the effects the guardians have let out that still play or are let out after, show the change of colours its data gives for that light, `eye_glow_colours`), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+the room's tiles with it, at `RoomDepth.BehindRoom`; each effect a guardian lets out is cut in the colours of the
+light of that guardian's eyes), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:

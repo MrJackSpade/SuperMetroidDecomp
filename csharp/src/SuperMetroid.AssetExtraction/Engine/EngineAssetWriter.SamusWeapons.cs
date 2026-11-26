@@ -69,10 +69,113 @@ public sealed partial class EngineAssetWriter
         string sheet = SpriteSheetDefinitions.FileNames[ProjectileSheetFrames.For(beams)];
         if (_shotPictures.TryGetValue(sheet, out EngineSheetPictures? cut))
             return cut;
+        // The flare at the end of her arm cannon is cut from the same sheet, in the same colours.
         const string shots = "Projectile.";
-        IEnumerable<string> frames = _sheets.FramesOf(SpriteFamily, sheet).Where(frame => frame.StartsWith(shots, StringComparison.Ordinal));
+        IEnumerable<string> frames = _sheets.FramesOf(SpriteFamily, sheet)
+            .Where(frame => frame.StartsWith(shots, StringComparison.Ordinal) || frame.StartsWith(FlareFrames, StringComparison.Ordinal));
         return _shotPictures[sheet] = _sheets.CutNamed(_tree, SpriteFamily, $"samus/shots/{BeamsName(beams)}/pictures", sheet, frames, null,
-            frame => EngineSheets.FileName(frame[shots.Length..]));
+            frame => EngineSheets.FileName(frame[(frame.StartsWith(shots, StringComparison.Ordinal) ? shots : FlareFrames).Length..]));
+    }
+
+    /// <summary>What the names of the flare's frames on a sheet of her shots begin with.</summary>
+    private const string FlareFrames = "Flare.";
+
+    /// <summary>
+    /// The flare at the end of her arm cannon while she holds a charge: when it shows, its three parts' timelines,
+    /// where its pictures are for each combination of beams, and where it lies by how she stands, faces and aims.
+    /// The old flare's parts are counted down a step before they are drawn, which the Godot flare does too.
+    /// </summary>
+    private JsonObject ChargeFlareWritten()
+    {
+        const string main = "FlareMain";
+        string[] rings = ["Widest", "Wider", "Wide", "Narrow", "Narrower", "Narrowest"];
+        EngineSheetPictures power = ShotPictures(SamusBeamCombination.Power);
+
+        // A step's picture is written by its name alone: the same name in the folder of each combination of beams.
+        JsonObject Step(string part, string picture, int updates)
+        {
+            string path = power.Of($"{FlareFrames}{part}.{picture}");
+            return new JsonObject { ["picture"] = Path.GetFileNameWithoutExtension(path), ["updates"] = updates };
+        }
+
+        // The glow: embers that swell to a white ball, then the ball and its starburst in turn for good.
+        const int held = 4, embers = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.EmberGlowPlays, swelling = embers;
+        var glow = new JsonArray();
+        for (int turn = 0; turn < embers; turn++)
+        {
+            glow.Add(Step(main, "Ember", held));
+            glow.Add(Step(main, "Glow", held));
+        }
+
+        for (int turn = 0; turn < swelling; turn++)
+        {
+            glow.Add(Step(main, "WhiteBall", held));
+            glow.Add(Step(main, "Glow", held));
+        }
+
+        int loop = glow.Count;
+        glow.Add(Step(main, "WhiteBall", held));
+        glow.Add(Step(main, "Starburst", held));
+
+        JsonObject Ring(string speed, string side, int[] updates)
+        {
+            var steps = new JsonArray();
+            for (int index = 0; index < rings.Length; index++)
+                steps.Add(Step($"Flare{speed}Sparks{side}", "Sparks" + rings[index], updates[index]));
+            return new JsonObject { ["steps"] = steps, ["loops_to"] = 0 };
+        }
+
+        int[] slow = [6, 5, 4, 4, 4, 4], fast = [5, 4, 3, 3, 3, 3];
+        // The pictures of each combination of beams: the folder they were cut into, which combinations that share a
+        // sheet share, and where a picture's corner lies from the flare's place.
+        var byBeams = new JsonObject();
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
+        {
+            EngineSheetPictures pictures = ShotPictures(beams);
+            string ember = pictures.Of($"{FlareFrames}{main}.Ember");
+            string folder = ember[..ember.LastIndexOf('/')];
+            byBeams[BeamsName(beams)] = new JsonObject { ["folder"] = folder, ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+        }
+
+        SuperMetroid.Core.Samus.Artwork.BeamFlarePlacements placed = _installation.LoadProjectiles().FlarePlacement;
+        JsonObject Places(bool running)
+        {
+            var right = new JsonObject();
+            var left = new JsonObject();
+            foreach ((string aim, SamusProjectileDirection toRight, SamusProjectileDirection toLeft) in SamusAims)
+            {
+                Offset16<RoomPixels> rightward = placed.AtMuzzle(running, toRight), leftward = placed.AtMuzzle(running, toLeft);
+                right[aim] = new JsonObject { ["x"] = rightward.X, ["y"] = rightward.Y };
+                left[aim] = new JsonObject { ["x"] = leftward.X, ["y"] = leftward.Y };
+            }
+
+            return new JsonObject { ["right"] = right, ["left"] = left };
+        }
+
+        var turning = new JsonObject();
+        foreach ((string name, SuperMetroid.Core.Samus.Poses.SamusTurningAim aim) in new[]
+                 {
+                     ("up", SuperMetroid.Core.Samus.Poses.SamusTurningAim.Up), ("neutral", SuperMetroid.Core.Samus.Poses.SamusTurningAim.Neutral),
+                     ("down", SuperMetroid.Core.Samus.Poses.SamusTurningAim.Down),
+                 })
+        {
+            Offset16<RoomPixels> at = placed.WhileTurning(aim);
+            turning[name] = new JsonObject { ["x"] = at.X, ["y"] = at.Y };
+        }
+
+        return new JsonObject
+        {
+            ["shows_from"] = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.MainFlareShownFrom,
+            ["sparks_from"] = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.SparksShownFrom,
+            ["pictures"] = byBeams,
+            ["main"] = new JsonObject { ["steps"] = glow, ["loops_to"] = loop },
+            ["slow_right"] = Ring("Slow", "Right", slow),
+            ["slow_left"] = Ring("Slow", "Left", slow),
+            ["fast_right"] = Ring("Fast", "Right", fast),
+            ["fast_left"] = Ring("Fast", "Left", fast),
+            ["places"] = new JsonObject { ["standing"] = Places(running: false), ["running"] = Places(running: true) },
+            ["turning_places"] = turning,
+        };
     }
 
     /// <summary>The picture a frame of a shot's animation shows; empty for a frame that shows nothing.</summary>

@@ -378,6 +378,7 @@ public sealed partial class EngineAssetWriter
             ["standing"] = Origins(SamusMuzzleOriginDefinitions.Standing),
             ["running"] = Origins(SamusMuzzleOriginDefinitions.Running),
         });
+        file.Group("charge_flare", ChargeFlareWritten());
         file.Group("grapple_origins", new JsonObject
         {
             ["standing"] = Origins(GrappleFiringDefinitions.StandingOrigins),

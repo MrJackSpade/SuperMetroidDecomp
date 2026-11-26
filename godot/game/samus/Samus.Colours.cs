@@ -138,8 +138,20 @@ public partial class Samus
             return;
         }
 
-        string[] on = [.. ColouredBeams.Where(beam => Inventory.IsOn(beam.Equipment)).Select(beam => beam.Name)];
-        Colours.ShowBeams(Colours.BeamsOf(on.Length == 0 ? "power" : string.Join('_', on)));
+        Colours.ShowBeams(Colours.BeamsOf(BeamsSwitchedOn));
+    }
+
+    /// <summary>
+    /// The name of the beams she has switched on, as her colourings and the folders of her shots' pictures are named
+    /// for them: the beams' names in their own order, or "power" with none.
+    /// </summary>
+    public string BeamsSwitchedOn
+    {
+        get
+        {
+            string[] on = [.. ColouredBeams.Where(beam => Inventory.IsOn(beam.Equipment)).Select(beam => beam.Name)];
+            return on.Length == 0 ? "power" : string.Join('_', on);
+        }
     }
 
     /// <summary>

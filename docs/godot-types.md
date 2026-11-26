@@ -1034,7 +1034,13 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
   spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
   next update; the speed boost's is at work from the update after she reaches full boost.
-- **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
+- **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`, `SamusFlare`.
+- **The flare at the end of her arm cannon** (`SamusFlare`): while she holds a charge, a glow and two rings of
+  sparks, each on a timeline and a count of its own, drawn in front of her from the pictures of the beams she has
+  switched on and in her colours. It starts as the charge does, shows from the updates her data gives, moves on by
+  her updates whether or not the charge's count does, and is hidden, still moving on, while her pose does not hold
+  her arm out (`Samus.HoldsArmOut`). It lies where her data places it by how she stands, faces and aims
+  (`Samus.FlarePoint`), raised as a shot's start is.
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
   takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`), and once that is found

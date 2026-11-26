@@ -275,6 +275,10 @@ public partial class Samus : Player
     private readonly Dictionary<string, BodyPower> _powers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _muzzles = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _grappleOrigins = new(StringComparer.Ordinal);
+
+    /// <summary>Where the flare at the end of her arm cannon lies from her place: by stance, facing and aim, and while she turns by the aim the turn holds.</summary>
+    private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _flarePlaces = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Vector2I> _flareTurningPlaces = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _shotHeights = new(StringComparer.Ordinal);
     private Countdown _shine = Countdown.Over;
     private int _boostStage = -1;
@@ -537,6 +541,17 @@ public partial class Samus : Player
         if (data.Has("grapple"))
             Grapple?.ReadValues(data.Get("grapple"));
 
+        _flarePlaces.Clear();
+        _flareTurningPlaces.Clear();
+        if (data.Has("charge_flare"))
+        {
+            DataNode flare = data.Get("charge_flare");
+            ReadOrigins(flare, "places", _flarePlaces);
+            foreach ((string held, DataNode place) in flare.Get("turning_places").Entries())
+                _flareTurningPlaces[held] = new Vector2I(place.Int("x"), place.Int("y"));
+            Flare?.ReadValues(flare);
+        }
+
         SpecialAttackShots = [];
         if (data.Has("special_attacks"))
         {
@@ -679,16 +694,48 @@ public partial class Samus : Player
     /// The place of <paramref name="origins"/> for how she stands, faces and aims, raised by how high her pose holds her
     /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up.
     /// </summary>
-    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins)
+    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins, bool moonwalkRuns = true)
     {
         // In the morph ball there is no arm to fire from: what she lays, she lays where she is.
         if (Form == Crawling)
             return Position;
-        string stance = State is RunningState || (State is MoonwalkingState && Aim == Aim.DiagonalUp) ? "running" : "standing";
+        string stance = State is RunningState || (moonwalkRuns && State is MoonwalkingState && Aim == Aim.DiagonalUp) ? "running" : "standing";
         string facing = Facing == Facing.Right ? "right" : "left";
         if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
             !aims.TryGetValue(AimName(Aim), out Vector2I offset))
             return base.MuzzlePoint;
+        return Raised(offset);
+    }
+
+    /// <summary>
+    /// Whether her pose holds her arm cannon out, so that what shows at its end shows: standing, running, crouching,
+    /// in a plain jump or a fall, moonwalking and turning; not in the ball, a spin or a wall jump, nor while she is
+    /// thrown, held, facing forward or doing anything else that keeps her from firing.
+    /// </summary>
+    public bool HoldsArmOut =>
+        Form != Crawling && State is StandingState or RunningState or CrouchingState or JumpingState or FallingState or MoonwalkingState or TurningState or AirTurningState;
+
+    /// <summary>
+    /// Where the flare at the end of her arm cannon lies: at the place her data gives it for how she stands, faces
+    /// and aims, raised as a shot's start is. Its running places hold only while she runs; while she turns it lies at
+    /// the place of the aim the turn holds, the same whichever way she turns.
+    /// </summary>
+    public PixelPosition FlarePoint
+    {
+        get
+        {
+            if (State is not (TurningState or AirTurningState))
+                return Origin(_flarePlaces, moonwalkRuns: false);
+            string held = Aim switch { Aim.Up or Aim.DiagonalUp => "up", Aim.Forward => "neutral", _ => "down" };
+            return _flareTurningPlaces.TryGetValue(held, out Vector2I turning)
+                ? Raised(turning)
+                : throw new InvalidOperationException($"Samus's data gives the flare no place while she turns aiming {held}.");
+        }
+    }
+
+    /// <summary>A place her data gives from her own, raised by how high her pose holds her arm.</summary>
+    private PixelPosition Raised(Vector2I offset)
+    {
         // Settling from a landing and gathering a jump hold her arm at heights of their own, as the cartridge's poses do.
         string look = State switch
         {
@@ -1169,6 +1216,9 @@ public partial class Samus : Player
 
     /// <summary>Her grapple beam, when her scene gives her one.</summary>
     public SamusGrapple? Grapple => GetNodeOrNull<SamusGrapple>("Grapple");
+
+    /// <summary>The flare at the end of her arm cannon while she holds a charge.</summary>
+    public SamusFlare? Flare => GetNodeOrNull<SamusFlare>("Flare");
 
     /// <summary>Her X-ray scope, when her scene gives her one.</summary>
     public SamusXray? Xray => GetNodeOrNull<SamusXray>("Xray");
@@ -1667,6 +1717,7 @@ public partial class Samus : Player
             StepStride();
         WarnOfLowEnergy();
         Grapple?.Step(this);
+        Flare?.Step(this);
         ShowSelection();
         if (_knockbackCarried.IsRunning)
         {

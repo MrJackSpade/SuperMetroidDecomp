@@ -19,7 +19,7 @@ namespace Game.Enemies;
 /// above its middle; and "choose", which has it fire again if Samus is still level, or else walk on. Its shot is
 /// "laser".
 /// </remarks>
-public partial class WalkingPirate : Enemy
+public partial class WalkingPirate : SpacePirate
 {
     /// <summary>How far to either side of where it is placed its beat reaches, in pixels.</summary>
     [Export]
@@ -76,6 +76,8 @@ public partial class WalkingPirate : Enemy
     /// <inheritdoc/>
     protected override void OnCue(string cue)
     {
+        if (TakePose(cue))
+            return;
         string[] parts = cue.Split(':');
         switch (parts[0])
         {

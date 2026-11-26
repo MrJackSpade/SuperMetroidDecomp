@@ -20,7 +20,7 @@ namespace Game.Enemies;
 /// "prepare_jump:&lt;left|right&gt;", which sets up its leap; and "jump:&lt;left|right&gt;", which launches it toward
 /// that wall. Its shot is "laser".
 /// </remarks>
-public partial class WallPirate : Enemy
+public partial class WallPirate : SpacePirate
 {
     /// <summary>The wall it starts on.</summary>
     [Export]
@@ -88,6 +88,8 @@ public partial class WallPirate : Enemy
     /// <inheritdoc/>
     protected override void OnCue(string cue)
     {
+        if (TakePose(cue))
+            return;
         string[] parts = cue.Split(':');
         Facing side = parts.Length > 1 && parts[1] == "right" ? Facing.Right : Facing.Left;
         switch (parts[0])

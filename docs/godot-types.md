@@ -1210,7 +1210,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   two enemies must cooperate, one owns the other as a child, or they share a link set when the room places them.
 - **Which enemies take a turn.** One that is always active, or frozen, does. Any other does while its middle lies
   within the view widened as the game's definition says (`EnemyTurnMarginAcross`, `EnemyTurnMarginAbove`,
-  `EnemyTurnMarginBelow`), and to either side by the enemy's own half-width besides; the edges count as within.
+  `EnemyTurnMarginBelow`), and to either side by the enemy's own half-width besides (its body collider's, which
+  no pose reshapes; of one with no body, its first hurtbox's); the edges count as within.
   This game's are nothing across, eight pixels above and twenty-four below, which is the cartridge's window.
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
@@ -1594,7 +1595,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - The husks of Tourian are enemies, not scenery, because shots and bombs set them crumbling: `Corpse` (the Zoomers,
   Rippers and Skree, one scene with a data file each), `DeadSidehopper`, and `DeadTorizo` with its heap of sand.
 - Ki-Hunters: green, yellow, red. Wings are part of the Ki-Hunter; shed wings are an `Effect`.
-- Space Pirates: wall, walking, ninja. Three scenes, their colours data files.
+- Space Pirates: wall, walking, ninja. Three scenes, their colours data files. What Samus and her shots meet of
+  one is the boxes of the picture it shows, as on the cartridge: the three share a class that takes a
+  `ColliderPoses` pose with every step of their timelines, which places two or three hurtboxes.
 - Kzan: one enemy; its top and bottom are parts.
 - Rinka: an enemy; its source is a `RinkaSpawner`, a `Spawner` that shares its places with the others in the room.
 - Zebetite (one node that stands again as each barrier in turn); Draygon's wall cannons; the eye of an eye door

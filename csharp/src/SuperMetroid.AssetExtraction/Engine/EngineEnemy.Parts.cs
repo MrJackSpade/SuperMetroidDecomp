@@ -40,6 +40,40 @@ internal sealed partial class EngineEnemy
         return timeline;
     }
 
+    /// <summary>
+    /// Makes the enemy one that is met through the boxes of the picture it shows, as the old game's frame hitboxes
+    /// are: every step of the timelines it has so far takes the pose of its picture, and each pose puts the scene's
+    /// hurtboxes "Part1", "Part2" and so on where the old frame has its boxes. A picture whose frame the old game
+    /// gives no boxes is a pose with none.
+    /// </summary>
+    internal EngineEnemy PosedByFrame(EnemyFrameCollision<EnemyCollisionHitbox> frames)
+    {
+        var shown = new HashSet<string>(StringComparer.Ordinal);
+        foreach ((string _, JsonNode? timeline) in _timelines)
+        {
+            foreach (JsonNode? step in WithPoseCues(timeline!.AsObject())["steps"]!.AsArray())
+            {
+                if (step!["cues"] is JsonArray cues && cues[0]!.GetValue<string>() is { } first && first.StartsWith(PoseCue, StringComparison.Ordinal))
+                    shown.Add(first[PoseCue.Length..]);
+            }
+        }
+
+        var poses = new JsonObject();
+        foreach ((EnemyFrameId frame, EnemyCollisionHitbox[] boxes) in frames)
+        {
+            if (frame == EnemyFrameId.PointAtOrigin || !shown.Remove(PoseName(frame)))
+                continue;
+            var colliders = new JsonObject();
+            foreach (EnemyCollisionHitbox box in boxes)
+                colliders[$"Part{colliders.Count + 1}"] = Rect(box);
+            poses[PoseName(frame)] = new JsonObject { ["colliders"] = colliders };
+        }
+
+        foreach (string bare in shown)
+            poses[bare] = new JsonObject { ["colliders"] = new JsonObject() };
+        return Group("poses", poses);
+    }
+
     /// <summary>One of the old game's hitboxes as a collider's rectangle, from the enemy's place.</summary>
     internal static JsonObject Rect(EnemyCollisionHitbox hitbox) => new()
     {

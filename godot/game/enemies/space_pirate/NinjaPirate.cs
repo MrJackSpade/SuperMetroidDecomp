@@ -19,7 +19,7 @@ namespace Game.Enemies;
 /// "reset_spin" and "start_dive", which ready a somersault and a dive; and "claw:&lt;left|right&gt;:&lt;across&gt;:
 /// &lt;down&gt;", which throws a claw from that far off its middle. Its shot is "claw".
 /// </remarks>
-public partial class NinjaPirate : Enemy
+public partial class NinjaPirate : SpacePirate
 {
     /// <summary>Whether the post it starts at is the left one.</summary>
     [Export]
@@ -145,6 +145,8 @@ public partial class NinjaPirate : Enemy
     /// <inheritdoc/>
     protected override void OnCue(string cue)
     {
+        if (TakePose(cue))
+            return;
         string[] parts = cue.Split(':');
         switch (parts[0])
         {

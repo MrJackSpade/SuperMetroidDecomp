@@ -17,7 +17,7 @@ public sealed partial class EngineAssetWriter
         foreach (string colour in new[] { "Gold", "Green", "Grey", "Magenta", "Red", "Silver" })
         {
             Enemy($"enemies/walking_pirate_{colour.ToLowerInvariant()}.json", "WalkingPirate", Enum.Parse<EnemyDefinitionId>($"Pirate{colour}Walking"))
-                .BodyColliders(Ordinary)
+                .BodyColliders("Body")
                 .Value("walk_speed_left", EngineNames.Number(-SpacePirateMotionDefinitions.WalkingLeftStep))
                 .Value("walk_speed_right", EngineNames.Number(SpacePirateMotionDefinitions.WalkingRightStep))
                 .Value("firing_band", SpacePirateMotionDefinitions.WalkingFiringBand)
@@ -38,6 +38,7 @@ public sealed partial class EngineAssetWriter
                     ("looking_left", WalkingSpacePirateSegment.LookingFacingLeft), ("looking_right", WalkingSpacePirateSegment.LookingFacingRight),
                     ("fire_lasers_left", WalkingSpacePirateSegment.FireLasersLeft), ("fire_lasers_right", WalkingSpacePirateSegment.FireLasersRight),
                     ("flinch_left", WalkingSpacePirateSegment.FlinchFacingLeft), ("flinch_right", WalkingSpacePirateSegment.FlinchFacingRight))
+                .PosedByFrame(SpacePirateCollisionDefinitions.Frames)
                 .Shot("laser", RoomEnemyProjectileKind.PirateMotherBrainLaser, PirateLaser)
                 .Write();
         }
@@ -45,7 +46,7 @@ public sealed partial class EngineAssetWriter
         foreach (string colour in new[] { "Gold", "Grey", "Magenta", "Silver" })
         {
             Enemy($"enemies/wall_pirate_{colour.ToLowerInvariant()}.json", "WallPirate", Enum.Parse<EnemyDefinitionId>($"Pirate{colour}Wall"))
-                .BodyColliders(Ordinary)
+                .BodyColliders("Body")
                 .Value("detection_band", SpacePirateMotionDefinitions.WallDetectionBand)
                 .Value("muzzle_above", SpacePirateMotionDefinitions.WallLaserMuzzleAbove)
                 .Value("muzzle_ahead", SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead)
@@ -73,6 +74,7 @@ public sealed partial class EngineAssetWriter
                     ("moving_up_right_wall", WallSpacePirateSegment.MovingUpRightWall), ("moving_down_right_wall", WallSpacePirateSegment.MovingDownRightWall),
                     ("fire_and_jump_left", WallSpacePirateSegment.FireAndJumpLeft), ("fire_and_jump_right", WallSpacePirateSegment.FireAndJumpRight),
                     ("landed_on_left_wall", WallSpacePirateSegment.LandedOnLeftWall), ("landed_on_right_wall", WallSpacePirateSegment.LandedOnRightWall))
+                .PosedByFrame(SpacePirateCollisionDefinitions.Frames)
                 .Shot("laser", RoomEnemyProjectileKind.PirateMotherBrainLaser, PirateLaser)
                 .Write();
         }
@@ -80,7 +82,7 @@ public sealed partial class EngineAssetWriter
         foreach (string colour in new[] { "Gold", "Silver" })
         {
             Enemy($"enemies/ninja_pirate_{colour.ToLowerInvariant()}.json", "NinjaPirate", Enum.Parse<EnemyDefinitionId>($"Pirate{colour}Ninja"))
-                .BodyColliders(Ordinary)
+                .BodyColliders("Body")
                 .Value("activation_distance", SpacePirateMotionDefinitions.NinjaActivationDistance)
                 .Value("flinch_distance", SpacePirateMotionDefinitions.NinjaFlinchDistance)
                 .Value("midpoint_distance", SpacePirateMotionDefinitions.NinjaMidpointTriggerDistance)
@@ -151,6 +153,7 @@ public sealed partial class EngineAssetWriter
                     ninja.Value("landing_dust_effect", ninja.SpawnedEffect("landing_dust", RoomEffectActorKind.RisingDustPuff));
                 })
                 .ProjectileData("enemies/pirate_claw.json", "PirateClaw")
+                .PosedByFrame(SpacePirateCollisionDefinitions.Frames)
                 .Write();
         }
     }

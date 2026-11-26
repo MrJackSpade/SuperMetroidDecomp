@@ -975,15 +975,17 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
-    /// Half the width of the enemy's body: of its first hurtbox, or failing any of its first hitbox; nothing where
-    /// it has neither.
+    /// Half the width of the enemy's body: of the collider it moves through the room by, which is its own size
+    /// whatever shape its pose gives what can be hit of it; failing one, of its first hurtbox, or failing any of its
+    /// first hitbox; nothing where it has none.
     /// </summary>
     public int BodyHalfWidth
     {
         get
         {
             var parts = EntityNode.CollidersOf(this).ToList();
-            Collider? body = parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hurtbox)
+            Collider? body = parts.FirstOrDefault(collider => collider.Role == ColliderRole.Body)
+                ?? parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hurtbox)
                 ?? parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hitbox);
             return body is null ? 0 : body.RoomRect.Width / 2;
         }

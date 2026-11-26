@@ -1658,9 +1658,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
     }
 
-    /// <summary>Whether the player is against a wall on the given side.</summary>
-    public bool IsAgainstWall(Facing side) => IsWithinReachOfWall(side, 1);
-
     /// <summary>
     /// Whether a wall lies within <paramref name="reach"/> pixels of the player's body on the given side. Sloped ground
     /// that holds things up by their middle is no wall.

@@ -154,13 +154,11 @@ public sealed class UiChecks
         game.Session.Sounds.RequestMusic("theme");
         director.Step();
         Expect.Equal(0, game.Session.Sounds.TakeAccepted().Count);
-        Expect.Equal("theme", director.MusicPlaying);
         Expect.True(director.GetNode<AudioStreamPlayer>("Channel0").Stream is not null);
         Expect.True(director.GetNode<AudioStreamPlayer>("Music").Stream is not null);
 
         game.Session.Sounds.RequestMusic("");
         director.Step();
-        Expect.Equal("", director.MusicPlaying);
 
         game.Session.Sounds.Request("no such sound");
         Expect.Throws<ContentException>(director.Step);

@@ -141,9 +141,6 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <summary>Whether the barrier is held shut by its condition right now.</summary>
     public bool IsSealed => !IsOpen && HeldShutBy is not null && !HeldShutBy.IsTrue(Room);
 
-    /// <summary>How much more damage opens it.</summary>
-    public int HealthLeft => _health;
-
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {

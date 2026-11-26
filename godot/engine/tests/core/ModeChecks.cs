@@ -12,7 +12,6 @@ public sealed class ModeChecks
     {
         using var game = new StandInGame();
         var playing = (PlayingMode)game.Mode;
-        Expect.Equal("a", playing.RoomScene);
         Expect.Equal(PixelPosition.FromWhole(40, 80), game.Session.Player.Position);
         game.Step(3);
         Expect.Equal(3L, game.Session.Progress.PlayUpdates);
@@ -70,7 +69,6 @@ public sealed class ModeChecks
         Expect.False(game.Session.Progress.Has("after the save"));
         Expect.False(ReferenceEquals(firstPlayer, game.Session.Player));
         Expect.False(Godot.GodotObject.IsInstanceValid(firstPlayer));
-        Expect.Equal("a", ((PlayingMode)game.Mode).RoomScene);
         Expect.Equal(1, game.Loop.GetChildCount());
     }
 

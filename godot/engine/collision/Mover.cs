@@ -334,10 +334,6 @@ public sealed class Mover
     public bool IsOnGround(Collider body, MoveOptions options) =>
         FindObstacle(body.RoomRect.MovedBy(0, 1), body.CollisionOwner, options).Found;
 
-    /// <summary>Whether <paramref name="body"/> is against terrain or a solid on the given side.</summary>
-    public bool IsAgainstWall(Collider body, Facing side, MoveOptions options) =>
-        FindObstacle(body.RoomRect.MovedBy(side == Facing.Left ? -1 : 1, 0), body.CollisionOwner, options).Found;
-
     /// <summary>Whether <paramref name="rect"/> is free of terrain and of solids other than <paramref name="owner"/>'s own.</summary>
     public bool IsFree(PixelRect rect, ICollisionOwner owner, MoveOptions options) => !FindObstacle(rect, owner, options).Found;
 

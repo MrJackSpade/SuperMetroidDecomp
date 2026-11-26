@@ -174,9 +174,6 @@ public partial class Station : RoomObject
     /// <summary>The fact recorded when an area's map is revealed, for <paramref name="area"/>.</summary>
     public static string MapRevealedFact(string area) => $"map revealed: {area}";
 
-    /// <summary>Whether the station is holding the player.</summary>
-    public bool IsWorking => _busy || _asking;
-
     /// <summary>The region of the room the station covers.</summary>
     public PixelRect Area => new(Position.X.Whole, Position.Y.Whole, Size.X, Size.Y);
 

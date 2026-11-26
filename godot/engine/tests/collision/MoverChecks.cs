@@ -33,8 +33,6 @@ public sealed class MoverChecks
         // The wall's left face is at pixel 64, and the body reaches 4 to the right of its origin.
         Expect.Equal(Pixels.FromWhole(60), owner.Position.X);
         Expect.Equal(Pixels.FromWhole(20), result.Moved);
-        Expect.True(room.Mover.IsAgainstWall(body, Facing.Right, MoveOptions.Plain));
-        Expect.False(room.Mover.IsAgainstWall(body, Facing.Left, MoveOptions.Plain));
     }
 
     [Check]

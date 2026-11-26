@@ -51,9 +51,6 @@ public partial class PlayingMode : GameMode, IRoomPlay
     /// <summary>The room being played.</summary>
     public Room Room => _room ?? throw new InvalidOperationException("Play has no room yet.");
 
-    /// <summary>The scene of the room being played.</summary>
-    public string RoomScene => _roomScene;
-
     /// <inheritdoc/>
     protected override void Enter()
     {

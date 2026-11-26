@@ -33,7 +33,6 @@ public sealed class ObjectsChecks
 
         Expect.Equal(HitResult.Absorbed, door.TakeHit(new Hit(100, HitSide.Player, Beam), part));
         Expect.Equal(HitResult.Hurt, door.TakeHit(new Hit(100, HitSide.Player, Missile), part));
-        Expect.Equal(4, door.HealthLeft);
         Expect.Equal(HitResult.Destroyed, door.TakeHit(new Hit(100, HitSide.Player, Super), part));
         Expect.True(door.IsOpen);
         Expect.True(world.Room.IsGone("Door"));
@@ -173,19 +172,17 @@ public sealed class ObjectsChecks
         world.Player.Inventory.Lose(Inventory.Energy, 50);
 
         world.Step(1);
-        Expect.True(station.IsWorking);
         Expect.True(world.Player.State is UsingStationState);
         world.Step(5, GameAction.Right);
         Expect.Equal(Pixels.FromWhole(100), world.Player.Position.X);
 
         world.Step(10);
-        Expect.False(station.IsWorking);
         Expect.Equal(99, world.Player.Inventory.Amount(Inventory.Energy));
         Expect.True(world.Player.State.InControl);
 
         // Full now, and still standing in it: it does not start again.
         world.Step(5);
-        Expect.False(station.IsWorking);
+        Expect.False(world.Player.State is UsingStationState);
     }
 
     [Check]

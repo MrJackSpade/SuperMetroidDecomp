@@ -24,9 +24,6 @@ public partial class AudioDirector : Node
         Name = "AudioDirector";
     }
 
-    /// <summary>The music playing, by name; empty for silence.</summary>
-    public string MusicPlaying => _musicPlaying;
-
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta) => Step();
 

@@ -28,6 +28,7 @@ LayoutFile = "rooms/norfair/golden_torizo_in_heated_norfair.json"
 Screens = PackedInt32Array(1, 1, 2, 2)
 ScrollLayout = "GoldenTorizo"
 Music = "elevator"
+HasBoss = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -36,6 +37,7 @@ Screens = PackedInt32Array(1, 1, 2, 2)
 ScrollLayout = "GoldenTorizo"
 Music = "elevator"
 MusicSet = "ridley_and_draygon_battles"
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

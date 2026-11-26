@@ -32,6 +32,7 @@ ScrollLayout = "Draygon"
 Music = "ridley_and_draygon_battle"
 MusicSet = "ridley_and_draygon_battles"
 HidesBlocksFromSight = true
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

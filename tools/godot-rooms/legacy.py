@@ -260,6 +260,20 @@ def _placements_in(listed: str, shared: dict[str, list[Placement]]) -> list[Plac
     return placements
 
 
+def boss_kinds() -> set[str]:
+    """The enemy kinds whose definition names a boss: a room that places one counts as that boss's room."""
+    text = without_comments(read('Enemies', 'RoomEnemyDefinitionCatalog.cs'))
+    kinds = set()
+    for match in re.finditer(r'new RoomEnemyDefinitionEntry\(EnemyDefinitionId\.(\w+), new\(', text):
+        open_at = match.end() - 1
+        arguments = split_arguments(text[open_at + 1:matching(text, open_at) - 1])
+        if arguments[5].strip() != 'null':
+            kinds.add(match.group(1))
+    if not kinds:
+        raise ValueError('The old enemy definitions name no boss.')
+    return kinds
+
+
 def enemy_populations() -> dict[str, list[Placement]]:
     result = {}
     for area in AREAS:

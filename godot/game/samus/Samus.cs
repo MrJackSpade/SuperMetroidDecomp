@@ -1810,7 +1810,11 @@ public partial class Samus : Player
         _bubbleWait = _bubbleWait.Stepped();
         _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
         if (_ranFromStart && State is RunningState)
+        {
             StepStride();
+            StepFootsteps();
+        }
+
         WarnOfLowEnergy();
         Grapple?.Step(this);
         Flare?.Step(this);
@@ -1868,6 +1872,23 @@ public partial class Samus : Player
             if (ChargeIsSounding && Input.IsHeld(GameAction.Attack))
                 _chargingSoundArmed = true;
         }
+    }
+
+    /// <summary>The pictures of her stride on which a foot comes down, counted from nought.</summary>
+    private static readonly int[] FootContacts = [2, 7];
+
+    /// <summary>
+    /// Asks for her footsteps' sound on the last update of each picture of her stride that brings a foot down, as the
+    /// cartridge does: not in a boss's room, not while she holds a shine as the game's tests see it, and not once
+    /// the boost is at its full stage. The request counts among the sounds waiting whether or not it is heard.
+    /// </summary>
+    private void StepFootsteps()
+    {
+        if (_strideLeft != 1 || !FootContacts.Contains(_strideAt))
+            return;
+        if (Room.HasBoss || ReadsAsHoldingShine || IsBoosting)
+            return;
+        Room.Session.Sounds.Request(Sounds.Footsteps, channel: "samus");
     }
 
     /// <summary>

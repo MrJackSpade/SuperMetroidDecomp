@@ -359,6 +359,7 @@ class Generator:
         self.scroll_layouts = legacy.scroll_layouts()
         self.scroll_changes = legacy.scroll_changes()
         self.door_setups = legacy.door_setups()
+        self.boss_kinds = legacy.boss_kinds()
         self.room_fx = legacy.room_fx()
         self.object_lists = legacy.object_populations()
         # The kinds of enemy no rule places yet, with how many placements of each were passed over.
@@ -779,6 +780,11 @@ class Generator:
                 placement.enemy in SIGHT_HIDING_ENEMIES for placement in self.populations[state.enemies])
             return {'HidesBlocksFromSight': 'true'} if hides else {}
 
+        def boss_of(state: legacy.State) -> dict[str, str]:
+            # A room is a boss's, beaten or not, when its enemies as the old game lists them include a boss's kind.
+            listed = any(placement.enemy in self.boss_kinds for placement in self.populations[state.enemies])
+            return {'HasBoss': 'true'} if listed else {}
+
         versions = []
         base_state = self.states[default]
         for expression, state_name in conditional:
@@ -789,6 +795,7 @@ class Generator:
                 **self.screens_of(room, state),
                 **music_of(state, self.nearby_music_set(key)),
                 **sight_of(state),
+                **boss_of(state),
             }
             patches = []
             if state.setup in sequences.ESCAPE_PATCHES:
@@ -810,6 +817,7 @@ class Generator:
             **self.screens_of(room, base),
             **music_of(base, self.nearby_music_set(key)),
             **sight_of(base),
+            **boss_of(base),
         }))
         falling, rising = CAMERA_LEADS[legacy.last_name(room.properties.get('CameraLead', 'RoomCameraLeads.Standard'))]
 

@@ -26,6 +26,7 @@ LayoutFile = "rooms/norfair/ridley_in_heated_norfair.json"
 Screens = PackedInt32Array(1, 1)
 ScrollLayout = "Ridley"
 Music = "elevator"
+HasBoss = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -34,6 +35,7 @@ Screens = PackedInt32Array(1, 1)
 ScrollLayout = "Ridley"
 Music = "statue_hall"
 MusicSet = "ridley_and_draygon_battles"
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

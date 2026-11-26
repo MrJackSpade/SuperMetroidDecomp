@@ -47,6 +47,7 @@ Screens = PackedInt32Array(2, 2, 2, 2)
 ScrollLayout = "MotherBrain"
 KeepsMusic = true
 HidesBlocksFromSight = true
+HasBoss = true
 Patches = PackedStringArray("glass_rim_gone")
 
 [sub_resource type="Resource" id="r5"]
@@ -56,6 +57,7 @@ Screens = PackedInt32Array(2, 2, 2, 2)
 ScrollLayout = "MotherBrain"
 KeepsMusic = true
 HidesBlocksFromSight = true
+HasBoss = true
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")

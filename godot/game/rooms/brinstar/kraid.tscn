@@ -26,6 +26,7 @@ Screens = PackedInt32Array(1, 1, 2, 2)
 ScrollLayout = "Kraid"
 KeepsMusic = true
 HidesBlocksFromSight = true
+HasBoss = true
 Patches = PackedStringArray("ceiling_clear", "spikes_clear")
 
 [sub_resource type="Resource" id="r3"]
@@ -36,6 +37,7 @@ ScrollLayout = "Kraid"
 Music = "boss_room_tension"
 MusicSet = "kraid_and_phantoon_battles"
 HidesBlocksFromSight = true
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

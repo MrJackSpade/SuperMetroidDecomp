@@ -62,4 +62,11 @@ public partial class RoomVersion : Resource
     /// </summary>
     [Export]
     public bool HidesBlocksFromSight { get; set; }
+
+    /// <summary>
+    /// Whether one of the things this version of the room places is a boss, beaten or not: the room counts as a boss's
+    /// for as long as the player is in it.
+    /// </summary>
+    [Export]
+    public bool HasBoss { get; set; }
 }

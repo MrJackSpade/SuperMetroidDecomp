@@ -114,6 +114,9 @@ public partial class Room : Node2D
     /// </summary>
     public bool ShowsBlocksToSight => Version is not { HidesBlocksFromSight: true };
 
+    /// <summary>Whether the room is a boss's, as the version of it in place says (<see cref="RoomVersion.HasBoss"/>).</summary>
+    public bool HasBoss => Version is { HasBoss: true };
+
     /// <summary>The exit the player has entered, once they have; the mode in control begins the transition.</summary>
     public RoomExit? ExitEntered { get; private set; }
 

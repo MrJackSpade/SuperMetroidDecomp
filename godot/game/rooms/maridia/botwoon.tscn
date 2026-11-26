@@ -26,6 +26,7 @@ LayoutFile = "rooms/maridia/botwoon_in_sandy_maridia.json"
 Screens = PackedInt32Array(2, 0)
 ScrollLayout = "Botwoon"
 Music = "elevator"
+HasBoss = true
 Patches = PackedStringArray("wall_down")
 
 [sub_resource type="Resource" id="r3"]
@@ -35,6 +36,7 @@ Screens = PackedInt32Array(2, 0)
 ScrollLayout = "Botwoon"
 Music = "mini_boss_battle"
 MusicSet = "mini_boss_fight"
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

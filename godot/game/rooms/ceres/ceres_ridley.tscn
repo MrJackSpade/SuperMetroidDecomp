@@ -33,6 +33,7 @@ LayoutFile = "rooms/ceres/ceres_ridley_in_blue_ceres_ridley.json"
 Screens = PackedInt32Array(2)
 Music = ""
 MusicSet = "ridley_and_draygon_battles"
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

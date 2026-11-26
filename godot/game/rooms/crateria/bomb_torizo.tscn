@@ -43,6 +43,7 @@ When = SubResource("r3")
 LayoutFile = "rooms/crateria/bomb_torizo_in_lower_crateria.json"
 Screens = PackedInt32Array(2)
 Music = "elevator"
+HasBoss = true
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
@@ -50,6 +51,7 @@ LayoutFile = "rooms/crateria/bomb_torizo_in_lower_crateria.json"
 Screens = PackedInt32Array(2)
 Music = "elevator"
 MusicSet = "ridley_and_draygon_battles"
+HasBoss = true
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")

@@ -30,6 +30,7 @@ ScrollLayout = "Phantoon"
 Music = "boss_room_tension"
 MusicSet = "kraid_and_phantoon_battles"
 HidesBlocksFromSight = true
+HasBoss = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

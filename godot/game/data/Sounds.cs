@@ -160,6 +160,9 @@ public static class Sounds
     /// <summary>A letter of narration appearing.</summary>
     public const string Typing = "room_typewriter";
 
+    /// <summary>A foot of her run coming down.</summary>
+    public const string Footsteps = "room_footsteps";
+
     /// <summary>Every one of them.</summary>
     public static IReadOnlyList<string> All { get; } =
     [
@@ -168,6 +171,6 @@ public static class Sounds
         CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
         BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
         BigExplosion, MenuMove, MenuAccept, Typing, SamusStop, SpinJumpStop, EnemyStop, RoomStop, PowerBombExplosion,
-        SpeedBoosterStop, ChargingResumed, EnemyContactKill, SpinJumpResumed,
+        SpeedBoosterStop, ChargingResumed, EnemyContactKill, SpinJumpResumed, Footsteps,
     ];
 }

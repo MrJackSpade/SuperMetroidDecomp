@@ -417,9 +417,11 @@ internal sealed partial class EngineLayouts
             _levels.DoorBlocks(room, state.Level).Where(door => door.Exit.IsElevatorRide).Select(door => door.Block));
 
         // A door's cap is four blocks of the level, a column or a row from the block that answers a shot. The Godot
-        // game's cap is a barrier placed in the room's scene, which draws itself shut, opening and open; so the
-        // layout leaves those blocks open and draws nothing there.
-        var capCells = new HashSet<int>();
+        // game's cap is a barrier placed in the room's scene, which draws itself shut and opening; so the layout
+        // leaves those blocks open. What it draws there is the doorway with nothing in it, as the cartridge leaves
+        // the blocks once the cap has gone: tiles like any others, with the strip of them that lies in front of
+        // what passes through.
+        var capCells = new Dictionary<int, (int Block, BlockMirroring Mirroring)>();
         for (int y = 0; y < level.Size.Y; y++)
         {
             for (int x = 0; x < level.Size.X; x++)
@@ -427,17 +429,19 @@ internal sealed partial class EngineLayouts
                 int cell = y * level.Size.X + x;
                 if (level.Foreground[cell].Collision != RoomCollisionType.ShootableBlock)
                     continue;
-                (int across, int down) = level.Behaviors[cell].In(room.Area).Shootable switch
+                (int across, int down, string side) = level.Behaviors[cell].In(room.Area).Shootable switch
                 {
-                    ShootableReaction.BlueDoorCapLeft or ShootableReaction.BlueDoorCapRight => (0, 1),
-                    ShootableReaction.BlueDoorCapUp or ShootableReaction.BlueDoorCapDown => (1, 0),
-                    _ => (0, 0),
+                    ShootableReaction.BlueDoorCapLeft => (0, 1, "left"),
+                    ShootableReaction.BlueDoorCapRight => (0, 1, "right"),
+                    ShootableReaction.BlueDoorCapUp => (1, 0, "up"),
+                    ShootableReaction.BlueDoorCapDown => (1, 0, "down"),
+                    _ => (0, 0, ""),
                 };
                 for (int part = 0; part < DoorCapBlocks && (across, down) != (0, 0); part++)
                 {
                     int capX = x + across * part, capY = y + down * part;
                     if (capX < level.Size.X && capY < level.Size.Y)
-                        capCells.Add(capY * level.Size.X + capX);
+                        capCells[capY * level.Size.X + capX] = ClearedDoorwayBlock(side, across * part, down * part);
                 }
             }
         }
@@ -454,8 +458,8 @@ internal sealed partial class EngineLayouts
                 RoomBlockBehavior behavior = level.Behaviors[cell].In(room.Area);
                 if (terrain.Collision == RoomCollisionType.SpecialAir && behavior.SpecialAir is { } air && PlantOf(air) is not null)
                     plants.Add((x, y, air));
-                JsonObject tile = capCells.Contains(cell)
-                    ? new JsonObject { ["kind"] = "empty" }
+                JsonObject tile = capCells.TryGetValue(cell, out (int Block, BlockMirroring Mirroring) doorway)
+                    ? EmptyShowing(Picture(tileset, doorway.Block, doorway.Mirroring))
                     : placed.TryGetValue(cell, out JsonObject? put)
                         ? put
                         : Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
@@ -766,6 +770,46 @@ internal sealed partial class EngineLayouts
         if (_blockTypes.Add(path))
             _tree.WriteData(path, block.Rules);
         return path;
+    }
+
+    /// <summary>A tile that is open and shows a picture, or nothing where there is none.</summary>
+    private static JsonObject EmptyShowing(string? picture)
+    {
+        var tile = new JsonObject { ["kind"] = "empty" };
+        if (picture is not null)
+            tile["picture"] = picture;
+        return tile;
+    }
+
+    private Dictionary<string, JsonArray>? _greyDoorFrames;
+
+    /// <summary>
+    /// The block the doorway of a door on one side shows with nothing in it, so many blocks across and down from
+    /// the block its cap answers a shot at: the cleared look of the grey doors, which every colour of door leaves.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation's cleared doorway has no block there, or one mirrored in a way this does not know.</exception>
+    private (int Block, BlockMirroring Mirroring) ClearedDoorwayBlock(string side, int across, int down)
+    {
+        _greyDoorFrames ??= EngineRoomObjects.FramesUnder(_content, GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName);
+        string frame = $"clear-{side}";
+        if (!_greyDoorFrames.TryGetValue(frame, out JsonArray? cells))
+            throw new InvalidDataException($"The installation keeps no room object frame {frame} for an open doorway.");
+        foreach (JsonNode? cell in cells)
+        {
+            if (cell!["x"]!.GetValue<int>() != across || cell["y"]!.GetValue<int>() != down || cell["block"]?.GetValue<int>() is not int block)
+                continue;
+            BlockMirroring mirroring = cell["mirroring"]!.GetValue<string>() switch
+            {
+                "None" => BlockMirroring.None,
+                "Horizontal" => BlockMirroring.Horizontal,
+                "Vertical" => BlockMirroring.Vertical,
+                "Both" => BlockMirroring.Horizontal | BlockMirroring.Vertical,
+                string other => throw new InvalidDataException($"The room object frame {frame} mirrors a block {other}, which this does not know."),
+            };
+            return (block, mirroring);
+        }
+
+        throw new InvalidDataException($"The room object frame {frame} has no block {across} across and {down} down.");
     }
 
     /// <summary>

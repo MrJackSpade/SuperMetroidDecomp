@@ -165,24 +165,30 @@ internal sealed partial class EngineRoomObjects
             : throw new InvalidDataException($"No set of graphics has the picture {picture}.");
     }
 
+    /// <summary>
+    /// Every room object frame the installation under <paramref name="content"/> keeps in <paramref name="directory"/>,
+    /// by name: each its cells, a block and its mirroring at so many blocks across and down from the object's own.
+    /// </summary>
+    internal static Dictionary<string, JsonArray> FramesUnder(string content, string directory)
+    {
+        var frames = new Dictionary<string, JsonArray>(StringComparer.Ordinal);
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(content, directory), "*.json").Order(StringComparer.Ordinal))
+        {
+            if (JsonNode.Parse(File.ReadAllText(file))?["frames"] is not JsonArray listed)
+                continue;
+            foreach (JsonNode? one in listed)
+                frames[one!["id"]!.GetValue<string>()] = one["cells"]!.AsArray();
+        }
+
+        return frames;
+    }
+
     /// <summary>The cells of the frame named <paramref name="frame"/> among those the installation keeps under <paramref name="directory"/>.</summary>
     /// <exception cref="InvalidDataException">The installation keeps no such frame there.</exception>
     private JsonArray Cells(string directory, string frame)
     {
         if (!_frames.TryGetValue(directory, out Dictionary<string, JsonArray>? frames))
-        {
-            frames = new Dictionary<string, JsonArray>(StringComparer.Ordinal);
-            foreach (string file in Directory.EnumerateFiles(Path.Combine(_content, directory), "*.json").Order(StringComparer.Ordinal))
-            {
-                if (JsonNode.Parse(File.ReadAllText(file))?["frames"] is not JsonArray listed)
-                    continue;
-                foreach (JsonNode? one in listed)
-                    frames[one!["id"]!.GetValue<string>()] = one["cells"]!.AsArray();
-            }
-
-            _frames[directory] = frames;
-        }
-
+            _frames[directory] = frames = FramesUnder(_content, directory);
         return frames.TryGetValue(frame, out JsonArray? cells)
             ? cells
             : throw new InvalidDataException($"The installation keeps no room object frame {frame} under {directory}.");

@@ -2,7 +2,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Compatibility;
-using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -56,12 +55,12 @@ public sealed partial class EngineAssetWriter
             .Value("fall_speed_limit", fallLimit)
             .Value("air_drag", EngineNames.Number(drag))
             .Value("shot_launch_speed", YardMotionDefinitions.BeamLaunchWholeSpeed)
-            // It is shaken off by the quake of a super missile striking a wall; the Godot game counts a shake's strength from one, the lightest.
-            .Value("falls_at_shake", (int)SuperMissileDefinitions.WallImpactEarthquake.Strength - (int)EarthquakeStrength.Light + 1)
             // Its bounce joins only a queue holding at most two.
             .Value("bounce_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YardBounceSound, SoundRequestPriority.Low))
             // The speed down a kick gives it, by the whole pixels of the camera's last measure of Samus's movement across.
             .Group("kick_speeds", EngineNames.List(YardKickDefinitions.Kicks.Select(EngineNames.Number)));
+        // It is shaken off what it clings to as the shake of a super missile striking a wall begins, and at no other.
+        yard.Data["falls_with_shake"] = Shake(SuperMissileDefinitions.WallImpactEarthquake, SuperMissileDefinitions.EarthquakeDuration);
 
         foreach (YardDirection direction in Enum.GetValues<YardDirection>())
         {

@@ -1266,8 +1266,8 @@ public partial class Samus : Player
             Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
         }
 
-        // With the grapple beam chosen, or the X-ray scope with the run held, the beam's own input does not run, so its
-        // charge stands as it is, as the cartridge has it.
+        // With the grapple beam chosen, the X-ray scope with the run held, or in a spin or a wall jump, the beam's own
+        // input does not run, so its charge stands as it is, as the cartridge has it.
         if (weapon.Length == 0)
         {
             Weapons.StepCooldown();
@@ -1454,10 +1454,13 @@ public partial class Samus : Player
     /// <summary>
     /// The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected. The grapple
     /// beam fires none; the X-ray scope fires the beam while the run is let go, as the cartridge's does, and none while
-    /// the run is held.
+    /// the run is held. A spin jump and a wall jump fire none and leave the charge as it is, as the cartridge's do: the
+    /// attack straightens a spin out instead, and the jump it becomes fires.
     /// </summary>
     private string WeaponInHand()
     {
+        if (State is SpinJumpingState or WallJumpingState)
+            return "";
         if (Form == Crawling)
             return Selected == Amounts.PowerBombs ? Arsenal.PowerBomb : Arsenal.Bomb;
         return Selected switch

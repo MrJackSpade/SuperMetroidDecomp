@@ -4,6 +4,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
+using Engine.World;
 using Game.Data;
 using Godot;
 
@@ -81,10 +82,6 @@ public partial class Yard : Enemy
     [Export, DataValue("shot_launch_speed")]
     public int ShotLaunchSpeed { get; set; } = 1;
 
-    /// <summary>How hard the room must be shaking to shake it off what it clings to.</summary>
-    [Export, DataValue("falls_at_shake")]
-    public int FallsAtShake { get; set; } = 2;
-
     /// <summary>The sound of it being kicked or bouncing, by name.</summary>
     [Export, DataValue("bounce_sound")]
     public string BounceSound { get; set; } = "";
@@ -135,10 +132,17 @@ public partial class Yard : Enemy
 
     private Countdown _turnRest;
 
+    /// <summary>
+    /// The shake that shakes it off what it clings to, as its data gives it ("falls_with_shake": a super missile
+    /// striking a wall). Only that shake does, and only as it begins.
+    /// </summary>
+    private RoomShake? _fallsWith;
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
+        _fallsWith = RoomShake.Read(data.Get("falls_with_shake"));
         // The speed down a kick gives it, which is upward and so below nought, by the whole pixels of the camera's last measure of Samus's movement across.
         _kicks.Clear();
         _kicks.AddRange(data.List("kick_speeds").Select(speed => speed.AsPixels()));
@@ -246,7 +250,7 @@ public partial class Yard : Enemy
     protected override void Behave()
     {
         Player samus = Room.Player;
-        if (_doing != Doing.Airborne && Room.ShakeStrength >= FallsAtShake)
+        if (_doing != Doing.Airborne && Room.HasJustBegunShaking(_fallsWith!))
             Drop();
         WatchSamus(samus);
         if (Solid is { } shell)

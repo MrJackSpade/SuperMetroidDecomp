@@ -20,8 +20,9 @@ namespace Game.Rooms.Crateria;
 /// The statue it is given is what sinks, with the backdrop it is given, which is the picture the statue is part
 /// of. Under the statue are a visual for each guardian, named "Kraid", "Phantoon", "Draygon" and "Ridley", one over
 /// each for it turned grey, named with "Grey" after, and one named "Base". Its data names, under "statues", each
-/// guardian's pictures ("bright", "dim", "dark", "released", "grey"), where they lie from the statue ("offset",
-/// "grey_offset"), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
+/// guardian's pictures ("bright", "dim", "dark", "released", "grey", and "greying", the steps it greys by as it is let
+/// go, each a "picture" held so many "updates"), where they lie from the statue ("offset", and "grey_offset" for grey
+/// and its greying), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
 /// stays with the view as it moves up and down, and what is part of it stays with it and lies behind the room's
 /// tiles), and its effects: "eye_glow",
 /// "particle", "tail", "splash" and "soul" by the data files of their timelines (those of the particle and the
@@ -88,7 +89,10 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         public Stage Stage { get; set; }
         public int Frame { get; set; } = -1;
         public int Left { get; set; }
-        public int GreyingFor { get; set; } = -1;
+
+        /// <summary>The step of its greying it shows, or -1 before it greys, and how many more updates it shows it.</summary>
+        public int GreyStep { get; set; } = -1;
+        public int GreyStepLeft { get; set; }
     }
 
     /// <summary>How long the statue waits once all four are grey, how far it sinks, and how far each update.</summary>
@@ -98,8 +102,8 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     /// <summary>How long a shake is kept going each time it is asked for.</summary>
     private const int ShakeUpdates = 32;
 
-    /// <summary>How long a guardian takes to turn grey, and how long after entering the hall may settle.</summary>
-    private const int GreyingUpdates = 128, SettleUpdates = 128;
+    /// <summary>How long after entering the hall may settle.</summary>
+    private const int SettleUpdates = 128;
 
     /// <summary>How long a light at a guardian's eyes lasts before it bursts, and how many sparks it bursts into.</summary>
     private const int EyeGlowUpdates = 111, Sparks = 4;
@@ -186,7 +190,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         _souls.Clear();
         foreach (Guardian guardian in _guardians)
         {
-            (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor) = (Stage.Entering, -1, 0, -1);
+            (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyStep, guardian.GreyStepLeft) = (Stage.Entering, -1, 0, -1, 0);
             DataNode pictures = Data().Get("statues").Get(guardian.Name.ToLowerInvariant());
             Visual(guardian.Name).Bind(room.Content);
             Visual(guardian.Name).PictureOffset = Offset(pictures.Get("offset"));
@@ -223,11 +227,8 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     {
         foreach (Guardian guardian in _guardians)
         {
-            if (guardian.GreyingFor >= 0 && guardian.GreyingFor < GreyingUpdates)
-            {
-                guardian.GreyingFor++;
-                Visual(guardian.Name + "Grey").Tint(new Color(1, 1, 1, (float)guardian.GreyingFor / GreyingUpdates));
-            }
+            if (guardian.GreyStepLeft > 0 && --guardian.GreyStepLeft == 0)
+                ShowGreyStep(guardian, guardian.GreyStep + 1);
 
             if (guardian.Stage == Stage.Done || (guardian.Left > 0 && --guardian.Left > 0))
                 continue;
@@ -303,7 +304,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                         // Its spirit leaves it, and it begins to turn grey.
                         if (Leave(room, guardian, "soul", eye) is { } soul)
                             _souls.Add((soul, Pixels.FromWhole(-4)));
-                        guardian.GreyingFor = 0;
+                        ShowGreyStep(guardian, 0);
                         break;
                     case 4:
                         room.Session.Progress.Record(guardian.GreyFact);
@@ -330,6 +331,21 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     {
         _releases = _releases is Releases.AllButTheOneUnderWay or Releases.All ? Releases.All : Releases.None;
         _firstGlow.Remove(guardian);
+    }
+
+    /// <summary>
+    /// Shows a step of a guardian's greying, held as many updates as its data says. The cartridge steps its colours
+    /// so; past the last step it stays as that one shows it.
+    /// </summary>
+    private void ShowGreyStep(Guardian guardian, int step)
+    {
+        IReadOnlyList<DataNode> steps = Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).List("greying");
+        if (step >= steps.Count)
+            return;
+        ActorVisual grey = Visual(guardian.Name + "Grey");
+        grey.Show(steps[step].Text("picture"));
+        grey.Tint(Colors.White);
+        (guardian.GreyStep, guardian.GreyStepLeft) = (step, steps[step].Int("updates"));
     }
 
     private void Show(Guardian guardian, string picture, int updates)

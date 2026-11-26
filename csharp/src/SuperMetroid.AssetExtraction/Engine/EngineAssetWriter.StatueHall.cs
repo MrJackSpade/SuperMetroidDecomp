@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -26,7 +27,8 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// The hall of the statue at the way into Tourian. The old game makes the statue of three things: the room's
 /// background picture, which holds Kraid's and Draygon's figures and whose blocks at their eyes change; sprites for
 /// Phantoon's and Ridley's figures and the statue's base; and colours that change as a guardian is let go. The Godot
-/// hall shows a picture for each guardian's eyes and one for it turned grey, over the room's backdrop.
+/// hall shows a picture for each guardian's eyes, one for each step of its greying, and one for it turned grey, over
+/// the room's backdrop.
 /// </summary>
 public sealed partial class EngineAssetWriter
 {
@@ -99,6 +101,16 @@ public sealed partial class EngineAssetWriter
             TourianStatueAnimationDefinition definition = TourianStatueAnimationDefinitions.Statues[statue];
             string name = EngineSheets.FileName(statue.ToString()), folder = $"{StatueHallFolder}/{name}";
             var data = new JsonObject();
+
+            // As it is let go it greys a step at a time, each colouring held so many updates; the last stays.
+            ColourEffectColours greyColours = ColourEffectAnimations.Definition(definition.ColourEffect).Colours;
+            (string Shade, int Updates)[] greying = [.. ColourEffectShownFrames.Steps(definition.ColourEffect)
+                .OfType<AnimationBeat<int, ColourEffectCue>.Frame>()
+                .Select(step => (ColourEffectShades.Of(greyColours, new ColourEffectFrame(definition.ColourEffect, step.Shown)).Key, step.Duration))];
+            if (greying.Length == 0)
+                throw new InvalidDataException($"The grey-out {definition.ColourEffect} of the statue of {statue} shows no colouring.");
+            var greyingSteps = new JsonArray();
+
             if (definition.GreyedSprite is { } sprite)
             {
                 // A figure that is a sprite: each look of its eyes is a picture of the whole figure.
@@ -118,6 +130,14 @@ public sealed partial class EngineAssetWriter
                 EngineSheetPictures standing = _sheets.CutSpawnedShades(_tree, folder, spawner, looks, entrance);
                 EngineSheetPictures cleared = _sheets.CutSpawnedShades(_tree, $"{folder}/cleared", spawner, looks, entrance, definition.ClearedShade.Key);
                 EngineSheetPictures grey = _sheets.CutSpawnedShades(_tree, $"{folder}/grey", spawner, looks, entrance, definition.ClearedShade.Key, definition.GreyShade.Key);
+                for (int step = 0; step < greying.Length; step++)
+                {
+                    EngineSheetPictures shown = _sheets.CutSpawnedShades(_tree, $"{folder}/greying_{step}", spawner, looks, entrance, definition.ClearedShade.Key, greying[step].Shade);
+                    if (shown.OffsetX != grey.OffsetX || shown.OffsetY != grey.OffsetY)
+                        throw new InvalidDataException($"The statue of {statue} lies elsewhere in step {step} of its greying than grey.");
+                    greyingSteps.Add(new JsonObject { ["picture"] = shown.Of(Frame(Look.Released)), ["updates"] = greying[step].Updates });
+                }
+
                 data["in_room"] = true;
                 data["bright"] = standing.Of(Frame(Look.EyesBright));
                 data["dim"] = standing.Of(Frame(Look.EyesDim));
@@ -204,7 +224,16 @@ public sealed partial class EngineAssetWriter
                 (int, int, int, int) eyeBounds = Bounds((x, y) =>
                     released.Pixels[y * imageWidth + x] != plain[y * imageWidth + x] ||
                     eyes.Any(eye => x >= eye.X && x < eye.X + cellSize && y >= eye.Y && y < eye.Y + cellSize));
-                (string greyPath, int greyLeft, int greyTop) = Written("grey", Shown(Look.Released, definition.ClearedShade.Key, definition.GreyShade.Key), null);
+                // Grey and each step of its greying share one rectangle, which covers what any of them changes.
+                Canvas greyShown = Shown(Look.Released, definition.ClearedShade.Key, definition.GreyShade.Key);
+                Canvas[] stepsShown = [.. greying.Select(step => Shown(Look.Released, definition.ClearedShade.Key, step.Shade))];
+                bool Changes(Canvas shown, int x, int y) =>
+                    shown.Pixels[y * imageWidth + x] != plain[y * imageWidth + x] ||
+                    eyes.Any(eye => x >= eye.X && x < eye.X + cellSize && y >= eye.Y && y < eye.Y + cellSize);
+                (int, int, int, int) greyBounds = Bounds((x, y) => Changes(greyShown, x, y) || stepsShown.Any(shown => Changes(shown, x, y)));
+                (string greyPath, int greyLeft, int greyTop) = Written("grey", greyShown, greyBounds);
+                for (int step = 0; step < greying.Length; step++)
+                    greyingSteps.Add(new JsonObject { ["picture"] = Written($"greying_{step}", stepsShown[step], greyBounds).Path, ["updates"] = greying[step].Updates });
                 data["in_room"] = false;
                 data["bright"] = Written("bright", Shown(Look.EyesBright), eyeBounds).Path;
                 data["dim"] = Written("dim", Shown(Look.EyesDim), eyeBounds).Path;
@@ -214,6 +243,8 @@ public sealed partial class EngineAssetWriter
                 data["offset"] = new JsonObject { ["x"] = left, ["y"] = top };
                 data["grey_offset"] = new JsonObject { ["x"] = greyLeft, ["y"] = greyTop };
             }
+
+            data["greying"] = greyingSteps;
 
             // What rises and falls as it is let go is coloured by the light of its eyes.
             string[] glowing = [entrance, definition.Eye.Glow.Key];

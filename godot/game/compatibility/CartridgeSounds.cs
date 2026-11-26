@@ -36,6 +36,15 @@ public sealed class CartridgeSounds : ISoundFlow
     /// <summary>The data file of the sets of music: the set loaded at power-on, and each set's theme.</summary>
     private const string SetsFile = "audio/music_sets.json";
 
+    /// <summary>
+    /// The data file of the sounds a set of music plays differently: for each such sound, the sets that have a file
+    /// of it of their own, kept in a folder of the sounds named for the set.
+    /// </summary>
+    private const string VersionsFile = "audio/sound_versions.json";
+
+    /// <summary>For each sound some set of music plays differently, the sets that do.</summary>
+    private readonly Dictionary<string, HashSet<string>> _versions = new(StringComparer.Ordinal);
+
     /// <summary>The libraries, in the order their turns are taken and the program serves them.</summary>
     private static readonly string[] Libraries = ["samus", "enemy", "room"];
 
@@ -60,7 +69,16 @@ public sealed class CartridgeSounds : ISoundFlow
         _themes = sets.Get("themes");
         _setAtPowerOn = sets.Text("loaded_at_start");
         _music = new MusicQueue(_setAtPowerOn);
+        foreach ((string sound, DataNode setsWithOne) in content.ReadData(VersionsFile).Entries())
+            _versions[sound] = [.. setsWithOne.Items().Select(set => set.AsText())];
     }
+
+    /// <summary>
+    /// The file of a sound as it is heard now: the cartridge's sound program plays a sound with the instruments of
+    /// the set of music loaded as the sound starts, and some sets redefine an instrument a sound plays.
+    /// </summary>
+    private string AsLoadedSetPlays(string sound) =>
+        _versions.TryGetValue(sound, out HashSet<string>? sets) && sets.Contains(_music.LoadedSet) ? $"{_music.LoadedSet}/{sound}" : sound;
 
     /// <summary>
     /// Puts the queues back as at power-on, as the game does when it starts over at its title: every sound and
@@ -259,7 +277,7 @@ public sealed class CartridgeSounds : ISoundFlow
         foreach ((string library, string? sound) in _askedOfProgram)
             _clock.Ask(library, sound);
         _askedOfProgram.Clear();
-        _clock.Advance((library, sound) => _started.Add(new AcceptedSound(sound, library)));
+        _clock.Advance((library, sound) => _started.Add(new AcceptedSound(AsLoadedSetPlays(sound), library)));
     }
 
     /// <inheritdoc/>

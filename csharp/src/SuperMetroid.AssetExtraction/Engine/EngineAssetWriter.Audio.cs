@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Audio;
 
@@ -12,6 +13,12 @@ public sealed partial class EngineAssetWriter
 {
     /// <summary>The folders of the asset tree the Godot game's definition names for its sounds and its music.</summary>
     private const string SoundFolder = "sounds", MusicFolder = "music";
+
+    /// <summary>
+    /// The file that says, for each sound some set of music plays differently, which sets those are: each has the
+    /// sound's file again in a folder of the sounds named for the set.
+    /// </summary>
+    private const string SoundVersionsFile = "audio/sound_versions.json";
 
     /// <summary>Writes every sound, every stop of sounds, and every piece of music.</summary>
     private void WriteAudio()
@@ -30,18 +37,9 @@ public sealed partial class EngineAssetWriter
             return read.Samples;
         }
 
-        // One file for each sound, as the old game plays it where no particular set of music is loaded. The old
-        // game plays some sounds differently while certain music is loaded; the Godot game has one of each.
-        var written = new HashSet<string>(StringComparer.Ordinal);
-        foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
+        void WriteShape(string file, SoundEffectId sound, InstalledSoundEffectShape shape)
         {
-            // A request that only stops sounds has its own file of nothing, below.
-            if (EngineNames.Sound(entry.Sound) is not { } name)
-                continue;
-            if (!written.Add(name))
-                throw new InvalidDataException($"The installation keeps the sound {entry.Sound} twice.");
-            string file = $"{SoundFolder}/{name}.wav";
-            switch (entry.Shape)
+            switch (shape)
             {
                 case InstalledOneShotSoundEffect { Clip: { } clip }:
                     _tree.WriteSound(file, manifest.SampleRate, Samples(clip), null);
@@ -51,13 +49,49 @@ public sealed partial class EngineAssetWriter
                     _tree.WriteSound(file, manifest.SampleRate, new short[PcmSampleFormat.StereoChannelCount], null);
                     break;
                 case InstalledLoopingSoundEffect looping:
-                    (short[] mixed, long loopStart) = Looped(entry.Sound, [.. looping.Layers.Select(layer => (Samples(layer.Clip), layer.LoopStart))]);
+                    (short[] mixed, long loopStart) = Looped(sound, [.. looping.Layers.Select(layer => (Samples(layer.Clip), layer.LoopStart))]);
                     _tree.WriteSound(file, manifest.SampleRate, mixed, loopStart);
                     break;
                 default:
-                    throw new InvalidDataException($"The sound {entry.Sound} is of a shape this does not know.");
+                    throw new InvalidDataException($"The sound {sound} is of a shape this does not know.");
             }
         }
+
+        // The clips a shape plays, which tell one shape from another: the installation names a clip by what is in it.
+        static string ClipsOf(InstalledSoundEffectShape shape) => shape switch
+        {
+            InstalledOneShotSoundEffect oneShot => oneShot.Clip?.Path ?? "",
+            InstalledLoopingSoundEffect looping => string.Join('|', looping.Layers.Select(layer => $"{layer.Clip.Path}@{layer.LoopStart}")),
+            _ => throw new InvalidDataException("A sound is of a shape this does not know."),
+        };
+
+        // One file for each sound, as the old game plays it where the set of music loaded changes nothing of it; and,
+        // for a sound some set plays differently because it redefines an instrument the sound plays, one more for
+        // each such set, in a folder named for the set. The game is told which sounds have a file for which sets.
+        var written = new HashSet<string>(StringComparer.Ordinal);
+        var versions = new JsonObject();
+        foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
+        {
+            // A request that only stops sounds has its own file of nothing, below.
+            if (EngineNames.Sound(entry.Sound) is not { } name)
+                continue;
+            if (!written.Add(name))
+                throw new InvalidDataException($"The installation keeps the sound {entry.Sound} twice.");
+            WriteShape($"{SoundFolder}/{name}.wav", entry.Sound, entry.Shape);
+            var sets = new JsonArray();
+            foreach (InstalledSoundEffectSetShape set in entry.ByDataSet)
+            {
+                if (ClipsOf(set.Shape) == ClipsOf(entry.Shape))
+                    continue;
+                WriteShape($"{SoundFolder}/{MusicSetName(set.DataSet)}/{name}.wav", entry.Sound, set.Shape);
+                sets.Add(MusicSetName(set.DataSet));
+            }
+
+            if (sets.Count > 0)
+                versions[name] = sets;
+        }
+
+        _tree.WriteData(SoundVersionsFile, versions);
 
         // Every sound the old game can ask for has its file.
         foreach (SoundEffectId sound in EverySound())

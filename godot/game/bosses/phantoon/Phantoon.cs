@@ -44,19 +44,20 @@ public partial class Phantoon : Enemy
     public string VictoryMusic { get; set; } = "";
 
     /// <summary>
-    /// What is put out of sight for as long as the fight lasts: the cap of the room's door, where the room's patch
-    /// "fight_door" stands as wall from the time its first flames are all lit until it is dead.
+    /// What is put out of sight for as long as the fight lasts: the cap of the room's door, over which the room's
+    /// patch "fight_door" draws the door shut from the time its first flames are all lit until it is dead. The cap
+    /// still stands there, sealed, and is what stops Samus and her shots.
     /// </summary>
     [Export]
     public Godot.Collections.Array<NodePath> HiddenInFight { get; set; } = [];
 
-    /// <summary>The patch of the room's terrain that is wall where the door is, while the fight lasts.</summary>
+    /// <summary>The patch of the room's terrain that is the door as it is drawn while the fight lasts.</summary>
     private const string FightDoorPatch = "fight_door";
 
     /// <summary>The patch that holds the top block of the door's column solid, from his turn until the door changes.</summary>
     private string _doorHeldPatch = "";
 
-    /// <summary>The door's changes, each played by the room as its objects take their turn: the wall put up, and taken down.</summary>
+    /// <summary>The door's changes, each played by the room as its objects take their turn: drawn for the fight, and as it was again.</summary>
     private PatchSequence? _doorCloses, _doorOpens;
 
     /// <summary>How many steps a fade in or out takes; it takes one every other update.</summary>
@@ -787,10 +788,9 @@ public partial class Phantoon : Enemy
     }
 
     /// <summary>
-    /// Puts the wall where the room's door is and its cap out of sight, or takes the wall away and shows the cap
-    /// again. The door changes as the room's objects take their turn on this update, not in his own: until then,
-    /// through Samus's move and the enemies' shots, the top block of its column is solid and the rest is as it was,
-    /// still open as the fight begins and still wall as it ends.
+    /// Draws the room's door for the fight and puts its cap out of sight, or draws the door as it was and shows the
+    /// cap again. The door changes as the room's objects take their turn on this update, not in his own: until then,
+    /// through Samus's move and the enemies' shots, the top block of its column is solid and the rest is as it was.
     /// </summary>
     private void SetFightDoor(bool walled)
     {

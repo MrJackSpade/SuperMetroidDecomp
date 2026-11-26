@@ -184,8 +184,7 @@ public sealed partial class EngineAssetWriter
     {
         TorizoProjectileCue.PlaySound sound => EngineNames.SoundCue(sound.Sound, sound.Priority),
         TorizoProjectileCue.Scatter scatter => $"scatter:{scatter.Spread.Span.X}:{scatter.Spread.Span.Y}:{scatter.Spread.Center.X}:{scatter.Spread.Center.Y}",
-        // A projectile of the Godot game keeps the size its shot gives it.
-        TorizoProjectileCue.SetRadius => null,
+        TorizoProjectileCue.SetRadius radius => $"size:{radius.Radius.X * 2}:{radius.Radius.Y * 2}",
         TorizoProjectileCue.Signal signal => signal.Kind switch
         {
             TorizoProjectileCueKind.StopMoving => "stop",
@@ -202,11 +201,14 @@ public sealed partial class EngineAssetWriter
             TorizoProjectileCueKind.DrawInFront or TorizoProjectileCueKind.PersistOnContactAndDrawInFront => "front",
             TorizoProjectileCueKind.DrawBehindSamus => "behind",
             TorizoProjectileCueKind.StopHarmingSamusAndDrawInFront => "harmless" + EngineTimelines.And + "front",
-            TorizoProjectileCueKind.TurnHarmful or TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots => "harmful",
+            TorizoProjectileCueKind.TurnHarmful => "harmful",
+            TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots => "harmful" + EngineTimelines.And + "shots_pass",
+            TorizoProjectileCueKind.StopBlockingShots => "shots_pass",
+            TorizoProjectileCueKind.BlockShots => "shots_meet",
             TorizoProjectileCueKind.MayTurnToSmoke => "sometimes:" + (smoke ?? throw new InvalidDataException("Something a Torizo throws may turn to smoke, and no smoke is written for it.")),
             TorizoProjectileCueKind.FloorImpactWaited => "floor_flames",
-            // Whether Samus's shots meet a projectile is settled for good by its shot; what one shot down leaves is in its shot too.
-            TorizoProjectileCueKind.StopBlockingShots or TorizoProjectileCueKind.BlockShots or TorizoProjectileCueKind.SpawnOrbDrops => null,
+            // What one shot down leaves is in its shot.
+            TorizoProjectileCueKind.SpawnOrbDrops => null,
             _ => throw new InvalidDataException($"Something a Torizo throws raises {signal.Kind}, which this does not know."),
         },
         _ => throw new InvalidDataException($"Something a Torizo throws raises {cue}, which this does not know."),
@@ -215,9 +217,12 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// Writes one timeline of something a Torizo throws, with pictures cut from the sheets of what
     /// <paramref name="spawner"/> spawns into a folder named as the file is, and returns the file. One that
-    /// <paramref name="startsHarmless"/> is harmless from its first update, as the old projectile is made.
+    /// <paramref name="startsHarmless"/> is harmless from its first update, as the old projectile is made, and one
+    /// that <paramref name="startsPassedByShots"/> is passed by Samus's shots from its first update, until its
+    /// timelines have them meet it.
     /// </summary>
-    private string TorizoShotTimeline(string file, string spawner, Animation<TorizoProjectileSegment> animation, string? smoke = null, bool startsHarmless = false)
+    private string TorizoShotTimeline(
+        string file, string spawner, Animation<TorizoProjectileSegment> animation, string? smoke = null, bool startsHarmless = false, bool startsPassedByShots = false)
     {
         (List<IAnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>> lead, List<IAnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>>? cycle) =
             EngineTimelines.Played(TorizoProjectileAnimations.Segments, animation);
@@ -226,10 +231,14 @@ public sealed partial class EngineAssetWriter
         EngineSheetPictures pictures = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], spawner, frames);
         JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), cue => TorizoShotCue(cue, smoke));
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
-        if (startsHarmless)
+        if (startsHarmless || startsPassedByShots)
         {
             JsonObject first = timeline["steps"]![0]!.AsObject();
-            var cues = new JsonArray("harmless");
+            var cues = new JsonArray();
+            if (startsHarmless)
+                cues.Add("harmless");
+            if (startsPassedByShots)
+                cues.Add("shots_pass");
             foreach (JsonNode? cue in first["cues"]?.AsArray() ?? [])
                 cues.Add(cue!.GetValue<string>());
             first["cues"] = cues;
@@ -416,8 +425,8 @@ public sealed partial class EngineAssetWriter
         torizo.Data.Remove("death");
 
         string folder = torizo.Folder;
-        string Timeline(string name, TorizoProjectileSegment segment, string? smoke = null, bool startsHarmless = false) =>
-            TorizoShotTimeline($"{folder}/{name}.json", spawner, TorizoProjectileAnimations.StartingAt[segment], smoke, startsHarmless);
+        string Timeline(string name, TorizoProjectileSegment segment, string? smoke = null, bool startsHarmless = false, bool startsPassedByShots = false) =>
+            TorizoShotTimeline($"{folder}/{name}.json", spawner, TorizoProjectileAnimations.StartingAt[segment], smoke, startsHarmless, startsPassedByShots);
 
         // What every one of these is: a projectile of its own class that moves itself, shown where its timeline puts it.
         void Thrown(JsonObject shot, JsonObject projectile, string scene, string timeline)
@@ -529,9 +538,17 @@ public sealed partial class EngineAssetWriter
                 ("hatch_updates", TorizoMotionDefinitions.EggHatchUpdates),
                 ("quickening", EngineNames.Number(TorizoMotionDefinitions.EggAcceleration)),
                 ("bounce_drag", EngineNames.Number(TorizoMotionDefinitions.EggBounceDrag)));
-            Timeline("egg_left", TorizoProjectileSegment.EggBouncingLeft, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEgg));
-            Timeline("egg_right", TorizoProjectileSegment.EggBouncingRight, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEgg));
-            torizo.Shot("egg", RoomEnemyProjectileKind.GoldenTorizoEgg, (_, shot, projectile) => Thrown(shot, projectile, "torizo_egg.tscn", $"{folder}/egg_{{side}}.json"));
+            // The old egg is made not stopping her shots, and its hatching has them meet it: a hatchling can be shot,
+            // and goes at once, as anything of the old game's that a shot meets and has no end of its own to play does.
+            if (EnemyProjectileDefinitionCatalog.Definitions[RoomEnemyProjectileKind.GoldenTorizoEgg].Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots))
+                throw new InvalidDataException("The Golden Torizo's egg stops shots from the start, which its timelines are written not to.");
+            Timeline("egg_left", TorizoProjectileSegment.EggBouncingLeft, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEgg), startsPassedByShots: true);
+            Timeline("egg_right", TorizoProjectileSegment.EggBouncingRight, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoEgg), startsPassedByShots: true);
+            torizo.Shot("egg", RoomEnemyProjectileKind.GoldenTorizoEgg, (_, shot, projectile) =>
+            {
+                Thrown(shot, projectile, "torizo_egg.tscn", $"{folder}/egg_{{side}}.json");
+                projectile["met_by_shot"] = "destroyed";
+            });
 
             // The super missile it catches and throws back.
             string heldRight = Timeline("super_missile_held_right", TorizoProjectileSegment.SuperMissileRight, startsHarmless: Harmless(RoomEnemyProjectileKind.GoldenTorizoSuperMissile));

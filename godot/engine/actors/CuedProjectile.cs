@@ -13,7 +13,8 @@ namespace Engine.Actors;
 /// </summary>
 /// <remarks>
 /// Its data lists under "timelines" the timelines it changes to, by the names its class uses. The cues it knows are
-/// "harmless", "harmful", "stop", "end", "front", "behind", "origin" (back to where it began, or last came to rest),
+/// "harmless", "harmful", "shots_pass" and "shots_meet" (from then on the other side's shots pass it by, or meet it
+/// again as its settings say), "stop", "end", "front", "behind", "origin" (back to where it began, or last came to rest),
 /// "shift:" with pixels across and down, "scatter:" with the width and height of the spread and how far into it the
 /// middle lies each way, "sometimes:" with a timeline it turns to one time in four, and "sound:" with a sound's
 /// name.
@@ -52,6 +53,12 @@ public partial class CuedProjectile : Projectile, IHasValues
     /// <inheritdoc/>
     protected override bool DeliversHitNow => !_harmless && base.DeliversHitNow;
 
+    /// <summary>Whether the other side's shots pass it by for now, whatever its settings have them do on meeting it.</summary>
+    private bool _shotsPass;
+
+    /// <inheritdoc/>
+    public override bool IsHitBy(HitSide side) => !_shotsPass && base.IsHitBy(side);
+
     /// <inheritdoc/>
     protected override void OnLaunched(Room room)
     {
@@ -89,6 +96,12 @@ public partial class CuedProjectile : Projectile, IHasValues
                 break;
             case "harmful":
                 _harmless = false;
+                break;
+            case "shots_pass":
+                _shotsPass = true;
+                break;
+            case "shots_meet":
+                _shotsPass = false;
                 break;
             case "stop":
                 Moving = false;

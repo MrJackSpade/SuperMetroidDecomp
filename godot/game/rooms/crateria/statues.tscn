@@ -103,19 +103,10 @@ ScrollShare = Vector2(0.5, 0)
 [node name="Statue" type="Node2D" parent="."]
 position = Vector2(0, 0)
 
-[node name="Base" type="Node2D" parent="Statue"]
-script = ExtResource("11")
-
 [node name="Kraid" type="Node2D" parent="Statue"]
 script = ExtResource("11")
 
 [node name="KraidGrey" type="Node2D" parent="Statue"]
-script = ExtResource("11")
-
-[node name="Phantoon" type="Node2D" parent="Statue"]
-script = ExtResource("11")
-
-[node name="PhantoonGrey" type="Node2D" parent="Statue"]
 script = ExtResource("11")
 
 [node name="Draygon" type="Node2D" parent="Statue"]
@@ -124,10 +115,19 @@ script = ExtResource("11")
 [node name="DraygonGrey" type="Node2D" parent="Statue"]
 script = ExtResource("11")
 
+[node name="Phantoon" type="Node2D" parent="Statue"]
+script = ExtResource("11")
+
+[node name="PhantoonGrey" type="Node2D" parent="Statue"]
+script = ExtResource("11")
+
 [node name="Ridley" type="Node2D" parent="Statue"]
 script = ExtResource("11")
 
 [node name="RidleyGrey" type="Node2D" parent="Statue"]
+script = ExtResource("11")
+
+[node name="Base" type="Node2D" parent="Statue"]
 script = ExtResource("11")
 
 [node name="StatueHall" type="Node" parent="."]

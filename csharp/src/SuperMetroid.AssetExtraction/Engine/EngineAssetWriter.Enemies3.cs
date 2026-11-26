@@ -130,13 +130,14 @@ public sealed partial class EngineAssetWriter
             FuneNamiheCue.Signal { Kind: FuneNamiheCueKind.SpitSound } => EngineNames.SoundCue(FuneNamiheDefinitions.SpitSoundEffect),
             _ => throw new InvalidDataException($"A Fune's animation raises {cue}, which this does not know."),
         };
-        Enemy("enemies/fune.json", "Fune", EnemyDefinitionId.Fune).BodyColliders(Ordinary)
+        // Every room places a Fune and a Namihe solid to Samus: a head in the wall she is stopped by and can stand on.
+        Enemy("enemies/fune.json", "Fune", EnemyDefinitionId.Fune).BodyColliders("Body", "Hurtbox", "Solid")
             .Shot("fireball", RoomEnemyProjectileKind.FuneFireball, static (fune, _, projectile) => FuneFireball(fune, projectile))
             .Looks(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingWith, FuneCue,
                 ("idle_left", FuneNamiheSegment.FuneIdleLeft), ("idle_right", FuneNamiheSegment.FuneIdleRight),
                 ("active_left", FuneNamiheSegment.FuneActiveLeft), ("active_right", FuneNamiheSegment.FuneActiveRight))
             .Write();
-        Enemy("enemies/namihe.json", "Fune", EnemyDefinitionId.Namihe).BodyColliders(Ordinary)
+        Enemy("enemies/namihe.json", "Fune", EnemyDefinitionId.Namihe).BodyColliders("Body", "Hurtbox", "Solid")
             // The Namihe's mouth is lower in its pictures than the Fune's.
             .Value("mouth_drop", 4)
             .Shot("fireball", RoomEnemyProjectileKind.NamiheFireball, static (namihe, _, projectile) => FuneFireball(namihe, projectile))

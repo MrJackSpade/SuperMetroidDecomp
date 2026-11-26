@@ -492,7 +492,8 @@ A scene. One per room of the game.
   `CollisionWorld`, and the lists of live enemies, projectiles, pickups and effects.
 - **Manages:** setting itself up when entered, placing the player from the `RoomEntry`, admitting and removing live
   things, deciding which enemies are active (one far enough outside the camera's view does not update), marking the
-  map cell the player is in as explored, starting an earthquake when something asks, putting itself on screen
+  map cell the player is in as explored (unless something of the room has said its map is hidden, `Room.MapShown`,
+  as Ridley does, whose room shows and explores none of it), starting an earthquake when something asks, putting itself on screen
   where the camera's view has it (thrown about by an earthquake, which does not throw the player about), and
   tearing itself down when left.
 - **Steps, in this order:** the opening of the update: the liquid moves, each running sequence and then each live

@@ -40,9 +40,6 @@ public partial class Hud : GameHud, IHasValues
     [Export, DataValue("area_folder")]
     public string AreaFolder { get; set; } = "areas";
 
-    /// <summary>Whether the map is hidden, as it is in a boss's room.</summary>
-    public bool MinimapHidden { get; set; }
-
     private sealed record Counter(string Amount, Vector2I At, int Digits);
 
     private sealed record Icon(string Selects, Vector2I At, string Picture, string SelectedPicture);
@@ -254,7 +251,8 @@ public partial class Hud : GameHud, IHasValues
     {
         if (GetNodeOrNull<MapView>("Minimap") is not { } minimap)
             return;
-        minimap.Visible = !MinimapHidden && room.Area.Length > 0;
+        // A room whose map is hidden, as a boss's may be, shows none of it and explores none of it.
+        minimap.Visible = room.MapShown && room.Area.Length > 0;
         if (!minimap.Visible)
             return;
         if (!_areas.TryGetValue(room.Area, out Area? area))

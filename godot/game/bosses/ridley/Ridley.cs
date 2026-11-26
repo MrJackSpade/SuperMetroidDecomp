@@ -292,6 +292,8 @@ public partial class Ridley : Enemy
         Revealing = Reveal.Delay;
         _wait = RevealDelay;
         Play($"standing_{Side}", restart: true);
+        // The map is hidden for as long as his room lasts, and nothing of it is explored there.
+        Room.MapShown = false;
         if (OnCeres)
             EnterCeres();
         else

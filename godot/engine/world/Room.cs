@@ -1122,10 +1122,16 @@ public partial class Room : Node2D
         _leaving.Clear();
     }
 
+    /// <summary>
+    /// Whether the room's map is shown and explored. Something of the room may say it is not for as long as the
+    /// room lasts, as a boss whose room hides the map does; the cell the player is in is then not marked explored.
+    /// </summary>
+    public bool MapShown { get; set; } = true;
+
     /// <summary>Records the map cell the player is in as explored.</summary>
     private void MarkExplored()
     {
-        if (Area.Length == 0)
+        if (Area.Length == 0 || !MapShown)
             return;
         Session.Progress.MarkExplored(
             Area, MapCell.X + Player.Position.X.Whole / MapCellSize.X, MapCell.Y + Player.Position.Y.Whole / MapCellSize.Y);

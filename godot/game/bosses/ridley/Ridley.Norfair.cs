@@ -197,9 +197,15 @@ public partial class Ridley
         _dropDown = Field(scatter.Get("down"));
     }
 
+    /// <summary>How many of the map's rows his arena takes, from his room's own cell down: the cartridge marks them explored as he begins.</summary>
+    private const int ArenaMapRows = 2;
+
     /// <summary>Sets it up for its fight in Norfair.</summary>
     private void EnterNorfair()
     {
+        // His arena is marked explored as he begins, since the map explores nothing while he is there.
+        for (int row = 0; row < ArenaMapRows; row++)
+            Room.Session.Progress.MarkExplored(Room.Area, Room.MapCell.X, Room.MapCell.Y + row);
         // In Norfair it stands behind Samus, where its data has it in front of her as aboard Ceres. The cartridge
         // draws it in front of the room's tiles as well, which one order of drawing cannot show together with its
         // standing behind her: here it is drawn among the room's things, behind her.

@@ -173,6 +173,10 @@ something that leaves the room.
   `EnergyFraction` is the part of one energy she holds beyond her whole energy: ongoing damage (heat, lava,
   acid, spikes, a chewing plant) comes off it first and borrows a whole energy the moment it asks for more than is
   held, so such damage takes an energy on its first update; a suit divides the damage counted in 256ths.
+  `LeftoverStridePace` is the pace of Samus's stride that the cartridge never wrote: the boost's echo let in with as
+  many sounds waiting as the boost has stages picks a stage past the last, whose first picture lasts what Ridley's
+  getaway from Ceres left there as it last drew his wings (`CeresGetaway`, from `objects/ceres_getaway_wings.json`,
+  telling her through `Samus.TakeStridePaceLeftByWings`), or nought before it has. Samus holds it.
   `CartridgeAngles` is the cartridge's own sines, its aim at a point and the products it makes with them, for
   every enemy, boss and shot that reckons with an angle: the half wave in 65535ths and in 256ths with what is finer
   dropped, the fine sine that peaks at 32767, the aim read from a slope counted round, a speed along an angle in
@@ -1064,7 +1068,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   of the boost she is at (`boost_stride_updates`); a run taken up afresh starts the stride again. Each stride
   completed with momentum and the dash held counts one off the stage (`boost_stride_counts`), and with none left
   the stage is done; at the last she is boosting. A dash begun partway through a stride reaches its first stage as
-  that stride ends.
+  that stride ends. Reaching the last stage asks for the echo, and the stride then counts down from, and starts at
+  the pace of, the stage numbered by how many sounds the request found waiting; the fourth (`3`) when it was turned
+  away; and with as many waiting as there are stages, none to count and a first picture of the pace the cartridge
+  never wrote (`LeftoverStridePace`). A stride counted off a stage with none left takes the boost down a stage, with
+  255 strides to climb back. Out of any liquid each picture of the stride lasts as many updates longer as she is
+  slowed (`SpeedHalvings`).
 - **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
   wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
   down at other than a whole number of pixels an update. Her dust rises a pixel on each update it shows, its first

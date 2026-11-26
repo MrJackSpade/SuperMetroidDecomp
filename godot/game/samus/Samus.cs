@@ -1071,7 +1071,7 @@ public partial class Samus : Player
 
         // A run taken up afresh starts its stride again.
         if (!alreadyRunning && RunStrideUpdates.Length > 0)
-            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0]);
+            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0] + StrideSlowing);
         RunPose pose = NextRunPose(alreadyRunning);
         bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
         _runPose = pose;
@@ -2077,6 +2077,24 @@ public partial class Samus : Player
         Room.Session.Sounds.Request(Sounds.Footsteps, channel: "samus");
     }
 
+    /// <summary>The strides a boost taken down a stage has to complete before it climbs back, as many as the cartridge's count of them holds.</summary>
+    private const int StridesToClimbBack = 255;
+
+    /// <summary>
+    /// The stage whose pace the stride takes after the boost's echo was turned away: the cartridge picks it by the
+    /// number the echo's sound has, which is what the request leaves where it would leave how many were waiting.
+    /// </summary>
+    private const int PaceAfterEchoTurnedAway = 3;
+
+    /// <summary>The pace a stride takes when the boost's echo found a stage past the last's worth of sounds waiting.</summary>
+    private readonly Compatibility.LeftoverStridePace _leftoverStridePace = new();
+
+    /// <summary>
+    /// Takes the lengths of the stride's pictures that a beat of Ridley's wings leaves behind as his getaway from Ceres
+    /// draws them: the pace of a stride the cartridge never wrote (<see cref="Compatibility.LeftoverStridePace"/>).
+    /// </summary>
+    public void TakeStridePaceLeftByWings(IReadOnlyList<int> updates) => _leftoverStridePace.TakeLeftByWings(updates);
+
     /// <summary>
     /// Moves her running stride on by one update. The speed booster's boost is counted in strides: each one completed
     /// with momentum and the dash held counts one off the stage she is at, and with none left the stage is done. How
@@ -2098,26 +2116,31 @@ public partial class Samus : Player
         bool dashing = HasMomentum && DashIsHeld;
         if (!dashing)
         {
-            _strideLeft = RunStrideUpdates[0];
+            _strideLeft = RunStrideUpdates[0] + StrideSlowing;
             return;
         }
 
         if (_boostStage < 0)
         {
-            _strideLeft = DashStrideUpdates[0];
+            _strideLeft = DashStrideUpdates[0] + StrideSlowing;
             return;
         }
 
+        // A stride counted off a stage with none left takes the boost down a stage, to climb back from there.
         if (_stridesLeft > 0)
             _stridesLeft--;
+        else if (_boostStage > 0)
+            (_boostStage, _stridesLeft) = (_boostStage - 1, StridesToClimbBack);
+        else
+            throw new InvalidOperationException("The boost's first stage has no strides left and no stage to go down to.");
         if (_stridesLeft > 0)
         {
-            _strideLeft = RunStrideUpdates[0];
+            _strideLeft = RunStrideUpdates[0] + StrideSlowing;
             return;
         }
 
-        // The stage is done. Reaching the last, she is boosting, and the stride starts again at the first stage's
-        // pace, as the cartridge has it when nothing else is sounding.
+        // The stage is done. Reaching the last, she is boosting, and the stride starts again at the pace the echo's
+        // request picks by how many sounds it found waiting.
         int pace = _boostStage;
         if (!IsBoosting)
         {
@@ -2125,25 +2148,39 @@ public partial class Samus : Player
             pace = _boostStage;
             if (IsBoosting)
             {
-                Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+                SoundAdmission echo = Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
                 _boostSounding = true;
-                pace = 0;
+                if (echo.Admitted && echo.Waiting == BoostStrideCounts.Length)
+                {
+                    // A stage past the last: no strides to count, and a first picture as long as whatever lies there.
+                    _stridesLeft = 0;
+                    _strideLeft = _leftoverStridePace.Updates(0) + StrideSlowing;
+                    return;
+                }
+
+                pace = echo.Admitted ? echo.Waiting : PaceAfterEchoTurnedAway;
             }
         }
 
         _stridesLeft = BoostStrideCounts[pace];
-        _strideLeft = BoostStrideUpdates[pace * RunStrideUpdates.Length];
+        _strideLeft = BoostStrideUpdates[pace * RunStrideUpdates.Length] + StrideSlowing;
     }
 
-    /// <summary>How many updates a picture of her stride lasts now: by her dash and the boost's stage while she has momentum, and otherwise its own length.</summary>
+    /// <summary>How many updates a picture of her stride lasts now: by her dash and the boost's stage while she has momentum, and otherwise its own length, each slowed as she is.</summary>
     private int StridePictureUpdates(int picture)
     {
         if (!HasMomentum)
-            return RunStrideUpdates[picture];
-        return Inventory.IsOn(Equipment.SpeedBooster)
+            return RunStrideUpdates[picture] + StrideSlowing;
+        return StrideSlowing + (Inventory.IsOn(Equipment.SpeedBooster)
             ? BoostStrideUpdates[BoostStage * RunStrideUpdates.Length + picture]
-            : DashStrideUpdates[picture];
+            : DashStrideUpdates[picture]);
     }
+
+    /// <summary>
+    /// The updates added to each picture of her stride: as many as she is slowed by what clings to her, out of any
+    /// liquid, as the cartridge adds its slowing to every picture of her animation.
+    /// </summary>
+    private int StrideSlowing => FeetAreInLiquid ? 0 : SpeedHalvings;
 
     /// <summary>Starts the warning as her energy falls low and stops it as her energy recovers. The warning goes on by itself in between.</summary>
     private void WarnOfLowEnergy()

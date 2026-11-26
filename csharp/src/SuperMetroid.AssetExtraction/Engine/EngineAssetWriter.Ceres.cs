@@ -8,6 +8,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -54,6 +55,20 @@ public sealed partial class EngineAssetWriter
                 _tree.WritePicture(shown, ownWidth, ownHeight, own);
             }
         }
+    }
+
+    /// <summary>
+    /// Writes what each of Ridley's wing pictures leaves behind as his getaway draws it, in the order the getaway shows
+    /// them (raised, then lowered): the lengths of the pictures of Samus's stride at the pace the cartridge never
+    /// wrote, which it reads from where the getaway lays the wings out.
+    /// </summary>
+    private void WriteCeresGetawayWings()
+    {
+        InstalledScreenContent screens = _installation.LoadMaps();
+        var strideUpdates = new JsonArray();
+        foreach (CeresGetawayWingBeat beat in new[] { CeresGetawayWingBeat.Raised, CeresGetawayWingBeat.Lowered })
+            strideUpdates.Add(new JsonArray([.. screens.CeresRidleyGetawayBoostDelays.LeftBy(beat).Select(updates => (JsonNode)updates)]));
+        _tree.WriteData("objects/ceres_getaway_wings.json", new JsonObject { ["stride_updates"] = strideUpdates });
     }
 
     /// <summary>

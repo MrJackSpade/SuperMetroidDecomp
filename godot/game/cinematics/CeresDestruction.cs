@@ -66,6 +66,9 @@ public partial class CeresDestruction : Cinematic
     /// <summary>How many updates a fade takes, and how many steps it goes in.</summary>
     private const int FadeUpdates = 30, FadeLevels = 15;
 
+    /// <summary>How many updates the title of Zebes takes to fade in, and again to fade out: eight looks of three.</summary>
+    private const int TitleFadeUpdates = 24;
+
     /// <summary>How long the last blast is watched, and how long Zebes is held close.</summary>
     private const int ExplosionHoldUpdates = 192, ZebesHoldUpdates = 64;
 
@@ -101,8 +104,7 @@ public partial class CeresDestruction : Cinematic
     private bool _floorOverSprites;
     private int _blockWidth = 1;
     private int _spawnerUpdates;
-    private int _titleFade;
-    private int _titleFadeUpdates;
+    private int _titleFade = TitleFadeUpdates;
     private bool _titleFadesIn;
     private Pixels _blastReach, _blastSpread;
     private bool _blasting;
@@ -497,10 +499,10 @@ public partial class CeresDestruction : Cinematic
         {
             foreach (string cue in title.Step())
                 OnTitleCue(cue);
-            if (_titleFadeUpdates > 0 && _titleFade < _titleFadeUpdates)
+            if (_titleFade < TitleFadeUpdates)
             {
                 _titleFade++;
-                float shown = (float)_titleFade / _titleFadeUpdates;
+                float shown = (float)_titleFade / TitleFadeUpdates;
                 var tint = new Color(1, 1, 1, _titleFadesIn ? shown : 1 - shown);
                 title.Tint(tint);
                 _secondTitle?.Tint(tint);
@@ -555,7 +557,7 @@ public partial class CeresDestruction : Cinematic
         switch (cue)
         {
             case "fade_in":
-                (_titleFade, _titleFadeUpdates, _titleFadesIn) = (0, 32, true);
+                (_titleFade, _titleFadesIn) = (0, true);
                 break;
             case "second_title":
                 if (!Data().List("second_title_languages").Any(language => language.AsText() == Session.Options.Language))
@@ -564,7 +566,7 @@ public partial class CeresDestruction : Cinematic
                 _secondTitle.Step();
                 break;
             case "fade_out":
-                (_titleFade, _titleFadeUpdates, _titleFadesIn) = (0, 96, false);
+                (_titleFade, _titleFadesIn) = (0, false);
                 break;
             case "fly":
                 // The gunship comes in from behind the view, huge, and shrinks away toward the planet.

@@ -139,6 +139,10 @@ public sealed class SurfaceCrawl
     {
         if (IsFalling)
             return StepFalling(mover);
+
+        // With no speed it has no way to press but rightward and downward, whatever it was put on.
+        if (Speed.IsZero)
+            (_across, _down) = (1, 1);
         return Side is Clings.Left or Clings.Right ? StepOnWall(mover, pursued) : StepOnFloorOrCeiling(mover, pursued);
     }
 
@@ -161,13 +165,13 @@ public sealed class SurfaceCrawl
             if (room.MoveDown(body, Speed * _down, Moves).Blocked)
             {
                 // An inside corner: what stopped it is its new surface, and it goes on along that away from the wall.
-                _across = -_across;
+                _across = Turned(_across);
                 Side = _down > 0 ? Clings.Below : Clings.Above;
                 return new MoveReport(false, _down > 0, _down < 0, true, false) { MovedBySlope = held };
             }
 
             if (pursued is { } target && (target.Y.Whole >= mover.Position.Y.Whole) == (_down < 0))
-                _down = -_down;
+                _down = Turned(_down);
             Show(mover);
             return MoveReport.Nothing with { MovedBySlope = held };
         }
@@ -179,7 +183,7 @@ public sealed class SurfaceCrawl
         }
 
         // An outside corner: the wall has ended, and it turns round the end onto the face beyond.
-        _down = -_down;
+        _down = Turned(_down);
         Side = _down > 0 ? Clings.Below : Clings.Above;
         return new MoveReport(false, false, false, true, false);
     }
@@ -199,7 +203,7 @@ public sealed class SurfaceCrawl
             if (room.MoveAcross(body, Along(mover), Across).Blocked)
             {
                 // An inside corner: it turns onto what stopped it from where the stop left it, and no slope holds it.
-                _down = -_down;
+                _down = Turned(_down);
                 Side = _across > 0 ? Clings.Right : Clings.Left;
                 return new MoveReport(true, false, false, true, false);
             }
@@ -207,7 +211,7 @@ public sealed class SurfaceCrawl
             // Having gone along, sloped ground holds it where it now is.
             bool held = RestOnSlope(mover);
             if (pursued is { } target && (target.X.Whole >= mover.Position.X.Whole) == (_across < 0))
-                _across = -_across;
+                _across = Turned(_across);
             Show(mover);
             return MoveReport.Nothing with { MovedBySlope = held };
         }
@@ -218,7 +222,7 @@ public sealed class SurfaceCrawl
             return MoveReport.Nothing;
         }
 
-        _across = -_across;
+        _across = Turned(_across);
         Side = _across > 0 ? Clings.Right : Clings.Left;
         return new MoveReport(false, false, false, true, false);
     }
@@ -249,6 +253,12 @@ public sealed class SurfaceCrawl
         return Speed.Share(share, SlopeShape.WholeShare) * _across;
     }
 
+    /// <summary>
+    /// A way of pressing turned about. One with no speed cannot be turned: its speed either way is nothing, which
+    /// presses rightward and downward, so on a ceiling or against a wall on its left it finds nothing and lets go.
+    /// </summary>
+    private int Turned(int way) => Speed.IsZero ? 1 : -way;
+
     /// <summary>Falls until something stops it, and then crawls on from where it landed.</summary>
     private MoveReport StepFalling(IMoves mover)
     {
@@ -260,8 +270,9 @@ public sealed class SurfaceCrawl
             return MoveReport.Nothing;
         }
 
+        // One given its speed as it lands goes rightward and downward with it, whatever way it pressed before.
         if (SpeedOnLanding is { } speed)
-            Speed = speed;
+            (Speed, _across, _down) = (speed, 1, 1);
         _fallSpeed = Pixels.Zero;
         _misses = 0;
         IsFalling = false;

@@ -93,6 +93,13 @@ public partial class Oum : Enemy
     private bool _stopped;
     private ColliderPoses? _poses;
 
+    /// <summary>
+    /// Whether it still shows the left-facing idle it is placed with, which counts as its right-facing one: as on the
+    /// cartridge, asking for the right-facing idle then changes nothing, and the first other timeline it starts, the
+    /// left-facing idle too, starts from the beginning.
+    /// </summary>
+    private bool _showsPlacedIdle;
+
     /// <summary>What each of its parts does with a shot and with Samus's touch, by its pose and the part's name.</summary>
     private readonly Dictionary<(string Pose, string Part), (string Shot, string Touch)> _parts = [];
 
@@ -127,6 +134,22 @@ public partial class Oum : Enemy
         _cooldown = Countdown.Of(AttackCooldown);
         _bouncesLeft = SettlingBounces;
         Play("idle_left");
+        _showsPlacedIdle = true;
+    }
+
+    /// <summary>Starts the timeline named <paramref name="name"/> unless it is the one showing, or its placed idle stands for it.</summary>
+    private void Start(string name)
+    {
+        if (!_showsPlacedIdle)
+        {
+            Play(name);
+            return;
+        }
+
+        if (name == "idle_right")
+            return;
+        _showsPlacedIdle = false;
+        Play(name, restart: true);
     }
 
     /// <summary>What the part of it a shot or Samus has met does, in the pose it is in.</summary>
@@ -157,6 +180,13 @@ public partial class Oum : Enemy
         if (hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]))
             return HitResult.Dud;
         return base.TakeHit(hit, part);
+    }
+
+    /// <summary>A beam, missile, super missile or bomb its soft part takes no harm from is answered with a dud's sound of its own besides.</summary>
+    protected override void OnAbsorbed(Hit hit, Collider part)
+    {
+        if (hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.Bomb)]))
+            Sound(Sounds.ShotDeflected);
     }
 
     /// <inheritdoc/>
@@ -215,7 +245,7 @@ public partial class Oum : Enemy
                 Facing = samusSide;
                 if (Facing == Facing.Left)
                     _heading = Facing.Left;
-                Play(Facing == Facing.Left ? "idle_left" : "idle_right");
+                Start(Facing == Facing.Left ? "idle_left" : "idle_right");
                 if (Math.Abs(Target.X.Whole - Position.X.Whole) >= PushingReachAcross)
                     break;
                 StartRolling();
@@ -242,7 +272,7 @@ public partial class Oum : Enemy
                     _heading = samusSide;
                     _cooldown = Countdown.Of(AttackCooldown);
                     Facing = _heading;
-                    Play(Facing == Facing.Left ? "attack_left" : "attack_right", restart: true);
+                    Start(Facing == Facing.Left ? "attack_left" : "attack_right");
                     _doing = Doing.Attacking;
                     break;
                 }
@@ -252,7 +282,7 @@ public partial class Oum : Enemy
                 {
                     _heading = _heading.Opposite();
                     _rollsBackward = !_rollsBackward;
-                    Play(RollTimeline, restart: true);
+                    Start(RollTimeline);
                 }
                 else
                 {
@@ -294,7 +324,7 @@ public partial class Oum : Enemy
     private void StartRolling()
     {
         _rollsBackward = false;
-        Play(RollTimeline);
+        Start(RollTimeline);
         _doing = Doing.Rolling;
     }
 

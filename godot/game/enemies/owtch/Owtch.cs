@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -97,11 +98,21 @@ public partial class Owtch : Enemy
             _doing = Doing.MovingRight;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// While it does anything but walk left or turn at the left end of its walk, its shell takes in a beam, a missile,
+    /// a super missile or a bomb with no harm and nothing shown, though a plasma beam flies on through it. A power bomb
+    /// or Samus's body meets no shell, and is answered as its reactions say whatever it is doing.
+    /// </summary>
     protected override Reaction ReactionTo(Hit hit, Collider part)
     {
         Reaction reaction = base.ReactionTo(hit, part);
-        return _doing is Doing.MovingLeft or Doing.TurningAtLeftEnd ? reaction : reaction with { DamageTimes = 0, Status = "" };
+        if (_doing is Doing.MovingLeft or Doing.TurningAtLeftEnd)
+            return reaction;
+        if (hit.Carries(new HitKind(HitKinds.Bomb)))
+            return reaction with { Swallows = true };
+        if (!hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]))
+            return reaction;
+        return hit.Carries(new HitKind(HitKinds.Plasma)) ? reaction with { Passes = true } : reaction with { Swallows = true };
     }
 
     /// <inheritdoc/>

@@ -197,7 +197,16 @@ public partial class MotherBrain : Enemy, IClosingStep
         _lightsOut = Engine.Ui.ColourChange.Read(lights.Get("out"));
         _lightsBack.Clear();
         _lightsBack.AddRange(lights.List("back").Select(Engine.Ui.ColourChange.Read));
+        static (int, double, int) Motion(DataNode motion) => (motion.Int("height"), motion.Distance("speed").ToNumber(), motion.Int("delay"));
+        (_liquidRise, _liquidDrain) = (Motion(data.Get("liquid").Get("rise")), Motion(data.Get("liquid").Get("drain")));
     }
+
+    /// <summary>
+    /// Where her room's liquid heads as she is set up, and as her false death starts the room's flash ("liquid":
+    /// "rise" and "drain"): the height, in pixels down from the room's top, how far it moves an update, and how many
+    /// updates it waits first.
+    /// </summary>
+    private (int Height, double Speed, int Delay) _liquidRise, _liquidDrain;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -214,7 +223,7 @@ public partial class MotherBrain : Enemy, IClosingStep
         for (int each = 0; each < _neck.Length; each++)
             GetNode<ActorVisual>($"Neck{each}").Show(joint);
         PlayHead("whole_head_mouth_closed");
-        Room.Liquid?.Triggered("rise");
+        Room.Liquid?.HeadFor(_liquidRise.Height, _liquidRise.Speed, _liquidRise.Delay);
     }
 
     /// <inheritdoc/>

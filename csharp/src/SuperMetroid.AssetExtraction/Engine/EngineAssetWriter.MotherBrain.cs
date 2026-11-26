@@ -34,6 +34,18 @@ public sealed partial class EngineAssetWriter
         _ => EngineSheets.FileName(segment.ToString()),
     };
 
+    /// <summary>
+    /// Where one of the effects her fight lays on her room's acid has it go: the height, in pixels down from the
+    /// room's top, how far it moves an update, and how many updates it waits first.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The effect gives the acid nowhere to go, or no speed.</exception>
+    private static JsonObject AcidMotion(SuperMetroid.Core.Fx.RoomEffectDefinition effect)
+    {
+        if (effect.LiquidTargetLevel is not int height || effect.LiquidLevelSpeed.Pixels == 0)
+            throw new InvalidDataException("An effect of Mother Brain's fight gives her room's acid nowhere to go, or no speed.");
+        return new JsonObject { ["height"] = height, ["speed"] = Math.Abs(effect.LiquidLevelSpeed.Pixels), ["delay"] = effect.LiquidMoveDelay };
+    }
+
     /// <summary>Writes Mother Brain, everything of hers, and the giant Metroid of her fight.</summary>
     private void WriteMotherBrain()
     {
@@ -467,6 +479,14 @@ public sealed partial class EngineAssetWriter
                 ["rise"] = EngineNames.Number(piece.Velocity.Y),
             })))
             .Group("escape_door_patch", JsonValue.Create(escapeDoor))
+
+            // Her room's acid: up as her body is set up, and drained as her false death starts the room's flash. Her
+            // fight gives it where to go, how fast and after how long; her room's own effect only has it at rest.
+            .Group("liquid", new JsonObject
+            {
+                ["rise"] = AcidMotion(MotherBrainRoomFxDefinitions.AcidRises),
+                ["drain"] = AcidMotion(MotherBrainRoomFxDefinitions.AcidDrains),
+            })
 
             // Her room's lights: out as the giant Metroid is struck its last, and each step of their coming back,
             // the last of which stays. The changes are of her room's own pictures, its blocks and what lies behind.

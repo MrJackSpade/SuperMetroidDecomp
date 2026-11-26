@@ -185,7 +185,7 @@ public partial class MotherBrain
                 if (--_timer > 0)
                     break;
                 _flashing = true;
-                Room.Liquid?.Triggered("fall");
+                Room.Liquid?.HeadFor(_liquidDrain.Height, _liquidDrain.Speed, _liquidDrain.Delay);
                 (_nextTube, _tubeFallen, _tubeWait) = (0, false, 1);
                 (_greyStep, _greyWait) = (0, 1);
                 Room.Terrain.ApplyPatch(_ceilingPatch);

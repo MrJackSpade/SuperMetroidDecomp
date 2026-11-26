@@ -182,6 +182,11 @@ public sealed partial class EngineAssetWriter
         // A beam with the wave beam in it passes through walls, striking what it crosses; one with the plasma beam in
         // it passes through what it hurts and can hurt it again.
         projectile["meeting_terrain"] = passesWalls ? "passes_through_and_hits" : "ends_and_hits";
+
+        // A beam meets the room's blocks by the edge it leads with, once for each way it moves, and is stopped only
+        // when every block across that edge stops it; and what it leaves on ending is left at its front.
+        projectile["terrain_by"] = "front_edge";
+        projectile["ends_at_front"] = true;
         projectile["meeting_target"] = beams.HasPlasma ? "passes_through_and_rehits" : "ends";
         if (!passesWalls)
         {
@@ -336,7 +341,7 @@ public sealed partial class EngineAssetWriter
         projectile["diagonal_acceleration"] = EngineNames.Number(super ? Along(slanted.SuperMissile) : Along(slanted.Beam) + Along(slanted.Missile));
         projectile["meeting_terrain"] = "ends_and_hits";
         // A missile tests the terrain at its middle point, not across its width.
-        projectile["terrain_at_middle"] = true;
+        projectile["terrain_by"] = "middle";
         projectile["meeting_target"] = "ends";
         string burst = $"samus/shots/{name}_burst.json";
         _tree.WriteData(burst, ShotTimeline(pictures, super ? Segment.SuperMissileExplosion : Segment.MissileExplosion, sized: false));

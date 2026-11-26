@@ -1237,11 +1237,12 @@ How a projectile behaves is settings, not code:
 | Setting | Choices |
 | --- | --- |
 | Meeting terrain | Ends; ends and delivers its hit to the tile; passes through; passes through and still delivers its hit to each tile it crosses; bounces. |
+| What of it meets terrain | Its whole body at every pixel of its way, stopped by anything solid in it and by the room's edge; its middle point alone at every pixel; or the edge it leads with, once for each way it moves, where the move ended (`Terrain.MeetShotEdge`, answering with a `ShotEdgeMeeting`): it is stopped only when every tile across that edge stops it, its hit lands on every tile the edge reached, and it is tried once where it was launched before it first moves. By its middle or its edge nothing outside the room stops it, and a way out of the room does (`Room.HasExitOver`). Samus's missiles meet terrain by their middle and her beams by their edge; a beam fired down beside a wall flies past it. |
 | Meeting a target | Ends; passes through and can hit others; passes through and can hit the same one again once that one can be hit again. A target that takes no damage from it, or turns it back, stops it either way. |
 | Met by the other side's shot | Destroyed; stops the shot and is unharmed; ignored. |
 | Motion | Straight; accelerating; in a wave; homing; does not travel (a bomb); with gravity. |
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
-| Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). |
+| Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). Either is left at its middle, or at its front: half its size on along each way it was launched, as a beam's burst is. |
 | Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. |
 | Gaining speed | One gain along each axis; one launched diagonally may have its own. |
 | Shaking the room | A `RoomShake` (strength, length, way) started as terrain or a solid ends it, and one started the first time its hit lands. |

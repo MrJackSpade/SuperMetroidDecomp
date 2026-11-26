@@ -11,7 +11,7 @@ namespace Engine.Actors;
 /// </summary>
 /// <remarks>
 /// <code>
-/// { "width": 8, "height": 8, "meeting_terrain": "ends", "terrain_at_middle": false, "meeting_target": "ends", "met_by_shot": "ignored",
+/// { "width": 8, "height": 8, "meeting_terrain": "ends", "terrain_by": "body", "ends_at_front": false, "meeting_target": "ends", "met_by_shot": "ignored",
 ///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "view_margin_below": 96, "picture": "shots/beam.png",
 ///   "terrain_shake": { "strength": 1, "updates": 30, "way": "both" } }
 /// </code>
@@ -36,6 +36,32 @@ public sealed record ProjectileSettings
 
         /// <summary>It bounces off.</summary>
         Bounces,
+    }
+
+    /// <summary>What of a projectile meets terrain.</summary>
+    public enum TerrainBy
+    {
+        /// <summary>
+        /// All it covers, tried at every pixel of its way: anything solid in it stops it, and so does the room's edge.
+        /// </summary>
+        Body,
+
+        /// <summary>
+        /// Its middle point alone, tried at every pixel of its way: its width and height are then only what targets
+        /// and solids meet. Outside the room nothing stops it, and a way out of the room does.
+        /// </summary>
+        Middle,
+
+        /// <summary>
+        /// The edge it leads with, tried once for each way it moves, where the move ended: it moves the whole of its
+        /// speed across and its leading side is tried, then, if that did not stop it, the whole of its speed down and
+        /// that side is tried. It is stopped only when every tile the edge lies in stops it
+        /// (<see cref="Engine.World.Terrain.MeetShotEdge"/>), its hit lands on every tile the edge reached whether it is
+        /// stopped or not, and it is tried once more where it was launched, before it first moves: going right and
+        /// down whichever way it will go, but for one launched straight left. Outside the room nothing stops it, and a
+        /// way out of the room does. It cannot bounce.
+        /// </summary>
+        FrontEdge,
     }
 
     /// <summary>What a projectile does on hurting a target.</summary>
@@ -95,11 +121,14 @@ public sealed record ProjectileSettings
     /// <summary>What it does on meeting terrain or a solid.</summary>
     public Terrain MeetingTerrain { get; init; }
 
+    /// <summary>What of it meets terrain, and lands its hit on the terrain there.</summary>
+    public TerrainBy MeetsTerrainBy { get; init; }
+
     /// <summary>
-    /// Whether it meets terrain at its middle point alone, and lands its hit on the terrain there: its width and
-    /// height are then only what targets and solids meet.
+    /// Whether what it leaves on ending is left at its front and not at its middle: half its width and half its
+    /// height on from its middle along each way it was launched, as a shot that bursts against what it struck does.
     /// </summary>
-    public bool TerrainAtMiddle { get; init; }
+    public bool EndsAtFront { get; init; }
 
     /// <summary>What it does on hurting a target.</summary>
     public Target MeetingTarget { get; init; }
@@ -218,7 +247,8 @@ public sealed record ProjectileSettings
             Width = data.Has("width") ? data.Int("width") : plain.Width,
             Height = data.Has("height") ? data.Int("height") : plain.Height,
             MeetingTerrain = data.Has("meeting_terrain") ? data.Get("meeting_terrain").AsEnum<Terrain>() : plain.MeetingTerrain,
-            TerrainAtMiddle = data.Has("terrain_at_middle") && data.Flag("terrain_at_middle"),
+            MeetsTerrainBy = data.Has("terrain_by") ? data.Get("terrain_by").AsEnum<TerrainBy>() : plain.MeetsTerrainBy,
+            EndsAtFront = data.Has("ends_at_front") && data.Flag("ends_at_front"),
             MeetingTarget = data.Has("meeting_target") ? data.Get("meeting_target").AsEnum<Target>() : plain.MeetingTarget,
             MetByShot = data.Has("met_by_shot") ? data.Get("met_by_shot").AsEnum<MetBy>() : plain.MetByShot,
             Motion = data.Has("motion") ? data.Get("motion").AsEnum<Moves>() : plain.Motion,
@@ -248,6 +278,8 @@ public sealed record ProjectileSettings
         };
         if (settings.Width <= 0 || settings.Height <= 0 || settings.LastsUpdates < 0)
             throw data.Problem("gives a size that is not positive or a negative lifetime");
+        if (settings.MeetsTerrainBy == TerrainBy.FrontEdge && settings.MeetingTerrain == Terrain.Bounces)
+            throw data.Problem("meets terrain by its front edge and bounces, which no projectile does");
         return settings;
     }
 }

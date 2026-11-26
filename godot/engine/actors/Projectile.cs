@@ -33,6 +33,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     private int _width = 8;
     private int _height = 8;
     private bool _shookForTarget;
+
+    /// <summary>The way it was launched along each axis: 1, -1, or 0 for an axis it was not launched along.</summary>
+    private int _launchedAcross, _launchedDown;
     private readonly HashSet<IHittable> _alreadyHurt = [];
 
     /// <summary>A projectile delivering <paramref name="hit"/>, launched from <paramref name="at"/> at <paramref name="velocity"/>.</summary>
@@ -62,6 +65,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         _settings = settings;
         _launcher = launcher;
         _direction = DirectionName(velocity);
+        (_launchedAcross, _launchedDown) = (velocity.X.IsZero ? 0 : velocity.X.IsNegative ? -1 : 1, velocity.Y.IsZero ? 0 : velocity.Y.IsNegative ? -1 : 1);
         _wavePhase = settings.WaveStart;
         (_width, _height) = (settings.Width, settings.Height);
     }
@@ -204,6 +208,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             Travel(room);
             return;
         }
+
+        // One that leads with its edge is tried against the terrain where it was launched, before it first moves.
+        if (Age == 1 && _settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.FrontEdge && MeetTerrainAtLaunch(room))
+            return;
 
         if (Age <= _settings.LaunchDelayUpdates)
         {
@@ -435,6 +443,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             offset = Velocity.X.Abs() >= Velocity.Y.Abs() ? offset with { Y = offset.Y + change } : offset with { X = offset.X + change };
         }
 
+        if (_settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.FrontEdge)
+        {
+            TravelLeadingWithEdge(room, offset);
+            return;
+        }
+
         PixelPosition target = Position + offset;
         int acrossPixels = target.X.Whole - Position.X.Whole, downPixels = target.Y.Whole - Position.Y.Whole;
         int steps = Math.Max(Math.Abs(acrossPixels), Math.Abs(downPixels));
@@ -457,6 +471,102 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     }
 
     /// <summary>
+    /// Moves a projectile that leads with its edge: the whole of its move across, then, if nothing stopped it, the
+    /// whole of its move down. Along each it meets solids and targets a pixel at a time, and the terrain once, by its
+    /// leading edge, where the move ended.
+    /// </summary>
+    private void TravelLeadingWithEdge(Room room, PixelOffset offset)
+    {
+        if (offset.X.IsZero && offset.Y.IsZero)
+        {
+            // Holding still, it only meets what is where it lies.
+            Advance(room, Position);
+            return;
+        }
+
+        if (!offset.X.IsZero && !MoveLeadingWithEdge(room, offset.X, across: true))
+            return;
+        if (!offset.Y.IsZero)
+            MoveLeadingWithEdge(room, offset.Y, across: false);
+    }
+
+    /// <summary>Moves the projectile the whole of <paramref name="distance"/> along one axis and tries its leading edge there. Returns whether it carries on.</summary>
+    private bool MoveLeadingWithEdge(Room room, Pixels distance, bool across)
+    {
+        PixelPosition from = Position;
+        PixelPosition target = across ? new PixelPosition(from.X + distance, from.Y) : new PixelPosition(from.X, from.Y + distance);
+        int pixels = across ? target.X.Whole - from.X.Whole : target.Y.Whole - from.Y.Whole;
+        for (int moved = 0; moved < Math.Abs(pixels); moved++)
+        {
+            PixelPosition next = across
+                ? new PixelPosition(Pixels.FromWhole(Position.X.Whole + Math.Sign(pixels)), from.Y)
+                : new PixelPosition(from.X, Pixels.FromWhole(Position.Y.Whole + Math.Sign(pixels)));
+            if (!Advance(room, next))
+                return false;
+        }
+
+        if (pixels == 0 && !Advance(room, Position))
+            return false;
+        Position = target;
+        return !MeetTerrainWithEdge(room, across, backward: distance.IsNegative);
+    }
+
+    /// <summary>
+    /// Tries a projectile that leads with its edge against the terrain where it was launched, before it has moved:
+    /// across first, if it is launched across, then down if that did not stop it. Not yet moving, it is tried as one
+    /// going right and down is, whichever way it will go, but for one launched straight left, which is tried going
+    /// left. Returns whether the terrain stopped it.
+    /// </summary>
+    private bool MeetTerrainAtLaunch(Room room) =>
+        (_launchedAcross != 0 && MeetTerrainWithEdge(room, across: true, backward: _launchedAcross < 0 && _launchedDown == 0))
+        || (!HasEnded && _launchedDown != 0 && MeetTerrainWithEdge(room, across: false, backward: false));
+
+    /// <summary>
+    /// Tries the edge the projectile leads with against the terrain, where it stands: its hit lands on every tile the
+    /// edge reached, and the terrain stops it only if every one of them does. Returns whether it was stopped, and so
+    /// has ended.
+    /// </summary>
+    /// <param name="room">The room.</param>
+    /// <param name="across">Whether it is going across, and leads with a side; otherwise with its top or bottom.</param>
+    /// <param name="backward">Whether it is going left, or up.</param>
+    private bool MeetTerrainWithEdge(Room room, bool across, bool backward)
+    {
+        PixelRect area = Area;
+        PixelRect edge = across
+            ? new PixelRect(backward ? area.Left : area.Right - 1, area.Top, 1, area.Height)
+            : new PixelRect(area.Left, backward ? area.Top : area.Bottom - 1, area.Width, 1);
+        ShotEdgeMeeting met = room.Terrain.MeetShotEdge(edge, across, Position.X.Whole, Position.Y.Whole, room.HasExitOver);
+        bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
+        bool hitsTerrain = HarmsNow &&
+            _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
+        if (hitsTerrain && !met.Reached.IsEmpty)
+            room.Terrain.TakeHit(Hit, met.Reached);
+        if (passes || !met.Stops)
+            return false;
+
+        // It ends where its move left it: what it leaves is put at its front, if its settings say so.
+        _settings.TerrainShake?.Start(room);
+        OnMetTerrain(room);
+        End(room);
+        return true;
+    }
+
+    /// <summary>
+    /// Whether the terrain stops the projectile where it stands, for one that meets it by its body or its middle: its
+    /// body by anything solid in it and by the room's edge; its middle by what is solid at that point or a way out of
+    /// the room there, and by nothing outside the room.
+    /// </summary>
+    private bool TerrainStops(Room room)
+    {
+        if (_settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.Body)
+            return room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall);
+        PixelRect middle = TerrainArea;
+        if (middle.Left < 0 || middle.Top < 0 || middle.Right > room.Terrain.WidthInPixels || middle.Bottom > room.Terrain.HeightInPixels)
+            return false;
+        return room.Terrain.IsSolidIn(middle, SlopeTreatment.Wall) || room.HasExitOver(middle);
+    }
+
+    /// <summary>
     /// Moves the projectile to <paramref name="next"/> and meets what is there. Returns whether it carries on travelling
     /// this update.
     /// </summary>
@@ -469,11 +579,15 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         bool hitsTerrain = HarmsNow &&
             _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
 
-        if (passes && hitsTerrain)
-            room.Terrain.TakeHit(Hit, TerrainArea);
+        // One that leads with its edge meets the terrain where its move ends, not along the way.
+        if (_settings.MeetsTerrainBy != ProjectileSettings.TerrainBy.FrontEdge)
+        {
+            if (passes && hitsTerrain)
+                room.Terrain.TakeHit(Hit, TerrainArea);
 
-        if (!passes && room.Terrain.IsSolidIn(TerrainArea, SlopeTreatment.Wall))
-            return StopAgainst(room, previous, next, hitsTerrain);
+            if (!passes && TerrainStops(room))
+                return StopAgainst(room, previous, next, hitsTerrain);
+        }
 
         // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
         // what is there is hit first, and only then does the solid stop the shot.
@@ -568,6 +682,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                 case HitResult.TurnedBack:
                     // Turned back, it flies the other way and is now the other side's.
                     Velocity = -Velocity;
+                    (_launchedAcross, _launchedDown) = (-_launchedAcross, -_launchedDown);
                     _hit = Hit with { Side = Side == HitSide.Player ? HitSide.Enemies : HitSide.Player, Direction = -Hit.Direction };
                     _launcher = target as ICollisionOwner;
                     return false;
@@ -598,8 +713,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         return true;
     }
 
-    /// <summary>What of the projectile meets terrain: all it covers, or its middle point alone when its settings say so.</summary>
-    private PixelRect TerrainArea => _settings.TerrainAtMiddle ? new PixelRect(Position.X.Whole, Position.Y.Whole, 1, 1) : Area;
+    /// <summary>What of the projectile meets terrain along its way: all it covers, or its middle point alone when its settings say so.</summary>
+    private PixelRect TerrainArea =>
+        _settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.Middle ? new PixelRect(Position.X.Whole, Position.Y.Whole, 1, 1) : Area;
 
     /// <summary>
     /// Stops the projectile against terrain or something solid it has met in moving from <paramref name="previous"/>
@@ -607,7 +723,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// </summary>
     private bool StopAgainst(Room room, PixelPosition previous, PixelPosition next, bool hitsTerrain)
     {
-        if (hitsTerrain)
+        // One that leads with its edge is stopped here only by something solid that is not terrain, which its
+        // hit has already been tried against.
+        if (hitsTerrain && _settings.MeetsTerrainBy != ProjectileSettings.TerrainBy.FrontEdge)
             room.Terrain.TakeHit(Hit, TerrainArea);
         if (_settings.MeetingTerrain == ProjectileSettings.Terrain.Bounces)
         {
@@ -702,16 +820,21 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     {
         if (HasEnded)
             return;
+
+        // What it leaves lies at its middle, or at its front: half its size on along each way it was launched.
+        PixelPosition at = _settings.EndsAtFront
+            ? Position + PixelOffset.FromWhole(_launchedAcross * (_width / 2), _launchedDown * (_height / 2))
+            : Position;
         if (_settings.EndingEffect.Length > 0)
         {
-            Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), Position);
+            Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), at);
             room.Spawn(effect);
             LeftOnEnding?.Invoke(effect);
         }
 
         if (_settings.EndingBurst.Length > 0)
         {
-            Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, PixelVelocity.Zero, Side, _launcher, Hit.Source);
+            Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(at, PixelVelocity.Zero, Side, _launcher, Hit.Source);
             if (room.Spawn(burst))
                 LeftOnEnding?.Invoke(burst);
         }

@@ -138,6 +138,12 @@ public partial class Room : Node2D
     /// <summary>The room's exits.</summary>
     public IReadOnlyList<RoomExit> Exits => _exits;
 
+    /// <summary>
+    /// Whether a way out of the room lies over any of <paramref name="area"/>. A way out is open to whoever leaves
+    /// by it, and a wall to a shot that meets terrain by its middle or by the edge it leads with.
+    /// </summary>
+    public bool HasExitOver(PixelRect area) => _exits.Any(exit => exit.Area.Overlaps(area));
+
     /// <summary>How many enemies have been killed in the room since it was set up, counting each time one that comes back is killed.</summary>
     public int EnemiesKilled { get; private set; }
 

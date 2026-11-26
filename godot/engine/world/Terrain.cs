@@ -266,6 +266,97 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         return EdgeStop.None;
     }
 
+    /// <summary>
+    /// What a shot meets that leads with <paramref name="edge"/>: a strip one pixel thick lying across its way, tried
+    /// where the shot's move ended. The shot is stopped only when every tile the strip lies in stops it, so one that
+    /// grazes open space beside a wall flies on; and its hit lands on every tile reached, whether it is stopped or not.
+    /// </summary>
+    /// <remarks>
+    /// A solid tile and an intact solid block stop it. A slope cut in steps stops it where the strip lies in its solid
+    /// part. A slope that holds things up by their middle answers only in the tile in line with the shot's own
+    /// middle, and by the middle's place within a tile, not the strip's: where that is in the slope's solid part the
+    /// shot is stopped whatever the rest of the strip lies in, and the tiles after it along the strip are not
+    /// reached. An edge any part of which lies outside the room meets nothing.
+    /// </remarks>
+    /// <param name="edge">The strip the shot leads with, one pixel thick.</param>
+    /// <param name="across">Whether the shot is moving across, its strip a column of pixels; otherwise down or up, its strip a row.</param>
+    /// <param name="middleX">The column of the shot's middle.</param>
+    /// <param name="middleY">The row of the shot's middle.</param>
+    /// <param name="stopsToo">
+    /// Says whether a tile's square that the terrain leaves open stops a shot all the same, as a way out of the room
+    /// does: open to whoever leaves by it, it is a wall to a shot.
+    /// </param>
+    public ShotEdgeMeeting MeetShotEdge(PixelRect edge, bool across, int middleX, int middleY, Func<PixelRect, bool> stopsToo)
+    {
+        ArgumentNullException.ThrowIfNull(stopsToo);
+        if (edge.IsEmpty || edge.Left < 0 || edge.Top < 0 || edge.Right > WidthInPixels || edge.Bottom > HeightInPixels)
+            return ShotEdgeMeeting.Nothing;
+
+        int size = TileSize;
+        bool everyTileStops = true;
+
+        // Across, the strip lies in one column of tiles and its rows are taken from the top; down, in one row, its
+        // columns taken from the left.
+        for (int row = edge.Top / size; row <= (edge.Bottom - 1) / size; row++)
+        {
+            for (int column = edge.Left / size; column <= (edge.Right - 1) / size; column++)
+            {
+                int left = column * size, top = row * size;
+                bool stops;
+                if (_blockAt[row][column] is { } block)
+                {
+                    stops = block.IsSolid;
+                }
+                else
+                {
+                    TileDefinition tile = _tiles[row][column];
+                    switch (tile.Kind)
+                    {
+                        case TileKind.Empty:
+                        case TileKind.Block:
+                            stops = stopsToo(new PixelRect(left, top, size, size));
+                            break;
+                        case TileKind.Solid:
+                            stops = true;
+                            break;
+                        case TileKind.Slope:
+                            SlopeShape slope = tile.Slope ?? throw new InvalidOperationException("A slope tile has no shape.");
+                            if (!slope.HoldsMiddle)
+                            {
+                                stops = slope.IsSolidIn(
+                                    Math.Max(edge.Left, left) - left, Math.Min(edge.Right, left + size) - left,
+                                    Math.Max(edge.Top, top) - top, Math.Min(edge.Bottom, top + size) - top);
+                                break;
+                            }
+
+                            bool inLine = across ? TileOf(middleY, size) == row : TileOf(middleX, size) == column;
+                            int within = Within(middleX, size), down = Within(middleY, size);
+                            if (inLine && slope.IsSolidIn(within, within + 1, down, down + 1))
+                            {
+                                // The slope's surface ends the strip there: what lies beyond along it is not reached.
+                                PixelRect reached = across
+                                    ? new PixelRect(edge.Left, edge.Top, edge.Width, Math.Min(edge.Bottom, top + size) - edge.Top)
+                                    : new PixelRect(edge.Left, edge.Top, Math.Min(edge.Right, left + size) - edge.Left, edge.Height);
+                                return new ShotEdgeMeeting(true, reached);
+                            }
+
+                            stops = false;
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Undefined tile kind {tile.Kind}.");
+                    }
+                }
+
+                everyTileStops &= stops;
+            }
+        }
+
+        return new ShotEdgeMeeting(everyTileStops, edge);
+    }
+
+    /// <summary>Where a pixel column or row lies within its tile, counted from the tile's left or top.</summary>
+    private static int Within(int pixel, int size) => ((pixel % size) + size) % size;
+
     /// <inheritdoc/>
     public int? SlopeRestRow(int x, int y, bool ceiling)
     {

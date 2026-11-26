@@ -84,6 +84,9 @@ public partial class KraidNail : Enemy
         AlwaysActive = true;
         Play("spinning");
         SetAway(true);
+        // One that follows another is made in Kraid's parts' colours, as the old game's nail takes the shading its
+        // place was left in. As the room is set up, Kraid shows them on the nails as he enters it.
+        Room.Enemies.OfType<Kraid>().FirstOrDefault()?.ShowPartColoursOn(this);
         // Its wait to set off starts as it is placed, whether or not Kraid has grown: as in the old game, it may fly
         // while Kraid is still rising, out of the view.
         (_phase, _wait) = (Phase.WaitBeforeLaunch, LaunchDelay);

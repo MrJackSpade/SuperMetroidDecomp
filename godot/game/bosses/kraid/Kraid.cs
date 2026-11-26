@@ -1242,6 +1242,13 @@ public partial class Kraid : Enemy
             nail.ShowColours(_partColours);
     }
 
+    /// <summary>Shows its parts' colours on a nail of its room made since its turn, so that it never shows its own.</summary>
+    public void ShowPartColoursOn(KraidNail nail)
+    {
+        ArgumentNullException.ThrowIfNull(nail);
+        nail.ShowColours(_partColours);
+    }
+
     /// <summary>Shows a change of colours on one of its visuals, in place of the one shown there before.</summary>
     private void ShowOn(ActorVisual visual, ColourChange colours)
     {

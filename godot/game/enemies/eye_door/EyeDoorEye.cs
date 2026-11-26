@@ -303,10 +303,11 @@ public partial class EyeDoorEye : Enemy
         Leave(PuffEffect, Position + _puffAt);
     }
 
+    /// <summary>Leaves smoke of its: behind everything that stands in the room, where the cartridge draws the eye door's smoke.</summary>
     private void Leave(string effect, PixelPosition at)
     {
         if (effect.Length > 0)
-            LeaveEffect(effect, at);
+            LeaveEffect(effect, at, Standing.Hindmost);
     }
 
     /// <summary>Whether Samus is within so many blocks of it, across and down.</summary>

@@ -49,12 +49,6 @@ public static class RoomDepth
     /// </summary>
     public const int Player = 5;
 
-    /// <summary>
-    /// What is launched and left in the room in play: shots, what a shot or a death leaves, what is dropped. In
-    /// front of the player and behind what the player passes behind. A thing of these kinds that has a place of its
-    /// own takes that in its stead.
-    /// </summary>
-    public const int Launched = 7;
 
     /// <summary>In front of the player: what they pass behind, as a door's shutter or an enemy that stands in front of them.</summary>
     public const int InFrontOfThings = 10;
@@ -62,8 +56,12 @@ public static class RoomDepth
     /// <summary>In front of what stands in front of the player.</summary>
     public const int Frontmost = 12;
 
-    /// <summary>In front of everything standing in the room, what stands frontmost too, and behind the room's own front.</summary>
-    public const int InFrontOfAllThings = 13;
+    /// <summary>
+    /// What is launched and left in the room in play: shots, what a shot or a death leaves, what is dropped. In
+    /// front of everything standing in the room, what stands frontmost too, and behind the room's own front. A thing
+    /// of these kinds that is told where it stands takes that place in its stead.
+    /// </summary>
+    public const int Launched = 13;
 
     /// <summary>
     /// The part of the picture behind the room that lies in front of the things standing in it, which a backdrop
@@ -93,7 +91,7 @@ public static class RoomDepth
         Standing.InFront => InFrontOfThings,
         Standing.Frontmost => Frontmost,
         Standing.Hindmost => BehindAllThings,
-        Standing.Foremost => InFrontOfAllThings,
+        Standing.Foremost => Launched,
         _ => throw new ArgumentOutOfRangeException(nameof(standing), standing, "Undefined standing."),
     };
 

@@ -34,7 +34,8 @@ public enum Standing
 
     /// <summary>
     /// In front of everything standing in the room, the frontmost of it too, whenever each came into the room: where
-    /// something launched lies that is drawn over all the room's own things.
+    /// something launched lies that is drawn over all the room's own things, which is where what is launched and
+    /// left lies when nothing says otherwise.
     /// </summary>
     Foremost,
 }

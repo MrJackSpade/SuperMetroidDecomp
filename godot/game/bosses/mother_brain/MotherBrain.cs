@@ -649,9 +649,9 @@ public partial class MotherBrain : Enemy, IClosingStep
     /// Leaves an effect that is one of the enemies' shots on the cartridge: it holds one of the room's places while it
     /// plays, and with none free it is not made. Returns it, or null when it was not made.
     /// </summary>
-    private Effect? LeaveHoldingPlace(string effect, PixelPosition at)
+    private Effect? LeaveHoldingPlace(string effect, PixelPosition at, Standing? standing = null)
     {
-        Effect made = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true);
+        Effect made = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true, standing: standing);
         return Room.Spawn(made) ? made : null;
     }
 

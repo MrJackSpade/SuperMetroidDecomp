@@ -544,7 +544,8 @@ public partial class MotherBrain : ITriggerTarget
                 effect = roll < 2 ? ExplosionEffect : roll < 7 ? SmokeEffect : BigExplosionEffect;
             }
 
-            if (effect.Length > 0 && LeaveHoldingPlace(effect, Position + group[place]) is { } blast)
+            // The blasts of her death lie behind everything that stands in the room, as the cartridge draws them.
+            if (effect.Length > 0 && LeaveHoldingPlace(effect, Position + group[place], Standing.Hindmost) is { } blast)
                 _bodyBlasts.Add((blast, group[place]));
             Sound(ExplosionSound, SoundPriority.Low);
         }

@@ -686,10 +686,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _replacement = null;
     }
 
-    /// <summary>Leaves an effect in the room at <paramref name="at"/>, by the data file of its timeline.</summary>
-    protected Effect LeaveEffect(string file, PixelPosition at)
+    /// <summary>
+    /// Leaves an effect in the room at <paramref name="at"/>, by the data file of its timeline; standing where
+    /// <paramref name="standing"/> says, or where what is launched and left lies.
+    /// </summary>
+    protected Effect LeaveEffect(string file, PixelPosition at, Standing? standing = null)
     {
-        Effect effect = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(file)), at);
+        Effect effect = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(file)), at, standing: standing);
         Room.Spawn(effect);
         return effect;
     }

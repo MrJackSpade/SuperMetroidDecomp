@@ -105,6 +105,7 @@ public sealed partial class EngineAssetWriter
                     ["meeting_target"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
                     ["met_by_shot"] = "ignored",
                     ["view_margin"] = -1,
+                    ["standing"] = EngineEnemy.StandingOf(old),
 
                     // A piece starts with its top in the hall's ceiling. It meets the room's blocks as the cartridge's
                     // enemy shots do: by the side it leads with, where each move ends.

@@ -721,6 +721,8 @@ public sealed partial class EngineAssetWriter
                 ["meeting_terrain"] = "passes_through",
                 ["meeting_target"] = beams.HasPlasma ? "passes_through_and_rehits" : "ends",
                 ["view_margin"] = -1,
+                // A light of a special attack is a shot of hers, and lies where her shots do.
+                ["standing"] = "just_behind",
                 ["timeline"] = timeline,
             },
         });
@@ -765,6 +767,7 @@ public sealed partial class EngineAssetWriter
                     ["meeting_terrain"] = "passes_through",
                     ["meeting_target"] = beams.HasPlasma ? "passes_through_and_rehits" : "ends",
                     ["view_margin"] = -1,
+                    ["standing"] = "just_behind",
                     ["timeline"] = timeline,
                 },
             });
@@ -797,6 +800,8 @@ public sealed partial class EngineAssetWriter
                 ["meeting_terrain"] = "passes_through",
                 ["meeting_target"] = echoes.HasPlasma ? "passes_through_and_rehits" : "ends",
                 ["view_margin"] = -1,
+                // An echo is a shot of hers, and lies where her shots do.
+                ["standing"] = "just_behind",
             },
         });
     }

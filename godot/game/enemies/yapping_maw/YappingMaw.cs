@@ -380,8 +380,9 @@ public partial class YappingMaw : Enemy
         Engine.Actors.Player samus = Room.Player;
         samus.Position = new PixelPosition(samus.Position.X.WithWhole(at.X.Whole), samus.Position.Y.WithWhole(at.Y.Whole));
 
-        // Each placing drops a grapple she has out.
+        // Each placing drops a grapple she has out, and holds the view to following her by twelve pixels and one more.
         (samus as Samus)?.Grapple?.Release();
+        Room.Session.Camera.CapFollowOfPlacedPlayer(samus.Position, Samus.PlacedViewCap);
     }
 
     /// <summary>Lets Samus go, if it holds her.</summary>

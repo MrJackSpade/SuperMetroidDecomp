@@ -678,6 +678,12 @@ public partial class Samus : Player
         }
     }
 
+    /// <summary>
+    /// How far, in whole pixels, the view takes her to have moved at most on an update something that holds her has
+    /// placed her: a Yapping Maw, or Draygon.
+    /// </summary>
+    public const int PlacedViewCap = 12;
+
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
 

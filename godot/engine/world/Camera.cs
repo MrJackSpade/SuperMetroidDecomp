@@ -127,6 +127,25 @@ public sealed class Camera
     public void TakePlayerToHaveStoodAtY(int y) => _trackedYWritten = y;
 
     /// <summary>
+    /// Caps how fast the view follows a player something has placed at <paramref name="now"/> this update: along each
+    /// way they stand at least <paramref name="most"/> whole pixels from where the view takes them to have stood,
+    /// they are taken to have stood exactly that far off, so that the view follows by that and its one pixel more.
+    /// A view that has tracked nothing since it was placed is left as it is.
+    /// </summary>
+    public void CapFollowOfPlacedPlayer(PixelPosition now, int most)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(most);
+        if (_tracked is not { } tracked)
+            return;
+        int down = now.Y.Whole - (_trackedYWritten ?? tracked.Y.Whole);
+        if (Math.Abs(down) >= most)
+            _trackedYWritten = now.Y.Whole + Math.Sign(down) * most;
+        int across = now.X.Whole - (_trackedXWritten ?? tracked.X.Whole);
+        if (Math.Abs(across) >= most)
+            _trackedXWritten = now.X.Whole + Math.Sign(across) * most;
+    }
+
+    /// <summary>
     /// Follows the player for one update, across and then down.
     /// </summary>
     /// <param name="atUpdateStart">Where the player stood as this update began: what the view tracks from when it has tracked nothing since it was placed.</param>

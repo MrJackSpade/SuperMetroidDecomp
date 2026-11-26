@@ -703,7 +703,6 @@ public partial class Phantoon : Enemy
         return --_wait == 0;
     }
 
-    /// <summary>Shuts its eye after it has taken enough, and sends it off by the given way out.</summary>
     /// <summary>Puts the wall where the room's door is and its cap out of sight, or takes the wall away and shows the cap again.</summary>
     private void SetFightDoor(bool walled)
     {
@@ -719,6 +718,7 @@ public partial class Phantoon : Enemy
         }
     }
 
+    /// <summary>Shuts its eye after it has taken enough, and sends it off by the given way out.</summary>
     private void CloseAfterDamage(Phase wayOut)
     {
         _phase = wayOut;

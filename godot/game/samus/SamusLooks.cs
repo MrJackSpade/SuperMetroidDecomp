@@ -21,6 +21,7 @@ public static class SamusLooks
         TurningState { Crouched: true } => "crouching",
         UsingStationState { FacingOut: true } => "facing_forward",
         StandingState => "standing",
+        WallStoppedState => "wall_stopped",
         RunningState => "running",
         TurningState => "turning",
         CrouchingState => "crouching",

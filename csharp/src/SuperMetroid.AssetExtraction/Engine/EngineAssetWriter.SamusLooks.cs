@@ -225,6 +225,11 @@ public sealed partial class EngineAssetWriter
         Look("standing", "diagonal_up", P.StandingAimDiagonalUpRightPose, P.StandingAimDiagonalUpLeftPose);
         Look("standing", "diagonal_down", P.StandingAimDiagonalDownRightPose, P.StandingAimDiagonalDownLeftPose);
 
+        // Stopped against a wall she has run into, level and aiming diagonally up and down.
+        Look("wall_stopped", null, P.RanIntoWallRightPose, P.RanIntoWallLeftPose);
+        Look("wall_stopped", "diagonal_up", P.RanIntoWallAimUpRightPose, P.RanIntoWallAimUpLeftPose);
+        Look("wall_stopped", "diagonal_down", P.RanIntoWallAimDownRightPose, P.RanIntoWallAimDownLeftPose);
+
         Look("running", null, P.MovingRightNormalPose, P.MovingLeftNormalPose);
         Look("running", "diagonal_up", P.RunningAimDiagonalUpRightPose, P.RunningAimDiagonalUpLeftPose);
         Look("running", "diagonal_down", P.RunningAimDiagonalDownRightPose, P.RunningAimDiagonalDownLeftPose);
@@ -438,6 +443,7 @@ public sealed partial class EngineAssetWriter
         Passing("wall_jump_screw", "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
 
         Passing("standing", "crouching", P.CrouchingTransitionRightPose, P.CrouchingTransitionLeftPose);
+        Passing("wall_stopped", "crouching", P.CrouchingTransitionRightPose, P.CrouchingTransitionLeftPose);
         Passing("crouching", "standing", P.StandingTransitionRightPose, P.StandingTransitionLeftPose);
         foreach (string from in new[] { "crouching", "falling", "jumping" })
             Passing(from, "morph_ball", P.MorphingTransitionRightPose, P.MorphingTransitionLeftPose);

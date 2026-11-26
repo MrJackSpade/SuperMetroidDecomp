@@ -120,7 +120,8 @@ public sealed class SurfaceCrawl
     /// meets such ground under its middle alone. So it crosses a slope on the picture of the floor or ceiling it is
     /// on, and turns only at a wall, a step or the end of its surface.
     /// </summary>
-    private static readonly MoveOptions Moves = MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle };
+    private static readonly MoveOptions Moves =
+        MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
 
     /// <summary>
     /// Moves <paramref name="mover"/> for one update. With <paramref name="pursued"/> given, a crawler that is free to

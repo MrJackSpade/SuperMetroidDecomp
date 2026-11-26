@@ -225,8 +225,9 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
                     int solidPixels = slope.SolidAt(middle - left);
                     if (down > 0 && !slope.FromTop && y >= top + size - solidPixels - 1)
                         return new EdgeStop(true, y - (top + size - solidPixels - 1), true) { Tile = tile };
+                    // A ceiling's stop says how far back its surface lies, for a mover that rests against it.
                     if (down < 0 && slope.FromTop && y <= top + solidPixels)
-                        return new EdgeStop(true, null, true) { Tile = tile };
+                        return new EdgeStop(true, top + solidPixels - y, true) { Tile = tile };
                     continue;
                 }
 

@@ -206,7 +206,10 @@ public sealed class Mover
         // takes back, and never backwards.
         if (stop.KeepsFraction)
         {
-            int kept = stop.Back is { } taken && step > 0 ? Math.Max(0, tried.Whole - taken) : 0;
+            // Going up it stays where it began, unless its move rests it against what it came up under.
+            int kept = stop.Back is not { } taken ? 0
+                : step > 0 ? Math.Max(0, tried.Whole - taken)
+                : options.RestsUnderSlopes ? Math.Min(0, shift + taken) : 0;
             return start + Pixels.FromWhole(kept);
         }
 

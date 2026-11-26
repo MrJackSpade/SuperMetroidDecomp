@@ -30,6 +30,13 @@ public sealed record MoveOptions
     /// </summary>
     public bool TriesFromRight { get; init; }
 
+    /// <summary>
+    /// For a move up tried only where it ends, that reaches a ceiling's slope which holds things by their middle:
+    /// whether the body is brought up to rest against the slope's surface, however far that is short of the move, as
+    /// the cartridge's enemies are, and not left where the move began, as the player is.
+    /// </summary>
+    public bool RestsUnderSlopes { get; init; }
+
     /// <summary>Whether solid colliders stop the move, other than those that stand as part of the room.</summary>
     public bool StoppedBySolids { get; init; } = true;
 

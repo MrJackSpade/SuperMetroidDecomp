@@ -224,6 +224,14 @@ public sealed class CrawlingState : PlayerState
         owner.ComeToRest();
     }
 
-    /// <summary>Left and right held together are read as rightward, whichever way the player faces.</summary>
-    public override int ReadsBothAcross(Player owner) => 1;
+    /// <summary>
+    /// Left and right held together: on the ground they are read as rightward, whichever way the player faces. In
+    /// the air a low form that cannot jump reads them as the way ahead; one that can reads them as neither through a
+    /// jump of its own, and as the way behind while it falls or bounces.
+    /// </summary>
+    public override int ReadsBothAcross(Player owner) =>
+        !_airborne ? 1
+        : !owner.MayJumpWhileCrawling ? Forward(owner)
+        : _jumping && _bounces == 0 ? 0
+        : -Forward(owner);
 }

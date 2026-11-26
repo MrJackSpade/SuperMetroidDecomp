@@ -620,6 +620,9 @@ public partial class Samus : Player
             Flare?.ReadValues(flare);
         }
 
+        if (data.Has("arm_cannon"))
+            GetNodeOrNull<SamusVisual>("Visual")?.ReadArmCannon(data.Get("arm_cannon"));
+
         SpecialAttackShots = [];
         if (data.Has("special_attacks"))
         {

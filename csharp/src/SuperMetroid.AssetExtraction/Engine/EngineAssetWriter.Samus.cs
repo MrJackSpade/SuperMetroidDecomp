@@ -488,9 +488,12 @@ public sealed partial class EngineAssetWriter
 
         var timelines = new JsonObject();
         var heights = new JsonObject();
-        WriteSamusLooks(timelines, heights);
+        var coverPlaces = new JsonObject();
+        var coverAims = new HashSet<SamusProjectileDirection>();
+        WriteSamusLooks(timelines, heights, coverPlaces, coverAims);
         WriteSamusColours();
         file.Group("shot_heights", heights);
+        file.Group("arm_cannon", ArmCannonWritten(coverPlaces, [.. coverAims.Order()]));
         foreach ((string name, JsonNode? timeline) in timelines.ToList())
         {
             timelines.Remove(name);

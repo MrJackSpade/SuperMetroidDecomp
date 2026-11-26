@@ -39,12 +39,71 @@ public partial class SamusVisual : Node2D
     private int _nextEcho;
     private int _echoesLeaving;
 
+    /// <summary>Where the arm cannon's cover lies at one step of a timeline: from her place, the way it aims, and whether in front of her body.</summary>
+    private readonly record struct CoverPlace(Vector2I At, string Aim, bool InFront);
+
+    /// <summary>The arm cannon's cover, once her data has been read; none before.</summary>
+    private ActorVisual? _cover;
+    private int _coverSteadyUpdates;
+    private Vector2I _coverOffset;
+    private readonly HashSet<string> _coverOpenedBy = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string[]> _coverPictures = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, CoverPlace?[]> _coverPlaces = new(StringComparer.Ordinal);
+
+    /// <summary>What she had selected as the cover last looked, and how many updates more it must stay so before the cover may move.</summary>
+    private string _coverSelected = "";
+    private int _coverUnsteady;
+
+    /// <summary>The cover's picture, from slightly open to fully open, or -1 while it is closed; and whether it is opening (1), closing (-1) or still (0).</summary>
+    private int _coverPicture = -1, _coverMoving;
+
+    /// <summary>
+    /// Reads the arm cannon's cover from her data ("arm_cannon"): "steady_updates", how many updates what she has
+    /// selected must stay as it is before the cover opens or closes, the changing update counted; "opened_by", the
+    /// selections that open it; "pictures", by the way it aims, slightly, half and fully open; "offset", where a
+    /// picture's corner lies from the cover's place; and "places", by timeline, a group for each of its steps, empty
+    /// where the step shows no cover, and otherwise its "x" and "y" from her place, its "aim" and whether it lies
+    /// "in_front" of her body.
+    /// </summary>
+    public void ReadArmCannon(DataNode data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        _coverSteadyUpdates = data.Int("steady_updates");
+        _coverOffset = new Vector2I(data.Get("offset").Int("x"), data.Get("offset").Int("y"));
+        _coverOpenedBy.Clear();
+        foreach (DataNode item in data.List("opened_by"))
+            _coverOpenedBy.Add(item.AsText());
+        _coverPictures.Clear();
+        foreach ((string aim, DataNode pictures) in data.Get("pictures").Entries())
+            _coverPictures[aim] = [.. pictures.Items().Select(picture => picture.AsText())];
+        if (_coverPictures.Values.Select(pictures => pictures.Length).Distinct().Count() != 1)
+            throw data.Problem("gives the cover's aims different numbers of pictures, or none");
+        _coverPlaces.Clear();
+        foreach ((string timeline, DataNode steps) in data.Get("places").Entries())
+        {
+            _coverPlaces[timeline] = [.. steps.Items().Select(step => step.Has("aim")
+                ? new CoverPlace(new Vector2I(step.Int("x"), step.Int("y")), step.Text("aim"), step.Flag("in_front"))
+                : (CoverPlace?)null)];
+        }
+
+        (_coverSelected, _coverUnsteady, _coverPicture, _coverMoving) = ("", _coverSteadyUpdates, -1, 0);
+        if (_cover is null)
+        {
+            // Behind her body to begin with, in front of her echoes.
+            _cover = new ActorVisual { Name = "ArmCannon", Visible = false };
+            AddChild(_cover);
+            if (GetNodeOrNull<ActorVisual>("Picture") is { } picture)
+                MoveChild(_cover, picture.GetIndex());
+        }
+    }
+
     /// <summary>Shows <paramref name="samus"/> as she is at the end of this update.</summary>
     public void Show(Samus samus)
     {
         ActorVisual? picture = GetNodeOrNull<ActorVisual>("Picture");
         if (picture is null)
             return;
+        StepCover(samus);
 
         string look = SamusLooks.Of(samus);
         string name = TimelineFor(samus, look);
@@ -76,6 +135,7 @@ public partial class SamusVisual : Node2D
         {
             _shown = null;
             picture.Show("");
+            _cover?.Show("");
             return;
         }
 
@@ -96,6 +156,7 @@ public partial class SamusVisual : Node2D
                 {
                     _shown = null;
                     picture.Show("");
+                    _cover?.Show("");
                     return;
                 }
 
@@ -113,6 +174,11 @@ public partial class SamusVisual : Node2D
         // After a hit she flickers, hidden on the clock's odd updates and shown on its even ones, but not while she
         // is thrown back or reads as holding a shine.
         picture.SetShown(!samus.IsInvincible || samus.Room.Session.Clock.Updates % 2 == 0 || samus.State is KnockedBackState || samus.Thrown is not null || samus.ReadsAsHoldingShine);
+
+        // The cover is not shown on an elevator's ride, which draws her body alone, and it flickers after a hit
+        // whatever she is doing.
+        ShowCover(samus, picture, samus.State is RidingElevatorState ? "" : _playing, ShowsStride(samus) ? samus.StridePicture : _player.StepIndex,
+            !samus.IsInvincible || samus.Room.Session.Clock.Updates % 2 == 0);
         StepEchoes(samus, picture);
     }
 
@@ -239,9 +305,66 @@ public partial class SamusVisual : Node2D
 
         picture.SetShown(true);
         picture.Tint(Colors.White);
+        _cover?.Show("");
         ClearEchoes();
         foreach (string echo in (string[])["Echo1", "Echo2"])
             GetNodeOrNull<ActorVisual>(echo)?.Show("");
+    }
+
+    /// <summary>
+    /// Moves the arm cannon's cover on by one update, as the cartridge does every update she is shown. A change of
+    /// what she has selected starts the wait again; once it is over, a cover not open or opening while what she has
+    /// selected opens it begins to open, showing its first picture, and one open while nothing selected opens it
+    /// begins to close, showing its last; a cover opening or closing shows its next picture each update, until open
+    /// or closed, and is not looked at again until then.
+    /// </summary>
+    private void StepCover(Samus samus)
+    {
+        if (_cover is null)
+            return;
+        if (samus.Selected != _coverSelected)
+            (_coverSelected, _coverUnsteady) = (samus.Selected, _coverSteadyUpdates - 1);
+        else if (_coverUnsteady > 0)
+            _coverUnsteady--;
+
+        int open = _coverPictures.Values.First().Length - 1;
+        if (_coverMoving != 0)
+        {
+            _coverPicture += _coverMoving;
+            if (_coverPicture == open || _coverPicture < 0)
+                _coverMoving = 0;
+            return;
+        }
+
+        bool opens = _coverOpenedBy.Contains(_coverSelected);
+        if (_coverUnsteady > 0 || opens == _coverPicture >= 0)
+            return;
+        (_coverPicture, _coverMoving) = opens ? (0, 1) : (open, -1);
+    }
+
+    /// <summary>
+    /// Shows the arm cannon's cover where step <paramref name="step"/> of the timeline named <paramref name="timeline"/>
+    /// places it, in front of her body or behind it, in her colours; or nothing, while it is closed or the step shows
+    /// no cover.
+    /// </summary>
+    private void ShowCover(Samus samus, ActorVisual picture, string timeline, int step, bool shown)
+    {
+        if (_cover is not { } cover)
+            return;
+        if (_coverPicture < 0 || !_coverPlaces.TryGetValue(timeline, out CoverPlace?[]? places) || places[step] is not { } place)
+        {
+            cover.Show("");
+            return;
+        }
+
+        // Moved to the other side of her picture when it lies the other way.
+        if (cover.GetIndex() > picture.GetIndex() != place.InFront)
+            MoveChild(cover, picture.GetIndex());
+        cover.PictureOffset = _coverOffset;
+        cover.Position = place.At;
+        cover.Show(_coverPictures[place.Aim][_coverPicture]);
+        samus.Colours.ShowOn(cover);
+        cover.SetShown(shown);
     }
 
     /// <summary>Whether her running look is shown by the picture of her stride play is at, rather than played by itself: while she runs, once any pictures passed through on the way into the run are done.</summary>

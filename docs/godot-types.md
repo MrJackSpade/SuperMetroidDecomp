@@ -1177,6 +1177,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   (she faces out of the screen in another pose). Running, the timeline is not played by itself: its step shown is
   the picture of the stride play counts her boost by (`Samus.StridePicture`), so the stride shown quickens through
   the boost's stages as play's does. Her pictures are written once, in their sheet's own colours.
+  `SamusVisual` shows her arm cannon's cover too (her data's "arm_cannon"): with missiles, super missiles or the
+  grapple beam selected, once what she has selected has stayed so for its updates (the changing one counted), it
+  opens over three updates, a picture each, and with anything else selected it closes the same way back; it moves on
+  every update she is shown, the ride of an elevator included. Each step of each of her timelines says where it lies
+  from her place, the way it aims and whether in front of her body or behind it, or that the step shows none; it is
+  in her colours, flickers after a hit, and is not shown on an elevator's ride or in her death.
 - **The view's measure of her last move across** (`Camera.Speed`) is one pixel whenever the session's game starts
   afresh and its player is a new one (`GameSession.BeginAgain`, `Camera.TakePlayerAsNew`): what reads it before
   the view next follows a move, as a kicked Yard does, reads that.

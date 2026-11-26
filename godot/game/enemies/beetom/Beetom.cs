@@ -296,8 +296,14 @@ public partial class Beetom : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (Room.Player.IsInvincible)
+        // As every enemy's touch on the cartridge, it meets a Samus still safe from her last hurt only while her body is
+        // a weapon, and that meeting ends her safety.
+        Engine.Actors.Player samus = Room.Player;
+        bool bodyIsWeapon = samus.BodyPowers.Any(power => power.IsActive);
+        if (samus.IsInvincible && !bodyIsWeapon)
             return;
+        if (bodyIsWeapon)
+            samus.BeInvincibleFor(0);
         if (!_clings)
         {
             _heading = Facing;

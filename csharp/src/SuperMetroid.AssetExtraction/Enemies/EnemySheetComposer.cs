@@ -56,7 +56,7 @@ internal static partial class EnemySheetComposer
         // so which set first lays a shared sheet, and so the sheets' order, stays the same on every install.
         RoomEnemyGraphicsSetDefinition[] drawnSets = [.. RoomEnemyGraphicsSetLists.DrawnUnder];
         var setLayouts = new SetLayouts[drawnSets.Length];
-        Parallel.For(0, drawnSets.Length, index =>
+        InstallationWork.For(0, drawnSets.Length, index =>
         {
             RoomEnemyGraphicsSetDefinition set = drawnSets[index];
             GraphicsSetSheetSources setSources = Sources(inputs, set);
@@ -75,7 +75,7 @@ internal static partial class EnemySheetComposer
                     spawned.Source.LookChanges, spawned.Source.CorpsePictures, spawned.Source.Empty))]));
         }
         var installed = new InstalledSheet[layouts.Count];
-        Parallel.For(0, layouts.Count, () => new InstalledSheetPainter(), (index, _, painter) =>
+        InstallationWork.For(0, layouts.Count, () => new InstalledSheetPainter(), (index, _, painter) =>
         {
             installed[index] = painter.Install(layouts[index]);
             return painter;

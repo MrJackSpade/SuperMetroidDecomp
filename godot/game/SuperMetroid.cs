@@ -19,6 +19,11 @@ public partial class SuperMetroid : GameDefinition
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => Data.Actions.StandardBindings;
 
+#if GODOT_ANDROID
+    /// <summary>On a handheld the game makes its own assets, from the ROM the player chooses.</summary>
+    public override Engine.Content.AssetsMaker? AssetsMaker => new RomAssets();
+#endif
+
     /// <summary>The game starts on its title screen.</summary>
     public override GameMode CreateFirstMode() => FirstMode is null ? new Menus.TitleMode() : base.CreateFirstMode();
 

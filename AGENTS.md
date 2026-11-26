@@ -23,6 +23,11 @@
   rebirth code bases"; and of the ticket that would have deleted the old code (#2910, closed):
   "I was going to keep them on different branches but two artifacts on the same branch is a lot
   easier."
+- The Rebirth APK makes its assets on the device. The owner's words, 2026-11-25: "Youll also
+  need to make sure the new APK handles the asset extraction properly on android". The Android
+  build alone carries the asset extractor and calls it once, through `Game.RomAssets`; see the
+  manifesto's section 1 for what that means for "no references to the old code". No other
+  build carries it, and nothing else of the Godot project touches it.
 - 0.9.x is still in testing: new 0.9.x bugs may arrive, in new milestones of their own, and
   they are fixed in `csharp/`. Apart from those the old code is frozen as a reference.
 - The asset extractor reads the old code's definitions. The plan to make it self-contained

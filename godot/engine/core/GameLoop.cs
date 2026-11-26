@@ -63,15 +63,37 @@ public partial class GameLoop : Node
                 ?? throw new InvalidOperationException($"\"{path}\" is not a game definition.");
 
 #if !TOOLS
-            // An exported game with no assets installed says where they belong and starts nothing: there is nothing
-            // of the game it could show.
-            if (!Directory.Exists(ContentLibrary.InstalledFolder))
+            // An exported game with no assets installed has nothing of the game to show. One whose definition says
+            // how its assets are made has them made first, when there are none or they are another version's, and
+            // begins after; any other says where they belong and starts nothing.
+            if (definition.AssetsMaker is { } maker)
+            {
+                if (AssetsSetup.IsNeeded(maker, ContentLibrary.InstalledFolder))
+                {
+                    AddChild(AssetsSetup.Of(maker, ContentLibrary.InstalledFolder, () => Begin(definition)));
+                    return;
+                }
+            }
+            else if (!Directory.Exists(ContentLibrary.InstalledFolder))
             {
                 ShowNoAssets(ContentLibrary.InstalledFolder);
                 return;
             }
 #endif
 
+            Begin(definition);
+        }
+        catch (Exception exception)
+        {
+            Fail(exception);
+        }
+    }
+
+    /// <summary>Begins the game the project names, played from the player's devices, its assets being there.</summary>
+    private void Begin(GameDefinition definition)
+    {
+        try
+        {
             var actions = GameAction.Standard.Concat(definition.Actions.Select(name => new GameAction(name))).ToList();
             Options options = Options.Load(ProjectSettings.GlobalizePath("user://options.json"));
             options.AddMissingBindings(definition.StandardBindings);

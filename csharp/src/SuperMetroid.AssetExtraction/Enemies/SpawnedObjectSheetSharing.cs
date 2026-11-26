@@ -24,7 +24,7 @@ internal static partial class SpawnedObjectSheetSharing
     {
         Ensure.NotNull(layouts);
         var painted = new PaintedSheet[layouts.Count];
-        Parallel.For(0, layouts.Count, () => new SpriteSheetCanvas(), (index, _, canvas) =>
+        InstallationWork.For(0, layouts.Count, () => new SpriteSheetCanvas(), (index, _, canvas) =>
         {
             painted[index] = PaintedSheet.Paint(layouts[index], canvas);
             return canvas;
@@ -76,7 +76,7 @@ internal static partial class SpawnedObjectSheetSharing
         }
         PictureSheetPlan[] plans = [.. common, .. own.OfType<PictureSheetPlan>()];
         var installed = new InstalledSheet[plans.Length];
-        Parallel.For(0, plans.Length, () => new InstalledSheetPainter(), (index, _, painter) =>
+        InstallationWork.For(0, plans.Length, () => new InstalledSheetPainter(), (index, _, painter) =>
         {
             installed[index] = painter.Install(plans[index].Layout());
             return painter;

@@ -11,6 +11,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup Condition=" '$(GodotTargetPlatform)' == 'android' ">
+    <!-- The Android game makes its own assets on the device, so it alone carries the asset extractor. Game.RomAssets,
+         which is built into the Android game alone, is the one thing that calls it. -->
+    <ProjectReference Include="../csharp/src/SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <!-- System.Threading has a Barrier of its own; the engine's Barrier is the one meant everywhere in this project. -->
     <Using Remove="System.Threading" />

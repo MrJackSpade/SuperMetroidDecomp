@@ -31,6 +31,12 @@ public partial class GameDefinition : Resource
     /// </summary>
     public virtual Dictionary<string, List<string>> StandardBindings => [];
 
+    /// <summary>
+    /// How an exported game that starts with no assets has them made from a file the player supplies
+    /// (<see cref="AssetsSetup"/>); null for a game that only says where its assets belong. None, unless the game says.
+    /// </summary>
+    public virtual Content.AssetsMaker? AssetsMaker => null;
+
     /// <summary>The number a new session's random sequence starts from.</summary>
     [Export]
     public uint RandomSeed { get; set; } = 1;

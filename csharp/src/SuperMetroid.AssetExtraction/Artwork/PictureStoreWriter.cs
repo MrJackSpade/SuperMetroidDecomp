@@ -159,7 +159,7 @@ internal static partial class PictureStoreWriter
         Directory.CreateDirectory(directory);
         // PNG compression is the slow part; each worker reuses one encoder's buffers for every page it encodes, and each
         // page goes to its own file, so the files are the same as writing the pages one by one.
-        Parallel.For(0, pages.Count, () => new RgbaPngBuffers(), (page, _, png) =>
+        InstallationWork.For(0, pages.Count, () => new RgbaPngBuffers(), (page, _, png) =>
         {
             WritePage(directory, page, pages[page], onPage[page], placements, png);
             return png;
@@ -197,7 +197,7 @@ internal static partial class PictureStoreWriter
     {
         // Each place holds its sheet's name with its manifest, so the manifests keep the sheets' order.
         var manifests = new KeyValuePair<string, byte[]>[sheets.Length];
-        Parallel.For(0, sheets.Length, index =>
+        InstallationWork.For(0, sheets.Length, index =>
         {
             SheetPictures sheet = sheets[index];
             manifests[index] = KeyValuePair.Create(sheet.Sheet.Name, Manifest(sheet, placements));

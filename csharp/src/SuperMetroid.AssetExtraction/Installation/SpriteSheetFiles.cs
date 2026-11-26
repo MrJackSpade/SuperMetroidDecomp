@@ -61,7 +61,7 @@ public static partial class SpriteSheetFiles
         IReadOnlyList<SpriteSheetId> sheets = SpriteSheetDefinitions.Sheets;
         // Each place holds its sheet's name with its composition.
         var composed = new NamedComposedSheet[sheets.Count];
-        Parallel.For(0, sheets.Count, index =>
+        InstallationWork.For(0, sheets.Count, index =>
         {
             SpriteSheetId sheet = sheets[index];
             if (sheet != SpriteSheetId.EscapeTimer)

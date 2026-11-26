@@ -21,7 +21,7 @@ internal sealed partial record InstalledSheetFamily(string Directory, IReadOnlyL
     {
         Ensure.NotNull(sheets);
         var installed = new NamedInstalledSheet[sheets.Count];
-        Parallel.For(0, sheets.Count, index =>
+        InstallationWork.For(0, sheets.Count, index =>
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
             installed[index] = new NamedInstalledSheet(sheets[index].Name,

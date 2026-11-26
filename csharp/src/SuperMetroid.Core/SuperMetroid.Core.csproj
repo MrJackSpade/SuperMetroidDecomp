@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- The Godot game's Android build makes its assets on the device, with the extractor beside it in the app.
+         Godot's Android template runs .NET 9, so for that build alone this is built for it. -->
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
   </PropertyGroup>
 </Project>

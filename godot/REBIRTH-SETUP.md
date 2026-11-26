@@ -12,8 +12,8 @@ pictures, no sound. Its assets are made on your computer from your own ROM, once
    SuperMetroidRebirthAssets.exe "C:\path\to\your\Super Metroid.smc"
    ```
 
-   It reads the ROM, never changes it, and writes a folder named `assets` beside itself. That takes about a
-   minute.
+   It reads the ROM, never changes it, and writes a folder named `assets` beside itself, saying each step as it
+   starts.
 3. Start `SuperMetroidRebirth.exe`.
 
 The game looks for `assets` beside `SuperMetroidRebirth.exe` and nowhere else. If it finds none it says so, with
@@ -21,28 +21,26 @@ the folder it looked in, and starts nothing.
 
 ## Android
 
-The assets are made on a computer, as above, and copied to the device.
+The game makes its own assets on the device, the first time it starts.
 
-1. Install the APK.
-2. Start the game once. It shows the folder it reads its assets from, which on most devices is
+1. Copy your ROM to the device, anywhere its file chooser can reach: `Download`, say.
+2. Install the APK and start the game. It says its assets are not installed.
+3. Press any button, or touch the screen. The device's file chooser opens: choose the ROM.
+4. Wait while the assets are made. A bar shows how far the making has come, with the step under way and a count
+   that moves with the work. Leave the game open until it is done: if it is closed part-way, nothing half-made is
+   kept, and the making starts again the next time.
+5. The game begins.
 
-   ```
-   Android/data/org.supermetroid.rebirth/files/Documents/assets
-   ```
-
-   on the device's own storage.
-3. On a computer, make the assets with `SuperMetroidRebirthAssets.exe` from the Windows download, as above.
-4. Copy the `assets` folder it wrote to the folder the game showed, so that the device has
-   `.../files/Documents/assets/rooms`, `.../files/Documents/assets/samus` and the rest. The folder holds some
-   fifty thousand small files, which a file browser copies slowly. With the device plugged in and USB debugging
-   on, `adb` is much quicker:
-
-   ```
-   adb push assets /sdcard/Android/data/org.supermetroid.rebirth/files/Documents/
-   ```
-5. Start the game again.
+Your ROM is read and never changed. The game keeps a copy of it in its own folder on the device, beside its
+assets (`Android/data/org.supermetroid.rebirth/files/Documents`), so that a new version can make its assets again
+without asking. Both go with the game when it is uninstalled.
 
 ## After an update
 
-A new version may read assets the old one did not write. Make them again with the `SuperMetroidRebirthAssets.exe`
-that came with the new version, and replace the `assets` folder.
+A new version may read assets the old one did not write.
+
+- **Windows:** make them again with the `SuperMetroidRebirthAssets.exe` that came with the new version. It replaces
+  the `assets` folder.
+- **Android:** nothing to do. A new version sees that the assets were made by another, and makes them again from
+  the ROM it kept, the first time it starts. To have it ask for a ROM again, clear the game's storage in the
+  device's settings.

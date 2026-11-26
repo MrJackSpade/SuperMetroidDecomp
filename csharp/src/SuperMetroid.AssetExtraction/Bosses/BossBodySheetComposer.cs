@@ -83,7 +83,7 @@ internal static partial class BossBodySheetComposer
         var sheets = new ComposedBossBodySheet[owners.Length];
         try
         {
-            Parallel.For(0, owners.Length, index => sheets[index] = Compose(inputs, owners[index]));
+            InstallationWork.For(0, owners.Length, index => sheets[index] = Compose(inputs, owners[index]));
         }
         catch (AggregateException failure) when (failure.InnerExceptions.Count == 1)
         {

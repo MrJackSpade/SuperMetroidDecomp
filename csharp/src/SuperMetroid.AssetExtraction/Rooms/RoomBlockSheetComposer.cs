@@ -42,7 +42,7 @@ internal static partial class RoomBlockSheetComposer
         // Only the tilesets whose rooms show a turning floor picture one (#1649).
         HashSet<TilesetDefinition> floored = [.. RoomBlockUploads.FloorTilesets()];
         var composedTilesets = new TilesetPictures[order.Length];
-        Parallel.For(0, order.Length, index =>
+        InstallationWork.For(0, order.Length, index =>
         {
             (TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) = order[index];
             IReadOnlyList<SheetShade> shades = RoomSheetShades.Room(inputs, tileset);

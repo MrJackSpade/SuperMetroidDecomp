@@ -354,7 +354,12 @@ it is remembered.
 - Assets never ship with the exported project. They are loaded from the installed assets folder, through
   `ContentLibrary` only: a folder named `assets` beside the exported game's executable, or on Android in the
   game's own folder of the device's storage (`ContentLibrary.InstalledFolder`). An exported game that finds none
-  says where they belong and starts nothing.
+  has them made first, if its definition says how (`GameDefinition.AssetsMaker`): `AssetsSetup` asks the player for
+  the file they are made from, keeps it, has the maker make them, showing how far it has come, and then lets the
+  game begin. It does the same, without asking, when the assets there were made by another version of the maker,
+  so a new version of the game never plays on an old one's assets. One whose definition gives no maker says where
+  its assets belong and starts nothing. This game's Android build makes them on the device from the ROM the player
+  chooses (`Game.RomAssets`); its Windows build has a program beside it that makes them.
 
 **Why, and extending it.** Presentation follows the game and never leads it: the game must play identically with
 the screen off. So everything shown is derived from gameplay state at the end of an update, and nothing shown is

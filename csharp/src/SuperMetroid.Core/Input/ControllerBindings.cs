@@ -155,12 +155,27 @@ public sealed partial class ControllerBindings : IEquatable<ControllerBindings>
             for (int index = 0; index < Actions.Length; index++)
             {
                 ControllerButton button = this[Actions[index]];
-                if (!IsAssignable(button) || seen[..index].Contains(button))
+                if (!IsAssignable(button) || IsAmong(seen[..index], button))
                     return false;
                 seen[index] = button;
             }
             return true;
         }
+    }
+
+    /// <summary>
+    /// Whether <paramref name="button"/> is one of <paramref name="buttons"/>. Compared one by one: the span's own
+    /// search asks more of its element than an enumeration gives on every .NET this is built for.
+    /// </summary>
+    private static bool IsAmong(ReadOnlySpan<ControllerButton> buttons, ControllerButton button)
+    {
+        foreach (ControllerButton one in buttons)
+        {
+            if (one == button)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

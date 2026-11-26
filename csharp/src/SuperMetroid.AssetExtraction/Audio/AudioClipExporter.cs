@@ -94,10 +94,10 @@ internal static partial class AudioClipExporter
         Dictionary<string, SoundEffectProgramScan> scans = catalog.SoundPrograms.ToDictionary(program => program.Id, SoundEffectProgramScan.Scan);
 
         var music = new MusicClipEntry[tracks.Count];
-        Parallel.For(0, tracks.Count, index => music[index] = ExportTrack(catalog, root, files, tracks[index]));
+        InstallationWork.For(0, tracks.Count, index => music[index] = ExportTrack(catalog, root, files, tracks[index]));
 
         var soundEffects = new InstalledSoundEffectClip[effects.Count];
-        Parallel.For(0, effects.Count, index => soundEffects[index] = ExportSoundEffect(catalog, root, files, scans, effects[index]));
+        InstallationWork.For(0, effects.Count, index => soundEffects[index] = ExportSoundEffect(catalog, root, files, scans, effects[index]));
 
         var manifest = new AudioClipManifest(
             AudioClipManifest.CurrentFormatVersion,

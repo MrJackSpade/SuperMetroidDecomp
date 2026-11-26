@@ -236,7 +236,7 @@ public static partial class GameAssetInstaller
         Task.WhenAll(all).ContinueWith(static _ => { }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default)
             .Wait(CancellationToken.None);
         // A component stopped by another's failure reports the cancellation, which is not a failure of its own.
-        Exception[] failures = [.. all.SelectMany(task => task.Exception is { } faulted ? faulted.InnerExceptions : [])
+        Exception[] failures = [.. all.SelectMany(IEnumerable<Exception> (task) => task.Exception is { } faulted ? faulted.InnerExceptions : [])
             .Where(error => error is not OperationCanceledException)];
         if (failures.Length == 1)
             System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(failures[0]).Throw();

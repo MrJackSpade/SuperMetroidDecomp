@@ -18,10 +18,16 @@ internal sealed partial class EngineAssetTree
     /// <summary>The paths written so far, so that writing one twice with different contents is caught.</summary>
     private readonly Dictionary<string, int> _written = new(StringComparer.Ordinal);
 
+    /// <summary>Told how many files have been written, after each; null when nobody watches.</summary>
+    private readonly Action<int>? _onWritten;
+
     /// <summary>A tree rooted at <paramref name="root"/>, which is created if it is not there.</summary>
-    internal EngineAssetTree(string root)
+    /// <param name="root">The directory the tree is in.</param>
+    /// <param name="written">Told how many files have been written, after each; null when nobody watches.</param>
+    internal EngineAssetTree(string root, Action<int>? written = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(root);
+        _onWritten = written;
         Root = Path.GetFullPath(root);
         Directory.CreateDirectory(Root);
     }
@@ -112,5 +118,6 @@ internal sealed partial class EngineAssetTree
         string full = Path.Combine(Root, path.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(full)!);
         File.WriteAllBytes(full, bytes);
+        _onWritten?.Invoke(_written.Count);
     }
 }

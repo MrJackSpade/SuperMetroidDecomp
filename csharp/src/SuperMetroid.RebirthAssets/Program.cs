@@ -1,18 +1,16 @@
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction.Engine;
-using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.RebirthAssets;
 
 /// <summary>
 /// Makes the assets of Super Metroid Rebirth, the Godot game, from the player's own ROM. The game ships with none:
-/// this is run once, beside the game, and writes the folder the game reads them from. For the Android game the folder
-/// it writes is copied to the device.
+/// on Windows this is run once, beside the game, and writes the folder the game reads them from. The Android game
+/// makes its own on the device, by the same door (<see cref="AssetExtraction.Engine.RebirthAssets"/>).
 /// </summary>
 /// <remarks>
 /// Usage: <c>SuperMetroidRebirthAssets &lt;rom&gt; [assets folder]</c>. Without a folder it writes <c>assets</c> beside
-/// itself, which is where the Windows game looks. The ROM is read and never changed; what is made on the way is kept
-/// in a folder of its own under the temporary files and removed when the assets are written.
+/// itself, which is where the Windows game looks. The ROM is read and never changed.
 /// </remarks>
 internal static partial class Program
 {
@@ -35,21 +33,10 @@ internal static partial class Program
 
             string rom = Path.GetFullPath(args[0]);
             string assets = Path.GetFullPath(args.Length == 2 ? args[1] : Path.Combine(AppContext.BaseDirectory, "assets"));
-            string installation = Path.Combine(Path.GetTempPath(), "SuperMetroidRebirthAssets-" + Guid.NewGuid().ToString("N"));
-            try
-            {
-                Console.WriteLine($"Reading {rom}");
-                GameAssetInstaller.Install(rom, installation, progress: new Progress());
-                Console.WriteLine($"Writing the game's assets into {assets}");
-                EngineAssetWriter.Write(installation, assets);
-            }
-            finally
-            {
-                if (Directory.Exists(installation))
-                    Directory.Delete(installation, recursive: true);
-            }
-
-            Console.WriteLine($"Done. Super Metroid Rebirth reads its assets from {assets}");
+            Console.WriteLine($"Reading {rom}");
+            var progress = new Progress();
+            AssetExtraction.Engine.RebirthAssets.Make(rom, assets, progress);
+            Console.WriteLine($"Done: {progress.Files} files. Super Metroid Rebirth reads its assets from {assets}");
             return 0;
         }
         catch (Exception exception)
@@ -59,10 +46,22 @@ internal static partial class Program
         }
     }
 
-    /// <summary>Prints each step of reading the ROM as it starts.</summary>
-    private sealed class Progress : IProgress<string>
+    /// <summary>Prints each step of the making as it starts. The reports come one at a time.</summary>
+    private sealed class Progress : IProgress<RebirthAssetsProgress>
     {
+        private string _printed = "";
+
+        /// <summary>How many files have been written.</summary>
+        internal int Files { get; private set; }
+
         /// <inheritdoc />
-        public void Report(string value) => Console.WriteLine($"  {value}");
+        public void Report(RebirthAssetsProgress value)
+        {
+            Files = value.Files;
+            if (value.Doing == _printed)
+                return;
+            _printed = value.Doing;
+            Console.WriteLine($"  {value.Doing}");
+        }
     }
 }

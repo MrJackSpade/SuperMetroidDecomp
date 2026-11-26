@@ -23,6 +23,9 @@ public partial class Earthquake : RoomEffect
     /// <summary>How far the view is offset this update.</summary>
     public Vector2I ViewOffset { get; private set; }
 
+    /// <summary>Whether a shake has been started and has yet to take its first update: it has its whole length left.</summary>
+    public bool HasJustBegun => IsActive && _left.Remaining == Updates;
+
     /// <summary>The way the view is thrown about.</summary>
     [Export]
     public ShakeWay Way { get; set; } = ShakeWay.Across;

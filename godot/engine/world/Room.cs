@@ -901,6 +901,18 @@ public partial class Room : Node2D
     /// <summary>How hard the room is shaking right now; zero when it is still.</summary>
     public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.Strength ?? 0;
 
+    /// <summary>
+    /// Whether the room has just begun to shake as <paramref name="shake"/> says: a shake of that strength, length
+    /// and way was started on this update and has not yet taken an update of its own. For what answers one kind of
+    /// shake, as it starts, and no other.
+    /// </summary>
+    public bool HasJustBegunShaking(RoomShake shake)
+    {
+        ArgumentNullException.ThrowIfNull(shake);
+        return _roomEffects.OfType<Earthquake>().Any(quake =>
+            quake.HasJustBegun && quake.Strength == shake.Strength && quake.Updates == shake.Updates && quake.Way == shake.Way);
+    }
+
     /// <summary>Starts the room shaking. A room with no earthquake of its own is given one.</summary>
     public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
     {

@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Actors.Movement;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -44,9 +45,18 @@ public partial class Crawler : Enemy
     [Export, DataValue("pursues")]
     public bool Pursues { get; set; }
 
-    /// <summary>The strength of shake at and above which it lets go of its surface.</summary>
-    [Export, DataValue("falls_at_shake")]
-    public int FallsAtShake { get; set; } = 2;
+    /// <summary>
+    /// The shake that makes it let go of its surface, as its data gives it ("falls_with_shake": a super missile
+    /// striking a wall); none where its data gives none. Only that shake does, and only as it begins.
+    /// </summary>
+    private RoomShake? _fallsWith;
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _fallsWith = data.Has("falls_with_shake") ? RoomShake.Read(data.Get("falls_with_shake")) : null;
+    }
 
     private readonly SurfaceCrawl _crawl = new();
 
@@ -72,9 +82,11 @@ public partial class Crawler : Enemy
             return;
         }
 
-        if (Room.ShakeStrength >= FallsAtShake)
-            _crawl.LetGo();
         MoveReport report = _crawl.Step(this, Pursues ? Target : null);
+
+        // The shake it answers lets it go as it begins: it has still crawled this update, and falls from the next.
+        if (_fallsWith is { } shake && Room.HasJustBegunShaking(shake))
+            _crawl.LetGo();
         if (report.ReachedEdge || report.Finished)
             ShowSurface();
     }

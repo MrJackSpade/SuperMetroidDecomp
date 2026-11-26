@@ -72,9 +72,11 @@ public sealed partial class EngineAssetWriter
         ];
         foreach ((string file, EnemyDefinitionId id, CrawlerAnimationFamily family) in kinds)
         {
-            Enemy($"enemies/{file}.json", "Crawler", id).BodyColliders(Ordinary)
-                // It lets go of its surface when the room shakes as hard as a super missile striking a wall shakes it.
-                .Value("falls_at_shake", ShakeStrength(SuperMissileDefinitions.WallImpactEarthquake))
+            EngineEnemy crawler = Enemy($"enemies/{file}.json", "Crawler", id).BodyColliders(Ordinary);
+
+            // It lets go of its surface as the shake of a super missile striking a wall begins, and at no other.
+            crawler.Data["falls_with_shake"] = Shake(SuperMissileDefinitions.WallImpactEarthquake, SuperMissileDefinitions.EarthquakeDuration);
+            crawler
                 .Value("landing_speed", EngineNames.Number(CrawlerMotionDefinitions.DefaultCrawlSpeed.X))
                 // The orange Zoomer is the one that turns toward Samus.
                 .Value("pursues", id == EnemyDefinitionId.OrangeZoomer)
@@ -178,7 +180,8 @@ public sealed partial class EngineAssetWriter
                 ("tilted_left", PuyoSegment.TiltedLeft), ("tilted_right", PuyoSegment.TiltedRight),
                 ("tilted_far_left", PuyoSegment.TiltedFarLeft), ("tilted_far_right", PuyoSegment.TiltedFarRight))
             .Write();
-        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+
             .Value("rows", DeadTorizoCorpseDefinitions.RowCount)
             .Value("sand_rows", DeadTorizoCorpseDefinitions.SandRowCount)
             .Value("sand_lines", DeadTorizoCorpseDefinitions.SandLines)

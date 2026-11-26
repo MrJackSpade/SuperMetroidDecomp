@@ -139,9 +139,10 @@ public partial class WallPirate : Enemy
         if (_doing != Doing.Leaping)
             return;
         // The leap is half an oval, from one wall up and over to the other, its points the cartridge's short products.
-        Position = PixelPosition.FromWhole(
-            _arcCentre.X + CartridgeAngles.CircleSine(_arcAngle + Turns.PerTurn / 2, JumpSpan / 2).Whole,
-            _arcCentre.Y - CartridgeAngles.CircleCosine(_arcAngle, JumpSpan / 4).Whole);
+        // The arc sets only its whole pixels; the parts of a pixel it had are kept, as the cartridge keeps them.
+        Position = new PixelPosition(
+            Position.X.WithWhole(_arcCentre.X + CartridgeAngles.CircleSine(_arcAngle + Turns.PerTurn / 2, JumpSpan / 2).Whole),
+            Position.Y.WithWhole(_arcCentre.Y - CartridgeAngles.CircleCosine(_arcAngle, JumpSpan / 4).Whole));
         int turn = SlowJump ? SlowJumpTurn : FastJumpTurn;
         int shortBy = SlowJump ? SlowJumpShortBy : 0;
         bool right = Wall == Facing.Right;

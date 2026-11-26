@@ -223,14 +223,31 @@ public partial class ChozoStatue : Enemy
             Room.Terrain.ApplyPatch(WayPatch);
     }
 
-    /// <summary>Takes one stride with Samus in its hand, pressing down as far as it strode so that its feet stay on the ground.</summary>
+    /// <summary>
+    /// How its strides are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that
+    /// holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Strides =
+        MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a stride across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions StridesAcross = Strides with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>
+    /// Takes one stride with Samus in its hand, as the cartridge's statue does: across, with sloped ground no part of
+    /// the move; then pressed down as far as it strode, whichever way it walks, so that its feet stay on the ground;
+    /// then put where sloped ground has it under its middle.
+    /// </summary>
     private void Stride(Player samus, int stride, int holdAcross, int holdDown)
     {
         if (stride != 0)
         {
             Collider body = Body ?? throw new InvalidOperationException($"The Chozo statue \"{Name}\" has no body collider to walk with.");
-            Room.Mover.MoveAcross(body, Pixels.FromWhole(stride), MoveOptions.Plain);
-            Room.Mover.MoveDown(body, Pixels.FromWhole(Math.Abs(stride)), MoveOptions.Plain);
+            Room.Mover.MoveAcross(body, Pixels.FromWhole(stride), StridesAcross);
+            Room.Mover.MoveDown(body, Pixels.FromWhole(Math.Abs(stride)), Strides);
+
+            // A move across of no distance meets nothing, and ends as every move across that climbs such ground does.
+            Room.Mover.MoveAcross(body, Pixels.Zero, Strides);
         }
 
         if (_carrying)

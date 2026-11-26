@@ -4,6 +4,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -139,7 +140,59 @@ public sealed partial class EngineAssetWriter
             lead = [.. lead.TakeWhile(beat => beat.ShownFrame is not { Look: DoorCapLook.Cleared })];
         }
 
-        return EngineTimelines.Of<DoorCapShown, SoundEffectId>(lead, cycle, look => CapPicture(own, way, look), static _ => null);
+        JsonObject timeline = EngineTimelines.Of<DoorCapShown, SoundEffectId>(lead, cycle, look => CapPicture(own, way, look), static _ => null);
+
+        // The old cap's collision goes with the look it is drawn in: nearly open, many caps are solid only at their two
+        // end blocks. A timeline that passes through such a look says, step by step, how the cap stands.
+        var middleClear = new Dictionary<string, bool>();
+        foreach (DoorCapShown shown in lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).OfType<DoorCapShown>())
+        {
+            if (shown.Look != DoorCapLook.Cleared)
+                middleClear[CapPicture(own, way, shown)] = HasClearMiddle(own, way, shown);
+        }
+
+        if (middleClear.ContainsValue(true))
+        {
+            foreach (JsonNode? node in timeline["steps"]!.AsArray())
+            {
+                JsonObject step = node!.AsObject();
+                if (!middleClear.TryGetValue(step["picture"]!.GetValue<string>(), out bool ends))
+                    continue;
+                if (step["cues"] is not JsonArray cues)
+                    step["cues"] = cues = [];
+                cues.Add(ends ? $"solid_ends:{CapEndPixels}" : "solid_whole");
+            }
+        }
+
+        return timeline;
+    }
+
+    /// <summary>How many pixels of each end of a nearly open cap are solid: one block of its four.</summary>
+    private const int CapEndPixels = 16;
+
+    /// <summary>
+    /// Whether the old game's draw of a cap in this look leaves its two middle blocks clear, by the table of the draw
+    /// that paints it: a look painted blue or grey is the blue or the grey cap's draw, whatever cap it is.
+    /// </summary>
+    private static bool HasClearMiddle(string own, ColoredDoorOrientation way, DoorCapShown shown)
+    {
+        string painted = shown.Paint switch
+        {
+            DoorCapShownPaint.Own => own,
+            DoorCapShownPaint.Blue => "blue",
+            DoorCapShownPaint.Grey => "grey",
+            _ => throw new InvalidDataException($"A cap is shown in the paint {shown.Paint}, which this does not know."),
+        };
+        IReadOnlyList<RoomCollisionType>? collision = painted switch
+        {
+            "blue" => BlueDoorObjectDrawDefinitions.Collisions.GetValueOrDefault(new BlueDoorCaps.Draw(way, shown.Look)),
+            "grey" => GreyDoorObjectDrawDefinitions.Collisions.GetValueOrDefault(new GreyDoorCaps.Draw(way, shown.Look)),
+            _ => ColoredDoorObjectDrawDefinitions.Collisions.GetValueOrDefault(
+                new ColoredDoorCaps.Draw(Enum.Parse<ColoredDoorColor>(painted, ignoreCase: true), way, shown.Look)),
+        };
+        if (collision is null)
+            throw new InvalidDataException($"The old game has no collision for a {painted} cap facing {way} in the look {shown.Look}.");
+        return collision.SequenceEqual(DoorCapCollisionDefinitions.MiddleClearCap);
     }
 
     /// <summary>

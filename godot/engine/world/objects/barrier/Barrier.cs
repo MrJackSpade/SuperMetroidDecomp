@@ -163,6 +163,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         IsOpen = false;
         _plain = false;
         (_showing, _showingName, _opening) = (null, "", false);
+        _solidWhole = EntityNode.ColliderOf(this, ColliderRole.Solid)?.Rect;
         SetSolid(true);
         if (IsRemembered)
         {
@@ -442,10 +443,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             StandAs(_showing.Current.Cues);
     }
 
-    /// <summary>Stands in the way as a look's step says: blocking or not, and with its solid part so many pixels tall from its top.</summary>
+    /// <summary>
+    /// Stands in the way as a look's step says: blocking or not; with its solid part so many pixels tall from its top
+    /// ("solid_height:"); with only so many pixels at each end of its length solid and its middle letting through
+    /// ("solid_ends:"), or whole again ("solid_whole").
+    /// </summary>
     private void StandAs(IEnumerable<string> cues)
     {
-        const string height = "solid_height:";
+        const string height = "solid_height:", ends = "solid_ends:";
         foreach (string cue in cues)
         {
             if (EntityNode.ColliderOf(this, ColliderRole.Solid) is not { } solid)
@@ -454,7 +459,45 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                 solid.Enabled = cue == "blocking";
             else if (cue.StartsWith(height, StringComparison.Ordinal))
                 solid.Size = new Vector2I(solid.Size.X, int.Parse(cue[height.Length..], System.Globalization.CultureInfo.InvariantCulture));
+            else if (cue.StartsWith(ends, StringComparison.Ordinal))
+                ShapeSolidEnds(int.Parse(cue[ends.Length..], System.Globalization.CultureInfo.InvariantCulture));
+            else if (cue == "solid_whole")
+                ShapeSolidEnds(0);
         }
+    }
+
+    /// <summary>Its solid part as its data sizes it, before any step of a look reshapes it.</summary>
+    private PixelRect? _solidWhole;
+
+    /// <summary>The second of its solid colliders, which is the far end of a solid part that is only its two ends.</summary>
+    private Collider? FarSolid => EntityNode.CollidersOf(this).Where(collider => collider.Role == ColliderRole.Solid).Skip(1).FirstOrDefault();
+
+    /// <summary>
+    /// Makes its solid part only <paramref name="each"/> pixels at each end of its length, down it when it is taller
+    /// than wide and along it otherwise, the middle letting through; or whole again for nought. The far end is a
+    /// solid collider of its own, which a barrier that stands so must have.
+    /// </summary>
+    private void ShapeSolidEnds(int each)
+    {
+        if (EntityNode.ColliderOf(this, ColliderRole.Solid) is not { } near || _solidWhole is not { } whole)
+            return;
+        Collider? far = FarSolid;
+        if (each <= 0)
+        {
+            near.Rect = whole;
+            if (far is not null)
+                far.Enabled = false;
+            return;
+        }
+
+        if (far is null)
+            throw new InvalidOperationException($"The barrier \"{Name}\" is to be solid at its two ends only and has one solid collider.");
+        bool tall = whole.Height >= whole.Width;
+        near.Rect = tall ? new PixelRect(whole.Left, whole.Top, whole.Width, each) : new PixelRect(whole.Left, whole.Top, each, whole.Height);
+        far.Rect = tall
+            ? new PixelRect(whole.Left, whole.Bottom - each, whole.Width, each)
+            : new PixelRect(whole.Right - each, whole.Top, each, whole.Height);
+        far.Enabled = near.Enabled;
     }
 
     private void Sound(string sound)
@@ -468,5 +511,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         foreach (Collider collider in EntityNode.CollidersOf(this))
             collider.Enabled = solid;
+
+        // One with a far end stands whole again, until a step of a look says otherwise.
+        if (FarSolid is not null)
+            ShapeSolidEnds(0);
     }
 }

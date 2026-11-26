@@ -16,6 +16,11 @@ script = ExtResource("3")
 Role = 3
 StandsAsTerrain = true
 
+[node name="SolidFar" type="Node2D" parent="."]
+script = ExtResource("3")
+Role = 3
+StandsAsTerrain = true
+
 [node name="Hurtbox" type="Node2D" parent="."]
 script = ExtResource("3")
 Role = 1

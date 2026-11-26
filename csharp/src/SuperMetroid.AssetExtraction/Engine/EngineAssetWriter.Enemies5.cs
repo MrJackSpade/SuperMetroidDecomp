@@ -235,6 +235,35 @@ public sealed partial class EngineAssetWriter
             .Shot("laser_diagonal", RoomEnemyProjectileKind.WorkRobotLaserDiagonal, RobotLaser);
         foreach ((WorkRobotSegment segment, SuperMetroid.Core.Animation.Animation<WorkRobotSegment> animation) in WorkRobotAnimations.StartingAt)
             robot.Timeline(RobotLook(segment), WorkRobotAnimations.Segments, animation, RobotCue);
+
+        // The glow every powered robot of a room shares, as a powered robot's setup starts it: resting a step on its
+        // last place, then its steps from the first, over and over. Each step is a change of the robot's colours.
+        const string robotFamily = Installation.GameInstallationLayout.EnemySheetDirectoryName;
+        var robotPlaces = new Dictionary<string, IReadOnlyList<string>>
+        {
+            [robot.Folder] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.WorkRobot))],
+        };
+        var glowSteps = new JsonArray();
+        foreach (WorkRobotGlowSegment segment in new[] { WorkRobotGlowSegment.Restarting, WorkRobotGlowSegment.Glowing })
+        {
+            foreach (SuperMetroid.Core.Animation.AnimationBeat<WorkRobotGlowPlace, SuperMetroid.Core.Animation.NoAnimationCue> beat in
+                     WorkRobotGlowAnimations.Segments.Beats(segment))
+            {
+                if (beat is not SuperMetroid.Core.Animation.AnimationBeat<WorkRobotGlowPlace, SuperMetroid.Core.Animation.NoAnimationCue>.Frame shown)
+                    throw new InvalidDataException($"The Work Robots' glow has a beat this does not know: {beat}.");
+                glowSteps.Add(new JsonObject
+                {
+                    ["updates"] = shown.Duration,
+                    ["colours"] = ShadeChange(SuperMetroid.Core.Enemies.WorkRobots.Artwork.WorkRobotShades.Glow(shown.Shown).Key, robotFamily, robotPlaces),
+                });
+            }
+        }
+
+        robot.Group("glow", new JsonObject
+        {
+            ["steps"] = glowSteps,
+            ["loops_to"] = WorkRobotGlowAnimations.Segments.Beats(WorkRobotGlowSegment.Restarting).Count,
+        });
         robot.Write();
     }
 

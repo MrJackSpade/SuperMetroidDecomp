@@ -1110,7 +1110,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   also where the line is laid from; the charge's flare neither shows nor moves on meanwhile.
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
-  takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`), and once that is found
+  takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`); the first update after
+  them that finds it held only begins the cone, which opens from the next. Once the run action is found
   let go it holds her and the room its closing updates more and lets go on the update after
   (`XrayClosingUpdates`). It does not start
   while she settles from a landing (`StandingState.IsSettling`), while she moves up or down, with her grapple beam
@@ -1609,7 +1610,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - Hoppers and the rest: Sidehopper, Large Sidehopper, Tourian Sidehopper; Dessgeega, Large Dessgeega; Boyon; Puyo;
   Beetom; Powamp; Cacatac; Zoa; Skultera; Bull; Alcoon; Polyp; Fune; Namihe; Magdollite; Nuclear Waffle; Hibashi;
   Yapping Maw; Boulder; Oum; Mama Turtle with her Baby Turtles as children; Evir; Dragon; Shaktool; Work Robot (the
-  unpowered one is the same scene, switched off).
+  unpowered one is the same scene, switched off; the powered ones of a room share one glow, `WorkRobotGlow`, a room
+  object the first robot set up makes, as the face blocks share `FaceBlockGlow`).
 - Pipe bugs: Zeb, Zebbo, Gamet, Geega. Each pipe is a `Spawner`.
 - Metroids: Metroid; Mochtroid; the giant Metroid of Tourian (`BabyMetroid`, with the Sidehopper it feeds on,
   `DeadSidehopper`); and the giant Metroid of Mother Brain's fight (`MotherBrainBaby`, which she makes). The two
@@ -1696,7 +1698,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `GlassTube` (this game's, `game/objects/glass_tube/`): the Maridia glass tube. It is not a barrier: a power
   bomb only arms it, and it bursts when Samus next acts, holding her while it does.
 - `CeresElevatorDoor` (this game's, `game/objects/ceres_elevator_door/`): the blocked way to Ceres's elevator,
-  blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering.
+  blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering. The glow is
+  the steps of a change of colours its data gives ("glow"), each held eight updates, shown on the room's terrain and
+  on the floor with its parts while it is whole and again once it is gone.
 - `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her state of facing forward and being put where something puts her.
   It is told to "land" by the landing's room sequence and tells what is listed on it when it has left the planet.
 - `BossEncounter`: one per boss room. The Metroid rooms whose doors open when the room is cleared need none; their
@@ -1767,7 +1771,7 @@ statue's descent, which is its part of an update's opening (`IOpeningStep`), pla
 number is drawn; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
 guardian's eyes and for each turned grey (those of the guardians that are part of the backdrop's picture lie behind
 the room's tiles with it, at `RoomDepth.BehindRoom`; once the light at a guardian's eyes is made, the pictures that
-stand in the room show the change of colours its data gives for that light, `eye_glow_colours`), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+stand in the room, and the effects the guardians have let out that still play or are let out after, show the change of colours its data gives for that light, `eye_glow_colours`), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:

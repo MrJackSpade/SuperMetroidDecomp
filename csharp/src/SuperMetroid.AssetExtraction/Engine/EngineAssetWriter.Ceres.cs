@@ -57,6 +57,38 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
+    /// The steps of the elevator room's glow, which its blocked door cycles, in order: each the colours the step shows
+    /// changed on the room's own pictures, place by place. The old game lays each step's shade over the room's
+    /// pictures: its blocks and its turning floor with what is shown on it, the sheets that have the glow.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No room places the elevator door over the elevator's turning floor.</exception>
+    private JsonArray CeresElevatorRoomGlow()
+    {
+        var places = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach ((RoomDefinition _, RoomStateSettings state) in EngineLayouts.States())
+        {
+            if (state.TurningFloor != RoomTurningFloor.ElevatorShaft ||
+                !state.EnemyPopulation.Placements.Span.Any(placed => placed.DefinitionId == EnemyDefinitionId.CeresElevatorDoor))
+            {
+                continue;
+            }
+
+            string set = GraphicsFolder(state), floorSheet = RoomFloorSheet.NameOf(RoomTilesets.Get(state.GraphicsSet));
+            places[$"tiles/{set}"] = state.GraphicsSet.ToString();
+            places[$"backdrops/{set}/ceres_elevator_shaft.png"] = floorSheet;
+            foreach (CeresFloorActorPicture picture in Enum.GetValues<CeresFloorActorPicture>())
+                places[CeresFloorPicture(set, picture)] = floorSheet;
+        }
+
+        if (places.Count == 0)
+            throw new InvalidDataException("No room places the elevator door over the elevator's turning floor.");
+        var steps = new JsonArray();
+        for (int step = 0; step < CeresDoorShades.ElevatorRoomGlowSteps; step++)
+            steps.Add(ShadeChange(CeresDoorShades.ElevatorRoomGlow(step).Key, places));
+        return steps;
+    }
+
+    /// <summary>
     /// Writes the looks of what sets Samus down in the station: the pad under her feet, which flickers, and the
     /// platform she is lowered to.
     /// </summary>

@@ -27,6 +27,9 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
     /// <summary>Once the run action has been found let go, how many more updates she is held; none while the scope is not closing.</summary>
     private int? _closing;
 
+    /// <summary>Whether the cone has begun to open: the first update after the warm-up that finds the run action held only begins it.</summary>
+    private bool _coneBegun;
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -43,7 +46,7 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
         owner.StopAcross();
         _stance = owner.Form == Player.Crouching ? "xray_crouching" : "xray_standing";
         Look = LookAt(samus, 0);
-        (_opening, _closing) = (Countdown.Of(samus.XrayWarmUpUpdates), null);
+        (_opening, _closing, _coneBegun) = (Countdown.Of(samus.XrayWarmUpUpdates), null, false);
         samus.Xray?.Open(samus);
         // The X-ray's colouring of her ends a stored shine, as it ends a crystal flash's.
         samus.SpendShine();
@@ -77,6 +80,13 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
         if (!owner.Input.IsHeld(Actions.Run))
         {
             _closing = samus.XrayClosingUpdates;
+            return null;
+        }
+
+        // The cartridge spends one update with no cone after the warm-up, and opens it from the next.
+        if (!_coneBegun)
+        {
+            _coneBegun = true;
             return null;
         }
 

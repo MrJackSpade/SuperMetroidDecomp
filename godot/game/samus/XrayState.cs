@@ -80,7 +80,8 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
             return null;
         }
 
-        int swing = (owner.Input.IsHeld(GameAction.Down) ? 1 : 0) - (owner.Input.IsHeld(GameAction.Up) ? 1 : 0);
+        // Up wins when up and down are both held.
+        int swing = owner.Input.IsHeld(GameAction.Up) ? -1 : owner.Input.IsHeld(GameAction.Down) ? 1 : 0;
         samus.Xray?.Look(samus, swing);
         Look = LookAt(samus, samus.Xray?.Swing ?? 0);
         return null;

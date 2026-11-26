@@ -33,8 +33,9 @@ namespace Game.Enemies;
 /// of her fight adds. Her visuals "Neck0" to "Neck4" are the joints of her neck, each showing her timeline "neck".
 /// Her hurtbox "Brain" follows her head. Her data gives "contacts": the rectangles of her "body", her "brain" and a joint of her "neck" that push
 /// Samus away, each with "left", "top", "right" and "bottom" from that part's place; the places of the dust and
-/// blasts of her fall and rise; "tube_drops", the pipes that fall in turn; and the names of her terrain patches. All
-/// her places are in the room's own pixels.</para>
+/// blasts of her fall and rise; "tube_drops", the pipes that fall in turn; the names of her terrain patches; and
+/// "hurt_colours", the colours her brain shows on the updates her hurt flash shows it, which the rest of her does
+/// not show (<see cref="Engine.Ui.ColourChange"/>). All her places are in the room's own pixels.</para>
 /// </remarks>
 public partial class MotherBrain : Enemy, IClosingStep
 {
@@ -179,6 +180,15 @@ public partial class MotherBrain : Enemy, IClosingStep
     private bool _breathes;
     private Color _tint = Colors.White;
 
+    /// <summary>The colours her brain shows in her hurt flash.</summary>
+    private Engine.Ui.ColourChange _headFlash = Engine.Ui.ColourChange.None;
+
+    /// <summary>The name her brain's flash colours are shown under.</summary>
+    private const string HeadFlashColours = "HurtFlash";
+
+    /// <summary>She shows her hurt on her brain alone, by her own cadence, not by the flash every enemy shares.</summary>
+    protected override bool ShowsHurtFlash => false;
+
     /// <summary>Where her head is.</summary>
     public PixelPosition HeadPosition => _head;
 
@@ -193,6 +203,7 @@ public partial class MotherBrain : Enemy, IClosingStep
         foreach ((string part, DataNode rects) in data.Get("contacts").Entries())
             _contacts[part] = [.. rects.Items().Select(rect => new Contact(rect.Int("left"), rect.Int("top"), rect.Int("right"), rect.Int("bottom")))];
         _shapes = ColliderPoses.Read(data.Get("shapes"), this);
+        _headFlash = Engine.Ui.ColourChange.Read(data.Get("hurt_colours"));
         // Her brain's hurtbox goes where her head goes, keeping where it lies from it.
         _brainRect = GetNode<Collider>("Brain").Rect;
         ReadFakeDeathValues(data);
@@ -426,8 +437,8 @@ public partial class MotherBrain : Enemy, IClosingStep
         TimelineStep? shown = PlayBrain(samus);
 
         // Her brain shakes when she is hurt, and for a while when her fight says so. A hurt's shake, of her brain and
-        // of her neck, goes by what is left of her flash, two updates to a place; and her brain shows white on the
-        // odd counts of what is left.
+        // of her neck, goes by what is left of her flash, two updates to a place; and her brain shows the flash's
+        // colours alone on the odd counts of what is left.
         int flashLeft = HurtFlashLeft;
         PixelOffset hurtShake = IsFlashing ? ShakeOffsets[flashLeft / 2 % 4] : PixelOffset.FromWhole(0, 0);
         PixelOffset shake = PixelOffset.FromWhole(0, 0);
@@ -440,9 +451,12 @@ public partial class MotherBrain : Enemy, IClosingStep
         {
             head.Position = new Vector2(fromBody.X.Whole, fromBody.Y.Whole);
             head.SetShown(_headShown);
-            head.Tint(IsFlashing && flashLeft % 2 == 1 ? new Color(2f, 2f, 2f) : _brainDetached ? _headTint : _tint);
+            bool flashes = IsFlashing && flashLeft % 2 == 1;
+            head.Tint(flashes ? Colors.White : _brainDetached ? _headTint : _tint);
             if (shown is not null)
                 head.Show(shown);
+            // Shown once the picture is, since the colours are worked out by the pictures it shows.
+            (flashes ? _headFlash : Engine.Ui.ColourChange.None).ShowOn(head, HeadFlashColours);
         }
 
         for (int joint = 0; joint < _neck.Length; joint++)

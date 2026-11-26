@@ -25,6 +25,12 @@ public static class RoomDepth
     /// </summary>
     public const int BehindThings = -5;
 
+    /// <summary>
+    /// In front of the room's tiles and behind everything standing in the room, what stands rearmost too: where
+    /// something launched lies that all the room's own things are drawn over.
+    /// </summary>
+    public const int BehindAllThings = -7;
+
     /// <summary>Behind the things standing in the room at their own depth, and in front of what is behind them all.</summary>
     public const int FarBehindThings = -3;
 
@@ -56,6 +62,9 @@ public static class RoomDepth
     /// <summary>In front of what stands in front of the player.</summary>
     public const int Frontmost = 12;
 
+    /// <summary>In front of everything standing in the room, what stands frontmost too, and behind the room's own front.</summary>
+    public const int InFrontOfAllThings = 13;
+
     /// <summary>
     /// The part of the picture behind the room that lies in front of the things standing in it, which a backdrop
     /// draws again there: behind the tiles' own such part.
@@ -83,6 +92,8 @@ public static class RoomDepth
         Standing.JustBehind => JustBehindPlayer,
         Standing.InFront => InFrontOfThings,
         Standing.Frontmost => Frontmost,
+        Standing.Hindmost => BehindAllThings,
+        Standing.Foremost => InFrontOfAllThings,
         _ => throw new ArgumentOutOfRangeException(nameof(standing), standing, "Undefined standing."),
     };
 

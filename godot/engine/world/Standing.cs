@@ -25,4 +25,16 @@ public enum Standing
 
     /// <summary>In front of the player and of everything else in front of them.</summary>
     Frontmost,
+
+    /// <summary>
+    /// Behind everything standing in the room, the rearmost of it too, whenever each came into the room: where
+    /// something launched lies that the room's own things are all drawn over.
+    /// </summary>
+    Hindmost,
+
+    /// <summary>
+    /// In front of everything standing in the room, the frontmost of it too, whenever each came into the room: where
+    /// something launched lies that is drawn over all the room's own things.
+    /// </summary>
+    Foremost,
 }

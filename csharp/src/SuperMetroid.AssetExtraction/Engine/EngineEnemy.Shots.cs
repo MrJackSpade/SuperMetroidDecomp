@@ -33,6 +33,14 @@ internal sealed partial class EngineEnemy
             ["meeting_target"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
             ["met_by_shot"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots) ? "destroyed" : "ignored",
             ["view_margin"] = -1,
+            // The old game draws what an enemy launches behind Samus and behind every enemy, or in front of her and
+            // of every enemy, by its kind.
+            ["standing"] = old.Depth switch
+            {
+                EnemyProjectileDepth.BehindSamus => "hindmost",
+                EnemyProjectileDepth.InFrontOfSamus => "foremost",
+                _ => throw new InvalidDataException($"The old game draws what it launches as {kind} at {old.Depth}, which has no name here."),
+            },
         };
         if (old.Properties.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
             projectile["delivers_hit"] = false;

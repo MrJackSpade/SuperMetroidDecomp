@@ -1114,7 +1114,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
   takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`); the first update after
-  them that finds it held only begins the cone, which opens from the next. Once the run action is found
+  them that finds it held looks through a cone no wider than a ray, which opens from the next. Once the run action is found
   let go it holds her and the room its closing updates more and lets go on the update after
   (`XrayClosingUpdates`). It does not start
   while she settles from a landing (`StandingState.IsSettling`), while she moves up or down, with her grapple beam

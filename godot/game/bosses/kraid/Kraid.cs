@@ -585,7 +585,12 @@ public partial class Kraid : Enemy
     private void StepRise(Player samus)
     {
         if (samus.Position.X.Whole >= 256)
-            samus.Position = new PixelPosition(Pixels.FromWhole(256), samus.Position.Y);
+        {
+            // Only her whole pixels across are set, and the view takes her to have stood there, so that her next move
+            // away from the screen's edge is followed as her own.
+            samus.Position = new PixelPosition(samus.Position.X.WithWhole(256), samus.Position.Y);
+            Room.Session.Camera.TakePlayerToHaveStoodAtX(256);
+        }
         switch (_rise)
         {
             case Rise.Wait:

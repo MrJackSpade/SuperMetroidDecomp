@@ -854,7 +854,8 @@ public partial class Draygon : Enemy
         samus.Position = PixelPosition.FromWhole(Position.X.Whole + (Facing == Facing.Right ? 8 : -8), Position.Y.Whole + 40);
 
         // The view follows where he carries her by twelve pixels and one more at most.
-        Room.Session.Camera.CapFollowOfPlacedPlayer(samus.Position, Samus.PlacedViewCap);
+        Room.Session.Camera.CapFollowUpOrDown(samus.Position.Y, Samus.PlacedViewCap);
+        Room.Session.Camera.CapFollowAcross(samus.Position.X, Samus.PlacedViewCap);
     }
 
     /// <summary>Holds Samus through one update of a lash of its tail, and goes back to its spiral when the lash is over.</summary>

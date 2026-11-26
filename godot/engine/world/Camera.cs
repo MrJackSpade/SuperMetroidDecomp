@@ -127,22 +127,32 @@ public sealed class Camera
     public void TakePlayerToHaveStoodAtY(int y) => _trackedYWritten = y;
 
     /// <summary>
-    /// Caps how fast the view follows a player something has placed at <paramref name="now"/> this update: along each
-    /// way they stand at least <paramref name="most"/> whole pixels from where the view takes them to have stood,
-    /// they are taken to have stood exactly that far off, so that the view follows by that and its one pixel more.
-    /// A view that has tracked nothing since it was placed is left as it is.
+    /// Caps how fast the view follows across a player now at <paramref name="now"/>: where they stand more than
+    /// <paramref name="most"/> whole pixels from where the view takes them to have stood, they are taken to have stood
+    /// exactly that far off, so that the view follows by that and its one pixel more. For something that moves the
+    /// player faster than the view should follow. A view that has tracked nothing since it was placed is left as it is.
     /// </summary>
-    public void CapFollowOfPlacedPlayer(PixelPosition now, int most)
+    public void CapFollowAcross(Pixels now, int most)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(most);
         if (_tracked is not { } tracked)
             return;
-        int down = now.Y.Whole - (_trackedYWritten ?? tracked.Y.Whole);
-        if (Math.Abs(down) >= most)
-            _trackedYWritten = now.Y.Whole + Math.Sign(down) * most;
-        int across = now.X.Whole - (_trackedXWritten ?? tracked.X.Whole);
-        if (Math.Abs(across) >= most)
-            _trackedXWritten = now.X.Whole + Math.Sign(across) * most;
+        int moved = now.Whole - (_trackedXWritten ?? tracked.X.Whole);
+        if (Math.Abs(moved) > most)
+            _trackedXWritten = now.Whole - Math.Sign(moved) * most;
+    }
+
+    /// <summary>
+    /// The same, up and down; with <paramref name="risingOnly"/>, only a move upward is capped.
+    /// </summary>
+    public void CapFollowUpOrDown(Pixels now, int most, bool risingOnly = false)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(most);
+        if (_tracked is not { } tracked)
+            return;
+        int moved = now.Whole - (_trackedYWritten ?? tracked.Y.Whole);
+        if (moved < -most || (!risingOnly && moved > most))
+            _trackedYWritten = now.Whole - Math.Sign(moved) * most;
     }
 
     /// <summary>

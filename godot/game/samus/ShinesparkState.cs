@@ -113,6 +113,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             Launch(samus, way.Across, way.Down);
     }
 
+    /// <summary>How far behind her flight, in whole pixels, the view takes her to have stood at most: across, and upward.</summary>
+    private const int ViewLagAcross = 15, ViewLagUp = 14;
+
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
@@ -208,6 +211,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             // She moves as she always moves across: slowed by what clings to her, over slopes, and through what her
             // body breaks.
             stoppedAcross = samus.MoveAcrossBy(samus.Slowed(_acrossSpeed) * _across).Blocked;
+
+            // The view lags her flight across by fifteen pixels at most.
+            samus.Room.Session.Camera.CapFollowAcross(samus.Position.X, ViewLagAcross);
         }
 
         if (_down != 0)
@@ -226,6 +232,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             Pixels climb = rise * _down;
             stoppedDown = samus.Room.Mover.TryDown(samus.Body, climb, samus.BodyMoves with { StoppedByTerrain = false }, out _).Blocked
                 || samus.MoveDownBy(climb, clearsWay: true).Blocked;
+
+            // And her flight upward by fourteen.
+            samus.Room.Session.Camera.CapFollowUpOrDown(samus.Position.Y, ViewLagUp, risingOnly: true);
         }
 
         // A diagonal spark slides up a wall it meets, and ends only when it can rise no further.

@@ -54,6 +54,15 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
     public static Effect HoldingPlace(PixelPosition at, int updates) =>
         Of(new FrameTimeline([new TimelineStep("", updates, [])], null), at, holdsPlace: true);
 
+    /// <summary>
+    /// Something that shows nothing at <paramref name="at"/> and holds one of the room's places for what its enemies
+    /// launch and leave until whoever made it takes it out of the room: the place a part of an enemy or a fitting of
+    /// the room holds where a game counts those among them. With no place free it is not made
+    /// (<see cref="World.Room.Spawn"/> says so), and what it stands for goes without.
+    /// </summary>
+    public static Effect HoldingPlace(PixelPosition at) =>
+        Of(new FrameTimeline([new TimelineStep("", 1, [])], 0), at, holdsPlace: true);
+
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 

@@ -1338,7 +1338,7 @@ what held it is taken out of play. The pickup remains leave takes the place they
 and waits an update for its first turn; the game may say that remains in some place leave no drop though they
 roll for it (`GameDefinition.RemainsLeaveDrop`). A spent drop goes on holding its place: when a pickup is taken or
 runs out, when remains leave nothing, and when a drop made outright rolls nothing, something that shows nothing
-holds the place for `GameDefinition.SpentDropUpdates` more updates (`Room.HoldPlaceOf`, `Effect.HoldingPlace`), and
+holds the place for `GameDefinition.SpentDropUpdates` more updates (`Room.HoldPlaceOf`, `Effect.HoldingPlace`). A part of an enemy or a fitting of the room that the game counts among those places holds one the same way, by something that shows nothing until its owner takes it out (`Effect.HoldingPlace(at)`), and goes without where none is free: this game's Yapping Maw holds four for the links of its neck. And
 what takes a destroyed enemy's place arrives as that pause ends. This game keeps eighteen places, and its remains in the first
 leave none, as the cartridge's death explosion in its first place never becomes a pickup.
 

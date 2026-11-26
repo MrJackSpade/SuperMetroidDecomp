@@ -82,6 +82,12 @@ public partial class YappingMaw : Enemy
 
     private readonly Dictionary<string, PixelOffset> _heldOffsets = new(StringComparer.Ordinal);
     private readonly PixelOffset[] _linkAt = new PixelOffset[Links];
+
+    /// <summary>
+    /// What holds each link's place among the room's places for what enemies launch: on the cartridge each link of
+    /// its neck is a shot of its own. Null for a link the room had no place for, which shows nothing.
+    /// </summary>
+    private readonly Effect?[] _linkPlaces = new Effect?[Links];
     private SpeedCurve? _curve;
     private Doing _doing;
     private PixelPosition _origin;
@@ -117,6 +123,14 @@ public partial class YappingMaw : Enemy
         _drawnBack = Countdown.Of(RetractedHold);
         _link = new TimelinePlayer(Timelines.Get(Oriented("link")));
         _root = new TimelinePlayer(Timelines.Get(Oriented("root")));
+
+        // Its links take their places as it is set up, the one at its mouth first.
+        for (int link = Links - 1; link >= 0; link--)
+        {
+            Effect place = Effect.HoldingPlace(Position);
+            _linkPlaces[link] = Room.Spawn(place) ? place : null;
+        }
+
         Play(StrikesDown ? "attack_down" : "attack_up");
         ShowNeck();
     }
@@ -174,7 +188,18 @@ public partial class YappingMaw : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnDied() => LetGo();
+    protected override void OnDied()
+    {
+        LetGo();
+
+        // Its links go with it, and their places are free again.
+        for (int link = 0; link < Links; link++)
+        {
+            if (_linkPlaces[link] is { } place)
+                Room.Remove(place);
+            _linkPlaces[link] = null;
+        }
+    }
 
     /// <inheritdoc/>
     protected override void Behave()
@@ -398,6 +423,7 @@ public partial class YappingMaw : Enemy
             PixelPosition at = Along(link);
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
             visual.Show(_link.Shown);
+            visual.SetShown(_linkPlaces[link] is not null);
         }
     }
 }

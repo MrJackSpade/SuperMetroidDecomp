@@ -984,28 +984,22 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
     /// <summary>
     /// Ends a projectile that was shot down, once its end has played out: what it drops is rolled and left where it
-    /// lies, in the place it held among what the room's enemies launch and leave, and it is gone with nothing else
-    /// left behind.
+    /// lies, and it is gone with nothing else left behind. Its drop is a thing of its own among what the room's
+    /// enemies launch and leave: it takes a free place while the projectile still holds its own, and where the room
+    /// has none free nothing is rolled and nothing is left. A roll of nothing takes that place all the same, for the
+    /// pause of a spent drop.
     /// </summary>
     private void FinishShotDown(Room room)
     {
-        if (_settings.Drops is { } drops)
+        bool holdsPlace = room.PlaceOf(this) is not null;
+        if (_settings.Drops is { } drops && (!holdsPlace || room.HasFreePlace))
         {
             Inventory inventory = room.Player.Inventory;
             string? drop = drops.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
             if (drop is not null)
-            {
-                Pickup pickup = Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position);
-                if (room.PlaceOf(this) is null)
-                    room.Spawn(pickup);
-                else
-                    room.SpawnInPlaceOf(this, pickup);
-            }
-            else
-            {
-                // What rolls nothing goes on holding the place for the pause of a spent drop.
-                room.HoldPlaceOf(this, Position);
-            }
+                room.Spawn(Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position));
+            else if (holdsPlace)
+                room.HoldFreePlace(Position);
         }
 
         OnEnded(room);

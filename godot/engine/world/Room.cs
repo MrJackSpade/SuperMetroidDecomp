@@ -850,6 +850,18 @@ public partial class Room : Node2D
     }
 
     /// <summary>
+    /// Has a free place of the room held, for the pause of a spent drop (<see cref="GameDefinition.SpentDropUpdates"/>),
+    /// by something that shows nothing at <paramref name="at"/>: what a drop that rolled nothing leaves where it was
+    /// to be a thing of its own. With no pause, or no place free, nothing is held.
+    /// </summary>
+    public void HoldFreePlace(PixelPosition at)
+    {
+        int updates = Session.Definition.SpentDropUpdates;
+        if (updates > 0)
+            Spawn(Effect.HoldingPlace(at, updates));
+    }
+
+    /// <summary>
     /// Takes a spent drop out of the room and has the place it held go on being held, for the pause the game's
     /// definition gives (<see cref="GameDefinition.SpentDropUpdates"/>), by something that shows nothing. With no
     /// pause it is only taken out.

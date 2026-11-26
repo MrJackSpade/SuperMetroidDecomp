@@ -1443,7 +1443,7 @@ lights become the trailing pair's shot so as they start to fall.
 **A projectile shot down** is gone at once, leaving what it drops, unless its data gives it an end to play
 (`"shot_timeline"`). Then it stays what it is and where it is while that plays: it holds still, stops shots no
 longer, harms what it touches whatever its data said of it and ends on it; and as the timeline ends what it drops
-is rolled and left in the place it held. Phantoon's flames, the Torizos' orbs, the Golden Torizo's eggs and the
+is rolled and left as a thing of its own: it takes a free place of the room while the projectile still holds its own, and where none is free nothing is rolled and nothing left, as the cartridge makes such a drop a new projectile before it deletes the old. A roll of nothing takes that place too, for the pause of a spent drop. Phantoon's flames, the Torizos' orbs, the Golden Torizo's eggs and the
 super missiles it throws back, Crocomire's fire, the rocks Kraid spits, Draygon's goop and what an eye door spits end so. The bug a Kago lets out, an enemy here, ends the same way in its
 own class: shot down, it plays its burst where it is, still hurting to the touch, and leaves its drop as it ends.
 

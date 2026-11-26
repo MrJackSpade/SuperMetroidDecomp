@@ -73,9 +73,13 @@ public sealed partial class EngineAssetWriter
         EngineSheetPictures pictures = _sheets.CutWithBossBodyAndBehind(_tree, _installation.ContentDirectory, folder, "MotherBrain",
             farLegOfStanding[..^standing.Length], _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainBody)));
         var mother = new EngineEnemy(_tree, _sheets, file, "MotherBrain", EnemyDefinitionId.MotherBrainHead, pictures);
-        EngineSheetPictures head = _sheets.Cut(_tree, family, $"{folder}/head",
-            _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainHead)));
+        string headSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainHead));
+        EngineSheetPictures head = _sheets.Cut(_tree, family, $"{folder}/head", headSheet);
         JsonObject HeadOffset() => new() { ["x"] = head.OffsetX - pictures.OffsetX, ["y"] = head.OffsetY - pictures.OffsetY };
+
+        // Her head, alone of her, shows the cartridge's one flash shade as she is hurt; the rest of her keeps its colours.
+        mother.Group("hurt_colours", ShadeChange(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key, family,
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [$"{folder}/head"] = [headSheet] }));
 
         // ---- Her body ----
         static string? BodyCue(MotherBrainBodyCue cue) => cue switch

@@ -14,7 +14,8 @@ namespace Game.Enemies;
 /// is a platform Samus can ride; its point knocks her back and hurts her, once for each time it comes out. A touch
 /// of Kraid's arm sets the lowest one off at once.
 /// </summary>
-/// <remarks>It plays "budding" until Kraid has grown and "grown" after.</remarks>
+/// <remarks>It plays "budding" until Kraid has grown and "grown" after. As it gathers it shows, every other update,
+/// the colours of its hurt flash ("hurt_colours") in place of Kraid's.</remarks>
 public partial class KraidLint : Enemy
 {
     /// <summary>How far below Kraid's place it sits, in pixels; above, when less than nothing.</summary>
@@ -84,14 +85,30 @@ public partial class KraidLint : Enemy
     private bool _begun;
     private bool _hiddenForGrowth;
 
-    /// <summary>The colours of Kraid's parts last shown on it.</summary>
-    private ColourChange? _colours;
+    /// <summary>The colours of Kraid's parts, as Kraid last gave them.</summary>
+    private ColourChange? _kraidColours;
+
+    /// <summary>The colours last shown on it.</summary>
+    private ColourChange? _shown;
+
+    /// <summary>The colours of its hurt flash, which it shows as it gathers.</summary>
+    private ColourChange _flashColours = ColourChange.None;
+
+    /// <summary>Whether it shows its flash's colours this update, in place of Kraid's.</summary>
+    private bool _flashing;
 
     /// <summary>
     /// A shot lands on it while it is out and has not yet struck Samus, and is a dud there: it is harmed by none, and
     /// stands between her shots and Kraid. Harmless again, or hidden, it is met by nothing.
     /// </summary>
     public override bool IsHitBy(HitSide side) => !_harmless && _shown && base.IsHitBy(side);
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _flashColours = ColourChange.Read(data.Get("hurt_colours"));
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -107,16 +124,32 @@ public partial class KraidLint : Enemy
     }
 
     /// <summary>
-    /// Shows it in the colours of Kraid's parts at once, in place of those it showed before. A change is worked out for
-    /// it by the picture it shows, so while it shows none it is shown none.
+    /// Shows it in the colours of Kraid's parts at once, in place of those it showed before, unless it shows its
+    /// flash's this update. A change is worked out for it by the picture it shows, so while it shows none it is shown
+    /// none.
     /// </summary>
     public void ShowColours(ColourChange colours)
     {
         ArgumentNullException.ThrowIfNull(colours);
-        if (Visual is not { } visual || visual.Picture.Length == 0 || ReferenceEquals(_colours, colours))
+        _kraidColours = colours;
+        ShowColours();
+    }
+
+    /// <summary>Shows it in its flash's colours or in Kraid's, whichever it shows this update.</summary>
+    private void ShowColours()
+    {
+        ColourChange? colours = _flashing ? _flashColours : _kraidColours;
+        if (colours is null || Visual is not { } visual || visual.Picture.Length == 0 || ReferenceEquals(_shown, colours))
             return;
         colours.ShowOn(visual, nameof(Kraid));
-        _colours = colours;
+        _shown = colours;
+    }
+
+    /// <summary>Has it show its flash's colours, or Kraid's again.</summary>
+    private void SetFlashing(bool flashing)
+    {
+        _flashing = flashing;
+        ShowColours();
     }
 
     /// <inheritdoc/>
@@ -180,11 +213,11 @@ public partial class KraidLint : Enemy
                 break;
 
             case Phase.Charge:
-                Visual?.Tint(_wait % 2 == 1 ? Colors.White : new Color(2f, 2f, 2f));
+                // On the updates with an even count left it shows the flash's colours, and Kraid's on the others.
+                SetFlashing(_wait % 2 == 0);
                 SetX(emerged);
                 if (--_wait > 0)
                     break;
-                Visual?.Tint(Colors.White);
                 _phase = Phase.Fire;
                 Sound(FireSound);
                 break;

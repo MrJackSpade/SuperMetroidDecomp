@@ -130,8 +130,9 @@ public partial class Powamp : Enemy, ILatchable
     /// <inheritdoc/>
     protected override bool DiesAtOnce(Hit hit)
     {
-        // Killed by Samus's own body, it bursts there and then; anything else swells its balloon first.
-        if (hit.Source is Player)
+        // Killed by Samus's own body, it bursts there and then; anything else swells its balloon first. Her shots
+        // name her as their source as her body does, so it is the hit's kinds that tell the two apart.
+        if (hit.CarriesAny(Game.Data.HitKinds.OfHerBody))
         {
             Burst();
             return true;

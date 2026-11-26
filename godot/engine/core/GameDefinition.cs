@@ -214,11 +214,11 @@ public abstract partial class GameDefinition : Resource
     public int SpentDropUpdates { get; set; }
 
     /// <summary>
-    /// For how many of the enemies' passes in turn a hurt enemy shows its flash and then its own look, by the count
-    /// of passes as it stands once the pass is counted. None: the flash shows on every update it runs.
+    /// For how many updates in turn a hurt enemy shows its flash and then its own look, by the updates its flash
+    /// has left. None: the flash shows on every update it runs.
     /// </summary>
     [Export]
-    public int EnemyFlashPassesEachWay { get; set; }
+    public int EnemyFlashUpdatesEachWay { get; set; }
 
     /// <summary>
     /// How many updates of a freeze are left when a frozen enemy's look stops showing steadily and begins to blink,

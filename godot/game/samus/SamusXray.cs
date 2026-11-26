@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
 using Godot;
@@ -11,9 +12,17 @@ namespace Game;
 /// </summary>
 public partial class SamusXray : Node2D
 {
-    /// <summary>How far above her middle the scope looks from, in pixels.</summary>
+    /// <summary>How far above her middle the scope looks from while she stands, in pixels.</summary>
     [Export]
-    public int EyeHeight { get; set; } = 12;
+    public int StandingEyeHeight { get; set; } = 16;
+
+    /// <summary>How far above her middle the scope looks from while she crouches, in pixels.</summary>
+    [Export]
+    public int CrouchingEyeHeight { get; set; } = 12;
+
+    /// <summary>How far ahead of her middle, the way she faces, the scope looks from, in pixels.</summary>
+    [Export]
+    public int EyeAhead { get; set; } = 3;
 
     /// <summary>The furthest the cone's middle swings up or down from level, in 256ths of a turn.</summary>
     [Export]
@@ -62,8 +71,10 @@ public partial class SamusXray : Node2D
         _halfWidth = Math.Min(samus.XrayWidestHalfWidth, _opened.Whole);
         _swing = Math.Clamp(_swing + swing, -WidestSwing, WidestSwing);
         _facingLeft = samus.Facing == Facing.Left;
-        var eye = new PixelPosition(samus.Position.X, samus.Position.Y - Pixels.FromWhole(EyeHeight));
-        _eye = new Vector2(0, -EyeHeight);
+        int ahead = _facingLeft ? -EyeAhead : EyeAhead;
+        int height = samus.Form == Player.Crouching ? CrouchingEyeHeight : StandingEyeHeight;
+        var eye = new PixelPosition(samus.Position.X + Pixels.FromWhole(ahead), samus.Position.Y - Pixels.FromWhole(height));
+        _eye = new Vector2(ahead, -height);
 
         int reach = samus.XrayReach;
         int forward = _facingLeft ? -1 : 1;

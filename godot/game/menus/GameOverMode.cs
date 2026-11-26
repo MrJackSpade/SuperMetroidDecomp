@@ -13,7 +13,8 @@ namespace Game.Menus;
 /// stopping and the title's set of music loading) and the music's queue empties, and then it comes up out of black with
 /// its own music: its page, with the larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
 /// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
-/// no to the title. A yes for a game saved where the map marks nothing starts it at once, with no fade. Its fades go a level of brightness an update.
+/// no to the title. A yes for the game saved on arriving at Ceres starts it at once, with no fade; one for the game
+/// saved as Ceres was left fades out and takes it up with Ceres blowing up. Its fades go a level of brightness an update.
 /// </summary>
 /// <remarks>
 /// Its data names its "music", its "backdrop" colour, its "page" picture, the sound of the cursor moving
@@ -135,8 +136,9 @@ public partial class GameOverMode : GameMode
             if (!continues)
                 return new TitleMode();
 
-            // A saved game shows where it was saved before it starts again, as from the options.
-            return _map ?? throw new InvalidOperationException("The game over screen continues with no map to show.");
+            // A saved game shows where it was saved before it starts again, as from the options; the one saved as
+            // Ceres was left is taken up with Ceres blowing up.
+            return _map ?? GameLoad.OfSlot(appears: false);
         }
 
         if (!fade.IsDone)
@@ -158,8 +160,9 @@ public partial class GameOverMode : GameMode
             if (_yes)
             {
                 _map = SaveMapMode.Of(Session);
-                // A game saved where the map marks nothing (at Ceres) starts on this update, with no hold and no fade.
-                if (_map is null)
+                // The game saved on arriving at Ceres starts on this update, with no hold and no fade; the one saved as
+                // Ceres was left fades out first, as one the map shows does.
+                if (_map is null && !GameLoad.SavedLeavingCeres(Session))
                     return GameLoad.OfSlot(appears: false);
             }
 

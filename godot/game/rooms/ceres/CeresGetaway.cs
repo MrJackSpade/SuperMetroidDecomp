@@ -54,8 +54,9 @@ public partial class CeresGetaway : RoomSequence
     /// The folder, within the assets tree, of the files that say how each warning is laid out: the "font" its words
     /// are typed in, where their first letter's cell lies ("x", "y"), how many updates each letter takes
     /// ("updates_per_letter"), how many letters at the start are followed by the next at once ("undelayed_letters"),
-    /// how many letters appear for each sound ("letters_per_sound"), and its "second_wordings", each under a name
-    /// with the "languages" it is shown in and its "pictures", each with where it goes.
+    /// how many letters appear for each sound ("letters_per_sound"), the sound of a letter appearing ("letter_sound"),
+    /// and its "second_wordings", each under a name with the "languages" it is shown in and its "pictures", each with
+    /// where it goes.
     /// </summary>
     [Export]
     public string LayoutFolder { get; set; } = "text/typed";
@@ -63,10 +64,6 @@ public partial class CeresGetaway : RoomSequence
     /// <summary>The warning's second wording, shown beneath a moment into the typing; by its name in the warning's layout, empty for none.</summary>
     [Export]
     public string Subtitle { get; set; } = "";
-
-    /// <summary>The sound of a letter appearing, by name.</summary>
-    [Export]
-    public string LetterSound { get; set; } = "";
 
     /// <summary>The colours the warning flashes through, in order; empty for none.</summary>
     [Export]
@@ -313,7 +310,7 @@ public partial class CeresGetaway : RoomSequence
         _words = new TypedText
         {
             Name = "Words", Font = PixelFont.Read(room.Session.Content, layout.Text("font")), UpdatesPerCharacter = layout.Int("updates_per_letter"),
-            UndelayedCharacters = layout.Int("undelayed_letters"), Sound = LetterSound, LettersPerSound = layout.Int("letters_per_sound"),
+            UndelayedCharacters = layout.Int("undelayed_letters"), Sound = layout.Text("letter_sound"), LettersPerSound = layout.Int("letters_per_sound"),
             Position = new Vector2(layout.Int("x"), layout.Int("y")),
         };
         Warning().AddChild(_words);

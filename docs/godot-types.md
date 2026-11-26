@@ -1791,8 +1791,9 @@ A sequence is told "start", and one that knows other words acts on them. Each li
 a warning across the screen, from the update after it is started, and tells what is listed once the wait after its
 last letter has passed; the words stay written. Mother Brain's room uses it. How a typed
 warning is laid out and typed (its font, where its words begin, how long a letter takes, how many letters at the
-start are followed at once, how many letters go to a sound, and the pictures of a second wording) is a data file
-named for it under `text/typed/`.
+start are followed at once, how many letters go to a sound, the sound of a letter, and the pictures of a second
+wording, with the languages it is shown in and, for `TypedWarning`, how many updates of typing pass before it shows)
+is a data file named for it under `text/typed/`.
 
 Ceres: the colours its doors take once Ridley has gone (`CeresDoorColours`: given to a room's doors as the room is
 set up, as a change of colours written by the extractor, so a door there while he left keeps its own until the room

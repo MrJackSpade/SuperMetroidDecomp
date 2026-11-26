@@ -28,13 +28,22 @@ public partial class GameLoad : GameMode
         if (session.LoadSlot() is not { } save)
             return session.Definition.CreateModeForNewGame();
 
-        // The game saved as Ceres was left is saved for the place she lands: no place the map marks, and not where
-        // a game begins. Nothing of Ceres is set up for it.
-        if (save.Room != session.Definition.FirstRoom && !SaveMapMode.Shows(session))
+        // Nothing of Ceres is set up for the game saved as Ceres was left.
+        if (SavedLeavingCeres(session))
             return new Cinematics.CeresDestruction { LandingRoom = save.Room, LandingEntry = save.EntryPoint };
         CartridgeSounds.Of(session).SavedGameAppears = appears;
         return new Arrival(new PlayingMode(save.Room, save.EntryPoint), Arrival.OrdinaryWaits, samusAppears: appears);
     });
+
+    /// <summary>
+    /// Whether the game in <paramref name="session"/>'s save slot is the one the cartridge saved by itself as Ceres
+    /// was left: it is saved for the place she lands, which is no place the map marks and not where a game begins.
+    /// </summary>
+    public static bool SavedLeavingCeres(GameSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return session.Saves.Has(session.Slot) && session.Saves.Read(session.Slot).Room != session.Definition.FirstRoom && !SaveMapMode.Shows(session);
+    }
 
     /// <summary>
     /// A new game, in the game's first room. Whatever came before did with Samus is forgotten: she is as she starts.

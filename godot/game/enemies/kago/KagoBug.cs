@@ -91,14 +91,6 @@ public partial class KagoBug : Enemy
     }
 
     /// <inheritdoc/>
-    protected override bool DiesAtOnce(Hit hit)
-    {
-        // A shot bug plays its end in the place it held, so the place is free for its remains.
-        GiveBackPlace();
-        return true;
-    }
-
-    /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         _hiveAt = Hive?.Position ?? Position;
@@ -158,8 +150,11 @@ public partial class KagoBug : Enemy
         }
         else if (cue == "drop")
         {
-            // Its burst over, it leaves its drop where it is and is gone, a thing let out and no enemy killed.
+            // Its burst over, it leaves its drop where it is and is gone, a thing let out and no enemy killed. It has
+            // held its place through the burst, as the cartridge's bug plays its end in its own, and gives it back
+            // only now: its drop is left while the place is still its own.
             Drop(Drops, Position);
+            GiveBackPlace();
             Vanish();
         }
     }

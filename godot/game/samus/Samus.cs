@@ -638,7 +638,16 @@ public partial class Samus : Player
     /// Where a shot starts: from her middle, raised by how high the pose she is in holds her arm, at the place her
     /// arm points for the way she faces and aims.
     /// </summary>
-    public override PixelPosition MuzzlePoint => Origin(_muzzles);
+    public override PixelPosition MuzzlePoint
+    {
+        get
+        {
+            // A shot leaves her arm from a whole pixel: the fraction of a pixel her own place has is not the shot's.
+            // What she lays as a ball is laid where she is.
+            PixelPosition at = Origin(_muzzles);
+            return Form == Crawling ? at : PixelPosition.FromWhole(at.X.Whole, at.Y.Whole);
+        }
+    }
 
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;

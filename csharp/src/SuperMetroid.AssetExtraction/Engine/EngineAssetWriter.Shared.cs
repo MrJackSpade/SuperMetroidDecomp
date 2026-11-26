@@ -185,12 +185,14 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// How an enemy dies, as its data file says it: the death the old game gives it when a shot destroys it, and the
     /// others the old game plays whatever the enemy: the small one for a power bomb or the grapple beam, and the one for
-    /// Samus's own body.
+    /// Samus's own body. A Super Missile's kill raises the smaller explosions to the normal one
+    /// (<see cref="EnemyDeathExplosions.RaisedBySuperMissile"/>), for an enemy that dies by the common shot death.
     /// </summary>
-    internal static JsonObject Death(EnemyDeathExplosion explosion) => new()
+    /// <param name="explosion">The explosion a shot's kill gives it.</param>
+    /// <param name="raisedBySuperMissile">Whether a Super Missile's kill raises it: not so for one whose death names its own explosion whatever killed it.</param>
+    internal static JsonObject Death(EnemyDeathExplosion explosion, bool raisedBySuperMissile = true)
     {
-        ["effect"] = DeathFile(explosion),
-        ["by_kind"] = new JsonObject
+        var byKind = new JsonObject
         {
             ["power_bomb"] = DeathFile(EnemyDeathExplosion.Small),
             ["grapple"] = DeathFile(EnemyDeathExplosion.Small),
@@ -198,6 +200,9 @@ public sealed partial class EngineAssetWriter
             ["speed_boost"] = DeathFile(EnemyDeathExplosion.SamusContact),
             ["shinespark"] = DeathFile(EnemyDeathExplosion.SamusContact),
             ["charged_spin"] = DeathFile(EnemyDeathExplosion.SamusContact),
-        },
-    };
+        };
+        if (raisedBySuperMissile)
+            byKind["super_missile"] = DeathFile(EnemyDeathExplosions.RaisedBySuperMissile(explosion));
+        return new JsonObject { ["effect"] = DeathFile(explosion), ["by_kind"] = byKind };
+    }
 }

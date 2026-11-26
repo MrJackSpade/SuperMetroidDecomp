@@ -121,7 +121,6 @@ public partial class BabyMetroid : Enemy
     private static readonly PixelOffset[] ShakeOffsets = [PixelOffset.FromWhole(0, 0), PixelOffset.FromWhole(-1, 1), PixelOffset.FromWhole(0, -1), PixelOffset.FromWhole(1, 1)];
     private static readonly PixelOffset OnItsPrey = PixelOffset.FromWhole(0, -32);
     private static readonly Pixels Kick = Pixels.FromWhole(4);
-    private static readonly Pursuit Flight = new();
 
     private Doing _doing;
     private int _timer;
@@ -440,7 +439,7 @@ public partial class BabyMetroid : Enemy
     private bool FollowSamus(Player samus)
     {
         BuildLock(samus, 2);
-        Velocity = Flight.Toward(Position, Velocity, HoverTarget(samus.Position + PixelOffset.FromWhole(0, -18)), 8, Kick, Room.Session.Camera.View);
+        Velocity = GradualFlight.Toward(Position, Velocity, HoverTarget(samus.Position + PixelOffset.FromWhole(0, -18)), 8, Kick, Room.Session.Camera.View);
         return _lock >= 1024 || samus.Position.X.Whole < 128;
     }
 
@@ -503,7 +502,7 @@ public partial class BabyMetroid : Enemy
 
     /// <summary>Draws it toward a place.</summary>
     private void FlyToward(PixelPosition target, int divisor) =>
-        Velocity = Flight.Toward(Position, Velocity, target, divisor, Kick, Room.Session.Camera.View);
+        Velocity = GradualFlight.Toward(Position, Velocity, target, divisor, Kick, Room.Session.Camera.View);
 
     /// <summary>Whether it is over something at <paramref name="place"/> reaching that far from its middle.</summary>
     private bool IsOver(PixelPosition place, int reachAcross, int reachDown)

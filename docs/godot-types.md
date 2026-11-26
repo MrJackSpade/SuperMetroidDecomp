@@ -1239,7 +1239,6 @@ decides what to do about it.
 | Patrol | Walking or flying back and forth, turning at walls or edges. |
 | Orbit | Circling a point or another thing at a set radius and speed. |
 | Bounce | Travelling straight and reflecting off what it meets. |
-| Pursuit | Working out the speed of a flier drawn toward a place: harder the farther off, turned about sharply when going the wrong way, more sharply when well out of view. The flier moves itself. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
 player to enter the held state, moves with them, and, where it is one that hurts by its hold, adds ongoing damage
@@ -1561,7 +1560,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - Pipe bugs: Zeb, Zebbo, Gamet, Geega. Each pipe is a `Spawner`.
 - Metroids: Metroid; Mochtroid; the giant Metroid of Tourian (`BabyMetroid`, with the Sidehopper it feeds on,
   `DeadSidehopper`); and the giant Metroid of Mother Brain's fight (`MotherBrainBaby`, which she makes). The two
-  share only the engine's `Pursuit`.
+  share this game's own flight (`GradualFlight`, in `game/compatibility/`), whose speed changes by the cartridge's
+  seeking steps one at a time (`SeekingSteps`), as Ridley's does.
 - The husks of Tourian are enemies, not scenery, because shots and bombs set them crumbling: `Corpse` (the Zoomers,
   Rippers and Skree, one scene with a data file each), `DeadSidehopper`, and `DeadTorizo` with its heap of sand.
 - Ki-Hunters: green, yellow, red. Wings are part of the Ki-Hunter; shed wings are an `Effect`.

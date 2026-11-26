@@ -8,6 +8,7 @@ using Engine.World;
 using Game.Compatibility;
 using Game.Data;
 using Godot;
+using static Game.Compatibility.SeekingSteps;
 
 namespace Game.Enemies;
 
@@ -526,7 +527,7 @@ public partial class Ridley : Enemy
     }
 
     /// <remarks>
-    /// The cartridge adds the steps one at a time (<see cref="Raise"/>, <see cref="Lower"/>); the reversal's boost and
+    /// The cartridge adds the steps one at a time (<see cref="SeekingSteps.Raise"/>, <see cref="SeekingSteps.Lower"/>); the reversal's boost and
     /// its check each start afresh, dropping any unit owed before them.
     /// </remarks>
     private static Pixels Seek(Pixels speed, int at, int target, int divisor, Pixels reversalBoost)
@@ -563,39 +564,6 @@ public partial class Ridley : Enemy
 
         Raise(ref speed, ref owed, step);
         return speed >= MostSpeed ? MostSpeed : speed;
-    }
-
-    /// <summary>The finest step of a speed the cartridge holds: a 256th of a pixel an update.</summary>
-    private static readonly Pixels FinestStep = Pixels.FromParts(0, Pixels.FractionsPerPixel / 256);
-
-    /// <summary>
-    /// Raises a seek's speed by one step, and by a 256th of a pixel more when one is owed. The cartridge carries a
-    /// unit from a step into the next: a raise that takes the speed from below nothing to nothing or above owes one.
-    /// </summary>
-    private static void Raise(ref Pixels speed, ref bool owed, Pixels amount)
-    {
-        Pixels raised = speed + amount + (owed ? FinestStep : Pixels.Zero);
-        owed = speed.IsNegative && !raised.IsNegative;
-        speed = raised;
-    }
-
-    /// <summary>Lowers a seek's speed as <see cref="Raise"/> raises it: a lowering from nothing or above to below nothing owes a unit.</summary>
-    private static void Lower(ref Pixels speed, ref bool owed, Pixels amount)
-    {
-        Pixels lowered = speed - amount - (owed ? FinestStep : Pixels.Zero);
-        owed = !speed.IsNegative && lowered.IsNegative;
-        speed = lowered;
-    }
-
-    /// <summary>
-    /// Whether a seek's first step is owed a unit: the cartridge counts places within 65536, and does so when the
-    /// way to the target across that count is the other way round from the places' order, as for a target above
-    /// the room's top.
-    /// </summary>
-    private static bool WrapReversesOrder(int at, int target)
-    {
-        int from = at & 0xFFFF, to = target & 0xFFFF;
-        return unchecked((short)(from - to)) < 0 != from < to;
     }
 
     /// <summary>

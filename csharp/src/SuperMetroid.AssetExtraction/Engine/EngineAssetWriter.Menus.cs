@@ -131,7 +131,32 @@ public sealed partial class EngineAssetWriter
                 ["updates_per_letter"] = EscapeTypewriterDefinitions.CharacterDelayFrames + 1,
                 ["undelayed_letters"] = EscapeTypewriterDefinitions.UndelayedOpeningCharacters,
                 ["letters_per_sound"] = EscapeTypewriterDefinitions.GlyphClick.Period,
+                // The station's click is asked for at the low priority, the planet's at the usual one.
+                ["letter_sound"] = id == EscapeTypewriterMessageId.Ceres
+                    ? EngineNames.Sound(EscapeTypewriterDefinitions.CeresClick, SuperMetroid.Core.Compatibility.SoundRequestPriority.Low)
+                    : EngineNames.Sound(EscapeTypewriterDefinitions.ZebesClick, SuperMetroid.Core.Compatibility.SoundRequestPriority.Normal),
             };
+            if (id == EscapeTypewriterMessageId.Zebes)
+            {
+                // The planet's second wording is one picture, put up where the old game pins it once the warning has
+                // been typing as long as Mother Brain's wait before it.
+                string frame = SuperMetroid.Core.Enemies.Artwork.EnemySheetDefinitions.ProjectileFrameName(
+                    SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId.MotherBrainEscapeSubtitle);
+                EngineSheetPictures subtitle = _sheets.CutSpawned(_tree, $"{folder}/{name}_subtitle", EngineSheets.SharedSpawner, [frame]);
+                JsonObject at = At(
+                    SuperMetroid.Core.Bosses.MotherBrain.MotherBrainDeathDefinitions.SubtitleX + subtitle.OffsetX,
+                    SuperMetroid.Core.Bosses.MotherBrain.MotherBrainDeathDefinitions.SubtitleY + subtitle.OffsetY);
+                at["picture"] = subtitle.Of(frame);
+                layout["second_wordings"] = new JsonObject
+                {
+                    ["zebes_time_bomb_subtitle"] = new JsonObject
+                    {
+                        ["languages"] = new JsonArray(Languages[1]), ["pictures"] = new JsonArray(at),
+                        ["shown_after"] = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainLateFightDefinitions.EscapeTextDelayUpdates,
+                    },
+                };
+            }
+
             if (id == EscapeTypewriterMessageId.Ceres)
             {
                 var lines = new JsonArray();

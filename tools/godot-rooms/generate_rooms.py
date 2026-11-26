@@ -660,9 +660,9 @@ class Generator:
                     shut_x, shut_y = (int(part) for part in re.search(r'ArenaClosedScreen = new\((\d+), (\d+)\)', fight).groups())
                     arena = enemies.Placed(camera.ZONE, f'MotherBrainScreen{shut_x}x{shut_y}', {},
                                            at=(shut_x * SCREEN, shut_y * SCREEN), enemy=False)
-                    # The warning of her death is written out; she waits for it.
+                    # The warning of her death is written out, with its second wording; she waits for it.
                     warning = sequences.sequence('TypedWarning.cs', 'EscapeWarning', {
-                        'Message': quoted('zebes_time_bomb_warning'), 'LetterSound': quoted('room_typewriter')})
+                        'Message': quoted('zebes_time_bomb_warning'), 'Subtitle': quoted('zebes_time_bomb_subtitle')})
                     things.extend([arena, warning])
                     links[id(placed)].update({'ToldWhenSealed': [arena], 'ToldWhenEscapeBegins': [warning]})
                     placed.properties['EscapeMusic'] = quoted('escape')

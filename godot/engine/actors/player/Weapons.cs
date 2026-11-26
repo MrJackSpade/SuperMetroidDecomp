@@ -339,6 +339,7 @@ public sealed class Weapons
         if (sound.Length > 0)
             player.Room.Session.Sounds.Request(sound, channel: "weapons");
         _cooldown = Countdown.Of(weapon.CooldownFor(player.Inventory, charged));
+        player.OnFired(weapon);
         return true;
     }
 

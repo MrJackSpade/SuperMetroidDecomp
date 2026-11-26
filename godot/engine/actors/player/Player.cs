@@ -1462,6 +1462,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
+    /// Called as a shot of <paramref name="weapon"/> has been launched from the player's weapons. A game in which
+    /// firing changes something of the player says so here.
+    /// </summary>
+    protected internal virtual void OnFired(WeaponStats weapon)
+    {
+    }
+
+    /// <summary>
     /// Called each time the player's own movement has moved their body along one axis: how far it set out to go,
     /// negative leftward or upward, and how far it went. A game that keeps a record of her moves keeps it here.
     /// </summary>

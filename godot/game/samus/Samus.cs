@@ -595,8 +595,10 @@ public partial class Samus : Player
     {
         GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
 
-        // Her shots do not come with her into a room, and the count her crash's echoes left goes with them.
+        // Her shots do not come with her into a room, and the count her crash's echoes left goes with them, as does
+        // the hold a shot put on her bombs.
         OrbitTravel.Clear();
+        _bombsHeldOff = Countdown.Over;
         (_blastEnded, _flashBomb) = (null, null);
 
         // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.
@@ -646,6 +648,24 @@ public partial class Samus : Player
         from is SpinJumpingState or WallJumpingState ? InMedium("spin_landing_updates", SpinLandingUpdates) : base.SettlingUpdatesAfter(from);
 
     /// <summary>
+    /// How many updates a fired beam, and a fired missile or super missile, keep her own bombs from throwing her: the
+    /// update it is fired on and those after it (the cartridge's ProjectileTimingDefinitions).
+    /// </summary>
+    private const int BeamHoldsBombsOff = 10, MissileHoldsBombsOff = 20;
+
+    /// <summary>What is left of the hold a shot of hers put on her own bombs.</summary>
+    private Countdown _bombsHeldOff = Countdown.Over;
+
+    /// <summary>A beam or a missile fired holds her own bombs off her for its count.</summary>
+    protected internal override void OnFired(WeaponStats weapon)
+    {
+        if (weapon.Name == Arsenal.Beam)
+            _bombsHeldOff = Countdown.Of(BeamHoldsBombsOff);
+        else if (weapon.Name is Arsenal.Missile or Arsenal.SuperMissile)
+            _bombsHeldOff = Countdown.Of(MissileHoldsBombsOff);
+    }
+
+    /// <summary>
     /// Throws her as a bomb of her own lies against her: straight up when the bomb was beneath her middle, and to the
     /// side away from it otherwise. The ball in her control is thrown as it is, and one already being thrown is
     /// thrown afresh. Upright she is thrown in a jump's pose, where that body fits, from standing, a wall stop, a
@@ -654,6 +674,9 @@ public partial class Samus : Player
     /// </summary>
     public void BombJump(PixelPosition bomb)
     {
+        // A shot just fired holds her own bombs off her, and so does her body being a weapon.
+        if (_bombsHeldOff.IsRunning || BodyPowers.Any(power => power.IsActive))
+            return;
         int away = Position.X.Whole - bomb.X.Whole;
         if (State is CrawlingState or BombJumpingState { Upright: false })
         {
@@ -1139,6 +1162,7 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        _bombsHeldOff = _bombsHeldOff.Stepped();
         // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
         (_shotHandedNow, _shotHanded) = (_shotHanded, false);
         StartCrystalFlashIfOffered();

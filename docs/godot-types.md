@@ -1205,7 +1205,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   charge's pulse; with none, the colours of the suit she wears, which is also all she shows while a suit is
   being put on. A crystal flash's colouring is laid over her beams' colours. This is the Godot design, not the
   cartridge's order of palette writes: which update a colouring shows on is presentation and is not matched.
-  The stored shine's time is the shine's own (`CountStoredShine`), counted every update with its sound. A
+  The stored shine's time is the shine's own (`CountStoredShine`), counted with its sound on every update but
+  those the cartridge skips it: while a drained Samus glows, and the update a shot's glow ends. A
   hurt is counted the same way (`CountHurt`), just before her colours are chosen: a knockback or energy found lost
   after she is shown starts it, a flying shinespark holds it, and its count times her hurt's sound and the asking
   again of the sound the hurt cut short; her colours read the count it stood at for the hurt's flash. A family not yet moved here is a ticket, not a tint to copy.

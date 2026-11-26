@@ -1139,12 +1139,15 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// Counts the stored shine's time down, once an update, and asks for its sound a while after it is stored. The
-    /// time is the shine's own: nothing that colours her holds it up.
+    /// Counts the stored shine's time down, once an update, and asks for its sound a while after it is stored. As on
+    /// the cartridge, neither is done while a drained Samus glows, nor on the update a charged shot's or a hyper
+    /// shot's glow ends and her suit is shown again.
     /// </summary>
     private void CountStoredShine()
     {
         if (!_shine.IsRunning)
+            return;
+        if (State is DrainedState { Glows: true } || _shotGlow is { EndsOnNextStep: true })
             return;
         if (_shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
             Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);

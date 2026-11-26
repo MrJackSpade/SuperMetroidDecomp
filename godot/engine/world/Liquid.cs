@@ -26,9 +26,22 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     [Export]
     public int HighSurface { get; set; }
 
-    /// <summary>How far the surface moves each update while rising or falling, as a number of pixels.</summary>
+    /// <summary>
+    /// How far the surface moves each update while rising or falling, as a number of pixels. A speed is spent as the
+    /// surface arrives where it was heading: it goes nowhere more until it is given a speed again, or told to rise or
+    /// fall.
+    /// </summary>
     [Export]
-    public double MoveSpeed { get; set; } = 1;
+    public double MoveSpeed
+    {
+        get => _moveSpeed;
+        set => (_moveSpeed, _speedSpent) = (value, false);
+    }
+
+    private double _moveSpeed = 1;
+
+    /// <summary>Whether the speed it has brought the surface where it was heading, and so moves it no more.</summary>
+    private bool _speedSpent;
 
     /// <summary>Whether the liquid starts raised.</summary>
     [Export]
@@ -79,11 +92,35 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Where the surface lies with the tide left out of it.</summary>
     private Pixels _level;
 
-    /// <summary>The updates left before it starts toward where it is heading.</summary>
+    /// <summary>Where a rise or fall has got to.</summary>
+    private enum Motion
+    {
+        /// <summary>It is going nowhere. With somewhere to go and a speed to go at, an update only begins its wait.</summary>
+        Dormant,
+
+        /// <summary>It counts its wait down, an update at a time, and moves from the update after the count runs out.</summary>
+        Waiting,
+
+        /// <summary>It moves toward where it is heading, and is dormant again once it arrives.</summary>
+        Moving,
+    }
+
+    private Motion _motion;
+
+    /// <summary>
+    /// The count left of its wait. It is counted down before it is asked whether it has run out, round the end of a
+    /// count of 65536: a wait of nothing is the longest there is.
+    /// </summary>
     private int _waiting;
 
-    /// <summary>How far round the tide has turned, in 256ths of a turn, and how far that puts the surface from where it lies.</summary>
-    private double _tidePhase;
+    /// <summary>Whether it is heading down, to a lower surface, settled as it is given somewhere to go.</summary>
+    private bool _goesDown;
+
+    /// <summary>
+    /// How far round the tide has turned, in 256ths of a 256th of a turn, and how far that puts the surface from where
+    /// it lies.
+    /// </summary>
+    private int _tidePhase;
     private Pixels _tide;
 
     /// <summary>Where the surface is heading.</summary>
@@ -110,7 +147,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _type = LiquidType.Read(content.ReadData(TypeFile));
         _level = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
         _target = _level;
-        (_waiting, _tidePhase, _tide) = (0, 0, Pixels.Zero);
+        (_motion, _speedSpent, _waiting, _tidePhase, _tide) = (Motion.Dormant, false, MoveDelay, 0, Pixels.Zero);
         Surface = _level;
         _content = content;
         _surface = _type.Surface is { } surface ? new TimelinePlayer(surface) : null;
@@ -138,10 +175,11 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(speed);
         ArgumentOutOfRangeException.ThrowIfNegative(delay);
         (MoveSpeed, _waiting, _target) = (speed, delay, Pixels.FromWhole(height));
+        _goesDown = _target.Whole > _level.Whole;
     }
 
-    /// <summary>Ends whatever wait is left before it starts toward where it is heading.</summary>
-    public void EndWait() => _waiting = 0;
+    /// <summary>Cuts whatever wait is left to one update: a liquid already waiting starts to move on the update after its next.</summary>
+    public void EndWait() => _waiting = 1;
 
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
@@ -167,31 +205,65 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     }
 
     /// <summary>
-    /// Moves the surface one update toward where it is heading, once its wait is over, and turns its tide. The room
-    /// does this as an update opens, so that everything in the update finds the surface where the update shows it.
+    /// Plays one update of the surface's rise or fall, and turns its tide. A rise or fall goes by stages: dormant, an
+    /// update on which it has somewhere to go and a speed only begins its wait; waiting, it counts the wait down; and
+    /// from the update after the count runs out it moves, until it arrives. The room does this as an update opens, so
+    /// that everything in the update finds the surface where the update shows it.
     /// </summary>
     internal void Move()
     {
-        if (_waiting > 0)
+        switch (_motion)
         {
-            _waiting--;
-        }
-        else if (_level != _target)
-        {
-            Pixels step = Pixels.FromNumber(MoveSpeed);
-            _level = _level < _target
-                ? (_level + step > _target ? _target : _level + step)
-                : (_level - step < _target ? _target : _level - step);
+            case Motion.Dormant:
+                // With somewhere to go and a speed to go at it begins to wait; nothing moves on this update.
+                if (!_speedSpent && _moveSpeed > 0 && _level.Whole != _target.Whole)
+                {
+                    _goesDown = _target.Whole > _level.Whole;
+                    _motion = Motion.Waiting;
+                }
+
+                break;
+
+            case Motion.Waiting:
+                _waiting = (_waiting - 1) & 0xFFFF;
+                if (_waiting == 0)
+                    _motion = Motion.Moving;
+                break;
+
+            case Motion.Moving:
+                if (Arrives())
+                    (_speedSpent, _motion) = (true, Motion.Dormant);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Undefined stage {_motion} of a liquid's motion.");
         }
 
         if (TideReach > 0)
         {
-            // The tide lifts the surface and lets it fall, turning more slowly while it is lifted.
-            _tide = Pixels.FromNumber(-Math.Cos(_tidePhase * Math.Tau / 256) * TideReach);
-            _tidePhase += _tide.IsNegative ? TideTurnAbove : TideTurnBelow;
+            // The tide lifts the surface and lets it fall: the negative cosine of how far it has turned, by the game's
+            // table of sines, taken at the whole 256th of a turn it has reached. It turns more slowly while lifted.
+            const int perStep = 256;
+            _tide = Pixels.FromWhole(TideReach * Turns.CoarseSine((_tidePhase / perStep) - (Turns.PerTurn / 4))).Share(1, perStep);
+            int turn = (int)Math.Round((_tide.IsNegative ? TideTurnAbove : TideTurnBelow) * perStep);
+            _tidePhase = (_tidePhase + turn) % (Turns.PerTurn * perStep);
         }
 
         Surface = _level + _tide;
+    }
+
+    /// <summary>
+    /// Moves where the surface lies one update toward where it is heading, and returns whether it has arrived.
+    /// Heading down it has arrived once it is past the line it was heading for, and is put back on that line; heading
+    /// up, once it is on that line or above it. Arrived, it lies on the line with no part of a pixel.
+    /// </summary>
+    private bool Arrives()
+    {
+        Pixels step = Pixels.FromNumber(_moveSpeed);
+        Pixels moved = _goesDown ? _level + step : _level - step;
+        bool arrived = _goesDown ? moved.Whole > _target.Whole : moved.Whole <= _target.Whole;
+        _level = arrived ? Pixels.FromWhole(_target.Whole) : moved;
+        return arrived;
     }
 
     /// <summary>Draws the strip along the surface and the body under it, across the view.</summary>
@@ -240,5 +312,9 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
             "fall" => Pixels.FromWhole(LowSurface),
             _ => throw new ArgumentException($"A liquid can be told to \"rise\" or \"fall\", not \"{what}\".", nameof(what)),
         };
+
+        // Told to go, it has its speed to go at again.
+        _speedSpent = false;
+        _goesDown = _target.Whole > _level.Whole;
     }
 }

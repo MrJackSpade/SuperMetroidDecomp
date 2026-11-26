@@ -114,7 +114,12 @@ public sealed partial class EngineAssetWriter
         foreach (string kind in new[] { "screw_attack", "speed_boost", "shinespark", "charged_spin", "grapple" })
             reactions.Add(new JsonObject { ["kinds"] = new JsonArray(kind), ["damage"] = "none" });
 
+        // The old bug is a shot drawn behind Samus, and so behind every enemy that stands behind her, the Kago it
+        // comes out of among them.
+        if (old.Depth != EnemyProjectileDepth.BehindSamus)
+            throw new InvalidDataException("The Kago's bug is not drawn behind Samus, which the Godot bug's standing says it is.");
         EngineObjectFile bug = new EngineObjectFile(_tree, file, "KagoBug").PictureOffset(pictures)
+            .Group("standing", "rearmost")
             .Value("health", 1)
             .Value("contact_damage", old.Damage)
             .Value("jump_speed", KagoDefinitions.BaseJumpSpeedPixels)

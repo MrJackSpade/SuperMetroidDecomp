@@ -166,6 +166,20 @@ public sealed partial class EngineAssetWriter
         for (int band = 0; band < bands.Count; band++)
             _sheets.CutShade(_tree, family, folder + "_health_" + band.ToString(CultureInfo.InvariantCulture), sheet, DraygonShades.Health(bands[band]).Key);
 
+        // His hurt flash, shown on the updates the engine's flash shows: his tail and his arms in his sprites' white laid
+        // over his opening's colours, and his body and eye in his body's white, whichever band of his health they are in.
+        draygon.Group("hurt_colours", ShadeChange(DraygonShades.Intro.Key + "+" + DraygonShades.SpriteWhite.Key, GameInstallationLayout.EnemySheetDirectoryName,
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                [folder + "_tail"] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonTail))],
+                [folder + "_arms"] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.DraygonArms))],
+            }));
+        for (int band = 0; band < bands.Count; band++)
+        {
+            draygon.FlashShaded(folder + "_health_" + band.ToString(CultureInfo.InvariantCulture), family, sheet,
+                DraygonShades.Health(bands[band]).Key, DraygonShades.BodyWhite.Key);
+        }
+
         static JsonObject Field(RandomSampleField field) => new() { ["from"] = field.Shift, ["digits"] = field.Width };
 
         // Its brood: those that dance before the fight, and those that bury it. The Godot Draygon counts a heading

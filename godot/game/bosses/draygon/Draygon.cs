@@ -993,7 +993,7 @@ public partial class Draygon : Enemy
                 continue;
             TimelineStep step = player.Shown;
             visual.Show(step with { Picture = Coloured(step.Picture) });
-            // Every part of it flashes with its body.
+            // Every part of it is tinted as its body is; its hurt flash's colours are shown on each part by the flash.
             if (Visual is { } body)
                 visual.Tint(body.Modulate);
         }

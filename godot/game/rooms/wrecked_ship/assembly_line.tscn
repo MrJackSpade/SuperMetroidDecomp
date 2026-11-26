@@ -49,7 +49,6 @@ position = Vector2(0, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/wrecked_ship/attic.tscn"
 LeadsToExit = "ToAssemblyLine"
-Style = 0
 ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(6, 0)

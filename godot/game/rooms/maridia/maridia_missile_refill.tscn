@@ -34,7 +34,6 @@ position = Vector2(0, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/maridia/halfie_climb.tscn"
 LeadsToExit = "ToMaridiaMissileRefill"
-Style = 0
 ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(4, 2)

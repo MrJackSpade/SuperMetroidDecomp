@@ -48,7 +48,6 @@ position = Vector2(96, 496)
 Size = Vector2i(64, 16)
 LeadsToRoom = "res://game/rooms/maridia/west_sand_hall.tscn"
 LeadsToExit = "FromWestSandHoleToWestSandHall"
-Style = 1
 ArrivalOffset = Vector2i(32, -24)
 Travel = 2
 ToScreen = Vector2i(2, 0)

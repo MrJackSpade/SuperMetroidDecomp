@@ -36,7 +36,6 @@ position = Vector2(0, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/maridia/glass_tunnel.tscn"
 LeadsToExit = "ToGlassTunnelSave"
-Style = 0
 ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(0, 2)

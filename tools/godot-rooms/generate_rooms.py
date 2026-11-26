@@ -851,7 +851,6 @@ class Generator:
                 'Size': f'Vector2i({width}, {height})',
                 'LeadsToRoom': quoted(room_scene(target)),
                 'LeadsToExit': quoted(arrives_at),
-                'Style': '0' if across else '1',
                 'ArrivalOffset': f'Vector2i({offset_x}, {offset_y})',
                 'Travel': str(DOOR_WAYS.index(door.direction)),
                 'ToScreen': f'Vector2i({door.to_screen[0]}, {door.to_screen[1]})',

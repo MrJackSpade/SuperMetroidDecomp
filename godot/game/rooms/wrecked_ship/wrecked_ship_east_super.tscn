@@ -62,7 +62,6 @@ position = Vector2(0, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_main_shaft.tscn"
 LeadsToExit = "ToWreckedShipEastSuper"
-Style = 0
 ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(5, 6)

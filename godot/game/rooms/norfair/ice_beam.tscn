@@ -46,7 +46,6 @@ position = Vector2(0, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/norfair/ice_beam_snake.tscn"
 LeadsToExit = "ToIceBeam"
-Style = 0
 ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(1, 1)

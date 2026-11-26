@@ -40,7 +40,6 @@ position = Vector2(240, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/brinstar/dachora.tscn"
 LeadsToExit = "ToDachoraEnergyRefill"
-Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 Travel = 0
 ToScreen = Vector2i(0, 6)

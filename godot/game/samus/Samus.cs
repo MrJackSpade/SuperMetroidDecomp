@@ -264,9 +264,13 @@ public partial class Samus : Player
     [Export, DataValue("xray_widest_half_width")]
     public int XrayWidestHalfWidth { get; set; } = 10;
 
-    /// <summary>How many updates collecting a suit holds her for.</summary>
+    /// <summary>
+    /// How many updates collecting a suit holds her for. The cartridge's light gives her control back on its 165th
+    /// step: a wait of 2, the light appearing over 16, widening evenly over 24 and by its curve over 23, the suit shown
+    /// on one, the light closing over 83 and thinning out over 15, and the step that ends it.
+    /// </summary>
     [Export, DataValue("suit_pickup_updates")]
-    public int SuitPickupUpdates { get; set; } = 240;
+    public int SuitPickupUpdates { get; set; } = 164;
 
     /// <summary>How far the X-ray scope sees, in pixels.</summary>
     [Export, DataValue("xray_reach")]

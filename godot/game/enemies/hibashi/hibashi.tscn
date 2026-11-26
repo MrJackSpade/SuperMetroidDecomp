@@ -11,6 +11,6 @@ DataFile = "enemies/hibashi.json"
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Hitbox" type="Node2D" parent="."]
+[node name="Flame" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1

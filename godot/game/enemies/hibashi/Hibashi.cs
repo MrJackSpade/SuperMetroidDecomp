@@ -94,8 +94,12 @@ public partial class Hibashi : Enemy
         }
     }
 
-    /// <summary>The part of the flame that hurts.</summary>
+    /// <summary>
+    /// The part of the flame that touches: Samus, whom it hurts, and her shots and the grapple's line, which it takes
+    /// by its reactions. It is one box for all three, as the cartridge's unseen part of the flame is, there only while
+    /// the flame erupts and shaped by each step of the eruption.
+    /// </summary>
     private Collider Flame =>
-        EntityNode.CollidersOf(this).FirstOrDefault(collider => collider.Role == ColliderRole.Hitbox)
-        ?? throw new InvalidOperationException($"The Hibashi \"{Name}\" has no hitbox collider.");
+        EntityNode.CollidersOf(this).FirstOrDefault(collider => collider.Role == ColliderRole.Hurtbox)
+        ?? throw new InvalidOperationException($"The Hibashi \"{Name}\" has no hurtbox collider.");
 }

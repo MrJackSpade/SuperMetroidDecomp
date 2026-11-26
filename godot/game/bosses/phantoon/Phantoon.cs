@@ -496,7 +496,8 @@ public partial class Phantoon : Enemy
             case Phase.PickNextAppearance:
                 bool right = Random.Draw().Part(0, 1) == 1;
                 _pathPlace = right ? 136 : 399;
-                Position = PixelPosition.FromWhole(right ? 208 : 48, 96);
+                // Only his whole pixels are set: the part of a pixel he had each way stays his.
+                Position = new PixelPosition(Position.X.WithWhole(right ? 208 : 48), Position.Y.WithWhole(96));
                 _pathBackward = false;
                 _pathSpeed = Pixels.FromWhole(1);
                 _nextIsRain = false;

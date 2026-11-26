@@ -12,6 +12,9 @@ namespace Engine.Shared;
 /// <param name="UnhittableUpdates">How many updates the target cannot be hit again after taking the hit's damage.</param>
 /// <param name="StatusUnhittableUpdates">How many updates the target cannot be hit again after the hit put it in the status.</param>
 /// <param name="TurnsBack">Whether the projectile that delivered the hit is turned back.</param>
+/// <param name="Passes">
+/// Whether the hit takes no notice of the target: nothing is done to it, and what delivered the hit goes on unspent.
+/// </param>
 public sealed record Reaction(
     ImmutableHashSet<HitKind> Kinds,
     int DamageTimes,
@@ -21,10 +24,11 @@ public sealed record Reaction(
     int StatusUpdates,
     int UnhittableUpdates,
     int StatusUnhittableUpdates,
-    bool TurnsBack)
+    bool TurnsBack,
+    bool Passes)
 {
     /// <summary>The reaction of something with no reaction of its own to a hit: it takes the hit's full damage.</summary>
-    public static Reaction FullDamage { get; } = new([], 1, 1, "", StatusWhen.Never, 0, 0, 0, false);
+    public static Reaction FullDamage { get; } = new([], 1, 1, "", StatusWhen.Never, 0, 0, 0, false, false);
 
     /// <summary>The damage a hit of <paramref name="damage"/> does under this reaction.</summary>
     public int DamageFrom(int damage) => damage * DamageTimes / DamageOver;

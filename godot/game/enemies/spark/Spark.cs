@@ -21,13 +21,6 @@ public partial class Spark : Enemy, IShocksGrapple
     /// <summary>Her grapple's line touching it takes its own touch's damage from her.</summary>
     public int GrappleShock => ContactDamage;
 
-    /// <summary>
-    /// The cartridge's Spark answers her grapple by hurting her and giving its line up (which her grapple does, on
-    /// meeting one that shocks it), and everything else by letting it pass: a shot or a bomb goes on unspent.
-    /// </summary>
-    public override HitResult TakeHit(Hit hit, Collider part) =>
-        hit.Carries(new HitKind(Game.Data.HitKinds.Grapple)) ? HitResult.Absorbed : HitResult.Ignored;
-
     /// <summary>What a spark does.</summary>
     public enum Kind
     {

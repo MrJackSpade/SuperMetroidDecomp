@@ -1,9 +1,7 @@
 using Engine.Actors;
-using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
-using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -44,13 +42,6 @@ public partial class FaceBlock : Enemy
         base.ReadValues(data);
         _glowLevels = [.. data.List("glow").Select(ColourChange.Read)];
     }
-
-    /// <summary>
-    /// The cartridge's face block answers her grapple by giving its line up, and everything else by letting it pass:
-    /// a shot or a bomb goes on unspent, with no dud's flash.
-    /// </summary>
-    public override HitResult TakeHit(Hit hit, Collider part) =>
-        hit.Carries(new HitKind(Game.Data.HitKinds.Grapple)) ? HitResult.Absorbed : HitResult.Ignored;
 
     /// <summary>
     /// Set up, it joins its room's glow, starts it if Samus already has what wakes it, and in any case starts the

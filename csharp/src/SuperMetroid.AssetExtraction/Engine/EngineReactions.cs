@@ -19,12 +19,19 @@ internal static partial class EngineReactions
     /// <param name="Freezes">Whether it freezes the enemy every time.</param>
     /// <param name="FreezesInsteadOfKilling">Whether it freezes the enemy in place of destroying it.</param>
     /// <param name="Unhittable">How many updates the enemy cannot be hit after taking the damage.</param>
-    private readonly partial record struct Outcome(int Halves, bool Kills = false, bool Freezes = false, bool FreezesInsteadOfKilling = false, int Unhittable = 0);
+    private readonly partial record struct Outcome(
+        int Halves, bool Kills = false, bool Freezes = false, bool FreezesInsteadOfKilling = false, int Unhittable = 0, bool Passes = false);
 
     /// <summary>What a hit with no reaction does in the Godot game: its whole damage and nothing more.</summary>
     private static readonly Outcome Unanswered = new(2);
 
     private static readonly Outcome Nothing = new(0);
+
+    /// <summary>
+    /// What the old game's reaction that does nothing comes to: the hit takes no notice of the enemy, and what
+    /// delivered it goes on unspent. A dud is not that: it does nothing to the enemy and spends the shot.
+    /// </summary>
+    private static readonly Outcome Passed = new(0, Passes: true);
 
     /// <summary>
     /// The damage the grapple beam's hit carries. The old grapple takes no health from anything it touches: it stops
@@ -38,8 +45,13 @@ internal static partial class EngineReactions
     internal static JsonArray Of(RoomEnemyDefinition definition)
     {
         EnemyVulnerabilities table = definition.Vulnerability;
-        // An enemy whose shots are duds, or pass it by, is harmed by none of them whatever its table says.
-        bool shotsHarm = !definition.Shot.IsDud && !ReferenceEquals(definition.Shot, EnemyReaction.Ignore);
+        // An enemy whose shots are duds, or pass it by, is harmed by none of them whatever its table says. Shots pass
+        // one whose reaction is to do nothing, and the two species whose own reaction lets a shot fly on.
+        bool shotsPass = ReferenceEquals(definition.Shot, EnemyReaction.Ignore)
+            || ReferenceEquals(definition.Shot, SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockReactions.Shot)
+            || ReferenceEquals(definition.Shot, SuperMetroid.Core.Enemies.Sparks.SparkReactions.Shot);
+        bool shotsHarm = !definition.Shot.IsDud && !shotsPass;
+        Outcome spared = shotsPass ? Passed : Nothing;
         bool touchHarms = !ReferenceEquals(definition.Touch, EnemyReaction.Ignore);
         bool powerBombHarms = !ReferenceEquals(definition.PowerBombReaction, EnemyReaction.Ignore);
 
@@ -53,26 +65,35 @@ internal static partial class EngineReactions
             foreach ((string[] kinds, EnemyWeaponVulnerability beam) in combined)
             {
                 bool ice = kinds.Contains("ice"), plasma = family.Contains("plasma");
-                hits.Add((["beam", .. family, .. kinds], shotsHarm ? OfBeam(beam, beam.Multiplier, ice, plasma) : Nothing));
+                hits.Add((["beam", .. family, .. kinds], shotsHarm ? OfBeam(beam, beam.Multiplier, ice, plasma) : spared));
                 // A charged shot takes the charged beam's damage, and still freezes as the beam it is does.
-                hits.Add((["beam", "charged", .. family, .. kinds], shotsHarm ? OfBeam(beam, table.ChargedBeam.Multiplier, ice, plasma) : Nothing));
+                hits.Add((["beam", "charged", .. family, .. kinds], shotsHarm ? OfBeam(beam, table.ChargedBeam.Multiplier, ice, plasma) : spared));
             }
         }
 
         Beams([], table.Power);
         Beams(["spazer"], table.Spazer);
         Beams(["plasma"], table.Plasma);
-        hits.Add((["missile"], shotsHarm ? new Outcome(Halves(table.Ordnance.Missile.Multiplier)) : Nothing));
-        hits.Add((["super_missile"], shotsHarm ? new Outcome(Halves(table.Ordnance.SuperMissile.Multiplier)) : Nothing));
-        hits.Add((["bomb"], shotsHarm ? new Outcome(Halves(table.Ordnance.Bomb.Multiplier)) : Nothing));
+        hits.Add((["missile"], shotsHarm ? new Outcome(Halves(table.Ordnance.Missile.Multiplier)) : spared));
+        hits.Add((["super_missile"], shotsHarm ? new Outcome(Halves(table.Ordnance.SuperMissile.Multiplier)) : spared));
+        hits.Add((["bomb"], shotsHarm ? new Outcome(Halves(table.Ordnance.Bomb.Multiplier)) : spared));
         int powerBomb = powerBombHarms ? Halves(table.Ordnance.PowerBomb.Multiplier) : 0;
-        hits.Add((["power_bomb"], new Outcome(powerBomb, Unhittable: powerBomb > 0 ? EnemyCollisionDefinitions.PowerBombInvincibilityUpdates : 0)));
-        hits.Add((["speed_boost"], touchHarms ? new Outcome(Halves(table.Contact.SpeedBooster.Multiplier)) : Nothing));
-        hits.Add((["shinespark"], touchHarms ? new Outcome(Halves(table.Contact.Shinespark.Multiplier)) : Nothing));
-        hits.Add((["screw_attack"], touchHarms ? new Outcome(Halves(table.Contact.ScrewAttack.Multiplier)) : Nothing));
-        hits.Add((["charged_spin"], touchHarms ? new Outcome(Halves(table.Contact.PseudoScrew.Multiplier)) : Nothing));
-        // The grapple beam destroys some enemies outright and does nothing to the rest but stop on them.
-        hits.Add((["grapple"], definition.GrappleResponse.BeamReaction == GrappleEnemyReaction.Kill ? new Outcome(0, Kills: true) : Nothing));
+        hits.Add((["power_bomb"], powerBombHarms
+            ? new Outcome(powerBomb, Unhittable: powerBomb > 0 ? EnemyCollisionDefinitions.PowerBombInvincibilityUpdates : 0)
+            : Passed));
+        hits.Add((["speed_boost"], touchHarms ? new Outcome(Halves(table.Contact.SpeedBooster.Multiplier)) : Passed));
+        hits.Add((["shinespark"], touchHarms ? new Outcome(Halves(table.Contact.Shinespark.Multiplier)) : Passed));
+        hits.Add((["screw_attack"], touchHarms ? new Outcome(Halves(table.Contact.ScrewAttack.Multiplier)) : Passed));
+        hits.Add((["charged_spin"], touchHarms ? new Outcome(Halves(table.Contact.PseudoScrew.Multiplier)) : Passed));
+
+        // The grapple beam destroys some enemies outright, goes on past those that have no reaction to it as if they
+        // were not there, and does nothing to the rest but stop on them.
+        hits.Add((["grapple"], definition.GrappleResponse.BeamReaction switch
+        {
+            GrappleEnemyReaction.Kill => new Outcome(0, Kills: true),
+            GrappleEnemyReaction.None => Passed,
+            _ => Nothing,
+        }));
 
         var reactions = hits.Select(hit => (Kinds: hit.Kinds.ToList(), hit.Outcome)).ToList();
         bool AnswersAll() => hits.All(hit => Answer(reactions, hit.Kinds) == hit.Outcome);
@@ -125,6 +146,8 @@ internal static partial class EngineReactions
 
             if (outcome.Unhittable > 0)
                 reaction["unhittable_updates"] = outcome.Unhittable;
+            if (outcome.Passes)
+                reaction["passes"] = true;
             written.Add(reaction);
         }
 

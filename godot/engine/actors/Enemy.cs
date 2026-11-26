@@ -510,10 +510,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (IsDead)
             return HitResult.Ignored;
+
+        // A hit its reaction lets pass takes no notice of it, whatever state it is in.
+        Reaction reaction = ReactionTo(hit, part);
+        if (reaction.Passes)
+            return HitResult.Ignored;
         if (_unhittable.IsRunning)
             return HitResult.Absorbed;
-
-        Reaction reaction = ReactionTo(hit, part);
         if (reaction.TurnsBack)
             return HitResult.TurnedBack;
 

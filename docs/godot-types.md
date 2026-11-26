@@ -335,7 +335,11 @@ charged.
   - any status it puts the thing in (frozen, for one), and when: always, only in place of dying, or never;
   - whether the thing is briefly unhittable afterwards, and for how long: after taking the damage, and after
     being put in the status;
-  - whether the projectile that delivered it is turned back.
+  - whether the projectile that delivered it is turned back;
+  - whether the hit passes: it takes no notice of the thing, nothing is done to it, and what delivered the hit
+    goes on unspent (`Reaction.Passes`, "passes" in data). Doing no damage is not that: such a hit is a dud or
+    is absorbed, and is spent. This game's extractor writes a passing reaction for whatever the cartridge's
+    enemy ignores: shots, a power bomb, Samus's body as a weapon, or the grapple's line.
 - So a simple enemy needs one or two reactions ("beam: none", "plasma: all") and an awkward one lists the exact
   combination it treats specially. Nothing is computed from the parts.
 - Barriers and blocks use the same hits: each lists the kinds it accepts and the amount each takes off.

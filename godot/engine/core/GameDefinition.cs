@@ -14,10 +14,6 @@ namespace Engine.Core;
 [GlobalClass]
 public abstract partial class GameDefinition : Resource
 {
-    /// <summary>The scene of the first mode: the screen the game starts on. Its root is a <see cref="GameMode"/>.</summary>
-    [Export]
-    public PackedScene? FirstMode { get; set; }
-
     /// <summary>
     /// The names of the actions this game adds to the engine's own. Each is also the name of an action in Godot's input
     /// map, where the player's buttons are bound to it.
@@ -41,15 +37,8 @@ public abstract partial class GameDefinition : Resource
     [Export]
     public uint RandomSeed { get; set; } = 1;
 
-    /// <summary>Makes the mode a new session starts in.</summary>
-    /// <exception cref="InvalidOperationException">No first mode is set, or its scene's root is not a mode.</exception>
-    public virtual GameMode CreateFirstMode()
-    {
-        PackedScene scene = FirstMode ?? throw new InvalidOperationException("The game definition names no first mode.");
-        Node root = scene.Instantiate();
-        return root as GameMode
-            ?? throw new InvalidOperationException($"The first mode's scene root is a {root.GetType().Name}, not a GameMode.");
-    }
+    /// <summary>Makes the mode a new session starts in: the screen the game starts on.</summary>
+    public abstract GameMode CreateFirstMode();
 
     /// <summary>The scene of the player. Its root is a <see cref="Player"/>.</summary>
     [Export]

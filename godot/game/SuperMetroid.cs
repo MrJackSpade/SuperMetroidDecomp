@@ -25,7 +25,7 @@ public partial class SuperMetroid : GameDefinition
 #endif
 
     /// <summary>The game starts on its title screen.</summary>
-    public override GameMode CreateFirstMode() => FirstMode is null ? new Menus.TitleMode() : base.CreateFirstMode();
+    public override GameMode CreateFirstMode() => new Menus.TitleMode();
 
     /// <summary>Pausing brings up the map and equipment screens.</summary>
     public override GameMode CreatePauseMode(PlayingMode playing) => new PauseScreen(playing);

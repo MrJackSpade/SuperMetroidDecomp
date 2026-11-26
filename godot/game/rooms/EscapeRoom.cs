@@ -13,7 +13,7 @@ namespace Game.Rooms;
 /// </summary>
 public partial class EscapeRoom : RoomSequence
 {
-    /// <summary>Whether the room is out of doors, where blasts come twice as often.</summary>
+    /// <summary>Whether the room is out of doors, where blasts come twice as often and go off only over scenery.</summary>
     [Export]
     public bool Outdoors { get; set; }
 
@@ -105,6 +105,13 @@ public partial class EscapeRoom : RoomSequence
         RandomDraw where = room.Session.Random.Draw();
         PixelRect view = room.Session.Camera.View;
         var at = PixelPosition.FromWhole(view.Left + where.Part(0, 8), view.Top + where.Part(8, 8));
+
+        // Out of doors a blast goes off only over a block that shows scenery: over open space there is none, and no
+        // number is drawn for its kind. What lies beyond the room's blocks counts as scenery, as on the cartridge.
+        Terrain terrain = room.Terrain;
+        bool inRoom = at.X.Whole >= 0 && at.Y.Whole >= 0 && at.X.Whole < terrain.WidthInPixels && at.Y.Whole < terrain.HeightInPixels;
+        if (Outdoors && inRoom && !terrain.ShowsTileAt(at.X.Whole, at.Y.Whole))
+            return false;
         int kind = room.Session.Random.Draw().Part(0, 4);
         (string effect, string sound) = kind switch
         {

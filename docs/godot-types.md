@@ -586,6 +586,8 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 
 - A block is drawn at every tile it covers, and its type's pictures are the same at each. A type's pictures may
   name the room's set of graphics by its placeholder, so one type serves every set.
+- `Terrain` says whether the tile at a point draws a picture as the layout has it (`ShowsTileAt`): scenery, as
+  against open space. This game's escape asks it, whose blasts out of doors go off only over scenery.
 - `Terrain` hands the room the sounds of the blocks that broke each update, one for each block in the order they
   broke, and the room asks for each: several blocks broken together ask several times.
 - `Terrain` does not know the player, enemies or weapons by name. It is told "this rectangle touched you" or "this

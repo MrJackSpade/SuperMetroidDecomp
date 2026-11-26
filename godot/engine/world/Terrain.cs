@@ -574,6 +574,18 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     }
 
     /// <summary>
+    /// Whether the tile at a point of the room draws a picture as the layout has it: scenery, as against open space.
+    /// A point outside the room's tiles has none.
+    /// </summary>
+    public bool ShowsTileAt(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= WidthInPixels || y >= HeightInPixels)
+            return false;
+        TileDefinition tile = _tiles[y / TileSize][x / TileSize];
+        return tile.Picture.Length > 0 || tile.Frames.Count > 0;
+    }
+
+    /// <summary>
     /// Shows the tile at a point of the room as a revealing ability sees it, through this update, if it looks
     /// otherwise seen: a tile that names a picture for that. Returns whether it does.
     /// </summary>

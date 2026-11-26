@@ -3,7 +3,10 @@ change it asks for, and writes the declaration into the ticket's body.
 
 The owner's rule (2026-11-26): every ticket says whether its change is exclusively presentation. One that is says
 whether the change is idiomatic. One that is exclusively presentation and not idiomatic gives the justification for
-its design pattern. A ticket that is not exclusively presentation, or that is idiomatic, needs nothing further.
+its design pattern: why implementing it is more important than an idiomatic design, which for presentation alone is
+unlikely ever to hold. It is justified when the owner says it is, and never without cause to believe there is an
+actual difference a player sees or hears. A ticket that is not exclusively presentation, or that is idiomatic, needs
+nothing further.
 
     python tools/new-ticket.py --title "..." --body-file body.md --milestone v1.0.0 --label low
         --presentation-only true|false [--idiomatic true|false] [--design-justification "..."]
@@ -52,7 +55,11 @@ def main() -> int:
     parser.add_argument("--label", action="append", default=[], help="A label; give it once for each.")
     parser.add_argument("--presentation-only", required=True, type=boolean, help="Whether the change is exclusively presentation.")
     parser.add_argument("--idiomatic", type=boolean, help="For a change that is exclusively presentation: whether it is idiomatic.")
-    parser.add_argument("--design-justification", help="For a presentation change that is not idiomatic: the justification for its design pattern.")
+    parser.add_argument(
+        "--design-justification",
+        help="For a presentation change that is not idiomatic: why implementing it is more important than an idiomatic design. "
+             "It is justified when the owner says it is, and never without cause to believe a player sees or hears a difference: "
+             "say what that difference is.")
     arguments = parser.parse_args()
 
     declared = declaration(arguments.presentation_only, arguments.idiomatic, arguments.design_justification)

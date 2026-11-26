@@ -242,6 +242,12 @@ reproducing a reported bug.
   justification for the design pattern. So you can not create any presentation only change that is not
   ideomatic without justification. If not presentation only, or it is ideomatic, then the subsequent fields
   are not required".
+- What the justification is, in the owner's words, 2026-11-26: "the 'justification' is supposed to be 'Why is
+  implementing this more important than an ideomatic design', which for presentation only its _unlikely_ that
+  it ever will be non-ideomatic and justified. Not impossible, but unlikely. Its always justified if I say its
+  justified and its never justified if you have not cause to believe theres an actual visual difference."
+  A ticket that says only that the two games differ, without what a player would see or hear differently, is
+  not justified.
 - A ticket is opened only with `python tools/new-ticket.py`, which takes `--presentation-only true|false`,
   for a change that is exclusively presentation `--idiomatic true|false`, and for one that is not idiomatic
   `--design-justification "..."`, and writes them into the ticket's body under "Design declaration".

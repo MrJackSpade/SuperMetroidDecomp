@@ -80,7 +80,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/corpse_skree.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_zoomer_on_its_back.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_zoomer_upright.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
-| `enemies/covern.json` | `Covern` | bob_quickening, bob_start_speed, brighten_updates, contact_damage, first_extra_delay, health, lead_distance, materialise_updates, reappearance_delay, steady_course_updates, still_updates, vanish_updates, visible_updates |
+| `enemies/covern.json` | `Covern` | bob_quickening, bob_start_speed, contact_damage, first_extra_delay, health, lead_distance, reappearance_delay, steady_course_updates, still_updates, visible_updates |
 | `enemies/dead_sidehopper.json` | `DeadSidehopper` | contact_damage, disturbed_updates, drain_step_updates, dust_effect, dust_sound, health, pause_updates, rows |
 | `enemies/dead_torizo.json` | `DeadTorizo` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows, sand_line_updates, sand_lines, sand_rows |
 | `enemies/dessgeega.json` | `Hopper` | across_speed, big_hop_height, big_hop_step, contact_damage, fastest_mark, health, small_hop_height, small_hop_step, speed_curve |

@@ -522,9 +522,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     }
 
     /// <summary>
-    /// Moves a projectile that leads with its edge: the whole of its move across, then, if nothing stopped it, the
-    /// whole of its move down. Along each it meets solids and targets a pixel at a time, and the terrain once, by its
-    /// leading edge, where the move ended.
+    /// Moves a projectile that meets terrain where each move ends: the whole of its move across, then, if nothing
+    /// stopped it, the whole of its move down. Along each it meets solids and targets a pixel at a time, and the
+    /// terrain once, by its leading edge or its middle, where the move ended.
     /// </summary>
     private void TravelLeadingWithEdge(Room room, PixelOffset offset)
     {
@@ -559,14 +559,38 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (pixels == 0 && !Advance(room, Position))
             return false;
         Position = target;
-        return _settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.FrontEdge
-            ? !MeetTerrainWithEdge(room, across, backward: distance.IsNegative)
-            : !MeetTerrainWithSide(room, across, backward: distance.IsNegative, from);
+        return _settings.MeetsTerrainBy switch
+        {
+            ProjectileSettings.TerrainBy.FrontEdge => !MeetTerrainWithEdge(room, across, backward: distance.IsNegative),
+            ProjectileSettings.TerrainBy.Middle => !MeetTerrainAtMiddle(room),
+            _ => !MeetTerrainWithSide(room, across, backward: distance.IsNegative, from),
+        };
     }
 
-    /// <summary>Whether it meets terrain where each move ends, by what it leads with, and not along the way.</summary>
+    /// <summary>Whether it meets terrain where each move ends, by what it leads with or by its middle, and not along the way.</summary>
     private bool LeadsIntoTerrain =>
-        _settings.MeetsTerrainBy is ProjectileSettings.TerrainBy.FrontEdge or ProjectileSettings.TerrainBy.LeadingSide;
+        _settings.MeetsTerrainBy is ProjectileSettings.TerrainBy.FrontEdge or ProjectileSettings.TerrainBy.LeadingSide
+            or ProjectileSettings.TerrainBy.Middle;
+
+    /// <summary>
+    /// Tries the projectile's middle against the terrain where its move left it. Stopped, it ends there, inside what
+    /// it met, and its hit lands on the terrain at that point. Returns whether it was stopped, and so has ended.
+    /// </summary>
+    private bool MeetTerrainAtMiddle(Room room)
+    {
+        bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
+        bool hitsTerrain = HarmsNow &&
+            _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
+        bool stopped = !passes && TerrainStops(room);
+        if (hitsTerrain && (passes || stopped))
+            room.Terrain.TakeHit(Hit, TerrainArea);
+        if (!stopped)
+            return false;
+        _settings.TerrainShake?.Start(room);
+        OnMetTerrain(room);
+        End(room);
+        return true;
+    }
 
     /// <summary>The strip one pixel thick the projectile leads with, where it stands.</summary>
     private PixelRect LeadingStrip(bool across, bool backward)

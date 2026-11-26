@@ -47,8 +47,11 @@ public sealed record ProjectileSettings
         Body,
 
         /// <summary>
-        /// Its middle point alone, tried at every pixel of its way: its width and height are then only what targets
-        /// and solids meet. Outside the room nothing stops it, and a way out of the room does.
+        /// Its middle point alone, tried once for each way it moves, where the move ended: it moves the whole of its
+        /// speed across and its middle is tried, then, if that did not stop it, the whole of its speed down and its
+        /// middle is tried again. So a fast one passes what it steps over, and one that is stopped ends where the move
+        /// left it, inside what it met. Its width and height are only what targets and solids meet. Outside the room
+        /// nothing stops it, and a way out of the room does.
         /// </summary>
         Middle,
 
@@ -297,8 +300,8 @@ public sealed record ProjectileSettings
         };
         if (settings.Width <= 0 || settings.Height <= 0 || settings.LastsUpdates < 0)
             throw data.Problem("gives a size that is not positive or a negative lifetime");
-        if (settings.MeetsTerrainBy is TerrainBy.FrontEdge or TerrainBy.LeadingSide && settings.MeetingTerrain == Terrain.Bounces)
-            throw data.Problem("meets terrain by the edge or the side it leads with and bounces, which no projectile does");
+        if (settings.MeetsTerrainBy is TerrainBy.FrontEdge or TerrainBy.LeadingSide or TerrainBy.Middle && settings.MeetingTerrain == Terrain.Bounces)
+            throw data.Problem("meets terrain where each of its moves ends, by its middle or by the edge or side it leads with, and bounces, which no projectile does");
         return settings;
     }
 }

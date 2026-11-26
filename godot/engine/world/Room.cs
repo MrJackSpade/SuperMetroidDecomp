@@ -362,7 +362,7 @@ public partial class Room : Node2D
 
             // What has been left to be seen takes its turn as the enemies' pass ends, and stands still when they do.
             // An effect left later in the update first takes a turn on the next.
-            StepEffects(holdingPlaces: false);
+            StepEffects();
         }
 
         // The pass is counted whether or not the enemies were held still through it.
@@ -561,9 +561,6 @@ public partial class Room : Node2D
                 effect.Step(this);
         }
 
-        // An effect that holds one of the places of what the enemies launch takes its turn here, as the update ends.
-        StepEffects(holdingPlaces: true);
-
         RemoveLeaving();
         AddArriving();
         MarkExplored();
@@ -628,11 +625,9 @@ public partial class Room : Node2D
             StepWhatEnemiesLaunched(shotsOnly: true);
 
         // What has been left to be seen plays on with the enemies; an effect that holds one of the places of what
-        // the enemies launch waits and goes on with their projectiles.
+        // the enemies launch has had its turn among their projectiles.
         if (enemies)
-            StepEffects(holdingPlaces: false);
-        if (enemyProjectiles)
-            StepEffects(holdingPlaces: true);
+            StepEffects();
 
         if (objects)
             StepObjects();
@@ -641,12 +636,15 @@ public partial class Room : Node2D
         ShowAll();
     }
 
-    /// <summary>The effects take their turns, in the order they were left: those that hold a place, or the rest.</summary>
-    private void StepEffects(bool holdingPlaces)
+    /// <summary>
+    /// The effects that hold no place take their turns, in the order they were left. One that holds a place takes
+    /// its turn in the order of the places, with everything else that holds one.
+    /// </summary>
+    private void StepEffects()
     {
         foreach (Effect effect in _effects.ToList())
         {
-            if (effect.HoldsPlace == holdingPlaces && !_leaving.Contains(effect))
+            if (!effect.HoldsPlace && !_leaving.Contains(effect))
                 effect.Step();
         }
     }
@@ -676,11 +674,11 @@ public partial class Room : Node2D
 
     /// <summary>
     /// What the enemies have launched and left takes its turns: first every projectile not the player's that holds no
-    /// place, in the order launched, and then whatever holds a place, their shots, the remains of the destroyed and
-    /// the pickups, in the order of the places. What takes the place of something that has just had its turn, as a
-    /// pickup takes that of the remains that leave it, waits for the next update.
+    /// place, in the order launched, and then whatever holds a place, their shots, the remains of the destroyed, the
+    /// pickups and the effects left to hold one, in the order of the places. What takes the place of something that
+    /// has just had its turn, as a pickup takes that of the remains that leave it, waits for the next update.
     /// </summary>
-    /// <param name="shotsOnly">Whether only the projectiles take a turn.</param>
+    /// <param name="shotsOnly">Whether only the projectiles, and the effects that hold a place as they do, take a turn.</param>
     private void StepWhatEnemiesLaunched(bool shotsOnly = false)
     {
         // What took a place over since the last turns were taken has waited its update.
@@ -700,6 +698,9 @@ public partial class Room : Node2D
                     break;
                 case Remains remains when !shotsOnly:
                     remains.Step();
+                    break;
+                case Effect effect:
+                    effect.Step();
                     break;
             }
         });

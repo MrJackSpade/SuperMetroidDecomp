@@ -1426,7 +1426,8 @@ turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, e
   (`TimelinePlayer.Shown`), so a later picture and the cues that come with it come together; one that does not
   loop is gone on the update after its last. The room gives the effects their turns as the enemies' pass ends, and
   not while the enemies are held still; one left later in an update first takes a turn on the next. An effect that
-  holds a place takes its turn as the update ends.
+  holds a place takes its turn in the order of the places, with the enemies' shots, the remains and the pickups
+  that hold the others, and stands still when they do: the cartridge steps it as one of them.
 - `Remains` are what a destroyed enemy leaves where it died, when its data names a death to play: the timeline of
   that death, which may differ by the kind of hit that destroyed it. The enemy itself is gone at once. The remains
   play the death, asking for the sounds its cues name and scattering the effects they name, placed by `GameRandom`;

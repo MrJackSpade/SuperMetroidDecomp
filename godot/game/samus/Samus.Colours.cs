@@ -394,20 +394,16 @@ public partial class Samus
             _chargingSoundArmed = true;
     }
 
-    /// <summary>Whether a knockback has begun since she was last looked at.</summary>
-    private bool _knockbackBegan;
-
     /// <summary>
     /// What is looked at once she has been shown: energy found lost since the last look starts a hurt's flash if none
-    /// is running, and a knockback begun since then starts one over whatever count it had reached; and the charge's
-    /// sound, if armed, is asked for again while the attack is still held.
+    /// is running (a knockback has started its own by then, <see cref="OnThrown"/>), and the charge's sound, if
+    /// armed, is asked for again while the attack is still held.
     /// </summary>
     private void LookAfterShown()
     {
         int energy = Inventory.Amount(Amounts.Energy);
-        if (_knockbackBegan || (energy < _energyAtLastCheck && _hurtFlash == 0))
+        if (energy < _energyAtLastCheck && _hurtFlash == 0)
             _hurtFlash = 1;
-        _knockbackBegan = false;
         _energyAtLastCheck = energy;
         if (!_chargingSoundArmed)
             return;

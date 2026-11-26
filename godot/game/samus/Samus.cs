@@ -1752,10 +1752,11 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// A knockback beginning starts a hurt's flash from its first count, whatever count one had reached: where a
-    /// hurt's flash is started, once she has been shown (<see cref="LookAfterShown"/>).
+    /// A knockback beginning starts a hurt's flash from its first count, whatever count one had reached. It begins as
+    /// her movement ends, before her colours are stepped, so the flash is counted on once on this same update, as
+    /// the cartridge's is: its knockback is set up before it draws her, and the flash moves on as she is drawn.
     /// </summary>
-    protected override void OnThrown() => _knockbackBegan = true;
+    protected override void OnThrown() => _hurtFlash = 1;
 
     /// <inheritdoc/>
     protected override void OnMomentumBegan()

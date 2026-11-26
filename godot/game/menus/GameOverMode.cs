@@ -138,7 +138,7 @@ public partial class GameOverMode : GameMode
 
             // A saved game shows where it was saved before it starts again, as from the options; the one saved as
             // Ceres was left is taken up with Ceres blowing up.
-            return _map ?? GameLoad.OfSlot(appears: false);
+            return _map is { } map ? map : GameLoad.OfSlot(appears: false);
         }
 
         if (!fade.IsDone)

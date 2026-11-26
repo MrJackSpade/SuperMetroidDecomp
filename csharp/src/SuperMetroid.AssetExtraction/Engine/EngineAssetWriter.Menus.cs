@@ -55,7 +55,6 @@ public sealed partial class EngineAssetWriter
         WriteTypedWarnings();
         WriteTitle();
         WriteGameOver();
-        WriteMenuWords();
     }
 
     /// <summary>
@@ -337,23 +336,4 @@ public sealed partial class EngineAssetWriter
         });
     }
 
-    /// <summary>
-    /// The words of the Godot game's own list of buttons. The old game's page of buttons is pictures of the old
-    /// controller's buttons; the Godot game binds its actions to whatever buttons there are, and lists each action
-    /// with its button in the game's font. These are those lines, in the old page's own terms where it has them.
-    /// </summary>
-    private void WriteMenuWords()
-    {
-        Words("options_exit", "EXIT");
-        Words("options_reset", "RESET TO DEFAULT");
-
-        // The seven actions the old page lists, which are the ones the Godot page lists.
-        (string Action, string Shown)[] actions =
-        [
-            ("attack", "SHOT"), ("jump", "JUMP"), ("run", "DASH"), ("item_select", "ITEM SELECT"), ("item_cancel", "ITEM CANCEL"),
-            ("angle_up", "ANGLE UP"), ("angle_down", "ANGLE DOWN"),
-        ];
-        foreach ((string action, string shown) in actions)
-            Words("options_action_" + action, shown + "   {button}");
-    }
 }

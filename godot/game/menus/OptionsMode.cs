@@ -23,11 +23,15 @@ namespace Game.Menus;
 /// for each language and each toggle, what is laid over the special page while it is "on" and while it is "off";
 /// the toggles of the special page in the order of its rows ("special_rows"); under "places" the cursor beside
 /// each row ("cursor_start_game", "cursor_english_text", "cursor_japanese_text", "cursor_controller_settings",
-/// "cursor_special_settings", "cursor_special_" and a toggle's name, "cursor_special_exit") and where the list of
-/// "buttons" starts; the sounds of the cursor moving and of a row confirmed ("move_sound", "select_sound"); the updates
-/// it holds black as it is come to before it fades in ("entry_black_updates"); the levels of brightness its fades go
-/// through, a level an update ("fade_levels"); and the timeline "cursor". The words of its list of buttons are "options_action_" and an action's name (with {button}),
-/// "options_exit" and "options_reset".
+/// "cursor_special_settings", "cursor_special_" and a toggle's name, "cursor_special_exit"); the picture of its
+/// page of buttons in each language ("controller"), which has that page's heading and the words of its rows, with
+/// the cursor's place beside each of its rows from the top ("button_rows": an action a row, then the way out, then
+/// the row that puts the standard buttons back) and where on each action's row the button bound to it is named
+/// ("button_names"); how far that page scrolls up to show its last two rows and how far an update ("buttons_scroll",
+/// "buttons_scroll_step"); the sounds of the cursor moving and of a row confirmed ("move_sound", "select_sound"); the
+/// updates it holds black as it is come to before it fades in ("entry_black_updates"); the levels of brightness its
+/// fades go through, a level an update ("fade_levels"); and the timeline "cursor". A bound button is named in the
+/// game's font: the cartridge has pictures only of its own controller's buttons.
 /// </remarks>
 public partial class OptionsMode : GameMode
 {
@@ -52,13 +56,21 @@ public partial class OptionsMode : GameMode
     private Sprite2D? _pagePicture;
     private Sprite2D? _heading;
     private Node2D? _laidOver;
-    private ChoiceList? _list;
     private CinematicSprite? _cursor;
     private ScreenFade? _fade;
     private Func<GameMode?>? _afterFade;
     private Page _page;
     private int _row;
     private string? _pressed;
+
+    /// <summary>
+    /// How far the page of buttons is scrolled up, in pixels, and how far it is on its way to being: all the way while
+    /// the cursor is on its last two rows, which lie below the screen otherwise. The cursor is not shown while it moves.
+    /// </summary>
+    private int _buttonsScroll, _buttonsScrollTo;
+
+    /// <summary>Where the heading's top lies while the page is not scrolled.</summary>
+    private int _headingY;
     private int _blackUpdates;
     private int _levels;
     private int _lit;
@@ -96,12 +108,6 @@ public partial class OptionsMode : GameMode
         layer.AddChild(_laidOver);
         _heading = new Sprite2D { Name = "Heading", Centered = false, TextureFilter = CanvasItem.TextureFilterEnum.Nearest };
         layer.AddChild(_heading);
-        DataNode buttons = _data.Get("places").Get("buttons");
-        _list = new ChoiceList
-        {
-            Name = "Buttons", Font = Session.Font, Mark = "", UnchosenTint = new Color(0.5f, 0.5f, 0.5f), Position = new Vector2(buttons.Int("x"), buttons.Int("y")),
-        };
-        layer.AddChild(_list);
         _cursor = CinematicSprite.Of(Session.Content, TimelineSet.ReadFrom(_data).Get("cursor"), PixelPosition.Origin);
         _cursor.Name = "Cursor";
         _cursor.Visible = false;
@@ -167,7 +173,7 @@ public partial class OptionsMode : GameMode
     /// Whether the cursor shows as the update ends: as in the old game, not while the screen holds black as it is come
     /// to, while a page turns, or as a game starts.
     /// </summary>
-    private bool CursorShows => _page != Page.Buttons && _blackUpdates >= ScreenData().Int("entry_black_updates") && !_starting && !_cursorHidden;
+    private bool CursorShows => (_page != Page.Buttons || _buttonsScroll == _buttonsScrollTo) && _blackUpdates >= ScreenData().Int("entry_black_updates") && !_starting && !_cursorHidden;
 
     /// <summary>Plays one update of the options, and says the mode to go to.</summary>
     private GameMode Play(GameInput input)
@@ -282,33 +288,42 @@ public partial class OptionsMode : GameMode
     /// </summary>
     private void StepButtons(GameInput input)
     {
-        ChoiceList list = _list ?? throw NotShown();
         string? pressed = _pressed;
         _pressed = null;
-        int move = input.WasPressed(GameAction.Down) ? 1 : input.WasPressed(GameAction.Up) ? -1 : 0;
-        if (move != 0)
+
+        // On its way from one end to the other the page moves a step an update and takes nothing asked of it.
+        if (_buttonsScroll != _buttonsScrollTo)
         {
-            list.Move(move);
-            Sound("move_sound");
+            int step = ScreenData().Int("buttons_scroll_step");
+            _buttonsScroll += _buttonsScrollTo > _buttonsScroll ? step : -step;
+            ShowButtonsScroll();
+            return;
+        }
+
+        if (MovesRow(input, PlayActions.Count + 2))
+        {
+            // The last two rows lie below the screen until the page is scrolled up to them.
+            _buttonsScrollTo = _row >= PlayActions.Count ? ScreenData().Int("buttons_scroll") : 0;
+            PlaceCursor();
             return;
         }
 
         if (pressed is null)
             return;
         Sound("select_sound");
-        if (list.Chosen < PlayActions.Count)
+        if (_row < PlayActions.Count)
         {
             if (KeptButtons().Contains(pressed))
                 return;
-            Session.Options.Bind(PlayActions[list.Chosen], pressed, PlayActions);
+            Session.Options.Bind(PlayActions[_row], pressed, PlayActions);
             Session.Options.ApplyBindings([]);
-            ShowButtons(list.Chosen);
+            ShowButtons();
             return;
         }
 
         if (!input.WasPressed(GameAction.Confirm) && !input.WasPressed(GameAction.Pause))
             return;
-        if (list.Chosen == PlayActions.Count)
+        if (_row == PlayActions.Count)
         {
             FadeOutTo(() => Turn(Page.Primary));
             return;
@@ -316,7 +331,7 @@ public partial class OptionsMode : GameMode
 
         Session.Options.RestoreBindings(PlayActions, Session.Definition.StandardBindings);
         Session.Options.ApplyBindings([]);
-        ShowButtons(list.Chosen);
+        ShowButtons();
     }
 
     /// <summary>Moves on the page of special settings.</summary>
@@ -423,9 +438,8 @@ public partial class OptionsMode : GameMode
         }
 
         Sprite2D picture = _pagePicture ?? throw NotShown();
-        picture.Visible = page != Page.Buttons;
-        ChoiceList list = _list ?? throw NotShown();
-        list.Visible = page == Page.Buttons;
+        (_buttonsScroll, _buttonsScrollTo) = (0, 0);
+        picture.Position = Vector2.Zero;
         string heading;
         switch (page)
         {
@@ -442,8 +456,9 @@ public partial class OptionsMode : GameMode
                 break;
             case Page.Buttons:
                 heading = "controller";
+                picture.Texture = Session.Content.LoadTexture(data.Get("controller").Text(language));
                 BeginTakingButtons();
-                ShowButtons(0);
+                ShowButtons();
                 break;
             default:
                 throw new InvalidOperationException($"The options have no page {page}.");
@@ -452,25 +467,47 @@ public partial class OptionsMode : GameMode
         DataNode shown = data.Get("headings").Get(heading);
         Sprite2D top = _heading ?? throw NotShown();
         top.Texture = Session.Content.LoadTexture(shown.Text("picture"));
-        top.Position = new Vector2(shown.Int("x"), shown.Int("y"));
+        _headingY = shown.Int("y");
+        top.Position = new Vector2(shown.Int("x"), _headingY);
         PlaceCursor();
     }
 
-    /// <summary>Lists each action of play with its button, the way out, and the row that puts the standard buttons back.</summary>
-    private void ShowButtons(int chosen)
+    /// <summary>Puts the page of buttons, its heading and the names on it where its scroll has them.</summary>
+    private void ShowButtonsScroll()
     {
-        Options options = Session.Options;
-        GameText text = Session.Text;
-        var lines = new List<string>();
-        foreach (string action in PlayActions)
+        (_pagePicture ?? throw NotShown()).Position = new Vector2(0, -_buttonsScroll);
+        Sprite2D top = _heading ?? throw NotShown();
+        top.Position = new Vector2(top.Position.X, _headingY - _buttonsScroll);
+        if ((_laidOver ?? throw NotShown()).GetNodeOrNull<Node2D>(ButtonNamesNode) is { } names)
+            names.Position = new Vector2(0, -_buttonsScroll);
+    }
+
+    /// <summary>The name of the node the names of the bound buttons are under.</summary>
+    private const string ButtonNamesNode = "ButtonNames";
+
+    /// <summary>Names, on each action's row of the page of buttons, the button bound to it, in place of whatever was named there.</summary>
+    private void ShowButtons()
+    {
+        Node2D laid = _laidOver ?? throw NotShown();
+        if (laid.GetNodeOrNull(ButtonNamesNode) is { } old)
         {
-            string button = InFont(string.Join(", ", options.Bindings.GetValueOrDefault(action) ?? []));
-            lines.Add(text.Get($"options_action_{action}").Replace("{button}", button, StringComparison.Ordinal));
+            laid.RemoveChild(old);
+            old.QueueFree();
         }
 
-        lines.Add(text.Get("options_exit"));
-        lines.Add(text.Get("options_reset"));
-        (_list ?? throw NotShown()).Present(lines, chosen);
+        IReadOnlyList<DataNode> places = ScreenData().List("button_names");
+        if (places.Count != PlayActions.Count)
+            throw new InvalidOperationException($"The options' data places the names of {places.Count} buttons, and play has {PlayActions.Count} actions to bind.");
+        var names = new Node2D { Name = ButtonNamesNode, Position = new Vector2(0, -_buttonsScroll) };
+        laid.AddChild(names);
+        Options options = Session.Options;
+        for (int row = 0; row < PlayActions.Count; row++)
+        {
+            // One line in the game's font, where the cartridge's page names its own controller's button.
+            var name = new ChoiceList { Name = $"Button{row + 1}", Font = Session.Font, Mark = "", Position = new Vector2(places[row].Int("x"), places[row].Int("y")) };
+            names.AddChild(name);
+            name.Present([InFont(string.Join(", ", options.Bindings.GetValueOrDefault(PlayActions[row]) ?? []))]);
+        }
     }
 
     /// <summary>A name as the game's font can show it: in capitals, with a space for each character the font has not.</summary>
@@ -483,12 +520,19 @@ public partial class OptionsMode : GameMode
     /// <summary>Puts the cursor beside the row it points at.</summary>
     private void PlaceCursor()
     {
+        DataNode at;
         if (_page == Page.Buttons)
-            return;
-        string place = _page == Page.Primary
-            ? "cursor_" + PrimaryRows[_row]
-            : _row < _specialRows.Count ? "cursor_special_" + _specialRows[_row] : "cursor_special_exit";
-        DataNode at = ScreenData().Get("places").Get(place);
+        {
+            at = ScreenData().List("button_rows")[_row];
+        }
+        else
+        {
+            string place = _page == Page.Primary
+                ? "cursor_" + PrimaryRows[_row]
+                : _row < _specialRows.Count ? "cursor_special_" + _specialRows[_row] : "cursor_special_exit";
+            at = ScreenData().Get("places").Get(place);
+        }
+
         CinematicSprite cursor = _cursor ?? throw NotShown();
         cursor.Place = PixelPosition.FromWhole(at.Int("x"), at.Int("y"));
         cursor.ShowPlace();

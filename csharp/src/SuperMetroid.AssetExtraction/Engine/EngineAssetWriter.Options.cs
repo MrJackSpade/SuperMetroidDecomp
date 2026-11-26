@@ -102,9 +102,27 @@ public sealed partial class EngineAssetWriter
             ["cursor_controller_settings"] = Cursor(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.ControllerSettings)),
             ["cursor_special_settings"] = Cursor(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.SpecialSettings)),
             ["cursor_special_exit"] = Cursor(new GameOptionsRow.OnSpecialPage(GameOptionsSpecialRow.Exit)),
-            // The Godot game's list of buttons starts where the old page's first row is pointed at.
-            ["buttons"] = Cursor(new GameOptionsRow.OnControllerPage(GameOptionsPageRows.Controller.Top)),
         };
+
+        // The page of buttons: its picture in each language, which has its heading's words and its rows' words; the
+        // cursor's place beside each of its rows, from the top; and where, on each action's row, the cartridge names
+        // the button bound to it, which is where the Godot page writes the name of whatever button is.
+        var controller = new JsonObject();
+        foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
+        {
+            controller[Named(language)] = Laid(
+                GameOptionsNames.PageFrame(GameOptionsScreen.Shown(GameOptionsPage.Controller, language)), "controller_" + Named(language))["picture"]!.DeepClone();
+        }
+
+        var buttonRows = new JsonArray();
+        foreach (GameOptionsControllerRow row in GameOptionsPageRows.Controller)
+            buttonRows.Add(Cursor(new GameOptionsRow.OnControllerPage(row)));
+        var buttonNames = new JsonArray();
+        foreach (ControllerAction action in GameOptionsPageRows.ControllerActions)
+        {
+            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MenuPictures, GameOptionsNames.ControllerLabelFrame(action, ControllerButton.A));
+            buttonNames.Add(At(-originX, -originY));
+        }
 
         // The settings of the special page, in the order of its rows.
         var specialRows = new JsonArray();
@@ -135,6 +153,11 @@ public sealed partial class EngineAssetWriter
             ["primary"] = _sheets.WriteSprite(
                 _tree, SpriteSheetId.MenuPictures, GameOptionsNames.PageFrame(GameOptionsScreen.Shown(GameOptionsPage.Primary, TextLanguage.English)), folder + "/primary.png"),
             ["special"] = special,
+            ["controller"] = controller,
+            ["button_rows"] = buttonRows,
+            ["button_names"] = buttonNames,
+            ["buttons_scroll"] = GameOptionsDefinitions.ControllerScrollLimit,
+            ["buttons_scroll_step"] = GameOptionsDefinitions.ControllerScrollPixelsPerFrame,
             ["languages"] = languages,
             ["toggles"] = toggles,
             ["special_rows"] = specialRows,

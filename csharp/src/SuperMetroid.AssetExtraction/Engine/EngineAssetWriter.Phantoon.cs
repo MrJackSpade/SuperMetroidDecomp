@@ -62,6 +62,9 @@ public sealed partial class EngineAssetWriter
         Area("RightTentacle", PhantoonCollisionDefinitions.RightTentacle);
         Area("CentreTentacle", PhantoonCollisionDefinitions.CenterTentacle);
 
+        // The one pixel at its middle, which alone takes shots on the update its body turns solid.
+        phantoon.Collider("Centre", PhantoonSolidifyingCentre.Centre.X, PhantoonSolidifyingCentre.Centre.Y, 1, 1);
+
         // Its path: a digit a step, as on a number pad, which is how the Godot Phantoon reads it.
         (char Digit, int X, int Y)[] pad = [('1', -1, 1), ('2', 0, 1), ('3', 1, 1), ('4', -1, 0), ('6', 1, 0), ('7', -1, -1), ('8', 0, -1), ('9', 1, -1)];
         if (PhantoonPathDefinitions.Steps.Count != pad.Length

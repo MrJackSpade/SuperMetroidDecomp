@@ -724,11 +724,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                 return StopAgainst(room, previous, next, hitsTerrain);
         }
 
-        // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
-        // what is there is hit first, and only then does the solid stop the shot.
-        // An enemy's body is not a wall to a shot: an enemy stops a shot only by what it does when the shot hits it.
+        // A solid that stands as part of the room may be the very thing the shot is for, as a door's cap is. So what
+        // is there is hit first, and only then does the solid stop the shot.
+        // No other solid is a wall to a shot: it is solid to the player alone, and stops a shot only by what it does
+        // when the shot hits it.
         bool meetsSolid = !passes &&
-            room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.CollisionOwner is not Enemy);
+            room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.StandsAsTerrain);
 
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
         // all have moved. The player's shot meets what it comes upon as it moves, but for enemies and their shots:

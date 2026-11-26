@@ -773,6 +773,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | `CameraZone` | One screen of a room, by where it stands, as something that can be told how to let the view in: "close", "open" (the way the zone opens, `OpensTo`), "open_fully", "open_to_top". It may be told something as the room is set up (`ToldAtSetup`). It may stand below the room's last row, for a game that keeps such a screen's state. | Hold the screen's state, which is the room's. |
 | `ViewFloor` | A height the view's top is kept at or below while it holds; told to "release" or "hold". | Anything else. |
 | `Trigger` | A region that calls one named method when the player enters it, optionally only when a `Condition` holds. It is the player's body that enters it, or, where it says so (`MeetsMiddle`), their own place: the escape's wall and rising acid are set off by where Samus is. | Hold logic. |
+| `Barrier`'s reactions | A barrier's data may list reactions as an enemy's does, for the hits that pass it or that it swallows; they are asked before it is worn, opened or refuses. This game's Ceres doors have them, written from the old enemy they were: shut, a shot that is not plasma is spent on one unseen and a plasma beam flies on. |
 | `Barrier`'s solid by its look | A barrier's timeline may say, step by step, how it stands in the way: "passable" or "blocking"; "solid_height:" and so many pixels from its top; "solid_ends:" and so many pixels at each end of its length, the middle letting through (its far end is a second solid collider of its scene), and "solid_whole" again. This game's door caps are solid at their two end blocks only while nearly open, where the cartridge's are. |
 | `Relay` | Turning a word it is told into what the room does about it, by its rules: putting a terrain patch in place, and shaking the room. A door come in by tells a relay to start the treadmill it starts; the escape tells one to open the animals' passage. | Hold behaviour, or accept a word it has no rule for. |
 
@@ -1388,8 +1389,10 @@ holds the place for `GameDefinition.SpentDropUpdates` more updates (`Room.HoldPl
 what takes a destroyed enemy's place arrives as that pause ends. This game keeps eighteen places, and its remains in the first
 leave none, as the cartridge's death explosion in its first place never becomes a pickup.
 
-**A shot meets what is solid and hittable.** A projectile that reaches something solid that is not terrain, such as
-a door's cap or a frozen enemy, delivers its hit to what is there before the solid stops it. Terrain stops it first.
+**A shot meets what is solid and hittable.** A projectile that reaches a solid that stands as part of the room, such
+as a door's cap, delivers its hit to what is there before the solid stops it. Terrain stops it first. A solid that
+does not stand as part of the room, an enemy's or a thing's that was an enemy on the cartridge, is solid to the
+player alone and no wall to a shot: it stops one only by what it answers when the shot's hit lands on its hurtbox.
 
 **A shot's harm is its own, unless its launcher settles it.** A `ShotType` launches its projectile with the damage
 its data gives (`Launch`). Fire that does the harm of what it came of is launched with that harm in its place

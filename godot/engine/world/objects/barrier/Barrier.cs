@@ -149,6 +149,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         _plainOpenedBy.Clear();
         if (data.Has("plain_opened_by"))
             _plainOpenedBy.UnionWith(data.List("plain_opened_by").Select(kind => new HitKind(kind.AsText())));
+        _reactions = data.Has("reactions") ? Reactions.Read(data.List("reactions")) : Reactions.None;
         if (!data.Has("damaged_by"))
             return;
         DamagedBy = [];
@@ -184,6 +185,13 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         Show(IsOpen ? "open" : IsSealed ? _timelines.Has("sealing") ? "sealing" : "sealed" : "closed");
     }
 
+    /// <summary>
+    /// What its data says of the hits that take no notice of it or that it swallows ("reactions", as an enemy's are
+    /// written; <see cref="Reaction.Passes"/>, <see cref="Reaction.Swallows"/>). A barrier with none refuses or is
+    /// worn by every hit that lands on it.
+    /// </summary>
+    private Reactions _reactions = Reactions.None;
+
     /// <inheritdoc/>
     public bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsOpen;
 
@@ -192,6 +200,13 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         if (IsOpen)
             return HitResult.Ignored;
+
+        // A hit its data's reactions let pass, or swallow, never comes to open it or be refused.
+        Reaction reaction = _reactions.To(hit);
+        if (reaction.Passes)
+            return HitResult.Ignored;
+        if (reaction.Swallows)
+            return HitResult.Dud;
         if (IsSealed)
         {
             Sound(SealedSound);

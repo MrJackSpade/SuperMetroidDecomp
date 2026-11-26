@@ -235,6 +235,10 @@ public sealed partial class EngineAssetWriter
                 .Value("any_hit", 0)
                 .Value("open_sound", EngineNames.Sound(RoomSound.CeresDoorOpening))
                 .Collider("Solid", -halfWidth, -halfHeight, 2 * halfWidth, 2 * halfHeight)
+                // It was an enemy that ignores shots, solid to Samus alone: shut, a shot is spent on its size unseen
+                // and a plasma beam flies on, by the reactions its old definition comes to.
+                .Collider("Hurtbox", -halfWidth, -halfHeight, 2 * halfWidth, 2 * halfHeight)
+                .Group("reactions", EngineReactions.Of(RoomEnemyDefinitionCatalog.CeresDoorAndWall))
                 .Timeline("closed", FramesTimeline(pictures, [(shut[0].Frame, 1)], loops: true))
                 .Timeline("opening", FramesTimeline(pictures, Enumerable.Reverse(closing), loops: false))
                 .Timeline("open", NothingShown())

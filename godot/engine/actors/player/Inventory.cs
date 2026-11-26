@@ -84,14 +84,6 @@ public sealed class Inventory
         _amounts[amount] = Math.Min(Amount(amount), capacity);
     }
 
-    /// <summary>Raises the most of an amount the player can hold, and gives them that much more of it.</summary>
-    public void Expand(string amount, int by)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(by);
-        SetCapacity(amount, Capacity(amount) + by);
-        Add(amount, by);
-    }
-
     /// <summary>Adds to an amount, up to its capacity, and returns how much was added.</summary>
     public int Add(string amount, int quantity)
     {

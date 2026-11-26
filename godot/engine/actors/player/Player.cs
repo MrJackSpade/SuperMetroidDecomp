@@ -440,9 +440,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether the player cannot be hurt just now, having just been hurt.</summary>
     public bool IsInvincible => _invincible.IsRunning;
 
-    /// <summary>The updates left in which the player cannot be hurt.</summary>
-    public int InvincibleUpdatesLeft => _invincible.Remaining;
-
     /// <summary>The collider the player moves through terrain with.</summary>
     public Collider Body => _body ?? throw new InvalidOperationException("The player is not in a room.");
 
@@ -889,9 +886,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         _interruption = state;
         _interruptionWaited = 0;
     }
-
-    /// <summary>Whether something is waiting to interrupt the player.</summary>
-    public bool IsInterrupted => _interruption is not null;
 
     /// <summary>
     /// Takes the state waiting to interrupt the player, who has just moved as <paramref name="from"/>, leaving none

@@ -187,9 +187,6 @@ public sealed class GameSession
     /// <summary>The player. One lasts the whole session, going from room to room.</summary>
     public Player Player => _player ??= Definition.CreatePlayer();
 
-    /// <summary>The node modes and rooms are shown under.</summary>
-    public Node Host => _host;
-
     /// <summary>The messages asked for and not yet shown, by name, in the order they were asked for.</summary>
     private readonly Queue<(string Message, string Fanfare, int HoldUpdates)> _messages = new();
 

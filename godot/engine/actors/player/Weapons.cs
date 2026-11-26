@@ -167,9 +167,6 @@ public sealed class Weapons
     /// <summary>Whether a charged shot is ready to be let go.</summary>
     public bool IsCharged => Selected is { ChargeUpdates: > 0 } weapon && _chargedFor >= weapon.ChargeUpdates;
 
-    /// <summary>The updates left before the next shot may be fired.</summary>
-    public int CooldownLeft => _cooldown.Remaining;
-
     /// <summary>Gives the player a weapon.</summary>
     public void Add(WeaponStats weapon)
     {

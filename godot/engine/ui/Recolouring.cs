@@ -75,9 +75,6 @@ public sealed class Recolouring
     public static bool LiesIn(string picture, string place) =>
         picture == place || picture.StartsWith(place + "/", StringComparison.Ordinal);
 
-    /// <summary>Whether any colour is shown changed.</summary>
-    public bool IsChanged => _asked.Count > 0;
-
     /// <summary>
     /// Keeps <paramref name="swaps"/> as what <paramref name="source"/> asks for, in place of what it asked before, and
     /// shows the thing so. An empty list takes back all the source asked for.

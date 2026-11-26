@@ -36,9 +36,6 @@ public sealed class Dive
     private PixelPosition _waitedAt;
     private Facing _toward;
 
-    /// <summary>Whether it is diving.</summary>
-    public bool IsDiving => _doing == Doing.Diving;
-
     /// <summary>Moves <paramref name="mover"/> for one update, with its target at <paramref name="target"/>.</summary>
     public MoveReport Step(IMoves mover, PixelPosition target)
     {

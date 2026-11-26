@@ -59,9 +59,6 @@ public static class Turns
         return wrapped >= half ? -CoarseHalfWave[wrapped - half] : CoarseHalfWave[wrapped];
     }
 
-    /// <summary>The cosine of <paramref name="angle"/> in 256ths, as a coarse sine takes it.</summary>
-    public static int CoarseCosine(int angle) => CoarseSine(angle + PerTurn / 4);
-
     /// <summary>
     /// The angle of the direction that lies <paramref name="across"/> to the right and <paramref name="down"/> below: 0
     /// straight right, a quarter turn straight down, to the nearest step.

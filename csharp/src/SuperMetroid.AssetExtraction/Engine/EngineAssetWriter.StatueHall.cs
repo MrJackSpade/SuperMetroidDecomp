@@ -93,6 +93,12 @@ public sealed partial class EngineAssetWriter
         const int cellSize = RoomGridConversions.BlockPixels;
         int columns = imageWidth / cellSize;
 
+        // The pictures that stand in the room, each with the frame it is cut from and the colourings it is cut in, and
+        // each guardian's data with the shade of the light of its eyes: once the light is made, the cartridge shows
+        // the statue's sprites in that shade, laid over its entrance colours and under its other looks.
+        var inRoom = new List<(string Path, string Frame, string[] Shades)>();
+        var glows = new List<(JsonObject Data, string Glow)>();
+
         var statues = new JsonObject();
         foreach (TourianStatue statue in new[] { TourianStatue.Kraid, TourianStatue.Phantoon, TourianStatue.Draygon, TourianStatue.Ridley })
         {
@@ -143,6 +149,10 @@ public sealed partial class EngineAssetWriter
                 data["grey"] = grey.Of(Frame(Look.Released));
                 data["offset"] = new JsonObject { ["x"] = placed.Place.X + standing.OffsetX, ["y"] = placed.Place.Y + standing.OffsetY };
                 data["grey_offset"] = new JsonObject { ["x"] = placed.Place.X + grey.OffsetX, ["y"] = placed.Place.Y + grey.OffsetY };
+                foreach (Look look in new[] { Look.EyesBright, Look.EyesDim, Look.EyesDark })
+                    inRoom.Add((standing.Of(Frame(look)), Frame(look), [entrance]));
+                inRoom.Add((cleared.Of(Frame(Look.Released)), Frame(Look.Released), [entrance, definition.ClearedShade.Key]));
+                inRoom.Add((grey.Of(Frame(Look.Released)), Frame(Look.Released), [entrance, definition.ClearedShade.Key, definition.GreyShade.Key]));
             }
             else
             {
@@ -256,12 +266,57 @@ public sealed partial class EngineAssetWriter
             }
 
             statues[name] = data;
+            glows.Add((data, definition.Eye.Glow.Key));
         }
 
         // The statue's base, a sprite that stands in the room.
         TourianStatueDecoration baseDecoration = TourianStatueDecorationDefinitions.SpawnOrder.Single(decoration => decoration.Kind == RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         string baseFrame = EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueBaseDecoration);
         EngineSheetPictures basePictures = _sheets.CutSpawnedShades(_tree, $"{StatueHallFolder}/base", spawner, [baseFrame], entrance);
+        inRoom.Add((basePictures.Of(baseFrame), baseFrame, [entrance]));
+
+        // The colours the light of each guardian's eyes changes on the pictures that stand in the room, picture by
+        // picture: each colour as the picture is cut, and as it shows with the light's shade laid over its entrance
+        // colours.
+        JsonObject EyeGlowColours(string glow)
+        {
+            static string Written(RgbaPixel pixel) =>
+                ((pixel.R << 16) | (pixel.G << 8) | pixel.B).ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+            var written = new JsonObject();
+            foreach ((string path, string frame, string[] shades) in inRoom)
+            {
+                string sheet = _sheets.SheetHolding(spawner, frame);
+                (RgbaPixel[] unlit, int _, int _) = _sheets.FrameShown(GameInstallationLayout.EnemySheetDirectoryName, sheet, frame, shades);
+                (RgbaPixel[] lit, int _, int _) = _sheets.FrameShown(GameInstallationLayout.EnemySheetDirectoryName, sheet, frame, [shades[0], glow, .. shades[1..]]);
+                var changed = new SortedDictionary<string, string>(StringComparer.Ordinal);
+                for (int i = 0; i < unlit.Length; i++)
+                {
+                    if (unlit[i].A == 0)
+                        continue;
+                    string from = Written(unlit[i]), to = Written(lit[i]);
+                    if (changed.TryGetValue(from, out string? shown) && shown != to)
+                        throw new InvalidDataException($"The light {glow} shows the colour {from} of {path} as {shown} in one place and as {to} in another.");
+                    changed[from] = to;
+                }
+
+                var colours = new JsonObject();
+                foreach ((string from, string to) in changed)
+                {
+                    if (from != to)
+                        colours[from] = to;
+                }
+
+                if (colours.Count > MostSwapsShown)
+                    throw new InvalidDataException($"The light {glow} changes {colours.Count} colours of {path}; a thing shows at most {MostSwapsShown} changed at once.");
+                if (colours.Count > 0)
+                    written[path] = colours;
+            }
+
+            return written;
+        }
+
+        foreach ((JsonObject data, string glow) in glows)
+            data["eye_glow_colours"] = EyeGlowColours(glow);
 
         // The dust the sinking statue raises: so many puffs at once, each thrown a chance distance, so many times over.
         Animation<ChozoTourianDustSegment> descent = ChozoTourianDustAnimations.TourianDescentDust;

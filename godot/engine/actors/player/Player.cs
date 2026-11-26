@@ -1077,9 +1077,21 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         // settled once, as the update ends (SettleEmptyEnergy).
         Inventory.Lose(Inventory.Energy, DamageFrom(hit));
         _invincible = Countdown.Of(InvincibleUpdates);
-        Facing from = hit.Direction.X.IsZero ? Facing : hit.Direction.X.IsNegative ? Facing.Right : Facing.Left;
-        OnHurt(hit, from);
+        OnHurt(hit, SideOf(hit));
         return HitResult.Hurt;
+    }
+
+    /// <summary>
+    /// The side a hit comes from, which the player is knocked away from. A hit that says where it is, as a shot's
+    /// does, comes from the side of that place, by whole pixels, one level with the player's own counting as from
+    /// their left; one that does not comes from behind the way it was travelling; and one with neither from the way
+    /// the player faces.
+    /// </summary>
+    private Facing SideOf(Hit hit)
+    {
+        if (hit.At is { } at)
+            return Position.X.Whole >= at.X.Whole ? Facing.Left : Facing.Right;
+        return hit.Direction.X.IsZero ? Facing : hit.Direction.X.IsNegative ? Facing.Right : Facing.Left;
     }
 
     /// <summary>

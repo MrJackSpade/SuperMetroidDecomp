@@ -975,6 +975,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   jump.
 - **A knockback** interrupts: it takes the player when they have next moved. It throws them away from the hit,
   facing as they were, for as long as the player's knockbacks do unless whoever knocks them back says how long.
+  The side a hit comes from is where it is, when it says (`Hit.At`, a shot's own place, compared with the player's
+  in whole pixels, the player thrown right when level with it); else behind the way it was travelling
+  (`Hit.Direction`, which an enemy's touch sets by where the two stand in whole pixels).
   The throw is a thing of its own (`Throw`, `Player.Thrown`), not a state: while it lasts it moves the player in
   place of the state they are in (`PlayerState.Step`), and that state goes on otherwise. It does not start from
   rest: whatever speed across they had goes on changing by the usual ground rule with the throw's own move values

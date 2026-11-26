@@ -1081,7 +1081,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (ContactDamage <= 0)
             return;
-        var direction = new PixelOffset(Room.Player.Position.X >= Position.X ? Pixels.FromWhole(1) : Pixels.FromWhole(-1), Pixels.Zero);
+        // The player is knocked away from the enemy by where the two stand in whole pixels, to the right when level.
+        var direction = new PixelOffset(Pixels.FromWhole(Room.Player.Position.X.Whole >= Position.X.Whole ? 1 : -1), Pixels.Zero);
         Collider hurtbox = Room.Player.Hurtbox;
         HitResult result = Room.Player.TakeHit(
             new Hit(ContactDamage, HitSide.Enemies, HitKind.Contact) { Direction = direction, Source = this }, hurtbox);

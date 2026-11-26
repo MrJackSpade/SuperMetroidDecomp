@@ -36,7 +36,11 @@ public partial class ScrollingMap : Node2D
 
     private DataNode? _data;
     private MapView? _cells;
-    private MapView? _signs;
+    private MapView? _labels;
+    private MapView? _markers;
+
+    /// <summary>The opening the markers show through: the frame's opening over again, so that the markers can be laid apart from the rest of the map.</summary>
+    private Control? _markersOpening;
     private Vector2I _plane;
     private int _cell;
     private Rect2I _bounds;
@@ -75,13 +79,24 @@ public partial class ScrollingMap : Node2D
 
         // Enough cells to cover the screen wherever the map lies under it, and one more each way for a part cell.
         var cells = new Vector2I(data.Int("screen_width") / cell + 1, data.Int("screen_height") / cell + 1);
-        map._cells = new MapView { Name = "Cells", Window = cells, DrawsSigns = false };
+        map._cells = new MapView { Name = "Cells", Window = cells, DrawsLabels = false, DrawsMarkers = false };
         window.AddChild(map._cells);
         map._cells.Present(area, progress, content);
-        // The signs lie within the opening too: nothing of the map is drawn over its frame.
-        map._signs = new MapView { Name = "Signs", Window = cells, DrawsCells = false };
-        window.AddChild(map._signs);
-        map._signs.Present(area, progress, content);
+
+        // The signs lie within the opening too: nothing of the map is drawn over its frame. The labels lie over the
+        // cells, and the markers over the labels, through an opening of their own, so that whoever shows the map can
+        // lay something of theirs between the two.
+        map._labels = new MapView { Name = "Labels", Window = cells, DrawsCells = false, DrawsMarkers = false };
+        window.AddChild(map._labels);
+        map._labels.Present(area, progress, content);
+        map._markersOpening = new Control
+        {
+            Name = "MarkersOpening", ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore, Position = window.Position, Size = window.Size,
+        };
+        map.AddChild(map._markersOpening);
+        map._markers = new MapView { Name = "Markers", Window = cells, DrawsCells = false, DrawsLabels = false };
+        map._markersOpening.AddChild(map._markers);
+        map._markers.Present(area, progress, content);
 
         // Its bounds are those of what the area's map shows once had, or of what has been explored while it is not.
         bool had = area.RevealedBy.Length > 0 && progress.Has(area.RevealedBy);
@@ -124,8 +139,22 @@ public partial class ScrollingMap : Node2D
     /// <summary>Whether the map's markers and labels show.</summary>
     public bool ShowsSigns
     {
-        get => Signs().Visible;
-        set => Signs().Visible = value;
+        get => Labels().Visible;
+        set => (Labels().Visible, MarkersOpening().Visible) = (value, value);
+    }
+
+    /// <summary>
+    /// Lays the map's markers over <paramref name="under"/>, which lies over the map: for one who shows something of
+    /// their own over the map's cells and labels and under its markers, as the saved game's map shows where the game
+    /// was saved. The markers stay within the frame's opening, and go when the map goes.
+    /// </summary>
+    public void LiftMarkersOver(Node under)
+    {
+        ArgumentNullException.ThrowIfNull(under);
+        Control opening = MarkersOpening();
+        opening.GetParent().RemoveChild(opening);
+        under.AddSibling(opening);
+        TreeExiting += opening.QueueFree;
     }
 
     /// <summary>Where a place of the map, in its pixels, lies on the screen as the map now lies.</summary>
@@ -185,14 +214,15 @@ public partial class ScrollingMap : Node2D
     /// <summary>Puts the map where it has been moved to.</summary>
     private void Place()
     {
-        MapView cells = Cells(), signs = Signs();
+        MapView cells = Cells(), labels = Labels(), markers = Markers();
         var first = new Vector2I(Mathf.FloorToInt((float)Scroll.X / _cell), Mathf.FloorToInt((float)Scroll.Y / _cell));
         Vector2I at = first * _cell - Scroll + _plane;
 
         // Both are drawn within the opening, whose corner their own place is measured from.
         cells.Position = at - (Vector2I)cells.GetParent<Control>().Position;
-        signs.Position = cells.Position;
-        foreach (MapView view in new[] { cells, signs })
+        labels.Position = cells.Position;
+        markers.Position = cells.Position;
+        foreach (MapView view in new[] { cells, labels, markers })
         {
             view.Centre = first + view.Window / 2;
             view.QueueRedraw();
@@ -201,7 +231,11 @@ public partial class ScrollingMap : Node2D
 
     private MapView Cells() => _cells ?? throw NotMade();
 
-    private MapView Signs() => _signs ?? throw NotMade();
+    private MapView Labels() => _labels ?? throw NotMade();
+
+    private MapView Markers() => _markers ?? throw NotMade();
+
+    private Control MarkersOpening() => _markersOpening ?? throw NotMade();
 
     private DataNode Data() => _data ?? throw NotMade();
 

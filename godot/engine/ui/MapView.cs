@@ -30,9 +30,13 @@ public partial class MapView : Node2D
     [Export]
     public bool DrawsCells { get; set; } = true;
 
-    /// <summary>Whether the map's markers and labels are drawn.</summary>
+    /// <summary>Whether the map's labels are drawn: its pictures laid at places of their own, over its cells and under its markers.</summary>
     [Export]
-    public bool DrawsSigns { get; set; } = true;
+    public bool DrawsLabels { get; set; } = true;
+
+    /// <summary>Whether the map's markers are drawn, which lie over everything else of it.</summary>
+    [Export]
+    public bool DrawsMarkers { get; set; } = true;
 
     private Area? _area;
     private Progress? _progress;
@@ -130,9 +134,16 @@ public partial class MapView : Node2D
             }
         }
 
-        if (!DrawsSigns)
-            return;
+        // By kind: the labels lie over the cells, and the markers over the labels.
         Vector2I first = Window.X <= 0 || Window.Y <= 0 ? Vector2I.Zero : Centre - Window / 2;
+        if (DrawsLabels)
+        {
+            foreach (AreaLabel label in LabelsDrawn())
+                DrawTexture(_labels[label], label.Place - first * _area.TileSize);
+        }
+
+        if (!DrawsMarkers)
+            return;
         foreach (AreaMarker marker in MarkersDrawn())
         {
             if (marker.Picture.Length > 0)
@@ -140,9 +151,6 @@ public partial class MapView : Node2D
             else
                 DrawSmallPicture(marker.Place, marker.Shows, _sheet, Colors.White);
         }
-
-        foreach (AreaLabel label in LabelsDrawn())
-            DrawTexture(_labels[label], label.Place - first * _area.TileSize);
     }
 
     /// <summary>Draws one of the map's small pictures, from one of the area's sheets, over a cell's place in the window.</summary>

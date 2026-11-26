@@ -23,8 +23,10 @@ namespace Game.Enemies;
 /// also puts the room back as it was. Its collider "Hand" is its open hand, which she can stand on until it takes
 /// her: it is there wherever the room's own blocks leave the place free. The data of one that walks gives
 /// "footstep_scatter", how the dust of a footstep is thrown: the width and height of the spread and how far into it
-/// the middle lies.
-/// <code>"footstep_scatter": { "width": 16, "height": 16, "middle_x": 0, "middle_y": 3 }</code>
+/// the middle lies. The data of one whose hand pulls a plug gives "hand_plug", the top-left of the plug's block in
+/// the room. A plug its hand pulls, or a foot breaks through, is made empty at once and breaks up over its block as
+/// the effect "plug_crumble".
+/// <code>"footstep_scatter": { "width": 16, "height": 16, "middle_x": 0, "middle_y": 3 }, "hand_plug": { "x": 64, "y": 160 }</code>
 /// </remarks>
 public partial class ChozoStatue : Enemy
 {
@@ -68,6 +70,10 @@ public partial class ChozoStatue : Enemy
     [Export, DataValue("footstep_effect")]
     public string FootstepEffect { get; set; } = "";
 
+    /// <summary>The effect of a plug breaking up where it was, by the data file of its timeline.</summary>
+    [Export, DataValue("plug_crumble")]
+    public string PlugCrumble { get; set; } = "";
+
     /// <summary>How many updates after it is told to that the liquid starts to go down.</summary>
     [Export, DataValue("lowering_delay")]
     public int LoweringDelay { get; set; } = 32;
@@ -78,12 +84,14 @@ public partial class ChozoStatue : Enemy
     private bool _carrying;
     private int _lowerIn;
     private (int Width, int Height, int MiddleX, int MiddleY) _footstepScatter = (1, 1, 0, 0);
+    private PixelPosition? _handPlug;
     private Collider? _hand;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
+        _handPlug = data.Has("hand_plug") ? PixelPosition.FromWhole(data.Get("hand_plug").Int("x"), data.Get("hand_plug").Int("y")) : null;
         // Only a statue that walks throws up dust.
         if (!data.Has("footstep_scatter"))
             return;
@@ -217,7 +225,12 @@ public partial class ChozoStatue : Enemy
         if (RecordsFact.Length > 0)
             Room.Session.Progress.Record(RecordsFact);
         if (HandPatch.Length > 0)
+        {
+            // The plug its hand pulls breaks up where it was.
             Room.Terrain.ApplyPatch(HandPatch);
+            Crumble(_handPlug ?? throw new InvalidOperationException($"The Chozo statue \"{Name}\" pulls a plug from its hand and its data says not where."));
+        }
+
         if (WayPatch.Length > 0)
             Room.Terrain.ApplyPatch(WayPatch);
     }
@@ -263,10 +276,12 @@ public partial class ChozoStatue : Enemy
             return;
         int x = Position.X.Whole + across, y = Position.Y.Whole + FootstepDepth;
         int size = Room.Terrain.TileSize;
-        string plug = $"{PlugPatches}_{Math.DivRem(x, size).Quotient}_{Math.DivRem(y, size).Quotient}";
+        int column = Math.DivRem(x, size).Quotient, row = Math.DivRem(y, size).Quotient;
+        string plug = $"{PlugPatches}_{column}_{row}";
         if (x < 0 || y < 0 || !Room.Terrain.HasPatch(plug))
             return;
         Room.Terrain.ApplyPatch(plug);
+        Crumble(PixelPosition.FromWhole(column * size, row * size));
 
         // The dust is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays, and
         // with none free it is not made and draws no number for where it is thrown.
@@ -276,6 +291,12 @@ public partial class ChozoStatue : Enemy
         if (Room.Spawn(dust))
             dust.Position += Random.Scatter(_footstepScatter.Width, _footstepScatter.Height, _footstepScatter.MiddleX, _footstepScatter.MiddleY);
     }
+
+    /// <summary>
+    /// A plug breaks up over the block at <paramref name="corner"/>, its top-left, which is already empty: drawn as the
+    /// room's own tiles are, behind everything standing in the room.
+    /// </summary>
+    private void Crumble(PixelPosition corner) => LeaveEffect(PlugCrumble, corner, Standing.Hindmost);
 
     private void LetGo(Player samus)
     {

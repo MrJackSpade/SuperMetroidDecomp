@@ -79,6 +79,7 @@ public partial class Shaktool : Enemy
     private bool _turnsEndForEndNext = true;
     private bool _clockwise;
     private bool _headReversed;
+    private bool _headNodsNext;
     private int _target;
     private int _curled;
     private string _headPicture = "";
@@ -134,7 +135,8 @@ public partial class Shaktool : Enemy
         }
 
         Play(_look[Head]);
-        ShowParts();
+        // Its parts' timelines first move on in its first update, as the head's does.
+        PlaceParts();
     }
 
     /// <inheritdoc/>
@@ -179,26 +181,66 @@ public partial class Shaktool : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnCue(string cue) => OnPartCue(Head, cue);
+    protected override void OnCue(string cue)
+    {
+        OnPartCue(Head, cue);
+        // The head's nudge is where it is shot on the update it is made.
+        PlaceParts();
+    }
 
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (!_paused)
+        // Part by part along the chain, as the cartridge takes them: each part moves and then its picture moves on,
+        // before the next part moves. The head's own timeline moves on after its behaviour, with the enemy's.
+        for (int part = 0; part < Parts; part++)
         {
-            for (int part = 1; part < Parts - 1; part++)
+            if (part == Head)
+            {
+                if (_headNodsNext)
+                {
+                    Play(_bob[Head], restart: true);
+                    _headNodsNext = false;
+                }
+
+                if (!_paused)
+                {
+                    Orbit(Head);
+                    FaceHead();
+                }
+
+                continue;
+            }
+
+            if (!_paused && part == Parts - 1)
+                DriveTail();
+            else if (!_paused && part > 0)
                 Orbit(part);
-            // The head points midway between the way it hangs from the chain and the way the chain goes on from it.
-            int back = Wrapped(_angle[Head] + TurnParts / 2);
-            int midway = Wrapped(back + Wrapped(_angle[Head + 1] - back) / 2 + (_headReversed ? TurnParts / 2 : 0));
-            Play($"head_{Ways[Turns.Wrap(midway / StepParts + 8) * Ways.Length / Turns.PerTurn]}");
-            DriveTail();
+            if (part == Parts - 1)
+                Cut();
+            StepPart(part);
         }
 
+        PlaceParts();
+    }
+
+    /// <summary>
+    /// Points the head midway between the way it hangs from the chain and the way the chain goes on from it, the part
+    /// after it not yet turned this update.
+    /// </summary>
+    private void FaceHead()
+    {
+        int back = Wrapped(_angle[Head] + TurnParts / 2);
+        int midway = Wrapped(back + Wrapped(_angle[Head + 1] - back) / 2 + (_headReversed ? TurnParts / 2 : 0));
+        Play($"head_{Ways[Turns.Wrap(midway / StepParts + 8) * Ways.Length / Turns.PerTurn]}");
+    }
+
+    /// <summary>Its saws cut what lies where they are.</summary>
+    private void Cut()
+    {
         Hit cut = new(1, HitSide.Enemies, new HitKind(HitKinds.Saw)) { Source = this };
         Room.Terrain.TakeHit(cut, PartRect(_at[0]));
         Room.Terrain.TakeHit(cut, PartRect(_at[Parts - 1]));
-        ShowParts();
     }
 
     /// <summary>An angle in 256ths of a step brought into one turn.</summary>
@@ -294,6 +336,9 @@ public partial class Shaktool : Enemy
         }
 
         _straightening = false;
+        // Every part stops and nods: the far saw from this update, the parts before it, whose turns this update are
+        // over, from the next.
+        _headNodsNext = true;
         // The chain now aims a quarter turn on from where its far saw lies from the near one: the cartridge's aim
         // between their whole pixels, which counts up from right, turned to count clockwise from up.
         int aim = CartridgeAngles.AimAngle(_at[Parts - 1].X.Whole - _at[0].X.Whole, _at[Parts - 1].Y.Whole - _at[0].Y.Whole);
@@ -303,10 +348,7 @@ public partial class Shaktool : Enemy
         {
             int left = Wrapped(_clockwise ? _target - _angle[part] : _angle[part] - _target);
             _turn[part] = left / StepParts * StepParts / ConvergenceShares;
-            // Each part stops and nods.
-            if (part == Head)
-                Play(_bob[part], restart: true);
-            else
+            if (part != Head)
                 _players[part] = new TimelinePlayer(Timelines.Get(_bob[part]));
         }
 
@@ -368,17 +410,18 @@ public partial class Shaktool : Enemy
     /// <summary>A distance given in 256ths of a pixel.</summary>
     private static Pixels FromTwoFiftySixths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 0xFF) << 8);
 
-    /// <summary>Moves the parts' pictures on, and puts them, their colliders and the enemy itself where they are.</summary>
-    private void ShowParts()
+    /// <summary>Moves a part's picture on, acting on its cues.</summary>
+    private void StepPart(int part)
     {
-        for (int part = 0; part < Parts; part++)
-        {
-            if (_players[part] is not { } player)
-                continue;
-            foreach (string cue in player.Step())
-                OnPartCue(part, cue);
-        }
+        if (_players[part] is not { } player)
+            return;
+        foreach (string cue in player.Step())
+            OnPartCue(part, cue);
+    }
 
+    /// <summary>Puts the parts, their pictures, their colliders and the enemy itself where they are.</summary>
+    private void PlaceParts()
+    {
         Position = _at[Head];
         for (int part = 0; part < Parts; part++)
         {

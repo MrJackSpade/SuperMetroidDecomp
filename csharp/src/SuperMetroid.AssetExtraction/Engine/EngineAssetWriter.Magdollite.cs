@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -10,6 +11,10 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// <summary>The Magdollite: the head in the lava, the pillar it raises and the hand that throws.</summary>
 public sealed partial class EngineAssetWriter
 {
+    /// <summary>The two ways a Magdollite's lava flies, as the Godot Magdollite names them, with the old lava's animation each way.</summary>
+    private static readonly (string Side, MagdolliteLavaSegment Segment)[] MagdolliteLavaSides =
+        [("left", MagdolliteLavaSegment.Left), ("right", MagdolliteLavaSegment.Right)];
+
     /// <summary>Writes the Magdollite: its head's, pillar's and hand's timelines, its glow and the lava it throws.</summary>
     private void WriteMagdollite()
     {
@@ -69,12 +74,9 @@ public sealed partial class EngineAssetWriter
             .Value("reach_past_hand", MagdolliteMotionDefinitions.HeadReachPastOverlay)
             .Value("lava_drop", MagdolliteMotionDefinitions.LavaDrop)
             .Value("glow_updates", MagdolliteMotionDefinitions.GlowFrameDuration)
-            .Value("glow_steps", MagdolliteGlowAnimations.Cycle.Count)
             .Value("throw_sound", EngineNames.Sound(MagdolliteSoundDefinitions.Throw))
             // Whether a pillar at its full height grows a last length, by where the old game lists it among a room's enemies.
             .Group("grows_at_full_height", new JsonArray([.. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(place => (JsonNode)JsonValue.Create(growth.GrowsFinalSegment(place)))]))
-            // Its glow recolours all of it, so its pictures are kept once for each step of the glow.
-            .PictureSets("{glow}")
             .Looks(MagdolliteHeadAnimations.Segments, segment => MagdolliteHeadAnimations.StartingAt[segment], HeadCue,
                 ("idle_left", MagdolliteHeadSegment.LeftIdle), ("idle_right", MagdolliteHeadSegment.RightIdle),
                 ("submerge_left", MagdolliteHeadSegment.LeftSubmerge), ("submerge_right", MagdolliteHeadSegment.RightSubmerge),
@@ -84,15 +86,34 @@ public sealed partial class EngineAssetWriter
                 ("throw_right", MagdolliteOverlaySegment.RightThrow));
         for (int lengths = 1; lengths <= pillars.Count; lengths++)
             magdollite.Timeline($"pillar_{lengths}", MagdolliteBodyAnimations.Segments, MagdolliteBodyAnimations.StartingAt[pillars[lengths - 1]]);
-        for (int step = 0; step < MagdolliteGlowAnimations.Cycle.Count; step++)
-            magdollite.ShadedSet($"_glow_{step}", MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[step]).Key);
+
+        // Its glow: each step a change of the colours of all of it, and of the lava it has thrown, which the old game
+        // draws in its thrower's colours. The lava's pictures lie in folders of their own under its own.
+        const string family = Installation.GameInstallationLayout.EnemySheetDirectoryName;
+        string spawner = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Magdollite);
+        var bodyPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+        {
+            [magdollite.Folder] = [_sheets.EnemySheet(spawner)],
+        };
+        var lavaPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach ((string side, MagdolliteLavaSegment segment) in MagdolliteLavaSides)
+        {
+            EnemyProjectileFrameId frame = MagdolliteLavaAnimations.Segments.Beats(segment).Select(beat => beat.ShownFrame).Single(shown => shown.HasValue)!.Value;
+            lavaPlaces[$"{magdollite.Folder}/lava_{side}"] = [_sheets.SheetHolding(spawner, EnemySheetDefinitions.ProjectileFrameName(frame))];
+        }
+
+        magdollite
+            .Group("glow", EngineNames.List(MagdolliteGlowAnimations.Cycle.Select(step =>
+                (JsonNode)ShadeChange(MagdolliteShades.Glow(step).Key, family, bodyPlaces))))
+            .Group("lava_glow", EngineNames.List(MagdolliteGlowAnimations.Cycle.Select(step =>
+                (JsonNode)ShadeChange(MagdolliteShades.Glow(step).Key, family, lavaPlaces))));
 
         magdollite
             // Its lava flies level through everything until it is out of view; a shot destroys it, and it leaves what a Magdollite leaves.
             .Shot("lava", RoomEnemyProjectileKind.LavaThrownByMagdollite, static (thrower, shot, projectile) =>
             {
                 shot["speed"] = EngineNames.Number(MagdolliteMotionDefinitions.LavaThrowSpeed);
-                foreach ((string side, MagdolliteLavaSegment segment) in new[] { ("left", MagdolliteLavaSegment.Left), ("right", MagdolliteLavaSegment.Right) })
+                foreach ((string side, MagdolliteLavaSegment segment) in MagdolliteLavaSides)
                 {
                     EnemyProjectileFrameId frame = MagdolliteLavaAnimations.Segments.Beats(segment).Select(beat => beat.ShownFrame).Single(shown => shown.HasValue)!.Value;
                     thrower.SpawnedPicture($"lava_{side}", frame);

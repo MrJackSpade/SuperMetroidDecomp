@@ -184,6 +184,16 @@ public partial class Torizo : Enemy
         GutAndFaceBlownUp,
     }
 
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
     private static readonly Pixels RestingFall = Pixels.FromWhole(1);
     private static readonly Pixels StatueGravity = Pixels.FromNumber(0.15625);
     private static readonly Pixels LeapGravity = Pixels.FromNumber(0.15625);
@@ -469,7 +479,7 @@ public partial class Torizo : Enemy
                 }
 
                 // It feels for the ground under its stride; with none there it falls.
-                if (!MoveDownBy(Pixels.FromWhole(_groundReach)))
+                if (!Drop(Pixels.FromWhole(_groundReach)))
                 {
                     Play($"facing_{Side}_falling", restart: true);
                     Velocity = PixelVelocity.Zero;
@@ -484,8 +494,9 @@ public partial class Torizo : Enemy
                 break;
 
             case Motion.Leaping:
-                MoveAcrossBy(Velocity.X);
-                if (MoveDownBy(Velocity.Y))
+                Stride(Velocity.X);
+                SettleOnSlopes();
+                if (Drop(Velocity.Y))
                 {
                     Play(_landing, restart: true);
                     FallAtRest();
@@ -504,7 +515,7 @@ public partial class Torizo : Enemy
     /// <summary>Lets it fall, faster and faster; landing from a real fall shakes the room.</summary>
     private void ApplyGravity()
     {
-        if (MoveDownBy(Velocity.Y))
+        if (Drop(Velocity.Y))
         {
             if (!Velocity.Y.IsNegative && !_restingFall)
             {
@@ -517,6 +528,21 @@ public partial class Torizo : Enemy
 
         SetFall(Velocity.Y + StatueGravity);
     }
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool Stride(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>
+    /// Puts it where sloped ground has it under its middle: a move across of no distance meets nothing, and ends as every
+    /// move across that climbs such ground does.
+    /// </summary>
+    private void SettleOnSlopes() => Room.Mover.MoveAcross(MovingBody(), Pixels.Zero, Moves);
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Torizo \"{Name}\" has no body collider to move by.");
 
     /// <summary>Sets its speed down; any speed but the one it rests at means it is really falling.</summary>
     private void SetFall(Pixels speed)
@@ -574,17 +600,17 @@ public partial class Torizo : Enemy
             case "walk":
                 int stride = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                 _groundReach = Math.Min(Math.Abs(stride) + 1, FarthestGroundReach);
-                if (MoveAcrossBy(Pixels.FromWhole(stride)))
+                if (Stride(Pixels.FromWhole(stride)))
                 {
                     // A wall turns it about at once.
                     _turnTowardSamus = null;
                     Play(TurnAbout(), restart: true);
-                }
-                else if (FacesAwayFromSamus())
-                {
-                    _turnTowardSamus ??= Countdown.Of(TurnDelay);
+                    break;
                 }
 
+                SettleOnSlopes();
+                if (FacesAwayFromSamus())
+                    _turnTowardSamus ??= Countdown.Of(TurnDelay);
                 break;
 
             case "shift":

@@ -111,14 +111,41 @@ public sealed partial class EngineAssetWriter
                 .Timeline("activated", ChozoStatueAnimations.Segments, ChozoStatueAnimations.StartingWith(definition.Activated), Cue)
                 .Timeline("lowered", ChozoStatueAnimations.Segments, ChozoStatueAnimations.StartingWith(definition.Idle), Done);
 
+            // A plug's breaking up, which the old game draws over its block from the update the block is made empty:
+            // the shot block's own pictures, each for as long as the old frame stood. Its last frame, the block gone,
+            // shows nothing, as the block itself now does.
+            TerrainChange crumble = ChozoStatueObjectDefinitions.CrumblePlug;
+            if (crumble.FirstFrameDelay != 1)
+                throw new InvalidDataException($"A Chozo statue's plug first breaks up {crumble.FirstFrameDelay} updates after it is made, where its effect shows from the update it is left.");
+            var crumbling = new JsonArray();
+            for (int index = 0; index < crumble.Frames.Count; index++)
+            {
+                TerrainChangeFrame frame = crumble.Frames[index];
+                if (frame.SoundBefore is not null)
+                    throw new InvalidDataException("A Chozo statue's plug breaks up with a sound, which its effect does not ask for.");
+                if (Layouts.BreakupPicture(frame.Draw) is { } picture)
+                    crumbling.Add(new JsonObject { ["picture"] = picture, ["updates"] = frame.Updates });
+                else if (index != crumble.Frames.Count - 1)
+                    throw new InvalidDataException("A Chozo statue's plug is gone before its last frame of breaking up.");
+            }
+
+            string crumbleFile = $"{statue.Folder}/plug_crumble.json";
+            _tree.WriteData(crumbleFile, new JsonObject { ["steps"] = crumbling });
+            statue.Value("plug_crumble", crumbleFile);
+
             IEnumerable<(RoomDefinition Room, RoomStateSettings State)> everyState = EngineLayouts.States().Where(placed => rooms.Contains(placed.Room));
             switch (site)
             {
                 case ChozoStatueSite.LowerNorfair:
+                {
                     foreach ((RoomDefinition room, RoomStateSettings state) in everyState)
                         Layouts.Patch(room, state, ChozoPlugGonePatch, definition.HandBlock, Layouts.PatchCells(directory, Drawn(ChozoStatueDraw.LowerNorfairClearedHand)));
-                    statue.Value("hand_patch", ChozoPlugGonePatch);
+                    // The plug its hand pulls, which breaks up where it was.
+                    Position16<RoomPixels> plug = definition.HandBlock.ToRoomPixels();
+                    statue.Value("hand_patch", ChozoPlugGonePatch)
+                        .Group("hand_plug", new JsonObject { ["x"] = plug.X, ["y"] = plug.Y });
                     break;
+                }
 
                 case ChozoStatueSite.WreckedShip:
                 {

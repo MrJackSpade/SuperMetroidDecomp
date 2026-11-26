@@ -465,10 +465,26 @@ internal sealed partial class EngineLayouts
             return new BreakupFrame(true, null);
         if (draw.Frame.Stage == BlockBreakupStage.Gone)
             return new BreakupFrame(false, null);
-        int block = FrameBlock(GameInstallationLayout.RoomObjectShotBlockVisualDirectoryName, RoomObjectShotBlockVisualFiles.VisualId(draw), 0, 0)?.Block
-            ?? throw new InvalidDataException($"The breaking block's frame {draw.Frame.Stage} draws nothing.");
-        return new BreakupFrame(false, block);
+        return new BreakupFrame(false, BreakupBlock(draw));
     }
+
+    /// <summary>
+    /// The picture one of the old game's frames of a block breaking up shows, as a block type names it; none for the
+    /// frame where the block is gone, which shows nothing.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The frame is not a stage of a block breaking up, or draws nothing.</exception>
+    internal string? BreakupPicture(RoomObjectDraw draw)
+    {
+        if (draw is not RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> breakup)
+            throw new InvalidDataException($"The frame {draw} is not a stage of a block breaking up.");
+        return breakup.Frame.Stage == BlockBreakupStage.Gone ? null : SharedPicture(BreakupBlock(breakup));
+    }
+
+    /// <summary>The block one stage of a block breaking up, short of its being gone, draws.</summary>
+    /// <exception cref="InvalidDataException">The stage draws nothing.</exception>
+    private int BreakupBlock(RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> draw) =>
+        FrameBlock(GameInstallationLayout.RoomObjectShotBlockVisualDirectoryName, RoomObjectShotBlockVisualFiles.VisualId(draw), 0, 0)?.Block
+            ?? throw new InvalidDataException($"The breaking block's frame {draw.Frame.Stage} draws nothing.");
 
     /// <summary>The blocks the X-ray scope shows a reacting block as, by the kind of block and what it does: one for each of its tiles, row by row.</summary>
     private Dictionary<(string Collision, string Reaction), int[]>? _sight;

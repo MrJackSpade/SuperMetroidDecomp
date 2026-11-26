@@ -38,9 +38,22 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <summary>Whether the windup starts lifted, as one begun out of a jump does.</summary>
     private readonly bool _lifted;
 
+    /// <summary>The way it is launched as it begins, with no wait for a direction; null for one that winds up first.</summary>
+    private readonly (int Across, int Down)? _launched;
+
     /// <summary>A shinespark.</summary>
     /// <param name="lifted">Whether its windup starts lifted off where she is, as one begun out of a jump does.</param>
     public ShinesparkState(bool lifted) => _lifted = lifted;
+
+    private ShinesparkState((int Across, int Down) launched) => _launched = launched;
+
+    /// <summary>
+    /// A shinespark already launched as it begins: its windup is set up and at once left for the flight, with no
+    /// shine stored and no wait for a direction, as the title's two shinespark demos start her.
+    /// </summary>
+    /// <param name="across">The way it flies across: 1 right, -1 left, 0 neither.</param>
+    /// <param name="down">The way it flies down: -1 up, 0 neither.</param>
+    public static ShinesparkState Launched(int across, int down) => new((across, down));
 
     private Stage _stage;
     private Crash _crash;
@@ -96,6 +109,8 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         samus.BeginSparkColouring();
         _stage = Stage.WindingUp;
         _left = Countdown.Of(samus.ShinesparkWindupUpdates);
+        if (_launched is { } way)
+            Launch(samus, way.Across, way.Down);
     }
 
     /// <inheritdoc/>

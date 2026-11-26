@@ -15,9 +15,11 @@ namespace Game.Menus;
 /// </summary>
 /// <remarks>
 /// A demo's file is a recording, with the room it plays in; it gives where in the room Samus starts ("start": "x",
-/// "y" and the way she is "facing"), how long it lasts ("lasts_updates"), and may list the "equipment" she has, which
-/// of it is switched "off", how much of each thing she can carry ("capacities") and how much she has ("amounts"),
-/// and the "facts" that are so before its room is entered.
+/// "y", the way she is "facing", and what she starts "as": "standing", "facing_forward" as her ship leaves her,
+/// "rolling" in the morph ball, "falling", or already flying a "shinespark_across" or a "shinespark_diagonal"; the
+/// place is her middle in that body), how long it lasts ("lasts_updates"), and may list the "equipment" she has,
+/// which of it is switched "off", how much of each thing she can carry ("capacities") and how much she has
+/// ("amounts"), and the "facts" that are so before its room is entered.
 /// </remarks>
 public partial class AttractDemoMode : PlayingMode
 {
@@ -63,6 +65,7 @@ public partial class AttractDemoMode : PlayingMode
         {
             _equipped = true;
             Equip(Session.Player.Inventory);
+            Stage((Samus)Session.Player);
         }
 
         if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause))
@@ -89,6 +92,46 @@ public partial class AttractDemoMode : PlayingMode
             _ => throw start.Get("facing").Problem("must be \"left\" or \"right\""),
         };
         return new RoomEntry("", PixelVelocity.Zero, facing) { At = PixelPosition.FromWhole(start.Int("x"), start.Int("y")) };
+    }
+
+    /// <summary>
+    /// Puts Samus as the demo says she starts, once she has what the demo gives her: the room set her down standing
+    /// at the demo's place, and she takes the body of what she starts as about that same middle.
+    /// </summary>
+    private void Stage(Samus samus)
+    {
+        DataNode start = _data.Get("start");
+        int forward = samus.Facing == Facing.Right ? 1 : -1;
+        switch (start.Text("as"))
+        {
+            case "standing":
+                break;
+            case "facing_forward":
+                samus.ChangeState(new StandingForwardState());
+                break;
+            case "rolling":
+                Begin(samus, new CrawlingState());
+                break;
+            case "falling":
+                Begin(samus, new FallingState());
+                break;
+            case "shinespark_across":
+                samus.ChangeState(ShinesparkState.Launched(forward, 0));
+                break;
+            case "shinespark_diagonal":
+                samus.ChangeState(ShinesparkState.Launched(forward, -1));
+                break;
+            default:
+                throw start.Get("as").Problem("must be \"standing\", \"facing_forward\", \"rolling\", \"falling\", \"shinespark_across\" or \"shinespark_diagonal\"");
+        }
+    }
+
+    /// <summary>Puts Samus in <paramref name="state"/>, in the body that state is entered in, about the middle she has.</summary>
+    private static void Begin(Samus samus, PlayerState state)
+    {
+        if (state.EntersIn(samus) is { } wants && !samus.TrySetForm(wants.Form, aroundMiddle: true))
+            throw new InvalidOperationException($"A demo starts Samus in the body \"{wants.Form}\" where it does not fit.");
+        samus.ChangeState(state);
     }
 
     /// <summary>

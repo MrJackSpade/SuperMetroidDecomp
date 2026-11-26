@@ -222,6 +222,18 @@ public sealed partial class EngineAssetWriter
         };
         JsonObject start = At(scene.Samus.Position.X, scene.Samus.Position.Y);
         start["facing"] = pose is { } posedAs && posedAs.ToString().Contains("Left", StringComparison.Ordinal) ? "left" : "right";
+
+        // How she is staged: the place given is her middle in that body.
+        start["as"] = scene.Samus.Setup switch
+        {
+            AttractDemoSamusSetup.ForwardFacing => "facing_forward",
+            AttractDemoSamusSetup.Posed { Pose: SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose } => "standing",
+            AttractDemoSamusSetup.Posed { Pose: SamusPoseId.MorphBallMovingLeftPose } => "rolling",
+            AttractDemoSamusSetup.Posed { Pose: SamusPoseId.FallingLeftPose } => "falling",
+            AttractDemoSamusSetup.Shinespark { Launch: var launch } when launch == SuperMetroid.Core.Samus.Abilities.ShinesparkLaunch.DiagonalRight => "shinespark_diagonal",
+            AttractDemoSamusSetup.Shinespark { Launch: var launch } when launch == SuperMetroid.Core.Samus.Abilities.ShinesparkLaunch.HorizontalLeft => "shinespark_across",
+            _ => throw new InvalidDataException($"A demo stages Samus as {scene.Samus.Setup}, which the Godot demo has no start for."),
+        };
         data["start"] = start;
         data["lasts_updates"] = scene.Duration;
 

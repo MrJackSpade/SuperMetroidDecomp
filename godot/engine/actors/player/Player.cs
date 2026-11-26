@@ -1693,6 +1693,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             _jumpHeldFor = 0;
     }
 
+    /// <summary>
+    /// Notes what is held on an update the player does not play, as a screen laid over play passes it by: whether
+    /// the jump was held is taken from it for their next update of play, and how long it has been held stands as it
+    /// was. So a jump held as play is taken up again goes on counting from where it stood, whatever was let go and
+    /// pressed meanwhile.
+    /// </summary>
+    public void NoteHeld(GameInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        _jumpWasHeld = input.IsHeld(GameAction.Jump);
+    }
+
     /// <summary>Counts, at the end of an update, how many updates running the jump has been held beyond its first.</summary>
     private void CountJumpHeld()
     {

@@ -200,6 +200,7 @@ public partial class PauseScreen : GameMode
 
             case Phase.Preparing:
                 // As in the old game, the liquid and the statues still move before this update's random number is drawn.
+                Session.Player.NoteHeld(input);
                 _playing.Room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 Session.Sounds.StopAll();
                 Prepare();
@@ -209,6 +210,8 @@ public partial class PauseScreen : GameMode
 
             case Phase.FadingIn:
                 // Each update of the old pause screen, and the one that restores play, draws a random number first.
+                // On each of them, from its preparing on, what is held is noted for Samus, who plays none of them.
+                Session.Player.NoteHeld(input);
                 Session.OpenUpdate();
                 StepAnimations(inUse: false);
                 if (StepFade(darker: false))
@@ -216,6 +219,7 @@ public partial class PauseScreen : GameMode
                 return this;
 
             case Phase.InUse:
+                Session.Player.NoteHeld(input);
                 Session.OpenUpdate();
                 if (StepInUse(input))
                 {
@@ -226,6 +230,7 @@ public partial class PauseScreen : GameMode
                 return this;
 
             case Phase.FadingOut:
+                Session.Player.NoteHeld(input);
                 Session.OpenUpdate();
                 StepAnimations(inUse: false);
                 if (StepFade(darker: true))
@@ -233,6 +238,7 @@ public partial class PauseScreen : GameMode
                 return this;
 
             case Phase.Restoring:
+                Session.Player.NoteHeld(input);
                 Session.OpenUpdate();
                 Restore();
 

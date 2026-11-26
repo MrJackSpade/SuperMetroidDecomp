@@ -965,7 +965,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
 - **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
   updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
   the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
-  update of the landing is not counted. A player who has stood since landing for as long as a landing takes to
+  update of the landing is not counted. A mode that passes updates the player does not play tells them what is
+  held on each (`Player.NoteHeld`, as this game's pause screen does): the jump goes on counting from where it
+  stood. A player who has stood since landing for as long as a landing takes to
   settle (`landing_updates`) is given the same chance once more. How long a landing takes to settle may differ by
   the state it ends, which the game's player says (`SettlingUpdatesAfter`, asked by `AirStance.FallAndLand`).
 - A wall jump of the plain kind leaves the wall at a set speed, facing away, with steering locked for a moment, and

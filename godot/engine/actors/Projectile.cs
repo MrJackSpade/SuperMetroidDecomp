@@ -423,8 +423,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
                 End(room);
                 return HitResult.Destroyed;
-            case ProjectileSettings.MetBy.StopsShot:
-                return HitResult.Absorbed;
             default:
                 return HitResult.Ignored;
         }
@@ -751,7 +749,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     internal void MeetShot(Projectile enemyShot)
     {
         // One an enemy's answer has spent meets no shot of theirs.
-        if (HasEnded || enemyShot.HasEnded || !HarmsNow || Side != HitSide.Player || _spent != Spent.No)
+        if (HasEnded || enemyShot.HasEnded || !HarmsNow || !MeetsShots || Side != HitSide.Player || _spent != Spent.No)
             return;
         int square = Room.Session.Definition.ShotMeetingSquare;
         if (square <= 0)
@@ -760,9 +758,27 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             && SquareOf(Position.Y.Whole, square) == SquareOf(enemyShot.Position.Y.Whole, square))
         {
             // It lands on the other where the other stands: the squares, not the two shapes, decided that they met.
-            MeetTargets(Room, enemyShot.Area, target => ReferenceEquals(target, enemyShot));
+            // What the other makes of the hit is the other's own. The shot itself is only marked: it goes on its own
+            // next step, with nothing left behind. One that passes through what it meets is not even marked.
+            _alreadyHurt.Add(this);
+            bool landed = false;
+            foreach ((IHittable _, HitResult result) in Room.DeliverHit(
+                         Hit with { At = Position }, enemyShot.Area, from: _launcher, skipping: _alreadyHurt,
+                         landsOn: target => ReferenceEquals(target, enemyShot)).ToList())
+            {
+                landed |= result != HitResult.Ignored;
+            }
+
+            if (landed && MeetsTargetAs == ProjectileSettings.Target.Ends)
+                Spend(enemyShot, Spent.AsDud);
         }
     }
+
+    /// <summary>
+    /// Whether the projectile is tried against the other side's shots at all. A projectile of its own class that
+    /// never meets them, as a bomb does not, says so here.
+    /// </summary>
+    protected virtual bool MeetsShots => true;
 
     /// <summary>The square along one axis that holds a whole pixel, counted from the room's corner.</summary>
     private static int SquareOf(int pixel, int square) => (int)Math.Floor(pixel / (double)square);

@@ -1346,6 +1346,9 @@ not lifted from a shared routine.
   player's where they stand, at the end of its update, after the enemies' shots have been tried against the player.
   The two meet when they stand in the same square of the room, squares of `GameDefinition.ShotMeetingSquare` pixels
   counted from its top left corner, whatever their sizes: a shot just over a square's edge passes the other by.
+  What the enemy's shot makes of the hit is its own; the player's shot is only marked spent, and goes on its own
+  next step with nothing left behind, and one that passes through what it meets is not even marked. A projectile
+  of its own class that meets no shot of the other side says so (`Projectile.MeetsShots`: this game's bombs).
   A projectile with a part of its own to play there, after both, is an `IClosingStep` (as one with a part in the
   update's opening is an `IOpeningStep`): this game's power bomb grows its blast as the update opens, strikes the
   terrain along the blast's border in its own step among the player's shots, and lands its hit on what the blast
@@ -1366,7 +1369,7 @@ How a projectile behaves is settings, not code:
 | Meeting terrain | Ends; ends and delivers its hit to the tile; passes through; passes through and still delivers its hit to each tile it crosses; bounces. |
 | What of it meets terrain | Its whole body at every pixel of its way, stopped by anything solid in it and by the room's edge; its middle point alone, once for each way it moves, where the move ended, so that a fast one passes what it steps over and one that is stopped ends inside what it met, as this game's missiles do; or the edge it leads with, once for each way it moves, where the move ended (`Terrain.MeetShotEdge`, answering with a `ShotEdgeMeeting`): it is stopped only when every tile across that edge stops it, its hit lands on every tile the edge reached, and it is tried once where it was launched before it first moves. By its middle or its edge nothing outside the room stops it, and a way out of the room does (`Room.HasExitOver`). Samus's missiles meet terrain by their middle and her beams by their edge; a beam fired down beside a wall flies past it. Or the side it leads with, as the cartridge's enemy shots do: tried where each move ended, stopped by any tile in it that stops a body (`Terrain.StopsEdge`), and resting against that tile on whole pixels; the pieces of Ceres's ceiling fall so, out of the ceiling they start in. |
 | Meeting a target | Ends; passes through and can hit others; passes through and can hit the same one again once that one can be hit again. A target that takes no damage from it, or turns it back, stops it either way. |
-| Met by the other side's shot | Destroyed; stops the shot and is unharmed; ignored. |
+| Met by the other side's shot | Destroyed; ignored. |
 | Motion | Straight; accelerating; in a wave; homing; does not travel (a bomb); with gravity. |
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). Either is left at its middle, or at its front: half its size on along each way it was launched, as a beam's burst is. |

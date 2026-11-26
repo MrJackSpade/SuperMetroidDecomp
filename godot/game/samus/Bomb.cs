@@ -17,6 +17,9 @@ public partial class Bomb : Projectile
     /// <summary>The blocks a burst strikes, from the block the bomb lies in, in the order it strikes them.</summary>
     private static readonly (int Across, int Down)[] Cross = [(0, 0), (0, -1), (1, 0), (-1, 0), (0, 1)];
 
+    /// <summary>A bomb strikes no shot of the enemies'.</summary>
+    protected override bool MeetsShots => false;
+
     private bool _thrown;
     private PixelVelocity _flight;
     private Pixels _throwDown;

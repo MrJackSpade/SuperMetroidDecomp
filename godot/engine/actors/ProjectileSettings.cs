@@ -97,9 +97,6 @@ public sealed record ProjectileSettings
 
         /// <summary>It is destroyed.</summary>
         Destroyed,
-
-        /// <summary>It stops the shot and is unharmed.</summary>
-        StopsShot,
     }
 
     /// <summary>How a projectile moves.</summary>

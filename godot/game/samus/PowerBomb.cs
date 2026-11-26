@@ -37,6 +37,9 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep, IClosingS
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "";
 
+    /// <summary>A power bomb is not tried against the enemies' shots as her shots are.</summary>
+    protected override bool MeetsShots => false;
+
     /// <summary>How many updates the bomb lies there before its blast begins.</summary>
     [Export, DataValue("fuse_updates")]
     public int FuseUpdates { get; set; } = 60;

@@ -120,6 +120,31 @@ public partial class MotherBrain
     private int _greyWait;
     private bool _flashing;
 
+    /// <summary>
+    /// Her room's colours at each image of the flash her false death starts, each shown for
+    /// <see cref="_roomFlashImageUpdates"/> updates, over and over, and the steady grey the room keeps once her brain
+    /// lands ("room_flash": "images", "image_updates" and "grey").
+    /// </summary>
+    private readonly List<Engine.Ui.ColourChange> _roomFlash = [];
+    private int _roomFlashImageUpdates;
+    private Engine.Ui.ColourChange _roomGrey = Engine.Ui.ColourChange.None;
+
+    /// <summary>How many updates her room has flashed.</summary>
+    private int _roomFlashed;
+
+    /// <summary>The name her room's flash, and the grey it leaves, are shown under.</summary>
+    private const string RoomFlash = "MotherBrainRoomFlash";
+
+    /// <summary>
+    /// Shows her room's flash one update further on. Its images are counted from the update it starts, which shows
+    /// none, so the first is seen one update less than the rest.
+    /// </summary>
+    private void StepRoomFlash()
+    {
+        _roomFlashed++;
+        Room.Recolour(RoomFlash, _roomFlash[_roomFlashed / _roomFlashImageUpdates % _roomFlash.Count]);
+    }
+
     private void ReadFakeDeathValues(DataNode data)
     {
         _tubeDrops.Clear();
@@ -142,6 +167,11 @@ public partial class MotherBrain
         }
 
         _ceilingPatch = data.Text("ceiling_patch");
+        DataNode flash = data.Get("room_flash");
+        _roomFlash.Clear();
+        _roomFlash.AddRange(flash.List("images").Select(Engine.Ui.ColourChange.Read));
+        _roomFlashImageUpdates = flash.Int("image_updates");
+        _roomGrey = Engine.Ui.ColourChange.Read(flash.Get("grey"));
         ReadLateFightValues(data);
     }
 
@@ -164,8 +194,13 @@ public partial class MotherBrain
 
     private void StepDescent(Player samus)
     {
+        // The room flashes, and she does not; she only greys.
         if (_flashing)
-            _tint = Updates % 4 < 2 ? new Color(1.6f, 1.6f, 1.6f) : _greyStep > 0 ? GreyTint(_greyStep) : Colors.White;
+        {
+            StepRoomFlash();
+            _tint = GreyTint(_greyStep);
+        }
+
         switch (_descent)
         {
             case Descent.InitialPause:
@@ -200,7 +235,7 @@ public partial class MotherBrain
             case Descent.PauseBeforeFlash:
                 if (--_timer > 0)
                     break;
-                _flashing = true;
+                (_flashing, _roomFlashed) = (true, 0);
                 Room.Liquid?.HeadFor(_liquidDrain.Height, _liquidDrain.Speed, _liquidDrain.Delay);
                 (_nextTube, _tubeFallen, _tubeWait) = (0, false, 1);
                 (_inFirstPlace, PartOfAPixelLeftInFirstPlace) = (null, 0);
@@ -338,7 +373,9 @@ public partial class MotherBrain
     /// <summary>Her brain comes to rest on the floor, and the room is still.</summary>
     private void LandBrain()
     {
+        // The room's flash stops, and it keeps its steady grey.
         _flashing = false;
+        Room.Recolour(RoomFlash, _roomGrey);
         _tint = GreyTint(GreySteps);
         Room.Shake(3, 32);
         _head = new PixelPosition(_head.X, Pixels.FromWhole(196));

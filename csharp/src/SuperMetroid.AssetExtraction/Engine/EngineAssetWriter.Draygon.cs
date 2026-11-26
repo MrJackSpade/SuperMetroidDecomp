@@ -315,6 +315,7 @@ public sealed partial class EngineAssetWriter
                 ["meeting_terrain"] = "passes_through",
                 ["meeting_target"] = turret.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
                 ["met_by_shot"] = turret.Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots) ? "destroyed" : "ignored",
+                ["standing"] = EngineEnemy.StandingOf(turret),
                 // It is taken away once out of the chamber, wherever the view is, which its own data says.
                 ["view_margin"] = -1,
                 ["timeline"] = Launched("cannon_shot", DraygonProjectileSegment.WallTurretBloom),

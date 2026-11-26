@@ -259,10 +259,12 @@ public sealed partial class EngineAssetWriter
         JsonObject spitProjectile = Projectile(spit, fired);
         // It moves itself, and meets terrain its own way.
         spitProjectile["meeting_terrain"] = "passes_through";
+        spitProjectile["standing"] = EngineEnemy.StandingOf(spit);
         // Its sweat moves itself too: a wall only stops its way across, and it ends, with its splash, only where it
         // comes down onto terrain. Ending on Samus it leaves nothing.
         JsonObject sweatProjectile = Projectile(sweat, falling);
         sweatProjectile["meeting_terrain"] = "passes_through";
+        sweatProjectile["standing"] = EngineEnemy.StandingOf(sweat);
         new EngineObjectFile(_tree, "enemies/eye_door_sweat.json", "EyeDoorSweat")
             .Value("gravity", EngineNames.Number(EyeDoorEffectDefinitions.SweatGravity))
             .Value("splash_effect", splash)

@@ -16,6 +16,17 @@ internal sealed partial class EngineEnemy
     internal string Folder => _file[.._file.LastIndexOf('.')];
 
     /// <summary>
+    /// Where something an enemy launches stands against Samus, as the Godot game names it: the old game draws each
+    /// kind behind her and behind every enemy, or in front of her and of every enemy.
+    /// </summary>
+    internal static string StandingOf(EnemyProjectileDefinition old) => old.Depth switch
+    {
+        EnemyProjectileDepth.BehindSamus => "hindmost",
+        EnemyProjectileDepth.InFrontOfSamus => "foremost",
+        _ => throw new InvalidDataException($"The old game draws something it launches at {old.Depth}, which has no name here."),
+    };
+
+    /// <summary>
     /// Adds one of its shots, by the name the Godot enemy fires it by: the hit and the size the old game gives the
     /// projectile of <paramref name="kind"/>, whether it lives on after hurting Samus, and whether her shots meet it.
     /// One her shots meet is destroyed by them, as the old game's is unless its own code makes it a dud.
@@ -33,14 +44,7 @@ internal sealed partial class EngineEnemy
             ["meeting_target"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
             ["met_by_shot"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots) ? "destroyed" : "ignored",
             ["view_margin"] = -1,
-            // The old game draws what an enemy launches behind Samus and behind every enemy, or in front of her and
-            // of every enemy, by its kind.
-            ["standing"] = old.Depth switch
-            {
-                EnemyProjectileDepth.BehindSamus => "hindmost",
-                EnemyProjectileDepth.InFrontOfSamus => "foremost",
-                _ => throw new InvalidDataException($"The old game draws what it launches as {kind} at {old.Depth}, which has no name here."),
-            },
+            ["standing"] = StandingOf(old),
         };
         if (old.Properties.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
             projectile["delivers_hit"] = false;

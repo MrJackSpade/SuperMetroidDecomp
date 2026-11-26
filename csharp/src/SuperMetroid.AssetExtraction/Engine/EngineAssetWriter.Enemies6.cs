@@ -7,7 +7,10 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.WreckedShip;
+using WreckedShipGhostShades = SuperMetroid.Core.Enemies.WreckedShip.Artwork.WreckedShipGhostShades;
 using SoundRequestPriority = SuperMetroid.Core.Compatibility.SoundRequestPriority;
+using WreckedShipGhostFade = SuperMetroid.Core.Compatibility.WreckedShipGhostFade;
+using WreckedShipGhostFadeStep = SuperMetroid.Core.Compatibility.WreckedShipGhostFadeStep;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -59,6 +62,36 @@ public sealed partial class EngineAssetWriter
     private void WriteGlowingEnemies()
     {
         // The Covern: the steps of its flicker as it comes and goes, each so long, and whether each leaves it shown.
+        // Its colours as it starts, dark, and on each step of its brightening, of its fade into its own colours and of
+        // its fade to white, in the old game's own shades of it, each a change of its pictures' colours. How many steps
+        // each takes is what the old game's colours take, along the one way they go: brightening from dark to white,
+        // then into its own colours, then to white.
+        const string ghostFamily = Installation.GameInstallationLayout.EnemySheetDirectoryName;
+        var ghostPlaces = new Dictionary<string, IReadOnlyList<string>>
+        {
+            ["enemies/covern"] = [_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Coven))],
+        };
+        JsonArray GhostSteps(string effect, int steps) =>
+            EngineNames.List(Enumerable.Range(1, steps).Select(step => (JsonNode)ShadeChange($"{effect}/{step}", ghostFamily, ghostPlaces)));
+        WreckedShipGhostFade ghostFade = WreckedShipGhostFade.Dark;
+        int StepsTaken(Func<WreckedShipGhostFade, WreckedShipGhostFadeStep> step)
+        {
+            int taken = 0;
+            for (WreckedShipGhostFadeStep next = step(ghostFade); next.Changes > 0; next = step(ghostFade))
+            {
+                ghostFade = next.Next;
+                taken++;
+            }
+
+            return taken;
+        }
+
+        int brighteningSteps = StepsTaken(fade => fade.Brightened());
+        ghostFade = ghostFade.Materializing(WreckedShipGhostFade.GhostColours);
+        int materialisingSteps = StepsTaken(fade => fade.SteppedTowardTarget());
+        ghostFade = ghostFade.Vanishing();
+        int vanishingSteps = StepsTaken(fade => fade.SteppedTowardTarget());
+
         Enemy("enemies/covern.json", "Covern", EnemyDefinitionId.Coven).BodyColliders("Hurtbox")
             .Value("reappearance_delay", WreckedShipGhostAppearanceDefinitions.ReappearanceDelay)
             .Value("first_extra_delay", WreckedShipGhostAppearanceDefinitions.InitialDelay - WreckedShipGhostAppearanceDefinitions.ReappearanceDelay)
@@ -74,6 +107,10 @@ public sealed partial class EngineAssetWriter
                 ["updates"] = step.Duration,
                 ["shows"] = step.Visibility == WreckedShipGhostFlickerVisibility.Shown,
             })))
+            .Group("dark", ShadeChange($"{WreckedShipGhostShades.DarkEffect}/0", ghostFamily, ghostPlaces))
+            .Group("brightening", GhostSteps(WreckedShipGhostShades.BrighteningEffect, brighteningSteps))
+            .Group("materialising", GhostSteps(WreckedShipGhostShades.MaterializingEffect, materialisingSteps))
+            .Group("vanishing", GhostSteps(WreckedShipGhostShades.VanishingEffect, vanishingSteps))
             .Looks(WreckedShipGhostAnimations.Segments, WreckedShipGhostAnimations.StartingWith, ("floating", WreckedShipGhostSegment.Floating))
             .Write();
 

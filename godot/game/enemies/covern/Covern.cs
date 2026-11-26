@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Godot;
 
 namespace Game.Enemies;
@@ -13,7 +14,9 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// Its timeline is "floating". Its data lists its flicker under "flicker": each step's length in updates, and whether
-/// the step leaves it shown.
+/// the step leaves it shown. Its colours are changes of its pictures' colours: "dark", as it starts, and one for each
+/// update's step of its "brightening" from the dark to white, its "materialising" from white into its own colours and
+/// its "vanishing" to white; each ends on the update after its last step.
 /// </remarks>
 public partial class Covern : Enemy
 {
@@ -41,18 +44,6 @@ public partial class Covern : Enemy
     [Export, DataValue("lead_distance")]
     public int LeadDistance { get; set; } = 64;
 
-    /// <summary>How many updates it takes to brighten out of the dark.</summary>
-    [Export, DataValue("brighten_updates")]
-    public int BrightenUpdates { get; set; } = 16;
-
-    /// <summary>How many updates it then takes to settle into its own colours.</summary>
-    [Export, DataValue("materialise_updates")]
-    public int MaterialiseUpdates { get; set; } = 16;
-
-    /// <summary>How many updates it takes to fade away.</summary>
-    [Export, DataValue("vanish_updates")]
-    public int VanishUpdates { get; set; } = 16;
-
     /// <summary>The speed its bobbing starts with, as a number of pixels an update.</summary>
     [Export, DataValue("bob_start_speed")]
     public double BobStartSpeed { get; set; } = 1;
@@ -71,18 +62,25 @@ public partial class Covern : Enemy
         Vanishing,
     }
 
+    /// <summary>The name its colours are shown under.</summary>
+    private const string FadeColours = "CovernFade";
+
     private readonly List<(int Updates, bool Shows)> _flicker = [];
+    private ColourChange _dark = ColourChange.None;
+    private ColourChange[] _brightening = [];
+    private ColourChange[] _materialising = [];
+    private ColourChange[] _vanishing = [];
     private Doing _doing;
     private Countdown _wait;
     private Countdown _still;
     private Countdown _steady;
     private Countdown _flickerWait;
     private int _flickerStep;
-    private int _fade;
+    private ColourChange[] _fade = [];
+    private int _fadeStep;
     private int _appearedAtY;
     private (int X, int Y) _lastSamus;
     private (int X, int Y) _course;
-    private float _alpha;
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => _doing == Doing.Bobbing && base.IsHitBy(side);
@@ -93,10 +91,11 @@ public partial class Covern : Enemy
         base.ReadValues(data);
         _flicker.Clear();
         _flicker.AddRange(data.List("flicker").Select(step => (step.Int("updates"), step.Flag("shows"))));
+        _dark = ColourChange.Read(data.Get("dark"));
+        _brightening = [.. data.List("brightening").Select(ColourChange.Read)];
+        _materialising = [.. data.List("materialising").Select(ColourChange.Read)];
+        _vanishing = [.. data.List("vanishing").Select(ColourChange.Read)];
     }
-
-    /// <inheritdoc/>
-    protected override Color RestingTint => new(1, 1, 1, _alpha);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -104,6 +103,10 @@ public partial class Covern : Enemy
         Play("floating");
         Visual?.SetShown(false);
         _wait = Countdown.Of(ReappearanceDelay + FirstExtraDelay);
+        // It starts dark, and its first appearance brightens it from there.
+        BeginFade(_brightening);
+        if (Visual is { } visual)
+            _dark.ShowOn(visual, FadeColours);
     }
 
     /// <inheritdoc/>
@@ -128,18 +131,17 @@ public partial class Covern : Enemy
                 return;
 
             case Doing.Brightening:
+                // It brightens from the dark to white once; already white, as it is after vanishing, it goes
+                // straight on to its own colours.
                 Flicker();
-                _alpha = Math.Min(0.5f, 0.5f * ++_fade / BrightenUpdates);
-                if (_fade < BrightenUpdates)
+                if (StepFade(_brightening))
                     return;
                 _doing = Doing.Materialising;
-                _fade = 0;
+                BeginFade(_materialising);
                 return;
 
             case Doing.Materialising:
-                bool settling = _fade < MaterialiseUpdates;
-                if (settling)
-                    _alpha = 0.5f + 0.5f * ++_fade / MaterialiseUpdates;
+                bool settling = StepFade(_materialising);
                 Flicker();
                 if (_flickerWait.IsRunning || settling)
                     return;
@@ -159,12 +161,11 @@ public partial class Covern : Enemy
                 if (!Ends(ref _wait))
                     return;
                 _doing = Doing.Vanishing;
-                _fade = 0;
+                BeginFade(_vanishing);
                 return;
 
             case Doing.Vanishing:
-                _alpha = 1f - (float)++_fade / VanishUpdates;
-                if (_fade < VanishUpdates)
+                if (StepFade(_vanishing))
                     return;
                 _doing = Doing.Away;
                 Visual?.SetShown(false);
@@ -174,6 +175,23 @@ public partial class Covern : Enemy
             default:
                 throw new InvalidOperationException($"Undefined Covern stage {_doing}.");
         }
+    }
+
+    /// <summary>Starts its colours on the steps of <paramref name="fade"/>.</summary>
+    private void BeginFade(ColourChange[] fade) => (_fade, _fadeStep) = (fade, 0);
+
+    /// <summary>
+    /// Shows its colours a step on along <paramref name="fade"/>, if they are on that fade's steps and it has one left,
+    /// and returns whether they changed: a fade ends on the update they do not.
+    /// </summary>
+    private bool StepFade(ColourChange[] fade)
+    {
+        if (!ReferenceEquals(_fade, fade) || _fadeStep >= fade.Length)
+            return false;
+        ColourChange colours = fade[_fadeStep++];
+        if (Visual is { } visual)
+            colours.ShowOn(visual, FadeColours);
+        return true;
     }
 
     /// <summary>Counts one update of a wait that is running, and returns whether that ended it.</summary>
@@ -231,8 +249,6 @@ public partial class Covern : Enemy
         int down = _course is (1, -1) ? 0 : _course.Y;
         Position = PixelPosition.FromWhole(samus.X + _course.X * LeadDistance, samus.Y + down * LeadDistance);
         _doing = Doing.Brightening;
-        _fade = 0;
-        _alpha = 0;
         _flickerWait = Countdown.Of(1);
         _flickerStep = 0;
         _still = Countdown.Of(StillUpdates);

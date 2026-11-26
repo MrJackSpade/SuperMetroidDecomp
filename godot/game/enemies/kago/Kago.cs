@@ -9,7 +9,8 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A Kago: a hive that sits where it is. Every shot or bomb that lands on it shakes the room and brings out a bug;
-/// after enough of them the hive is gone. The bugs are enemies of their own.
+/// after enough of them the hive is gone. The bugs are enemies of their own. It is solid to Samus, who is stopped
+/// by it and can stand on it, and its touch does not hurt.
 /// </summary>
 /// <remarks>Its timelines are "slow" and, once it has been hit, "fast".</remarks>
 public partial class Kago : Enemy

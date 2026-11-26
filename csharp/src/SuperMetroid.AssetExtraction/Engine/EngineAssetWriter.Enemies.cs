@@ -137,7 +137,8 @@ public sealed partial class EngineAssetWriter
                 .Write();
         }
 
-        Enemy("enemies/kago.json", "Kago", EnemyDefinitionId.Kago).BodyColliders(Ordinary)
+        // Every room that places a Kago places it solid to Samus: she stands on it and is stopped by it.
+        Enemy("enemies/kago.json", "Kago", EnemyDefinitionId.Kago).BodyColliders("Body", "Solid", "Hurtbox")
             .Value("shake_strength", ShakeStrength(KagoDefinitions.ShotQuake))
             .Value("shake_updates", KagoDefinitions.ShotQuakeDuration)
             .Value("shake_way", ShakeWayName(KagoDefinitions.ShotQuake))

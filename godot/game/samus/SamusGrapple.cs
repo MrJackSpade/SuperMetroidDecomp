@@ -57,6 +57,9 @@ public partial class SamusGrapple : Node2D
     [Export]
     public int Reach { get; set; } = 128;
 
+    /// <summary>How far past an enemy's own size, each way, the line's end still reaches it, in pixels: the size of the line's end itself.</summary>
+    private const int EnemyReach = 8;
+
     /// <summary>The damage the tip of the line does to what it touches.</summary>
     [Export]
     public int Damage { get; set; } = 1;
@@ -306,10 +309,19 @@ public partial class SamusGrapple : Node2D
         Room room = samus.Room;
         var hit = new Hit(Damage, HitSide.Player, new HitKind(HitKinds.Grapple)) { Source = samus };
         var around = PixelRect.Around(_tip.X.Whole, _tip.Y.Whole, 2, 2);
-        ILatchable? latchable = room.Collision.Overlapping(around, ColliderRole.Hurtbox, except: samus)
-            .Concat(room.Collision.Overlapping(around, ColliderRole.Solid, except: samus))
-            .Select(collider => collider.CollisionOwner as ILatchable)
-            .FirstOrDefault(found => found is { CanBeLatched: true });
+
+        // An enemy is met by its own size and so far more each way, whatever its pose gives of it to be hit, as the
+        // cartridge measures the line's end against it: the first so reached in the room's order, one no hit can
+        // land on for the moment passed over. What is no enemy is met where the line's end lies.
+        var reach = PixelRect.Around(_tip.X.Whole, _tip.Y.Whole, EnemyReach, EnemyReach);
+        Enemy? reached = room.Enemies.FirstOrDefault(enemy => !enemy.IsDead && !enemy.IsSafeFromHits && enemy.OwnRect is { } own && own.Overlaps(reach));
+        ILatchable? latchable = reached is ILatchable { CanBeLatched: true } enemyHeld
+            ? enemyHeld
+            : room.Collision.Overlapping(around, ColliderRole.Hurtbox, except: samus)
+                .Concat(room.Collision.Overlapping(around, ColliderRole.Solid, except: samus))
+                .Where(collider => collider.CollisionOwner is not Enemy)
+                .Select(collider => collider.CollisionOwner as ILatchable)
+                .FirstOrDefault(found => found is { CanBeLatched: true });
         if (latchable is not null)
         {
             Latch(samus, latchable, null);
@@ -318,7 +330,11 @@ public partial class SamusGrapple : Node2D
 
         // An enemy the line neither holds nor destroys stops it there: the line is given up before its end moves.
         // One it destroys, and anything that takes no notice of it, lets it go on.
-        IReadOnlyList<(IHittable Target, HitResult Result)> met = room.DeliverHit(hit, around, from: samus);
+        // The hit lands on the enemy reached, on whatever of it is there to be hit, and on whatever else lies at the
+        // line's end that is no enemy.
+        var met = new List<(IHittable Target, HitResult Result)>(room.DeliverHit(hit, around, from: samus, landsOn: target => target is not Enemy));
+        if (reached?.OwnRect is { } size)
+            met.AddRange(room.DeliverHit(hit, size, from: samus, landsOn: target => ReferenceEquals(target, reached)));
 
         // What shocks the line hurts her through it, safe from her last hurt or not: its damage, which her suit
         // divides; her safety for the line's own count; and a knockback away from the way she faces, whichever side
@@ -340,8 +356,8 @@ public partial class SamusGrapple : Node2D
 
         // A solid enemy with nothing of it there for the hit to land on stops the line too: the cartridge's line
         // meets an enemy by its size, whatever it is made of, and none that is solid lets it pass.
-        if (room.Collision.Overlapping(around, ColliderRole.Solid, except: samus).Any(solid =>
-                solid.CollisionOwner is Enemy enemy && !met.Any(struck => ReferenceEquals(struck.Target, enemy))))
+        if (reached is not null && !met.Any(struck => ReferenceEquals(struck.Target, reached))
+            && EntityNode.CollidersOf(reached).Any(solid => solid.Enabled && solid.Role == ColliderRole.Solid))
         {
             GiveUp();
             return;

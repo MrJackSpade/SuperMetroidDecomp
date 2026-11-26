@@ -814,6 +814,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
   change into and out of it. A game that shows its low form as something else supplies the look, not the mechanic.
+  An enemy says its own size where it stands (`Enemy.OwnRect`) and whether no hit can land on it for the moment
+  (`Enemy.IsSafeFromHits`), for what measures itself against the enemy and not against what its pose gives of it to be
+  hit: Samus's grapple line reaches an enemy by its own size and eight pixels more each way, as the cartridge's does.
   The crawling state says whether the low form is off the ground by what it is doing (`CrawlingState.IsAirborne`: fallen
   off a floor, jumped or bouncing), for a game whose enemies choose by what the player is doing and not by what lies
   under them, as Mother Brain chooses her attacks by Samus's movement (`Samus.MovesAsAirborne`).

@@ -1043,6 +1043,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Half the width of the enemy's own size (<see cref="OwnSize"/>); nothing where it has none.</summary>
     public int BodyHalfWidth => OwnSize is { } own ? own.RoomRect.Width / 2 : 0;
 
+    /// <summary>
+    /// The enemy's own size where it stands, in room pixels (<see cref="OwnSize"/>); null where it has none. What
+    /// measures itself against the enemy and not against what its pose gives of it to be hit, as a game's grappling
+    /// line may, asks this.
+    /// </summary>
+    public PixelRect? OwnRect => OwnSize?.RoomRect;
+
+    /// <summary>Whether no hit can land on it for the moment, as for the updates a hit whose reaction says so leaves it so.</summary>
+    public bool IsSafeFromHits => _unhittable.IsRunning;
+
     /// <summary>The part of the enemy that overlaps the player's body, if one does: a hitbox, or failing any hitboxes a hurtbox.</summary>
     protected Collider? PartTouchingPlayer()
     {

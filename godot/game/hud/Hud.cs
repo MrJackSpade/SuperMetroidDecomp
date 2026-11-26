@@ -52,6 +52,9 @@ public partial class Hud : GameHud, IHasValues
 
     /// <summary>How many cells of the map are shown, across and down, and how many updates its mark of where Samus is shows and hides for.</summary>
     private static readonly Vector2I MinimapCells = new(5, 3);
+
+    /// <summary>The map's pictures of the lower floor piece of a sloped hallway, rising to the right and to the left.</summary>
+    private const string SlopedFloorRightward = "room_rightward_floor_low", SlopedFloorLeftward = "room_leftward_floor_low";
     private const int BlinkUpdates = 8;
 
     private readonly List<string> _digits = [];
@@ -260,6 +263,15 @@ public partial class Hud : GameHud, IHasValues
         minimap.Centre = new Vector2I(
             room.MapCell.X + samus.Position.X.Whole / room.MapCellSize.X,
             room.MapCell.Y + samus.Position.Y.Whole / room.MapCellSize.Y);
+
+        // In the lower floor piece of a sloped hallway the cell above is explored with hers, as the cartridge has it
+        // as it reads the map around her: the hallway's upper corner is no place she can stand in.
+        Vector2I here = minimap.Centre;
+        if (here.Y > 0 && session.Progress.IsExplored(room.Area, here.X, here.Y)
+            && area.Cells.FirstOrDefault(cell => cell.Place == here) is { Shows: SlopedFloorRightward or SlopedFloorLeftward })
+        {
+            session.Progress.MarkExplored(room.Area, here.X, here.Y - 1);
+        }
         // The mark blinks by the short count, which a door's scroll starts over.
         minimap.Here = session.Clock.ShortUpdates / BlinkUpdates % 2 == 0 ? minimap.Centre : null;
         minimap.Present(area, session.Progress, session.Content);

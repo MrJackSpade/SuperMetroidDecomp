@@ -14,6 +14,10 @@ namespace Engine.Shared;
 /// <param name="Passes">
 /// Whether the hit takes no notice of the target: nothing is done to it, and what delivered the hit goes on unspent.
 /// </param>
+/// <param name="Swallows">
+/// Whether the target swallows the hit: nothing is done to it and it shows nothing, and what delivered the hit is
+/// spent on it and gone, leaving nothing of its own.
+/// </param>
 public sealed record Reaction(
     ImmutableHashSet<HitKind> Kinds,
     int DamageTimes,
@@ -23,10 +27,11 @@ public sealed record Reaction(
     int StatusUpdates,
     int UnhittableUpdates,
     int StatusUnhittableUpdates,
-    bool Passes)
+    bool Passes,
+    bool Swallows)
 {
     /// <summary>The reaction of something with no reaction of its own to a hit: it takes the hit's full damage.</summary>
-    public static Reaction FullDamage { get; } = new([], 1, 1, "", StatusWhen.Never, 0, 0, 0, false);
+    public static Reaction FullDamage { get; } = new([], 1, 1, "", StatusWhen.Never, 0, 0, 0, false, false);
 
     /// <summary>The damage a hit of <paramref name="damage"/> does under this reaction.</summary>
     public int DamageFrom(int damage) => damage * DamageTimes / DamageOver;

@@ -337,8 +337,13 @@ charged.
     being put in the status;
   - whether the hit passes: it takes no notice of the thing, nothing is done to it, and what delivered the hit
     goes on unspent (`Reaction.Passes`, "passes" in data). Doing no damage is not that: such a hit is a dud or
-    is absorbed, and is spent. This game's extractor writes a passing reaction for whatever the cartridge's
-    enemy ignores: shots, a power bomb, Samus's body as a weapon, or the grapple's line.
+    is absorbed, and is spent. This game's extractor writes a passing reaction for what the cartridge's enemy
+    ignores and leaves unmarked: a power bomb, Samus's body as a weapon, the grapple's line, a plasma beam, and
+    every shot on the face block and the Spark;
+  - whether the thing swallows the hit: nothing is done to it and nothing is shown, and what delivered the hit is
+    spent on it and gone (`Reaction.Swallows`, "swallows" in data; the answer is a dud that leaves nothing). The
+    extractor writes it for the other shots of an enemy the cartridge's shots are ignored by: there a beam that is
+    not plasma, a missile or a super missile is marked as collided and deleted, and the super missile shakes the room.
 - What is hit may say, for a hit, that what delivered it and would pass through stops on it (`IHittable.Stops`):
   a shot that goes on through what it hurts ends there as a shot that does not. This game's Ridley, Mother Brain
   and baby say so of a beam's hit, which is why a plasma beam does not pass them; a blast's hit still sweeps on.

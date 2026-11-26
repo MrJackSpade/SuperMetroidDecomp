@@ -522,6 +522,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Reaction reaction = ReactionTo(hit, part);
         if (reaction.Passes)
             return HitResult.Ignored;
+
+        // One it swallows does nothing to it and is spent on it, with nothing shown.
+        if (reaction.Swallows)
+            return HitResult.Dud;
         if (_unhittable.IsRunning)
             return HitResult.Absorbed;
 

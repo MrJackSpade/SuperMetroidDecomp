@@ -20,7 +20,8 @@ internal static partial class EngineReactions
     /// <param name="FreezesInsteadOfKilling">Whether it freezes the enemy in place of destroying it.</param>
     /// <param name="Unhittable">How many updates the enemy cannot be hit after taking the damage.</param>
     private readonly partial record struct Outcome(
-        int Halves, bool Kills = false, bool Freezes = false, bool FreezesInsteadOfKilling = false, int Unhittable = 0, bool Passes = false);
+        int Halves, bool Kills = false, bool Freezes = false, bool FreezesInsteadOfKilling = false, int Unhittable = 0, bool Passes = false,
+        bool Swallows = false);
 
     /// <summary>What a hit with no reaction does in the Godot game: its whole damage and nothing more.</summary>
     private static readonly Outcome Unanswered = new(2);
@@ -34,6 +35,12 @@ internal static partial class EngineReactions
     private static readonly Outcome Passed = new(0, Passes: true);
 
     /// <summary>
+    /// What the old game's ignoring reaction comes to for a shot it marks as collided, which is every shot but a plasma
+    /// beam: nothing is done to the enemy or shown, and the shot is spent and deleted on its next update.
+    /// </summary>
+    private static readonly Outcome Swallowed = new(0, Swallows: true);
+
+    /// <summary>
     /// The damage the grapple beam's hit carries. The old grapple takes no health from anything it touches: it stops
     /// on an enemy, holds it, or destroys it outright. A reaction can only take a share or a multiple of a hit's damage,
     /// so the hit carries the least damage there is, and the enemies it destroys take it as many times over as they have
@@ -45,13 +52,17 @@ internal static partial class EngineReactions
     internal static JsonArray Of(RoomEnemyDefinition definition)
     {
         EnemyVulnerabilities table = definition.Vulnerability;
-        // An enemy whose shots are duds, or pass it by, is harmed by none of them whatever its table says. Shots pass
-        // one whose reaction is to do nothing, and the two species whose own reaction lets a shot fly on.
-        bool shotsPass = ReferenceEquals(definition.Shot, EnemyReaction.Ignore)
-            || ReferenceEquals(definition.Shot, SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockReactions.Shot)
+        // An enemy whose shots are duds, are ignored or pass it by is harmed by none of them whatever its table says.
+        // Shots pass the two species whose own reaction lets a shot fly on. One whose reaction is to do nothing marks
+        // the shot as collided unless it is a plasma beam: the plasma beam flies on, and any other shot is swallowed.
+        bool shotsPass = ReferenceEquals(definition.Shot, SuperMetroid.Core.Enemies.FaceBlocks.FaceBlockReactions.Shot)
             || ReferenceEquals(definition.Shot, SuperMetroid.Core.Enemies.Sparks.SparkReactions.Shot);
-        bool shotsHarm = !definition.Shot.IsDud && !shotsPass;
-        Outcome spared = shotsPass ? Passed : Nothing;
+        bool shotsIgnored = ReferenceEquals(definition.Shot, EnemyReaction.Ignore);
+        bool shotsHarm = !definition.Shot.IsDud && !shotsPass && !shotsIgnored;
+        Outcome spared = shotsPass ? Passed : shotsIgnored ? Swallowed : Nothing;
+        Outcome sparedPlasma = shotsIgnored ? Passed : spared;
+        // A bomb's blast is not taken away by an enemy that ignores it.
+        Outcome sparedBlast = shotsIgnored ? Passed : spared;
         bool touchHarms = !ReferenceEquals(definition.Touch, EnemyReaction.Ignore);
         bool powerBombHarms = !ReferenceEquals(definition.PowerBombReaction, EnemyReaction.Ignore);
 
@@ -65,9 +76,10 @@ internal static partial class EngineReactions
             foreach ((string[] kinds, EnemyWeaponVulnerability beam) in combined)
             {
                 bool ice = kinds.Contains("ice"), plasma = family.Contains("plasma");
-                hits.Add((["beam", .. family, .. kinds], shotsHarm ? OfBeam(beam, beam.Multiplier, ice, plasma) : spared));
+                Outcome unharmed = plasma ? sparedPlasma : spared;
+                hits.Add((["beam", .. family, .. kinds], shotsHarm ? OfBeam(beam, beam.Multiplier, ice, plasma) : unharmed));
                 // A charged shot takes the charged beam's damage, and still freezes as the beam it is does.
-                hits.Add((["beam", "charged", .. family, .. kinds], shotsHarm ? OfBeam(beam, table.ChargedBeam.Multiplier, ice, plasma) : spared));
+                hits.Add((["beam", "charged", .. family, .. kinds], shotsHarm ? OfBeam(beam, table.ChargedBeam.Multiplier, ice, plasma) : unharmed));
             }
         }
 
@@ -76,7 +88,7 @@ internal static partial class EngineReactions
         Beams(["plasma"], table.Plasma);
         hits.Add((["missile"], shotsHarm ? new Outcome(Halves(table.Ordnance.Missile.Multiplier)) : spared));
         hits.Add((["super_missile"], shotsHarm ? new Outcome(Halves(table.Ordnance.SuperMissile.Multiplier)) : spared));
-        hits.Add((["bomb"], shotsHarm ? new Outcome(Halves(table.Ordnance.Bomb.Multiplier)) : spared));
+        hits.Add((["bomb"], shotsHarm ? new Outcome(Halves(table.Ordnance.Bomb.Multiplier)) : sparedBlast));
         int powerBomb = powerBombHarms ? Halves(table.Ordnance.PowerBomb.Multiplier) : 0;
         hits.Add((["power_bomb"], powerBombHarms
             ? new Outcome(powerBomb, Unhittable: powerBomb > 0 ? EnemyCollisionDefinitions.PowerBombInvincibilityUpdates : 0)
@@ -148,6 +160,8 @@ internal static partial class EngineReactions
                 reaction["unhittable_updates"] = outcome.Unhittable;
             if (outcome.Passes)
                 reaction["passes"] = true;
+            if (outcome.Swallows)
+                reaction["swallows"] = true;
             written.Add(reaction);
         }
 

@@ -37,7 +37,8 @@ public sealed class Reactions
     /// Reads reactions from a data file's list. Each entry names its kinds and, optionally, its damage (as "none",
     /// "half", "full", "double" or a whole-number multiple), a status with when and how long, how long the target is
     /// unhittable after taking the damage ("unhittable_updates") and after being put in the status
-    /// ("status_unhittable_updates"), and whether the hit "passes": takes no notice of the target and goes on.
+    /// ("status_unhittable_updates"), whether the hit "passes": takes no notice of the target and goes on, and whether
+    /// the target "swallows" it: nothing is done or shown, and what delivered it is spent.
     /// </summary>
     /// <remarks>
     /// <code>
@@ -66,7 +67,8 @@ public sealed class Reactions
                 entry.Has("status_updates") ? entry.Int("status_updates") : 0,
                 entry.Has("unhittable_updates") ? entry.Int("unhittable_updates") : 0,
                 entry.Has("status_unhittable_updates") ? entry.Int("status_unhittable_updates") : 0,
-                entry.Has("passes") && entry.Flag("passes")));
+                entry.Has("passes") && entry.Flag("passes"),
+                entry.Has("swallows") && entry.Flag("swallows")));
         }
 
         return new Reactions(reactions);

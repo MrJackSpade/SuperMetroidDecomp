@@ -10,8 +10,8 @@ public enum HitResult
     Absorbed,
 
     /// <summary>
-    /// The target took the hit and no damage, and has itself left what shows that: what delivered the hit is gone,
-    /// leaving nothing of its own.
+    /// The target took the hit and no damage, and has itself left what shows that, if anything does: what delivered
+    /// the hit is gone, leaving nothing of its own.
     /// </summary>
     Dud,
 

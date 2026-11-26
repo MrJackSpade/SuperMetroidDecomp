@@ -1206,9 +1206,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   charge's pulse; with none, the colours of the suit she wears, which is also all she shows while a suit is
   being put on. A crystal flash's colouring is laid over her beams' colours. This is the Godot design, not the
   cartridge's order of palette writes: which update a colouring shows on is presentation and is not matched.
-  The stored shine's time is the shine's own (`CountStoredShine`), counted every update with its sound. The
-  count of a hurt's flash is kept with her colours: a knockback or energy found lost after she is shown starts
-  it, a flying shinespark holds it, and it times her hurt's sound and the asking again of the sound the hurt cut short. A family not yet moved here is a ticket, not a tint to copy.
+  The stored shine's time is the shine's own (`CountStoredShine`), counted every update with its sound. A
+  hurt is counted the same way (`CountHurt`), just before her colours are chosen: a knockback or energy found lost
+  after she is shown starts it, a flying shinespark holds it, and its count times her hurt's sound and the asking
+  again of the sound the hurt cut short; her colours read the count it stood at for the hurt's flash. A family not yet moved here is a ticket, not a tint to copy.
   Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
   equipment; aiming level, a look may have pictures for how her arm is held (`Samus.HoldName`: `moving` in a
   jump steering the way she faces, `arm_out` with the attack held in the air or once held in a run); a turn in the

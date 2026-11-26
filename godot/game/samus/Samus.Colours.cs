@@ -13,7 +13,7 @@ namespace Game;
 /// while what makes it glow holds, and the colouring her suit shows is chosen from what she is doing: the first that
 /// holds of her suit's glow as she appears where a saved game is taken up, a drained Samus's glow in the hyper beam's colours, the flash of whatever drains her, a hurt's flash, the shine's glow, the screw attack's glow, the speed
 /// booster's, a shot's glow and a full charge's pulse; with none, the colours of the suit she wears. Nothing sets her
-/// suit's colouring anywhere else while she is played. The count of a hurt's flash lives here with the sounds it times.
+/// suit's colouring anywhere else while she is played. A hurt's flash is read from the hurt's own count.
 /// </summary>
 public partial class Samus
 {
@@ -21,25 +21,9 @@ public partial class Samus
     [Export]
     public string ColoursFile { get; set; } = "samus/colours.json";
 
-    /// <summary>The count of a hurt's flash on which her hurt is heard.</summary>
-    [Export, DataValue("hurt_flash_sound_count")]
-    public int HurtFlashSoundCount { get; set; } = 2;
-
-    /// <summary>The counts of a hurt's flash, from its first, that colour her: the hurt's colouring and her suit's turn about.</summary>
+    /// <summary>The counts of a hurt, from its first, that colour her with its flash: the hurt's colouring and her suit's turn about.</summary>
     [Export, DataValue("hurt_flash_coloured_counts")]
     public int HurtFlashColouredCounts { get; set; } = 6;
-
-    /// <summary>The count a hurt's flash reaches on which the sound the hurt cut short is asked for again.</summary>
-    [Export, DataValue("hurt_flash_recovery_count")]
-    public int HurtFlashRecoveryCount { get; set; } = 40;
-
-    /// <summary>The count a hurt's flash ends on reaching.</summary>
-    [Export, DataValue("hurt_flash_end_count")]
-    public int HurtFlashEndCount { get; set; } = 60;
-
-    /// <summary>The count a flying shinespark holds a hurt's flash at, on every update it moves her.</summary>
-    [Export, DataValue("spark_hurt_flash_count")]
-    public int SparkHurtFlashCount { get; set; } = 8;
 
     /// <summary>How many updates a shinespark's glow lasts from its windup's start.</summary>
     [Export, DataValue("spark_windup_glow_updates")]
@@ -57,12 +41,6 @@ public partial class Samus
 
     /// <summary>Her colours.</summary>
     public SamusColours Colours => _colours ?? throw new InvalidOperationException("Samus's colours are read as she is made ready.");
-
-    /// <summary>
-    /// The count of a hurt's flash: none while there is no flash. A knockback starts it at one, and so does energy found
-    /// lost after she is shown while there is none; a flying shinespark holds it, and its windup and its crash end it.
-    /// </summary>
-    private int _hurtFlash;
 
     /// <summary>Her energy when it was last looked at for a loss, after she was shown.</summary>
     private int _energyAtLastCheck;
@@ -195,22 +173,15 @@ public partial class Samus
         _energyAtLastCheck = Inventory.Amount(Amounts.Energy);
     }
 
-    /// <summary>A shinespark's windup begins: its glow colours her for the windup's length, and a hurt's flash ends.</summary>
+    /// <summary>A shinespark's windup begins: its glow colours her for the windup's length.</summary>
     public void BeginSparkColouring()
     {
         _shineGlowPlace = 0;
         _sparkGlow = Countdown.Of(SparkWindupGlowUpdates);
-        _hurtFlash = 0;
     }
 
     /// <summary>A shinespark flying or crashing keeps its glow going for <paramref name="updates"/> more updates.</summary>
     public void KeepSparkGlow(int updates) => _sparkGlow = Countdown.Of(updates);
-
-    /// <summary>A flying shinespark holds a hurt's flash at its own count: no hurt colours her, and none is heard, while it flies.</summary>
-    public void HoldHurtFlashForSpark() => _hurtFlash = SparkHurtFlashCount;
-
-    /// <summary>A shinespark's crash ends a hurt's flash.</summary>
-    public void EndHurtFlash() => _hurtFlash = 0;
 
     /// <summary>A shot of hers starts a glow of her suit: a charged shot's flash, or a hyper shot's glow. It takes the place of one still playing.</summary>
     private void BeginShotGlow(string glow) => _shotGlow = new SamusGlowPlay(Colours.Glow(glow));
@@ -233,11 +204,11 @@ public partial class Samus
     public void SetDrainFlash(bool held) => (_drainFlashing, _drainFlashBright) = (held, false);
 
     /// <summary>
-    /// Moves her glows on and shows the colouring her suit takes this update. While a suit is being put on she shows
-    /// that suit's colours and nothing glows. The screw attack and the speed booster do not glow with her feet in a
-    /// liquid without the gravity suit.
+    /// Moves her glows on and shows the colouring her suit takes this update, given the count a hurt stood at as it
+    /// was counted on (none with no hurt). While a suit is being put on she shows that suit's colours and nothing
+    /// glows. The screw attack and the speed booster do not glow with her feet in a liquid without the gravity suit.
     /// </summary>
-    private void StepColours()
+    private void StepColours(int hurtCount)
     {
         string suit = Colours.SuitOf(SuitShown);
         if (State is CollectingSuitState)
@@ -248,7 +219,7 @@ public partial class Samus
 
         string? appearing = EndingGlowShade(ref _appearanceGlow);
         string? drained = State is DrainedState { Glows: true } glowing ? DrainedGlowShade(glowing.GlowStep) : null;
-        string? hurt = StepHurtFlash(suit);
+        string? hurt = HurtFlashShade(hurtCount, suit);
         string? drain = DrainFlashShade(suit);
         string? shine = ShineGlowShade();
         string? screw = ScrewGlowShade();
@@ -359,58 +330,22 @@ public partial class Samus
     }
 
     /// <summary>
-    /// Counts a hurt's flash on and says the colouring it shows: on its count of the sound her hurt is heard; through
-    /// its coloured counts the hurt's colouring and her suit's show turn about, the hurt's on the odd counts; the
-    /// count it reaches for recovery asks again for the sound the hurt cut short; and it ends on reaching its last.
+    /// A hurt's flash, from the count the hurt stood at: through its coloured counts the hurt's colouring and her
+    /// suit's show turn about, the hurt's on the odd counts; nothing before or after.
     /// </summary>
-    private string? StepHurtFlash(string suit)
-    {
-        if (_hurtFlash == 0)
-            return null;
-        int before = _hurtFlash;
-
-        // Pinned in a beam, thrown back, her hurt is not heard: the flash still counts and colours her. Nor is it heard
-        // while a scene shows her in its own colours, as the opening's flashbacks do.
-        if (before == HurtFlashSoundCount && SceneColours.Length == 0 && State is not DrainedState { Posed: DrainedState.Pose.Pinned })
-            Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
-        int after = ++_hurtFlash;
-        if (after == HurtFlashRecoveryCount)
-            RecoverSoundAfterHurt();
-        if (after >= HurtFlashEndCount)
-            _hurtFlash = 0;
-        return before > HurtFlashColouredCounts ? null : before % 2 != 0 ? Colours.Hurt : suit;
-    }
+    private string? HurtFlashShade(int hurtCount, string suit) =>
+        hurtCount == 0 || hurtCount > HurtFlashColouredCounts ? null : hurtCount % 2 != 0 ? Colours.Hurt : suit;
 
     /// <summary>
-    /// Asks again, at the priority that gives way late, for the sound a hurt cut short: her spin's while she spins, or
-    /// else arms the charge's sound to be asked for again where a charge has begun to sound and the attack is held;
-    /// with her grapple beam out, the grapple's own sound and nothing else. A wall jump asks for neither: which of the
-    /// spin's sounds is its own is not kept.
-    /// </summary>
-    private void RecoverSoundAfterHurt()
-    {
-        if (Grapple is { IsOut: true })
-        {
-            Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons", priority: SoundPriority.High);
-            return;
-        }
-
-        if (SpinSound is { } spinSound)
-            Room.Session.Sounds.Request(spinSound, channel: "samus", priority: SoundPriority.High);
-        else if (ChargeIsSounding && Input.IsHeld(GameAction.Attack))
-            _chargingSoundArmed = true;
-    }
-
-    /// <summary>
-    /// What is looked at once she has been shown: energy found lost since the last look starts a hurt's flash if none
-    /// is running (a knockback has started its own by then, <see cref="OnThrown"/>), and the charge's sound, if
-    /// armed, is asked for again while the attack is still held.
+    /// What is looked at once she has been shown: energy found lost since the last look starts a hurt if none is
+    /// running (a knockback has started its own by then, <see cref="OnThrown"/>), and the charge's sound, if armed,
+    /// is asked for again while the attack is still held.
     /// </summary>
     private void LookAfterShown()
     {
         int energy = Inventory.Amount(Amounts.Energy);
-        if (energy < _energyAtLastCheck && _hurtFlash == 0)
-            _hurtFlash = 1;
+        if (energy < _energyAtLastCheck && _hurt == 0)
+            _hurt = 1;
         _energyAtLastCheck = energy;
         if (!_chargingSoundArmed)
             return;

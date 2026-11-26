@@ -107,6 +107,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         samus.BoostFully();
         samus.BeginSparkColouring();
+        samus.EndHurt();
         _stage = Stage.WindingUp;
         _left = Countdown.Of(samus.ShinesparkWindupUpdates);
         if (_launched is { } way)
@@ -196,7 +197,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             power.IsActive = true;
 
         // While it flies no hurt colours her or is heard, and its glow is kept going.
-        samus.HoldHurtFlashForSpark();
+        samus.HoldHurtForSpark();
         samus.KeepSparkGlow(samus.SparkGlowUpdates);
         FlownFrom = samus.Position;
         Pixels gravity = Pixels.FromNumber(samus.Medium.Gravity);
@@ -252,7 +253,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // Her boost and her speed end as she crashes. How far the echoes have circled is not started over.
         samus.EndBoost();
         samus.Velocity = PixelVelocity.Zero;
-        samus.EndHurtFlash();
+        samus.EndHurt();
         (_crash, _crashRadius) = (Crash.Expanding, 0);
         (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);
         samus.Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");

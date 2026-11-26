@@ -326,6 +326,10 @@ public partial class Shaktool : Enemy
         }
 
         (_at[0], _at[Parts - 1]) = (_at[Parts - 1], _at[0]);
+
+        // Every part between the two saws takes half a pixel each way, as the cartridge's swap leaves them.
+        for (int part = 1; part < Parts - 1; part++)
+            _at[part] = new PixelPosition(_at[part].X.WithFraction(Pixels.FractionsPerPixel / 2), _at[part].Y.WithFraction(Pixels.FractionsPerPixel / 2));
     }
 
     /// <summary>The angle straight opposite, in whole steps.</summary>

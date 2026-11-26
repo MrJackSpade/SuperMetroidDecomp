@@ -28,9 +28,6 @@ public partial class CeresShaft : RoomSequence
     [Export]
     public Godot.Collections.Array<NodePath> Steam { get; set; } = [];
 
-    /// <summary>The tilt the shaft's picture has now, which Samus and the steam are shown at from the next update.</summary>
-    private double _floorRadians;
-
     /// <summary>The room play goes on in once she has left, by its scene.</summary>
     [Export(PropertyHint.File)]
     public string LandingRoom { get; set; } = "";
@@ -64,7 +61,7 @@ public partial class CeresShaft : RoomSequence
     protected override bool Play(Room room, int elapsed)
     {
         if (elapsed == 0)
-            (_hold, _tilt, _backward, _taken, _floorRadians) = (LevelUpdates, 0, false, false, 0);
+            (_hold, _tilt, _backward, _taken) = (LevelUpdates, 0, false, false);
         if (!room.Session.Progress.Has(StoryEvents.CeresElevatorDoorDestroyed))
             return false;
 
@@ -89,15 +86,6 @@ public partial class CeresShaft : RoomSequence
             escape.Depart(LandingRoom, LandingEntry);
         }
 
-        // Samus and the steam are shown at the tilt the shaft's picture had on the update before: the cartridge draws
-        // what stands in the room before the room takes its own turn, so they are one update behind the picture.
-        if (room.ShownTurn?.Radians != _floorRadians)
-        {
-            RoomObject[] steam = [.. Steam.Select(path => GetNode(path) as RoomObject
-                ?? throw new InvalidOperationException($"The shaft \"{Name}\" is to tilt \"{path}\", but that is no object of the room."))];
-            room.ShownTurn = new RoomTurn(_floorRadians, PixelPosition.FromWhole(Centre.X, Centre.Y), steam);
-        }
-
         if (_hold > 0)
         {
             _hold--;
@@ -105,10 +93,15 @@ public partial class CeresShaft : RoomSequence
         }
 
         _hold = HoldUpdates[Math.Abs(_tilt)] - 1;
-        _floorRadians = _tilt / 256.0;
+        double radians = _tilt / 256.0;
         (GetNode(Floor) as TurningFloor
             ?? throw new InvalidOperationException($"The shaft \"{Name}\" is to tilt \"{Floor}\", but that is no turning floor."))
-            .Turn(_floorRadians, 1, Centre, Vector2.Zero);
+            .Turn(radians, 1, Centre, Vector2.Zero);
+
+        // Samus and the steam are shown at the floor's own turn.
+        RoomObject[] steam = [.. Steam.Select(path => GetNode(path) as RoomObject
+            ?? throw new InvalidOperationException($"The shaft \"{Name}\" is to tilt \"{path}\", but that is no object of the room."))];
+        room.ShownTurn = new RoomTurn(radians, PixelPosition.FromWhole(Centre.X, Centre.Y), steam);
 
         // It swings to one end, jumps to the very end, and swings back the other way.
         if (_backward)

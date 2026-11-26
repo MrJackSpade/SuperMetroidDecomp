@@ -236,8 +236,8 @@ public sealed partial class EngineAssetWriter
         foreach ((WorkRobotSegment segment, SuperMetroid.Core.Animation.Animation<WorkRobotSegment> animation) in WorkRobotAnimations.StartingAt)
             robot.Timeline(RobotLook(segment), WorkRobotAnimations.Segments, animation, RobotCue);
 
-        // The glow every powered robot of a room shares, as a powered robot's setup starts it: resting a step on its
-        // last place, then its steps from the first, over and over. Each step is a change of the robot's colours.
+        // The glow a powered robot shows, as its setup starts it: resting a step on its last place, then its steps from
+        // the first, over and over. Each step is a change of the robot's colours.
         const string robotFamily = Installation.GameInstallationLayout.EnemySheetDirectoryName;
         var robotPlaces = new Dictionary<string, IReadOnlyList<string>>
         {

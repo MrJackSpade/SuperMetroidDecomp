@@ -1616,7 +1616,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - Ki-Hunters: green, yellow, red. Wings are part of the Ki-Hunter; shed wings are an `Effect`.
 - Space Pirates: wall, walking, ninja. Three scenes, their colours data files. What Samus and her shots meet of
   one is the boxes of the picture it shows, as on the cartridge: the three share a class that takes a
-  `ColliderPoses` pose with every step of their timelines, which places two or three hurtboxes.
+  `ColliderPoses` pose with every step of their timelines, which places two or three hurtboxes for her shots
+  and as many hitboxes for her touch: the cartridge meets a shot and a touch on different edges of a frame's box,
+  a pixel apart, so each box is written once for each (`EngineEnemy.ShotRect`, `TouchRect`).
 - Kzan: one enemy; its top and bottom are parts.
 - Rinka: an enemy; its source is a `RinkaSpawner`, a `Spawner` that shares its places with the others in the room.
 - Zebetite (one node that stands again as each barrier in turn); Draygon's wall cannons; the eye of an eye door

@@ -26,3 +26,15 @@ Role = 1
 [node name="Part3" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
+
+[node name="Part1Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part2Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part3Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2

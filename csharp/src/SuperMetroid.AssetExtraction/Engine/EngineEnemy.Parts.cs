@@ -43,8 +43,10 @@ internal sealed partial class EngineEnemy
     /// <summary>
     /// Makes the enemy one that is met through the boxes of the picture it shows, as the old game's frame hitboxes
     /// are: every step of the timelines it has so far takes the pose of its picture, and each pose puts the scene's
-    /// hurtboxes "Part1", "Part2" and so on where the old frame has its boxes. A picture whose frame the old game
-    /// gives no boxes is a pose with none. Where <paramref name="shot"/> is given, each pose says under "shots" what
+    /// hurtboxes "Part1", "Part2" and so on, and its hitboxes "Part1Touch", "Part2Touch" and so on, where the old
+    /// frame has its boxes: the one for a shot, the other for Samus's touch, which the old probe meets on different
+    /// edges (<see cref="ShotRect"/>, <see cref="TouchRect"/>). A picture whose frame the old game gives no boxes is
+    /// a pose with none. Where <paramref name="shot"/> is given, each pose says under "shots" what
     /// it names each box's reaction to a shot.
     /// </summary>
     internal EngineEnemy PosedByFrame(EnemyFrameCollision<EnemyCollisionHitbox> frames, Func<EnemyReaction, string>? shot = null)
@@ -67,8 +69,9 @@ internal sealed partial class EngineEnemy
             JsonObject colliders = [], shots = [];
             foreach (EnemyCollisionHitbox box in boxes)
             {
-                string part = $"Part{colliders.Count + 1}";
-                colliders[part] = Rect(box);
+                string part = $"Part{colliders.Count / 2 + 1}";
+                colliders[part] = ShotRect(box);
+                colliders[part + "Touch"] = TouchRect(box);
                 if (shot is not null)
                     shots[part] = shot(box.Shot);
             }
@@ -83,6 +86,28 @@ internal sealed partial class EngineEnemy
             poses[bare] = new JsonObject { ["colliders"] = new JsonObject() };
         return Group("poses", poses);
     }
+
+    /// <summary>
+    /// One of the old game's frame hitboxes as the hurtbox a shot meets on the same pixels. The old probe meets a shot
+    /// on the box's left and top edges and not on its right and bottom ones (EnemyHitboxProbe.Overlaps), where the
+    /// Godot rectangles are half-open the other way: the hurtbox is a pixel more at the left and at the top.
+    /// </summary>
+    internal static JsonObject ShotRect(EnemyCollisionHitbox hitbox) => new()
+    {
+        ["left"] = hitbox.Left - 1, ["top"] = hitbox.Top - 1,
+        ["width"] = hitbox.Right - hitbox.Left + 1, ["height"] = hitbox.Bottom - hitbox.Top + 1,
+    };
+
+    /// <summary>
+    /// One of the old game's frame hitboxes as the hitbox Samus's touch meets on the same pixels: the old probe meets
+    /// her on the box's right and bottom edges and not on its left and top ones, so the hitbox is a pixel more at
+    /// the right and at the bottom.
+    /// </summary>
+    internal static JsonObject TouchRect(EnemyCollisionHitbox hitbox) => new()
+    {
+        ["left"] = hitbox.Left, ["top"] = hitbox.Top,
+        ["width"] = hitbox.Right - hitbox.Left + 1, ["height"] = hitbox.Bottom - hitbox.Top + 1,
+    };
 
     /// <summary>One of the old game's hitboxes as a collider's rectangle, from the enemy's place.</summary>
     internal static JsonObject Rect(EnemyCollisionHitbox hitbox) => new()

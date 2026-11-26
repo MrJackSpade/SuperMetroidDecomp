@@ -161,11 +161,29 @@ public abstract class PlayerState : State<Player>
     /// </summary>
     public virtual PlayerState? Unasked(Player owner) => null;
 
+    /// <summary>
+    /// Called as a throw takes the player in this state (<see cref="Throw"/>): what the state kept of its own
+    /// movement that a throw ends, it lets go of here.
+    /// </summary>
+    public virtual void OnThrown(Player owner)
+    {
+    }
+
+    /// <summary>
+    /// Passes an update of the state while a throw moves the player in its place: a state that lasts a length of
+    /// time of its own goes on counting it here.
+    /// </summary>
+    public virtual void WhileThrown(Player owner)
+    {
+    }
+
     /// <summary>Plays one update in the order every state keeps.</summary>
     public sealed override State<Player> Step(Player owner)
     {
         PlayerState? asked = owner.TakeAsked(this);
-        PlayerState? met = Move(owner);
+
+        // A throw carries the player in place of the state's own movement for as long as it lasts.
+        PlayerState? met = owner.Thrown is { } thrown ? thrown.Carry(owner, this) : Move(owner);
         owner.SettleAfterMoving();
 
         // Something that put the player into another state while they moved has already had its way.

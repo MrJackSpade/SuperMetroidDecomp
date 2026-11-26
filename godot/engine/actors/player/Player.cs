@@ -946,11 +946,39 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Uses the player's weapons for one update. A game whose player attacks in ways of its own does so here.</summary>
     protected virtual void Attack(GameInput input) => Weapons.Step(this, input);
 
-    /// <summary>Puts the player into <paramref name="state"/> now. Whatever was waiting to interrupt them is dropped.</summary>
+    /// <summary>
+    /// Puts the player into <paramref name="state"/> now. Whatever was waiting to interrupt them is dropped, and a
+    /// throw carrying them is over.
+    /// </summary>
     public void ChangeState(PlayerState state)
     {
         _interruption = null;
+        Thrown = null;
         States.ChangeTo(state);
+    }
+
+    /// <summary>The throw carrying the player, while a hit has thrown them; null otherwise.</summary>
+    public Throw? Thrown { get; private set; }
+
+    /// <summary>
+    /// Begins a throw: from now it moves the player in place of the state they are in, and they rise by the medium's
+    /// knockback speed. The state they are in and the game's player are told.
+    /// </summary>
+    internal void BeThrown(Throw thrown)
+    {
+        ArgumentNullException.ThrowIfNull(thrown);
+        Thrown = thrown;
+        Rise(Pixels.FromNumber(Medium.KnockbackUpSpeed));
+        State.OnThrown(this);
+        OnThrown();
+    }
+
+    /// <summary>Ends the throw carrying the player, if one is.</summary>
+    internal void EndThrow() => Thrown = null;
+
+    /// <summary>Called as a throw takes the player. A game whose player does something of its own as a knockback begins does it here.</summary>
+    protected virtual void OnThrown()
+    {
     }
 
     /// <summary>Knocks the player back, away from <paramref name="from"/>, once they have next moved.</summary>
@@ -1180,6 +1208,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// </summary>
     private State<Player> Admit(State<Player> asked)
     {
+        // The low form is not knocked back into a state of the knockback's: it is thrown as it is, in its own state,
+        // which goes on being asked its input while the throw moves it.
+        if (asked is KnockedBackState knockback && Form == Crawling)
+        {
+            BeThrown(knockback.ThrowOfLowForm(this));
+            return State is CrawlingState ? States.Current : StateFor(Crawling);
+        }
+
         if (asked is not PlayerState state || state.EntersIn(this) is not { } wants || wants.Form == Form)
             return asked;
         if (wants.Unfitted)

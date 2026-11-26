@@ -698,8 +698,9 @@ public partial class Samus : Player
     /// </summary>
     public void BombJump(PixelPosition bomb)
     {
-        // A shot just fired holds her own bombs off her, and so does her body being a weapon.
-        if (_bombsHeldOff.IsRunning || BodyPowers.Any(power => power.IsActive))
+        // A shot just fired holds her own bombs off her, and so does her body being a weapon. A hit's throw is not
+        // given up for a bomb's.
+        if (_bombsHeldOff.IsRunning || Thrown is not null || BodyPowers.Any(power => power.IsActive))
             return;
         int away = Position.X.Whole - bomb.X.Whole;
         if (State is CrawlingState or BombJumpingState { Upright: false })
@@ -982,10 +983,6 @@ public partial class Samus : Player
         // Dying, she keeps the look she had.
         if (to is DyingState && from is not DyingState)
             NoteDying(from);
-
-        // A knockback beginning starts a hurt's flash from its first count, whatever count one had reached.
-        if (to is KnockedBackState)
-            _hurtFlash = 1;
 
         // Crouching out of a run at full boost stores a shine.
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
@@ -1328,12 +1325,12 @@ public partial class Samus : Player
                 return null;
 
             case KnockedBackState:
-                // Holding the jump and the direction behind her in a knockback carries her off that way in a damage boost.
-                var knockback = (KnockedBackState)current;
+                // Holding the jump and the direction behind her in a knockback carries her off that way in a damage
+                // boost. The ball is never in this state: it is thrown as it is, and has no boost.
                 bool behind = input.IsHeld(Facing == Facing.Right ? GameAction.Left : GameAction.Right);
-                // The knockback she leaves still has this update of its own to run.
-                if (behind && input.IsHeld(GameAction.Jump) && Form != Crawling)
-                    return new DamageBoostState(Facing.Opposite(), Math.Max(0, knockback.UpdatesLeft - 1));
+                // The throw she leaves still has this update of its own to run.
+                if (behind && input.IsHeld(GameAction.Jump))
+                    return new DamageBoostState(Facing.Opposite(), Math.Max(0, (Thrown?.UpdatesLeft ?? 0) - 1));
                 return null;
 
             default:
@@ -1753,6 +1750,12 @@ public partial class Samus : Player
         if (takesKnockback)
             KnockBack(from, HazardKnockbackUpdates);
     }
+
+    /// <summary>
+    /// A knockback beginning starts a hurt's flash from its first count, whatever count one had reached: where a
+    /// hurt's flash is started, once she has been shown (<see cref="LookAfterShown"/>).
+    /// </summary>
+    protected override void OnThrown() => _knockbackBegan = true;
 
     /// <inheritdoc/>
     protected override void OnMomentumBegan()

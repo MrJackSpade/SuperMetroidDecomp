@@ -33,7 +33,7 @@ public static class SamusLooks
         FallingState => "falling",
         WallJumpingState => "wall_jumping",
         CrawlingState => "morph_ball",
-        KnockedBackState => samus.Form == Player.Crawling ? "morph_ball" : "knocked_back",
+        KnockedBackState => "knocked_back",
         DyingState => samus.DeathLook,
 
         // Held, she goes on showing what she was doing as she was taken hold of, or what her holder says she is held as.

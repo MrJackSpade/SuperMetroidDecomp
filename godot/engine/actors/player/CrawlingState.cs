@@ -50,6 +50,9 @@ public sealed class CrawlingState : PlayerState
         _airborne = owner.IsRising || (!owner.IsAdrift && !owner.IsOnGround);
     }
 
+    /// <summary>Thrown, it has bounced no times: it comes down from the throw as from any fall.</summary>
+    public override void OnThrown(Player owner) => _bounces = 0;
+
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {

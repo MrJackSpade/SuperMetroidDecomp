@@ -972,16 +972,27 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   values whether or not a direction is held, and lasts for as long as the jump is held; let go, it carries on as a
   jump.
 - **A knockback** interrupts: it takes the player when they have next moved. It throws them away from the hit,
-  facing as they were, for as long as the player's knockbacks do unless whoever knocks them back says how long. It
-  does not start from rest: whatever speed across they had goes on changing by the usual ground rule with the
-  knockback's own move values and carries them the way they are thrown, a dash still on top; each update they are
-  made steered again and their momentum ends. It rises by the medium's knockback speed under gravity with no turn
-  at its top, unless the player was holding the way they face as it began, which keeps it low: they are pressed
-  down by as far as they move across and a pixel more each update instead. A floor or ceiling stops the speed
-  across and the rise, not the knockback. When its time is up they fall from rest, and whatever the input asked
-  that update is dropped; an upright player is then set down for one update (pressed down once more) and stands if
-  that met ground or falls from rest. The low form is thrown in its own form by its own move values, always
-  upward, and goes straight back to its own movement. Some states hold an interruption off (`HoldsOffInterruptions`:
+  facing as they were, for as long as the player's knockbacks do unless whoever knocks them back says how long.
+  The throw is a thing of its own (`Throw`, `Player.Thrown`), not a state: while it lasts it moves the player in
+  place of the state they are in (`PlayerState.Step`), and that state goes on otherwise. It does not start from
+  rest: whatever speed across they had goes on changing by the usual ground rule with the throw's own move values
+  and carries them the way they are thrown, a dash still on top. It rises by the medium's knockback speed under
+  gravity with no turn at its top, unless it is kept low: they are pressed down by as far as they move across and
+  a pixel more each update instead. A floor or ceiling stops the speed across and the rise, not the throw. When
+  its time is up they fall from rest, and whatever the input asked that update is dropped.
+  - *An upright player* is put in `KnockedBackState` for it, out of their control: each update they are made
+    steered again and their momentum ends; the throw is low if they were holding the way they face as it began;
+    and after it they are set down for one update (pressed down once more) and stand if that met ground or fall
+    from rest. Leaving that state ends the throw.
+  - *The low form* is thrown as it is, in its own state (`Player.Admit`), always upward, by its own move values:
+    it goes on being asked its input, so it turns, rolls on, jumps where it can and may leave the low form, and
+    the throw goes on carrying whatever it becomes. A state told it is thrown lets go of what a throw ends
+    (`PlayerState.OnThrown`: the low form's count of bounces), and one that lasts a time of its own goes on
+    counting it (`PlayerState.WhileThrown`: a change of posture).
+  - A game's player is told as a throw begins (`Player.OnThrown`). Being put into a state from outside
+    (`ChangeState`) ends a throw.
+
+  Some states hold an interruption off (`HoldsOffInterruptions`:
   the turns and the changes of posture); it waits, and a knockback that waited is shorter by as long as it waited
   (`StillInterrupts`).
 - A state names the form it is entered in (`PlayerState.EntersIn`), and the player fits it first (`FitForm`):

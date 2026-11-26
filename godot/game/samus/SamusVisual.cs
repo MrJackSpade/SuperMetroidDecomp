@@ -114,7 +114,7 @@ public partial class SamusVisual : Node2D
 
         // After a hit she flickers, hidden on the clock's odd updates and shown on its even ones, but not while she
         // is thrown back or reads as holding a shine.
-        picture.SetShown(!samus.IsInvincible || samus.Room.Session.Clock.Updates % 2 == 0 || samus.State is KnockedBackState || samus.ReadsAsHoldingShine);
+        picture.SetShown(!samus.IsInvincible || samus.Room.Session.Clock.Updates % 2 == 0 || samus.State is KnockedBackState || samus.Thrown is not null || samus.ReadsAsHoldingShine);
         StepEchoes(samus, picture);
     }
 

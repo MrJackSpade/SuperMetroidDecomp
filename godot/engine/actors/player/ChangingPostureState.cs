@@ -78,6 +78,9 @@ public sealed class ChangingPostureState : PlayerState
         return null;
     }
 
+    /// <summary>A change of posture begun by a player being thrown goes on while the throw moves them.</summary>
+    public override void WhileThrown(Player owner) => _left = _left.Stepped();
+
     /// <inheritdoc/>
     public override PlayerState? Ended(Player owner) => _left.IsRunning ? null : Then;
 }

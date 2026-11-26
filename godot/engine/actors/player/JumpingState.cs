@@ -89,7 +89,7 @@ public sealed class JumpingState : PlayerState
 
         _stance = new AirStance(owner.Aim);
         _stanceAsked = Stance;
-        owner.Rise(owner.LaunchSpeed(offWall: false));
+        owner.Rise(owner.LaunchSpeed(offWall: false, AirStance.FormFor(owner, Player.Jumping)));
         _gathering = Countdown.Of(owner.InMedium("jump_start_updates", owner.JumpStartUpdates));
     }
 

@@ -58,7 +58,7 @@ public sealed class WallJumpingState : PlayerState
             _locked = Countdown.Of(owner.WallJumpLockUpdates);
         }
 
-        owner.Rise(owner.LaunchSpeed(offWall: true));
+        owner.Rise(owner.LaunchSpeed(offWall: true, owner.Form));
     }
 
     /// <summary>The steered kind lasts while the jump is held.</summary>

@@ -1348,10 +1348,15 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         return faster > limit ? limit : faster;
     }
 
-    /// <summary>The upward speed a jump from the ground, or off a wall, starts with now.</summary>
-    public virtual Pixels LaunchSpeed(bool offWall)
+    /// <summary>
+    /// The upward speed a jump from the ground, or off a wall, starts with now, for a body launched in
+    /// <paramref name="form"/>. It is that of the medium the lowest row of that body lies in, about the player's
+    /// middle, asked afresh: the body a jump is made in is not as tall as the one that stood, so its feet can be clear
+    /// of a shallow liquid the standing feet were in, and the jump is then one through air.
+    /// </summary>
+    public virtual Pixels LaunchSpeed(bool offWall, string form)
     {
-        PlayerMedium medium = Medium;
+        PlayerMedium medium = MediumAt(new PixelPosition(Position.X, Pixels.FromWhole(Position.Y.Whole + HalfHeightOf(form) - 1)));
         double speed = offWall
             ? (JumpsAreBoosted ? medium.BoostedWallJumpSpeed : medium.WallJumpSpeed)
             : (JumpsAreBoosted ? medium.BoostedJumpSpeed : medium.JumpSpeed);
@@ -1655,9 +1660,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>Works out the medium the player is in.</summary>
-    private PlayerMedium FindMedium()
+    private PlayerMedium FindMedium() => MediumAt(Feet);
+
+    /// <summary>The medium a point of the player is in: the liquid it is under, when that hinders them and they have a medium of its name, and otherwise air.</summary>
+    private PlayerMedium MediumAt(PixelPosition point)
     {
-        Liquid? liquid = HinderingLiquid(Feet);
+        Liquid? liquid = HinderingLiquid(point);
         PlayerMedium? inLiquid = liquid is null ? null : Mediums.FirstOrDefault(medium => medium.MediumName == liquid.Type.Name);
         return inLiquid ?? Mediums.First(medium => medium.MediumName == PlayerMedium.Air);
     }

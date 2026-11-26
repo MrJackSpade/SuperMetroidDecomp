@@ -109,7 +109,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         switch (_start)
         {
             case Start.FromGround:
-                owner.Rise(owner.LaunchSpeed(offWall: false));
+                owner.Rise(owner.LaunchSpeed(offWall: false, owner.FormOr(Samus.Spinning)));
                 owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
                 break;
 
@@ -320,7 +320,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         // The least speed is the medium's she was in as her last update ended, as the cartridge remembers it.
         if (falling < ((Samus)owner).MediumLastEntered.Speed(SpaceJumpLeastFall) || falling >= owner.Medium.Speed(SpaceJumpMostFall))
             return;
-        owner.Rise(owner.LaunchSpeed(offWall: false));
+        owner.Rise(owner.LaunchSpeed(offWall: false, owner.Form));
         owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
     }
 

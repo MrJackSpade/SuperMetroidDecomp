@@ -1639,9 +1639,9 @@ public partial class Samus : Player
     /// dash's whole pixels, an odd one dropped, are added to the jump's whole pixels, and the dash's fraction to the
     /// jump's fraction, with nothing carried from the one sum to the other.
     /// </summary>
-    public override Pixels LaunchSpeed(bool offWall)
+    public override Pixels LaunchSpeed(bool offWall, string form)
     {
-        Pixels speed = base.LaunchSpeed(offWall);
+        Pixels speed = base.LaunchSpeed(offWall, form);
         if (!Inventory.IsOn(Equipment.SpeedBooster))
             return speed;
         return Pixels.FromParts(speed.Whole + DashSpeed.Whole / 2, (speed.Fraction + DashSpeed.Fraction) % Pixels.FractionsPerPixel);

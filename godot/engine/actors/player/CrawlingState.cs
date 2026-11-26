@@ -80,7 +80,7 @@ public sealed class CrawlingState : PlayerState
             _rolling = true;
         if (!_jumpAsked || _airborne)
             return;
-        owner.Rise(owner.LaunchSpeed(offWall: false));
+        owner.Rise(owner.LaunchSpeed(offWall: false, owner.Form));
         (_airborne, _jumping, _bounces) = (true, true, 0);
     }
 
@@ -190,7 +190,7 @@ public sealed class CrawlingState : PlayerState
         if (owner.MayJumpWhileCrawling && owner.Input.IsHeld(GameAction.Jump))
         {
             _bounces = 0;
-            owner.Rise(owner.LaunchSpeed(offWall: false));
+            owner.Rise(owner.LaunchSpeed(offWall: false, owner.Form));
             return;
         }
 

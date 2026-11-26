@@ -200,6 +200,9 @@ public partial class Draygon : Enemy
     private Pixels _spiralY;
     private bool _dying;
 
+    /// <summary>The aim its eye last looked along, the cartridge's angle: straight up before its first look.</summary>
+    private int _eyeAim;
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
@@ -302,6 +305,7 @@ public partial class Draygon : Enemy
         _wait = IntroUpdates;
         _leftStart = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         _quickening = Pixels.FromNumber(SwoopQuickening);
+        _eyeAim = Turns.PerTurn / 4;
         Face(Facing.Right);
         // Its tail and arms show its opening's colours until it is first hurt.
         _fought = false;
@@ -799,12 +803,12 @@ public partial class Draygon : Enemy
         _pass = way;
     }
 
-    /// <summary>Swims one update along its goop pass, bobbing about the swim line.</summary>
+    /// <summary>Swims one update along its goop pass, bobbing about the swim line: its height's whole pixels are set, its part of a pixel kept.</summary>
     private void SwimAlong()
     {
         Position = new PixelPosition(
             Position.X + _acrossSpeed,
-            Pixels.FromWhole(SwimLineY + CartridgeAngles.CircleCosine(_goopAngle, 32).Whole));
+            Position.Y.WithWhole(SwimLineY + CartridgeAngles.CircleCosine(_goopAngle, 32).Whole));
         _goopAngle = Turns.Wrap(_goopAngle + 1);
     }
 
@@ -923,17 +927,28 @@ public partial class Draygon : Enemy
         LeaveEffect(SmokeEffect, PixelPosition.FromWhole(192 + draw.Part(0, 7), 400 + draw.Part(8, 6)));
     }
 
-    /// <summary>Turns its eye toward Samus: up, down, left or right, whichever is nearest.</summary>
+    /// <summary>
+    /// Turns its eye toward Samus: the cartridge's aim from its eye to her, between whole pixels. Only when that aim
+    /// changes does the eye start over on a look, the one of up, right, down and left nearest the aim, an aim
+    /// halfway between two taking the later clockwise.
+    /// </summary>
     private void LookAt(Player samus)
     {
         PixelPosition gaze = Position + PixelOffset.FromWhole(Facing == Facing.Right ? 24 : -24, -32);
         // Bubbles rise from by its eye all the while it watches her.
         if (Updates % 128 == 0 && EyeBubbleEffect.Length > 0)
             LeaveEffect(EyeBubbleEffect, gaze);
-        PixelOffset to = samus.Position - gaze;
-        string way = Math.Abs(to.X.Whole) >= Math.Abs(to.Y.Whole) ? (to.X.IsNegative ? "left" : "right") : (to.Y.IsNegative ? "up" : "down");
-        PlayPart("Eye", $"eye_{(Facing == Facing.Right ? "right" : "left")}_looking_{way}");
+        int aim = CartridgeAngles.AimAngle(samus.Position.X.Whole - gaze.X.Whole, samus.Position.Y.Whole - gaze.Y.Whole);
+        if (aim == _eyeAim)
+            return;
+        _eyeAim = aim;
+        int clockwiseFromUp = Turns.Wrap(Turns.PerTurn / 4 - aim + Turns.PerTurn / 8);
+        string way = EyeWays[clockwiseFromUp / (Turns.PerTurn / 4)];
+        PlayPart("Eye", $"eye_{(Facing == Facing.Right ? "right" : "left")}_looking_{way}", restart: true);
     }
+
+    /// <summary>The ways its eye looks, clockwise from up, each the middle of its quarter of the turn.</summary>
+    private static readonly string[] EyeWays = ["up", "right", "down", "left"];
 
     /// <summary>Turns it and its tail and arms to face a way.</summary>
     private void Face(Facing way)

@@ -98,7 +98,9 @@ public sealed partial class EngineAssetWriter
             Position16<RoomPixels> hand = handBlock.ToRoomPixels();
 
             string file = $"enemies/chozo_statue_{EngineSheets.FileName(site.ToString())}.json";
-            EngineEnemy statue = Enemy(file, "ChozoStatue", EnemyDefinitionId.Chozo).BodyColliders("Body", "Solid")
+            // Its hurtbox is there for Samus's shots to be spent on, as the cartridge's are on its size: its reactions
+            // harm it by none.
+            EngineEnemy statue = Enemy(file, "ChozoStatue", EnemyDefinitionId.Chozo).BodyColliders("Body", "Solid", "Hurtbox")
                 .Collider("Hand", hand.X - at.X, hand.Y - at.Y, EngineRoomObjects.Block, EngineRoomObjects.Block)
                 .Value("footstep_depth", ChozoStatueRoomDefinitions.FootstepDepth)
                 .Value("lowering_delay", ChozoStatueFxData.LoweringDelay)

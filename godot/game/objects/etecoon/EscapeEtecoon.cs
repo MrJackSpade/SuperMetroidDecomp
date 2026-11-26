@@ -1,6 +1,7 @@
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Engine.World.Objects;
 using Game.Data;
 using Godot;
@@ -17,8 +18,23 @@ namespace Game.Objects;
 /// "left" or "right", at the start of a run that gives way to the high-tide one when the acid has risen; "move:"
 /// with pixels across; "gratitude"; and "escape".
 /// </remarks>
-public partial class EscapeEtecoon : Creature
+public partial class EscapeEtecoon : Creature, IHittable
 {
+    /// <summary>Samus's shots land on it: the cartridge places the trapped Etecoons taking part in collision, which the others do not.</summary>
+    public bool IsHitBy(HitSide side) => side == HitSide.Player;
+
+    /// <summary>
+    /// No hit does anything to it. A beam that is not plasma, a missile or a super missile is spent on it and gone
+    /// with nothing shown, as the cartridge's shot is on a thing that ignores shots; anything else takes no notice
+    /// of it.
+    /// </summary>
+    public HitResult TakeHit(Hit hit, Collider part)
+    {
+        ArgumentNullException.ThrowIfNull(hit);
+        bool shot = hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]);
+        return shot && !hit.Carries(new HitKind(HitKinds.Plasma)) ? HitResult.Dud : HitResult.Ignored;
+    }
+
     /// <summary>Whether it waits by the wall instead of running.</summary>
     [Export]
     public bool Waits { get; set; }

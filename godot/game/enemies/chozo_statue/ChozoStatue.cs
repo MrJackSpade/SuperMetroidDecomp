@@ -92,9 +92,6 @@ public partial class ChozoStatue : Enemy
     }
 
     /// <inheritdoc/>
-    public override HitResult TakeHit(Hit hit, Collider part) => HitResult.Absorbed;
-
-    /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
         // It hurts nothing.

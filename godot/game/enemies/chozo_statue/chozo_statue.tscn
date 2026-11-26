@@ -19,6 +19,10 @@ Role = 0
 script = ExtResource("2")
 Role = 3
 
+[node name="Hurtbox" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
 [node name="Hand" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 3

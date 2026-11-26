@@ -179,8 +179,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>
     /// The solid the engine gives an enemy that has no solid of its own, for the one state in which every enemy is
-    /// solid: frozen, it blocks and carries by the shape its own size then has (<see cref="OwnSize"/>). It is off at
-    /// every other time, and is not the enemy's <see cref="Solid"/>.
+    /// solid: frozen, it blocks and carries by the shape its own size then has (<see cref="OwnSize"/>). It is made as
+    /// the enemy freezes and taken away as it thaws, so that it is among the enemy's colliders only while the enemy
+    /// does nothing: a class that goes through all its colliders never meets it. It is not the enemy's
+    /// <see cref="Solid"/>.
     /// </summary>
     private Collider? _frozenSolid;
 
@@ -210,11 +212,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Body = EntityNode.ColliderOf(this, ColliderRole.Body);
         Solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
         _solidWhenNotFrozen = Solid is { Enabled: true };
-        if (Solid is null && _frozenSolid is null)
-        {
-            _frozenSolid = new Collider { Name = "FrozenSolid", Role = ColliderRole.Solid, Enabled = false };
-            AddChild(_frozenSolid);
-        }
         // Its own visual is the one named "Visual", wherever among its visuals that stands; failing that, the first.
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
@@ -729,10 +726,20 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _statusLeft = Countdown.Of(updates);
         if (IsFrozen && Solid is not null)
             Solid.Enabled = true;
-        if (IsFrozen && _frozenSolid is not null && OwnSize is { } own)
+        if (IsFrozen && Solid is null && OwnSize is { } own)
         {
+            if (_frozenSolid is null)
+            {
+                _frozenSolid = new Collider { Name = "FrozenSolid", Role = ColliderRole.Solid };
+                AddChild(_frozenSolid);
+                Room.Collision.Register(_frozenSolid);
+            }
+
             _frozenSolid.Rect = own.Rect;
-            _frozenSolid.Enabled = true;
+        }
+        else if (!IsFrozen)
+        {
+            DropFrozenSolid();
         }
         if (IsFrozen != wasFrozen || !wasFrozen)
             Sound(_statusSounds.GetValueOrDefault(status, ""));
@@ -976,13 +983,23 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>The tint of an enemy flashing from a hit.</summary>
     private static readonly Color HurtTint = new(2f, 2f, 2f);
 
+    /// <summary>Takes away the solid the engine made for the enemy's freeze, if it has one.</summary>
+    private void DropFrozenSolid()
+    {
+        if (_frozenSolid is null)
+            return;
+        Room.Collision.Unregister(_frozenSolid);
+        RemoveChild(_frozenSolid);
+        _frozenSolid.QueueFree();
+        _frozenSolid = null;
+    }
+
     /// <summary>Ends the enemy's status.</summary>
     private void EndStatus()
     {
         if (IsFrozen && Solid is not null)
             Solid.Enabled = _solidWhenNotFrozen;
-        if (_frozenSolid is not null)
-            _frozenSolid.Enabled = false;
+        DropFrozenSolid();
         string ended = Status;
         Status = "";
         OnStatusEnded(ended);

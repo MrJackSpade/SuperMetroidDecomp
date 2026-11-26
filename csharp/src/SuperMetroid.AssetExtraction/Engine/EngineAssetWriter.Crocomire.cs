@@ -418,8 +418,13 @@ public sealed partial class EngineAssetWriter
             {
                 foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
                 {
-                    string part = $"Part{colliders.Count + 1}";
-                    colliders[part] = Rect(component.Offset.X + hitbox.Left, component.Offset.Y + hitbox.Top, component.Offset.X + hitbox.Right, component.Offset.Y + hitbox.Bottom);
+                    // Each piece is a hurtbox for a shot and a hitbox for Samus's touch, which the old probe meets on
+                    // different edges of its box.
+                    string part = $"Part{colliders.Count / 2 + 1}";
+                    (int left, int top) = (component.Offset.X + hitbox.Left, component.Offset.Y + hitbox.Top);
+                    (int right, int bottom) = (component.Offset.X + hitbox.Right, component.Offset.Y + hitbox.Bottom);
+                    colliders[part] = EngineEnemy.ShotRect(left, top, right, bottom);
+                    colliders[part + "Touch"] = EngineEnemy.TouchRect(left, top, right, bottom);
                     shots[part] = Shot(hitbox.Shot);
                     touches[part] = Touch(hitbox.Touch);
                 }

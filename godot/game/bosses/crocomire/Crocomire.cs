@@ -29,8 +29,9 @@ namespace Game.Enemies;
 /// have them (<see cref="ColliderPoses"/>). The visual "Tongue" plays "tongue" and, once it has begun to melt,
 /// "tongue_melting". Its shots are "fire", "bridge_fragment" and "spike_piece". All its places are in the room's own
 /// pixels.</para>
-/// <para>Its hurtboxes are "Part1" through "Part10"; a shot or Samus meets the first of them, in that order, that it
-/// reaches. A pose says what each does: under "shots", "mouth" for the one a shot moves it by, "dust" for one a shot
+/// <para>Its pieces are "Part1" through "Part10", each a hurtbox of that name for a shot and a hitbox named for it with
+/// "Touch" after for Samus, a pixel apart at their edges as the cartridge meets the two; a shot or Samus meets the
+/// first of them, in that order, that it reaches. A pose says what each does: under "shots", "mouth" for the one a shot moves it by, "dust" for one a shot
 /// bursts on, and "absorbed" or "plain" for one that swallows a shot; under "touches", "claw" for one that hurts and
 /// knocks back, "plain" for one that only hurts, and "none"; and under "mouth" how far its mouth is open,
 /// "fully_open", "partially_open" or "not_open", which picks how it answers a power bomb.</para>
@@ -495,8 +496,11 @@ public partial class Crocomire : Enemy, ILatchable
     /// <summary>What the piece of it a shot or Samus has met does, in the pose it is in.</summary>
     private PiecePart PartMet(Collider part)
     {
-        string pose = _poses?.Current ?? "";
-        return _partsIn.TryGetValue(pose, out Dictionary<string, PiecePart>? parts) && parts.TryGetValue(part.Name, out PiecePart? met)
+        // A piece is a hurtbox, which a shot meets, and a hitbox named for it with "Touch" after, which Samus meets.
+        string pose = _poses?.Current ?? "", piece = part.Name.ToString();
+        if (piece.EndsWith("Touch", StringComparison.Ordinal))
+            piece = piece[..^"Touch".Length];
+        return _partsIn.TryGetValue(pose, out Dictionary<string, PiecePart>? parts) && parts.TryGetValue(piece, out PiecePart? met)
             ? met
             : throw new InvalidOperationException($"Crocomire's pose \"{pose}\" does not say what its part \"{part.Name}\" does.");
     }

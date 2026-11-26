@@ -92,10 +92,12 @@ internal sealed partial class EngineEnemy
     /// on the box's left and top edges and not on its right and bottom ones (EnemyHitboxProbe.Overlaps), where the
     /// Godot rectangles are half-open the other way: the hurtbox is a pixel more at the left and at the top.
     /// </summary>
-    internal static JsonObject ShotRect(EnemyCollisionHitbox hitbox) => new()
+    internal static JsonObject ShotRect(EnemyCollisionHitbox hitbox) => ShotRect(hitbox.Left, hitbox.Top, hitbox.Right, hitbox.Bottom);
+
+    /// <summary>The hurtbox a shot meets on the pixels the old probe meets it on a frame box with these edges.</summary>
+    internal static JsonObject ShotRect(int left, int top, int right, int bottom) => new()
     {
-        ["left"] = hitbox.Left - 1, ["top"] = hitbox.Top - 1,
-        ["width"] = hitbox.Right - hitbox.Left + 1, ["height"] = hitbox.Bottom - hitbox.Top + 1,
+        ["left"] = left - 1, ["top"] = top - 1, ["width"] = right - left + 1, ["height"] = bottom - top + 1,
     };
 
     /// <summary>
@@ -103,10 +105,12 @@ internal sealed partial class EngineEnemy
     /// her on the box's right and bottom edges and not on its left and top ones, so the hitbox is a pixel more at
     /// the right and at the bottom.
     /// </summary>
-    internal static JsonObject TouchRect(EnemyCollisionHitbox hitbox) => new()
+    internal static JsonObject TouchRect(EnemyCollisionHitbox hitbox) => TouchRect(hitbox.Left, hitbox.Top, hitbox.Right, hitbox.Bottom);
+
+    /// <summary>The hitbox Samus's touch meets on the pixels the old probe meets her on a frame box with these edges.</summary>
+    internal static JsonObject TouchRect(int left, int top, int right, int bottom) => new()
     {
-        ["left"] = hitbox.Left, ["top"] = hitbox.Top,
-        ["width"] = hitbox.Right - hitbox.Left + 1, ["height"] = hitbox.Bottom - hitbox.Top + 1,
+        ["left"] = left, ["top"] = top, ["width"] = right - left + 1, ["height"] = bottom - top + 1,
     };
 
     /// <summary>One of the old game's hitboxes as a collider's rectangle, from the enemy's place.</summary>

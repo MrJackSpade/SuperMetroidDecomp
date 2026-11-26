@@ -61,3 +61,43 @@ Role = 1
 [node name="Solid" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 3
+
+[node name="Part1Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part2Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part3Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part4Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part5Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part6Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part7Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part8Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part9Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Part10Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2

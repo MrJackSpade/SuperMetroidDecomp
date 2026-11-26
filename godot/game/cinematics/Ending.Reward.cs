@@ -187,7 +187,12 @@ public partial class Ending
                 (_lastWords ?? throw NotEntered()).Position += new Vector2(0, 2);
                 (_percentage ?? throw NotEntered()).Position += new Vector2(0, 2);
                 if (--_wait <= 0)
+                {
+                    // As her sign-off begins the game is recorded as completed, beside the saved games.
                     BeginLastWords("ending_final_message", Phase.FinalMessage);
+                    Session.Saves.MarkCompleted();
+                }
+
                 break;
 
             case Phase.FinalMessage:

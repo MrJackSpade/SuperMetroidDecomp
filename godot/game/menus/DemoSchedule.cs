@@ -42,11 +42,26 @@ public sealed class DemoSchedule : ISessionService
         return null;
     }
 
-    /// <summary>As the game starts or starts again, the first demo of the first set is the one due.</summary>
-    public void StartOver()
+    /// <summary>
+    /// Whether the sets shown only once the game has been completed are among those the title shows, settled as the
+    /// game last started and not again until it next does.
+    /// </summary>
+    public bool ShowsCompletionSets { get; private set; }
+
+    /// <summary>
+    /// As the game starts or starts again, the first demo of the first set is the one due, and whether the sets of
+    /// a completed game are shown is settled: with no slot holding a saved game the record of a completion is
+    /// dropped and they are not; otherwise they are when the game has been completed. Completing it does not show
+    /// them before the game next starts.
+    /// </summary>
+    public void StartOver(SaveFile saves)
     {
+        ArgumentNullException.ThrowIfNull(saves);
         _set = 0;
         _begun = 0;
+        if (!saves.HoldsAny)
+            saves.ForgetCompletion();
+        ShowsCompletionSets = saves.GameCompleted;
     }
 
     /// <summary>A demo starts the session's game afresh; which demo is due is not forgotten for that.</summary>

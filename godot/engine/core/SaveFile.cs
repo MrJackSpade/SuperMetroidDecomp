@@ -60,6 +60,28 @@ public sealed class SaveFile
     /// <summary>Empties a slot. Emptying an empty slot changes nothing.</summary>
     public void Clear(int slot) => File.Delete(FileOf(slot));
 
+    /// <summary>
+    /// Whether the game these slots are of has been completed: a record kept beside the slots, which saving, copying
+    /// and emptying a slot leave as it is.
+    /// </summary>
+    public bool GameCompleted => File.Exists(CompletedFile);
+
+    /// <summary>Records that the game has been completed.</summary>
+    public void MarkCompleted()
+    {
+        Directory.CreateDirectory(_folder);
+        File.WriteAllText(CompletedFile, "");
+    }
+
+    /// <summary>Drops the record that the game has been completed. Dropping one that is not kept changes nothing.</summary>
+    public void ForgetCompletion() => File.Delete(CompletedFile);
+
+    /// <summary>Whether any slot holds a saved game.</summary>
+    public bool HoldsAny => Enumerable.Range(1, Slots).Any(Has);
+
+    /// <summary>The file that is the record of the game's completion.</summary>
+    private string CompletedFile => Path.Combine(_folder, "completed");
+
     /// <summary>The file a slot is kept in.</summary>
     private string FileOf(int slot)
     {

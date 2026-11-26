@@ -23,7 +23,8 @@ namespace Game.Menus;
 /// "timeline"); its "pictures" at rest, each with where its corner goes; the copyright in the colours it is shown in at
 /// rest once the opening has been cut short or a demo has come back ("restored_copyright", with where its corner
 /// goes), the copyright at a rest come to by itself keeping the last look of its fade; how many updates it is left alone before it
-/// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos; and its "opening":
+/// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos, and the
+/// "completed_demo_sets" that follow them once the game has been completed; and its "opening":
 /// its "music"; how long each letter of a card but the last shows before the next is typed ("letter_updates") and
 /// how far the letters typed move as each further one is ("letter_scroll"); its "steps" in turn, each a "card" (the
 /// updates before its first letter, "opening_updates"; how long its last shows, "hold_updates"; and its "letters",
@@ -194,7 +195,7 @@ public partial class TitleMode : GameMode
             Session.Clock.Restart();
             Session.Random.Next();
             Compatibility.CartridgeSounds.Of(Session).Reset();
-            Session.Service<DemoSchedule>().StartOver();
+            Session.Service<DemoSchedule>().StartOver(Session.Saves);
             AskForMusic(opening);
             return this;
         }
@@ -247,8 +248,7 @@ public partial class TitleMode : GameMode
                 }
 
                 // Being left alone long enough wins over a press on the same update.
-                IReadOnlyList<DataNode> sets = data.List("demo_sets");
-                if (sets.Count > 0 && ++_idle >= data.Int("demo_after_updates"))
+                if (DemoSets(data).Count > 0 && ++_idle >= data.Int("demo_after_updates"))
                     (_doing, pressed) = (Doing.ToDemo, false);
                 else if (pressed)
                     _doing = Doing.ToSavedGames;
@@ -263,8 +263,7 @@ public partial class TitleMode : GameMode
                 fade.Step();
                 if (!fade.IsDone)
                     return this;
-                string demo = Session.Service<DemoSchedule>().FromTitle(
-                    [.. data.List("demo_sets").Select(set => (IReadOnlyList<string>)[.. set.Items().Select(file => file.AsText())])]);
+                string demo = Session.Service<DemoSchedule>().FromTitle(DemoSets(data));
                 Session.BeginAgain();
                 return AttractDemoMode.Of(Session.Content, demo);
             default:
@@ -463,4 +462,16 @@ public partial class TitleMode : GameMode
     private DataNode Data() => _data ?? throw NotShown();
 
     private static InvalidOperationException NotShown() => new("The title has not been shown.");
+
+    /// <summary>
+    /// The sets of demos the title goes through now, each the files of its demos: its own, and after them those of a
+    /// completed game where the schedule has them shown.
+    /// </summary>
+    private IReadOnlyList<IReadOnlyList<string>> DemoSets(DataNode data)
+    {
+        IEnumerable<DataNode> sets = data.List("demo_sets");
+        if (Session.Service<DemoSchedule>().ShowsCompletionSets)
+            sets = sets.Concat(data.List("completed_demo_sets"));
+        return [.. sets.Select(set => (IReadOnlyList<string>)[.. set.Items().Select(file => file.AsText())])];
+    }
 }

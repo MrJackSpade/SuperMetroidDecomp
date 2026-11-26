@@ -169,9 +169,17 @@ public sealed partial class EngineAssetWriter
             return at;
         }
 
+        // The sets the title goes through, and those that follow them once the game has been completed: the old
+        // playlist of a completed game is the ordinary one with more sets after it.
+        IReadOnlyList<AttractDemoSet> ordinary = StockAttractDemoScenes.Playlist(completionSetUnlocked: false);
+        IReadOnlyList<AttractDemoSet> completed = StockAttractDemoScenes.Playlist(completionSetUnlocked: true);
+        if (completed.Count < ordinary.Count || !ordinary.SequenceEqual(completed.Take(ordinary.Count)))
+            throw new InvalidDataException("The demos of a completed game are not the ordinary ones with more after them.");
         var sets = new JsonArray();
-        foreach (AttractDemoSet set in StockAttractDemoScenes.Playlist(completionSetUnlocked: false))
+        var completedSets = new JsonArray();
+        for (int index = 0; index < completed.Count; index++)
         {
+            AttractDemoSet set = completed[index];
             var files = new JsonArray();
             for (int scene = 0; scene < set.Scenes.Count; scene++)
             {
@@ -180,7 +188,7 @@ public sealed partial class EngineAssetWriter
                 files.Add(file);
             }
 
-            sets.Add(files);
+            (index < ordinary.Count ? sets : completedSets).Add(files);
         }
 
         // The title's backdrop comes to rest at its own size.
@@ -203,6 +211,7 @@ public sealed partial class EngineAssetWriter
             ["baby"] = TitleBaby(folder),
             ["demo_after_updates"] = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,
             ["demo_sets"] = sets,
+            ["completed_demo_sets"] = completedSets,
         });
     }
 

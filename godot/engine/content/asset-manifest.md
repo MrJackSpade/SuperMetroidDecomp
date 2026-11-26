@@ -502,8 +502,8 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `rooms/wrecked_ship/wrecked_ship_east_super_when_area_boss_dead_in_wrecked_ship_power_on.json` |  |
 | `rooms/wrecked_ship/wrecked_ship_energy_tank_in_wrecked_ship_power_off.json` |  |
 | `rooms/wrecked_ship/wrecked_ship_energy_tank_in_wrecked_ship_power_on.json` |  |
-| `rooms/wrecked_ship/wrecked_ship_entrance_in_wrecked_ship_power_off.json` |  |
-| `rooms/wrecked_ship/wrecked_ship_entrance_in_wrecked_ship_power_on.json` |  |
+| `rooms/wrecked_ship/wrecked_ship_entrance_in_wrecked_ship_power_off.json` | treadmill_leftwards, treadmill_rightwards |
+| `rooms/wrecked_ship/wrecked_ship_entrance_in_wrecked_ship_power_on.json` | treadmill_leftwards, treadmill_rightwards |
 | `rooms/wrecked_ship/wrecked_ship_main_shaft_default_in_wrecked_ship_power_off.json` |  |
 | `rooms/wrecked_ship/wrecked_ship_main_shaft_when_area_boss_dead_in_wrecked_ship_power_on.json` |  |
 | `rooms/wrecked_ship/wrecked_ship_west_super_in_wrecked_ship_power_off.json` |  |

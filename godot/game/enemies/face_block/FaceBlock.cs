@@ -8,7 +8,7 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A face block: a carved face in the rock that does nothing until Samus has the Morph Ball. From then on it glows,
-/// with the one glow its room's face blocks share (<see cref="FaceBlockGlow"/>), and turns its eyes to her the first
+/// each with a glow of its own, and turns its eyes to her the first
 /// time she comes near on the side it watches. It is solid to her, a block wide and high; her shots and bombs
 /// take no notice of it and fly on, her grapple's line is stopped by it, and nothing harms it.
 /// </summary>
@@ -32,8 +32,15 @@ public partial class FaceBlock : Enemy
     [Export, DataValue("glow_updates")]
     public int GlowUpdates { get; set; } = 16;
 
+    /// <summary>The name its glow's colours are asked under on its visual.</summary>
+    private const string GlowColours = "face_block_glow";
+
     private ColourChange[] _glowLevels = [];
-    private FaceBlockGlow? _glow;
+
+    /// <summary>Whether it glows yet, the level of its glow it shows, and the updates that level has left.</summary>
+    private bool _glowing;
+    private int _glowAt;
+    private int _glowLeft;
     private bool _looked;
 
     /// <inheritdoc/>
@@ -41,22 +48,17 @@ public partial class FaceBlock : Enemy
     {
         base.ReadValues(data);
         _glowLevels = [.. data.List("glow").Select(ColourChange.Read)];
+        if (_glowLevels.Length == 0)
+            throw data.Problem("must give at least one level of its glow");
     }
 
-    /// <summary>
-    /// Set up, it joins its room's glow, starts it if Samus already has what wakes it, and in any case starts the
-    /// glow's present level over.
-    /// </summary>
+    /// <summary>Set up, it glows from its first level if Samus already has what wakes it.</summary>
     protected override void OnEnterRoom()
     {
         Play("looking_ahead");
-        _looked = false;
-        _glow = FaceBlockGlow.In(Room, _glowLevels, GlowUpdates);
-        if (Visual is { } visual)
-            _glow.Join(visual);
+        (_looked, _glowing) = (false, false);
         if (IsAwake)
             Glow();
-        _glow.HoldLevelAnew();
     }
 
     /// <inheritdoc/>
@@ -77,16 +79,23 @@ public partial class FaceBlock : Enemy
             return;
         Play(side == Facing.Left ? "samus_left" : "samus_right", restart: true);
         _looked = true;
-
-        // Waking starts the glow's present level over.
-        _glow?.HoldLevelAnew();
     }
 
-    /// <summary>Starts its room's glow, if no block has, and shows the glow's present level.</summary>
+    /// <summary>
+    /// Its glow, its own: it begins on its first level, and each level lasts its updates and gives way to the next,
+    /// round and round. The blocks of a room that wake together glow together only because each counts alike.
+    /// </summary>
     private void Glow()
     {
-        if (_glow is { } glow && Visual is { } visual)
-            glow.StartOn(visual);
+        if (Visual is not { } visual)
+            return;
+        if (!_glowing)
+            (_glowing, _glowAt, _glowLeft) = (true, 0, GlowUpdates);
+        else if (--_glowLeft > 0)
+            return;
+        else
+            (_glowAt, _glowLeft) = ((_glowAt + 1) % _glowLevels.Length, GlowUpdates);
+        _glowLevels[_glowAt].ShowOn(visual, GlowColours);
     }
 
     /// <summary>Whether Samus has what wakes it.</summary>

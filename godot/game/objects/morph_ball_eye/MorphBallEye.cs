@@ -101,8 +101,6 @@ public partial class MorphBallEye : RoomObject
     private int _widthGrowth;
     private int _shade;
 
-    /// <summary>Whether it has joined the glow of its room's face blocks.</summary>
-    private bool _glows;
     private float _light;
 
     /// <inheritdoc/>
@@ -123,7 +121,6 @@ public partial class MorphBallEye : RoomObject
     protected override void OnEnterRoom()
     {
         (_doing, _beam, _halfWidth, _widthGrowth, _shade, _light) = (Doing.WaitingForSamus, Beam.Off, 0, 0, 0, 0f);
-        _glows = false;
         Play("closed");
         string side = MountedOn switch
         {
@@ -148,14 +145,6 @@ public partial class MorphBallEye : RoomObject
     {
         Player samus = Room.Player;
         StepBeam();
-
-        // It shares the colours of its room's face blocks, and so shows their glow on the update it starts.
-        if (!_glows && Room.Objects.OfType<Enemies.FaceBlockGlow>().FirstOrDefault() is { } glow)
-        {
-            foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-                glow.Join(visual);
-            _glows = true;
-        }
 
         if (!samus.Inventory.Owns(Equipment.MorphBall))
         {

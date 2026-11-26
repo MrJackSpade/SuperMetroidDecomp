@@ -313,10 +313,15 @@ public partial class Phantoon : Enemy
     /// <inheritdoc/>
     public override Engine.World.HitResult TakeHit(Hit hit, Collider part)
     {
-        // A shot that meets the pixel at its middle is spent, and nothing of it is hit.
-        if (part == Centre)
-            return Engine.World.HitResult.Absorbed;
-        return base.TakeHit(hit, part);
+        if (part != Centre)
+            return base.TakeHit(hit, part);
+
+        // A shot that meets the pixel at its middle is spent, and nothing of it is hit; a super missile shakes the
+        // room there as on any enemy. The Plasma Beam goes on through it unspent, and bombs and their blasts never
+        // reach any of it.
+        bool fliesOn = hit.Carries(new HitKind(HitKinds.Plasma)) || hit.Carries(new HitKind(HitKinds.Bomb))
+            || hit.Carries(new HitKind(HitKinds.PowerBomb));
+        return fliesOn ? Engine.World.HitResult.Ignored : Engine.World.HitResult.Absorbed;
     }
 
     /// <inheritdoc/>

@@ -174,6 +174,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (HasEnded)
             return;
 
+        // One an enemy's answer spent goes now, on its own update, having met the enemies whose turns came after.
+        if (_spent != Spent.No)
+        {
+            SettleSpent(room);
+            return;
+        }
+
         Age++;
         if (_timeline is not null)
         {
@@ -314,7 +321,51 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
     /// <inheritdoc/>
     public virtual bool IsHitBy(HitSide side) =>
-        _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded && !_shotDown;
+        _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded && !_shotDown && _spent == Spent.No;
+
+    /// <summary>How a shot an enemy's answer has spent goes on its next update.</summary>
+    private enum Spent
+    {
+        /// <summary>It is not spent.</summary>
+        No,
+
+        /// <summary>It ends, leaving what it leaves.</summary>
+        Ends,
+
+        /// <summary>Its target has shown a dud: it goes with nothing of its own left behind.</summary>
+        AsDud,
+    }
+
+    /// <summary>
+    /// Whether an enemy's answer has spent it, and how it then goes. A shot of the player's is tried against each
+    /// enemy in that enemy's turn, and the answer that would end it only spends it: it lies where it is, still
+    /// delivering its hit to the enemies whose turns come after and met by no shot of theirs, until its own next
+    /// update takes it away. So one shot harms every enemy it lies on in one pass.
+    /// </summary>
+    private Spent _spent;
+
+    /// <summary>Takes a spent shot away as the answer that spent it has it go.</summary>
+    private void SettleSpent(Room room)
+    {
+        Spent how = _spent;
+        _spent = Spent.No;
+        if (how == Spent.AsDud)
+        {
+            OnEnded(room);
+            Leave(room);
+            return;
+        }
+
+        End(room);
+    }
+
+    /// <summary>Spends the shot on <paramref name="target"/>, unless something has spent it already; it does not meet that target again.</summary>
+    private void Spend(IHittable target, Spent how)
+    {
+        _alreadyHurt.Add(target);
+        if (_spent == Spent.No)
+            _spent = how;
+    }
 
     /// <summary>
     /// Whether the projectile delivers its hit at the moment. Its settings say whether it ever does; a projectile of
@@ -657,7 +708,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <exception cref="InvalidOperationException">The game's definition gives the squares no size.</exception>
     internal void MeetShot(Projectile enemyShot)
     {
-        if (HasEnded || enemyShot.HasEnded || !HarmsNow || Side != HitSide.Player)
+        // One an enemy's answer has spent meets no shot of theirs.
+        if (HasEnded || enemyShot.HasEnded || !HarmsNow || Side != HitSide.Player || _spent != Spent.No)
             return;
         int square = Room.Session.Definition.ShotMeetingSquare;
         if (square <= 0)
@@ -680,7 +732,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     internal void MeetEnemy(Enemy enemy)
     {
         if (!HasEnded && HarmsNow && Side == HitSide.Player)
-            MeetTargets(Room, Area, target => ReferenceEquals(target, enemy));
+            MeetTargets(Room, Area, target => ReferenceEquals(target, enemy), spends: true);
     }
 
     /// <summary>
@@ -696,9 +748,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <summary>
     /// Delivers the projectile's hit to what lies in <paramref name="area"/>, of the targets <paramref name="landsOn"/>
     /// lets it be tried against, and does what each answer calls for. Returns whether it carries on travelling this
-    /// update.
+    /// update. Where <paramref name="spends"/> is asked, as it is of the player's shot tried against one enemy in
+    /// that enemy's turn, an answer that would end it only spends it (<see cref="_spent"/>).
     /// </summary>
-    private bool MeetTargets(Room room, PixelRect area, Func<IHittable, bool>? landsOn)
+    private bool MeetTargets(Room room, PixelRect area, Func<IHittable, bool>? landsOn, bool spends = false)
     {
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
@@ -733,9 +786,21 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                     _launcher = target as ICollisionOwner;
                     return false;
                 case HitResult.Absorbed:
+                    if (spends)
+                    {
+                        Spend(target, Spent.Ends);
+                        return false;
+                    }
+
                     End(room);
                     return false;
                 case HitResult.Dud:
+                    if (spends)
+                    {
+                        Spend(target, Spent.AsDud);
+                        return false;
+                    }
+
                     // Its target has shown the dud: it is gone with nothing of its own left behind.
                     OnEnded(room);
                     Leave(room);
@@ -744,6 +809,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                 case HitResult.Destroyed:
                     if (MeetsTargetAs == ProjectileSettings.Target.Ends)
                     {
+                        if (spends)
+                        {
+                            Spend(target, Spent.Ends);
+                            return false;
+                        }
+
                         End(room);
                         return false;
                     }

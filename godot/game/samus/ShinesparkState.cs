@@ -302,7 +302,8 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
                 break;
 
             case Crash.Circling:
-                int turn = samus.Facing == Facing.Left ? -CrashTurn : CrashTurn;
+                // Facing left they turn toward greater angles, facing right toward lesser ones.
+                int turn = samus.Facing == Facing.Left ? CrashTurn : -CrashTurn;
                 (_firstAngle, _secondAngle) = (_firstAngle + turn, _secondAngle + turn);
                 if (samus.OrbitTravel.Advance())
                     _crash = Crash.Contracting;

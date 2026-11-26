@@ -233,6 +233,7 @@ ScrollShare = Vector2(0.75, 0.75)
 script = ExtResource("14")
 StartsWhen = SubResource("r3")
 ShakeStrength = 2
+StartsShakeAfresh = true
 SmallExplosionEffect = "effects/small_explosion.json"
 DustPuffEffect = "effects/smoke_puff.json"
 SmokeEffect = "effects/smoke.json"

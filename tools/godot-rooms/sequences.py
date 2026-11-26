@@ -41,6 +41,10 @@ ESCAPE_SHAKES = {
     'OpenRescuedAnimalsPassageAndQuake': 3, 'TurnWallIntoShotBlocksDuringEscape': 3, 'None': 3, 'LandSkyWithLandingSiteQuake': 3,
 }
 
+# The setups that end, as the room is set up, whatever harder spell of shaking the room before left: the old game's
+# two that clear the diagonal quake.
+ESCAPE_STARTS_AFRESH = {'SetLightHorizontalRoomShaking', 'MediumHorizontalShakingWithRisingAcid'}
+
 # What the escape's blasts are shown and heard by: the old game's small blast, puff of smoke, smoke and two clouds of
 # dust, and the sounds of a small blast and of a big one.
 ESCAPE_BLASTS = {
@@ -165,7 +169,10 @@ class Sequences:
         if state.main in ESCAPES:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
                 'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),
+                **({'StartsShakeAfresh': 'true'} if state.setup in ESCAPE_STARTS_AFRESH else {}),
                 **{name: quoted(value) for name, value in ESCAPE_BLASTS.items()}}))
+        elif state.setup in ESCAPE_STARTS_AFRESH:
+            raise ValueError(f'{room.name}: the setup {state.setup} ends the escape\'s harder shaking, and the room has no escape to end it in')
         if state.setup == SHAKTOOL_SETUP:
             # The watch on Shaktool's room, which records the path cleared once Samus is past its far end.
             self.placed.append(sequence('maridia/ShaktoolPath.cs', 'ShaktoolPath', {

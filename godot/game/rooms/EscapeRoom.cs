@@ -7,7 +7,9 @@ namespace Game.Rooms;
 
 /// <summary>
 /// The escape as one of its rooms shows it: the room shakes without stopping, harder and corner to corner for a moment now and then,
-/// and blasts and smoke go off all over what the camera shows. It goes on for as long as the room is there.
+/// and blasts and smoke go off all over what the camera shows. It goes on for as long as the room is there. A harder
+/// spell is the escape's own count (<see cref="Escape.HarderShakeLeft"/>): one the room before left goes on here, and
+/// no chance of another is drawn until it is over.
 /// </summary>
 public partial class EscapeRoom : RoomSequence
 {
@@ -22,6 +24,10 @@ public partial class EscapeRoom : RoomSequence
     /// <summary>Whether the shaking turns harder, corner to corner, for a moment now and then.</summary>
     [Export]
     public bool TurnsHarder { get; set; } = true;
+
+    /// <summary>Whether the room, as it is set up, ends whatever harder spell the room before left.</summary>
+    [Export]
+    public bool StartsShakeAfresh { get; set; }
 
     /// <summary>The effects of its blasts, by the data files of their timelines: a small blast, a puff of dust, smoke, a short cloud of dust and a big one.</summary>
     [Export(PropertyHint.File)]
@@ -54,20 +60,29 @@ public partial class EscapeRoom : RoomSequence
     /// <summary>How many updates a harder shake lasts.</summary>
     private const int HarderUpdates = 42;
 
-    private int _harderLeft;
-
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
-        // The shaking never stops; now and then, by chance, it is harder for a while.
-        if (_harderLeft > 0)
+        Escape escape = room.Session.Service<Escape>();
+        if (elapsed == 0)
         {
-            if (--_harderLeft == 0)
-                room.Shake(ShakeStrength, 600);
+            // As the room is set up: a harder spell the room before left is ended, or goes on here for what is left.
+            if (StartsShakeAfresh)
+                escape.HarderShakeLeft = 0;
+            else if (TurnsHarder && escape.HarderShakeLeft > 0)
+                room.Shake(ShakeStrength + 1, escape.HarderShakeLeft, ShakeWay.Both);
         }
-        else if (!TurnsHarder)
+
+        // The shaking never stops; now and then, by chance, it is harder for a while. A room that never turns harder
+        // neither counts a spell down nor draws for one.
+        if (!TurnsHarder)
         {
             if (room.ShakeStrength == 0)
+                room.Shake(ShakeStrength, 600);
+        }
+        else if (escape.HarderShakeLeft > 0)
+        {
+            if (--escape.HarderShakeLeft == 0)
                 room.Shake(ShakeStrength, 600);
         }
         else
@@ -76,7 +91,7 @@ public partial class EscapeRoom : RoomSequence
             bool harder = ShakeStrength <= 1 ? chance >> 9 == 0 : chance >> 7 < 3;
             if (harder)
             {
-                _harderLeft = HarderUpdates;
+                escape.HarderShakeLeft = HarderUpdates;
                 room.Shake(ShakeStrength + 1, HarderUpdates, ShakeWay.Both);
             }
             else if (room.ShakeStrength == 0)

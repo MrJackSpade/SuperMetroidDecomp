@@ -56,6 +56,13 @@ public sealed class Escape : ISessionService
     /// <summary>How many parts the white-out that follows time running out whitens the screen in.</summary>
     public const int WhiteOutParts = 9;
 
+    /// <summary>
+    /// How many updates are left of a harder spell of the escape's shaking. It is the escape's and no room's: a spell
+    /// goes on through a door into the next of the escape's rooms that shakes harder by turns, standing still through
+    /// any room between that does not, unless a room starts its shaking afresh.
+    /// </summary>
+    public int HarderShakeLeft { get; set; }
+
     private (string Room, string EntryPoint)? _leavingFor;
     private bool _leftZebes;
     private bool _timeUpDue;
@@ -134,6 +141,7 @@ public sealed class Escape : ISessionService
         _leftZebes = false;
         (_timeUpDue, _whiteOutSteps) = (false, 0);
         Remaining = 0;
+        HarderShakeLeft = 0;
     }
 
     /// <inheritdoc/>

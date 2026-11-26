@@ -1684,7 +1684,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   ledges of its body, and where its arm touches, are `ColliderPoses` taken as its head and arm change picture; how
   hurt it is, the flash of a hit in the mouth and its dying are changes of the colours of its one set of pictures,
   which its spikes and nails show with its arm and foot, and its eyes' own colours are shown over them; what it does
-  to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
+  to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; its room's fades,
+  into its colours as it grows, to black as it dies and back once it has sunk, are lists of changes of the room's
+  colours (`Room.Recolour`), one for each of a fade's own steps, which the extractor blends between the two colourings
+  as the cartridge does and it shows as the shared fade count lets it step; the three spikes of its belly and
   its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
   screens it keeps the view from until it has grown are `CameraZone`s it opens; its body is a solid of its
   definition's size, switched on as it starts to sink); Crocomire

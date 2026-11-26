@@ -88,6 +88,20 @@ public partial class MotherBrain
 
     private readonly List<TubeDrop> _tubeDrops = [];
     private readonly List<FallingTube> _fallingTubes = [];
+
+    /// <summary>
+    /// The falling pipe that holds the cartridge's first free enemy place, if one does. The pipes that fall as
+    /// enemies each take the first free place as they are made, and with her Zebetites gone that is always the same
+    /// one: a pipe made while another holds it takes some other.
+    /// </summary>
+    private FallingTube? _inFirstPlace;
+
+    /// <summary>
+    /// The part of a pixel, down, that what last held that place left there. A place is given only whole pixels by
+    /// what takes it, and a pipe that bursts is removed and not killed, so each pipe that takes the place starts with
+    /// what the last left, and the giant Metroid that takes it last of all arrives with it.
+    /// </summary>
+    internal int PartOfAPixelLeftInFirstPlace { get; private set; }
     private readonly List<PixelPosition> _fakeDeathExplosions = [];
     private readonly List<PixelPosition> _ascentDust = [];
     private readonly List<PixelPosition> _sealedWallDust = [];
@@ -187,6 +201,7 @@ public partial class MotherBrain
                 _flashing = true;
                 Room.Liquid?.HeadFor(_liquidDrain.Height, _liquidDrain.Speed, _liquidDrain.Delay);
                 (_nextTube, _tubeFallen, _tubeWait) = (0, false, 1);
+                (_inFirstPlace, PartOfAPixelLeftInFirstPlace) = (null, 0);
                 (_greyStep, _greyWait) = (0, 1);
                 Room.Terrain.ApplyPatch(_ceilingPatch);
                 _descent = Descent.FadeToGrey;
@@ -240,7 +255,16 @@ public partial class MotherBrain
         {
             if (_nextTube > 0 && --_tubeWait > 0)
                 return;
-            _fallingTubes.Add(new FallingTube(LeaveEffect(drop.Effect, PixelPosition.FromWhole(drop.X, drop.Y)), drop) { Delay = drop.Delay });
+            var tube = new FallingTube(LeaveEffect(drop.Effect, PixelPosition.FromWhole(drop.X, drop.Y)), drop) { Delay = drop.Delay };
+
+            // The pipes about the top of her tank are shots on the cartridge and hold no enemy's place.
+            if (!drop.Top && _inFirstPlace is null)
+            {
+                _inFirstPlace = tube;
+                tube.Sprite.Position = new PixelPosition(tube.Sprite.Position.X, tube.Sprite.Position.Y.WithFraction(PartOfAPixelLeftInFirstPlace));
+            }
+
+            _fallingTubes.Add(tube);
             if (drop.Top)
                 Leave(DustEffect, PixelPosition.FromWhole(drop.X, drop.Y + TopTubeDustBelow));
             _tubeFallen = true;
@@ -293,6 +317,8 @@ public partial class MotherBrain
             Leave(tube.Drop.Top ? SmokeEffect : ExplosionEffect, tube.Sprite.Position);
             if (!tube.Drop.Top)
                 Sound(ExplosionSound);
+            if (ReferenceEquals(tube, _inFirstPlace))
+                (_inFirstPlace, PartOfAPixelLeftInFirstPlace) = (null, tube.Sprite.Position.Y.Fraction);
             Room.Remove(tube.Sprite);
             _fallingTubes.Remove(tube);
         }

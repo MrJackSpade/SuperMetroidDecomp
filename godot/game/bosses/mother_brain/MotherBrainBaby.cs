@@ -184,7 +184,10 @@ public partial class MotherBrainBaby : Enemy
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
-        Position = PixelPosition.FromWhole(ArrivalPlace.X, ArrivalPlace.Y);
+        // It takes the first free enemy place, which is given only its whole pixels: the part of a pixel down that the
+        // last pipe of her fall left there is its own as it arrives, and decides the update it reaches her brain on.
+        Position = new PixelPosition(
+            Pixels.FromWhole(ArrivalPlace.X), Pixels.FromParts(ArrivalPlace.Y, _mother?.PartOfAPixelLeftInFirstPlace ?? 0));
         Velocity = PixelVelocity.Zero;
         _health = ShieldingHealth;
         (_phase, _timer) = (Phase.DashOntoScreen, 249);

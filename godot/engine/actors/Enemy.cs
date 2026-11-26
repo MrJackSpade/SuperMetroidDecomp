@@ -178,9 +178,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     protected Collider? Solid { get; private set; }
 
     /// <summary>
-    /// The solid the engine gives an enemy that has a body and no solid of its own, for the one state in which every
-    /// enemy is solid: frozen, it blocks and carries by the shape its body then has. It is off at every other time,
-    /// and is not the enemy's <see cref="Solid"/>.
+    /// The solid the engine gives an enemy that has no solid of its own, for the one state in which every enemy is
+    /// solid: frozen, it blocks and carries by the shape its own size then has (<see cref="OwnSize"/>). It is off at
+    /// every other time, and is not the enemy's <see cref="Solid"/>.
     /// </summary>
     private Collider? _frozenSolid;
 
@@ -210,7 +210,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Body = EntityNode.ColliderOf(this, ColliderRole.Body);
         Solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
         _solidWhenNotFrozen = Solid is { Enabled: true };
-        if (Solid is null && Body is not null && _frozenSolid is null)
+        if (Solid is null && _frozenSolid is null)
         {
             _frozenSolid = new Collider { Name = "FrozenSolid", Role = ColliderRole.Solid, Enabled = false };
             AddChild(_frozenSolid);
@@ -729,9 +729,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _statusLeft = Countdown.Of(updates);
         if (IsFrozen && Solid is not null)
             Solid.Enabled = true;
-        if (IsFrozen && _frozenSolid is not null && Body is not null)
+        if (IsFrozen && _frozenSolid is not null && OwnSize is { } own)
         {
-            _frozenSolid.Rect = Body.Rect;
+            _frozenSolid.Rect = own.Rect;
             _frozenSolid.Enabled = true;
         }
         if (IsFrozen != wasFrozen || !wasFrozen)
@@ -1005,21 +1005,23 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
-    /// Half the width of the enemy's body: of the collider it moves through the room by, which is its own size
-    /// whatever shape its pose gives what can be hit of it; failing one, of its first hurtbox, or failing any of its
-    /// first hitbox; nothing where it has none.
+    /// The collider that is the enemy's own size: the one it moves through the room by, whatever shape its pose gives
+    /// what can be hit of it; failing one, as for an enemy that never meets terrain, its first hurtbox; failing any,
+    /// its first hitbox. Null where it has none of the three.
     /// </summary>
-    public int BodyHalfWidth
+    private Collider? OwnSize
     {
         get
         {
             var parts = EntityNode.CollidersOf(this).ToList();
-            Collider? body = parts.FirstOrDefault(collider => collider.Role == ColliderRole.Body)
+            return parts.FirstOrDefault(collider => collider.Role == ColliderRole.Body)
                 ?? parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hurtbox)
                 ?? parts.FirstOrDefault(collider => collider.Role == ColliderRole.Hitbox);
-            return body is null ? 0 : body.RoomRect.Width / 2;
         }
     }
+
+    /// <summary>Half the width of the enemy's own size (<see cref="OwnSize"/>); nothing where it has none.</summary>
+    public int BodyHalfWidth => OwnSize is { } own ? own.RoomRect.Width / 2 : 0;
 
     /// <summary>The part of the enemy that overlaps the player's body, if one does: a hitbox, or failing any hitboxes a hurtbox.</summary>
     protected Collider? PartTouchingPlayer()

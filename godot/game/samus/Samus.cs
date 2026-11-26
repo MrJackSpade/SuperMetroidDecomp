@@ -1247,6 +1247,9 @@ public partial class Samus : Player
     /// </summary>
     public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
 
+    /// <summary>Whether the spring ball was switched on in the last update she played: what a pause's end compares with.</summary>
+    private bool _springBallWasOn;
+
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
 
@@ -1256,11 +1259,17 @@ public partial class Samus : Player
     /// <summary>
     /// What follows, as a pause ends, from what was switched on or off on its pages. Her beams show the colours of
     /// those now switched on. With the speed booster switched on, a run that has its momentum and no boost begun
-    /// begins one; with it switched off her boost and her run's momentum end and her echoes are gone at once.
+    /// begins one; with it switched off her boost and her run's momentum end and her echoes are gone at once. With
+    /// the spring ball switched either way, the ball is taken to be on the ground where it is.
     /// </summary>
     public void ReconcileAfterPause()
     {
         ShowBeamColours();
+
+        // The spring ball switched on or off puts the ball in its pose of the ground where it is, in the air too,
+        // with its speed left as it was: so a ball in the air may then jump as from the ground.
+        if (State is CrawlingState ball && Inventory.IsOn(Equipment.SpringBall) != _springBallWasOn)
+            ball.TakeAsOnGround();
         if (Inventory.IsOn(Equipment.SpeedBooster))
         {
             if (HasMomentum && _boostStage < 0)
@@ -1292,6 +1301,7 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        _springBallWasOn = Inventory.IsOn(Equipment.SpringBall);
         _bombsHeldOff = _bombsHeldOff.Stepped();
         // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
         (_shotHandedNow, _shotHanded) = (_shotHanded, false);

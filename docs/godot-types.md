@@ -950,7 +950,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   at the landing after; slower, it is on the ground at once, at rest across. Where it can jump, the jump is a rise
   cut short like any jump and steered by its own move values (`crawling_jumping`) for the whole jump, and landing
   with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
-  in it.
+  in it. A game may take a low form that is in the air to be on the ground (`CrawlingState.TakeAsOnGround`): until
+  it lands or jumps it rolls across by the ground's rule, may jump as from the ground, and goes on rising or falling
+  as it was, as this game's ball does when the spring ball is switched on or off in a pause.
 - **On the ground.** The player's body meets terrain in one way everywhere (`Player.BodyMoves`): sloped ground
   that holds things up by their middle holds only its middle column, and is no wall to it. A move across climbs
   such ground by up to `climb_per_pixel` for each pixel. A player with no

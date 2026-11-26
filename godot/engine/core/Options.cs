@@ -23,7 +23,9 @@ public sealed class Options
 
     /// <summary>
     /// The buttons bound to each action, by the action's name. A keyboard key is written "key:" and its name, such as
-    /// "key:Space"; a controller button "pad:" and its number.
+    /// "key:Space"; a controller button "pad:" and its number; a controller's axis pushed one way "axis:", its number
+    /// and "+" or "-", such as "axis:5+", which is how a trigger, a stick or a pad that reports itself as axes is
+    /// bound. A controller's binding holds for whichever controller is used.
     /// </summary>
     public Dictionary<string, List<string>> Bindings { get; set; } = [];
 
@@ -112,6 +114,54 @@ public sealed class Options
         }
     }
 
+    /// <summary>How far an axis must be pushed, of its whole reach, to count as pressed.</summary>
+    public const float AxisPressed = 0.5f;
+
+    /// <summary>
+    /// The button a press is, as a binding writes it: a key going down, a controller's button going down, or a
+    /// controller's axis pushed at least <see cref="AxisPressed"/> of its reach one way. Null for anything else.
+    /// </summary>
+    public static string? ButtonOf(InputEvent @event) => @event switch
+    {
+        InputEventKey { Pressed: true, Echo: false } key => $"key:{OS.GetKeycodeString(key.Keycode)}",
+        InputEventJoypadButton { Pressed: true } button => $"pad:{(int)button.ButtonIndex}",
+        InputEventJoypadMotion motion when Math.Abs(motion.AxisValue) >= AxisPressed => AxisButton((int)motion.Axis, motion.AxisValue > 0),
+        _ => null,
+    };
+
+    /// <summary>The binding of an axis pushed one way.</summary>
+    public static string AxisButton(int axis, bool positive) => $"axis:{axis}{(positive ? "+" : "-")}";
+
+    private static bool IsKey(string button) => button.StartsWith("key:", StringComparison.Ordinal);
+
+    /// <summary>
+    /// Binds an action to a button the player has pressed. The button takes the place of the action's binding of its
+    /// own kind (a key for a key; a controller's button or axis for either of those) and the other kind is left as it
+    /// is, so binding on a controller does not unbind the keyboard. Among the actions of
+    /// <paramref name="keptApart"/>, when the action is one of them, no two keep one button: the one that had this
+    /// button is given the one this action gives up, so the two swap.
+    /// </summary>
+    public void Bind(string action, string button, IReadOnlyCollection<string> keptApart)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(action);
+        ArgumentException.ThrowIfNullOrWhiteSpace(button);
+        ArgumentNullException.ThrowIfNull(keptApart);
+        bool key = IsKey(button);
+        List<string> held = Bindings.GetValueOrDefault(action) ?? [];
+        string? givenUp = held.FirstOrDefault(other => IsKey(other) == key);
+        if (givenUp == button)
+            return;
+        Bindings[action] = [.. held.Where(other => IsKey(other) != key), button];
+        if (!keptApart.Contains(action))
+            return;
+        foreach (string other in keptApart)
+        {
+            if (other == action || !Bindings.TryGetValue(other, out List<string>? theirs) || !theirs.Contains(button))
+                continue;
+            Bindings[other] = [.. theirs.Select(one => one == button ? givenUp : one).OfType<string>()];
+        }
+    }
+
     /// <summary>A binding's text as the Godot input event it stands for.</summary>
     private static InputEvent ReadButton(string action, string button)
     {
@@ -124,8 +174,17 @@ public sealed class Options
             return new InputEventKey { Keycode = key };
         }
 
+        // A controller's binding is for any controller: the one in use is whichever the player picks up.
+        const int anyController = -1;
         if (parts.Length == 2 && parts[0] == "pad" && int.TryParse(parts[1], out int number) && number >= 0)
-            return new InputEventJoypadButton { ButtonIndex = (JoyButton)number };
-        throw new InvalidDataException($"The binding \"{button}\" for \"{action}\" is not \"key:\" and a key's name or \"pad:\" and a button's number.");
+            return new InputEventJoypadButton { ButtonIndex = (JoyButton)number, Device = anyController };
+        if (parts.Length == 2 && parts[0] == "axis" && parts[1].Length >= 2 && parts[1][^1] is '+' or '-'
+            && int.TryParse(parts[1][..^1], out int axis) && axis >= 0)
+        {
+            return new InputEventJoypadMotion { Axis = (JoyAxis)axis, AxisValue = parts[1][^1] == '+' ? 1 : -1, Device = anyController };
+        }
+
+        throw new InvalidDataException(
+            $"The binding \"{button}\" for \"{action}\" is not \"key:\" and a key's name, \"pad:\" and a button's number, or \"axis:\", an axis's number and \"+\" or \"-\".");
     }
 }

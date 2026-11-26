@@ -113,14 +113,39 @@ public partial class OptionsMode : GameMode
     /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
-        // While an action waits to be bound, the next button pressed is its button.
+        // While an action waits to be bound, the next button pressed is its button: a key, a controller's button,
+        // or a controller's axis pushed, which is how a trigger and some pads' shoulder buttons reach the game. An
+        // axis that was already past its mark as the wait began is one that rests there, and is not a press.
         if (_binding is null || _pressed is not null)
             return;
-        if (@event is InputEventKey { Pressed: true, Echo: false } key)
-            _pressed = $"key:{OS.GetKeycodeString(key.Keycode)}";
-        else if (@event is InputEventJoypadButton { Pressed: true } button)
-            _pressed = $"pad:{(int)button.ButtonIndex}";
+        if (Options.ButtonOf(@event) is { } button && !_restingAxes.Contains(button))
+            _pressed = button;
     }
+
+    /// <summary>The axes that read as pushed as the wait for a button began, as a binding would write each.</summary>
+    private readonly HashSet<string> _restingAxes = [];
+
+    /// <summary>Begins the wait for the button an action is to be bound to.</summary>
+    private void AwaitButtonFor(string action)
+    {
+        (_binding, _pressed) = (action, null);
+        _restingAxes.Clear();
+        foreach (int controller in Godot.Input.GetConnectedJoypads())
+        {
+            for (int axis = 0; axis < (int)JoyAxis.Max; axis++)
+            {
+                float pushed = Godot.Input.GetJoyAxis(controller, (JoyAxis)axis);
+                if (Math.Abs(pushed) >= Options.AxisPressed)
+                    _restingAxes.Add(Options.AxisButton(axis, pushed > 0));
+            }
+        }
+    }
+
+    /// <summary>
+    /// The actions of play, which no two of keep one button: binding one of them to a button another has swaps the
+    /// two, as the cartridge's page of buttons does with its seven.
+    /// </summary>
+    private IReadOnlyCollection<string> PlayActions => [GameAction.Jump.Name, GameAction.Attack.Name, .. Session.Definition.Actions];
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
@@ -252,7 +277,7 @@ public partial class OptionsMode : GameMode
         {
             if (_pressed is not { } button)
                 return;
-            Session.Options.Bindings[action] = [button];
+            Session.Options.Bind(action, button, PlayActions);
             Session.Options.ApplyBindings([]);
             (_binding, _pressed) = (null, null);
             ShowButtons(list.Chosen);
@@ -268,7 +293,7 @@ public partial class OptionsMode : GameMode
                 Sound("select_sound");
                 if (list.Chosen < Actions.Count)
                 {
-                    (_binding, _pressed) = (Actions[list.Chosen], null);
+                    AwaitButtonFor(Actions[list.Chosen]);
                     ShowButtons(list.Chosen);
                 }
                 else

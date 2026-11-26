@@ -1182,7 +1182,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   crystal flash begins she keeps the bomb, which goes on holding its place among her power bombs, and as the
   flash's rise is done the same bomb plays the flash's own blast from where she has risen to
   (`PowerBomb.BeginFlashBlast`, by its `flash_blast_reaches`): it sweeps the enemies as any blast does, strikes
-  no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended.
+  no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended. The sounds a blast
+  turned away are asked for again as it ends, once the flash has been offered and by what she is doing then; a
+  blast that ends beneath a message offers no flash and asks for nothing again.
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
   form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three
@@ -1205,7 +1207,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   charge's pulse; with none, the colours of the suit she wears, which is also all she shows while a suit is
   being put on. A crystal flash's colouring is laid over her beams' colours. This is the Godot design, not the
   cartridge's order of palette writes: which update a colouring shows on is presentation and is not matched.
-  The stored shine's time is the shine's own (`CountStoredShine`), counted every update with its sound. A
+  The stored shine's time is the shine's own (`CountStoredShine`), counted with its sound on every update but
+  those the cartridge skips it: while a drained Samus glows, and the update a shot's glow ends. A
   hurt is counted the same way (`CountHurt`), just before her colours are chosen: a knockback or energy found lost
   after she is shown starts it, a flying shinespark holds it, and its count times her hurt's sound and the asking
   again of the sound the hurt cut short; her colours read the count it stood at for the hurt's flash. A family not yet moved here is a ticket, not a tint to copy.

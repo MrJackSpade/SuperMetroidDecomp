@@ -69,6 +69,14 @@ public partial class SamusGrapple : Node2D
     [Export]
     public int PickupReach { get; set; } = 16;
 
+    /// <summary>How many updates she is safe, and how many knocked back, once the line has touched what shocks it.</summary>
+    [Export]
+    public int ShockInvincibleUpdates { get; set; } = 96;
+
+    /// <inheritdoc cref="ShockInvincibleUpdates"/>
+    [Export]
+    public int ShockKnockbackUpdates { get; set; } = 5;
+
     /// <summary>How many updates a pickup must have lain before the line can take it up.</summary>
     [Export]
     public int PickupDelay { get; set; } = 16;
@@ -159,6 +167,8 @@ public partial class SamusGrapple : Node2D
         Substeps = data.Int("substeps");
         PickupReach = data.Int("pickup_reach");
         PickupDelay = data.Int("pickup_delay");
+        ShockInvincibleUpdates = data.Int("shock_invincible_updates");
+        ShockKnockbackUpdates = data.Int("shock_knockback_updates");
         Reach = data.Int("reach");
         Damage = data.Int("damage");
         FiringBeams = data.Text("firing_beams");
@@ -308,8 +318,21 @@ public partial class SamusGrapple : Node2D
 
         // An enemy the line neither holds nor destroys stops it there: the line is given up before its end moves.
         // One it destroys, and anything that takes no notice of it, lets it go on.
-        if (room.DeliverHit(hit, around, from: samus).Any(struck =>
-                struck.Target is Enemy && struck.Result is HitResult.Absorbed or HitResult.Dud or HitResult.TurnedBack))
+        IReadOnlyList<(IHittable Target, HitResult Result)> met = room.DeliverHit(hit, around, from: samus);
+
+        // What shocks the line hurts her through it, safe from her last hurt or not: its damage, which her suit
+        // divides; her safety for the line's own count; and a knockback away from the way she faces, whichever side
+        // of her it is on. The line is given up.
+        if (met.Select(struck => struck.Target).OfType<IShocksGrapple>().FirstOrDefault() is { } shocking)
+        {
+            samus.Sap(new Hit(shocking.GrappleShock, HitSide.Enemies, HitKind.Contact));
+            samus.BeInvincibleFor(ShockInvincibleUpdates);
+            samus.KnockBack(samus.Facing, ShockKnockbackUpdates);
+            GiveUp();
+            return;
+        }
+
+        if (met.Any(struck => struck.Target is Enemy && struck.Result is HitResult.Absorbed or HitResult.Dud or HitResult.TurnedBack))
         {
             GiveUp();
             return;

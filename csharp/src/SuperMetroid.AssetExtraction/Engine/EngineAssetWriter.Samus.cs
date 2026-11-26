@@ -403,6 +403,10 @@ public sealed partial class EngineAssetWriter
             ["firing_beams"] = EngineSheets.FileName(GrappleBeamDefinitions.BeamShades.FiringSelection.ToString()),
             ["damage"] = EngineReactions.GrappleHitDamage,
 
+            // The line's touch on what hurts her through it: how long she is safe after, and how long knocked back.
+            ["shock_invincible_updates"] = GrappleBeamDefinitions.Contact.HurtInvincibilityFrames,
+            ["shock_knockback_updates"] = GrappleBeamDefinitions.Contact.HurtKnockbackFrames,
+
             // The line's own pictures, shown in her colours.
             ["line"] = SamusGrappleLine(),
 

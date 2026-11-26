@@ -221,8 +221,8 @@ Ask these in order and stop at the first yes.
 4. Is it collected by touching it? Temporary: **`Pickup`.** Permanent: **`Item`.**
 5. Does it have health that the player's weapons reduce, and does it act on its own? **`Enemy`.**
 6. Is it solid, does damage or a signal open it, and does it otherwise do nothing? **`Barrier`.**
-7. Is it part of the tile grid, at most two tiles by two, and is everything it does one of the block rules?
-   **A block.**
+7. Is it part of the tile grid, and is everything it does one of the block rules? **A block**, however many
+   tiles it covers.
 8. Is it a region with no body? A screen whose scrolling something changes: **`CameraZone`.** A height the view is kept below: **`ViewFloor`.** Leads to another room: **`RoomExit`.** Does one
    thing on entry: **`Trigger`.** A body of liquid: **`Liquid`.** A room-wide condition: **`RoomEffect`.**
 9. Is it a scripted sequence that belongs to one room? **`RoomSequence`.**
@@ -561,8 +561,9 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   the body's edges pass into it and the mover stands where its surface is under their middle, and such a mover
   climbs only slopes of that kind; a slope that does not say so is a step or a wall and meets the whole body. To
   everything else a slope is solid along its surface, whichever kind it is.
-- A **block** is a reactive piece of terrain, one or two tiles wide and high, placed as one unit with a
-  `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.
+- A **block** is a reactive piece of terrain, as many tiles wide and high as its layout says (the cartridge's
+  own are one or two each way, and the wall the animals leave by in the escape is three high), placed as one unit
+  with a `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.
 - A `BlockType` is a combination of these rules and nothing else. The rules are the engine's; the hit kinds, powers
   and abilities a block type names are the game's:
 

@@ -159,8 +159,8 @@ public sealed class TerrainLayout
             case TileKind.Block:
                 int width = tile.Has("width") ? tile.Int("width") : 1;
                 int height = tile.Has("height") ? tile.Int("height") : 1;
-                if (width is < 1 or > 2 || height is < 1 or > 2)
-                    throw tile.Problem("is a block larger than two tiles by two; anything larger is a room object");
+                if (width < 1 || height < 1)
+                    throw tile.Problem("is a block of no tiles: its width and height are each at least 1");
                 return new TileDefinition(kind, null, tile.Text("block"), width, height, picture);
             default:
                 throw tile.Get("kind").Problem("is not a kind of tile");

@@ -184,6 +184,15 @@ public sealed partial class EngineAssetWriter
             : throw new InvalidDataException($"Samus's poses {right} and {left} start their shots at different heights, which one height for the look cannot say.");
     }
 
+    /// <summary>How far above her middle the shots of all of <paramref name="poses"/> start; they must agree.</summary>
+    private static int SamusShotHeight(string named, params P[] poses)
+    {
+        int height = SamusPoseTraits.Of(poses[0]).ProjectileHeight;
+        return poses.All(pose => SamusPoseTraits.Of(pose).ProjectileHeight == height)
+            ? height
+            : throw new InvalidDataException($"Samus's poses for {named} start their shots at different heights, which one height cannot say.");
+    }
+
     /// <summary>
     /// Writes every timeline of Samus's into <paramref name="timelines"/>, and into <paramref name="heights"/> how far
     /// above her middle the shots of each look start: by the look's name, and by the look's and the aim's where an aim has
@@ -380,6 +389,19 @@ public sealed partial class EngineAssetWriter
         // A landing out of a jump or a fall is by the way she aims, as the old table of landings has it: its own
         // pictures aiming up and diagonally, the firing landing aiming level with the attack held, and the plain one
         // aiming level or straight down.
+        // Her shots leave from a height of their own while she settles from any landing, and while a jump gathers.
+        heights["landing"] = SamusShotHeight(
+            "landing",
+            P.NormalLandingRightPose, P.NormalLandingLeftPose, P.LandingAimUpRightPose, P.LandingAimUpLeftPose,
+            P.LandingAimDiagonalUpRightPose, P.LandingAimDiagonalUpLeftPose, P.LandingAimDiagonalDownRightPose, P.LandingAimDiagonalDownLeftPose,
+            P.FiringLandingRightPose, P.FiringLandingLeftPose, P.SpinLandingRightPose, P.SpinLandingLeftPose);
+        heights["jump_start"] = SamusShotHeight(
+            "a jump's gathering",
+            P.NeutralJumpTransitionRightPose, P.NeutralJumpTransitionLeftPose,
+            P.NormalJumpTransitionAimUpRightPose, P.NormalJumpTransitionAimUpLeftPose,
+            P.NormalJumpTransitionAimDiagonalUpRightPose, P.NormalJumpTransitionAimDiagonalUpLeftPose,
+            P.NormalJumpTransitionAimDiagonalDownRightPose, P.NormalJumpTransitionAimDiagonalDownLeftPose);
+
         foreach (string from in new[] { "falling", "jumping" })
         {
             Passing(from, "standing", P.NormalLandingRightPose, P.NormalLandingLeftPose);

@@ -295,6 +295,12 @@ public partial class Samus : Player
     private string _selectedShown = "";
     private Aim _aimAtUpdateStart;
 
+    /// <summary>The jump from the ground she is in while it gathers itself; none once it has gathered.</summary>
+    private JumpingState? _gatheringJump;
+
+    /// <summary>The names in her shot heights of the heights she fires from while settling from a landing and while a jump gathers.</summary>
+    private const string LandingHeights = "landing", JumpStartHeights = "jump_start";
+
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
     /// empty for the beam alone.
@@ -683,7 +689,13 @@ public partial class Samus : Player
         if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
             !aims.TryGetValue(AimName(Aim), out Vector2I offset))
             return base.MuzzlePoint;
-        string look = SamusLooks.Of(this);
+        // Settling from a landing and gathering a jump hold her arm at heights of their own, as the cartridge's poses do.
+        string look = State switch
+        {
+            StandingState { IsSettling: true } => LandingHeights,
+            JumpingState jump when ReferenceEquals(jump, _gatheringJump) => JumpStartHeights,
+            _ => SamusLooks.Of(this),
+        };
         int height = _shotHeights.TryGetValue($"{look}_{HoldName}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
         return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
     }
@@ -708,7 +720,7 @@ public partial class Samus : Player
 
     /// <summary>
     /// Sets her aim: the angle actions aim diagonally, and both together straight up on the ground; up aims up, or diagonally up
-    /// while she steers; down aims down in the air, or diagonally down while she steers. On the ground down aims only
+    /// while she steers, except in a crouch, where it does not aim; down aims down in the air, or diagonally down while she steers. On the ground down aims only
     /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
     /// or a fall up and down win over the angle actions, and standing still up does; elsewhere the angle actions win.
     /// In a jump or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
@@ -741,7 +753,8 @@ public partial class Samus : Player
             Aim = Aim.DiagonalUp;
         else if (angleDown)
             Aim = Aim.DiagonalDown;
-        else if (up)
+        else if (up && State is not CrouchingState)
+            // Crouched, up alone stands her up with her arm level; she aims up once she has stood.
             Aim = steering ? Aim.DiagonalUp : Aim.Up;
         else if (down && !grounded)
             Aim = steering ? Aim.DiagonalDown : Aim.Down;
@@ -844,6 +857,7 @@ public partial class Samus : Player
             else if (jump.FromGround)
             {
                 Aim = FirstJumpAim(from);
+                _gatheringJump = jump;
             }
             else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
                 CanTakeForm(FormOr(Jumping), aroundMiddle: true))
@@ -905,8 +919,11 @@ public partial class Samus : Player
         ReadsAsHoldingShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
 
     /// <summary>The first pose of a jump from the ground spends a stored shine as it is taken up, and the windup starts lifted.</summary>
-    protected override PlayerState? JumpGathered(JumpingState jump) =>
-        SpendsShine(jump.Stance) ? new ShinesparkState(lifted: true) : null;
+    protected override PlayerState? JumpGathered(JumpingState jump)
+    {
+        _gatheringJump = null;
+        return SpendsShine(jump.Stance) ? new ShinesparkState(lifted: true) : null;
+    }
 
     /// <summary>Selects one of the things she can select; given nothing, the beam alone.</summary>
     /// <exception cref="ArgumentException">She cannot select it now.</exception>

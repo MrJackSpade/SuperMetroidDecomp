@@ -64,6 +64,22 @@ public partial class Samus : Player
     [Export, DataValue("stored_shine_sound_updates")]
     public int StoredShineSoundUpdates { get; set; } = 10;
 
+    /// <summary>The count of a hurt on which it is heard.</summary>
+    [Export, DataValue("hurt_sound_count")]
+    public int HurtSoundCount { get; set; } = 2;
+
+    /// <summary>The count a hurt reaches on which the sound it cut short is asked for again.</summary>
+    [Export, DataValue("hurt_recovery_count")]
+    public int HurtRecoveryCount { get; set; } = 40;
+
+    /// <summary>The count a hurt ends on reaching.</summary>
+    [Export, DataValue("hurt_end_count")]
+    public int HurtEndCount { get; set; } = 60;
+
+    /// <summary>The count a flying shinespark holds a hurt at, on every update it moves her.</summary>
+    [Export, DataValue("spark_hurt_count")]
+    public int SparkHurtCount { get; set; } = 8;
+
     /// <summary>How many pixels a shinespark begun out of a jump lifts her as its windup starts.</summary>
     [Export, DataValue("shinespark_lift")]
     public int ShinesparkLift { get; set; } = 1;
@@ -1136,6 +1152,63 @@ public partial class Samus : Player
     }
 
     /// <summary>
+    /// The count of the updates of a hurt: none while she is not hurt. A knockback starts it at one, and so does energy
+    /// found lost after she is shown while there is none; a flying shinespark holds it, and its windup and its crash
+    /// end it.
+    /// </summary>
+    private int _hurt;
+
+    /// <summary>A flying shinespark holds a hurt at its own count: none is heard while it flies, nor colours her.</summary>
+    public void HoldHurtForSpark() => _hurt = SparkHurtCount;
+
+    /// <summary>A shinespark's windup and its crash end a hurt.</summary>
+    public void EndHurt() => _hurt = 0;
+
+    /// <summary>
+    /// Counts a hurt on, once an update, just before her colours are chosen, and says the count it stood at, which her
+    /// colours read for its flash (none with no hurt): on its count of the sound she is heard to be hurt; the count it
+    /// reaches for recovery asks again for the sound the hurt cut short; and it ends on reaching its last. While a
+    /// suit is being put on it is not counted, as nothing but the suit colours her.
+    /// </summary>
+    private int CountHurt()
+    {
+        if (_hurt == 0 || State is CollectingSuitState)
+            return 0;
+        int before = _hurt;
+
+        // Pinned in a beam, thrown back, her hurt is not heard: it is still counted and colours her. Nor is it heard
+        // while a scene shows her in its own colours, as the opening's flashbacks do.
+        if (before == HurtSoundCount && SceneColours.Length == 0 && State is not DrainedState { Posed: DrainedState.Pose.Pinned })
+            Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
+        int after = ++_hurt;
+        if (after == HurtRecoveryCount)
+            RecoverSoundAfterHurt();
+        if (after >= HurtEndCount)
+            _hurt = 0;
+        return before;
+    }
+
+    /// <summary>
+    /// Asks again, at the priority that gives way late, for the sound a hurt cut short: her spin's while she spins, or
+    /// else arms the charge's sound to be asked for again where a charge has begun to sound and the attack is held;
+    /// with her grapple beam out, the grapple's own sound and nothing else. A wall jump asks for neither: which of the
+    /// spin's sounds is its own is not kept.
+    /// </summary>
+    private void RecoverSoundAfterHurt()
+    {
+        if (Grapple is { IsOut: true })
+        {
+            Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons", priority: SoundPriority.High);
+            return;
+        }
+
+        if (SpinSound is { } spinSound)
+            Room.Session.Sounds.Request(spinSound, channel: "samus", priority: SoundPriority.High);
+        else if (ChargeIsSounding && Input.IsHeld(GameAction.Attack))
+            _chargingSoundArmed = true;
+    }
+
+    /// <summary>
     /// Ends the stored shine, and with it any crystal flash's colouring that read as one: used up by a shinespark or a
     /// crystal flash, or ended as the X-ray's colouring of her takes their place.
     /// </summary>
@@ -1774,11 +1847,11 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// A knockback beginning starts a hurt's flash from its first count, whatever count one had reached. It begins as
-    /// her movement ends, before her colours are stepped, so the flash is counted on once on this same update, as
-    /// the cartridge's is: its knockback is set up before it draws her, and the flash moves on as she is drawn.
+    /// A knockback beginning starts a hurt from its first count, whatever count one had reached. It begins as her
+    /// movement ends, before a hurt is counted, so it is counted on once on this same update, as the cartridge's is:
+    /// its knockback is set up before it draws her, and the hurt's count moves on as she is drawn.
     /// </summary>
-    protected override void OnThrown() => _hurtFlash = 1;
+    protected override void OnThrown() => _hurt = 1;
 
     /// <inheritdoc/>
     protected override void OnMomentumBegan()
@@ -1916,10 +1989,11 @@ public partial class Samus : Player
         if (State is WallJumpingState && !ReferenceEquals(State, _spinSeen))
             KickUpWallJumpDust();
 
-        // Her spin and her stored shine are counted on, and then what colours her is chosen, just before she is shown.
+        // Her spin, her stored shine and a hurt are counted on, and then what colours her is chosen, just before she is shown.
         CountSpin();
         CountStoredShine();
-        StepColours();
+        int hurt = CountHurt();
+        StepColours(hurt);
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,

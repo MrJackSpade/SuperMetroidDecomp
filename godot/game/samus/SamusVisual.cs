@@ -30,9 +30,6 @@ public partial class SamusVisual : Node2D
     /// <summary>How many updates pass between one echo being left and the next, how fast they close on her when she slows, and how fast they draw level.</summary>
     private const int EchoEvery = 4, EchoDepartureSpeed = 8, EchoLevelling = 2;
 
-    /// <summary>How many updates of play make a second of the play time.</summary>
-    private const int PlayUpdatesEachSecond = 60;
-
     private TimelinePlayer? _player;
     private string _playing = "";
     private string _look = "";
@@ -134,8 +131,8 @@ public partial class SamusVisual : Node2D
     private void StepEchoes(Samus samus, ActorVisual picture)
     {
         bool boosting = samus.IsBoosting && samus.State is not ShinesparkState;
-        // Timed by the play time's frames within its second, not by the clock.
-        bool due = samus.Room.Session.Progress.PlayUpdates % PlayUpdatesEachSecond % EchoEvery == 0;
+        // Timed by the play time, not by the clock.
+        bool due = samus.Room.Session.Progress.PlayUpdates % EchoEvery == 0;
         if (samus.State is ShinesparkState { IsWindingUp: false } spark)
         {
             if (spark.FlownFrom is not { } from)

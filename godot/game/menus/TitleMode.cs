@@ -20,9 +20,7 @@ namespace Game.Menus;
 /// Its data names its "music" at rest, asked for when the opening is cut short; its "backdrop" colour; its "floor",
 /// the picture behind the title, with how much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
 /// ("floor_centre") and how far it is moved at rest ("floor_scroll"); the "baby" on the floor (where, and its
-/// "timeline"); its "pictures" at rest, each with where its corner goes; the copyright in the colours it is shown in at
-/// rest once the opening has been cut short or a demo has come back ("restored_copyright", with where its corner
-/// goes), the copyright at a rest come to by itself keeping the last look of its fade; how many updates it is left alone before it
+/// "timeline"); its "pictures" at rest, each with where its corner goes; how many updates it is left alone before it
 /// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos, and the
 /// "completed_demo_sets" that follow them once the game has been completed; and its "opening":
 /// its "music"; how long each letter of a card but the last shows before the next is typed ("letter_updates") and
@@ -104,7 +102,6 @@ public partial class TitleMode : GameMode
     private CinematicSprite? _logo;
     private CinematicSprite? _copyright;
     private Node2D? _resting;
-    private Sprite2D? _restoredCopyright;
     private ScreenFade? _fade;
     private Doing _doing;
     private bool _skipping;
@@ -151,19 +148,11 @@ public partial class TitleMode : GameMode
             });
         }
 
-        DataNode restored = _data.Get("restored_copyright");
-        _restoredCopyright = new Sprite2D
-        {
-            Name = "RestoredCopyright", Texture = Session.Content.LoadTexture(restored.Text("picture")), Centered = false, Position = Place(restored),
-            TextureFilter = CanvasItem.TextureFilterEnum.Nearest, Visible = false,
-        };
-        layer.AddChild(_restoredCopyright);
-
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
         if (_beginning == Beginning.AtRest)
         {
-            Rest(restoredCopyright: true);
+            Rest(rebuilt: true);
             _fade.FadeIn(opening.Int("skip_fade_updates"));
             return;
         }
@@ -233,11 +222,11 @@ public partial class TitleMode : GameMode
                 (_logo ?? throw NotShown()).Step();
                 (_copyright ?? throw NotShown()).Step();
                 if (--_hold <= 0)
-                    Rest(restoredCopyright: false);
+                    Rest(rebuilt: false);
                 break;
             case Doing.Rebuilding:
                 // The old game rebuilds the title at rest on the update after the skip's fade reaches black.
-                Rest(restoredCopyright: true);
+                Rest(rebuilt: true);
                 fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
             case Doing.Resting:
@@ -417,11 +406,11 @@ public partial class TitleMode : GameMode
     }
 
     /// <summary>
-    /// Puts the title at its rest: the floor at its own size, and the title and the copyright over it. The
-    /// old game rebuilds the title after a skip, or as a demo comes back, with the copyright's colours restored; come
-    /// to rest by itself, the copyright keeps the last look of its fade, which lies over the restored colours.
+    /// Puts the title at its rest: the floor at its own size, and the title and the copyright over it. Come to rest
+    /// by itself, the copyright keeps the look its fade had reached; rebuilt after a skip, or as a demo comes back, it
+    /// shows its fade's last look at once.
     /// </summary>
-    private void Rest(bool restoredCopyright)
+    private void Rest(bool rebuilt)
     {
         DataNode data = Data();
         _doing = Doing.Resting;
@@ -431,9 +420,15 @@ public partial class TitleMode : GameMode
         floor.Visible = true;
         floor.Turn(0, data.Get("floor_per_pixel").AsPixels().ToDisplay(), Place(data.Get("floor_centre")), Place(data.Get("floor_scroll")));
         (_logo ?? throw NotShown()).Visible = false;
-        (_copyright ?? throw NotShown()).Visible = !restoredCopyright;
         (_resting ?? throw NotShown()).Visible = true;
-        (_restoredCopyright ?? throw NotShown()).Visible = restoredCopyright;
+        CinematicSprite copyright = _copyright ?? throw NotShown();
+        copyright.Visible = true;
+        if (rebuilt)
+        {
+            FrameTimeline fade = FrameTimeline.Read(data.Get("opening").Get("copyright").Get("timeline"));
+            copyright.Play(new FrameTimeline([fade.Steps[^1]], 0));
+            copyright.Step();
+        }
     }
 
     /// <summary>Takes the letters of a card away.</summary>

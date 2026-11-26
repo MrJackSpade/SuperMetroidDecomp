@@ -804,8 +804,10 @@ internal sealed partial class EngineLayouts
                     // then, as the Wrecked Ship's are before Phantoon: they are plain blocks of their kind.
                     SpikeReaction.HeavySpike when solid => _heavySpikesHurt
                         ?? throw new InvalidDataException("A heavy spike lies in a layout that is shown both with its area's power and without it."),
-                    SpikeReaction.HeavySpike => SpikeHazardDefinitions.HeavySpikeDamage,
-                    SpikeReaction.LightSpike or SpikeReaction.TurretSpike => SpikeHazardDefinitions.LightSpikeDamage,
+                    SpikeReaction.LightSpike or SpikeReaction.TurretSpike when solid => SpikeHazardDefinitions.LightSpikeDamage,
+
+                    // Air hurts her only with the damaging spike air's reaction: with a heavy or a light spike's it
+                    // does nothing, as the cartridge's test of what she is inside has it.
                     SpikeReaction.DamagingSpikeAir when !solid => SpikeHazardDefinitions.LightSpikeDamage,
                     _ => 0,
                 };

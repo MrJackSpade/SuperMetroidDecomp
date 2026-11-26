@@ -59,6 +59,8 @@ SamusStep = 0.78125
 position = Vector2(184, 104)
 TypeFile = "items/speed_booster.json"
 RememberedAs = "speed_booster_chozo_speed_booster"
+TellsWhat = "rise"
+Tells = NodePath("../Liquid")
 
 [node name="ItemShell" parent="." instance=ExtResource("7")]
 position = Vector2(176, 96)
@@ -73,7 +75,9 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/lava.json"
 LowSurface = 218
-HighSurface = 218
+HighSurface = 0
+MoveSpeed = 0.125
+MoveDelay = 32
 
 [node name="Heat" type="Node2D" parent="."]
 script = ExtResource("10")

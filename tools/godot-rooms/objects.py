@@ -64,6 +64,8 @@ class Objects:
         self.placed: list[Placed] = []
         # Each thing that tells another, with which property lists whom it tells.
         self.tells: list[tuple[Placed, str, list[Placed]]] = []
+        # The item whose pickup sets the room's liquid rising, where the room has one.
+        self.raises_liquid: Placed | None = None
         self.caps: dict[tuple[int, int], list[Placed]] = {}
         for door in doors_in:
             if door.closing == 'BlueDoorCloses' and door.object_block is not None:
@@ -136,9 +138,14 @@ class Objects:
         ctx = self.ctx
         kind = named(setup, 'InWorldCollectibleKind')
         name = snake(named(setup, 'ItemLocationDefinitions'))
-        self.placed.append(Placed(O + 'item/item.tscn', kind, {
+        item = Placed(O + 'item/item.tscn', kind, {
             'TypeFile': quoted(f'items/{snake(kind)}.json'), 'RememberedAs': quoted(name)},
-            at=(block[0] * BLOCK + BLOCK // 2, block[1] * BLOCK + BLOCK // 2), enemy=False))
+            at=(block[0] * BLOCK + BLOCK // 2, block[1] * BLOCK + BLOCK // 2), enemy=False)
+        self.placed.append(item)
+        # The Speed Booster in its Chozo orb sets its room's lava rising as its message closes
+        # (the old CollectibleObjects.Acquire: LavaRisingPlacements).
+        if kind == 'SpeedBooster' and 'CollectiblePresentation.ChozoOrb' in setup:
+            self.raises_liquid = item
         # One held in a shell has the shell round it for as long as it has not been taken. One hidden in the wall is
         # behind a block of the room's layout.
         if 'CollectiblePresentation.ChozoOrb' in setup:

@@ -10,9 +10,32 @@ namespace Engine.World.Objects;
 /// A permanent upgrade lying in a room. It grants its item type once, when the player touches it, records that in
 /// progress, and asks for its message. An item is just an item: one held in a shell has a barrier around it, and one
 /// hidden in the wall is behind a block, and in both cases it cannot be seen or touched until what covers it is gone.
+/// <para>
+/// Its pickup ends as its message closes, on the update it was touched: until then it is shown where it lies. Then
+/// it tells what it has to tell, shows nothing for one update, and leaves the room on the next, keeping its place
+/// in the room until it does.
+/// </para>
 /// </summary>
-public partial class Item : RoomObject
+public partial class Item : RoomObject, IFinishesAfterMessages
 {
+    /// <summary>How far its pickup has gone.</summary>
+    private enum Stage
+    {
+        Lying,
+        AwaitingMessage,
+        Taken,
+    }
+
+    private Stage _stage;
+
+    /// <summary>Something of the room told as its pickup ends; nothing when it names nothing.</summary>
+    [Export]
+    public NodePath Tells { get; set; } = new();
+
+    /// <summary>What <see cref="Tells"/> is told.</summary>
+    [Export]
+    public string TellsWhat { get; set; } = "";
+
     /// <summary>The data file of its item type.</summary>
     [Export(PropertyHint.File)]
     public string TypeFile { get; set; } = "";
@@ -68,6 +91,15 @@ public partial class Item : RoomObject
     /// <inheritdoc/>
     protected override void OnStep()
     {
+        // The update after its pickup ended it leaves, and gives up its place in the room with that.
+        if (_stage == Stage.Taken)
+        {
+            Room.Remove(this);
+            return;
+        }
+
+        if (_stage == Stage.AwaitingMessage)
+            return;
         bool covered = IsCovered;
         _timeline?.Step();
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
@@ -104,6 +136,24 @@ public partial class Item : RoomObject
             Room.Session.Sounds.Request(Type.Sound, channel: "objects");
         if (Type.Message.Length > 0)
             Room.Session.RequestMessage(Type.Message, Type.Fanfare, Type.MessageHoldUpdates);
-        Room.Remove(this);
+        Room.Player.OnItemCollected();
+        _stage = Stage.AwaitingMessage;
+        Room.FinishAfterMessages(this);
+    }
+
+    /// <inheritdoc/>
+    public void FinishAfterMessages()
+    {
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+            visual.SetShown(false);
+        Room.Player.OnItemPickupEnded();
+        if (!Tells.IsEmpty)
+        {
+            (GetNode(Tells) as ITriggerTarget
+                ?? throw new InvalidOperationException($"The item \"{Name}\" is to tell \"{Tells}\", which is not something that can be told."))
+                .Triggered(TellsWhat);
+        }
+
+        _stage = Stage.Taken;
     }
 }

@@ -370,6 +370,7 @@ public partial class Room : Node2D
             return;
         }
 
+        FinishWhatWaited();
         Finish(stopped);
     }
 
@@ -412,7 +413,30 @@ public partial class Room : Node2D
     {
         Stopped stopped = _suspended ?? throw new InvalidOperationException($"The room \"{Name}\" has no suspended update to finish.");
         _suspended = null;
+        FinishWhatWaited();
         Finish(stopped);
+    }
+
+    /// <summary>What has asked to finish once this update's messages have been shown, in the order it asked.</summary>
+    private readonly List<IFinishesAfterMessages> _finishing = [];
+
+    /// <summary>
+    /// Has something of the room finish what it began this update once every message asked for by the time the
+    /// room's objects have played has been shown: as this same update goes on, before its end, whether a message was
+    /// shown or none was asked for.
+    /// </summary>
+    public void FinishAfterMessages(IFinishesAfterMessages who)
+    {
+        ArgumentNullException.ThrowIfNull(who);
+        _finishing.Add(who);
+    }
+
+    private void FinishWhatWaited()
+    {
+        IFinishesAfterMessages[] waited = [.. _finishing];
+        _finishing.Clear();
+        foreach (IFinishesAfterMessages one in waited)
+            one.FinishAfterMessages();
     }
 
     /// <summary>The end of an update, after the room's objects and its terrain.</summary>

@@ -87,8 +87,11 @@ def colour_effect(name: str, ctx) -> Placed:
     return Placed(COLOURS, name, properties, at=(0, 0), enemy=False, only_when=only_when)
 
 
-def effect_things(effect: dict, room: legacy.Room, ctx) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
-    """What one of the old code's effects places, and which of those tells which."""
+def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None = None) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
+    """
+    What one of the old code's effects places, and which of those tells which. `told_speed` is the speed a liquid
+    with a level to go to and no speed of its own is given by whatever of the room tells it to go.
+    """
     placed: list[Placed] = []
     links: list[tuple[Placed, Placed]] = []
     kind = effect['type']
@@ -106,23 +109,27 @@ def effect_things(effect: dict, room: legacy.Room, ctx) -> tuple[list[Placed], l
         if effect['held_back']:
             properties['HeldBack'] = 'true'
 
-        # A liquid given a level to go to and no speed stays where it is.
+        # A liquid given a level to go to and no speed stays where it is, unless something of the room gives it a
+        # speed as it tells it to go: then it waits where it is to be told.
         moves = target is not None and number(effect['speed']).lstrip('-') not in ('0', '0.0')
-        rises = moves and target < start
+        waits = target is not None and not moves and told_speed is not None
+        if waits and target > start:
+            raise ValueError('A liquid that waits to be told to fall is not something this knows how to write.')
+        rises = (moves or waits) and target < start
         falls = moves and target > start
         properties['LowSurface'] = str(target if falls else start)
         properties['HighSurface'] = str(target if rises else start)
         if falls:
             properties['StartsRaised'] = 'true'
         if rises or falls:
-            properties['MoveSpeed'] = number(effect['speed']).lstrip('-')
+            properties['MoveSpeed'] = repr(told_speed) if waits else number(effect['speed']).lstrip('-')
             properties['MoveDelay'] = str(effect['delay'])
         if effect['tide'] in TIDES:
             reach, above, below = TIDES[effect['tide']]
             properties.update({'TideReach': str(reach), 'TideTurnAbove': repr(above), 'TideTurnBelow': repr(below)})
         liquid = Placed(LIQUID, 'Liquid', properties, at=(0, 0), enemy=False)
         placed.append(liquid)
-        if rises or falls:
+        if (rises or falls) and not waits:
             # It sets off by itself as the room is entered.
             tide = Placed(TRIGGER, 'LiquidMoves', {
                 'Size': f'Vector2i({room.screens[0] * SCREEN}, {room.screens[1] * SCREEN})',
@@ -141,10 +148,10 @@ def effect_things(effect: dict, room: legacy.Room, ctx) -> tuple[list[Placed], l
     return placed, links
 
 
-def things(selection: dict, room: legacy.Room, ctx, entry_point) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
+def things(selection: dict, room: legacy.Room, ctx, entry_point, told_speed: float | None = None) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
     """
     What a version's effect places. `entry_point` gives the entry point of the room that one of the old code's doors
-    arrives at.
+    arrives at; `told_speed` is as for `effect_things`.
     """
     placed: list[Placed] = []
     links: list[tuple[Placed, Placed]] = []
@@ -154,13 +161,13 @@ def things(selection: dict, room: legacy.Room, ctx, entry_point) -> tuple[list[P
         return entered if thing.only_when is None else ctx.all_of([thing.only_when, entered])
 
     for point, effect in by_door:
-        mine, told = effect_things(effect, room, ctx)
+        mine, told = effect_things(effect, room, ctx, told_speed)
         for thing in mine:
             thing.only_when = also(thing, ctx.entered_at(point))
         placed.extend(mine)
         links.extend(told)
     if selection['default'] is not None:
-        mine, told = effect_things(selection['default'], room, ctx)
+        mine, told = effect_things(selection['default'], room, ctx, told_speed)
         if by_door:
             for thing in mine:
                 thing.only_when = also(thing, ctx.none_of([ctx.entered_at(point) for point, _ in by_door]))

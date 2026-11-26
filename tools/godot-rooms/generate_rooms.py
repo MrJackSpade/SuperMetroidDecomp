@@ -71,6 +71,10 @@ PLAYER_IN_VIEW = (SCREEN // 2 - _LEAD, SCREEN // 2 + _LEAD)
 ARRIVAL_INSET = 40
 ARRIVAL_ABOVE_SILL = 24
 
+# How fast the Speed Booster's room's lava rises once the item's message has closed, in pixels an update: the old
+# SpeedBoosterPickupDefinitions.LavaRiseVelocity, an eighth of a pixel.
+SPEED_BOOSTER_LAVA_RISE = 0.125
+
 # The boss each area's "area boss", "mini boss" and "torizo" is, by the name its defeat is recorded under.
 AREA_BOSSES = {
     ('Crateria', 'AreaTorizo'): 'bomb_torizo',
@@ -510,11 +514,20 @@ class Generator:
             for trigger, zone in view.links:
                 links[id(trigger)] = {'Target': zone}
             # Its liquid and its room effects.
+            booster = placed_objects.raises_liquid
             shown, told = fx.things(self.room_fx[state.fx], room, ctx,
-                                    lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door)
+                                    lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door,
+                                    told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else None)
             things.extend(shown)
             for teller, target in told:
                 links[id(teller)] = {'Target': target}
+            if booster is not None:
+                # The item tells the room's lava to rise as its pickup ends, and the lava has its speed from that.
+                liquids = [thing for thing in shown if thing.name == 'Liquid']
+                if len(liquids) != 1:
+                    raise ValueError(f'{key}: the Speed Booster sets one liquid rising, and the room has {len(liquids)}.')
+                links.setdefault(id(booster), {})['Tells'] = liquids[0]
+                booster.properties['TellsWhat'] = quoted('rise')
             # Its sequences, what they move, and its backdrop.
             by_name: dict[str, enemies.Placed] = {}
             for placed in things:

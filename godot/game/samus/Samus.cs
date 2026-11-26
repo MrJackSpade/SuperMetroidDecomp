@@ -996,23 +996,51 @@ public partial class Samus : Player
         _aimAtUpdateStart = Aim;
         ChooseItem();
 
-        // A suit that has just become hers holds her while it is put on.
-        bool varia = Inventory.Owns(Equipment.VariaSuit), gravity = Inventory.Owns(Equipment.GravitySuit);
-        if ((varia && !_woreVaria) || (gravity && !_woreGravity))
-        {
-            // Putting a suit on ends an elevator's ride and disarms its door.
-            ElevatorJourney.Of(Room.Session).End();
-            ChangeState(new CollectingSuitState());
-        }
+        // The suits she owns as her turn begins are what an item collected this update is told from. A beam that
+        // became hers otherwise than by an item, as the hyper beam does, shows its colours now.
+        (_woreVaria, _woreGravity) = (Inventory.Owns(Equipment.VariaSuit), Inventory.Owns(Equipment.GravitySuit));
+        ShowNewBeamColours();
+    }
 
-        _woreVaria = varia;
-        _woreGravity = gravity;
+    /// <summary>Whether an item collected this update gave her a suit, which is put on as the item's message closes.</summary>
+    private bool _suitToPutOn;
 
-        // A beam that has just become hers shows the colours of the beams she now has switched on.
+    /// <summary>Shows the colours of the beams she has switched on, if she owns a beam she did not when this last looked.</summary>
+    private void ShowNewBeamColours()
+    {
         int beams = BeamsOwned;
         if (beams > _beamsOwned)
             ShowBeamColours();
         _beamsOwned = beams;
+    }
+
+    /// <inheritdoc/>
+    public override void OnItemCollected()
+    {
+        // A suit clears the beam's charge as it becomes hers, before its message; a beam's colours show as its
+        // message opens.
+        bool varia = Inventory.Owns(Equipment.VariaSuit), gravity = Inventory.Owns(Equipment.GravitySuit);
+        if ((varia && !_woreVaria) || (gravity && !_woreGravity))
+        {
+            ForgetCharge();
+            _suitToPutOn = true;
+        }
+
+        (_woreVaria, _woreGravity) = (varia, gravity);
+        ShowNewBeamColours();
+    }
+
+    /// <inheritdoc/>
+    public override void OnItemPickupEnded()
+    {
+        if (!_suitToPutOn)
+            return;
+        _suitToPutOn = false;
+
+        // A suit that has just become hers holds her while it is put on, from the update its message closes. Putting
+        // it on ends an elevator's ride and disarms its door.
+        ElevatorJourney.Of(Room.Session).End();
+        ChangeState(new CollectingSuitState());
     }
 
     /// <inheritdoc/>

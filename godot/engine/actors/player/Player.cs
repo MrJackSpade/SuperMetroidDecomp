@@ -638,6 +638,21 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
     }
 
+    /// <summary>
+    /// Called as an item becomes the player's: what it grants is theirs, and its message, if it has one, has yet to
+    /// be shown.
+    /// </summary>
+    public virtual void OnItemCollected()
+    {
+    }
+
+    /// <summary>
+    /// Called as an item's pickup ends: its message has been shown, and the update it was collected on goes on.
+    /// </summary>
+    public virtual void OnItemPickupEnded()
+    {
+    }
+
     /// <summary>Puts the player where they arrive in a room, with the speed and facing they arrive with.</summary>
     public void Arrive(PixelPosition place, PixelVelocity velocity, Facing facing)
     {

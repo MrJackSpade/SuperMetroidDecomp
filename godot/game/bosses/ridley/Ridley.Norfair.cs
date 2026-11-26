@@ -21,7 +21,9 @@ namespace Game.Enemies;
 /// As well as what both fights share it plays "death_roar_left" and "death_roar_right". Its data lists
 /// "arena_colours", the changes of colours of the room's own pictures: "hidden", shown from the moment it is set up,
 /// and the steps of the "reveal", the first shown on the first update of its roar's hold and each for
-/// "arena_reveal_step_updates"; the last stays. It lists
+/// "arena_reveal_step_updates"; the last stays. Its "liquid" says where the room's liquid heads as the room comes out
+/// of the dark ("rise") and as its death roar ends ("drain"): each a "height" in pixels down from the room's top, a
+/// "speed" in pixels an update and a "delay" in updates. It lists
 /// "health_bands", lowest first, each for health "below" a number, with how hard it flies when it hovers
 /// ("hover_divisor") and lunges ("grab_divisor"), the "colours" of its pictures once it has shown itself, and its
 /// four "pogo" launches, each with its speed "across" and "up" and the speed it gains each update rising ("rise_gain") and falling
@@ -50,6 +52,12 @@ public partial class Ridley
 
     /// <summary>The name the arena's colours are changed under.</summary>
     private const string ArenaColours = "RidleyArena";
+
+    /// <summary>
+    /// Where the room's liquid heads as the room comes out of the dark, and as his death roar ends: the height, in
+    /// pixels down from the room's top, how far it moves an update, and how many updates it waits first.
+    /// </summary>
+    private (int Height, double Speed, int Delay) _liquidRise, _liquidDrain;
 
     /// <summary>The arena's own pictures hidden in black, and each step of their coming out of the dark.</summary>
     private ColourChange _arenaHidden = ColourChange.None;
@@ -170,6 +178,8 @@ public partial class Ridley
     {
         DataNode arena = data.Get("arena_colours");
         _arenaHidden = ColourChange.Read(arena.Get("hidden"));
+        static (int, double, int) Motion(DataNode motion) => (motion.Int("height"), motion.Distance("speed").ToNumber(), motion.Int("delay"));
+        (_liquidRise, _liquidDrain) = (Motion(data.Get("liquid").Get("rise")), Motion(data.Get("liquid").Get("drain")));
         _arenaReveal.Clear();
         _arenaReveal.AddRange(arena.List("reveal").Select(ColourChange.Read));
         _bands.Clear();
@@ -235,8 +245,8 @@ public partial class Ridley
             Room.Recolour(ArenaColours, _arenaReveal[held / ArenaRevealStepUpdates]);
         if (--_revealLeft > 0)
             return false;
-        // The lava rises as the room comes out of the dark.
-        Room.Liquid?.Triggered("rise");
+        // The room's liquid rises as the room comes out of the dark.
+        Room.Liquid?.HeadFor(_liquidRise.Height, _liquidRise.Speed, _liquidRise.Delay);
         return true;
     }
 
@@ -539,7 +549,7 @@ public partial class Ridley
                 if (--_timer > 0)
                     break;
                 Velocity = PixelVelocity.Zero;
-                Room.Liquid?.Triggered("fall");
+                Room.Liquid?.HeadFor(_liquidDrain.Height, _liquidDrain.Speed, _liquidDrain.Delay);
                 (_explosionWait, _nextExplosion) = (1, 0);
                 (_phase, _timer) = (Phase.DeathExplosions, 161);
                 goto case Phase.DeathExplosions;

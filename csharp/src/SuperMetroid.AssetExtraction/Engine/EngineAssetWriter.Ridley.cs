@@ -486,6 +486,17 @@ public sealed partial class EngineAssetWriter
             ["hidden"] = ShadeChange(hiddenArena, arena),
             ["reveal"] = EngineNames.List(RidleyFadeDefinitions.ArenaReveal.Images.Select(image => (JsonNode)ShadeChange($"{hiddenArena}+{RidleyShades.Fade(image).Key}", arena))),
         });
+        // The room's acid: up for the fight as his reveal completes, and drained as his death roar ends. He gives it
+        // where to go, how fast and after how long; the room's own effect gives it no speed.
+        static JsonObject LiquidMotion(int height, SignedEightEight velocity, int delay) => new()
+        {
+            ["height"] = height, ["speed"] = Math.Abs(velocity.Pixels), ["delay"] = delay,
+        };
+        ridley.Group("liquid", new JsonObject
+        {
+            ["rise"] = LiquidMotion(RidleyLiquidDefinitions.BattleHeight, RidleyLiquidDefinitions.RiseVelocity, RidleyLiquidDefinitions.RiseDelay),
+            ["drain"] = LiquidMotion(RidleyLiquidDefinitions.DrainedHeight, RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay),
+        });
         ridley
             .Value("arena_reveal_updates", NorfairRidleyRevealDefinitions.RevealStepCount * NorfairRidleyRevealDefinitions.RevealStepUpdates + NorfairRidleyRevealDefinitions.BeforeFirstStepUpdates)
             .Value("arena_reveal_step_updates", NorfairRidleyRevealDefinitions.RevealStepUpdates)

@@ -128,6 +128,18 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         QueueRedraw();
     }
 
+    /// <summary>
+    /// Sets the surface heading for a height, in pixels down from the room's top, at a speed of its own after a wait
+    /// of its own: for something of the room that moves the liquid by its own values, as a boss whose fight raises it
+    /// and whose death drains it, each at another speed. The speed is the liquid's from then on.
+    /// </summary>
+    public void HeadFor(int height, double speed, int delay)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(speed);
+        ArgumentOutOfRangeException.ThrowIfNegative(delay);
+        (MoveSpeed, _waiting, _target) = (speed, delay, Pixels.FromWhole(height));
+    }
+
     /// <summary>Ends whatever wait is left before it starts toward where it is heading.</summary>
     public void EndWait() => _waiting = 0;
 

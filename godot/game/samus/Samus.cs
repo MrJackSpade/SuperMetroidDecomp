@@ -295,6 +295,12 @@ public partial class Samus : Player
     private string _selectedShown = "";
     private Aim _aimAtUpdateStart;
 
+    /// <summary>The jump from the ground she is in while it gathers itself; none once it has gathered.</summary>
+    private JumpingState? _gatheringJump;
+
+    /// <summary>The names in her shot heights of the heights she fires from while settling from a landing and while a jump gathers.</summary>
+    private const string LandingHeights = "landing", JumpStartHeights = "jump_start";
+
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
     /// empty for the beam alone.
@@ -683,7 +689,13 @@ public partial class Samus : Player
         if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
             !aims.TryGetValue(AimName(Aim), out Vector2I offset))
             return base.MuzzlePoint;
-        string look = SamusLooks.Of(this);
+        // Settling from a landing and gathering a jump hold her arm at heights of their own, as the cartridge's poses do.
+        string look = State switch
+        {
+            StandingState { IsSettling: true } => LandingHeights,
+            JumpingState jump when ReferenceEquals(jump, _gatheringJump) => JumpStartHeights,
+            _ => SamusLooks.Of(this),
+        };
         int height = _shotHeights.TryGetValue($"{look}_{HoldName}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
         return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
     }
@@ -845,6 +857,7 @@ public partial class Samus : Player
             else if (jump.FromGround)
             {
                 Aim = FirstJumpAim(from);
+                _gatheringJump = jump;
             }
             else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
                 CanTakeForm(FormOr(Jumping), aroundMiddle: true))
@@ -906,8 +919,11 @@ public partial class Samus : Player
         ReadsAsHoldingShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
 
     /// <summary>The first pose of a jump from the ground spends a stored shine as it is taken up, and the windup starts lifted.</summary>
-    protected override PlayerState? JumpGathered(JumpingState jump) =>
-        SpendsShine(jump.Stance) ? new ShinesparkState(lifted: true) : null;
+    protected override PlayerState? JumpGathered(JumpingState jump)
+    {
+        _gatheringJump = null;
+        return SpendsShine(jump.Stance) ? new ShinesparkState(lifted: true) : null;
+    }
 
     /// <summary>Selects one of the things she can select; given nothing, the beam alone.</summary>
     /// <exception cref="ArgumentException">She cannot select it now.</exception>

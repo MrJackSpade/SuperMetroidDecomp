@@ -1098,7 +1098,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   air is `air_turning_jump` or `air_turning_fall`; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
   `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.
 - **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
-  `shot_heights` of her look (and of her look and aim where an aim has its own). In the morph ball what she lays is
+  `shot_heights` of her look (and of her look and aim where an aim has its own); while she settles from a landing
+  the height is the one named `landing`, and while a jump from the ground gathers itself (from its start until
+  `Samus.JumpGathered`) the one named `jump_start`, as the cartridge's landing and jump-start poses have heights of
+  their own. In the morph ball what she lays is
   laid where she is.
 - **Her bomb jump** interrupts the ball. Its first update only sets the rise; then the ball rises out of her
   control, taking up the speed across it had when thrown to a side; a wall stops that speed and not the rise; the

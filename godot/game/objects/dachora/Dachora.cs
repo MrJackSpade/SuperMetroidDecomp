@@ -98,19 +98,6 @@ public partial class Dachora : Creature
     private Pixels _lift;
     private int _echoWait;
 
-    /// <summary>
-    /// The update at full speed on which the speed glow of a run begun after a wall or the ceiling stopped it first
-    /// shows; such a run asks for no speed sound. The cartridge finds that glow's count run out and counts it down
-    /// from the top, so its first frame comes sixteen updates after the 256th.
-    /// </summary>
-    private const int GlowAfterStopFirstUpdate = 272;
-
-    /// <summary>
-    /// The update at full speed on which a run begun after a stop would show a frame its speed glow does not have, as
-    /// the cartridge reads one past the glow's frames there. It runs out of its corridor long before.
-    /// </summary>
-    private const int GlowAfterStopStrayUpdate = 256;
-
     /// <summary>The updates it has glowed for, since its run reached full speed or since it began to gather itself.</summary>
     private int _glowing;
 
@@ -223,18 +210,14 @@ public partial class Dachora : Creature
     /// <summary>One update of its run: it speeds up, follows the ground, and turns or shoots up where its run ends.</summary>
     private void Run()
     {
-        if (_speed >= TopSpeed)
+        // At full speed a run from its blink or its turn is heard and glows the colours of speed, as Samus does,
+        // brighter and brighter; a run after a wall or the ceiling stopped it is silent and shows no glow.
+        if (_speed >= TopSpeed && !_runAfterStop)
         {
-            // At full speed it glows the colours of speed, as Samus does, brighter and brighter; a run from its blink
-            // or its turn is heard as it reaches full speed and glows at once, one after a stop only much later.
             int update = ++_glowing;
-            if (update == 1 && !_runAfterStop)
+            if (update == 1)
                 Sound(SpeedSound);
-            if (_runAfterStop && update == GlowAfterStopStrayUpdate)
-                throw new InvalidOperationException($"The Dachora has run {update} updates at full speed after a stop, where the cartridge shows a frame its speed glow does not have.");
-            int firstUpdate = _runAfterStop ? GlowAfterStopFirstUpdate : 1;
-            if (update >= firstUpdate)
-                ShowColours(_speedGlow[Math.Min((update - firstUpdate) / SpeedGlowFrameUpdates, _speedGlow.Length - 1)]);
+            ShowColours(_speedGlow[Math.Min((update - 1) / SpeedGlowFrameUpdates, _speedGlow.Length - 1)]);
         }
 
         MoveDownBy(Pixels.FromWhole(1), SlopeTreatment.Climb);

@@ -31,8 +31,9 @@ public partial class Trigger : Node2D, IPlaced
     public bool Once { get; set; } = true;
 
     /// <summary>
-    /// The entry point of the room whose use fires it, once, as play in the room begins, wherever the player is.
-    /// Empty for a trigger the player walks into.
+    /// The entry point of the room whose use fires it, once, as the room is set up: when everything of the room is
+    /// in it and before its first view is settled, so that what it tells holds from the room's first picture, as what
+    /// a door of the cartridge does to the room it leads into does. Empty for a trigger the player walks into.
     /// </summary>
     [Export]
     public string AtEntry { get; set; } = "";
@@ -57,16 +58,34 @@ public partial class Trigger : Node2D, IPlaced
         _fired = false;
     }
 
+    /// <summary>
+    /// Fires for the entry point the room was entered by, if it is one that does and it may. Returns whether it fired.
+    /// </summary>
+    internal bool FireOnArrival(Room room)
+    {
+        if (AtEntry.Length == 0 || room.Entry?.EntryPoint != AtEntry || (OnlyWhen is not null && !OnlyWhen.IsTrue(room)))
+            return false;
+        Fire();
+        return true;
+    }
+
     /// <summary>Fires if the player has just entered the region and the trigger may fire.</summary>
     internal void Step(Room room, PixelRect playerBody)
     {
-        // One that fires for an entry point counts the player as inside it from the start if they came in that way,
-        // and never otherwise.
-        bool inside = AtEntry.Length > 0 ? room.Entry?.EntryPoint == AtEntry : Area.Overlaps(playerBody);
+        // One that fires for an entry point has fired, or not, as the room was set up.
+        if (AtEntry.Length > 0)
+            return;
+        bool inside = Area.Overlaps(playerBody);
         bool entered = inside && !_playerWasInside;
         _playerWasInside = inside;
         if (!entered || (Once && _fired) || (OnlyWhen is not null && !OnlyWhen.IsTrue(room)))
             return;
+        Fire();
+    }
+
+    /// <summary>Tells its target what it has to tell.</summary>
+    private void Fire()
+    {
         _fired = true;
         Node target = GetNodeOrNull(Target)
             ?? throw new InvalidOperationException($"The trigger \"{Name}\" names no target that exists.");

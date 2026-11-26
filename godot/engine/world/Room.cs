@@ -231,17 +231,23 @@ public partial class Room : Node2D
 
         // Whoever brings the player in keeping the view puts the view where it belongs.
         // A place play begins at may say where the view is put; otherwise it is put about the player.
-        if (!entry.KeepsView)
+        void PlaceFirstView()
         {
-            if (entry.ViewAt is { } view)
-                Session.Camera.Place(view.X, view.Y);
-            else if (entry.At is null && GetNodeOrNull(entry.EntryPoint) is EntryPoint { PlacesView: true } begun)
-                Session.Camera.Place(begun.ViewAt.X, begun.ViewAt.Y, keepsFractions: true);
-            else
-                Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
+            if (!entry.KeepsView)
+            {
+                if (entry.ViewAt is { } view)
+                    Session.Camera.Place(view.X, view.Y);
+                else if (entry.At is null && GetNodeOrNull(entry.EntryPoint) is EntryPoint { PlacesView: true } begun)
+                    Session.Camera.Place(begun.ViewAt.X, begun.ViewAt.Y, keepsFractions: true);
+                else
+                    Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
+            }
+
+            if (ViewHeld)
+                Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
         }
-        if (ViewHeld)
-            Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
+
+        PlaceFirstView();
 
         // The room's own pictures are ready before anything enters, so that what enters may change their colours.
         foreach (Backdrop backdrop in GetChildren().OfType<Backdrop>())
@@ -292,6 +298,14 @@ public partial class Room : Node2D
                     break;
             }
         }
+
+        // What the way in changes of the room, it changes now that everything of the room is in it, and the first
+        // view is settled again by what it left: a screen it closed or held to its top is so from the first picture.
+        bool arrivalChanged = false;
+        foreach (Trigger trigger in _triggers)
+            arrivalChanged |= trigger.FireOnArrival(this);
+        if (arrivalChanged)
+            PlaceFirstView();
 
         foreach (RoomSequence sequence in _sequences)
             sequence.Setup(this);

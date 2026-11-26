@@ -36,7 +36,8 @@ namespace Game.Enemies;
 /// "emitters": [ { "x": -96, "y": -104, "drift": "right" } ]
 /// </code>
 /// Its hurtboxes are "UpperShell", "LowerShell", "Core" and "Crown", and a shot that reaches several meets the first of
-/// them in that order. Only "Core" can be hurt, and only in a pose that says so; every other part turns shots away. A
+/// them in that order. Each has a hitbox named for it with "Touch" after, which Samus's touch meets, a pixel down
+/// and right of the hurtbox as the cartridge meets the two. Only "Core" can be hurt, and only in a pose that says so; every other part turns shots away. A
 /// pose that does not name a part leaves it switched off. "health_shades" lists, most health first, the changes of the
 /// colours of its body ("body") and its stalk ("stalk") it shows from the first hurt of an opening on, by the least
 /// health each is shown at (<see cref="ColourChange"/>); a step of its hardening ("hardening_colours") changes them in
@@ -208,7 +209,10 @@ public partial class SporeSpawn : Enemy
         AlwaysActive = true;
         // Its parts are nowhere until its first pose puts them.
         foreach (string part in Parts)
+        {
             GetNode<Collider>(part).Enabled = false;
+            GetNode<Collider>(part + "Touch").Enabled = false;
+        }
         if (Husk)
         {
             Play("husk");

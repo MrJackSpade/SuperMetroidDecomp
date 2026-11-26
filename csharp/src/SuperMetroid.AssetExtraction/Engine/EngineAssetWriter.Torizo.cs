@@ -329,7 +329,9 @@ public sealed partial class EngineAssetWriter
                 throw new InvalidDataException($"The Torizo's frame {frame} has {boxes.Count} parts that can be hit, where the Godot Torizo has one.");
             EnemyCollisionHitbox box = boxes[0];
             bool sitting = box.Shot == TorizoReactions.StandUpSitDownShot;
-            return $"box:{box.Left}:{box.Top}:{box.Right - box.Left}:{box.Bottom - box.Top}:{(sitting ? 1 : 0)}";
+            // The box is written as a shot meets it; her touch meets it a pixel down and right of that.
+            JsonObject shot = EngineEnemy.ShotRect(box);
+            return $"box:{shot["left"]}:{shot["top"]}:{shot["width"]}:{shot["height"]}:{(sitting ? 1 : 0)}";
         }
 
         foreach ((TorizoAnimation animation, Animation<TorizoBodySegment> played) in TorizoAnimations.StartingAt)

@@ -231,9 +231,14 @@ public sealed partial class EngineAssetWriter
             if (!ordered.Select(piece => piece.Hitbox).SequenceEqual(struck))
                 throw new InvalidDataException($"A shot meets the pieces of Spore Spawn's frame {frame} in an order its parts do not have.");
 
+            // Each piece is a hurtbox for a shot and a hitbox for Samus's touch, which the old probe meets on
+            // different edges of its box.
             var colliders = new JsonObject();
             foreach ((string part, EnemyCollisionHitbox hitbox) in ordered)
-                colliders[part] = EngineEnemy.Rect(hitbox);
+            {
+                colliders[part] = EngineEnemy.ShotRect(hitbox);
+                colliders[part + "Touch"] = EngineEnemy.TouchRect(hitbox);
+            }
             poses[EngineEnemy.PoseName(frame)] = new JsonObject { ["core_takes_shots"] = cores.Count == 1, ["colliders"] = colliders };
         }
 

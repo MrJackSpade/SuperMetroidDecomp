@@ -28,7 +28,8 @@ namespace Game.Enemies;
 /// "attack:" with the timelines for spewing and for sonic booms; "branch:" and "jump_back", "sit" or "leap";
 /// "interrupt:" with "swipe", "stagger", "eye_beam" or "eggs" and a timeline; "look:" and a look; "fade:" and a
 /// tint's name; "swipe:" with the hand's place when it faces left; "explosions:" and "gut" or "face"; "box:" with
-/// the left, top, width and height of the part of it that can be touched and shot, from its place, and 1 if that
+/// the left, top, width and height of the part of it that can be shot, from its place (her touch meets the same
+/// part a pixel down and right of that, as the cartridge meets the two), and 1 if that
 /// part is one of its sitting and standing-up poses or 0 if not, or "box:off" for none at all; and by themselves
 /// "advance_fade", "show", "hide", "lock", "unlock", "resume_walk",
 /// "resume_interrupted", "blow_up_gut", "face_blown_up", "death_explosion", "finish_death", "landing_dust", "drool",
@@ -914,7 +915,7 @@ public partial class Torizo : Enemy
         {
             part.Enabled = box is not null;
             if (box is { } rect)
-                part.Rect = rect;
+                part.Rect = part.Role == ColliderRole.Hitbox ? rect.MovedBy(1, 1) : rect;
         }
     }
 

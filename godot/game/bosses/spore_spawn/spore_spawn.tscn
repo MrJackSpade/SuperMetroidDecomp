@@ -54,3 +54,19 @@ Role = 1
 [node name="Crown" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
+
+[node name="UpperShellTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="LowerShellTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="CoreTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="CrownTouch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2

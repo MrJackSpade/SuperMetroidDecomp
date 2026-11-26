@@ -340,6 +340,9 @@ charged.
     goes on unspent (`Reaction.Passes`, "passes" in data). Doing no damage is not that: such a hit is a dud or
     is absorbed, and is spent. This game's extractor writes a passing reaction for whatever the cartridge's
     enemy ignores: shots, a power bomb, Samus's body as a weapon, or the grapple's line.
+- What is hit may say, for a hit, that what delivered it and would pass through stops on it (`IHittable.Stops`):
+  a shot that goes on through what it hurts ends there as a shot that does not. This game's Ridley, Mother Brain
+  and baby say so of a beam's hit, which is why a plasma beam does not pass them; a blast's hit still sweeps on.
 - So a simple enemy needs one or two reactions ("beam: none", "plasma: all") and an awkward one lists the exact
   combination it treats specially. Nothing is computed from the parts.
 - Barriers and blocks use the same hits: each lists the kinds it accepts and the amount each takes off.

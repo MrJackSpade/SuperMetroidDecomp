@@ -25,6 +25,9 @@ namespace Game.Enemies;
 /// </remarks>
 public partial class BabyMetroid : Enemy
 {
+    /// <summary>A plasma beam stops on it, as the cartridge's does: it is one of the few a beam does not pass through.</summary>
+    public override bool Stops(Hit hit) => hit.Carries(new HitKind(Game.Data.HitKinds.Beam));
+
     /// <summary>The Sidehopper it feeds on.</summary>
     [Export]
     public NodePath Victim { get; set; } = new();

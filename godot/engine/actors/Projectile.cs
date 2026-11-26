@@ -831,7 +831,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                     return false;
                 case HitResult.Hurt:
                 case HitResult.Destroyed:
-                    if (MeetsTargetAs == ProjectileSettings.Target.Ends)
+                    if (MeetsTargetAs == ProjectileSettings.Target.Ends || target.Stops(Hit))
                     {
                         if (spends)
                         {

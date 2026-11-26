@@ -38,6 +38,9 @@ namespace Game.Enemies;
 /// </remarks>
 public partial class MotherBrain : Enemy, IClosingStep
 {
+    /// <summary>A plasma beam stops on it, as the cartridge's does: it is one of the few a beam does not pass through.</summary>
+    public override bool Stops(Hit hit) => hit.Carries(new HitKind(Game.Data.HitKinds.Beam));
+
     /// <summary>The music of her fight, by name.</summary>
     [Export]
     public string FightMusic { get; set; } = "";

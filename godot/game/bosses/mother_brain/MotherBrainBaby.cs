@@ -23,6 +23,9 @@ namespace Game.Enemies;
 /// </remarks>
 public partial class MotherBrainBaby : Enemy
 {
+    /// <summary>A plasma beam stops on it, as the cartridge's does: it is one of the few a beam does not pass through.</summary>
+    public override bool Stops(Hit hit) => hit.Carries(new HitKind(Game.Data.HitKinds.Beam));
+
     /// <summary>Its cry.</summary>
     [Export, DataValue("cry_sound")]
     public string CrySound { get; set; } = "";

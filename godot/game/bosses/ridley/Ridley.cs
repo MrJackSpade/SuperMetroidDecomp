@@ -41,6 +41,9 @@ namespace Game.Enemies;
 /// </remarks>
 public partial class Ridley : Enemy
 {
+    /// <summary>A plasma beam stops on it, as the cartridge's does: it is one of the few a beam does not pass through.</summary>
+    public override bool Stops(Hit hit) => hit.Carries(new HitKind(Game.Data.HitKinds.Beam));
+
     /// <summary>Whether this is its fight aboard Ceres station, not the one in Norfair.</summary>
     [Export]
     public bool OnCeres { get; set; }

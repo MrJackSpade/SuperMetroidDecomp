@@ -4,6 +4,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -303,7 +304,9 @@ public partial class Beetom : Enemy
             _doing = Doing.StartClinging;
             _clings = true;
             _shakesLeft = ShakeOffCount;
-            ZIndex = Room.Player.ZIndex + 1;
+
+            // Once it has latched on it stands in front of her, and goes on standing so after it is flung off.
+            Standing = Standing.InFront;
         }
 
         // A power that makes Samus's body a weapon meets it as it would any enemy.
@@ -467,7 +470,6 @@ public partial class Beetom : Enemy
         }
 
         _clings = false;
-        ZIndex = 0;
         _doing = Doing.StartFlung;
     }
 

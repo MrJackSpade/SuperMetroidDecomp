@@ -97,7 +97,7 @@ public partial class CuedProjectile : Projectile, IHasValues
                 Leave(room);
                 break;
             case "front":
-                ZIndex = 1;
+                ZIndex = RoomDepth.InFrontOfThings;
                 break;
             case "behind":
                 ZIndex = RoomDepth.BehindThings;

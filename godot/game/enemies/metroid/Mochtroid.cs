@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -44,7 +45,7 @@ public partial class Mochtroid : Enemy
     protected override void OnEnterRoom()
     {
         _biteIn = BiteEvery;
-        ZIndex = 1;
+        Standing = Standing.InFront;
         Play("free");
     }
 

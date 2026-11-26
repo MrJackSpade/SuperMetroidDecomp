@@ -100,6 +100,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     public void EnterRoom(Room room)
     {
         _room = room;
+        ZIndex = RoomDepth.Launched;
         _left = Countdown.Of(_settings.LastsUpdates);
         if (_settings.MetByShot != ProjectileSettings.MetBy.Ignored)
         {

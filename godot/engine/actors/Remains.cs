@@ -63,6 +63,7 @@ public partial class Remains : Node2D, IRoomEntity
     public void EnterRoom(Room room)
     {
         _room = room;
+        ZIndex = RoomDepth.Launched;
         FrameTimeline timeline = _timeline ?? throw new InvalidOperationException("The remains have no timeline.");
         _player = new TimelinePlayer(timeline);
         _visual = new ActorVisual();

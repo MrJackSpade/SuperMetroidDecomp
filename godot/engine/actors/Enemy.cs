@@ -23,8 +23,9 @@ namespace Engine.Actors;
 /// "dud": { "effect": "effects/dud_shot.json", "sound": "dud_shot:low" },
 /// "death": { "effect": "effects/small_explosion.json", "sound": "enemy_killed",
 ///            "by_kind": { "power_bomb": "effects/other_explosion.json" } },
-/// "picture_offset": { "x": -8, "y": -8 }
+/// "picture_offset": { "x": -8, "y": -8 }, "standing": "in_front"
 /// </code>
+/// "standing" names where it stands against the player (<see cref="World.Standing"/>); without it, behind them.
 /// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
 /// "death" names the timeline its death plays, which its <see cref="Remains"/> play out before its drop appears;
 /// "by_kind" names another for a death by a hit carrying a kind, the first listed that the hit carries.
@@ -209,6 +210,22 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         OnEnterRoom();
     }
 
+    private Standing _standing = Standing.Behind;
+
+    /// <summary>
+    /// Where it stands against the player and the rest of what stands in the room: as its data says as it enters, and
+    /// as it sets for itself after, where its standing changes in play.
+    /// </summary>
+    public Standing Standing
+    {
+        get => _standing;
+        set
+        {
+            _standing = value;
+            RoomDepth.Stand(this, value);
+        }
+    }
+
     /// <inheritdoc/>
     public virtual void ReadValues(DataNode data)
     {
@@ -217,6 +234,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Timelines = TimelineSet.ReadFrom(data);
         EntityNode.ReadColliders(this, data);
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
+        Standing = data.Has("standing") ? data.Get("standing").AsEnum<Standing>() : Standing.Behind;
         StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
         _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";
         _dudEffect = data.Has("dud") && data.Get("dud").Has("effect") ? data.Get("dud").Text("effect") : "";

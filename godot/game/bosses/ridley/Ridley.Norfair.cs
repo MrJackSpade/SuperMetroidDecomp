@@ -200,6 +200,9 @@ public partial class Ridley
     /// <summary>Sets it up for its fight in Norfair.</summary>
     private void EnterNorfair()
     {
+        // In Norfair it stands behind Samus, where its data has it in front of her as aboard Ceres.
+        Standing = Standing.Behind;
+
         // The capsule is only in its claws aboard Ceres.
         GetNodeOrNull<Engine.Actors.Components.ActorVisual>("Baby")?.SetShown(false);
         Position = PixelPosition.FromWhole(96, 394);

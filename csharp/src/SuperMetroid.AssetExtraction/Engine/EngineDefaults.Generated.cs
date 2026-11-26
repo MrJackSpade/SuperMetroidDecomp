@@ -33,6 +33,7 @@ internal static partial class EngineDefaults
         ["CeresDebris"] = "RoomSequence",
         ["CeresDeparture"] = "GameMode",
         ["CeresDestruction"] = "Cinematic",
+        ["CeresDoorColours"] = "RoomSequence",
         ["CeresElevatorDoor"] = "RoomObject",
         ["CeresGetaway"] = "RoomSequence",
         ["CeresShaft"] = "RoomSequence",

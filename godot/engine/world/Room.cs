@@ -212,6 +212,9 @@ public partial class Room : Node2D
             AddChild(player);
         }
 
+        // The player has a depth of their own, so nothing is in front of them or behind them by when it came in.
+        player.ZIndex = RoomDepth.Player;
+
         Join(player);
 
         // Said on the console, so that whoever plays can name the room when they report something.

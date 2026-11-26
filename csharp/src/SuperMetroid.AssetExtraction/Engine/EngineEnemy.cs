@@ -47,6 +47,20 @@ internal sealed partial class EngineEnemy
         // A weapon's hit makes the old enemy flash that much longer than its own flash, and nearly every hit is a weapon's.
         Data["hurt_flash_updates"] = Definition.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
         Data["picture_offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+        // Where it stands against Samus as it enters; one that stands behind her, as nearly all do, says nothing.
+        if (Definition.Stacking != EnemyStacking.BehindSamus)
+        {
+            Data["standing"] = Definition.Stacking switch
+            {
+                EnemyStacking.Frontmost => "frontmost",
+                EnemyStacking.InFrontOfSamus => "in_front",
+                EnemyStacking.JustBehindSamus => "just_behind",
+                EnemyStacking.FarBehindSamus => "far_behind",
+                EnemyStacking.Rearmost => "rearmost",
+                _ => throw new InvalidDataException($"The old game's enemy {id} stands at {Definition.Stacking}, which has no name here."),
+            };
+        }
+
         Data["reactions"] = EngineReactions.Of(Definition);
         if (EngineAssetWriter.Drops(Definition.Drops) is { } drops)
             Data["drops"] = drops;

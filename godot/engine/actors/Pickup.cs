@@ -40,6 +40,7 @@ public partial class Pickup : Node2D, IRoomEntity
     public void EnterRoom(Room room)
     {
         _room = room;
+        ZIndex = RoomDepth.Launched;
         _left = Countdown.Of(Type.LastsUpdates);
         string picture = Type.Picture;
         if (Type.Timeline.Length > 0)

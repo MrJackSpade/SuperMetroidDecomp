@@ -25,11 +25,36 @@ public static class RoomDepth
     /// </summary>
     public const int BehindThings = -5;
 
-    /// <summary>Everything standing in the room, in the order it stands there: the depth a thing has unless it says otherwise.</summary>
+    /// <summary>Behind the things standing in the room at their own depth, and in front of what is behind them all.</summary>
+    public const int FarBehindThings = -3;
+
+    /// <summary>
+    /// Everything standing in the room, in the order it stands there: the depth a thing has unless it says otherwise.
+    /// The player is in front of it.
+    /// </summary>
     public const int Things = 0;
 
-    /// <summary>In front of everything standing in the room at its own depth: what the player passes behind, as a door's shutter.</summary>
+    /// <summary>Behind the player and in front of the things standing in the room at their own depth.</summary>
+    public const int JustBehindPlayer = 3;
+
+    /// <summary>
+    /// The player, whom the room gives this depth as it takes them in: so what stands behind them or in front of
+    /// them does so whenever it came into the room.
+    /// </summary>
+    public const int Player = 5;
+
+    /// <summary>
+    /// What is launched and left in the room in play: shots, what a shot or a death leaves, what is dropped. In
+    /// front of the player and behind what the player passes behind. A thing of these kinds that has a place of its
+    /// own takes that in its stead.
+    /// </summary>
+    public const int Launched = 7;
+
+    /// <summary>In front of the player: what they pass behind, as a door's shutter or an enemy that stands in front of them.</summary>
     public const int InFrontOfThings = 10;
+
+    /// <summary>In front of what stands in front of the player.</summary>
+    public const int Frontmost = 12;
 
     /// <summary>
     /// The part of the picture behind the room that lies in front of the things standing in it, which a backdrop
@@ -48,4 +73,27 @@ public static class RoomDepth
 
     /// <summary>What is laid over the whole room.</summary>
     public const int Overlay = 100;
+
+    /// <summary>The depth of a standing against the player.</summary>
+    public static int Of(Standing standing) => standing switch
+    {
+        Standing.Rearmost => BehindThings,
+        Standing.FarBehind => FarBehindThings,
+        Standing.Behind => Things,
+        Standing.JustBehind => JustBehindPlayer,
+        Standing.InFront => InFrontOfThings,
+        Standing.Frontmost => Frontmost,
+        _ => throw new ArgumentOutOfRangeException(nameof(standing), standing, "Undefined standing."),
+    };
+
+    /// <summary>
+    /// Has <paramref name="node"/> stand so against the player, whatever it is a part of: a thing of the room, or one
+    /// picture of a thing whose other pictures stand elsewhere.
+    /// </summary>
+    public static void Stand(Godot.Node2D node, Standing standing)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        node.ZAsRelative = false;
+        node.ZIndex = Of(standing);
+    }
 }

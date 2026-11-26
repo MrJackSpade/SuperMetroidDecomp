@@ -1371,10 +1371,16 @@ public partial class Samus : Player
         _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor > 0));
 
         if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
-            Selected == Amounts.PowerBombs && SpecialAttackBeam() is { } special)
+            Selected == Amounts.PowerBombs)
         {
-            LetLooseSpecialAttack(special);
-            return;
+            // Every try at a special attack forgets the item that was to cancel itself, whether or not her beams
+            // have an attack to let loose.
+            _autoCancel = false;
+            if (SpecialAttackBeam() is { } special)
+            {
+                LetLooseSpecialAttack(special);
+                return;
+            }
         }
 
         if (weapon == Arsenal.Bomb && _spreadCharged && Inventory.IsOn(Equipment.Bombs) && Weapons.LiveOf(Arsenal.Bomb).Count == 0)
@@ -1523,7 +1529,9 @@ public partial class Samus : Player
         if (shot.Sound.Length > 0)
             Room.Session.Sounds.Request(shot.Sound, channel: "weapons");
         ForgetCharge();
-        Weapons.WaitAtLeast(Weapons.Named(Arsenal.Beam).CooldownFor(Inventory, charged: true));
+
+        // The attack sets her wait to that of her beams' charged shot, whatever it stood at.
+        Weapons.SetWait(Weapons.Named(Arsenal.Beam).CooldownFor(Inventory, charged: true));
         if (Inventory.Amount(Amounts.PowerBombs) == 0)
             SelectBeam();
     }

@@ -123,10 +123,9 @@ public partial class SpecialAttack : Projectile
         }
 
         Velocity = PixelVelocity.Zero;
+        // A wave light starts at whole pixels from hers: the part of a pixel she is at is not its own.
         if (_age == 0 && Kind == Kinds.Wave)
-            Position = samus.Position + PixelOffset.FromWhole(WaveStarts[_part].X, WaveStarts[_part].Y);
-        samus.Weapons.WaitAtLeast(HoldUpdates);
-        samus.Weapons.DropCharge();
+            Position = PixelPosition.FromWhole(samus.Position.X.Whole + WaveStarts[_part].X, samus.Position.Y.Whole + WaveStarts[_part].Y);
         _age++;
         switch (Kind)
         {
@@ -143,6 +142,14 @@ public partial class SpecialAttack : Projectile
                 StepWave(room, samus);
                 break;
         }
+
+        // On each update a light lives on through, her wait before the next shot is set to the hold's, whatever it
+        // stood at, and her charge is dropped. A light that goes on this update does neither, but a plasma light,
+        // which does both before it is looked at.
+        if (HasEnded && Kind != Kinds.Plasma)
+            return;
+        samus.Weapons.SetWait(HoldUpdates);
+        samus.Weapons.DropCharge();
     }
 
     private void StepIce(Room room, Player samus)
@@ -203,7 +210,6 @@ public partial class SpecialAttack : Projectile
 
     private void StepSpazer(Room room, Player samus)
     {
-        int screenY = Position.Y.Whole - room.Session.Camera.Top;
         switch (_stage)
         {
             case Stage.First:
@@ -248,8 +254,9 @@ public partial class SpecialAttack : Projectile
                 break;
 
             default:
+                // It falls, and is gone once that has taken it far enough below the view's top.
                 Position += PixelOffset.FromWhole(0, 8);
-                if (screenY >= 248)
+                if (Position.Y.Whole - room.Session.Camera.Top >= 248)
                     Leave(room);
                 break;
         }
@@ -261,6 +268,10 @@ public partial class SpecialAttack : Projectile
     /// </summary>
     protected override void OnEnded(Room room)
     {
+        // A wave light that is spent, and an ice light spent while it still circles, are heard going as they are
+        // when their time is up.
+        if (Kind == Kinds.Wave || (Kind == Kinds.Ice && _stage == Stage.First))
+            Sound(room, EndSound);
         if (_partner is not { } partner || _stage == Stage.Last)
             return;
         if (!partner.HasEnded)

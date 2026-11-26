@@ -280,6 +280,16 @@ public sealed class Weapons
             _cooldown = Countdown.Of(updates);
     }
 
+    /// <summary>
+    /// Sets the wait before the next shot to exactly <paramref name="updates"/>, shorter or longer than it stood, as
+    /// something that takes the weapons over for a while does.
+    /// </summary>
+    public void SetWait(int updates)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        _cooldown = Countdown.Of(updates);
+    }
+
     /// <summary>Moves the cooldown on by one update and forgets shots that have ended.</summary>
     public void StepCooldown()
     {

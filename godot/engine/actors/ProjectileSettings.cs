@@ -139,6 +139,12 @@ public sealed record ProjectileSettings
     /// </summary>
     public bool EndsAtFront { get; init; }
 
+    /// <summary>
+    /// Where it stands against the player among the room's depths ("standing"); null for where what is launched
+    /// lies, in front of the player (<see cref="Engine.World.RoomDepth.Launched"/>).
+    /// </summary>
+    public Engine.World.Standing? Standing { get; init; }
+
     /// <summary>What it does on hurting a target.</summary>
     public Target MeetingTarget { get; init; }
 
@@ -258,6 +264,7 @@ public sealed record ProjectileSettings
             MeetingTerrain = data.Has("meeting_terrain") ? data.Get("meeting_terrain").AsEnum<Terrain>() : plain.MeetingTerrain,
             MeetsTerrainBy = data.Has("terrain_by") ? data.Get("terrain_by").AsEnum<TerrainBy>() : plain.MeetsTerrainBy,
             EndsAtFront = data.Has("ends_at_front") && data.Flag("ends_at_front"),
+            Standing = data.Has("standing") ? data.Get("standing").AsEnum<Engine.World.Standing>() : null,
             MeetingTarget = data.Has("meeting_target") ? data.Get("meeting_target").AsEnum<Target>() : plain.MeetingTarget,
             MetByShot = data.Has("met_by_shot") ? data.Get("met_by_shot").AsEnum<MetBy>() : plain.MetByShot,
             Motion = data.Has("motion") ? data.Get("motion").AsEnum<Moves>() : plain.Motion,

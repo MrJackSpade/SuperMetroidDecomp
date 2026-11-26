@@ -155,6 +155,10 @@ public sealed partial class EngineAssetWriter
             ["width"] = width,
             ["height"] = height,
             ["motion"] = "accelerating",
+
+            // The cartridge draws her shots straight after her, and so behind her and in front of the enemies that
+            // stand behind her: one fired from within her outline comes out from behind her.
+            ["standing"] = "just_behind",
             ["view_margin"] = margin,
             ["view_margin_below"] = SamusProjectileMotionDefinitions.MovementWindowFarEdge - ScreenGeometry.ScreenHeightPixels,
             ["timeline"] = timeline,

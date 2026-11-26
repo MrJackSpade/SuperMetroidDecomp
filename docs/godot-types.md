@@ -1245,6 +1245,7 @@ How a projectile behaves is settings, not code:
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). Either is left at its middle, or at its front: half its size on along each way it was launched, as a beam's burst is. |
 | Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. |
+| Where it stands | In front of the player with whatever else is launched, or a `Standing` of its own against the player: Samus's beams and missiles stand just behind her, as the cartridge draws them. |
 | Gaining speed | One gain along each axis; one launched diagonally may have its own. |
 | Shaking the room | A `RoomShake` (strength, length, way) started as terrain or a solid ends it, and one started the first time its hit lands. |
 

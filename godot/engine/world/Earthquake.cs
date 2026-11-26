@@ -11,6 +11,9 @@ namespace Engine.World;
 /// </summary>
 public partial class Earthquake : RoomEffect
 {
+    /// <summary>A shake is stepped once all that may start it has run: the room is thrown on the update it is asked to shake.</summary>
+    protected internal override bool StepsAsUpdateEnds => true;
+
     /// <summary>How far the view is offset, in pixels, by the shake last asked for.</summary>
     public int Strength { get; private set; }
 

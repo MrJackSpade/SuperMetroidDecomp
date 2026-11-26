@@ -161,7 +161,7 @@ public partial class Boulder : Enemy
                 return;
 
             case Doing.Falling:
-                if (MoveDownBy(curve.SpeedAt(_bouncePlace)))
+                if (Room.Mover.MoveDown(MovingBody(), curve.SpeedAt(_bouncePlace), Moves).Blocked)
                 {
                     Sound(ImpactSound);
                     if (BreaksOnLanding)
@@ -190,10 +190,9 @@ public partial class Boulder : Enemy
 
             case Doing.Rolling:
                 // It presses down to stay on the ground, reaching a little further until the ground runs level.
-                MoveDownBy(curve.SpeedAt(_travelPlace) + Pixels.FromWhole(_reach));
+                Room.Mover.MoveDown(MovingBody(), curve.SpeedAt(_travelPlace) + Pixels.FromWhole(_reach), Moves);
                 Position -= PixelOffset.FromWhole(0, _reach);
-                Collider body = Body ?? throw new InvalidOperationException($"The Boulder \"{Name}\" has no body collider.");
-                if (Room.Mover.MoveAcross(body, Rolls.Toward(curve.SpeedAt(_travelPlace)), MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Ignore }).Blocked)
+                if (Room.Mover.MoveAcross(MovingBody(), Rolls.Toward(curve.SpeedAt(_travelPlace)), MovesAcross).Blocked)
                 {
                     Sound(ImpactSound);
                     Break();
@@ -210,6 +209,19 @@ public partial class Boulder : Enemy
                 throw new InvalidOperationException($"Undefined Boulder stage {_doing}.");
         }
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Boulder \"{Name}\" has no body collider.");
 
     /// <summary>
     /// Breaks the boulder up: it is gone, leaving its dust, one of the enemies' shots on the cartridge, which holds one

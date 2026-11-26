@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Godot;
@@ -58,6 +59,20 @@ public partial class Alcoon : Enemy
     [Export, DataValue("emerge_sound")]
     public string EmergeSound { get; set; } = "";
 
+    /// <summary>The sound of each fireball it breathes, by name: heard though the room has no place for the fireball.</summary>
+    [Export, DataValue("fire_sound")]
+    public string FireSound { get; set; } = "";
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a stride across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions StridesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
     private enum Doing
     {
         Hidden,
@@ -70,7 +85,8 @@ public partial class Alcoon : Enemy
     }
 
     private Doing _doing;
-    private PixelPosition _hide;
+    private int _hideX;
+    private int _hideY;
     private int _landsAt;
     private int _cyclesLeft;
     private bool _walks;
@@ -78,7 +94,7 @@ public partial class Alcoon : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        _hide = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
+        (_hideX, _hideY) = (Position.X.Whole, Position.Y.Whole);
         Play("walking_left");
 
         // Where its leap out will land is found once, by making the leap: up freely, then down until the floor.
@@ -89,15 +105,16 @@ public partial class Alcoon : Enemy
             speed += gravity;
         }
 
-        for (int step = 0; !MoveDownBy(speed); step++)
+        for (int step = 0; !Drop(speed); step++)
         {
             if (step > 4096)
                 throw new InvalidOperationException($"The Alcoon \"{Name}\" finds no floor to land on.");
             speed += gravity;
         }
 
+        // Only its whole pixels go back: the part of a pixel its landing left it at stays, as on the cartridge.
         _landsAt = Position.Y.Whole;
-        Position = _hide;
+        Position = Position with { Y = Position.Y.WithWhole(_hideY) };
     }
 
     /// <inheritdoc/>
@@ -121,8 +138,11 @@ public partial class Alcoon : Enemy
                 break;
             case "fire:up" or "fire:level" or "fire:down":
                 Pixels down = cue == "fire:up" ? Pixels.FromWhole(-1) : cue == "fire:down" ? Pixels.FromWhole(1) : Pixels.Zero;
-                PixelPosition muzzle = Position + PixelOffset.FromWhole(Facing == Facing.Left ? -MuzzleAcross : MuzzleAcross, -MuzzleUp);
+                // A fireball leaves from whole pixels, whatever part of a pixel the Alcoon is at.
+                PixelPosition muzzle = PixelPosition.FromWhole(
+                    Position.X.Whole + (Facing == Facing.Left ? -MuzzleAcross : MuzzleAcross), Position.Y.Whole - MuzzleUp);
                 Fire("fireball", muzzle, new PixelVelocity(Facing.Toward(Shot("fireball").Speed), down));
+                Sound(FireSound);
                 break;
         }
     }
@@ -157,7 +177,7 @@ public partial class Alcoon : Enemy
                 return;
 
             case Doing.ComingDown:
-                if (!MoveDownBy(Velocity.Y))
+                if (!Drop(Velocity.Y))
                 {
                     Velocity = Velocity.WithY(Velocity.Y + gravity);
                     return;
@@ -171,8 +191,8 @@ public partial class Alcoon : Enemy
                 return;
 
             case Doing.Pacing:
-                MoveDownBy(Pixels.FromWhole(2));
-                if (Math.Abs(_hide.X.Whole - Position.X.Whole) >= HideDistance)
+                Drop(Pixels.FromWhole(2));
+                if (Math.Abs(_hideX - Position.X.Whole) >= HideDistance)
                 {
                     _doing = Doing.HoppingBack;
                     _walks = false;
@@ -200,13 +220,14 @@ public partial class Alcoon : Enemy
 
             case Doing.DroppingBack:
                 Position += new PixelOffset(Pixels.Zero, Velocity.Y);
-                if (Position.Y.Whole < _hide.Y.Whole)
+                if (Position.Y.Whole < _hideY)
                 {
                     Velocity = Velocity.WithY(Velocity.Y + gravity);
                     return;
                 }
 
-                Position = _hide;
+                // Its whole pixels go back to where it hides; the part of a pixel it is at stays.
+                Position = new PixelPosition(Position.X.WithWhole(_hideX), Position.Y.WithWhole(_hideY));
                 _doing = Doing.Hidden;
                 return;
 
@@ -215,17 +236,27 @@ public partial class Alcoon : Enemy
         }
     }
 
-    /// <summary>Takes one stride the way it faces; a wall turns it round and starts its pacing over.</summary>
+    /// <summary>
+    /// Takes one stride the way it faces, then is put where sloped ground has it under its middle; a wall turns it
+    /// round and starts its pacing over. Before it has first come out it strides nowhere, and is only put so.
+    /// </summary>
     private void TakeStride()
     {
-        if (!_walks)
+        if (_walks && Room.Mover.MoveAcross(MovingBody(), Facing.Toward(Pixels.FromWhole(Stride)), StridesAcross).Blocked)
+        {
+            // The other walk is taken up at its first stride, past the cue that would stride again at once.
+            Facing = Facing.Opposite();
+            ResumeTimeline(new TimelineMark(Facing == Facing.Left ? "walking_left" : "walking_right", 0, 1));
             return;
-        if (!Room.Mover.MoveAcross(
-                Body ?? throw new InvalidOperationException($"The Alcoon \"{Name}\" has no body collider."),
-                Facing.Toward(Pixels.FromWhole(Stride)),
-                Engine.Collision.MoveOptions.AmongBlocks with { ClimbPerPixel = 2, FollowGroundDown = 2 }).Blocked)
-            return;
-        Facing = Facing.Opposite();
-        Play(Facing == Facing.Left ? "walking_left" : "walking_right", restart: true);
+        }
+
+        // A move across of no distance meets nothing, and ends as every move across that climbs such ground does.
+        Room.Mover.MoveAcross(MovingBody(), Pixels.Zero, Moves);
     }
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Alcoon \"{Name}\" has no body collider.");
 }

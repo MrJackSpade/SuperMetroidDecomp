@@ -67,6 +67,12 @@ public partial class Bull : Enemy
     private Pixels _speed;
     private Pixels _gain;
 
+    /// <summary>
+    /// How much its gain of speed itself changes each time: its acceleration step from when it takes aim, and nothing
+    /// once it has stopped. A knock leaves it as it stands, so one knocked while waiting slows by its whole loss each time.
+    /// </summary>
+    private Pixels _gainStep;
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
@@ -93,12 +99,13 @@ public partial class Bull : Enemy
             case Doing.Aiming:
                 _angle = AngleToSamus();
                 _doing = Doing.Gathering;
+                _gainStep = step;
                 return;
 
             case Doing.Gathering:
                 if (_speed < Pixels.FromNumber(MaximumSpeed) && Tick(AccelerationInterval))
                 {
-                    _gain += step;
+                    _gain += _gainStep;
                     _speed += _gain;
                 }
 
@@ -108,7 +115,11 @@ public partial class Bull : Enemy
                 int turn = AngleToSamus() - _angle;
                 int off = turn >= Turns.PerTurn / 2 ? Turns.PerTurn - turn : Math.Abs(turn);
                 if (off >= OffTargetTurn)
+                {
                     _doing = Doing.Slowing;
+                    _gainStep = step;
+                }
+
                 return;
 
             case Doing.Slowing:
@@ -116,6 +127,7 @@ public partial class Bull : Enemy
                 {
                     _doing = Doing.Waiting;
                     _gain = Pixels.Zero;
+                    _gainStep = Pixels.Zero;
                     _speed = Pixels.Zero;
                     return;
                 }
@@ -123,7 +135,7 @@ public partial class Bull : Enemy
                 Drift();
                 if (Tick(DecelerationInterval))
                 {
-                    _gain -= step;
+                    _gain -= _gainStep;
                     _speed -= _gain;
                 }
 

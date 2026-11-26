@@ -63,10 +63,11 @@ public sealed partial class EngineAssetWriter
             .Value("muzzle_across", AlcoonFireballLaunchDefinitions.MuzzleFacingRight.X)
             .Value("muzzle_up", -AlcoonFireballLaunchDefinitions.MuzzleFacingRight.Y)
             .Value("emerge_sound", EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonEmergeSound))
+            // Each spit is heard whether or not the room has a place for its fireball.
+            .Value("fire_sound", EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonFireSound))
             .Shot("fireball", RoomEnemyProjectileKind.AlcoonFireball, static (alcoon, shot, projectile) =>
             {
                 shot["speed"] = EngineNames.Number(AlcoonFireballLaunchDefinitions.LaunchSpeed);
-                shot["sound"] = EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonFireSound);
                 shot["scene"] = "res://game/enemies/alcoon/alcoon_fireball.tscn";
                 projectile["timeline"] = alcoon.SpawnedTimeline("fireball", AlcoonFireballAnimations.Segments,
                     AlcoonFireballAnimations.StartingAt[AlcoonFireballSegment.Spinning], EngineEnemy.EndsOnly);

@@ -46,6 +46,7 @@ public partial class Item : RoomObject, IFinishesAfterMessages
 
     private ItemType? _type;
     private TimelinePlayer? _timeline;
+    private bool _wasCovered;
 
     /// <summary>The item's type.</summary>
     public ItemType Type => _type ?? throw new InvalidOperationException($"The item \"{Name}\" is not in a room.");
@@ -101,7 +102,13 @@ public partial class Item : RoomObject, IFinishesAfterMessages
         if (_stage == Stage.AwaitingMessage)
             return;
         bool covered = IsCovered;
-        _timeline?.Step();
+
+        // Uncovered, it starts its looks again from the first, which shows on that update.
+        if (_timeline is not null && _wasCovered && !covered)
+            _timeline.Play(_timeline.Timeline);
+        else
+            _timeline?.Step();
+        _wasCovered = covered;
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
             visual.SetShown(!covered);

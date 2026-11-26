@@ -4,8 +4,10 @@ using Godot;
 namespace Engine.World;
 
 /// <summary>
-/// The room shaking. It lasts a set number of updates each time it starts, and while it lasts the view is offset back
-/// and forth. It changes nothing in play.
+/// The room shaking. It lasts a set number of updates each time it starts, and while it lasts the room is shown
+/// thrown to one side and the other: two updates to the far side, then two to its own, over and over, by the updates
+/// it has left, so that one started with a length that is two more than a multiple of four shows far, near, near,
+/// far, far. It changes nothing in play but what asks whether the room shakes.
 /// </summary>
 public partial class Earthquake : RoomEffect
 {
@@ -22,6 +24,12 @@ public partial class Earthquake : RoomEffect
 
     /// <summary>How far the view is offset this update.</summary>
     public Vector2I ViewOffset { get; private set; }
+
+    /// <summary>
+    /// Whether the room is shaking: a shake has updates left. The update a shake takes its last, the room is still
+    /// shown thrown, and is shaking no longer; the effect stays active one update more only to show it still again.
+    /// </summary>
+    public bool IsShaking => IsActive && _left.IsRunning;
 
     /// <summary>Whether a shake has been started and has yet to take its first update: it has its whole length left.</summary>
     public bool HasJustBegun => IsActive && _left.Remaining == Updates;
@@ -53,7 +61,9 @@ public partial class Earthquake : RoomEffect
             return;
         }
 
-        int by = _left.Remaining % 2 == 0 ? Strength : -Strength;
+        // The far side is the room shown the other way from its shake's own.
+        const int sides = 4;
+        int by = _left.Remaining % sides >= sides / 2 ? Strength : -Strength;
         ViewOffset = new Vector2I(Way == ShakeWay.Down ? 0 : by, Way == ShakeWay.Across ? 0 : by);
         _left = _left.Stepped();
     }

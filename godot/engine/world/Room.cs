@@ -907,7 +907,7 @@ public partial class Room : Node2D
     }
 
     /// <summary>How hard the room is shaking right now; zero when it is still.</summary>
-    public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.Strength ?? 0;
+    public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsShaking)?.Strength ?? 0;
 
     /// <summary>
     /// Whether the room has just begun to shake as <paramref name="shake"/> says: a shake of that strength, length

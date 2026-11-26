@@ -4,6 +4,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
@@ -20,10 +21,11 @@ namespace Game.Enemies;
 /// "sink_and_show", "submerged", "restore", "surface_and_hide" and "surfaced". The visual named "Pillar" plays
 /// "pillar_1" through "pillar_8". The visual named "Hand" plays "cap", "throw_left" and "throw_right", whose cues are
 /// "throw_sound", "cooldown", "shift:&lt;across&gt;:&lt;down&gt;", "lava" and "thrown". Its shot is "lava". Its one
-/// hurtbox grows to cover the whole of it, head to hand. It glows: every picture's path holds "{glow}", which is
-/// "_glow_0", "_glow_1" and so on as its glow goes round, its pictures being kept once for each step. The list
-/// "grows_at_full_height" says, for each place in a room's list of enemies, whether a pillar listed there grows one
-/// more length on reaching its full height.
+/// hurtbox grows to cover the whole of it, head to hand. It glows: "glow" lists the changes of its colours its glow
+/// goes round through (<see cref="ColourChange"/>), each shown for "glow_updates", and "lava_glow" the same steps for
+/// the lava it has thrown, which shows its thrower's glow while it flies. The list "grows_at_full_height" says, for
+/// each place in a room's list of enemies, whether a pillar listed there grows one more length on reaching its full
+/// height.
 /// </remarks>
 public partial class Magdollite : Enemy
 {
@@ -90,10 +92,6 @@ public partial class Magdollite : Enemy
     [Export, DataValue("glow_updates")]
     public int GlowUpdates { get; set; } = 8;
 
-    /// <summary>How many steps its glow goes round through.</summary>
-    [Export, DataValue("glow_steps")]
-    public int GlowSteps { get; set; } = 4;
-
     /// <summary>The sound of it throwing, by name, heard only while its hand is in view.</summary>
     [Export, DataValue("throw_sound")]
     public string ThrowSound { get; set; } = "";
@@ -142,6 +140,13 @@ public partial class Magdollite : Enemy
     private TimelinePlayer? _pillarPlayer;
     private TimelinePlayer? _handPlayer;
     private bool _growsAtFullHeight;
+    private readonly List<ColourChange> _glow = [];
+    private readonly List<ColourChange> _lavaGlow = [];
+    private readonly List<Projectile> _lava = [];
+    private int _glowShown;
+
+    /// <summary>The name its glow's colours are shown under.</summary>
+    private const string GlowColours = "Glow";
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -151,14 +156,13 @@ public partial class Magdollite : Enemy
         if (ListedAt < 0 || ListedAt >= byPlace.Count)
             throw data.Problem($"says nothing of a pillar listed at {ListedAt}");
         _growsAtFullHeight = byPlace[ListedAt].AsFlag();
+        _glow.Clear();
+        _glow.AddRange(data.List("glow").Select(ColourChange.Read));
+        _lavaGlow.Clear();
+        _lavaGlow.AddRange(data.List("lava_glow").Select(ColourChange.Read));
+        if (_glow.Count == 0 || _lavaGlow.Count != _glow.Count)
+            throw data.Problem($"gives its glow {_glow.Count} steps and its lava's {_lavaGlow.Count}, where both go round through the same steps");
     }
-
-    /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step) => Glowing(step.Picture);
-
-    /// <summary>A picture's path with the step its glow has reached put in: the glow goes round from the moment its room is set up.</summary>
-    private string Glowing(string picture) =>
-        picture.Replace("{glow}", $"_glow_{Math.Max(0, Updates - 1) / GlowUpdates % GlowSteps}", StringComparison.Ordinal);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -171,6 +175,31 @@ public partial class Magdollite : Enemy
         _pillarPlayer = new TimelinePlayer(Timelines.Get("pillar_1"));
         _handPlayer = new TimelinePlayer(Timelines.Get("cap"));
         ShowParts();
+        // Its glow goes round from the moment its room is set up, and shows its first step at once.
+        _lava.Clear();
+        ShowGlow(0);
+    }
+
+    /// <summary>
+    /// Moves its glow on: as the cartridge's glow steps once the enemies have had their update, each step shows from
+    /// the update its time comes, counted from the room's setup.
+    /// </summary>
+    private void StepGlow()
+    {
+        int step = (Updates + 1) / GlowUpdates % _glow.Count;
+        if (step != _glowShown)
+            ShowGlow(step);
+    }
+
+    /// <summary>Shows a step of its glow on all of it and on the lava it has thrown that still flies.</summary>
+    private void ShowGlow(int step)
+    {
+        _glowShown = step;
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+            _glow[step].ShowOn(visual, GlowColours);
+        _lava.RemoveAll(lava => !IsInstanceValid(lava) || lava.HasEnded);
+        foreach (Projectile lava in _lava)
+            _lavaGlow[step].ShowOn(lava, GlowColours);
     }
 
     /// <inheritdoc/>
@@ -239,7 +268,11 @@ public partial class Magdollite : Enemy
         StepPillar();
         StepHand();
         ShowParts();
+        StepGlow();
     }
+
+    /// <summary>While a hurt holds its behaviour off, its glow still goes round.</summary>
+    protected override void WhileHurt() => StepGlow();
 
     /// <summary>The whole number a cue carries after its name.</summary>
     private static int Number(string[] parts, int at) => int.Parse(parts[at], CultureInfo.InvariantCulture);
@@ -365,7 +398,13 @@ public partial class Magdollite : Enemy
                 _handAt = (_throwFrom.X + Number(parts, 1), _throwFrom.Y + Number(parts, 2));
                 break;
             case "lava":
-                Fire("lava", PixelPosition.FromWhole(_handAt.X, _handAt.Y + LavaDrop), new PixelVelocity(_throws.Toward(Shot("lava").Speed), Pixels.Zero));
+                Projectile lava = Fire("lava", PixelPosition.FromWhole(_handAt.X, _handAt.Y + LavaDrop), new PixelVelocity(_throws.Toward(Shot("lava").Speed), Pixels.Zero));
+                // Lava with no place free in the room is not thrown. What is thrown is in its thrower's glow from the
+                // start, and goes round with it while it flies.
+                if (lava.GetParent() != Room)
+                    break;
+                _lavaGlow[_glowShown].ShowOn(lava, GlowColours);
+                _lava.Add(lava);
                 break;
             case "thrown":
                 _hand = HandDoing.Thrown;
@@ -385,7 +424,7 @@ public partial class Magdollite : Enemy
                 _pillarPlayer.Step();
             pillar.SetShown(_partsShown);
             pillar.Position = new Vector2(0, _pillarY.Whole - Position.Y.Whole);
-            pillar.Show(Glowing(_pillarPlayer.Shown.Picture));
+            pillar.Show(_pillarPlayer.Shown.Picture);
         }
 
         if (_handPlayer is not null)
@@ -396,7 +435,7 @@ public partial class Magdollite : Enemy
             {
                 hand.SetShown(_partsShown);
                 hand.Position = new Vector2(_handAt.X - Position.X.Whole, _handAt.Y - Position.Y.Whole);
-                hand.Show(Glowing(_handPlayer.Shown.Picture));
+                hand.Show(_handPlayer.Shown.Picture);
             }
         }
 

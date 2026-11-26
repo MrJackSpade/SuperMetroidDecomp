@@ -8,14 +8,20 @@ namespace Engine.Ui;
 /// <summary>
 /// One thing shown in a cinematic: a picture at a place on the screen that plays a timeline, drifts if it is given a
 /// speed, and is over when a timeline that does not loop has played out. Its cinematic steps it once an update and
-/// acts on the cues it reports.
+/// acts on the cues it reports. Its picture can be shown with some of its colours changed, as any visual's can.
 /// </summary>
 /// <remarks>
 /// It shows nothing until its first step. Each step of its timeline begins on one call and lasts that step's
 /// updates; the cues of a step are reported by the call that begins it. A step with no picture hides it.
 /// </remarks>
-public partial class CinematicSprite : Node2D
+public partial class CinematicSprite : Node2D, IRecoloured
 {
+    /// <inheritdoc/>
+    public void Recolour(string source, IReadOnlyList<ColourSwap> swaps) => _visual?.Recolour(source, swaps);
+
+    /// <inheritdoc/>
+    public bool ShowsPicturesIn(string place) => _visual?.ShowsPicturesIn(place) ?? false;
+
     private FrameTimeline? _timeline;
     private ActorVisual? _visual;
     private int _step = -1;

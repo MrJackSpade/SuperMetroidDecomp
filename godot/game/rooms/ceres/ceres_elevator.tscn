@@ -216,6 +216,7 @@ StartsWhen = SubResource("r4")
 LandingRoom = "res://game/rooms/crateria/landing_site.tscn"
 LandingEntry = "AtZebesArrival"
 Floor = NodePath("../Floor")
+Steam = Array[NodePath]([NodePath("../Steam"), NodePath("../Steam2"), NodePath("../Steam3"), NodePath("../Steam4"), NodePath("../Steam5"), NodePath("../Steam6"), NodePath("../Steam7"), NodePath("../Steam8"), NodePath("../Steam9"), NodePath("../Steam10"), NodePath("../Steam11")])
 PresentWhen = SubResource("r1")
 
 [node name="AtCeresElevator" type="Marker2D" parent="."]

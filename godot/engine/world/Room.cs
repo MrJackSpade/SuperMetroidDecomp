@@ -1155,7 +1155,7 @@ public partial class Room : Node2D
         foreach (RoomObject roomObject in _objects)
         {
             roomObject.ShowPosition();
-            if (ShownTurn is { } turned)
+            if (ShownTurn is { } turned && turned.Turns(roomObject))
                 EntityNode.Show(roomObject, turned.Turned(roomObject.Position));
         }
     }

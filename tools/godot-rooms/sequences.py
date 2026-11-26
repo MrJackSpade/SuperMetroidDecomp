@@ -223,6 +223,10 @@ class Sequences:
                     'StartsWhen': ctx.always(), 'LandingRoom': quoted(landing[0]), 'LandingEntry': quoted(landing[1])})
                 self.placed.append(shaft)
                 self.links.append((shaft, 'Floor', floor))
+                # The steam tilts with Samus; the room's doors do not.
+                steam = [thing for thing in things if thing.name == 'Steam']
+                if steam:
+                    self.links.append((shaft, 'Steam', steam))
             else:
                 self.placed.append(sequence('ceres/CeresArrival.cs', 'Arrival', {
                     'StartsAtEntry': quoted('AtCeresElevator'),

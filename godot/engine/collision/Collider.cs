@@ -34,10 +34,6 @@ public partial class Collider : Node2D
     [Export]
     public bool StandsAsTerrain { get; set; }
 
-    /// <summary>Which part of its owner this is, where the owner tells its parts apart; otherwise empty.</summary>
-    [Export]
-    public string Part { get; set; } = "";
-
     /// <summary>The entity this collider belongs to, once found.</summary>
     private ICollisionOwner? _owner;
 

@@ -8,7 +8,7 @@ namespace Engine.World;
 /// leads to begins. It has no body and no look, and knows nothing of what may stand in front of it.
 /// </summary>
 [Tool]
-public partial class RoomExit : Node2D, IPlaced
+public partial class RoomExit : Node2D
 {
     /// <summary>The region's width and height, in pixels; its top-left is where this node stands.</summary>
     [Export]
@@ -25,10 +25,6 @@ public partial class RoomExit : Node2D, IPlaced
     /// <summary>Where a player arriving by this exit appears, in pixels from this node.</summary>
     [Export]
     public Vector2I ArrivalOffset { get; set; }
-
-    /// <inheritdoc/>
-    [Export]
-    public Condition? PresentWhen { get; set; }
 
     /// <summary>The region of the room the exit covers.</summary>
     public PixelRect Area => Region.Of(this, Size);

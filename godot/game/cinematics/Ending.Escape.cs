@@ -249,7 +249,8 @@ public partial class Ending
         Spawn("side_cloud", "left_side_cloud", -64, 64, Motion.SideCloudFromLeft);
         Spawn("side_cloud", "right_side_cloud", 320, 448, Motion.SideCloudFromRight);
         Spawn("side_cloud", "left_side_cloud", -64, -192, Motion.SideCloudFromLeft);
-        ShowFloorPicture("cloud_floor", AtmosphereCentre);
+        // From the clouds until the planet has gone, the floor repeats beyond its edges.
+        ShowFloorPicture("cloud_floor", AtmosphereCentre, repeats: true);
         SetFloor(0, 0, 64, 32);
     }
 
@@ -260,7 +261,7 @@ public partial class Ending
         Spawn("cloud", "top_cloud_edge", 128, -32, Motion.CloudDown);
         Spawn("cloud", "bottom_cloud_edge", 128, 288, Motion.CloudUp);
         Spawn("cloud", "bottom_cloud_pattern", 128, 352, Motion.CloudUp);
-        ShowFloorPicture("top_and_bottom_cloud_floor", AtmosphereCentre);
+        ShowFloorPicture("top_and_bottom_cloud_floor", AtmosphereCentre, repeats: true);
         SetFloor(0, 0, 64, 32);
     }
 
@@ -271,7 +272,7 @@ public partial class Ending
         Spawn("explosion_lava", "explosion_lava", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_glow", "explosion_glow", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_stars", "stars", 128, 128, Motion.ExplosionLayer, behind: true);
-        ShowFloorPicture("planet_floor", AtmosphereCentre);
+        ShowFloorPicture("planet_floor", AtmosphereCentre, repeats: true);
         SetFloor(0, 0, 64, 0);
         _crossfade = 0;
         ShowPlanetFade();
@@ -314,7 +315,8 @@ public partial class Ending
     private void SetUpPlanetEscape()
     {
         (_backdrop ?? throw NotEntered()).Color = Colors.Black;
-        ShowFloorPicture("gunship_floor", GunshipCentre);
+        // From the gunship's flight away on, nothing is shown beyond the floor's edges.
+        ShowFloorPicture("gunship_floor", GunshipCentre, repeats: false);
         TurningFloor gunship = _floor ?? throw NotEntered();
         gunship.Modulate = Colors.White;
 

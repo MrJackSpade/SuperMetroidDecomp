@@ -173,7 +173,7 @@ public partial class Ending : Cinematic
         _backdrop = new ColorRect { Name = "Backdrop", Color = Colors.Black };
         _backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         _picture.AddChild(_backdrop);
-        _floor = new TurningFloor { Name = "Floor", Repeats = false, Visible = false };
+        _floor = new TurningFloor { Name = "Floor", Visible = false };
         _picture.AddChild(_floor);
         _explosionPicture = new Sprite2D { Name = "Explosion", Centered = false, Visible = false };
         _picture.AddChild(_explosionPicture);
@@ -345,11 +345,15 @@ public partial class Ending : Cinematic
         }
     }
 
-    /// <summary>Shows the floor's picture for a shot, level and at its own size until it is set otherwise.</summary>
-    private void ShowFloorPicture(string name, Vector2 centre)
+    /// <summary>
+    /// Shows the floor's picture for a shot, level and at its own size until it is set otherwise, repeated beyond its
+    /// edges or with nothing beyond them as <paramref name="repeats"/> says.
+    /// </summary>
+    private void ShowFloorPicture(string name, Vector2 centre, bool repeats)
     {
         TurningFloor floor = _floor ?? throw NotEntered();
         floor.Picture = Data().Text(name);
+        floor.Repeats = repeats;
         floor.Setup(Session.Content, new Vector2I(256, 224));
         floor.Visible = true;
         _floorCentre = centre;

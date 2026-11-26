@@ -18,3 +18,7 @@ Role = 0
 [node name="Solid" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 3
+
+[node name="Hurtbox" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1

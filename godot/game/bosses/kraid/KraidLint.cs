@@ -87,8 +87,11 @@ public partial class KraidLint : Enemy
     /// <summary>The colours of Kraid's parts last shown on it.</summary>
     private ColourChange? _colours;
 
-    /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => false;
+    /// <summary>
+    /// A shot lands on it while it is out and has not yet struck Samus, and is a dud there: it is harmed by none, and
+    /// stands between her shots and Kraid. Harmless again, or hidden, it is met by nothing.
+    /// </summary>
+    public override bool IsHitBy(HitSide side) => !_harmless && _shown && base.IsHitBy(side);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()

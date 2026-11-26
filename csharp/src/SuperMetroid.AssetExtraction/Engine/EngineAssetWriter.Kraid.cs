@@ -366,7 +366,7 @@ public sealed partial class EngineAssetWriter
         _tree.WriteData("bosses/kraid_ceiling_rock.json", RockData("KraidRock", KraidRockLaunchDefinitions.CeilingRockGravity, SignedEightEight.Zero, KraidRockLaunchDefinitions.RockDriftRestart));
 
         // The spikes of its belly, which show the colours of its parts.
-        lint.BodyColliders("Body", "Solid")
+        lint.BodyColliders("Body", "Solid", "Hurtbox")
             .Value("emerge_pixels", KraidArenaDefinitions.LintEmergePixels)
             .Value("charge_updates", KraidArenaDefinitions.LintChargeUpdates)
             .Value("fire_speed", EngineNames.Number(-KraidPlatformMovement.FiringDisplacement))

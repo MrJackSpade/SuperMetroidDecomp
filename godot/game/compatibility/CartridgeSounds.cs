@@ -83,6 +83,7 @@ public sealed class CartridgeSounds : ISoundFlow
         DataNode sets = content.ReadData(SetsFile);
         _themes = sets.Get("themes");
         _setAtPowerOn = sets.Text("loaded_at_start");
+        _setNamed = _setAtPowerOn;
         _music = new MusicQueue(_setAtPowerOn);
         foreach ((string sound, DataNode setsWithOne) in content.ReadData(VersionsFile).Entries())
             _versions[sound] = [.. setsWithOne.Items().Select(set => set.AsText())];
@@ -91,11 +92,19 @@ public sealed class CartridgeSounds : ISoundFlow
     }
 
     /// <summary>
-    /// The file of a sound as it is heard now: the cartridge's sound program plays a sound with the instruments of
-    /// the set of music loaded as the sound starts, and some sets redefine an instrument a sound plays.
+    /// The set of music the room being played, or the scene, last named: the power-on set until one does. It is what
+    /// a sound's version is chosen by, and is no part of the queues: it changes as the set is named, not as its
+    /// load takes its turn.
     /// </summary>
-    private string AsLoadedSetPlays(string sound) =>
-        _versions.TryGetValue(sound, out HashSet<string>? sets) && sets.Contains(_music.LoadedSet) ? $"{_music.LoadedSet}/{sound}" : sound;
+    private string _setNamed;
+
+    /// <summary>
+    /// The file of a sound as it is heard where it is asked for: some sounds have another version for a set of
+    /// music, kept in a folder named for the set, and the version heard is that of the set the room or the scene has
+    /// named.
+    /// </summary>
+    private string AsHeardHere(string sound) =>
+        _versions.TryGetValue(sound, out HashSet<string>? sets) && sets.Contains(_setNamed) ? $"{_setNamed}/{sound}" : sound;
 
     /// <summary>
     /// Puts the queues back as at power-on, as the game does when it starts over at its title: every sound and
@@ -108,6 +117,7 @@ public sealed class CartridgeSounds : ISoundFlow
         foreach (SoundLibraryQueue queue in _queues.Values)
             queue.Reset();
         _music.Reset(_setAtPowerOn);
+        _setNamed = _setAtPowerOn;
         _downtime = 0;
         _lastRoomAsked = "";
         SavedGameAppears = false;
@@ -164,7 +174,7 @@ public sealed class CartridgeSounds : ISoundFlow
         string library = LibraryOf(sound);
         bool turnedAway = DoorTurnsSoundsAway || DemoPlaying || PowerBombExploding;
         if (!turnedAway)
-            _started.Add(new AcceptedSound(AsLoadedSetPlays(sound), library));
+            _started.Add(new AcceptedSound(AsHeardHere(sound), library));
         return _queues[library].Admit(sound, priority, turnedAway);
     }
 
@@ -208,6 +218,7 @@ public sealed class CartridgeSounds : ISoundFlow
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(set);
         ThemeOf(set);
+        _setNamed = set;
         _music.AskSet(set);
     }
 
@@ -234,6 +245,8 @@ public sealed class CartridgeSounds : ISoundFlow
         SavedGameAppears = false;
         if (DemoPlaying || room.Version is not { } version)
             return;
+        if (version.MusicSet.Length > 0)
+            _setNamed = version.MusicSet;
         string asked = $"{room.SceneFilePath}#{room.Versions.IndexOf(version)}";
         if (appears)
         {

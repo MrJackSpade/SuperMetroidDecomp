@@ -1139,7 +1139,15 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
   spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
   next update; the speed boost's is at work from the update after she reaches full boost.
-- **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`, `SamusFlare`.
+- **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`, `SamusFlare`, `SamusSuitLight`.
+- **The light that puts a suit on her** (`SamusSuitLight`, her data's "suit_light") is stepped once on each update
+  of collecting a suit (`CollectingSuitState`) and shown as her update ends; on an update it is not stepped it shows
+  nothing. It adds its colour over everything of the room, in rows counted from the top of the screen: after a wait
+  a one-column beam reaches in from the top and the bottom until its halves meet; it widens evenly, then by rounded
+  sides (an oval about its middle line) to the whole screen while its colour whitens; the suit is shown; it closes
+  from the top and, a line less, the bottom while its colour settles to the suit's; and its middle line narrows from
+  both ends, its left edge carried round from the row's last column to its start on the first narrowing, until that
+  edge reaches the column the pickup lets her go at.
 - **The flare at the end of her arm cannon** (`SamusFlare`): while she holds a charge, a glow and two rings of
   sparks, each on a timeline and a count of its own, drawn in front of her from the pictures of the beams she has
   switched on and in her colours. It starts as the charge does, shows from the updates her data gives, moves on by

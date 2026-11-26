@@ -44,7 +44,9 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
 
         // The suit's own sound is asked for as she is put there.
         owner.Room.Session.Sounds.Request(Game.Data.Sounds.SuitAcquired, channel: "samus");
-        _left = Countdown.Of(((Samus)owner).SuitPickupUpdates);
+        var samus = (Samus)owner;
+        _left = Countdown.Of(samus.SuitPickupUpdates);
+        samus.SuitLight?.Begin(samus.SuitBeingPutOn);
     }
 
     /// <inheritdoc/>
@@ -52,6 +54,7 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     {
         var samus = (Samus)owner;
         _left = _left.Stepped();
+        samus.SuitLight?.Step();
         if (samus.SuitPickupUpdates - _left.Remaining == samus.SuitShownOnUpdate)
             samus.ShowSuitPutOn();
         return _left.IsRunning ? null : owner.StateAtRest();

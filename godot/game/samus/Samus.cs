@@ -622,6 +622,8 @@ public partial class Samus : Player
 
         if (data.Has("arm_cannon"))
             GetNodeOrNull<SamusVisual>("Visual")?.ReadArmCannon(data.Get("arm_cannon"));
+        if (data.Has("suit_light"))
+            SuitLight?.ReadValues(data.Get("suit_light"));
 
         SpecialAttackShots = [];
         if (data.Has("special_attacks"))
@@ -1317,6 +1319,9 @@ public partial class Samus : Player
     /// <summary>The suit being put on is seen on her from now, as its light shows it.</summary>
     public void ShowSuitPutOn() => _suitUnseen = "";
 
+    /// <summary>The suit that is hers but not yet seen on her, by its equipment's name; empty when none is.</summary>
+    public string SuitBeingPutOn => _suitUnseen;
+
     /// <summary>Shows the colours of the beams she has switched on, if she owns a beam she did not when this last looked.</summary>
     private void ShowNewBeamColours()
     {
@@ -1463,6 +1468,9 @@ public partial class Samus : Player
 
     /// <summary>Her X-ray scope, when her scene gives her one.</summary>
     public SamusXray? Xray => GetNodeOrNull<SamusXray>("Xray");
+
+    /// <summary>The light that puts a suit on her as she collects it, when her scene gives her one.</summary>
+    public SamusSuitLight? SuitLight => GetNodeOrNull<SamusSuitLight>("SuitLight");
 
     /// <summary>
     /// The wait between her shots counts down whatever she is doing, as the cartridge counts it before it asks what
@@ -2033,6 +2041,7 @@ public partial class Samus : Player
         };
         KeepRunningArm();
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
+        SuitLight?.Show(this);
 
         // Once she is dying the cartridge no longer shows her the usual way, so nothing is looked at after she is shown,
         // and a spin or a boost her death ends asks for no stop.

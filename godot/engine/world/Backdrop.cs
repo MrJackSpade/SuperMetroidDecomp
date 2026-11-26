@@ -40,20 +40,9 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     [Export]
     public Vector2I LiesAt { get; set; }
 
-    /// <summary>The width and height it fills from there, in pixels; zero for as far as the room goes.</summary>
-    [Export]
-    public Vector2I Fills { get; set; }
-
-    /// <summary>How far the picture drifts each update, in pixels, as clouds do: a picture that repeats comes round again.</summary>
-    [Export]
-    public Vector2 Drift { get; set; }
-
     /// <inheritdoc/>
     [Export]
     public Condition? PresentWhen { get; set; }
-
-    /// <summary>How far the picture has drifted.</summary>
-    private Vector2 _drifted;
 
     /// <summary>The loaded picture.</summary>
     private Texture2D? _texture;
@@ -93,16 +82,9 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     /// <summary>Places the layer for a view whose top-left corner is at <paramref name="viewTopLeft"/> in the room.</summary>
     internal virtual void Follow(Vector2I viewTopLeft)
     {
-        _drifted += Drift;
-        if (Repeats && _texture is not null)
-        {
-            Vector2 size = _texture.GetSize();
-            _drifted = new Vector2(Mathf.PosMod(_drifted.X, size.X), Mathf.PosMod(_drifted.Y, size.Y));
-        }
-
         Position = new Vector2(
-            LiesAt.X + Mathf.Floor(_drifted.X) + viewTopLeft.X * (1 - ScrollShare.X),
-            LiesAt.Y + Mathf.Floor(_drifted.Y) + viewTopLeft.Y * (1 - ScrollShare.Y));
+            LiesAt.X + viewTopLeft.X * (1 - ScrollShare.X),
+            LiesAt.Y + viewTopLeft.Y * (1 - ScrollShare.Y));
     }
 
     /// <inheritdoc/>
@@ -128,9 +110,6 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
             return;
         }
 
-        // One that drifts is laid a picture's width and height further back, so its drift uncovers nothing.
-        Vector2 fills = new(Fills.X > 0 ? Fills.X : _roomSize.X, Fills.Y > 0 ? Fills.Y : _roomSize.Y);
-        Vector2 back = new(Drift.X != 0 ? texture.GetSize().X : 0, Drift.Y != 0 ? texture.GetSize().Y : 0);
-        on.DrawTextureRect(texture, new Rect2(-back, fills + back), tile: true);
+        on.DrawTextureRect(texture, new Rect2(Vector2.Zero, _roomSize), tile: true);
     }
 }

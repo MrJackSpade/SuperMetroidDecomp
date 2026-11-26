@@ -719,7 +719,8 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// Sets her aim: the angle actions aim diagonally, and both together straight up on the ground; up aims up, or diagonally up
+    /// Sets her aim: the angle actions aim diagonally, and both together straight up on the ground; crouched, the way she
+    /// faces held (with no new press of up) aims level, for it stands her up; up aims up, or diagonally up
     /// while she steers, except in a crouch, where it does not aim; down aims down in the air, or diagonally down while she steers. On the ground down aims only
     /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
     /// or a fall up and down win over the angle actions, and standing still up does; elsewhere the angle actions win.
@@ -746,6 +747,9 @@ public partial class Samus : Player
         else if (angleUp && angleDown)
             // On the ground both angle actions aim straight up; in the air the angle-up action is tested first.
             Aim = grounded ? Aim.Up : Aim.DiagonalUp;
+        else if (State is CrouchingState && !Input.WasPressed(GameAction.Up) && Input.IsHeld(Facing == Facing.Right ? GameAction.Right : GameAction.Left))
+            // Crouched, the way she faces held stands her up with her arm level, whatever angle or down is held with it.
+            Aim = Aim.Forward;
         else if (up && !steering && State is StandingState or RunningState)
             // Standing, up alone is tested before either angle action.
             Aim = Aim.Up;

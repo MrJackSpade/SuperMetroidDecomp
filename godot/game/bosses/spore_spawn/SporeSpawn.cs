@@ -515,7 +515,7 @@ public partial class SporeSpawn : Enemy
                 continue;
             (int x, int y) = _stalkPlaces[link];
             visual.Position = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
-            visual.Show(_stalk.Current);
+            visual.Show(_stalk.Shown);
         }
 
         for (int emitter = 0; emitter < Emitters; emitter++)
@@ -535,7 +535,7 @@ public partial class SporeSpawn : Enemy
 
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
             // An emitter keeps the colours the fight began in.
-            visual.Show(player.Current);
+            visual.Show(player.Shown);
         }
     }
 }

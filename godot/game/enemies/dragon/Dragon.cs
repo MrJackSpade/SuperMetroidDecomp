@@ -166,6 +166,6 @@ public partial class Dragon : Enemy
         if (_wings is null || GetNodeOrNull<ActorVisual>("Wings") is not { } wings)
             return;
         _wings.Step();
-        wings.Show(_wings.Current);
+        wings.Show(_wings.Shown);
     }
 }

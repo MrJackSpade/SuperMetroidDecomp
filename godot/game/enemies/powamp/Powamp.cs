@@ -345,7 +345,7 @@ public partial class Powamp : Enemy, ILatchable
         if (!_balloonHeights.TryGetValue(_pose, out int height))
             throw new InvalidOperationException($"The Powamp \"{Name}\" has no balloon height for the pose \"{_pose}\".");
         visual.Position = new Vector2(0, height);
-        visual.Show(_balloon.Current);
+        visual.Show(_balloon.Shown);
         if (GetNodeOrNull<Collider>("BalloonHurtbox") is { } hurtbox)
             hurtbox.Rect = new PixelRect(-hurtbox.Size.X / 2, height - hurtbox.Size.Y / 2, hurtbox.Size.X, hurtbox.Size.Y);
     }

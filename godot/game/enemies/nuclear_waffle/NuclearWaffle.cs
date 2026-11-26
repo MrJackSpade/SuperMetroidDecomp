@@ -247,7 +247,7 @@ public partial class NuclearWaffle : Enemy
             if (_linkPlayer is not null && GetNodeOrNull<ActorVisual>($"Link{link * 2 + 1}") is { } visual)
             {
                 visual.Position = new Vector2(at.X.Whole, at.Y.Whole);
-                visual.Show(_linkPlayer.Current);
+                visual.Show(_linkPlayer.Shown);
             }
         }
 
@@ -257,7 +257,7 @@ public partial class NuclearWaffle : Enemy
             if (_trailPlayer is not null && GetNodeOrNull<ActorVisual>($"Link{link * 2 + 2}") is { } visual)
             {
                 visual.Position = new Vector2(at.X.Whole, at.Y.Whole);
-                visual.Show(_trailPlayer.Current);
+                visual.Show(_trailPlayer.Shown);
             }
         }
     }

@@ -385,7 +385,7 @@ public partial class Magdollite : Enemy
                 _pillarPlayer.Step();
             pillar.SetShown(_partsShown);
             pillar.Position = new Vector2(0, _pillarY.Whole - Position.Y.Whole);
-            pillar.Show(Glowing(_pillarPlayer.Current.Picture));
+            pillar.Show(Glowing(_pillarPlayer.Shown.Picture));
         }
 
         if (_handPlayer is not null)
@@ -396,7 +396,7 @@ public partial class Magdollite : Enemy
             {
                 hand.SetShown(_partsShown);
                 hand.Position = new Vector2(_handAt.X - Position.X.Whole, _handAt.Y - Position.Y.Whole);
-                hand.Show(Glowing(_handPlayer.Current.Picture));
+                hand.Show(Glowing(_handPlayer.Shown.Picture));
             }
         }
 

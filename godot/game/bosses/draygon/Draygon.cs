@@ -1022,7 +1022,7 @@ public partial class Draygon : Enemy
         {
             if (GetNodeOrNull<ActorVisual>(part) is not { } visual)
                 continue;
-            TimelineStep step = player.Current;
+            TimelineStep step = player.Shown;
             visual.Show(step with { Picture = Coloured(step.Picture) });
             // Every part of it flashes with its body.
             if (Visual is { } body)

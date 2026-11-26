@@ -209,7 +209,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
             Bob();
         _pad?.Step();
         if (_pad is not null)
-            GetNodeOrNull<ActorVisual>("Pad")?.Show(_pad.Current);
+            GetNodeOrNull<ActorVisual>("Pad")?.Show(_pad.Shown);
 
         switch (_phase)
         {

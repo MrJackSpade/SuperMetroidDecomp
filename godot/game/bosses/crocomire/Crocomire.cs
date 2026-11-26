@@ -648,7 +648,7 @@ public partial class Crocomire : Enemy
             tongue.Position = new Vector2(TongueAcross, 0);
             // Its tongue shows while it fights, and again in the acid once it has begun to melt.
             tongue.SetShown(_dying == Dying.Fighting || (_dying == Dying.InAcid && _acidBody != "whole"));
-            tongue.Show(_tongue.Current);
+            tongue.Show(_tongue.Shown);
         }
     }
 

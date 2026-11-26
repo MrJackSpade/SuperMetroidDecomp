@@ -57,10 +57,10 @@ public partial class CeresArrival : RoomSequence
 
         TimelinePlayer padLook = _pad ?? throw new InvalidOperationException("The arrival has not begun.");
         TimelinePlayer platformLook = _platform ?? throw new InvalidOperationException("The arrival has not begun.");
-        pad.Show(padLook.Current);
-        platform.Show(platformLook.Current);
         padLook.Step();
         platformLook.Step();
+        pad.Show(padLook.Shown);
+        platform.Show(platformLook.Shown);
         // The pad is put under where she stands before she is lowered; the wait's last update is the first that lowers her.
         pad.Position = new Vector2(samus.Position.X.Whole, samus.Position.Y.Whole + PadBelow);
         if (elapsed < WaitUpdates - 1)

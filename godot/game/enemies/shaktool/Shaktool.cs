@@ -383,8 +383,8 @@ public partial class Shaktool : Enemy
             if (_players[part] is { } player && GetNodeOrNull<ActorVisual>($"Part{part + 1}") is { } visual)
             {
                 visual.Position = offset;
-                if (player.Current.Picture.Length > 0)
-                    visual.Show(player.Current);
+                if (player.Shown.Picture.Length > 0)
+                    visual.Show(player.Shown);
             }
 
             var rect = new PixelRect(offset.X - PartHalfSize, offset.Y - PartHalfSize, PartHalfSize * 2, PartHalfSize * 2);

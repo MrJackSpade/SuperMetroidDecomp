@@ -59,7 +59,7 @@ public partial class WorkRobot : Enemy
     [Export, DataValue("laser_slant_speed")]
     public double LaserSlantSpeed { get; set; } = 0.5;
 
-    /// <summary>The sound of its step, by name, heard only while it is in view.</summary>
+    /// <summary>The sound of its step, by name, heard only from where <see cref="FootstepIsHeard"/> says.</summary>
     [Export, DataValue("footstep_sound")]
     public string FootstepSound { get; set; } = "";
 
@@ -102,7 +102,7 @@ public partial class WorkRobot : Enemy
         switch (parts[0])
         {
             case "footstep":
-                if (IsInView(0))
+                if (FootstepIsHeard())
                     Sound(FootstepSound);
                 break;
             case "cool":
@@ -146,6 +146,17 @@ public partial class WorkRobot : Enemy
             body.Left - (camera.Width + 1) - camera.Left < 0 &&
             body.Bottom - camera.Top >= 0 &&
             body.Top - camera.Height < 0;
+    }
+
+    /// <summary>
+    /// Whether its step is heard. The cartridge asks for it only when its place lies past the view's left and top edges
+    /// and no further than a view's width and height beyond them: a pixel to the right of and below the view itself.
+    /// </summary>
+    private bool FootstepIsHeard()
+    {
+        Camera camera = Room.Session.Camera;
+        int x = Position.X.Whole, y = Position.Y.Whole;
+        return x > camera.Left && x <= camera.Left + camera.Width && y > camera.Top && y <= camera.Top + camera.Height;
     }
 
     /// <summary>Counts its cooldown down by one.</summary>

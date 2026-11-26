@@ -213,12 +213,11 @@ public partial class Elevator : RoomObject
     {
         if (!_timelines.Has("rest"))
             return;
-        if (_showing is null)
-            _showing = new TimelinePlayer(_timelines.Get("rest"));
-        else
-            _showing.Step();
+        // Its first update is the first of its first picture's.
+        _showing ??= new TimelinePlayer(_timelines.Get("rest"));
+        _showing.Step();
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_showing.Current);
+            visual.Show(_showing.Shown);
     }
 
     private void Sound(string sound, string channel)

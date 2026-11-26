@@ -106,6 +106,8 @@ public partial class SamusVisual : Node2D
             }
         }
 
+        // Her animation's start is its first picture's first update, as on the cartridge, and is not stepped: so the
+        // step the next update falls in is the one this update shows.
         _shown = _player.Current;
         picture.Show(_shown);
         samus.Colours.ShowOn(picture);

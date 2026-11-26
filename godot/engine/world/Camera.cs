@@ -150,6 +150,9 @@ public sealed class Camera
     /// </summary>
     public void TrackSlowly(PixelPosition now, int step, PixelRect middle, bool frozen)
     {
+        // Where the player was taken to have stood is used up by an update's tracking of either kind: it does not
+        // last into the ordinary tracking that follows a swing.
+        (_trackedXWritten, _trackedYWritten) = (null, null);
         if (now.X.Whole >= 0)
         {
             SetLeft(TowardMiddle(Left, now.X.Whole, middle.Left, middle.Right, step));
@@ -363,7 +366,11 @@ public sealed class Camera
     {
         int boundary = ScreenStart(Whole(across)) + Screen;
         int candidate = from + SpeedAlong(across) + ClosedScreenDrift;
-        if (candidate >= boundary)
+
+        // A view that began above or left of the room and has not drifted back into it goes to the boundary: the
+        // cartridge keeps the view's place as a number that cannot be below nothing, and one counted back from
+        // nothing reads as far past any boundary.
+        if (candidate < 0 || candidate >= boundary)
         {
             SetWhole(across, boundary);
             return;

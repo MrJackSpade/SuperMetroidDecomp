@@ -46,6 +46,7 @@ LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
 Screens = PackedInt32Array(2, 2, 2, 2)
 ScrollLayout = "MotherBrain"
 KeepsMusic = true
+HidesBlocksFromSight = true
 Patches = PackedStringArray("glass_rim_gone")
 
 [sub_resource type="Resource" id="r5"]
@@ -54,6 +55,7 @@ LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
 Screens = PackedInt32Array(2, 2, 2, 2)
 ScrollLayout = "MotherBrain"
 KeepsMusic = true
+HidesBlocksFromSight = true
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")

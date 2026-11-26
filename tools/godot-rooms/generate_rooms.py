@@ -284,6 +284,11 @@ def music_of(state: legacy.State, nearby_set: str) -> dict[str, str]:
     raise ValueError(f'The state {state.name} asks for music this does not know: {state.music}')
 
 
+# The enemies whose fights keep the room's background: while one is in the room the X-ray scope shows none of the
+# room's blocks (the old `AreaBossDefinition.XrayKeepsBackground`, by the definitions that name those bosses).
+SIGHT_HIDING_ENEMIES = {'Kraid', 'Crocomire', 'CrocomireTongue', 'PhantoonBody', 'DraygonBody', 'MotherBrainHead'}
+
+
 def layout_of(room: legacy.Room, state: legacy.State) -> str:
     """
     The layout of a state: its level as drawn with its set of graphics. One level drawn with two sets, a ship with
@@ -768,6 +773,12 @@ class Generator:
         scene = Scene()
         default, conditional = self.choices[key]
 
+        def sight_of(state: legacy.State) -> dict[str, str]:
+            # The scope shows no blocks in a room the old game marks so, nor while one of those bosses is in it.
+            hides = room.properties.get('XrayRevealsNoBlocks') == 'true' or any(
+                placement.enemy in SIGHT_HIDING_ENEMIES for placement in self.populations[state.enemies])
+            return {'HidesBlocksFromSight': 'true'} if hides else {}
+
         versions = []
         base_state = self.states[default]
         for expression, state_name in conditional:
@@ -777,6 +788,7 @@ class Generator:
                 'LayoutFile': quoted(layout_of(room, state)),
                 **self.screens_of(room, state),
                 **music_of(state, self.nearby_music_set(key)),
+                **sight_of(state),
             }
             patches = []
             if state.setup in sequences.ESCAPE_PATCHES:
@@ -797,6 +809,7 @@ class Generator:
             'LayoutFile': quoted(layout_of(room, base)),
             **self.screens_of(room, base),
             **music_of(base, self.nearby_music_set(key)),
+            **sight_of(base),
         }))
         falling, rising = CAMERA_LEADS[legacy.last_name(room.properties.get('CameraLead', 'RoomCameraLeads.Standard'))]
 

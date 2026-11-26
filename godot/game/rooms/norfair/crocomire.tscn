@@ -26,6 +26,7 @@ LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
 Screens = PackedInt32Array(0, 0, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "Crocomire"
 KeepsMusic = true
+HidesBlocksFromSight = true
 Patches = PackedStringArray("bridge_collapsed", "spike_wall_open")
 
 [sub_resource type="Resource" id="r3"]
@@ -35,6 +36,7 @@ Screens = PackedInt32Array(0, 0, 2, 2, 2, 2, 2, 2)
 ScrollLayout = "Crocomire"
 Music = "kraid_and_phantoon_battle"
 MusicSet = "kraid_and_phantoon_battles"
+HidesBlocksFromSight = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

@@ -108,6 +108,12 @@ public partial class Room : Node2D
     /// <summary>The version of the room's settings in use.</summary>
     public RoomVersion? Version { get; private set; }
 
+    /// <summary>
+    /// Whether the room's blocks show to an ability that reveals by sight (<see cref="RoomVersion.HidesBlocksFromSight"/>).
+    /// What reveals asks before it shows anything of the terrain.
+    /// </summary>
+    public bool ShowsBlocksToSight => Version is not { HidesBlocksFromSight: true };
+
     /// <summary>The exit the player has entered, once they have; the mode in control begins the transition.</summary>
     public RoomExit? ExitEntered { get; private set; }
 

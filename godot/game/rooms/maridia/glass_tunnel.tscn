@@ -25,6 +25,7 @@ Screens = PackedInt32Array(1, 1, 1)
 ScrollLayout = "GlassTunnel"
 Music = "red_brinstar"
 MusicSet = "red_brinstar"
+HidesBlocksFromSight = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -33,6 +34,7 @@ Screens = PackedInt32Array(1, 1, 1)
 ScrollLayout = "GlassTunnel"
 Music = "red_brinstar"
 MusicSet = "red_brinstar"
+HidesBlocksFromSight = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

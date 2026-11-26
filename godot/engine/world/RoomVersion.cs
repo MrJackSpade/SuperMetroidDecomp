@@ -55,4 +55,11 @@ public partial class RoomVersion : Resource
     /// <summary>The names of the layout's patches in place in this version.</summary>
     [Export]
     public string[] Patches { get; set; } = [];
+
+    /// <summary>
+    /// Whether this version of the room shows none of its blocks to an ability that reveals by sight: nothing hidden
+    /// is shown for what it is, and no tile shows as it looks seen.
+    /// </summary>
+    [Export]
+    public bool HidesBlocksFromSight { get; set; }
 }

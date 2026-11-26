@@ -68,6 +68,13 @@ public partial class SamusXray : Node2D
         int reach = samus.XrayReach;
         int forward = _facingLeft ? -1 : 1;
         var sweep = new PixelRect(_facingLeft ? eye.X.Whole - reach : eye.X.Whole, eye.Y.Whole - reach, reach, reach * 2);
+        // In some rooms the scope shows nothing of the room's blocks: the cone still opens, and that is all.
+        if (!samus.Room.ShowsBlocksToSight)
+        {
+            QueueRedraw();
+            return;
+        }
+
         Terrain terrain = samus.Room.Terrain;
         foreach (Block block in terrain.BlocksIn(sweep))
         {

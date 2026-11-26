@@ -31,6 +31,7 @@ Screens = PackedInt32Array(1, 1, 2, 2)
 ScrollLayout = "Draygon"
 Music = "ridley_and_draygon_battle"
 MusicSet = "ridley_and_draygon_battles"
+HidesBlocksFromSight = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

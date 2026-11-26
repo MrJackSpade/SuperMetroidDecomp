@@ -22,6 +22,7 @@ Screens = PackedInt32Array(2, 0)
 ScrollLayout = "Statues"
 Music = "tourian_statues"
 MusicSet = "lower_crateria"
+HidesBlocksFromSight = true
 
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("5")

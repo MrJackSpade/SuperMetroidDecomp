@@ -70,8 +70,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/bull.json` | `Bull` | acceleration_step, contact_damage, health, kick_acceleration, kick_guard_updates, kick_speed, off_target_turn, wait_updates |
 | `enemies/cacatac.json` | `Cacatac` | attack_chances, contact_damage, diagonal_spike_speed, health, spike_speed |
 | `enemies/choot.json` | `Choot` | ascent_step, contact_damage, health, reach, speed_curve |
-| `enemies/chozo_statue_lower_norfair.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_patches, shut_patch, way_patch |
-| `enemies/chozo_statue_wrecked_ship.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_patches, shut_patch, way_patch |
+| `enemies/chozo_statue_lower_norfair.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_crumble, plug_patches, shut_patch, way_patch |
+| `enemies/chozo_statue_wrecked_ship.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_crumble, plug_patches, shut_patch, way_patch |
 | `enemies/corpse_ripper_level.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_ripper_tilted.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_skree.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
@@ -108,7 +108,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/ki_hunter_red.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
 | `enemies/ki_hunter_yellow.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
 | `enemies/kzan.json` | `Kzan` | contact_damage, fall_quickening, fastest_fall, health, landing_sound, rise_speed, rise_wait |
-| `enemies/magdollite.json` | `Magdollite` | attack_cooldown, attack_poll_updates, contact_damage, glow_steps, glow_updates, health, hidden_depth, lava_drop, maximum_rise, most_lengths, pillar_length, reach_past_hand, smallest_reach, sunk_depth, surfaced_depth, throw_sound |
+| `enemies/magdollite.json` | `Magdollite` | attack_cooldown, attack_poll_updates, contact_damage, glow_updates, health, hidden_depth, lava_drop, maximum_rise, most_lengths, pillar_length, reach_past_hand, smallest_reach, sunk_depth, surfaced_depth, throw_sound |
 | `enemies/mama_turtle.json` | `MamaTurtle` | awake_half_height, contact_damage, fall_quickening, fastest_fall, fastest_hover, health, hover_quickening, peak_pause, ridden_climb_speed, ridden_peak, rise_updates, wall_shake_strength, wall_shake_updates, wall_sound |
 | `enemies/maridia_fly.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
 | `enemies/mella.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |

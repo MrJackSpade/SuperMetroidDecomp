@@ -1,7 +1,10 @@
 using System.Globalization;
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -19,8 +22,85 @@ namespace Game.Enemies;
 /// "reset_spin" and "start_dive", which ready a somersault and a dive; and "claw:&lt;left|right&gt;:&lt;across&gt;:
 /// &lt;down&gt;", which throws a claw from that far off its middle. Its shot is "claw".
 /// </remarks>
-public partial class NinjaPirate : SpacePirate
+public partial class NinjaPirate : SpacePirate, ITurnsShots
 {
+    /// <summary>How many updates it cannot be hit after it has turned a shot away.</summary>
+    [Export, DataValue("reflect_unhittable_updates")]
+    public int ReflectUnhittableUpdates { get; set; } = 10;
+
+    /// <summary>The sound of a shot it turns away.</summary>
+    [Export, DataValue("reflect_sound")]
+    public string ReflectSound { get; set; } = "";
+
+    /// <summary>What a box of the gold one's picture does with a beam or a missile.</summary>
+    private enum Box
+    {
+        /// <summary>What its data's reactions say.</summary>
+        Plain,
+
+        /// <summary>What its data's reactions say where the shot would harm it; a shot that would not is turned away.</summary>
+        Vulnerable,
+
+        /// <summary>Every shot is turned away.</summary>
+        Armour,
+    }
+
+    /// <summary>
+    /// What each box of the gold one does with a shot, by its pose and the hurtbox struck. Only the gold one's data
+    /// says ("shots" in a pose): the silver one's boxes all answer as its reactions say.
+    /// </summary>
+    private readonly Dictionary<(string Pose, string Part), Box> _boxes = [];
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _boxes.Clear();
+        foreach ((string name, DataNode pose) in data.Get("poses").Entries())
+        {
+            if (!pose.Has("shots"))
+                continue;
+            foreach ((string part, DataNode answer) in pose.Get("shots").Entries())
+            {
+                _boxes[(name, part)] = answer.AsText() switch
+                {
+                    "plain" => Box.Plain,
+                    "vulnerable" => Box.Vulnerable,
+                    "armour" => Box.Armour,
+                    string other => throw answer.Problem($"is \"{other}\", which is not \"plain\", \"vulnerable\" or \"armour\""),
+                };
+            }
+        }
+    }
+
+    /// <summary>
+    /// The gold one answers a hit by the box of its picture it lands on. A bomb's blast does nothing to it on any.
+    /// A beam, missile or super missile on its armour is turned away, and so is one on a vulnerable box that would do
+    /// it no harm; it then cannot be hit for a few updates. Anything else is answered as its reactions say.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        ArgumentNullException.ThrowIfNull(hit);
+        ArgumentNullException.ThrowIfNull(part);
+        if (IsDead || !_boxes.TryGetValue((Pose, part.Name.ToString()), out Box box))
+            return base.TakeHit(hit, part);
+        if (hit.Carries(new HitKind(HitKinds.Bomb)))
+            return HitResult.Ignored;
+        bool shot = hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]);
+        if (!shot || box == Box.Plain || (box == Box.Vulnerable && ReactionTo(hit, part).DamageFrom(hit.Damage) > 0))
+            return base.TakeHit(hit, part);
+        BeUnhittableFor(ReflectUnhittableUpdates);
+        Sound(ReflectSound);
+        return HitResult.TurnedBack;
+    }
+
+    /// <summary>A shot fired level goes up and away from the way it came; any other goes straight down.</summary>
+    public (int Across, int Down) TurnedWay(Hit hit)
+    {
+        ArgumentNullException.ThrowIfNull(hit);
+        return hit.Direction.Y.IsZero && !hit.Direction.X.IsZero ? (hit.Direction.X.IsNegative ? 1 : -1, -1) : (0, 1);
+    }
+
     /// <summary>Whether the post it starts at is the left one.</summary>
     [Export]
     public bool StartsAtLeftPost { get; set; }

@@ -17,6 +17,9 @@ public abstract partial class SpacePirate : Enemy
 {
     private ColliderPoses? _poses;
 
+    /// <summary>The pose it is in, by name; empty before its first.</summary>
+    protected string Pose => _poses?.Current ?? "";
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {

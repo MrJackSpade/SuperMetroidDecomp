@@ -101,6 +101,14 @@ public partial class SpecialAttack : Projectile
         }
     }
 
+    /// <summary>
+    /// What turns it away leaves it as it was: it is no shot of a weapon to be launched anew. The cartridge makes it
+    /// an ordinary beam shot flying the turned way, which is not carried (#3375).
+    /// </summary>
+    protected override void OnTurned(Player player, int across, int down)
+    {
+    }
+
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {

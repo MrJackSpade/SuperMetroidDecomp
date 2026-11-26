@@ -335,7 +335,6 @@ charged.
   - any status it puts the thing in (frozen, for one), and when: always, only in place of dying, or never;
   - whether the thing is briefly unhittable afterwards, and for how long: after taking the damage, and after
     being put in the status;
-  - whether the projectile that delivered it is turned back;
   - whether the hit passes: it takes no notice of the thing, nothing is done to it, and what delivered the hit
     goes on unspent (`Reaction.Passes`, "passes" in data). Doing no damage is not that: such a hit is a dud or
     is absorbed, and is spent. This game's extractor writes a passing reaction for whatever the cartridge's
@@ -343,6 +342,13 @@ charged.
 - What is hit may say, for a hit, that what delivered it and would pass through stops on it (`IHittable.Stops`):
   a shot that goes on through what it hurts ends there as a shot that does not. This game's Ridley, Mother Brain
   and baby say so of a beam's hit, which is why a plasma beam does not pass them; a blast's hit still sweeps on.
+- What is hit may turn the shot another way (`HitResult.TurnedBack`). It then says which way (`ITurnsShots`), and
+  the player whose shot it is launches it anew that way from where it is (`Weapons.LaunchAnew`): at the speed the
+  weapon gives a shot fired that way, in the picture and size of one, still the player's. A projectile of its
+  own class that is no weapon's shot says itself what becomes of it (`Projectile.OnTurned`). No reaction in data
+  turns a shot; what does decides it in its own class. This game's gold ninja pirate does, by the box of its
+  picture the shot lands on (its poses name each box "plain", "vulnerable" or "armour"): a beam or missile that
+  would do it no harm, and any on its armour, goes up and away when it was fired level and straight down otherwise.
 - So a simple enemy needs one or two reactions ("beam: none", "plasma: all") and an awkward one lists the exact
   combination it treats specially. Nothing is computed from the parts.
 - Barriers and blocks use the same hits: each lists the kinds it accepts and the amount each takes off.

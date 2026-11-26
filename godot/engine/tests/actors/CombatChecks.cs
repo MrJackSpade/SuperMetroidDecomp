@@ -25,8 +25,7 @@ public sealed class CombatChecks
           "reactions": [
             { "kinds": ["beam"], "damage": "half" },
             { "kinds": ["beam", "plasma"], "damage": "double", "unhittable_updates": 5 },
-            { "kinds": ["ice"], "damage": "full", "status": "frozen", "status_when": "instead_of_dying", "status_updates": 50 },
-            { "kinds": ["mirror"], "turns_back": true }
+            { "kinds": ["ice"], "damage": "full", "status": "frozen", "status_when": "instead_of_dying", "status_updates": 50 }
           ]
         }
         """;
@@ -249,19 +248,6 @@ public sealed class CombatChecks
             new ProjectileSettings { MeetingTerrain = ProjectileSettings.Terrain.EndsAndHits }, world.Player));
         world.Step(30);
         Expect.True(world.Room.Terrain.Blocks[0].Broken);
-    }
-
-    [Check]
-    public void AnEnemyThatTurnsAHitBackSendsTheShotBackAtThePlayer()
-    {
-        using var world = WorldWithEnemy(out StandInEnemy enemy);
-        var shot = Projectile.Of(new Hit(30, HitSide.Player, new HitKind("mirror")), PixelPosition.FromWhole(100, 72),
-            new PixelVelocity(Pixels.FromWhole(2), Pixels.Zero), new ProjectileSettings { ViewMargin = -1 }, world.Player);
-        world.Room.Spawn(shot);
-        world.Step(12);
-        Expect.Equal(100, enemy.Health.Current);
-        Expect.True(shot.Velocity.X.IsNegative);
-        Expect.Equal(HitSide.Enemies, shot.Side);
     }
 
     [Check]

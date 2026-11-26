@@ -506,6 +506,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// </summary>
     protected void BeHurtFor(int updates) => (_flash, _hurt) = (Countdown.Of(updates), true);
 
+    /// <summary>Makes it one no hit can land on for <paramref name="updates"/> updates, as after a hit whose reaction says so.</summary>
+    protected void BeUnhittableFor(int updates) => _unhittable = Countdown.Of(updates);
+
     /// <summary>Ends its hurt and its flash at once: its behaviour is held off no longer, from the turn this is called on.</summary>
     protected void EndHurt() => (_flash, _hurt) = (Countdown.Over, false);
 
@@ -521,8 +524,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return HitResult.Ignored;
         if (_unhittable.IsRunning)
             return HitResult.Absorbed;
-        if (reaction.TurnsBack)
-            return HitResult.TurnedBack;
 
         int damage = reaction.DamageFrom(hit.Damage);
         Health health = HealthOf(part);

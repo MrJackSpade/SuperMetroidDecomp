@@ -44,9 +44,10 @@ internal sealed partial class EngineEnemy
     /// Makes the enemy one that is met through the boxes of the picture it shows, as the old game's frame hitboxes
     /// are: every step of the timelines it has so far takes the pose of its picture, and each pose puts the scene's
     /// hurtboxes "Part1", "Part2" and so on where the old frame has its boxes. A picture whose frame the old game
-    /// gives no boxes is a pose with none.
+    /// gives no boxes is a pose with none. Where <paramref name="shot"/> is given, each pose says under "shots" what
+    /// it names each box's reaction to a shot.
     /// </summary>
-    internal EngineEnemy PosedByFrame(EnemyFrameCollision<EnemyCollisionHitbox> frames)
+    internal EngineEnemy PosedByFrame(EnemyFrameCollision<EnemyCollisionHitbox> frames, Func<EnemyReaction, string>? shot = null)
     {
         var shown = new HashSet<string>(StringComparer.Ordinal);
         foreach ((string _, JsonNode? timeline) in _timelines)
@@ -63,10 +64,19 @@ internal sealed partial class EngineEnemy
         {
             if (frame == EnemyFrameId.PointAtOrigin || !shown.Remove(PoseName(frame)))
                 continue;
-            var colliders = new JsonObject();
+            JsonObject colliders = [], shots = [];
             foreach (EnemyCollisionHitbox box in boxes)
-                colliders[$"Part{colliders.Count + 1}"] = Rect(box);
-            poses[PoseName(frame)] = new JsonObject { ["colliders"] = colliders };
+            {
+                string part = $"Part{colliders.Count + 1}";
+                colliders[part] = Rect(box);
+                if (shot is not null)
+                    shots[part] = shot(box.Shot);
+            }
+
+            var pose = new JsonObject { ["colliders"] = colliders };
+            if (shot is not null)
+                pose["shots"] = shots;
+            poses[PoseName(frame)] = pose;
         }
 
         foreach (string bare in shown)

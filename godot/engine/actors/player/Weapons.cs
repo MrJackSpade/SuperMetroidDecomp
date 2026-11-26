@@ -313,10 +313,7 @@ public sealed class Weapons
             return false;
 
         (int across, int down) = player.AimDirection;
-        Pixels alongAxis = across != 0 && down != 0 ? weapon.DiagonalSpeed : weapon.Speed;
-        var velocity = new PixelVelocity(alongAxis * across, alongAxis * down);
-        if (weapon.InheritsSpeed)
-            velocity = player.ShotVelocity(weapon, velocity, across, down);
+        PixelVelocity velocity = VelocityOf(player, weapon, across, down);
         Hit hit = weapon.HitFor(player.Inventory, charged) with { Direction = velocity.OverOneUpdate, Source = player };
 
         var launched = new List<Projectile>();
@@ -343,7 +340,35 @@ public sealed class Weapons
         return true;
     }
 
-    /// <summary>Makes a weapon's projectile: one of its scene, or a plain one.</summary>
+    /// <summary>The speed a weapon gives a shot the player fires the way <paramref name="across"/> and <paramref name="down"/> say.</summary>
+    private static PixelVelocity VelocityOf(Player player, WeaponStats weapon, int across, int down)
+    {
+        Pixels alongAxis = across != 0 && down != 0 ? weapon.DiagonalSpeed : weapon.Speed;
+        var velocity = new PixelVelocity(alongAxis * across, alongAxis * down);
+        return weapon.InheritsSpeed ? player.ShotVelocity(weapon, velocity, across, down) : velocity;
+    }
+
+    /// <summary>
+    /// Launches one of the player's live shots anew from where it is, the way <paramref name="across"/> and
+    /// <paramref name="down"/> say, at the speed its weapon gives a shot fired that way: for a shot that what it hit
+    /// turned another way (<see cref="ITurnsShots"/>). It stays the player's, in the place it holds.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The shot is not a live one of the player's weapons.</exception>
+    public void LaunchAnew(Player player, Projectile shot, int across, int down)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        ArgumentNullException.ThrowIfNull(shot);
+        foreach ((string weapon, List<Projectile> live) in _live)
+        {
+            if (!live.Contains(shot))
+                continue;
+            shot.LaunchAnew(VelocityOf(player, Named(weapon), across, down));
+            return;
+        }
+
+        throw new InvalidOperationException($"The shot \"{shot.Name}\" is to be launched anew and is not a live shot of the player's weapons.");
+    }
+
     /// <summary>
     /// Launches one projectile of a weapon by hand, with its own place, speed and settings, counted among that
     /// weapon's live ones. For a player whose weapon can be let loose some way firing does not cover.

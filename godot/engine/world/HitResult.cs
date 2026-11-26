@@ -21,6 +21,9 @@ public enum HitResult
     /// <summary>The target took damage and was destroyed.</summary>
     Destroyed,
 
-    /// <summary>The target turned the hit's projectile back.</summary>
+    /// <summary>
+    /// The target turned the hit's projectile another way (<see cref="ITurnsShots"/>): it took nothing, and the
+    /// projectile flies on, still its launcher's.
+    /// </summary>
     TurnedBack,
 }

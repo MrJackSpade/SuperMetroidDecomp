@@ -153,7 +153,10 @@ public sealed partial class EngineAssetWriter
                     ninja.Value("landing_dust_effect", ninja.SpawnedEffect("landing_dust", RoomEffectActorKind.RisingDustPuff));
                 })
                 .ProjectileData("enemies/pirate_claw.json", "PirateClaw")
-                .PosedByFrame(SpacePirateCollisionDefinitions.Frames)
+                // The gold one answers a shot by the box it lands on; every other pirate's boxes answer alike.
+                .PosedByFrame(SpacePirateCollisionDefinitions.Frames, colour == "Gold" ? GoldNinjaBox : null)
+                .Value("reflect_unhittable_updates", SpacePirateCollisionDefinitions.ReflectInvincibility)
+                .Value("reflect_sound", EngineNames.Sound(EnemySoundEffectDefinitions.WalkingPirateReflectSound))
                 .Write();
         }
     }
@@ -162,6 +165,13 @@ public sealed partial class EngineAssetWriter
     /// What a Space Pirate's laser is: it gathers at the muzzle for as long as the old one's animation takes to fire
     /// it, then flies level through everything until it is out of view, and it hurts as much as the Pirate itself.
     /// </summary>
+    /// <summary>What the gold ninja's box of a reaction does with a shot, as the Godot ninja names it.</summary>
+    private static string GoldNinjaBox(EnemyReaction reaction) =>
+        SpacePirateReactions.InvincibleArmour.Contains(reaction) ? "armour"
+        : reaction == SpacePirateReactions.GoldNinjaVulnerableHitboxShot ? "vulnerable"
+        : SpacePirateReactions.GoldNinjaOrdinary.Contains(reaction) ? "plain"
+        : throw new InvalidDataException($"A box of the gold ninja pirate meets a shot with {reaction}, which this does not know.");
+
     private static void PirateLaser(EngineEnemy pirate, JsonObject shot, JsonObject projectile)
     {
         shot["damage"] = pirate.Definition.Damage;

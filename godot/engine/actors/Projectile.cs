@@ -70,6 +70,23 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         (_width, _height) = (settings.Width, settings.Height);
     }
 
+    /// <summary>
+    /// Sends the projectile off anew at <paramref name="velocity"/> from where it is: its hit travels that way, and
+    /// it is of the size, in the picture or timeline and at the start of the weave that its settings give one
+    /// launched that way. Whose it is, what it delivers and how it otherwise behaves stay.
+    /// </summary>
+    internal void LaunchAnew(PixelVelocity velocity)
+    {
+        Launch(Hit with { Direction = velocity.OverOneUpdate }, Position, velocity, _settings, _launcher);
+        _waveOffset = Pixels.Zero;
+        if (_hurtbox is not null)
+            _hurtbox.Rect = new PixelRect(-_width / 2, -_height / 2, _width, _height);
+        if (_settings.Timeline.Length > 0)
+            PlayTimeline(_settings.Timeline);
+        else if (_settings.Picture.Length > 0)
+            _visual?.Show(Named(_settings.Picture));
+    }
+
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 
@@ -803,11 +820,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                 case HitResult.Ignored:
                     break;
                 case HitResult.TurnedBack:
-                    // Turned back, it flies the other way and is now the other side's.
-                    Velocity = -Velocity;
-                    (_launchedAcross, _launchedDown) = (-_launchedAcross, -_launchedDown);
-                    _hit = Hit with { Side = Side == HitSide.Player ? HitSide.Enemies : HitSide.Player, Direction = -Hit.Direction };
-                    _launcher = target as ICollisionOwner;
+                    // Its target sends it another way, and the player whose shot it is launches it anew that way:
+                    // it is still theirs, and meets nothing more this update.
+                    if (target is not ITurnsShots turner || _launcher is not Player player)
+                        throw new InvalidOperationException($"\"{(target as Node)?.Name}\" turned back a hit of \"{Name}\", and either does not say which way or the shot is no player's.");
+                    (int across, int down) = turner.TurnedWay(Hit);
+                    OnTurned(player, across, down);
                     return false;
                 case HitResult.Absorbed:
                     if (spends)
@@ -919,6 +937,17 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <summary>Called as the projectile is stopped by terrain or a solid, before it ends.</summary>
     protected virtual void OnMetTerrain(Room room)
     {
+    }
+
+    /// <summary>
+    /// Called when what its hit landed on turned it another way (<see cref="ITurnsShots"/>): -1, 0 or 1 across and
+    /// down. A shot of the player's weapons is launched anew that way by them; a projectile of its own class that is
+    /// no weapon's shot says here what becomes of it.
+    /// </summary>
+    protected virtual void OnTurned(Player player, int across, int down)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        player.Weapons.LaunchAnew(player, this, across, down);
     }
 
     /// <summary>Called for each target the projectile's hit landed on, with what the hit did.</summary>

@@ -267,9 +267,14 @@ public partial class ChozoStatue : Enemy
         if (x < 0 || y < 0 || !Room.Terrain.HasPatch(plug))
             return;
         Room.Terrain.ApplyPatch(plug);
-        PixelOffset thrown = Random.Scatter(_footstepScatter.Width, _footstepScatter.Height, _footstepScatter.MiddleX, _footstepScatter.MiddleY);
-        if (FootstepEffect.Length > 0)
-            LeaveEffect(FootstepEffect, PixelPosition.FromWhole(x, y) + thrown);
+
+        // The dust is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays, and
+        // with none free it is not made and draws no number for where it is thrown.
+        if (FootstepEffect.Length == 0)
+            return;
+        Effect dust = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(FootstepEffect)), PixelPosition.FromWhole(x, y), holdsPlace: true);
+        if (Room.Spawn(dust))
+            dust.Position += Random.Scatter(_footstepScatter.Width, _footstepScatter.Height, _footstepScatter.MiddleX, _footstepScatter.MiddleY);
     }
 
     private void LetGo(Player samus)

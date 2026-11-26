@@ -350,8 +350,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 PlaceAbout(samus);
                 if (++_rumble == 64)
                 {
+                    // Each cloud is one of the enemies' shots on the cartridge: it holds one of the room's places while
+                    // it plays, and is not made with none free.
                     for (int cloud = 0; cloud < DustAcross.Length; cloud++)
-                        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(_dustEffects[cloud])), samus.Position + PixelOffset.FromWhole(DustAcross[cloud], 80)));
+                        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(_dustEffects[cloud])), samus.Position + PixelOffset.FromWhole(DustAcross[cloud], 80), holdsPlace: true));
                 }
 
                 if (_rumble >= 128)

@@ -612,9 +612,10 @@ public partial class MotherBrain : ITriggerTarget
             piece.Sprite.Position += piece.Speed.OverOneUpdate;
             if (--piece.Left > 0)
                 continue;
-            Leave(DustEffect, piece.Sprite.Position - PixelOffset.FromWhole(0, 4));
+            // The piece is gone before its dust is left, which may so take the place it held.
             Room.Remove(piece.Sprite);
             _flyingFragments.Remove(piece);
+            Leave(DustEffect, piece.Sprite.Position - PixelOffset.FromWhole(0, 4));
         }
     }
 }

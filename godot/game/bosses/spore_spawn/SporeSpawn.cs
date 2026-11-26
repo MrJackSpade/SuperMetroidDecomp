@@ -395,7 +395,9 @@ public partial class SporeSpawn : Enemy
 
                 break;
             case "hardening_dust":
-                Scatter(DustEffect, 7, 7, 64, 64);
+                // Its dust is one of the enemies' shots on the cartridge, which holds one of the room's places; its
+                // explosions are not.
+                Scatter(DustEffect, 7, 7, 64, 64, holdsPlace: true);
                 Sound(HardeningSound);
                 break;
             case "dying_explosion":
@@ -506,12 +508,17 @@ public partial class SporeSpawn : Enemy
         ShowParts();
     }
 
-    /// <summary>Leaves an effect at a random place about itself: a fresh number gives how far across and down, within the given bit widths, less the centring.</summary>
-    private void Scatter(string effect, int acrossBits, int downBits, int centreAcross, int centreDown)
+    /// <summary>
+    /// Leaves an effect at a random place about itself: a fresh number gives how far across and down, within the given
+    /// bit widths, less the centring. One that holds a place is not made when the room has none free.
+    /// </summary>
+    private void Scatter(string effect, int acrossBits, int downBits, int centreAcross, int centreDown, bool holdsPlace = false)
     {
         RandomDraw draw = Random.Draw();
-        if (effect.Length > 0)
-            LeaveEffect(effect, PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + PixelOffset.FromWhole(draw.Part(0, acrossBits) - centreAcross, draw.Part(8, downBits) - centreDown));
+        if (effect.Length == 0)
+            return;
+        PixelPosition at = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + PixelOffset.FromWhole(draw.Part(0, acrossBits) - centreAcross, draw.Part(8, downBits) - centreDown);
+        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace));
     }
 
     /// <summary>Counts each emitter's wait down, and opens any whose wait has run out.</summary>

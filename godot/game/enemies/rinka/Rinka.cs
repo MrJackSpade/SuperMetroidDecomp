@@ -57,8 +57,10 @@ public partial class Rinka : Enemy
     {
         if (IsDead)
             return;
+        // The puff is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays, and
+        // is not made with none free.
         if (!_hidden && PuffEffect.Length > 0)
-            LeaveEffect(PuffEffect, Position);
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(PuffEffect)), Position, holdsPlace: true));
         Vanish();
     }
 

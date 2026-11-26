@@ -459,9 +459,11 @@ public partial class Kraid : Enemy
 
         // A shot at its arm or its body does no harm and leaves its explosion; one at its body also makes its eye glow
         // and its mouth open, and a charged one, three times over.
+        // The explosion is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays,
+        // and is not made with none free.
         string dud = hit.CarriesAny([new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.PowerBomb)]) ? BigDudEffect : DudEffect;
         if (dud.Length > 0 && hit.At is { } shotAt)
-            LeaveEffect(dud, shotAt);
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(dud)), shotAt, holdsPlace: true));
         Sound(DudSound);
         if (IsArmShield(part) || _stage != Stage.Fighting || _fight != Fight.FirstThinking)
             return;

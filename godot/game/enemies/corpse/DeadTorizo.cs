@@ -131,11 +131,14 @@ public partial class DeadTorizo : Enemy
         _crumble.StartNow();
     }
 
-    /// <summary>Leaves the puff of dust of a row reaching the ground.</summary>
+    /// <summary>
+    /// Leaves the puff of dust of a row reaching the ground: one of the enemies' shots on the cartridge, which holds one
+    /// of the room's places while it plays and is not made with none free.
+    /// </summary>
     private void LeaveDust()
     {
         if (DustEffect.Length > 0)
-            LeaveEffect(DustEffect, PixelPosition.FromWhole(DustPlace.X + Random.Last.Part(0, 5), DustPlace.Y));
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(DustEffect)), PixelPosition.FromWhole(DustPlace.X + Random.Last.Part(0, 5), DustPlace.Y), holdsPlace: true));
         if (Room.Session.EnemyPasses % 8 == 0)
             Sound(DustSound);
     }

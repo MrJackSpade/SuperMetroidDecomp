@@ -698,8 +698,10 @@ public partial class Botwoon : Enemy
     /// <summary>Leaves an explosion, with its sound.</summary>
     private void Explode(PixelPosition at)
     {
+        // The explosion is one of the enemies' shots on the cartridge: it holds one of the room's places while it plays,
+        // and is not made with none free.
         if (ExplosionEffect.Length > 0)
-            LeaveEffect(ExplosionEffect, PixelPosition.FromWhole(at.X.Whole, at.Y.Whole));
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(ExplosionEffect)), PixelPosition.FromWhole(at.X.Whole, at.Y.Whole), holdsPlace: true));
         Sound(ExplosionSound);
     }
 

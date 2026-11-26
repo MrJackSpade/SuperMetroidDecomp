@@ -321,14 +321,17 @@ public partial class MotherBrain
 
             if (tube.Drop.Main)
                 LandBrain();
+
+            // It is gone before what it ends in is left, which may so take the place a pipe from the top held.
+            Room.Remove(tube.Sprite);
+            _fallingTubes.Remove(tube);
+
             // A pipe from the top ends in smoke, quietly; the others burst.
             Leave(tube.Drop.Top ? SmokeEffect : ExplosionEffect, tube.Sprite.Position);
             if (!tube.Drop.Top)
                 Sound(ExplosionSound);
             if (ReferenceEquals(tube, _inFirstPlace))
                 (_inFirstPlace, PartOfAPixelLeftInFirstPlace) = (null, tube.Sprite.Position.Y.Fraction);
-            Room.Remove(tube.Sprite);
-            _fallingTubes.Remove(tube);
         }
     }
 

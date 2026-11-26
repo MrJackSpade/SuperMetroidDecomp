@@ -18,7 +18,7 @@ namespace Engine.Actors;
 /// The player's place is the middle of their body. Their body is as wide as <see cref="HalfWidth"/> to each side, and
 /// as tall as the half-height of the form it is in above and below.
 /// </remarks>
-public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
+public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 {
     /// <summary>The name of the upright form.</summary>
     public const string Standing = "standing";
@@ -291,7 +291,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private GameInput _input = GameInput.None;
     private Countdown _invincible = Countdown.Over;
     private PlayerMedium? _medium;
-    private int _ongoingHundredths;
     private int _addedOngoing;
     private bool _valuesLoaded;
     private ISpeedReadings? _readings;
@@ -960,17 +959,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates, once they have next moved.</summary>
     public void KnockBack(Facing from, int updates) => Interrupt(new KnockedBackState(from.Opposite(), updates));
 
-    /// <summary>
-    /// The state a runner is in once a wall has stopped them: standing, unless the game has a state of its own for it.
-    /// </summary>
-    protected internal virtual PlayerState StoppedByWall() => new StandingState();
+    /// <summary>The state a runner is in once a wall has stopped them, which the game names.</summary>
+    protected internal abstract PlayerState StoppedByWall();
 
     /// <summary>
-    /// Whether the player moved through the latest update as one who has run into a wall: running, for the engine's
-    /// player, whom the wall stopped on that update; a game with a state of its own for it says when that state
-    /// moved. What is used by being run against asks this.
+    /// Whether the player moved through the latest update as one who has run into a wall: the game says, by the state
+    /// it has for it. What is used by being run against asks this.
     /// </summary>
-    public virtual bool MovedAgainstWall => MovedAs is RunningState;
+    public abstract bool MovedAgainstWall { get; }
 
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState(State is HeldState held ? held.Was : State));
@@ -1111,14 +1107,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// </summary>
     protected virtual bool SurvivesEmptyEnergy() => false;
 
-    /// <summary>Called when a hit has hurt the player without killing them. The engine's player is knocked back if in control.</summary>
+    /// <summary>
+    /// Called when a hit has hurt the player without killing them: whether it knocks them back, and for how long it
+    /// leaves them safe if not the usual, is the game's to say.
+    /// </summary>
     /// <param name="hit">The hit.</param>
     /// <param name="from">The side the hit came from.</param>
-    protected virtual void OnHurt(Hit hit, Facing from)
-    {
-        if (State.InControl)
-            KnockBack(from);
-    }
+    protected abstract void OnHurt(Hit hit, Facing from);
 
     /// <summary>Makes the player unable to be hurt for <paramref name="updates"/> updates, as after a hit.</summary>
     public void BeInvincibleFor(int updates) => _invincible = Countdown.Of(updates);
@@ -1411,13 +1406,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         _velocity = _velocity.WithY(down);
     }
 
-    /// <summary>The player's speed downward after one update of <paramref name="medium"/>'s gravity.</summary>
-    protected virtual Pixels AfterGravity(Pixels speed, PlayerMedium medium)
-    {
-        Pixels limit = Pixels.FromNumber(medium.FallSpeedLimit);
-        Pixels faster = speed + Pixels.FromNumber(medium.Gravity);
-        return faster > limit ? limit : faster;
-    }
+    /// <summary>
+    /// The player's speed downward after one update of <paramref name="medium"/>'s gravity: how it gains, and where
+    /// the gain stops, is the game's to say.
+    /// </summary>
+    protected abstract Pixels AfterGravity(Pixels speed, PlayerMedium medium);
 
     /// <summary>
     /// The upward speed a jump from the ground, or off a wall, starts with now, for a body launched in
@@ -1478,12 +1471,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>
     /// The speed a shot of <paramref name="weapon"/> leaves at, fired the way given (-1, 0 or 1 across and down) with
-    /// <paramref name="own"/> as its own speed, for a weapon whose shots inherit the player's movement: the engine's
-    /// player adds their speed across to a shot fired the way they are moving. A game with a rule of its own for what
-    /// a shot inherits gives it here.
+    /// <paramref name="own"/> as its own speed, for a weapon whose shots inherit the player's movement: what a shot
+    /// inherits is the game's rule.
     /// </summary>
-    public virtual PixelVelocity ShotVelocity(WeaponStats weapon, PixelVelocity own, int across, int down) =>
-        across != 0 && !SpeedAcross.IsZero && SpeedAcross.IsNegative == across < 0 ? own.WithX(own.X + SpeedAcross) : own;
+    public abstract PixelVelocity ShotVelocity(WeaponStats weapon, PixelVelocity own, int across, int down);
 
     /// <summary>Moves the player down by their speed, upward when it is negative.</summary>
     public MoveResult MoveDown()
@@ -1681,12 +1672,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether the input holds anything that aims the weapon. A game with aiming actions of its own counts them here.</summary>
     public virtual bool AimIsHeld => _input.IsHeld(GameAction.Up) || _input.IsHeld(GameAction.Down);
 
-    /// <summary>Sets the player's aim from what is held: up, down while in the air, and each with steering for a diagonal.</summary>
-    public virtual void AimFromInput()
-    {
-        bool up = _input.IsHeld(GameAction.Up), down = _input.IsHeld(GameAction.Down) && !IsOnGround;
-        Aim = up ? (Intent != 0 ? Aim.DiagonalUp : Aim.Up) : down ? (Intent != 0 ? Aim.DiagonalDown : Aim.Down) : Aim.Forward;
-    }
+    /// <summary>Sets the player's aim from what is held, by the game's own rule for it.</summary>
+    public abstract void AimFromInput();
 
     /// <summary>The state machine, once the player has entered a room.</summary>
     private StateMachine<Player> States => _states ?? throw new InvalidOperationException("The player is not in a room.");
@@ -1913,16 +1900,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>
     /// How many whole points this update's ongoing damage takes, of the hundredths of a point that reached the
-    /// player. The engine's player keeps the hundredths until they make a whole point. A game whose equipment
-    /// lessens the damage, or that takes a point some other way, says so here.
+    /// player. The game says: what it keeps of a part of a point, what its equipment lessens, and when a point is taken.
     /// </summary>
-    protected virtual int OngoingPointsTaken(int hundredths)
-    {
-        _ongoingHundredths += hundredths;
-        int points = _ongoingHundredths / 100;
-        _ongoingHundredths %= 100;
-        return points;
-    }
+    protected abstract int OngoingPointsTaken(int hundredths);
 
     /// <summary>
     /// Called on each update for each thing of the room itself that does the player ongoing damage, its heat or its

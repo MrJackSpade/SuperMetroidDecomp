@@ -12,7 +12,7 @@ public partial class StandInDefinition : GameDefinition
     public override GameMode CreateFirstMode() => new StandInMode { Name = "First", UpdatesBeforeHandOver = UpdatesBeforeHandOver };
 
     /// <inheritdoc/>
-    public override Engine.Actors.Player CreatePlayer() => new() { Name = "Player" };
+    public override Engine.Actors.Player CreatePlayer() => new StandInPlayer { Name = "Player" };
 
     /// <summary>The number the stand-in game's random sequence starts from.</summary>
     public uint RandomSeed { get; set; } = 1;

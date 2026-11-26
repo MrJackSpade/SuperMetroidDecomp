@@ -6,7 +6,9 @@ namespace Engine.Core;
 
 /// <summary>
 /// The player's settings: which buttons give which action, the language, and the game's own toggles. They are kept
-/// in one plain text file outside any save slot, and do not change during an update.
+/// in one plain text file outside any save slot, and do not change during an update. A save also carries the
+/// language and the toggles as they stood when it was made (<see cref="SaveData.Toggles"/>,
+/// <see cref="SaveData.Language"/>), for a game that gives a chosen save's back to the options.
 /// </summary>
 public sealed class Options
 {

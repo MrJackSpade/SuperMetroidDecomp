@@ -269,6 +269,7 @@ public partial class FileSelectMode : GameMode
         if (_row < SavedGames)
         {
             Session.Slot = _row + 1;
+            TakeSlotSettings();
             Sound("select_sound");
             FrameTimeline turn = Timelines().Get("helmet_turn");
             _helmets[_row].Play(turn);
@@ -536,6 +537,30 @@ public partial class FileSelectMode : GameMode
 
         (_cursor ?? throw NotShown()).Visible = asking is not (Asking.CopyDone or Asking.ClearDone);
         PlaceCursor();
+    }
+
+    /// <summary>The language a new game is in, as the cartridge's new file is.</summary>
+    private const string NewGameLanguage = "english";
+
+    /// <summary>
+    /// Makes the game's own settings those of the slot just chosen, as the cartridge's options after a file's
+    /// choosing are that file's: a saved game's two toggles and its language as they were saved, and a new game's
+    /// both off and in the language a new file is in. The options screen that follows changes them from there, and
+    /// the game is played and next saved with what they then are. A save made before these were kept leaves them as
+    /// they stand.
+    /// </summary>
+    private void TakeSlotSettings()
+    {
+        Options options = Session.Options;
+        if (!Session.Saves.Has(Session.Slot))
+        {
+            (options.Toggles, options.Language) = ([], NewGameLanguage);
+            return;
+        }
+
+        SaveData save = Session.Saves.Read(Session.Slot);
+        if (save.Language.Length > 0)
+            (options.Toggles, options.Language) = (new Dictionary<string, bool>(save.Toggles), save.Language);
     }
 
     /// <summary>Lays over the page what the saved game numbered <paramref name="slot"/> holds: its energy, its tanks and its play time, or that it holds nothing.</summary>

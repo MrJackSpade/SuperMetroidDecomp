@@ -765,8 +765,12 @@ public partial class Ridley
 
     private bool Probe(PixelPosition at) => Room.Terrain.IsSolidIn(new PixelRect(at.X.Whole, at.Y.Whole, 1, 1), SlopeTreatment.Wall);
 
-    /// <summary>Whether Samus is doing anything it can take hold of her in: not spinning, grappling, or already knocked or held.</summary>
-    private static bool CanSeize(Player samus) => samus.State is not (SpinJumpingState or GrapplingState or DamageBoostState or GrabbedState);
+    /// <summary>
+    /// Whether Samus is doing anything it can take hold of her in: not spinning, on the grapple beam (swinging, held
+    /// in place by it or against a wall by it), damage boosting, or already held.
+    /// </summary>
+    private static bool CanSeize(Player samus) =>
+        samus.State is not (SpinJumpingState or GrapplingState or GrappleLockedState or GrappleWallGrabState or DamageBoostState or GrabbedState);
 
     /// <summary>Whether its claws are within a reach of Samus's body.</summary>
     private bool ClawsReach(Player samus, int across, int down)

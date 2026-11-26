@@ -156,6 +156,14 @@ public partial class Samus : Player
     [Export, DataValue("breath_high_sound")]
     public string BreathHighSound { get; set; } = "";
 
+    /// <summary>The dust a wall jump kicks up as it begins, by the data file of its timeline; empty for none.</summary>
+    [Export(PropertyHint.File), DataValue("wall_jump_effect")]
+    public string WallJumpEffect { get; set; } = "";
+
+    /// <summary>How many pixels behind her middle a wall jump's dust is left.</summary>
+    [Export, DataValue("wall_jump_effect_behind")]
+    public int WallJumpEffectBehind { get; set; } = 6;
+
     /// <summary>The updates left before another bubble may rise.</summary>
     private Countdown _bubbleWait = Countdown.Over;
 
@@ -1813,6 +1821,18 @@ public partial class Samus : Player
             Room.Session.Sounds.Request(sound, channel: "samus");
     }
 
+    /// <summary>
+    /// Leaves a wall jump's dust at the bottom row of her body, behind the way she now faces, as the cartridge does;
+    /// none with her feet in a liquid, whatever her suit.
+    /// </summary>
+    private void KickUpWallJumpDust()
+    {
+        if (WallJumpEffect.Length == 0 || FeetAreInLiquid)
+            return;
+        int x = Position.X.Whole + Facing.Opposite().Toward(Pixels.FromWhole(WallJumpEffectBehind)).Whole;
+        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(WallJumpEffect)), PixelPosition.FromWhole(x, Feet.Y.Whole)));
+    }
+
     /// <inheritdoc/>
     protected override void AfterState()
     {
@@ -1849,6 +1869,10 @@ public partial class Samus : Player
             if (_knockbackCarried.IsOver)
                 FallFromRest();
         }
+
+        // A wall jump begun on this update kicks up its dust, once its body has been taken.
+        if (State is WallJumpingState && !ReferenceEquals(State, _spinSeen))
+            KickUpWallJumpDust();
 
         // Her spin and her stored shine are counted on, and then what colours her is chosen, just before she is shown.
         CountSpin();

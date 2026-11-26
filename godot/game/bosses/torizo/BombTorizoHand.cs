@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Actors.Components;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -16,7 +17,8 @@ namespace Game.Enemies;
 /// Its data lists its "crumble": each step's "picture", how many "updates" it shows for, and the "fragment" thrown as
 /// it begins, which may be empty; and its "fragments" by name, each with where it starts from the hand's place ("x",
 /// "y") and the data file of its "shot". The hand's place is the top left of the block it fills. Its solid
-/// colliders "Fingers" and "Palm" are what Samus can stand on until it has gone.
+/// colliders "Fingers" and "Palm" are what Samus can stand on until a step that shows no picture, the hand cleared
+/// away, begins.
 /// </remarks>
 public partial class BombTorizoHand : RoomObject
 {
@@ -103,6 +105,14 @@ public partial class BombTorizoHand : RoomObject
                 CrumbleStep step = _crumble[_step];
                 if (step.Fragment.Length > 0)
                     Throw(step.Fragment);
+
+                // A step that shows nothing is the hand cleared away: what Samus stood on goes as it begins.
+                if (step.Picture.Length == 0)
+                {
+                    foreach (Collider solid in GetChildren().OfType<Collider>())
+                        solid.Enabled = false;
+                }
+
                 ShowPicture(step.Picture);
                 _hold = step.Updates;
                 return;

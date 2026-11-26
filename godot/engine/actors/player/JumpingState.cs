@@ -61,6 +61,12 @@ public sealed class JumpingState : PlayerState
     public bool TookUpStance { get; private set; }
 
     /// <summary>
+    /// Whether the jump is on an update of its gathering before the last: what is held on those can end the
+    /// gathering, and a game whose player listens for more there says so as it is asked (<see cref="Player.ChooseState"/>).
+    /// </summary>
+    public bool GatheringListens => _gathering.Remaining > 1;
+
+    /// <summary>
     /// A jump from the ground is entered in the jump's full form; one that carries on, in the form of the aim its
     /// stance has, or the player's own aim when it was given no stance.
     /// </summary>
@@ -108,7 +114,7 @@ public sealed class JumpingState : PlayerState
             bool right = owner.Facing == Facing.Right;
             bool jump = input.IsHeld(GameAction.Jump);
             bool ahead = input.IsHeld(right ? GameAction.Right : GameAction.Left), behind = input.IsHeld(right ? GameAction.Left : GameAction.Right);
-            bool listens = _gathering.Remaining > 1;
+            bool listens = GatheringListens;
             if (listens && jump && behind)
                 return new AirTurningState(fromJump: true);
             if (!listens || !((jump && (owner.AimIsHeld || ahead)) || input.IsHeld(GameAction.Attack)))

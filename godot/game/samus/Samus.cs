@@ -977,10 +977,11 @@ public partial class Samus : Player
                 Aim = FirstJumpAim(from);
                 _gatheringJump = jump;
             }
-            else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
+            else if (from is SpinJumpingState or WallJumpingState or DamageBoostState or AirTurningState && SpendsShine(jump.Stance) &&
                 CanTakeForm(FormOr(Jumping), aroundMiddle: true))
             {
-                // Straightened out of a spin or a wall jump where the taller body fits, or let go of a damage boost.
+                // Straightened out of a spin or a wall jump where the taller body fits, let go of a damage boost, or
+                // come out of a turn in the air aiming up.
                 return new ShinesparkState(lifted: false);
             }
         }
@@ -1264,6 +1265,11 @@ public partial class Samus : Player
                 if (input.IsHeld(GameAction.Attack))
                     return new JumpingState(new AirStance(Aim.Forward, AirArm.Out));
                 return input.IsHeld(GameAction.Jump) ? current : new SpinJumpingState(SpinJumpingState.Start.AfterWallJump);
+
+            case JumpingState { GatheringListens: true } when Facing == Facing.Left && input.IsHeld(GameAction.Right):
+                // The cartridge's left-facing list for a jump's first pose alone turns her on Right held without the
+                // jump too; the right-facing one has no such rule for Left.
+                return new AirTurningState(fromJump: true);
 
             case JumpingState or FallingState or SpinJumpingState:
                 // Down pressed again while already aiming down curls her into the ball in the air.

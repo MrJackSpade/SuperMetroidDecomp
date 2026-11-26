@@ -1697,7 +1697,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `GlassTube` (this game's, `game/objects/glass_tube/`): the Maridia glass tube. It is not a barrier: a power
   bomb only arms it, and it bursts when Samus next acts, holding her while it does.
 - `CeresElevatorDoor` (this game's, `game/objects/ceres_elevator_door/`): the blocked way to Ceres's elevator,
-  blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering.
+  blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering. The glow is
+  the steps of a change of colours its data gives ("glow"), each held eight updates, shown on the room's terrain and
+  on the floor with its parts while it is whole and again once it is gone.
 - `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her state of facing forward and being put where something puts her.
   It is told to "land" by the landing's room sequence and tells what is listed on it when it has left the planet.
 - `BossEncounter`: one per boss room. The Metroid rooms whose doors open when the room is cleared need none; their

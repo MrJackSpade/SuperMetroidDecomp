@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Data;
 using Godot;
@@ -14,8 +15,9 @@ namespace Game.Objects;
 /// While it is whole, and again once it is gone, it keeps the elevator's platform and the room's glow flickering.
 /// </summary>
 /// <remarks>
-/// Its data names its picture, "blocked"; its blasts' effects, "explosion" and "smoke"; and its "explosion_sound".
-/// The floor it is given has a part named "Platform".
+/// Its data names its picture, "blocked"; its blasts' effects, "explosion" and "smoke"; its "explosion_sound"; and
+/// the steps of the room's "glow", in order, each a change of colours, place by place, shown on the room's terrain,
+/// the floor and the floor's parts. The floor it is given has a part named "Platform".
 /// </remarks>
 public partial class CeresElevatorDoor : RoomObject
 {
@@ -26,10 +28,6 @@ public partial class CeresElevatorDoor : RoomObject
     /// <summary>The platform's two pictures.</summary>
     [Export]
     public Godot.Collections.Array<string> PlatformPictures { get; set; } = [];
-
-    /// <summary>The colours the shaft glows through, in order; empty for none.</summary>
-    [Export]
-    public Godot.Collections.Array<Color> GlowTints { get; set; } = [];
 
     /// <summary>The picture of it shut.</summary>
     [Export, DataValue("blocked")]
@@ -57,6 +55,15 @@ public partial class CeresElevatorDoor : RoomObject
     /// <summary>How many updates it takes to blow apart, and how many pass between blasts.</summary>
     private const int ExplodingUpdates = 49, BlastInterval = 5;
 
+    /// <summary>How many updates each step of the room's glow is held.</summary>
+    private const int GlowStepUpdates = 8;
+
+    /// <summary>The steps of the room's glow, in order.</summary>
+    private ColourChange[] _glow = [];
+
+    /// <summary>The step of the glow last shown; none before the first.</summary>
+    private int _glowShown;
+
     /// <summary>Where its blasts go off, from where it stands, in turn.</summary>
     private static readonly PixelOffset[] Blasts =
     [
@@ -70,9 +77,18 @@ public partial class CeresElevatorDoor : RoomObject
     private int _blast;
 
     /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _glow = [.. data.List("glow").Select(ColourChange.Read)];
+        if (_glow.Length == 0)
+            throw data.Get("glow").Problem("must give at least one step of the room's glow");
+    }
+
+    /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_phase, _age) = (Phase.Intact, 0);
+        (_phase, _age, _glowShown) = (Phase.Intact, 0, -1);
         Show(BlockedPicture);
     }
 
@@ -128,8 +144,15 @@ public partial class CeresElevatorDoor : RoomObject
             ?? throw new InvalidOperationException($"The elevator door \"{Name}\" is to light \"{Floor}\", but that is no turning floor.");
         if (PlatformPictures.Count > 0)
             floor.ShowPart("Platform", PlatformPictures[_age / 2 % PlatformPictures.Count]);
-        if (GlowTints.Count > 0)
-            floor.Modulate = GlowTints[_age / 8 % GlowTints.Count];
+
+        // The glow is a change of the room's colours, laid over its terrain and its floor with what is shown on it.
+        int step = _age / GlowStepUpdates % _glow.Length;
+        if (step == _glowShown)
+            return;
+        _glowShown = step;
+        IEnumerable<IRecoloured> shown = floor.FindChildren("*", owned: false).OfType<IRecoloured>().Prepend(floor).Prepend(Room.Terrain);
+        foreach (IRecoloured target in shown)
+            _glow[step].ShowOn(target, Name);
     }
 
     private void Show(string picture)

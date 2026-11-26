@@ -268,6 +268,7 @@ public sealed partial class EngineAssetWriter
             .Value("explosion", DustFile(DustExplosionAnimation.SmallExplosion))
             .Value("smoke", DustFile(DustExplosionAnimation.Smoke))
             .Value("explosion_sound", EngineNames.Sound(EnemySound.BigExplosion))
+            .Group("glow", CeresElevatorRoomGlow())
             .Write();
 
         // Once Ridley has escaped the old game draws the station's doors in other colours. The pictures are written

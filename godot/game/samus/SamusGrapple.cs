@@ -338,6 +338,15 @@ public partial class SamusGrapple : Node2D
             return;
         }
 
+        // A solid enemy with nothing of it there for the hit to land on stops the line too: the cartridge's line
+        // meets an enemy by its size, whatever it is made of, and none that is solid lets it pass.
+        if (room.Collision.Overlapping(around, ColliderRole.Solid, except: samus).Any(solid =>
+                solid.CollisionOwner is Enemy enemy && !met.Any(struck => ReferenceEquals(struck.Target, enemy))))
+        {
+            GiveUp();
+            return;
+        }
+
         // The end moves a quarter of the line's speed at a time, the part of a pixel kept from one to the next.
         bool diagonal = _across != 0 && _down != 0;
         Pixels each = Pixels.FromNumber((diagonal ? DiagonalExtendSpeed : ExtendSpeed) / Substeps);

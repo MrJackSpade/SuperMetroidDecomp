@@ -115,6 +115,8 @@ public sealed partial class EngineAssetWriter
                     ["picture"] = pictures.Of(frame),
                     ["picture_offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY },
                     ["ending_effect"] = DustFile(DustExplosionAnimation.SmallDustCloud),
+                    // The old piece is deleted and its dust is then one more of the things the enemies launch.
+                    ["ending_effect_holds_place"] = true,
                     ["ending_sound"] = EngineNames.Sound(EnemySound.CeresTileFall),
                 },
             });

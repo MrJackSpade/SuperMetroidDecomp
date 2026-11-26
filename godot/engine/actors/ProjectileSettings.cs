@@ -247,6 +247,13 @@ public sealed record ProjectileSettings
     public Engine.World.Standing? EndingEffectStanding { get; init; }
 
     /// <summary>
+    /// Whether the effect it leaves on ending holds one of the room's places for what enemies launch and leave
+    /// ("ending_effect_holds_place"). The projectile is then out of play before the effect is made, so the place it
+    /// held is free for it, and with none free the effect is not made.
+    /// </summary>
+    public bool EndingEffectHoldsPlace { get; init; }
+
+    /// <summary>
     /// The data file of the burst it leaves on ending: another projectile with a hit and settings of its own, as an
     /// explosion is; empty for none.
     /// </summary>
@@ -300,6 +307,7 @@ public sealed record ProjectileSettings
             FallingTimeline = data.Has("falling_timeline") ? data.Text("falling_timeline") : "",
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
             EndingEffectStanding = data.Has("ending_effect_standing") ? data.Get("ending_effect_standing").AsEnum<Engine.World.Standing>() : null,
+            EndingEffectHoldsPlace = data.Has("ending_effect_holds_place") && data.Flag("ending_effect_holds_place"),
             ShotTimeline = data.Has("shot_timeline") ? data.Text("shot_timeline") : "",
             EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
             EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",

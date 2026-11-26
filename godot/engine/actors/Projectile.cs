@@ -998,9 +998,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             : Position;
         if (_settings.EndingEffect.Length > 0)
         {
-            Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), at, standing: _settings.EndingEffectStanding);
-            room.Spawn(effect);
-            LeftOnEnding?.Invoke(effect);
+            // An effect that holds a place is made once the projectile is out of play, so the place it held is free
+            // for it; with none free it is not made.
+            if (_settings.EndingEffectHoldsPlace)
+                room.Remove(this);
+            Effect effect = Effect.Of(
+                FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), at, _settings.EndingEffectHoldsPlace, _settings.EndingEffectStanding);
+            if (room.Spawn(effect))
+                LeftOnEnding?.Invoke(effect);
         }
 
         if (_settings.EndingBurst.Length > 0)

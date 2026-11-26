@@ -1380,7 +1380,7 @@ own class: shot down, it plays its burst where it is, still hurting to the touch
 **Places for what enemies launch and leave.** A room may keep a count of places (`GameDefinition.EnemyPlaces`;
 none, unless the game says) for the enemies' shots, the remains of the destroyed and the pickups dropped. Each
 holds one place while it is in play; every projectile of the enemies' holds one, and an effect holds one where whoever leaves it says so (`Effect.Of`, as the dust and
-sparkles the cartridge counts among its enemies' projectiles do), playing with the room's other effects all the same. A thing takes the highest free place, and with none free it is not made (`Room.Spawn`
+sparkles the cartridge counts among its enemies' projectiles do), playing with the room's other effects all the same. The effect a projectile leaves on ending holds one where its settings say so ("ending_effect_holds_place"); the projectile is then out of play first, so the place it held is free for it. A thing takes the highest free place, and with none free it is not made (`Room.Spawn`
 says so): a shot is not fired, a death leaves no remains, and a drop made outright is neither made nor rolled.
 They take their turns from the highest place down, each place asked as its turn comes, so what takes a lower
 place during the turns has its turn among them and what takes a higher one waits an update; the enemies' shots

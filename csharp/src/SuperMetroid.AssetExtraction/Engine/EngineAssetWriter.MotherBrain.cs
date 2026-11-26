@@ -215,6 +215,8 @@ public sealed partial class EngineAssetWriter
             projectile["meeting_terrain"] = "passes_through";
             projectile["meeting_target"] = "ends";
             projectile["ending_effect"] = DustFile(DustExplosionAnimation.SmallExplosion);
+            // The old ring is deleted before its explosion is made, which is one more of the things the enemies launch.
+            projectile["ending_effect_holds_place"] = true;
             projectile["ending_sound"] = burstSound;
         });
         mother.ProjectileData("bosses/mother_brain_ring.json", "MotherBrainRing",

@@ -32,7 +32,7 @@ with comments allowed.
 | How messages are shown | the file the game definition names | `MessageBoxStyle` | For a game whose messages are pictures: their folder, the line the window opens about, its size and step, the waits before and after, when a question looks at the player's presses, and the buttons a message's picture can name. |
 | A font | wherever it is named | `PixelFont` | A picture of a font's characters, each one cell, and the list of them. |
 | A picture | anywhere | `ContentLibrary.LoadTexture` | A PNG, at the size it is drawn. |
-| Sounds and music | the sound and music folders the game definition names | the audio player | One WAV file for each name the game asks for. One that goes on and on says in the file where it loops from, and goes on until something else is asked for on its channel. |
+| Sounds and music | the sound and music folders the game definition names | the audio player | One WAV file for each name the game asks for. One that goes on and on says in the file where it loops from, and goes on until something else is asked for on its channel. Such a file ends with the loop's first frame written once more, and gives that frame as the loop's end: Godot's player leaves out one frame at the turn, the end or the start, and this way every frame of the loop is played once a turn. |
 
 ## Sounds
 

@@ -57,8 +57,11 @@ public sealed partial class EngineAssetWriter
 
         string? Cue(DraygonCue cue) => cue switch
         {
-            // The Godot Draygon starts its parts and turns its eye itself.
-            DraygonCue.StartPartAnimations or DraygonCue.TrackWithEye => null,
+            // The Godot Draygon starts its parts itself.
+            DraygonCue.StartPartAnimations => null,
+            // Its eye follows Samus from here, looking out to the side named, which the eye's blink names as left
+            // whichever way Draygon faces.
+            DraygonCue.TrackWithEye track => "track_eye:" + (track.Facing == HorizontalDirection.Right ? "right" : "left"),
             DraygonCue.ShiftBodyPicture shift => string.Create(CultureInfo.InvariantCulture, $"shift:{(int)shift.Shift.X}:{(int)shift.Shift.Y}"),
             DraygonCue.QueueSound sound => EngineNames.SoundCue(sound.Sound)
                 ?? throw new InvalidDataException($"Draygon's animation asks for the sound {sound.Sound}, which has no name."),
@@ -101,6 +104,8 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException("Draygon's rest shows something, which the Godot Draygon's does not.");
         draygon.Timeline("rest", NothingShown());
 
+        OfBody("eye_idle_left", Starting(DraygonSegment.EyeFacingLeftIdle));
+        OfBody("eye_idle_right", Starting(DraygonSegment.EyeFacingRightIdle));
         OfBody("eye_left_looking_up", Starting(DraygonSegment.EyeFacingLeftLookingUp));
         OfBody("eye_left_looking_down", Starting(DraygonSegment.EyeFacingLeftLookingDown));
         OfBody("eye_left_looking_left", Starting(DraygonSegment.EyeFacingLeftLookingLeft));
@@ -116,6 +121,8 @@ public sealed partial class EngineAssetWriter
 
         OfPart("tail_left", tail, Starting(DraygonSegment.TailFacingLeftIdle));
         OfPart("tail_right", tail, Starting(DraygonSegment.TailFacingRightIdle));
+        // Its tail's feint as the fight opens, which the cartridge plays only facing left, before it swings idly.
+        OfPart("tail_fake_whip_left", tail, Starting(DraygonSegment.TailFacingLeftInitialFakeWhip));
         OfPart("tail_whip_left", tail, Starting(DraygonSegment.TailFacingLeftWhip));
         OfPart("tail_whip_right", tail, Starting(DraygonSegment.TailFacingRightWhip));
         OfPart("tail_final_whips_left", tail, DraygonAnimations.TailFacingLeftFinalWhips);

@@ -27,7 +27,7 @@ namespace Engine.Actors;
 /// </code>
 /// "standing" names where it stands against the player (<see cref="World.Standing"/>); without it, behind them.
 /// "hurt_colours" is a change of its pictures' colours (<see cref="Ui.ColourChange"/>) shown while its hurt flash
-/// shows; without it the flash is its picture shown brighter.
+/// shows, on each of its visuals; without it the flash is its picture shown brighter.
 /// "in_front_of_tiles": true has it drawn in front of every tile of the room, the ones in front of the room's things
 /// too, and so over the player whatever its standing.
 /// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
@@ -834,12 +834,22 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         }
 
-        // Its flash is its own pictures in the colours its data gives for it, shown only while it flashes.
+        // Its flash is its own pictures in the colours its data gives for it, shown only while it flashes, and on
+        // each of its visuals: one drawn in parts flashes whole. A change is worked out for a visual by the pictures
+        // it shows, so one that shows none yet is left until it does.
         Visual.Tint(frozen ? FrozenTint : RestingTint);
-        if (flashes == _flashShown)
+        if (!flashes && _flashShownOn.Count == 0)
             return;
-        _flashShown = flashes;
-        (flashes ? colours : Ui.ColourChange.None).ShowOn(Visual, HurtFlashColours);
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+        {
+            if (visual.Picture.Length == 0 || _flashShownOn.Contains(visual) == flashes)
+                continue;
+            (flashes ? colours : Ui.ColourChange.None).ShowOn(visual, HurtFlashColours);
+            if (flashes)
+                _flashShownOn.Add(visual);
+            else
+                _flashShownOn.Remove(visual);
+        }
     }
 
     /// <summary>The name its hurt flash's colours are shown under.</summary>
@@ -851,8 +861,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// </summary>
     private Ui.ColourChange? _hurtColours;
 
-    /// <summary>Whether its hurt flash's colours are showing now.</summary>
-    private bool _flashShown;
+    /// <summary>The visuals of its own its hurt flash's colours are showing on now.</summary>
+    private readonly HashSet<ActorVisual> _flashShownOn = [];
 
     /// <summary>
     /// Whether the picture of this update shows the enemy's hurt flash: while the flash still runs once the turn

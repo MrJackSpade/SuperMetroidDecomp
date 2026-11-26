@@ -950,12 +950,38 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState(State is HeldState held ? held.Was : State));
 
+    /// <summary>
+    /// Takes hold of the player as they are: what they were doing is kept beneath the hold, neither left nor played,
+    /// with the speed they had, and letting go (<see cref="Release"/>) has them go on in it as though nothing had
+    /// happened. A player already held stays held as they are.
+    /// </summary>
+    public void HoldAsTheyAre()
+    {
+        if (State is HeldState)
+            return;
+        _interruption = null;
+        States.Cover(new HeldState(State, keepsSpeed: true));
+    }
+
     /// <summary>Holds the player at a station until released.</summary>
     /// <param name="facingOut">Whether the player turns to face out of the screen while held.</param>
     public void UseStation(bool facingOut = false) => ChangeState(new UsingStationState { FacingOut = facingOut });
 
-    /// <summary>Gives the player back control after being held or at a station.</summary>
-    public void Release() => ChangeState(StateAtRest());
+    /// <summary>
+    /// Gives the player back control after being held or at a station: in what they were doing, where the hold kept
+    /// it (<see cref="HoldAsTheyAre"/>), and otherwise in the state at rest.
+    /// </summary>
+    public void Release()
+    {
+        if (!States.Covers)
+        {
+            ChangeState(StateAtRest());
+            return;
+        }
+
+        _interruption = null;
+        States.Uncover();
+    }
 
     /// <summary>
     /// The state the player is in when nothing else has hold of them: on the ground or in the air, upright or in the

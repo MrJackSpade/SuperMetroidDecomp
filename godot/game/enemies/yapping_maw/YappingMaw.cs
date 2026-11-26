@@ -152,7 +152,18 @@ public partial class YappingMaw : Enemy
             return;
         _cooldown = 0;
         _holds = true;
-        samus.Hold();
+
+        // The cartridge's Maw only stops her taking part: what she was doing, and the speed she had, are hers again
+        // as it lets her go. Out of a spin or a wall jump it stands her up first, body and all.
+        if (samus.State is SpinJumpingState or WallJumpingState)
+        {
+            samus.Hold();
+            samus.TrySetForm(Engine.Actors.Player.Standing);
+        }
+        else
+        {
+            samus.HoldAsTheyAre();
+        }
     }
 
     /// <inheritdoc/>
@@ -343,6 +354,9 @@ public partial class YappingMaw : Enemy
         PixelPosition at = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + _heldAt;
         Engine.Actors.Player samus = Room.Player;
         samus.Position = new PixelPosition(samus.Position.X.WithWhole(at.X.Whole), samus.Position.Y.WithWhole(at.Y.Whole));
+
+        // Each placing drops a grapple she has out.
+        (samus as Samus)?.Grapple?.Release();
     }
 
     /// <summary>Lets Samus go, if it holds her.</summary>

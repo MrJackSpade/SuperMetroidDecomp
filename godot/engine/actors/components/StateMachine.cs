@@ -30,6 +30,40 @@ public sealed class StateMachine<TOwner>
     /// <summary>The state the owner is in.</summary>
     public State<TOwner> Current { get; private set; }
 
+    /// <summary>The state the current one covers: kept as it was, neither left nor stepped, until it is uncovered.</summary>
+    private State<TOwner>? _covered;
+
+    /// <summary>Whether the current state covers another that is kept beneath it.</summary>
+    public bool Covers => _covered is not null;
+
+    /// <summary>
+    /// Puts <paramref name="over"/> over the current state, which is kept as it is: it is not left, and is not
+    /// stepped while it is covered. The owner has no say in it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The current state covers another already.</exception>
+    public void Cover(State<TOwner> over)
+    {
+        ArgumentNullException.ThrowIfNull(over);
+        if (_covered is not null)
+            throw new InvalidOperationException("A state that covers another cannot itself be covered.");
+        _covered = Current;
+        Current = over;
+        over.Enter(_owner);
+    }
+
+    /// <summary>
+    /// Takes the covering state away, which is left, and goes on in the state it covered, which is not entered
+    /// afresh: it is as it was when it was covered.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The current state covers nothing.</exception>
+    public void Uncover()
+    {
+        State<TOwner> kept = _covered ?? throw new InvalidOperationException("The current state covers nothing to go back to.");
+        Current.Exit(_owner);
+        Current = kept;
+        _covered = null;
+    }
+
     /// <summary>Runs one update of the current state and moves to the state it names.</summary>
     public void Step() => ChangeTo(Current.Step(_owner));
 
@@ -50,6 +84,14 @@ public sealed class StateMachine<TOwner>
         }
 
         Current.Exit(_owner);
+
+        // A state kept beneath the one left is left with it: the owner moves on from both.
+        if (_covered is { } kept)
+        {
+            _covered = null;
+            kept.Exit(_owner);
+        }
+
         Current = next;
         next.Enter(_owner);
     }

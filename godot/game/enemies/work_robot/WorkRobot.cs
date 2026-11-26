@@ -70,11 +70,29 @@ public partial class WorkRobot : Enemy
     private int _cooldown;
     private Pixels _fallSpeed;
 
+    /// <summary>The steps of the glow its room's powered robots share, as its data gives them.</summary>
+    private DataNode? _glowSteps;
+
     /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _glowSteps = data.Get("glow");
+    }
+
+    /// <summary>
+    /// Set up, a powered robot starts its room's glow again and shows it from then on; one without power stops it,
+    /// as the cartridge's does.
+    /// </summary>
     protected override void OnEnterRoom()
     {
         Facing = Facing.Left;
         Play(Powered ? "standing_left" : Pose);
+        WorkRobotGlow glow = WorkRobotGlow.In(Room, _glowSteps ?? throw new InvalidOperationException($"The Work Robot \"{Name}\" has no data for its glow."));
+        if (!Powered)
+            glow.Stop();
+        else if (Visual is { } visual)
+            glow.StartOn(visual);
     }
 
     /// <inheritdoc/>

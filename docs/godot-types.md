@@ -1610,7 +1610,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - Hoppers and the rest: Sidehopper, Large Sidehopper, Tourian Sidehopper; Dessgeega, Large Dessgeega; Boyon; Puyo;
   Beetom; Powamp; Cacatac; Zoa; Skultera; Bull; Alcoon; Polyp; Fune; Namihe; Magdollite; Nuclear Waffle; Hibashi;
   Yapping Maw; Boulder; Oum; Mama Turtle with her Baby Turtles as children; Evir; Dragon; Shaktool; Work Robot (the
-  unpowered one is the same scene, switched off).
+  unpowered one is the same scene, switched off; the powered ones of a room share one glow, `WorkRobotGlow`, a room
+  object the first robot set up makes, as the face blocks share `FaceBlockGlow`).
 - Pipe bugs: Zeb, Zebbo, Gamet, Geega. Each pipe is a `Spawner`.
 - Metroids: Metroid; Mochtroid; the giant Metroid of Tourian (`BabyMetroid`, with the Sidehopper it feeds on,
   `DeadSidehopper`); and the giant Metroid of Mother Brain's fight (`MotherBrainBaby`, which she makes). The two

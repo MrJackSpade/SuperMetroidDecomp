@@ -602,7 +602,9 @@ tile data. A patch applied for good is remembered like anything else.
 
 **Terrain that changes over some updates.** A change that plays out, such as a wall crumbling through several
 pictures before it is gone, is a `PatchSequence`: named patches applied one after another, each standing its own
-number of updates, with a sound a step may ask for. It is data of whatever sets it off, which hands it to the room
+number of updates, with a sound a step may ask for; a step may take a patch back as well as, or in place of,
+applying one, so a change set off in an enemy's turn that the cartridge shows at the terrain's own turn (the wall
+at Phantoon's door) is a sequence of one step. It is data of whatever sets it off, which hands it to the room
 to play; the room steps it once an update until it is over, so it outlasts a boss that is gone before its wall has
 finished falling. The patch that is left is the one a room that begins after the change is given.
 

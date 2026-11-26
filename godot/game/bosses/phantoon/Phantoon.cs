@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Game.Data;
 using Godot;
 
@@ -51,6 +52,12 @@ public partial class Phantoon : Enemy
 
     /// <summary>The patch of the room's terrain that is wall where the door is, while the fight lasts.</summary>
     private const string FightDoorPatch = "fight_door";
+
+    /// <summary>The patch that holds the top block of the door's column solid, from his turn until the door changes.</summary>
+    private string _doorHeldPatch = "";
+
+    /// <summary>The door's changes, each played by the room as its objects take their turn: the wall put up, and taken down.</summary>
+    private PatchSequence? _doorCloses, _doorOpens;
 
     /// <summary>How many steps a fade in or out takes; it takes one every other update.</summary>
     [Export, DataValue("fade_steps")]
@@ -216,6 +223,9 @@ public partial class Phantoon : Enemy
             });
         }
 
+        DataNode door = data.Get("fight_door");
+        _doorHeldPatch = door.Text("held");
+        (_doorCloses, _doorOpens) = (PatchSequence.Read(door.Get("closes")), PatchSequence.Read(door.Get("opens")));
         _rainPatterns.Clear();
         _rainPatterns.AddRange(data.List("rain_patterns").Select(pattern => (pattern.Int("path_place"), pattern.Int("x"), pattern.Int("y"))));
         if (_path.Count == 0 || _rainPatterns.Count != 8)
@@ -703,13 +713,25 @@ public partial class Phantoon : Enemy
         return --_wait == 0;
     }
 
-    /// <summary>Puts the wall where the room's door is and its cap out of sight, or takes the wall away and shows the cap again.</summary>
+    /// <summary>
+    /// Puts the wall where the room's door is and its cap out of sight, or takes the wall away and shows the cap
+    /// again. The door changes as the room's objects take their turn on this update, not in his own: until then,
+    /// through Samus's move and the enemies' shots, the top block of its column is solid and the rest is as it was,
+    /// still open as the fight begins and still wall as it ends.
+    /// </summary>
     private void SetFightDoor(bool walled)
     {
-        if (walled && !Room.Terrain.IsPatchApplied(FightDoorPatch))
-            Room.Terrain.ApplyPatch(FightDoorPatch);
-        else if (!walled && Room.Terrain.IsPatchApplied(FightDoorPatch))
-            Room.Terrain.RevertPatch(FightDoorPatch);
+        bool stands = Room.Terrain.IsPatchApplied(FightDoorPatch);
+        if (walled && !stands && !Room.Terrain.IsPatchApplied(_doorHeldPatch))
+        {
+            Room.Terrain.ApplyPatch(_doorHeldPatch);
+            Room.Play(_doorCloses!.FromStart());
+        }
+        else if (!walled && stands)
+        {
+            Room.Play(_doorOpens!.FromStart());
+        }
+
         foreach (NodePath path in HiddenInFight)
         {
             (GetNode(path) as CanvasItem

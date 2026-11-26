@@ -72,12 +72,18 @@ public sealed partial class EngineAssetWriter
         // The old game makes the door's blocks a door that nothing opens; here they are wall, and the door's cap is put away.
         foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => placed.Room == RoomDefinitions.Phantoon))
         {
-            Layouts.Patch(room, state, "fight_door", PhantoonDoorChangeDefinitions.Block,
+            // Until the door is drawn its top block is held solid, showing what it showed.
+            Layouts.Patch(room, state, FightDoorHeldPatch, PhantoonDoorChangeDefinitions.Block,
+                [Layouts.Kept(state, PhantoonDoorChangeDefinitions.Block, 0, 0, RoomCollisionType.SolidBlock)]);
+            Layouts.Patch(room, state, FightDoorPatch, PhantoonDoorChangeDefinitions.Block,
                 Layouts.PatchCells(GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName,
                     (PhantoonDoorDrawKeys.Installed.Of(PhantoonDoorDraw.FightDoor), PhantoonDoorObjectDrawDefinitions.Shapes[PhantoonDoorDraw.FightDoor]))
                     .Select(cell => cell with { Collision = RoomCollisionType.SolidBlock }));
         }
     }
+
+    /// <summary>The patches of Phantoon's room that are his door walled for the fight, and its top block held solid until the door changes.</summary>
+    private const string FightDoorPatch = "fight_door", FightDoorHeldPatch = "fight_door_held";
 
     /// <summary>The name of the folder a set of graphics' pictures are kept in, which a room's content puts for the set's place in a path.</summary>
     private static string GraphicsFolder(RoomStateSettings state) => EngineRoomObjects.GraphicsName(state.GraphicsSet.ToString());

@@ -102,6 +102,14 @@ public sealed partial class EngineAssetWriter
             .Value("rage_sound", EngineNames.Sound(PhantoonRageDefinitions.WaveSound))
             .Value("big_explosion_sound", EngineNames.Sound(PhantoonSoundDefinitions.DeathExplosionSounds[DustExplosionAnimation.BigExplosion]))
             .Value("small_explosion_sound", EngineNames.Sound(PhantoonSoundDefinitions.DeathExplosionSound))
+            // His door's changes: the top block of its column is held solid from his turn (PhantoonDoorObjects), and
+            // the door is drawn, wall or door again, on the change's first update, as the room's objects take theirs.
+            .Group("fight_door", new JsonObject
+            {
+                ["held"] = FightDoorHeldPatch,
+                ["closes"] = new JsonObject { ["steps"] = new JsonArray(new JsonObject { ["reverts"] = FightDoorHeldPatch, ["patch"] = FightDoorPatch }) },
+                ["opens"] = new JsonObject { ["steps"] = new JsonArray(new JsonObject { ["reverts"] = FightDoorPatch }) },
+            })
             .Group("path", PhantoonPathDefinitions.Directions)
             .Group("rain_patterns", EngineNames.List(rains.Select(rain => (JsonNode)new JsonObject
             {

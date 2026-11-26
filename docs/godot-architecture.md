@@ -233,6 +233,8 @@ rotation. That is small enough to own.
 **Moving**
 
 - Positions are fixed-point: whole pixels plus a fraction, in one position type. No floats in gameplay movement.
+  A thing is shown at the whole pixel its place lies in (`PixelPosition.ToDisplay`), as the cartridge shows it: the
+  fraction is for moving, never for where a picture is drawn.
 - One mover moves a body along one axis by a displacement and reports how far it got and what stopped it. The
   player, enemies and projectiles all use it.
 - Any actor may have a solid collider. A solid blocks the player and can be stood on, and when a solid moves, the

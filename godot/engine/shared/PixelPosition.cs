@@ -24,6 +24,10 @@ public readonly record struct PixelPosition(Pixels X, Pixels Y)
     /// <summary>How far, and which way, <paramref name="to"/> lies from <paramref name="from"/>.</summary>
     public static PixelOffset operator -(PixelPosition to, PixelPosition from) => new(to.X - from.X, to.Y - from.Y);
 
-    /// <summary>The place as Godot coordinates, for drawing only. Nothing in gameplay reads it back.</summary>
-    public Vector2 ToDisplay() => new(X.ToDisplay(), Y.ToDisplay());
+    /// <summary>
+    /// The place as Godot coordinates, for drawing only: the pixel it lies in. A thing is shown at its whole pixel, as
+    /// the cartridge shows it. The fraction of a pixel is for moving: shown, it would put a picture a pixel further
+    /// along whenever it is a half or more. Nothing in gameplay reads this back.
+    /// </summary>
+    public Vector2 ToDisplay() => new(X.Whole, Y.Whole);
 }

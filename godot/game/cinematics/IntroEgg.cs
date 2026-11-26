@@ -237,8 +237,8 @@ public partial class IntroEgg : RoomObject
         look.Step();
         ActorVisual baby = Visual("Baby");
         baby.Show(look.Current);
-        PixelOffset from = _babyAt - Position;
-        baby.Position = new Vector2(from.X.ToDisplay(), from.Y.ToDisplay());
+        // It is shown at its own whole pixel, as the egg is at its.
+        baby.Position = new Vector2(_babyAt.X.Whole - Position.X.Whole, _babyAt.Y.Whole - Position.Y.Whole);
         baby.ZIndex = BabyIsInFront ? 1 : RoomDepth.BehindThings;
     }
 

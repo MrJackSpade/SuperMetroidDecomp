@@ -1688,8 +1688,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export]
     public int MostSpeedHalvings { get; set; } = 4;
 
-    /// <summary>A distance across moved this update, halved as many times as the player is slowed.</summary>
-    private Pixels Slowed(Pixels distance)
+    /// <summary>
+    /// A distance across moved this update, halved as many times as the player is slowed. Their own move across is
+    /// (<see cref="MoveAcross"/>); a state that moves them across by a speed of its own asks it of that speed.
+    /// </summary>
+    public Pixels Slowed(Pixels distance)
     {
         int halvings = Math.Clamp(SpeedHalvings, 0, MostSpeedHalvings);
         return halvings == 0 ? distance : distance.Share(1, 1 << halvings);

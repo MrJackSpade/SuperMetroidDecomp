@@ -205,8 +205,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             Pixels top = Pixels.FromNumber(samus.ShinesparkTopSpeed);
             _acrossSpeed = faster >= top ? top : faster;
 
-            // She moves as she always moves across: over slopes, and through what her body breaks.
-            stoppedAcross = samus.MoveAcrossBy(_acrossSpeed * _across).Blocked;
+            // She moves as she always moves across: slowed by what clings to her, over slopes, and through what her
+            // body breaks.
+            stoppedAcross = samus.MoveAcrossBy(samus.Slowed(_acrossSpeed) * _across).Blocked;
         }
 
         if (_down != 0)
@@ -219,7 +220,12 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 
             // The speed it has gathered is her speed upward, which a move across reads on the next update.
             samus.Velocity = samus.Velocity.WithY(_riseSpeed * _down);
-            stoppedDown = samus.MoveDownBy(rise * _down, clearsWay: true).Blocked;
+
+            // Something solid in her way, that is no part of the room, is felt for first, and stops her where she is:
+            // she is not brought up against it as an ordinary rise is, and nothing of the room is broken or met.
+            Pixels climb = rise * _down;
+            stoppedDown = samus.Room.Mover.TryDown(samus.Body, climb, samus.BodyMoves with { StoppedByTerrain = false }, out _).Blocked
+                || samus.MoveDownBy(climb, clearsWay: true).Blocked;
         }
 
         // A diagonal spark slides up a wall it meets, and ends only when it can rise no further.

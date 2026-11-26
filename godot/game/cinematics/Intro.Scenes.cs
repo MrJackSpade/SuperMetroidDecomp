@@ -125,7 +125,6 @@ public partial class Intro
         if (_room is { } room)
         {
             ((Samus)Session.Player).ShowInSceneColours("");
-            room.Shake(0, 0);
             room.Teardown();
             room.QueueFree();
         }

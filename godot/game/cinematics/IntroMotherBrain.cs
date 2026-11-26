@@ -66,6 +66,15 @@ public partial class IntroMotherBrain : Enemy
     private readonly List<Effect> _blasts = [];
     private Phase _phase;
     private int _hits;
+
+    /// <summary>How far the room's picture jumps as she blows up, in pixels.</summary>
+    private const int ShakePixels = 4;
+
+    /// <summary>Whether the last missile struck on this update: her blowing up begins on the next.</summary>
+    private bool _struckThisUpdate;
+
+    /// <summary>How many updates the room's picture has been shaken.</summary>
+    private int _shaken;
     private int _wave;
     private int _waveWait;
     private int _left;
@@ -100,6 +109,7 @@ public partial class IntroMotherBrain : Enemy
         if (++_hits < HitsToExplode)
             return HitResult.Hurt;
         (_phase, _left) = (Phase.Exploding, ExplodingUpdates);
+        _struckThisUpdate = true;
         foreach ((int x, int y, int delay) in SmallBlasts)
             _blastsToCome.Add((SmallExplosionEffect, Position + PixelOffset.FromWhole(x, y), delay));
         foreach ((int x, int y, int delay) in BigBlasts)
@@ -110,10 +120,16 @@ public partial class IntroMotherBrain : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (_phase != Phase.TakingHits)
+        if (_struckThisUpdate)
         {
-            // The room shakes up and down for as long as she is blowing up.
-            Room.Shake(4, 2, ShakeWay.Down);
+            // The missile struck in her own turn; her blowing up begins on the update after.
+            _struckThisUpdate = false;
+        }
+        else if (_phase != Phase.TakingHits)
+        {
+            // For as long as she is blowing up the room's picture, and nothing else, jumps up on every other update
+            // and is back on the one between: she, her blasts and Samus stay where they are.
+            Room.Terrain.ShownShift = new Godot.Vector2I(0, _shaken++ % 2 == 0 ? -ShakePixels : 0);
             StepBlasts();
             if (_phase == Phase.Exploding && --_left <= 0)
             {
@@ -135,7 +151,7 @@ public partial class IntroMotherBrain : Enemy
         _blasts.Clear();
         _rings.Clear();
         _blastsToCome.Clear();
-        Room.Shake(0, 0);
+        Room.Terrain.ShownShift = Godot.Vector2I.Zero;
         Vanish();
     }
 

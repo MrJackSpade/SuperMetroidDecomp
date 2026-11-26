@@ -945,6 +945,12 @@ public partial class Torizo : Enemy
         Die();
     }
 
+    /// <summary>
+    /// Hurt, it does nothing of its own but drool as it does at low health, by the same chance: its behaviour waits
+    /// and its colours are the flash's.
+    /// </summary>
+    protected override void WhileHurt() => MaybeDrool();
+
     /// <summary>Now and then, when its health is low, a drop falls from it.</summary>
     private void MaybeDrool()
     {

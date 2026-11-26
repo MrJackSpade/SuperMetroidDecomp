@@ -67,7 +67,6 @@ public partial class SpecialAttack : Projectile
     private Stage _stage;
     private PixelVelocity _swing;
     private SpecialAttack? _partner;
-    private long? _partnerSpentOn;
 
     /// <summary>
     /// Sets the light going as the <paramref name="part"/>th of its four, turning the way Samus faces. A spazer light
@@ -114,13 +113,6 @@ public partial class SpecialAttack : Projectile
     {
         if (Launcher is not Player samus)
             throw new InvalidOperationException("A special attack belongs to the player who let it loose.");
-
-        // A spazer light goes on the update after its partner was spent before it fell, as the cartridge has it.
-        if (_partnerSpentOn is { } spentOn && room.Session.UpdateNumber > spentOn)
-        {
-            Leave(room);
-            return;
-        }
 
         Velocity = PixelVelocity.Zero;
         // A wave light starts at whole pixels from hers: the part of a pixel she is at is not its own.
@@ -274,8 +266,10 @@ public partial class SpecialAttack : Projectile
             Sound(room, EndSound);
         if (_partner is not { } partner || _stage == Stage.Last)
             return;
+        // The partner goes there and then, on this light's own step: one that comes before it among her shots has
+        // had its step on this update, and held her weapons by it; one that comes after has not, and has none.
         if (!partner.HasEnded)
-            partner._partnerSpentOn = room.Session.UpdateNumber;
+            partner.Leave(room);
         else
             ((Samus)room.Player).ClearShotPlace(_part ^ 2);
     }

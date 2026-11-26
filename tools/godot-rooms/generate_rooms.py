@@ -78,7 +78,10 @@ SPEED_BOOSTER_LAVA_RISE = 0.125
 
 # How fast the acid of the Lower Norfair statue's room falls once the statue has it fall, in pixels an update: the
 # old ChozoStatueFxData.LoweringVelocity, a quarter of a pixel. The fact the statue records once it has.
+# The speed the lavaquake gives its hall's lava as it begins (SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity).
+LAVAQUAKE_START = 0.5
 CHOZO_ACID_FALL = 0.25
+CHOZO_ACID_DELAY = 32
 CHOZO_ACID_LOWERED = 'lower_norfair_acid_lowered'
 
 # The door setups that start the Wrecked Ship's entrance treadmill, with the way each starts it, as the layouts'
@@ -551,7 +554,8 @@ class Generator:
             shown, told = fx.things(self.room_fx[state.fx], room, ctx,
                                     lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door,
                                     told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else CHOZO_ACID_FALL if lowers_acid
-                                    else ESCAPE_ACID_RISE if raises_acid else None)
+                                    else ESCAPE_ACID_RISE if raises_acid
+                                    else LAVAQUAKE_START if any(thing.name == 'Lavaquake' for thing in placed_objects.placed) else None)
             if raises_acid:
                 # The acid waits low until Samus passes its point, and then rises after the wait what watched for her gave it.
                 liquids = [thing for thing in shown if thing.name == 'Liquid' and 'MoveSpeed' in thing.properties]
@@ -562,6 +566,10 @@ class Generator:
                 shown.append(passed)
                 links[id(passed)] = {'Target': liquids[0]}
             if lowers_acid:
+                # The statue gives the acid its wait as it gives it its speed (ChozoStatueFxData.LoweringDelay).
+                for thing in shown:
+                    if thing.name == 'Liquid' and thing.properties.get('MoveSpeed') == repr(CHOZO_ACID_FALL):
+                        thing.properties['MoveDelay'] = str(CHOZO_ACID_DELAY)
                 # The statue has the acid fall, and once it has, the room is entered with the acid already down: the
                 # liquid that waits raised is there until then, and one that lies low after.
                 waiting = [thing for thing in shown if thing.properties.get('StartsRaised') == 'true']

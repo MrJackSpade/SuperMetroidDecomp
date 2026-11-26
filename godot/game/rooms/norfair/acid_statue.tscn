@@ -318,7 +318,7 @@ LowSurface = 722
 HighSurface = 200
 StartsRaised = true
 MoveSpeed = 0.25
-MoveDelay = 0
+MoveDelay = 32
 PresentWhen = SubResource("r8")
 
 [node name="Liquid3" type="Node2D" parent="."]

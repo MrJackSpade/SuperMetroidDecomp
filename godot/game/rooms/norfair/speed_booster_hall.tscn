@@ -126,7 +126,9 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 TypeFile = "liquids/lava.json"
 LowSurface = 474
-HighSurface = 474
+HighSurface = 176
+MoveSpeed = 0.5
+MoveDelay = 240
 PresentWhen = SubResource("r4")
 
 [node name="Heat" type="Node2D" parent="."]

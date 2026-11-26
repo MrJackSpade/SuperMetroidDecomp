@@ -40,8 +40,9 @@ public partial class SpeedBoosterLavaquake : RoomSequence
         {
             // Without the Speed Booster there is no chase, and nothing to have outrun.
             (_moving, _passed, _idle) = (false, 0, !room.Player.Inventory.Owns(Equipment.SpeedBooster));
+            // The lava is given its speed, toward the height and after the wait its room gives it.
             if (!_idle)
-                lava.MoveSpeed = StartSpeed;
+                lava.HeadFor(lava.HighSurface, StartSpeed, lava.MoveDelay);
             return false;
         }
 

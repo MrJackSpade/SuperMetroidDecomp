@@ -1040,7 +1040,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   that stride ends.
 - **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
   wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
-  down at other than a whole number of pixels an update.
+  down at other than a whole number of pixels an update. Her dust rises a pixel on each update it shows, its first
+  among them: its timeline has a step for each update, each placed a pixel higher than the one before.
 - **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
   carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
   her. What the input asks of it is the first of these that holds: the jump with left, then the jump with right,
@@ -1114,7 +1115,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
   takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`); the first update after
-  them that finds it held only begins the cone, which opens from the next. Once the run action is found
+  them that finds it held looks through a cone no wider than a ray, which opens from the next. Once the run action is found
   let go it holds her and the room its closing updates more and lets go on the update after
   (`XrayClosingUpdates`). It does not start
   while she settles from a landing (`StandingState.IsSettling`), while she moves up or down, with her grapple beam
@@ -1774,7 +1775,7 @@ statue's descent, which is its part of an update's opening (`IOpeningStep`), pla
 number is drawn; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
 guardian's eyes and for each turned grey (those of the guardians that are part of the backdrop's picture lie behind
 the room's tiles with it, at `RoomDepth.BehindRoom`; once the light at a guardian's eyes is made, the pictures that
-stand in the room, and the effects the guardians have let out that still play or are let out after, show the change of colours its data gives for that light, `eye_glow_colours`), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+stand in the room, and the effects the guardians have let out that still play or are let out after, show the change of colours its data gives for that light, `eye_glow_colours`; as a guardian that stands in the room greys, the other pictures that stand in the room and the effects let out show, step by step, the change of colours its data gives for each step, `grey_colours`, as the cartridge lays its grey-out over all the statue's sprites), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:

@@ -638,7 +638,51 @@ public sealed partial class EngineAssetWriter
             JsonObject timeline = EngineTimelines.Of<SamusAtmosphereFrame, NoAnimationCue>(
                 lead, null, frame => pictures.Of(SamusAtmosphereSheetDefinitions.FrameName(frame)), static _ => null);
             timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+
+            // One that drifts the same way wherever it is raised, as her dust rises, moves on each update it is shown.
+            // Lava spray drifts to the side it is thrown, which is not known here.
+            if (SteadyParticles.SingleOrDefault(steady => steady.Kind == kind) is { } drifting && drifting.Drift != default)
+                timeline["steps"] = Drifted(kind, timeline, drifting.Drift.X, drifting.Drift.Y);
             _tree.WriteData(file, timeline);
         }
+    }
+
+    /// <summary>Samus's particles that move the same way, or not at all, wherever they are raised.</summary>
+    private static readonly SamusSteadyParticle[] SteadyParticles =
+    [
+        SamusParticleKindDefinitions.SurfaceSplash, SamusParticleKindDefinitions.DivingSplash, SamusParticleKindDefinitions.Bubbles,
+        SamusParticleKindDefinitions.Dust,
+    ];
+
+    /// <summary>
+    /// The steps of a particle's timeline that moves by (<paramref name="x"/>, <paramref name="y"/>) on each update it is
+    /// shown, its first among them, as the cartridge moves it before it draws it: each update a step of its own, placed so
+    /// much further than the one before.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The timeline loops or rests, or a step shows nothing or raises a cue.</exception>
+    private static JsonArray Drifted(SamusParticleKind kind, JsonObject timeline, int x, int y)
+    {
+        if (timeline["loops_to"] is not null)
+            throw new InvalidDataException($"Samus's {kind} comes round to a step, which splitting its steps by update would not keep.");
+        var drifted = new JsonArray();
+        int shown = 0;
+        foreach (JsonNode? step in timeline["steps"]!.AsArray())
+        {
+            string picture = step!["picture"]!.GetValue<string>();
+            if (picture.Length == 0 || step["cues"] is not null || step["offset"] is not null)
+                throw new InvalidDataException($"A step of Samus's {kind} shows nothing, raises a cue or has a place of its own, which splitting it by update would not keep.");
+            for (int update = 0; update < step["updates"]!.GetValue<int>(); update++)
+            {
+                shown++;
+                drifted.Add(new JsonObject
+                {
+                    ["picture"] = picture,
+                    ["updates"] = 1,
+                    ["offset"] = new JsonObject { ["x"] = x * shown, ["y"] = y * shown },
+                });
+            }
+        }
+
+        return drifted;
     }
 }

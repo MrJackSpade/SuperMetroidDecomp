@@ -103,6 +103,10 @@ public sealed partial class EngineAssetWriter
         // cartridge shows a later light on those still playing, as on every sprite of the statue.
         var effectFolders = new List<(string Folder, string[] Frames, string Glow)>();
 
+        // Each guardian that stands in the room, with its folder and the shade of each step of its greying: the
+        // cartridge lays each step over all the statue's sprites, not only over that guardian.
+        var greyings = new List<(JsonObject Data, string Folder, string[] Steps)>();
+
         var statues = new JsonObject();
         foreach (TourianStatue statue in new[] { TourianStatue.Kraid, TourianStatue.Phantoon, TourianStatue.Draygon, TourianStatue.Ridley })
         {
@@ -157,6 +161,11 @@ public sealed partial class EngineAssetWriter
                     inRoom.Add((standing.Of(Frame(look)), Frame(look), [entrance]));
                 inRoom.Add((cleared.Of(Frame(Look.Released)), Frame(Look.Released), [entrance, definition.ClearedShade.Key]));
                 inRoom.Add((grey.Of(Frame(Look.Released)), Frame(Look.Released), [entrance, definition.ClearedShade.Key, definition.GreyShade.Key]));
+                string[] greySteps = [.. SuperMetroid.Core.Fx.ColourEffects.ColourEffectShownFrames.Steps(definition.ColourEffect)
+                    .OfType<AnimationBeat<int, SuperMetroid.Core.Fx.ColourEffects.ColourEffectCue>.Frame>()
+                    .Select(step => SuperMetroid.Core.Fx.ColourEffects.ColourEffectShades.Of(TourianSpriteStatueDefinitions.Colours[sprite],
+                        new SuperMetroid.Core.Fx.ColourEffects.ColourEffectFrame(definition.ColourEffect, step.Shown)).Key)];
+                greyings.Add((data, folder, greySteps));
             }
             else
             {
@@ -305,9 +314,9 @@ public sealed partial class EngineAssetWriter
             return written;
         }
 
-        // Writes under the place what the light changes of the frames shown there: each colour as a frame is cut, and
-        // as it shows lit.
-        void WriteChanges(JsonObject written, string glow, string place, IReadOnlyList<(string Frame, string[] Cut, string[] Lit)> shown)
+        // Writes under the place what a shade changes of the frames shown there: each colour as a frame is cut, and
+        // as it shows with the shade.
+        void WriteChanges(JsonObject written, string shade, string place, IReadOnlyList<(string Frame, string[] Cut, string[] Lit)> shown)
         {
             static string Written(RgbaPixel pixel) =>
                 ((pixel.R << 16) | (pixel.G << 8) | pixel.B).ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
@@ -323,7 +332,7 @@ public sealed partial class EngineAssetWriter
                         continue;
                     string from = Written(unlit[i]), to = Written(lit[i]);
                     if (changed.TryGetValue(from, out string? before) && before != to)
-                        throw new InvalidDataException($"The light {glow} shows the colour {from} of {place} as {before} in one place and as {to} in another.");
+                        throw new InvalidDataException($"The shade {shade} shows the colour {from} of {place} as {before} in one place and as {to} in another.");
                     changed[from] = to;
                 }
             }
@@ -336,13 +345,42 @@ public sealed partial class EngineAssetWriter
             }
 
             if (colours.Count > MostSwapsShown)
-                throw new InvalidDataException($"The light {glow} changes {colours.Count} colours of {place}; a thing shows at most {MostSwapsShown} changed at once.");
+                throw new InvalidDataException($"The shade {shade} changes {colours.Count} colours of {place}; a thing shows at most {MostSwapsShown} changed at once.");
             if (colours.Count > 0)
                 written[place] = colours;
         }
 
         foreach ((JsonObject data, string glow) in glows)
             data["eye_glow_colours"] = EyeGlowColours(glow);
+
+        // The colours each step of a guardian's greying changes, place by place, on every other picture that stands in
+        // the room and on the effects of every guardian, its own among them: each colour as it is cut, and as it shows
+        // with the step's shade laid over it. Its own figure shows the step by its grey picture.
+        foreach ((JsonObject data, string ownFolder, string[] steps) in greyings)
+        {
+            var greyColours = new JsonArray();
+            foreach (string step in steps)
+            {
+                var written = new JsonObject();
+                foreach ((string path, string frame, string[] shades) in inRoom)
+                {
+                    if (path.StartsWith($"{ownFolder}/", StringComparison.Ordinal))
+                        continue;
+                    string[] greyed = [.. shades, step];
+                    WriteChanges(written, step, path, [(frame, shades, greyed)]);
+                }
+
+                foreach ((string effectFolder, string[] frames, string cutIn) in effectFolders)
+                {
+                    string[] cutShades = [entrance, cutIn], greyed = [entrance, cutIn, step];
+                    WriteChanges(written, step, effectFolder, [.. frames.Select(frame => (frame, cutShades, greyed))]);
+                }
+
+                greyColours.Add(written);
+            }
+
+            data["grey_colours"] = greyColours;
+        }
 
         // The dust the sinking statue raises: so many puffs at once, each thrown a chance distance, so many times over.
         Animation<ChozoTourianDustSegment> descent = ChozoTourianDustAnimations.TourianDescentDust;

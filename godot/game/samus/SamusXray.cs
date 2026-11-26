@@ -26,6 +26,7 @@ public partial class SamusXray : Node2D
 
     private Pixels _widening;
     private Pixels _opened;
+    private bool _lookedThrough;
     private bool _fullyOpen;
     private int _swing;
 
@@ -44,6 +45,7 @@ public partial class SamusXray : Node2D
         IsOpen = true;
         _widening = Pixels.Zero;
         _opened = Pixels.Zero;
+        _lookedThrough = false;
         _fullyOpen = false;
         _swing = 0;
         _halfWidth = 0;
@@ -59,11 +61,14 @@ public partial class SamusXray : Node2D
 
     /// <summary>
     /// Plays one update of looking: the cone opens a little more or, once fully open, swings by
-    /// <paramref name="swing"/> (up when negative), and every hidden block inside it that sight reveals is shown.
+    /// <paramref name="swing"/> (up when negative), and every hidden block inside it that sight reveals is shown. The
+    /// first update it is looked through it is a ray no wider than a pixel, and it opens from the next.
     /// </summary>
     public void Look(Samus samus, int swing)
     {
-        if (_fullyOpen)
+        if (!_lookedThrough)
+            _lookedThrough = true;
+        else if (_fullyOpen)
         {
             // It swings no further than puts its edge straight up or straight down.
             int furthest = Turns.PerTurn / 4 - _halfWidth;
@@ -140,18 +145,27 @@ public partial class SamusXray : Node2D
     /// <inheritdoc/>
     public override void _Draw()
     {
-        if (!IsOpen)
+        // Nothing is seen until the scope is first looked through.
+        if (!IsOpen || !_lookedThrough)
             return;
         float forward = _facingLeft ? -1 : 1;
         (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
         (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
         const float length = 400f / 4096f;
+        var colour = new Color(1, 1, 1, 0.35f);
+        Vector2 upperEnd = _eye + new Vector2(upperAhead * forward, upperBelow) * length;
+        // A cone with no width is a ray one pixel wide.
+        if (_halfWidth == 0)
+        {
+            DrawLine(_eye, upperEnd, colour, 1);
+            return;
+        }
         Vector2[] cone =
         [
             _eye,
-            _eye + new Vector2(upperAhead * forward, upperBelow) * length,
+            upperEnd,
             _eye + new Vector2(lowerAhead * forward, lowerBelow) * length,
         ];
-        DrawColoredPolygon(cone, new Color(1, 1, 1, 0.35f));
+        DrawColoredPolygon(cone, colour);
     }
 }

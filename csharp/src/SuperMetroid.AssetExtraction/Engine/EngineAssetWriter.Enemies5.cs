@@ -139,6 +139,12 @@ public sealed partial class EngineAssetWriter
             .Value("rest_updates", PowampMotionDefinitions.RestDuration)
             .Value("inflation_updates", PowampMotionDefinitions.InflationDuration)
             .Value("death_delay", PowampMotionDefinitions.DeathDelay)
+            // Its delayed death, by a shot, a bomb or a power bomb, takes its explosion from the place its burst's last
+            // spike took among the enemies' shots (LeftoverNumberDeathExplosion): eight spikes into places given from
+            // the last down end at the eleventh or lower, which names the small explosion, as does a burst the places
+            // ran out for. Only with eight to ten places already held does the last spike take the second or third
+            // place and name the normal or the big one; that case is not written.
+            .Group("death", Death(EnemyDeathExplosion.Small, raisedBySuperMissile: false))
             .Value("wiggle_step_updates", PowampMotionDefinitions.WiggleStepDuration)
             .Value("rise_speed", EngineNames.Number(-PowampMotionDefinitions.RiseVelocity))
             .Value("sink_speed", EngineNames.Number(PowampMotionDefinitions.SinkVelocity))

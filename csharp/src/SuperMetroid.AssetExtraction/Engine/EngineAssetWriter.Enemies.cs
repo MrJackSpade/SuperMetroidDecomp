@@ -120,6 +120,8 @@ public sealed partial class EngineAssetWriter
             .Looks(MultiviolaAnimations.Segments, MultiviolaAnimations.StartingWith, ("flying", MultiviolaSegment.Flying))
             .Write();
         Enemy("enemies/fireflea.json", "Fireflea", EnemyDefinitionId.Fireflea).BodyColliders(Ordinary)
+            // The second death its touch runs on a place her body's blow already emptied names the small explosion.
+            .Value("second_death_effect", DeathFile(EnemyDeathExplosion.Small))
             .Looks(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith, ("flying", FirefleaSegment.BrightestWingbeat))
             .Write();
         foreach ((string file, EnemyDefinitionId id) in new[]

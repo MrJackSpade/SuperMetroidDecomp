@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Content;
 using Engine.Shared;
 using Engine.World;
 using Game.Compatibility;
@@ -37,9 +38,14 @@ public partial class Fireflea : Enemy
     [Export]
     public NodePath Darkens { get; set; } = new();
 
+    /// <summary>The effect of the second death the cartridge gives one a blow of Samus's own body has killed.</summary>
+    [Export, DataValue("second_death_effect")]
+    public string SecondDeathEffect { get; set; } = "";
+
     private PixelPosition _middle;
     private bool _goingUp;
     private Pixels _angle;
+    private bool _killedByHerBody;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -71,10 +77,24 @@ public partial class Fireflea : Enemy
     protected override void OnTouchedPlayer() => Die();
 
     /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        _killedByHerBody = hit.CarriesAny(Game.Data.HitKinds.OfHerBody);
+        return true;
+    }
+
+    /// <inheritdoc/>
     protected override void OnDied()
     {
         if (!Darkens.IsEmpty && GetNodeOrNull(Darkens) is ITriggerTarget darkness)
             darkness.Triggered("darken");
+
+        // The cartridge's Fireflea runs its death after every touch, whatever the touch did. Where the touch was a
+        // blow of her body that had already killed it, that second death finds its place emptied: its explosion, the
+        // small one, stands at the room's corner and drops nothing. (It counts a second kill too, which nothing in a
+        // Fireflea's room reads.)
+        if (_killedByHerBody)
+            LeaveEffect(SecondDeathEffect, PixelPosition.Origin);
     }
 
     /// <summary>Where on its circle it is now, on whole pixels: the cartridge's short product of its radius.</summary>

@@ -102,6 +102,30 @@ public partial class KraidNail : Enemy
     /// <inheritdoc/>
     protected override void OnTouchedPlayer() => Die();
 
+    /// <summary>The effect of the second death the cartridge gives one a blow of Samus's own body has killed while another is to follow it.</summary>
+    [Export, DataValue("second_death_effect")]
+    public string SecondDeathEffect { get; set; } = "";
+
+    private bool _killedByHerBody;
+
+    /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        _killedByHerBody = hit.CarriesAny(Game.Data.HitKinds.OfHerBody);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDied()
+    {
+        // The cartridge's nail runs its death after its touch wherever the touch left its place taken. A blow of her
+        // body that killed a nail another follows leaves the place waiting for that other, so the death runs again on
+        // it: its explosion, the small one, stands at the room's corner and drops nothing. (It counts a second kill
+        // too, which nothing in Kraid's room reads.)
+        if (_killedByHerBody && RespawnsWhenKilled)
+            LeaveEffect(SecondDeathEffect, PixelPosition.Origin);
+    }
+
     /// <summary>
     /// Shows it in the colours of Kraid's parts at once, in place of those it showed before. A change is worked out for
     /// it by the picture it shows, so while it shows none it is shown none.

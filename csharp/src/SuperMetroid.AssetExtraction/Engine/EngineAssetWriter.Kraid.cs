@@ -384,6 +384,8 @@ public sealed partial class EngineAssetWriter
         foreach ((EngineEnemy nail, EnemyDefinitionId id) in nails)
         {
             nail.BodyColliders("Body", "Hurtbox")
+                // The second death its touch runs on a place her body's blow already emptied names the small explosion.
+                .Value("second_death_effect", DeathFile(EnemyDeathExplosion.Small))
                 .Value("launch_delay", KraidArenaDefinitions.NailLaunchDelayUpdates)
                 .Value("below_arm", KraidArenaDefinitions.NailLaunchBelowArm)
                 // It sets off as far left of Kraid's place as Kraid's half-width and its own.

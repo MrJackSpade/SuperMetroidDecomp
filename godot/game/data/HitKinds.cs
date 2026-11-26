@@ -54,6 +54,9 @@ public static class HitKinds
     /// <summary>A digging machine's saw, which cuts what only it can cut.</summary>
     public const string Saw = "saw";
 
+    /// <summary>The kinds a blow of Samus's own body carries, whichever of her powers it is.</summary>
+    public static IReadOnlyList<Engine.Shared.HitKind> OfHerBody { get; } = [new(ScrewAttack), new(SpeedBoost), new(Shinespark), new(ChargedSpin)];
+
     /// <summary>Every one of them.</summary>
     public static IReadOnlyList<string> All { get; } = [Beam, Charged, Ice, Wave, Spazer, Plasma, Missile, SuperMissile, Bomb, PowerBomb, ScrewAttack, SpeedBoost, Shinespark, ChargedSpin, Grapple, Xray, Saw];
 }

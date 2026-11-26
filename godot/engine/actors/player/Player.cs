@@ -490,8 +490,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private PixelRect FeetRect => new(BodyRect.Left, BodyRect.Bottom - 1, BodyRect.Width, 1);
 
     /// <summary>
-    /// The medium the player is moving in this update: the liquid their feet are in, when it hinders them and they
-    /// have a medium of its name, and otherwise air.
+    /// The medium the player is moving in: the liquid their feet are in, when it hinders them and they have a medium
+    /// of its name, and otherwise air. It is settled as it is first asked in an update, by the feet of the form they
+    /// then have, and again whenever their form changes within the update.
     /// </summary>
     public PlayerMedium Medium => _medium ??= FindMedium();
 
@@ -1672,9 +1673,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>
     /// Takes a form. The body and the hurtbox keep the shape they had for the rest of the update: the form's own
     /// shape is theirs from the player's next update on (<see cref="PublishForm"/>), so whatever meets the player
-    /// before then meets the body they had.
+    /// before then meets the body they had. The medium they move in is asked afresh, though: it goes by the feet of
+    /// the form they have as it is asked, and those have moved.
     /// </summary>
-    private void ApplyForm(string form) => Form = form;
+    private void ApplyForm(string form)
+    {
+        Form = form;
+        _medium = null;
+    }
 
     /// <summary>Puts the body and the hurtbox in the shape of the form the player is in.</summary>
     private void PublishForm()

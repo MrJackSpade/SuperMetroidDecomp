@@ -138,12 +138,21 @@ public partial class YappingMaw : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
+        // As every enemy's touch on the cartridge, it meets a Samus still safe from her last hurt only while her body is
+        // a weapon, and that meeting ends her safety.
+        Engine.Actors.Player samus = Room.Player;
+        bool bodyIsWeapon = samus.BodyPowers.Any(power => power.IsActive);
+        if (samus.IsInvincible && !bodyIsWeapon)
+            return;
+        if (bodyIsWeapon)
+            samus.BeInvincibleFor(0);
+
         // It can catch her only while its cooldown reads below nothing; having caught her, not again until the strike is over.
         if (_cooldown >= 0 || _holds || IsDead)
             return;
         _cooldown = 0;
         _holds = true;
-        Room.Player.Hold();
+        samus.Hold();
     }
 
     /// <inheritdoc/>

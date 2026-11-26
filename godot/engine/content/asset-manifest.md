@@ -514,6 +514,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | File | Named in |
 | --- | --- |
 | `audio/music_sets.json` | `game/compatibility/CartridgeSounds.cs` |
+| `audio/music_versions.json` | `game/compatibility/CartridgeSounds.cs` |
 | `audio/sound_versions.json` | `game/compatibility/CartridgeSounds.cs` |
 | `backdrops/scrolling_sky_bands.json` | `game/rooms/crateria/east_ocean.tscn`, `game/rooms/crateria/landing_site.tscn`, `game/rooms/crateria/pre_bowling.tscn` and 1 more |
 | `backdrops/{graphics}/brinstar_blue_grid_blocks.png` | `game/rooms/brinstar/alpha_power_bomb.tscn`, `game/rooms/brinstar/spazer.tscn` |

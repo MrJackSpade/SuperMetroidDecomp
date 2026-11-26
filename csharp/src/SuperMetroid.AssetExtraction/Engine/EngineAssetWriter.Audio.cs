@@ -20,6 +20,9 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     private const string SoundVersionsFile = "audio/sound_versions.json";
 
+    /// <summary>The data file of the tracks a set of music keeps differently: for each, the sets that have a file of it of their own.</summary>
+    private const string MusicVersionsFile = "audio/music_versions.json";
+
     /// <summary>Writes every sound, every stop of sounds, and every piece of music.</summary>
     private void WriteAudio()
     {
@@ -103,13 +106,31 @@ public sealed partial class EngineAssetWriter
         foreach (SoundEffectId stop in EveryStop())
             _tree.WriteSound($"{SoundFolder}/{EngineNames.Stop(stop)}.wav", manifest.SampleRate, new short[PcmSampleFormat.StereoChannelCount], null);
 
-        // One file for each track. Where sets of music keep the same track differently, it is the first listed.
+        // One file for each track, as the first set listed with it keeps it; and, where another set keeps the same
+        // track differently, one more for that set, in a folder named for the set. The game is told which tracks have
+        // a file for which sets.
+        var musicVersions = new JsonObject();
         foreach (MusicTrack track in Enum.GetValues<MusicTrack>())
         {
-            MusicClipEntry entry = manifest.Music.FirstOrDefault(listed => listed.Track == track)
-                ?? throw new InvalidDataException($"The installation keeps no clip for the music {track}.");
+            MusicClipEntry[] kept = [.. manifest.Music.Where(listed => listed.Track == track)];
+            if (kept.Length == 0)
+                throw new InvalidDataException($"The installation keeps no clip for the music {track}.");
+            MusicClipEntry entry = kept[0];
             _tree.WriteSound($"{MusicFolder}/{MusicName(track)}.wav", manifest.SampleRate, Samples(entry.Clip), entry.LoopStart);
+            var sets = new JsonArray();
+            foreach (MusicClipEntry other in kept.Skip(1))
+            {
+                if (other.Clip.Path == entry.Clip.Path && other.LoopStart == entry.LoopStart)
+                    continue;
+                _tree.WriteSound($"{MusicFolder}/{MusicSetName(other.AudioSet)}/{MusicName(track)}.wav", manifest.SampleRate, Samples(other.Clip), other.LoopStart);
+                sets.Add(MusicSetName(other.AudioSet));
+            }
+
+            if (sets.Count > 0)
+                musicVersions[MusicName(track)] = sets;
         }
+
+        _tree.WriteData(MusicVersionsFile, musicVersions);
     }
 
     /// <summary>Every sound of the old game's three libraries.</summary>

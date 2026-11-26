@@ -45,6 +45,15 @@ public sealed class CartridgeSounds : ISoundFlow
     /// <summary>For each sound some set of music plays differently, the sets that do.</summary>
     private readonly Dictionary<string, HashSet<string>> _versions = new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// The data file of the tracks a set of music keeps differently: for each such track, the sets that have a file
+    /// of it of their own, kept in a folder of the music named for the set.
+    /// </summary>
+    private const string MusicVersionsFile = "audio/music_versions.json";
+
+    /// <summary>For each track some set of music keeps differently, the sets that do.</summary>
+    private readonly Dictionary<string, HashSet<string>> _musicVersions = new(StringComparer.Ordinal);
+
     /// <summary>The libraries, in the order their turns are taken and the program serves them.</summary>
     private static readonly string[] Libraries = ["samus", "enemy", "room"];
 
@@ -71,6 +80,8 @@ public sealed class CartridgeSounds : ISoundFlow
         _music = new MusicQueue(_setAtPowerOn);
         foreach ((string sound, DataNode setsWithOne) in content.ReadData(VersionsFile).Entries())
             _versions[sound] = [.. setsWithOne.Items().Select(set => set.AsText())];
+        foreach ((string track, DataNode setsWithOne) in content.ReadData(MusicVersionsFile).Entries())
+            _musicVersions[track] = [.. setsWithOne.Items().Select(set => set.AsText())];
     }
 
     /// <summary>
@@ -123,7 +134,12 @@ public sealed class CartridgeSounds : ISoundFlow
         _room is { } room && Godot.GodotObject.IsInstanceValid(room) && room.Projectiles.OfType<PowerBomb>().Any(bomb => bomb.IsExploding);
 
     /// <inheritdoc/>
-    public string Music => _music.Playing;
+    /// <remarks>
+    /// A track the set of music loaded keeps differently from the rest is named with the set's folder before it, which
+    /// is where its file for that set is: the cartridge plays a track as the set loaded holds it.
+    /// </remarks>
+    public string Music =>
+        _musicVersions.TryGetValue(_music.Playing, out HashSet<string>? sets) && sets.Contains(_music.LoadedSet) ? $"{_music.LoadedSet}/{_music.Playing}" : _music.Playing;
 
     /// <inheritdoc/>
     public bool HasWaitingSounds => _queues.Values.Any(queue => queue.Waiting > 0);

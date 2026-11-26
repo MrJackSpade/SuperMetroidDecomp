@@ -144,6 +144,14 @@ public partial class Botwoon : Enemy
     private readonly int[] _segmentFallWait = new int[Segments];
     private readonly int[] _segmentFallPlace = new int[Segments];
     private readonly bool[] _segmentLanded = new bool[Segments];
+
+    /// <summary>
+    /// What holds each segment's place among the room's places for what enemies launch: on the cartridge each segment
+    /// is a shot of its own. Null for a segment the room had no place for, which is not there at all, and for one that
+    /// has landed and handed its place to its explosion. They are taken from behind the head back, so those that got
+    /// one are always the nearest the head.
+    /// </summary>
+    private readonly Effect?[] _segmentPlaces = new Effect?[Segments];
     private readonly List<(int Below, string Shade)> _healthShades = [];
     private Engine.World.PatchSequence? _wallCrumble;
     private int _shown = -1;
@@ -260,8 +268,19 @@ public partial class Botwoon : Enemy
         Array.Fill(_headTrail, here);
         Array.Fill(_segmentAt, here);
         Array.Fill(_segmentHidden, true);
+
+        // Its segments take their places as it is set up, the one behind its head first and the tail last.
+        for (int segment = Segments - 1; segment >= 0; segment--)
+        {
+            Effect place = Effect.HoldingPlace(Position);
+            _segmentPlaces[segment] = Room.Spawn(place) ? place : null;
+        }
+
         ShowBody();
     }
+
+    /// <summary>Whether a segment of its body is there: whether the room had a place for it, landed or not.</summary>
+    private bool IsThere(int segment) => _segmentPlaces[segment] is not null || _segmentLanded[segment];
 
     /// <inheritdoc/>
     protected override void OnCue(string cue)
@@ -337,8 +356,12 @@ public partial class Botwoon : Enemy
             _phase = Phase.DeathDelay;
             _wait = Countdown.Of(PreFallWait);
             _tailExited = false;
+            // How long each segment waits before it falls goes by the place it holds, not by where it is in the body.
             for (int segment = 0; segment < Segments; segment++)
-                _segmentFallWait[segment] = 160 - 8 * segment;
+            {
+                if (_segmentPlaces[segment] is { } held)
+                    _segmentFallWait[segment] = 160 - 8 * (Room.PlaceOf(held) ?? throw new InvalidOperationException("A segment of Botwoon holds no place."));
+            }
         }
 
         switch (_phase)
@@ -529,8 +552,10 @@ public partial class Botwoon : Enemy
         }
 
         _trail[_ring] = (Position.X.Whole, Position.Y.Whole);
+        // The segments the room had no place for are not there, and the cartridge never learns that a missing tail has
+        // left the wall: then, once dead, it goes on and on without falling.
         int place = Wrap(_ring - spacing);
-        for (int segment = Segments - 1; segment >= 0; segment--)
+        for (int segment = Segments - 1; segment >= 0 && IsThere(segment); segment--)
         {
             if (_savedRing == place)
             {
@@ -640,7 +665,7 @@ public partial class Botwoon : Enemy
     {
         for (int segment = Segments - 1; segment >= 0; segment--)
         {
-            if (_segmentLanded[segment])
+            if (_segmentPlaces[segment] is not { } held)
                 continue;
             if (_segmentFallWait[segment] > 0)
             {
@@ -656,7 +681,14 @@ public partial class Botwoon : Enemy
                 y = FloorY;
                 _segmentLanded[segment] = true;
                 _segmentHidden[segment] = true;
-                Explode(PixelPosition.FromWhole(x, y));
+                _segmentPlaces[segment] = null;
+
+                // The segment becomes its explosion, which holds its place until it has played.
+                if (ExplosionEffect.Length > 0)
+                    Room.SpawnInPlaceOf(held, Effect.Of(FrameTimeline.Read(Room.Content.ReadData(ExplosionEffect)), PixelPosition.FromWhole(x, y), holdsPlace: true));
+                else
+                    Room.Remove(held);
+                Sound(ExplosionSound);
             }
 
             _segmentAt[segment] = (x, y);

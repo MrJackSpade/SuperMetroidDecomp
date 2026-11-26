@@ -9,7 +9,7 @@ namespace Game.Enemies;
 
 /// <summary>
 /// One of Spore Spawn's spores: it drifts down from the ceiling along a set, wavering path, to one side or the other,
-/// and is gone when it reaches the floor. Shot, it bursts as it drifts on: harmless from the burst's second update,
+/// and is gone when it reaches the floor. Shot, it bursts where it is and drifts no further: harmless from the burst's second update,
 /// and leaving what its settings say it may drop as the burst ends.
 /// </summary>
 /// <remarks>
@@ -59,7 +59,7 @@ public partial class SporeSpawnSpore : Projectile, IHasValues
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
-        // A shot stops on it and sets off its burst; it goes on drifting until the burst is over.
+        // A shot stops on it and sets off its burst, which plays where it was shot: a shot spore drifts no further.
         _bursting = true;
         PlayTimeline(BurstTimeline);
         return HitResult.Destroyed;
@@ -94,6 +94,13 @@ public partial class SporeSpawnSpore : Projectile, IHasValues
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {
+        if (_bursting)
+        {
+            if (_harmless)
+                MeetWhileHarmless(room);
+            return;
+        }
+
         PixelOffset step = _drift[_step];
         Position += _driftsLeft ? new PixelOffset(-step.X, step.Y) : step;
         _step = (_step + 1) % _drift.Count;

@@ -896,8 +896,8 @@ public partial class Crocomire : Enemy, ILatchable
         _acidStep = 0;
         _acidBody = "whole";
         _fragmentsFallen = 0;
-        // The acid smokes on its first update in the acid.
-        _acidSmokeIn = 1;
+        // The acid smokes and burns on its first update in the acid.
+        (_acidSmokeIn, _acidSoundIn) = (1, 1);
         _hold = 0;
         Play("bridge_collapsed", restart: true);
         _downSpeed = Pixels.Zero;
@@ -1039,13 +1039,6 @@ public partial class Crocomire : Enemy, ILatchable
     /// <summary>Moves one update of what it does in the acid.</summary>
     private void StepInAcid()
     {
-        // While it is whole the acid is heard burning it.
-        if (_acidBody == "whole" && --_acidSoundIn <= 0)
-        {
-            _acidSoundIn = AcidSoundUpdates;
-            Sound(AcidSound);
-        }
-
         // The pieces of the bridge fall after it, one an update, each a little faster or slower by the number last drawn.
         if (_fragmentsFallen < _fragmentXs.Count)
         {
@@ -1073,6 +1066,13 @@ public partial class Crocomire : Enemy, ILatchable
         }
 
         AcidStep step = _acidScript[_acidStep];
+        // While it is whole the acid is heard burning it as it sinks, rests under it and rises, and not as it waits.
+        if (_acidBody == "whole" && step.Does is Acid.Sink or Acid.Pause or Acid.Rise && --_acidSoundIn <= 0)
+        {
+            _acidSoundIn = AcidSoundUpdates;
+            Sound(AcidSound);
+        }
+
         // The acid smokes about it as it sinks, rises and melts, by where it is before it moves.
         if (step.Does is Acid.Sink or Acid.Rise or Acid.Melt)
             SmokeAcid();

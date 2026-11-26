@@ -344,6 +344,8 @@ public partial class Room : Node2D
         _playerAtUpdateStart = Player.Position;
         OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
 
+        SettleWhoTakesTurns();
+
         // The room's conditions play on before anyone acts, and then the liquid's pictures: one that is started or
         // told something during an update first shows it in the next. A kind that says it steps as the update ends
         // waits until then.
@@ -531,7 +533,7 @@ public partial class Room : Node2D
         {
             foreach (Enemy enemy in _enemies.ToList())
             {
-                if (enemy is IClosingStep closing && !_leaving.Contains(enemy) && !enemy.IsAsleep && IsActive(enemy))
+                if (enemy is IClosingStep closing && !_leaving.Contains(enemy) && !enemy.IsAsleep && _takingTurns.Contains(enemy))
                     closing.StepClosing(this);
             }
         }
@@ -634,6 +636,8 @@ public partial class Room : Node2D
 
         if (enemies)
         {
+            // Through a door the list of who takes a turn is made as the pass begins.
+            SettleWhoTakesTurns();
             StepEnemyPass();
             Session.CountEnemyPass();
         }
@@ -679,7 +683,7 @@ public partial class Room : Node2D
             if (entity is Enemy enemy)
             {
                 // One that acts with the room's objects takes its turn with them.
-                if (!enemy.ActsWithObjects && IsActive(enemy))
+                if (!enemy.ActsWithObjects && _takingTurns.Contains(enemy))
                     enemy.Step();
             }
             else
@@ -1055,6 +1059,25 @@ public partial class Room : Node2D
         foreach ((Node2D node, _, _) in _arriving)
             node.Free();
         _arriving.Clear();
+    }
+
+    /// <summary>
+    /// The enemies that take a turn on the update being played. It is settled once, as the update opens and before
+    /// the player's input, from where each enemy stands, whether it is frozen and where the view lies then, as the
+    /// cartridge makes its list of them once a frame: an enemy that something moves across the edge of the view's
+    /// reach later in the update is not asked again until the next.
+    /// </summary>
+    private readonly HashSet<Enemy> _takingTurns = [];
+
+    /// <summary>Settles which enemies take a turn on this update.</summary>
+    private void SettleWhoTakesTurns()
+    {
+        _takingTurns.Clear();
+        foreach (Enemy enemy in _enemies)
+        {
+            if (IsActive(enemy))
+                _takingTurns.Add(enemy);
+        }
     }
 
     /// <summary>

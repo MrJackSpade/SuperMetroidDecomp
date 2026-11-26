@@ -1287,7 +1287,7 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   visuals.
 - **Does not:** read or write another enemy's state, depend on its place in any list, or reach into the player. If
   two enemies must cooperate, one owns the other as a child, or they share a link set when the room places them.
-- **Which enemies take a turn.** One that is always active, or frozen, does. Any other does while its middle lies
+- **Which enemies take a turn.** It is settled once, as the update opens and before the player's input, from where each enemy stands and where the view lies then, as the cartridge makes its list once a frame; through a door, as the enemies' pass begins. One that is always active, or frozen, does. Any other does while its middle lies
   within the view widened as the game's definition says (`EnemyTurnMarginAcross`, `EnemyTurnMarginAbove`,
   `EnemyTurnMarginBelow`), and to either side by the enemy's own half-width besides (its body collider's, which
   no pose reshapes; of one with no body, its first hurtbox's); the edges count as within.

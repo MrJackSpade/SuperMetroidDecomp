@@ -1073,7 +1073,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   the direction behind her makes it a spin that way; the angle-up action makes it a jump aiming diagonally up, the
   angle-down action one aiming diagonally down, the attack one with her arm held out level; the jump held keeps it;
   anything else lets it go into a spin, which keeps what the wall jump gave her across only as a space jump or a
-  screw attack. The wall jump is heard as a landing. A wall jump that lands settles as a spin's landing does
+  screw attack. The wall jump is heard as a landing, and as it begins it kicks up dust (`wall_jump_effect`) at the
+  bottom row of her body, `wall_jump_effect_behind` pixels behind the way she then faces, unless her feet are in a
+  liquid, whatever her suit. A wall jump that lands settles as a spin's landing does
   (`spin_landing_updates`, by `Samus.SettlingUpdatesAfter`) and is shown by the spin's landing pictures.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.

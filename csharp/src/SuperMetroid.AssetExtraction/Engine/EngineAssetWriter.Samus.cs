@@ -258,6 +258,10 @@ public sealed partial class EngineAssetWriter
             .Value("wall_jump_across_speed", 0)
             .Value("wall_jump_ready_updates", SamusSegmentUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
 
+            // A wall jump kicks up the dust a landing raises, behind her as she leaves the wall.
+            .Value("wall_jump_effect", SamusParticleFile(SamusWallJumpDustDefinitions.Particle.Kind))
+            .Value("wall_jump_effect_behind", SamusWallJumpDustDefinitions.HorizontalOffset)
+
             // Crouching, standing up, curling up and uncurling each last as long as the pose between is shown, and a
             // jump from a plain crouch starts lifted.
             .Value("crouch_updates", SamusSegmentUpdates(P.CrouchingTransitionRightPose, Seg.Main))

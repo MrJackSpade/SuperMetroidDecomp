@@ -43,19 +43,35 @@ public partial class FaceBlockGlow : RoomObject
         return glow;
     }
 
-    /// <summary>Adds something that shows the glow's level each time it changes, once it has started.</summary>
+    /// <summary>
+    /// Adds something that shows the glow's level from when it starts and each time it changes: at once, if it has
+    /// already started.
+    /// </summary>
     public void Join(IRecoloured visual)
     {
         ArgumentNullException.ThrowIfNull(visual);
-        if (!_shownOn.Contains(visual))
-            _shownOn.Add(visual);
+        if (_shownOn.Contains(visual))
+            return;
+        _shownOn.Add(visual);
+        if (HasStarted)
+            _levels[_at].ShowOn(visual, Source);
     }
 
-    /// <summary>Starts the glow if it has not started, and shows its present level on <paramref name="visual"/> at once, and on from there.</summary>
+    /// <summary>
+    /// Starts the glow if it has not started, showing its present level at once on everything that has joined it,
+    /// since they share its colours, and shows that level on <paramref name="visual"/> at once, and on from there.
+    /// </summary>
     public void StartOn(IRecoloured visual)
     {
-        HasStarted = true;
         Join(visual);
+        if (!HasStarted)
+        {
+            HasStarted = true;
+            foreach (IRecoloured shown in _shownOn)
+                _levels[_at].ShowOn(shown, Source);
+            return;
+        }
+
         _levels[_at].ShowOn(visual, Source);
     }
 

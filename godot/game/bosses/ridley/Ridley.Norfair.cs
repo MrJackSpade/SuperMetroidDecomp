@@ -886,8 +886,10 @@ public partial class Ridley
     {
         foreach (Piece piece in _breakup)
         {
+            // From the number drawn: none up to three sixteenths of a pixel from its fifth and sixth places, a whole
+            // pixel or none from its ninth, and left or right from its highest.
             RandomDraw draw = Random.Draw();
-            Pixels across = Pixels.FromNumber(draw.Part(0, 4) / 16.0 + draw.Part(8, 1));
+            Pixels across = Pixels.FromNumber(draw.Part(4, 2) / 16.0 + draw.Part(8, 1));
             PixelPosition at = piece.TailLink >= 0
                 ? Tail.Links[piece.TailLink].Position
                 : Position + PixelOffset.FromWhole(Facing == Facing.Right ? -piece.X : piece.X, piece.Y);

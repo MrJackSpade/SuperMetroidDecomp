@@ -45,6 +45,9 @@ public partial class CeresArrival : RoomSequence
         {
             pad.Bind(room.Content);
             platform.Bind(room.Content);
+            // Both stand in front of Samus.
+            RoomDepth.Stand(pad, Standing.InFront);
+            RoomDepth.Stand(platform, Standing.InFront);
             _pad = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(PadTimeline)));
             _platform = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(PlatformTimeline)));
             platform.Position = new Vector2(samus.Position.X.Whole, PlatformY);

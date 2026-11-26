@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -64,6 +65,9 @@ public partial class Evir : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        // Its arms stand just behind Samus, in front of its body.
+        if (GetNodeOrNull<ActorVisual>("Arms") is { } arms)
+            RoomDepth.Stand(arms, Standing.JustBehind);
         FaceSamus(restart: true);
         _bob = Countdown.Of((FirstBobUpdates >= 0 ? FirstBobUpdates : BobUpdates / 2) + 1);
         PackedScene scene = SpitScene ?? throw new InvalidOperationException($"The Evir \"{Name}\" names no scene for its spine ball.");

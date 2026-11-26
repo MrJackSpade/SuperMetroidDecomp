@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -38,6 +38,26 @@ About = "ToGoldenTorizo"
 script = ExtResource("5")
 Kind = 6
 Parts = Array[ExtResource("5")]([SubResource("r3")])
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("5")
+Kind = 0
+About = "lower_norfair_acid_lowered"
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([SubResource("r4"), SubResource("r5")])
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r5")])
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([SubResource("r4"), SubResource("r7")])
 
 [node name="AcidStatue" type="Node2D"]
 script = ExtResource("2")
@@ -294,9 +314,20 @@ PresentWhen = SubResource("r3")
 script = ExtResource("12")
 position = Vector2(0, 0)
 TypeFile = "liquids/acid.json"
-LowSurface = 200
+LowSurface = 722
 HighSurface = 200
-PresentWhen = SubResource("r4")
+StartsRaised = true
+MoveSpeed = 0.25
+MoveDelay = 0
+PresentWhen = SubResource("r8")
+
+[node name="Liquid3" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 722
+HighSurface = 722
+PresentWhen = SubResource("r6")
 
 [node name="Heat2" type="Node2D" parent="."]
 script = ExtResource("13")

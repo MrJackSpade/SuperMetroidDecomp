@@ -112,11 +112,10 @@ def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None
         # A liquid given a level to go to and no speed stays where it is, unless something of the room gives it a
         # speed as it tells it to go: then it waits where it is to be told.
         moves = target is not None and number(effect['speed']).lstrip('-') not in ('0', '0.0')
+        # One that waits to be told to fall waits raised, as one that waits to be told to rise waits low.
         waits = target is not None and not moves and told_speed is not None
-        if waits and target > start:
-            raise ValueError('A liquid that waits to be told to fall is not something this knows how to write.')
         rises = (moves or waits) and target < start
-        falls = moves and target > start
+        falls = (moves or waits) and target > start
         properties['LowSurface'] = str(target if falls else start)
         properties['HighSurface'] = str(target if rises else start)
         if falls:

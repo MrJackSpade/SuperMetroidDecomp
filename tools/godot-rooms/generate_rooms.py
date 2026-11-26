@@ -24,6 +24,7 @@ It also lists every room in the game's definition, and names the room and marker
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import os
 import re
@@ -74,6 +75,11 @@ ARRIVAL_ABOVE_SILL = 24
 # How fast the Speed Booster's room's lava rises once the item's message has closed, in pixels an update: the old
 # SpeedBoosterPickupDefinitions.LavaRiseVelocity, an eighth of a pixel.
 SPEED_BOOSTER_LAVA_RISE = 0.125
+
+# How fast the acid of the Lower Norfair statue's room falls once the statue has it fall, in pixels an update: the
+# old ChozoStatueFxData.LoweringVelocity, a quarter of a pixel. The fact the statue records once it has.
+CHOZO_ACID_FALL = 0.25
+CHOZO_ACID_LOWERED = 'lower_norfair_acid_lowered'
 
 # The boss each area's "area boss", "mini boss" and "torizo" is, by the name its defeat is recorded under.
 AREA_BOSSES = {
@@ -497,7 +503,7 @@ class Generator:
                 if placed.chozo == 'WreckedShip':
                     placed.properties['WakesWhen'] = ctx.fact('phantoon_defeated')
                 elif placed.chozo == 'LowerNorfair':
-                    placed.properties.update({'WakesWhen': ctx.owns('space_jump'), 'RecordsFact': quoted('lower_norfair_acid_lowered')})
+                    placed.properties.update({'WakesWhen': ctx.owns('space_jump'), 'RecordsFact': quoted(CHOZO_ACID_LOWERED)})
             placed_objects = objects.Objects(ctx, self.object_lists[state.objects], doors_in)
             things.extend(placed_objects.placed)
             for boss in [thing for thing in things if thing.boss == 'phantoon']:
@@ -515,9 +521,25 @@ class Generator:
                 links[id(trigger)] = {'Target': zone}
             # Its liquid and its room effects.
             booster = placed_objects.raises_liquid
+            lowers_acid = any(thing.chozo == 'LowerNorfair' for thing in things)
             shown, told = fx.things(self.room_fx[state.fx], room, ctx,
                                     lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door,
-                                    told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else None)
+                                    told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else CHOZO_ACID_FALL if lowers_acid else None)
+            if lowers_acid:
+                # The statue has the acid fall, and once it has, the room is entered with the acid already down: the
+                # liquid that waits raised is there until then, and one that lies low after.
+                waiting = [thing for thing in shown if thing.properties.get('StartsRaised') == 'true']
+                if len(waiting) != 1:
+                    raise ValueError(f'{key}: the Chozo statue lowers one liquid, and the room has {len(waiting)} that wait raised.')
+                raised = waiting[0]
+                low = raised.properties['LowSurface']
+                settled = dataclasses.replace(
+                    raised, properties={name: value for name, value in raised.properties.items()
+                                        if name not in ('StartsRaised', 'MoveSpeed', 'MoveDelay')} | {'HighSurface': low})
+                lowered = ctx.fact(CHOZO_ACID_LOWERED)
+                settled.only_when = lowered if raised.only_when is None else ctx.all_of([raised.only_when, lowered])
+                raised.only_when = ctx.none_of([lowered]) if raised.only_when is None else ctx.all_of([raised.only_when, ctx.none_of([lowered])])
+                shown.insert(shown.index(raised) + 1, settled)
             things.extend(shown)
             for teller, target in told:
                 links[id(teller)] = {'Target': target}

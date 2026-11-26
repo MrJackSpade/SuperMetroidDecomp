@@ -18,7 +18,8 @@ namespace Game.Enemies;
 /// Its timelines are "idle", whose cue "await_hand" says it is ready, "activated", and "lowered" for one whose work
 /// was done before. The cues of "activated" are "sound:" with a sound's name; "move:" with how far across it steps
 /// this update and where it holds Samus from its middle, across and down; "footstep:" with how far across from its
-/// middle its foot comes down; "lower_liquid"; "unlock", which gives Samus back her freedom; and "release", which
+/// middle its foot comes down; "lower_liquid", which sets the room's liquid falling after its delay; "settle_liquid",
+/// which puts that liquid where it lies lowered at once; "unlock", which gives Samus back her freedom; and "release", which
 /// also puts the room back as it was. Its collider "Hand" is its open hand, which she can stand on until it takes
 /// her: it is there wherever the room's own blocks leave the place free. The data of one that walks gives
 /// "footstep_scatter", how the dust of a footstep is thrown: the width and height of the spread and how far into it
@@ -156,6 +157,12 @@ public partial class ChozoStatue : Enemy
 
             case "unlock":
                 LetGo(samus);
+                break;
+
+            case "settle_liquid":
+                // The liquid it set falling is put where it lies lowered at once: it falls slowly, and has far to go.
+                if (Room.Liquid is { } liquid)
+                    liquid.PutAt(liquid.LowSurface);
                 break;
 
             case "release":

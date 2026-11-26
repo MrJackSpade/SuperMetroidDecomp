@@ -65,9 +65,9 @@ public sealed partial class EngineAssetWriter
                     return EngineNames.SoundCue(EnemySoundEffectDefinitions.ChozoGrabsSamusSound);
                 case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
                     return EngineNames.SoundCue(EnemySoundEffectDefinitions.ChozoFootstepsSound);
-                // The room's liquid comes to rest where its own setting has it low.
+                // The room's liquid is put where it lies lowered at once, however far it has yet to fall.
                 case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                    return null;
+                    return "settle_liquid";
                 default:
                     throw new InvalidDataException($"A Chozo statue's animation raises {cue}, which this does not know.");
             }

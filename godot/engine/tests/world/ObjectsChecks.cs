@@ -197,28 +197,6 @@ public sealed class ObjectsChecks
     }
 
     [Check]
-    public void APlatformCarriesThePlayerStandingOnIt()
-    {
-        using var world = new StandInWorld(OpenRoom).StartAt(108, 60);
-        var platform = new Platform
-        {
-            Name = "Platform", Path = [new Vector2I(0, 0), new Vector2I(40, 0)], Speed = 1, AtEnd = PathFollower.AtEnd.Returns,
-        };
-        StandInWorld.AddCollider(platform, ColliderRole.Solid, new PixelRect(0, 0, 32, 8));
-        world.Place(platform, 92, 60);
-        world.Setup();
-        Expect.True(world.Player.IsOnGround);
-
-        world.Step(20);
-        Expect.Equal(Pixels.FromWhole(128), world.Player.Position.X);
-        Expect.Equal(Pixels.FromWhole(60), world.Player.Position.Y);
-
-        platform.Triggered("stop");
-        world.Step(10);
-        Expect.Equal(Pixels.FromWhole(128), world.Player.Position.X);
-    }
-
-    [Check]
     public void ASpawnerKeepsUpToItsLimitAliveAndReplacesTheDead()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80);

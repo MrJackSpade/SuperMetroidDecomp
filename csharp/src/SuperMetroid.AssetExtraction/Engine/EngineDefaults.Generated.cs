@@ -142,7 +142,6 @@ internal static partial class EngineDefaults
         ["PhantoonFlame"] = "Projectile",
         ["PipeBug"] = "Enemy",
         ["PirateClaw"] = "Projectile",
-        ["Platform"] = "RoomObject",
         ["Player"] = "Node2D",
         ["PlayingMode"] = "GameMode",
         ["Polyp"] = "Enemy",

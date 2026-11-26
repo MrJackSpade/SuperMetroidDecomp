@@ -138,26 +138,6 @@ public sealed class MovementChecks
         Expect.True(enemy.Velocity.Y.IsNegative);
     }
 
-    [Check]
-    public void APathIsFollowedPointToPointAndBack()
-    {
-        var path = new PathFollower(
-            [PixelPosition.FromWhole(0, 0), PixelPosition.FromWhole(10, 0), PixelPosition.FromWhole(10, 6)],
-            Pixels.FromWhole(4), PathFollower.AtEnd.Returns);
-        var visited = new List<PixelPosition>();
-        for (int update = 0; update < 8; update++)
-        {
-            path.Step();
-            visited.Add(path.Position);
-        }
-
-        Expect.Equal(PixelPosition.FromWhole(4, 0), visited[0]);
-        Expect.Equal(PixelPosition.FromWhole(10, 2), visited[2]);
-        Expect.Equal(PixelPosition.FromWhole(10, 6), visited[3]);
-        Expect.Equal(PixelPosition.FromWhole(10, 2), visited[4]);
-        Expect.Equal(PixelPosition.FromWhole(0, 0), visited[7]);
-        Expect.False(path.IsFinished);
-    }
 
     [Check]
     public void ASurfaceCrawlGoesRoundTheOutsideOfABlock()

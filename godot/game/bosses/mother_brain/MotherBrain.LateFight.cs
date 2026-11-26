@@ -511,13 +511,16 @@ public partial class MotherBrain
     private static bool MoveSamusAcross(Player samus, Pixels by)
     {
         PixelPosition moved = samus.Position + new PixelOffset(by, Pixels.Zero);
+        // Every way out of the push tells the view she stood where it leaves her: the view sees no whole pixel of it.
         if (moved.X.Whole >= BeamWallX)
         {
             samus.Position = new PixelPosition(Pixels.FromWhole(BeamWallX), samus.Position.Y);
+            samus.Room.Session.Camera.TakePlayerToHaveStoodAtX(BeamWallX);
             return true;
         }
 
         samus.Position = moved;
+        samus.Room.Session.Camera.TakePlayerToHaveStoodAtX(moved.X.Whole);
         return false;
     }
 
@@ -529,10 +532,12 @@ public partial class MotherBrain
         if (high || moved.Y.Whole >= BeamFloor)
         {
             samus.Position = new PixelPosition(samus.Position.X, Pixels.FromWhole(high ? BeamCeiling : BeamFloor));
+            samus.Room.Session.Camera.TakePlayerToHaveStoodAtY(high ? BeamCeiling : BeamFloor);
             return true;
         }
 
         samus.Position = moved;
+        samus.Room.Session.Camera.TakePlayerToHaveStoodAtY(moved.Y.Whole);
         return false;
     }
 

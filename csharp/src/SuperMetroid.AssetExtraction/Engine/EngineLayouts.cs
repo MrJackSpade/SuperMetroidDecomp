@@ -441,7 +441,11 @@ internal sealed partial class EngineLayouts
                 {
                     int capX = x + across * part, capY = y + down * part;
                     if (capX < level.Size.X && capY < level.Size.Y)
-                        capCells[capY * level.Size.X + capX] = ClearedDoorwayBlock(side, across * part, down * part);
+                    {
+                        capCells[capY * level.Size.X + capX] =
+                            FrameBlock(GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName, $"clear-{side}", across * part, down * part)
+                            ?? throw new InvalidDataException($"The open doorway of a door on the {side} draws nothing {across * part} across and {down * part} down.");
+                    }
                 }
             }
         }
@@ -779,37 +783,6 @@ internal sealed partial class EngineLayouts
         if (picture is not null)
             tile["picture"] = picture;
         return tile;
-    }
-
-    private Dictionary<string, JsonArray>? _greyDoorFrames;
-
-    /// <summary>
-    /// The block the doorway of a door on one side shows with nothing in it, so many blocks across and down from
-    /// the block its cap answers a shot at: the cleared look of the grey doors, which every colour of door leaves.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The installation's cleared doorway has no block there, or one mirrored in a way this does not know.</exception>
-    private (int Block, BlockMirroring Mirroring) ClearedDoorwayBlock(string side, int across, int down)
-    {
-        _greyDoorFrames ??= EngineRoomObjects.FramesUnder(_content, GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName);
-        string frame = $"clear-{side}";
-        if (!_greyDoorFrames.TryGetValue(frame, out JsonArray? cells))
-            throw new InvalidDataException($"The installation keeps no room object frame {frame} for an open doorway.");
-        foreach (JsonNode? cell in cells)
-        {
-            if (cell!["x"]!.GetValue<int>() != across || cell["y"]!.GetValue<int>() != down || cell["block"]?.GetValue<int>() is not int block)
-                continue;
-            BlockMirroring mirroring = cell["mirroring"]!.GetValue<string>() switch
-            {
-                "None" => BlockMirroring.None,
-                "Horizontal" => BlockMirroring.Horizontal,
-                "Vertical" => BlockMirroring.Vertical,
-                "Both" => BlockMirroring.Horizontal | BlockMirroring.Vertical,
-                string other => throw new InvalidDataException($"The room object frame {frame} mirrors a block {other}, which this does not know."),
-            };
-            return (block, mirroring);
-        }
-
-        throw new InvalidDataException($"The room object frame {frame} has no block {across} across and {down} down.");
     }
 
     /// <summary>

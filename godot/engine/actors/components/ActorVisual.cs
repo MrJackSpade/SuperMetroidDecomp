@@ -63,11 +63,35 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
         Load();
     }
 
-    /// <summary>Loads the picture it shows from its library, and has it drawn again.</summary>
+    /// <summary>Loads the picture it shows from its library, with the part of it in front if it has one, and has it drawn again.</summary>
     private void Load()
     {
-        _texture = Picture.Length > 0 && _content is not null ? _content.LoadTexture(Picture) : null;
+        bool shows = Picture.Length > 0 && _content is not null;
+        _texture = shows ? _content!.LoadTexture(Picture) : null;
+        _frontTexture = shows ? _content!.LoadFrontOf(Picture) : null;
+        if (_frontTexture is not null && _front is null)
+        {
+            _front = new VisualFront { Name = "Front", Of = this, ZAsRelative = false, ZIndex = World.RoomDepth.TilesInFront, UseParentMaterial = true };
+            AddChild(_front, forceReadableName: false, InternalMode.Back);
+        }
+
+        Redraw();
+    }
+
+    /// <summary>
+    /// The part of its picture that lies in front of the things standing in a room, where the picture has one beside
+    /// it: a picture made from the room's blocks, as a station's display or a door's cap is.
+    /// </summary>
+    private Texture2D? _frontTexture;
+
+    /// <summary>What draws that part at its own depth, made the first time a picture has one.</summary>
+    private VisualFront? _front;
+
+    /// <summary>Has the picture drawn again, the part of it in front too.</summary>
+    private void Redraw()
+    {
         QueueRedraw();
+        _front?.QueueRedraw();
     }
 
     /// <summary>Shows the picture of a timeline's step, where the step puts it.</summary>
@@ -82,7 +106,7 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
     public void Mirror(bool mirrored)
     {
         _mirrored = mirrored;
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>
@@ -92,7 +116,7 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
     public void ShowRows(IReadOnlyList<int?>? rows)
     {
         _rows = rows;
-        QueueRedraw();
+        Redraw();
     }
 
     /// <summary>Tints the picture; white leaves it as it is.</summary>
@@ -110,11 +134,17 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
     }
 
     /// <inheritdoc/>
-    public override void _Draw()
+    public override void _Draw() => DrawPicture(this, _texture);
+
+    /// <summary>Draws the part of its picture that lies in front, for what shows it at that depth.</summary>
+    internal void DrawFront(CanvasItem front) => DrawPicture(front, _frontTexture);
+
+    /// <summary>Draws one of its picture's textures where the picture lies, mirrored and row by row as the picture is.</summary>
+    private void DrawPicture(CanvasItem on, Texture2D? texture)
     {
-        if (_texture is null)
+        if (texture is null)
             return;
-        var size = _texture.GetSize();
+        var size = texture.GetSize();
         Vector2I offset = PictureOffset + _stepOffset;
         if (_rows is { } rows)
         {
@@ -126,7 +156,7 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
                 Rect2 at = _mirrored
                     ? new Rect2(-offset.X, offset.Y + row, -size.X, 1)
                     : new Rect2(offset.X, offset.Y + row, size.X, 1);
-                DrawTextureRectRegion(_texture, at, from);
+                on.DrawTextureRectRegion(texture, at, from);
             }
 
             return;
@@ -135,6 +165,6 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
         var area = new Rect2(offset, size);
         if (_mirrored)
             area = new Rect2(new Vector2(-offset.X, offset.Y), new Vector2(-size.X, size.Y));
-        DrawTextureRect(_texture, area, tile: false);
+        on.DrawTextureRect(texture, area, tile: false);
     }
 }

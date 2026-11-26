@@ -45,7 +45,7 @@ namespace Game.Enemies;
 /// a column "x" and a row "y", and "bridge_left_shut_from_x", how far across Samus shuts the screen left of the bridge
 /// while it fights.</para>
 /// </remarks>
-public partial class Crocomire : Enemy
+public partial class Crocomire : Enemy, ILatchable
 {
     /// <summary>Whether this is the skeleton a room where it has been beaten shows: dead and still.</summary>
     [Export]
@@ -110,6 +110,50 @@ public partial class Crocomire : Enemy
     /// <summary>How far across the room Samus must have come back, in pixels, for its skeleton to break out.</summary>
     [Export, DataValue("wall_approach_x")]
     public int WallApproachX { get; set; } = 640;
+
+    /// <summary>How far above and below its middle it is solid to Samus once the bridge has given way under it, in pixels.</summary>
+    [Export, DataValue("sinking_half_height")]
+    public int SinkingHalfHeight { get; set; } = 16;
+
+    /// <summary>How many updates it flashes as Samus's grapple takes hold of it.</summary>
+    [Export, DataValue("latched_flash_updates")]
+    public int LatchedFlashUpdates { get; set; } = 4;
+
+    /// <summary>Its solid body as its data sizes it, before the bridge gives way.</summary>
+    private PixelRect _solidWhole;
+
+    /// <summary>
+    /// Whether it stands in Samus's way: solid to her, and something her grapple's line takes hold of. It does from
+    /// its room's setup until she has come back to the wall its skeleton waits behind; never as a corpse.
+    /// </summary>
+    private bool StandsInHerWay => _dying is Dying.Fighting or Dying.InAcid or Dying.FlowingDownRiver or Dying.WaitingBehindWall;
+
+    /// <inheritdoc/>
+    public bool CanBeLatched => StandsInHerWay && !IsDead;
+
+    /// <inheritdoc/>
+    public PixelPosition LatchPoint => Position;
+
+    /// <summary>Her grapple's line taking hold of it makes it flash, as a hit that hurt it does, and no more.</summary>
+    public void Latched(PixelPosition at) => FlashFor(LatchedFlashUpdates);
+
+    /// <inheritdoc/>
+    public void Unlatched()
+    {
+    }
+
+    /// <summary>
+    /// Puts its solid body as the fight has it: its whole size while it fights, as high as the acid leaves of it once
+    /// the bridge has given way, and nothing once it no longer stands in her way.
+    /// </summary>
+    private void ShapeSolid()
+    {
+        Collider solid = Solid ?? throw new InvalidOperationException($"Crocomire \"{Name}\" has no solid collider.");
+        solid.Enabled = StandsInHerWay;
+        solid.Rect = _dying == Dying.Fighting
+            ? _solidWhole
+            : new PixelRect(_solidWhole.Left, -SinkingHalfHeight, _solidWhole.Width, SinkingHalfHeight * 2);
+    }
 
     /// <summary>How many updates the wall shows its spikes after it has rumbled, before the skeleton breaks through.</summary>
     [Export, DataValue("spiked_wall_updates")]
@@ -419,9 +463,11 @@ public partial class Crocomire : Enemy
     {
         AlwaysActive = true;
         _poses?.TakeNone();
+        _solidWhole = (Solid ?? throw new InvalidOperationException($"Crocomire \"{Name}\" has no solid collider.")).Rect;
         if (Corpse)
         {
             _dying = Dying.Corpse;
+            ShapeSolid();
             Play("dead");
             // Beaten, its room is open from the left to the screen before the bridge.
             foreach (Vector2I screen in _arenaScreens)
@@ -436,6 +482,7 @@ public partial class Crocomire : Enemy
         // The screens behind its wall are shut while it lives.
         foreach (Vector2I screen in _behindWallScreens)
             WriteScreen(screen, ScreenScroll.Closed);
+        ShapeSolid();
     }
 
     /// <summary>Gives the room back its own place for Samus in the view.</summary>
@@ -619,6 +666,7 @@ public partial class Crocomire : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
+        ShapeSolid();
         AimJustSpat();
         // A shot in the mouth holds its timeline where it is for a moment.
         if (_hold > 0)

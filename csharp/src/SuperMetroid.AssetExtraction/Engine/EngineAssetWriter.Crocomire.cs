@@ -242,7 +242,11 @@ public sealed partial class EngineAssetWriter
 
         if (CrocomireProjectileDefinitions.AuthoredGradients.Length + 1 != CrocomireProjectileDefinitions.VolleyShotCount)
             throw new InvalidDataException("Crocomire's volley is not its authored shots and one more.");
-        crocomire.BodyColliders("Body")
+        // The room places it solid to Samus, by its definition's size, and the bridge's collapse leaves it solid by
+        // less of its height. Her grapple's line takes hold of it, which makes it flash its definition's own count.
+        crocomire.BodyColliders("Body", "Solid")
+            .Value("sinking_half_height", CrocomireBridgeCollapseDefinitions.SinkingReachY)
+            .Value("latched_flash_updates", crocomire.Definition.HurtFlashFrames)
             .Value("wake_distance", CrocomireFightDefinitions.WakeDistance)
             .Value("spike_wall_charge_x", CrocomireFightDefinitions.SpikeWallChargeX)
             .Value("bridge_approach_x", CrocomireBridgeCollapseDefinitions.ApproachStartX)

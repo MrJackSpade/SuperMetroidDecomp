@@ -190,7 +190,8 @@ public partial class EyeDoorEye : Enemy
     {
         (_takesShots, _lidUp, _hits, _strike) = (false, false, 0, null);
         Begin(Doing.Closed, "closed");
-        _parts = new TimelinePlayer(Timelines.Get("part_still"));
+        // The growth looks for Samus on its first update.
+        _parts = null;
     }
 
     /// <inheritdoc/>
@@ -318,22 +319,20 @@ public partial class EyeDoorEye : Enemy
 
     /// <summary>
     /// The growth around its door pulses while Samus is anywhere near, a beat at a time. It goes the moment the eye
-    /// is destroyed.
+    /// is destroyed. Each beat, and its first, is chosen on the update after the last ended, and shows from then.
     /// </summary>
     private void StepParts()
     {
-        if (_parts is null)
-            return;
-        _parts.Step();
-        if (_parts.IsOver)
+        if (_parts is null || _parts.IsOver)
             _parts = new TimelinePlayer(Timelines.Get(IsSamusWithin(_pulseReach) ? $"part_pulse_{Side}" : "part_still"));
+        _parts.Step();
 
         foreach (string name in new[] { "Middle", "Bottom" })
         {
             if (GetNodeOrNull<ActorVisual>(name) is not { } visual)
                 continue;
             visual.SetShown(_doing != Doing.Destroyed);
-            visual.Show(_parts.Current.Picture
+            visual.Show(_parts.Shown.Picture
                 .Replace("{part}", name.ToLowerInvariant(), StringComparison.Ordinal)
                 .Replace("{side}", Side, StringComparison.Ordinal));
         }

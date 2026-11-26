@@ -137,7 +137,7 @@ public partial class Squeept : Enemy
             return;
         _flame.Step();
         flame.SetShown(Velocity.Y.IsNegative);
-        flame.Show(_flame.Current);
+        flame.Show(_flame.Shown);
     }
 
     /// <summary>Moves it by its speed and lets gravity slow or quicken that.</summary>

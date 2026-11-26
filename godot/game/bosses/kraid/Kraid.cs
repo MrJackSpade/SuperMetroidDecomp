@@ -1364,7 +1364,7 @@ public partial class Kraid : Enemy
     /// <summary>Shows one of its parts as its timeline has it.</summary>
     private void ShowPart(string part)
     {
-        TimelineStep step = _parts[part].Current;
+        TimelineStep step = _parts[part].Shown;
         GetNodeOrNull<ActorVisual>(part)?.Show(step);
     }
 

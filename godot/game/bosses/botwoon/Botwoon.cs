@@ -724,6 +724,8 @@ public partial class Botwoon : Enemy
     private void ShowBody()
     {
         ShowHeadTangible();
+        // The ripple shows the step this update falls in, which is the one it is on before it is stepped.
+        int ripple = _ripple?.StepIndex ?? 0;
         _ripple?.Step();
         for (int segment = 0; segment < Segments; segment++)
         {
@@ -738,7 +740,7 @@ public partial class Botwoon : Enemy
                 if (!hidden)
                 {
                     FrameTimeline look = Timelines.Get($"{(segment == 0 ? "tail" : "body")}_{WayOf(ahead.X - x, ahead.Y - y)}");
-                    TimelineStep step = look.Steps[_ripple is null ? 0 : _ripple.StepIndex % look.Steps.Count];
+                    TimelineStep step = look.Steps[ripple % look.Steps.Count];
                     visual.Show(step with { Picture = Shaded(step.Picture) });
                     // Its body flashes with its head.
                     visual.Tint(IsFlashing && Room.Session.Clock.ShortUpdates % 4 >= 2 ? new Color(2f, 2f, 2f) : Colors.White);

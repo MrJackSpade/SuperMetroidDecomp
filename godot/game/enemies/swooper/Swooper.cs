@@ -216,6 +216,6 @@ public partial class Swooper : Enemy
             return;
         _flames.Step();
         flames.Position = new Vector2(0, _flamesBelow);
-        flames.Show(_flames.Current);
+        flames.Show(_flames.Shown);
     }
 }

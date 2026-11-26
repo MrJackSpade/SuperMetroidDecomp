@@ -97,7 +97,7 @@ public partial class Evir : Enemy
             return;
         _arms.Step();
         arms.Position = new Vector2(Facing == Facing.Left ? -ArmsAcross : ArmsAcross, ArmsDown);
-        arms.Show(_arms.Current);
+        arms.Show(_arms.Shown);
     }
 
     /// <inheritdoc/>

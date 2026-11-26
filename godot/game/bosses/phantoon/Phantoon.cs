@@ -978,7 +978,7 @@ public partial class Phantoon : Enemy
                 }
             }
 
-            TimelineStep step = player.Current;
+            TimelineStep step = player.Shown;
             GetNodeOrNull<ActorVisual>(part)?.Show(step with { Picture = Coloured(step.Picture) });
         }
     }

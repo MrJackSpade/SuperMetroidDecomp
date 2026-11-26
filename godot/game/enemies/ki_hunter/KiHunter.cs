@@ -439,7 +439,7 @@ public partial class KiHunter : Enemy
         if (_wings == WingState.Gone || WingsVisual is not { } visual || _wingsPlayer is null)
             return;
         _wingsPlayer.Step();
-        visual.Show(_wingsPlayer.Current);
+        visual.Show(_wingsPlayer.Shown);
         if (_wings == WingState.Attached)
         {
             visual.Position = Vector2.Zero;

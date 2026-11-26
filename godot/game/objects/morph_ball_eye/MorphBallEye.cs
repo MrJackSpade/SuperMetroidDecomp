@@ -296,7 +296,7 @@ public partial class MorphBallEye : RoomObject
     private void Play(string name)
     {
         _look = new TimelinePlayer(_timelines.Get($"{name}_{(Faces == Facing.Right ? "right" : "left")}"));
-        GetNodeOrNull<ActorVisual>("Visual")?.Show(_look.Current);
+        GetNodeOrNull<ActorVisual>("Visual")?.Show(_look.Shown);
     }
 
     /// <summary>Moves the timeline it is showing on by one update.</summary>
@@ -305,7 +305,7 @@ public partial class MorphBallEye : RoomObject
         if (_look is null)
             return;
         _look.Step();
-        GetNodeOrNull<ActorVisual>("Visual")?.Show(_look.Current);
+        GetNodeOrNull<ActorVisual>("Visual")?.Show(_look.Shown);
     }
 
     private void Show(string picture) => GetNodeOrNull<ActorVisual>("Visual")?.Show(picture);

@@ -472,6 +472,6 @@ public partial class Ridley
             return;
         PixelOffset from = _babyPosition - Position;
         visual.Position = new Vector2(from.X.Whole, from.Y.Whole);
-        visual.Show(_babyTimeline.Current);
+        visual.Show(_babyTimeline.Shown);
     }
 }

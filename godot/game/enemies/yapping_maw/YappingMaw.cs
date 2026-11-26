@@ -359,7 +359,7 @@ public partial class YappingMaw : Enemy
         if (_root is not null && GetNodeOrNull<ActorVisual>("Root") is { } root)
         {
             root.Position = new Vector2(_origin.X.Whole - Position.X.Whole, _origin.Y.Whole + (StrikesDown ? -RootDistance : RootDistance) - Position.Y.Whole);
-            root.Show(_root.Current);
+            root.Show(_root.Shown);
         }
 
         for (int link = 0; link < Links; link++)
@@ -369,7 +369,7 @@ public partial class YappingMaw : Enemy
             // The links stay where they were last bent, as the mouth does.
             PixelPosition at = Along(link);
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
-            visual.Show(_link.Current);
+            visual.Show(_link.Shown);
         }
     }
 }

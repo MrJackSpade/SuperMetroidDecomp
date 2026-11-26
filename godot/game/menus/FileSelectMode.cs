@@ -100,11 +100,7 @@ public partial class FileSelectMode : GameMode
     private bool _yes = true;
     private int _turnLeft;
     private int _blackLeft;
-    private int _levels;
-    private int _updatesPerLevel;
-    private int _lit;
-    private int _fadeUpdates;
-    private bool _brightening;
+    private int _fadeLength;
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     /// <inheritdoc/>
@@ -145,8 +141,10 @@ public partial class FileSelectMode : GameMode
         AddChild(_fade);
         _row = Math.Clamp(Session.Slot, 1, SavedGames) - 1;
         ShowMain();
-        (_levels, _updatesPerLevel, _lit) = (_data.Int("fade_levels"), _data.Int("fade_updates_per_level"), 0);
-        _fade.Cover(_levels, _levels);
+        // Its fades go through so many levels of brightness, each lasting so many updates, by the engine's own
+        // stepped fade.
+        _fade.Levels = _data.Int("fade_levels");
+        _fadeLength = _fade.Levels * _data.Int("fade_updates_per_level");
         BeginFade(brightening: true);
         _blackLeft = _data.Int("entry_black_updates");
     }
@@ -431,20 +429,21 @@ public partial class FileSelectMode : GameMode
         BeginFade(brightening: false);
     }
 
-    /// <summary>Starts the screen brightening to full, or darkening to black, from the level it is at.</summary>
-    private void BeginFade(bool brightening) => (_brightening, _fadeUpdates) = (brightening, 0);
+    /// <summary>Starts the screen brightening from black to full, or darkening from full to black.</summary>
+    private void BeginFade(bool brightening)
+    {
+        ScreenFade fade = _fade ?? throw NotShown();
+        if (brightening)
+            fade.FadeIn(_fadeLength);
+        else
+            fade.FadeOut(_fadeLength);
+    }
 
     /// <summary>Whether the fade begun last has reached full brightness, or black.</summary>
-    private bool FadeDone => _lit == (_brightening ? _levels : 0);
+    private bool FadeDone => (_fade ?? throw NotShown()).IsDone;
 
-    /// <summary>Plays one update of the fade: as in the old game, it moves a level every so many updates, the first on the last of them.</summary>
-    private void StepFade()
-    {
-        if (++_fadeUpdates % _updatesPerLevel != 0)
-            return;
-        _lit += _brightening ? 1 : -1;
-        (_fade ?? throw NotShown()).Cover(_levels - _lit, _levels);
-    }
+    /// <summary>Plays one update of the fade: it moves a level every so many updates, the first on the last of them.</summary>
+    private void StepFade() => (_fade ?? throw NotShown()).Step();
 
     /// <summary>Shows the first page, and stays.</summary>
     private GameMode? BackToMain()

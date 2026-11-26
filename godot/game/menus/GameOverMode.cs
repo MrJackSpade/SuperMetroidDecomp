@@ -40,7 +40,6 @@ public partial class GameOverMode : GameMode
     private bool? _continues;
     private SaveMapMode? _map;
     private int _levels;
-    private int _lit;
     private int _holdLeft;
     private int _blackUpdates;
     private bool _setUp;
@@ -70,9 +69,10 @@ public partial class GameOverMode : GameMode
         layer.AddChild(_cursor);
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
+        // Its fades go a level of brightness an update, by the engine's own stepped fade.
         _levels = _data.Int("fade_levels");
-        _lit = 0;
-        _fade.Cover(_levels, _levels);
+        _fade.Levels = _levels;
+        _fade.FadeIn(_levels);
     }
 
     /// <inheritdoc/>
@@ -129,9 +129,8 @@ public partial class GameOverMode : GameMode
         StepSprites();
         if (_continues is { } continues)
         {
-            _lit--;
-            fade.Cover(_levels - _lit, _levels);
-            if (_lit > 0)
+            fade.Step();
+            if (!fade.IsDone)
                 return this;
             if (!continues)
                 return new TitleMode();
@@ -140,10 +139,9 @@ public partial class GameOverMode : GameMode
             return _map ?? throw new InvalidOperationException("The game over screen continues with no map to show.");
         }
 
-        if (_lit < _levels)
+        if (!fade.IsDone)
         {
-            _lit++;
-            fade.Cover(_levels - _lit, _levels);
+            fade.Step();
             return this;
         }
 
@@ -166,6 +164,7 @@ public partial class GameOverMode : GameMode
             }
 
             _continues = _yes;
+            fade.FadeOut(_levels);
             _holdLeft = Data().Int("answer_hold_updates");
         }
 

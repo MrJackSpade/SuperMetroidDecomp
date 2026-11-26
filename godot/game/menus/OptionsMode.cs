@@ -75,8 +75,6 @@ public partial class OptionsMode : GameMode
     private int _headingY;
     private int _blackUpdates;
     private int _levels;
-    private int _lit;
-    private bool _brightening;
     private bool _starting;
     private bool _cursorHidden;
 
@@ -117,9 +115,10 @@ public partial class OptionsMode : GameMode
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
         Show(Page.Primary);
-        (_levels, _lit) = (_data.Int("fade_levels"), 0);
-        _fade.Cover(_levels, _levels);
-        _brightening = true;
+        // Its fades go a level of brightness an update, by the engine's own stepped fade.
+        _levels = _data.Int("fade_levels");
+        _fade.Levels = _levels;
+        _fade.FadeIn(_levels);
     }
 
     /// <inheritdoc/>
@@ -220,7 +219,7 @@ public partial class OptionsMode : GameMode
             _afterFade = null;
             if (then() is { } next)
                 return next;
-            _brightening = true;
+            (_fade ?? throw NotShown()).FadeIn(_levels);
             return this;
         }
 
@@ -399,19 +398,15 @@ public partial class OptionsMode : GameMode
     private void FadeOutTo(Func<GameMode?> then, bool cursorShows = false)
     {
         _afterFade = then;
-        _brightening = false;
+        (_fade ?? throw NotShown()).FadeOut(_levels);
         _cursorHidden = !cursorShows;
     }
 
     /// <summary>Whether the fade begun last has reached full brightness, or black.</summary>
-    private bool FadeDone => _lit == (_brightening ? _levels : 0);
+    private bool FadeDone => (_fade ?? throw NotShown()).IsDone;
 
-    /// <summary>Plays one update of the fade: as in the old game, a level of brightness an update.</summary>
-    private void StepFade()
-    {
-        _lit += _brightening ? 1 : -1;
-        (_fade ?? throw NotShown()).Cover(_levels - _lit, _levels);
-    }
+    /// <summary>Plays one update of the fade: a level of brightness an update.</summary>
+    private void StepFade() => (_fade ?? throw NotShown()).Step();
 
     /// <summary>Starts the game on the next update, staying black until then.</summary>
     private GameMode Start()

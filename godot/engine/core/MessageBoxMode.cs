@@ -4,15 +4,13 @@ using Engine.Ui;
 namespace Engine.Core;
 
 /// <summary>
-/// A message being shown. The mode it was asked for in is kept beneath it and does not run. A game whose messages
-/// are their words shows one at once: confirming dismisses a plain message, and one that asks yes or no is answered
-/// by choosing and confirming. A game that names how its messages are shown
-/// (<see cref="GameDefinition.MessageBoxFile"/>) shows each as a picture through a window that opens and closes, as
-/// its <see cref="MessageBoxStyle"/> says. Either way the answer is given to whoever asked as the mode beneath
+/// A message being shown. The mode it was asked for in is kept beneath it and does not run. The game names how its
+/// messages are shown (<see cref="GameDefinition.MessageBoxFile"/>): each is a picture through a window that opens
+/// and closes, as its <see cref="MessageBoxStyle"/> says. The answer is given to whoever asked as the mode beneath
 /// comes back.
 /// </summary>
 /// <remarks>
-/// With a style, a message goes through these, an update at a time: nothing showing for the style's updates before
+/// A message goes through these, an update at a time: nothing showing for the style's updates before
 /// opening; the window opening from nothing by the style's step, the first update of it showing nothing, until it
 /// is fully open; for a message that is held, its hold; then waiting. A plain message waits until any action at all
 /// is held, a new press or not. A question looks at the player's presses only every so many updates, and a press
@@ -99,7 +97,6 @@ public partial class MessageBoxMode : GameMode
     /// </summary>
     public bool FollowsAnother { get; init; }
 
-    private int _shownFor;
     private Phase _phase;
     private int _wait;
     private int _radius;
@@ -123,7 +120,7 @@ public partial class MessageBoxMode : GameMode
     /// A message shown through a window does the sounds' work itself while it covers play: the music gets no turn
     /// as its updates open.
     /// </summary>
-    public override bool GivesMusicItsTurn => _style is null;
+    public override bool GivesMusicItsTurn => false;
 
     /// <summary>
     /// What closes the update just played. Shown through a window, an update gives the music a turn and the sounds
@@ -138,93 +135,44 @@ public partial class MessageBoxMode : GameMode
     /// <summary>The name of the message being shown.</summary>
     public string Message => _message;
 
-    /// <summary>For a message that asks yes or no, whether yes is the choice at the moment.</summary>
-    public bool YesIsChosen => _yes;
-
     /// <inheritdoc/>
     protected override void Enter()
     {
-        _box = new MessageBox { Name = "MessageBox", Font = Session.Font };
+        _box = new MessageBox { Name = "MessageBox" };
         AddChild(_box);
         _hold = HoldUpdates;
         string file = Session.Definition.MessageBoxFile;
-        if (file.Length > 0)
-        {
-            _style = MessageBoxStyle.Read(Session.Content.ReadData(file));
-            _heldAtLastLook = HeldOf(HeldBefore, _style);
-            BeginOpening(_style.BeforeOpening);
+        if (file.Length == 0)
+            throw new InvalidOperationException("The game's definition names no file that says how its messages are shown.");
+        _style = MessageBoxStyle.Read(Session.Content.ReadData(file));
+        _heldAtLastLook = HeldOf(HeldBefore, _style);
+        BeginOpening(_style.BeforeOpening);
 
-            // What play asked to hear on the update that asked for the message was asked for first.
-            if (_style.SilencesSounds && !FollowsAnother)
-                Session.Sounds.StopAll();
-        }
-
+        // What play asked to hear on the update that asked for the message was asked for first.
+        if (_style.SilencesSounds && !FollowsAnother)
+            Session.Sounds.StopAll();
         ShowMessage();
         if (Fanfare.Length > 0)
             Session.Sounds.RequestFanfare(Fanfare);
     }
 
     /// <summary>
-    /// Shows the message as it now stands: its words, or for a game with a style its picture, of the answer chosen
-    /// and of the button bound, through the window as far as it is open.
+    /// Shows the message as it now stands: its picture, of the answer chosen and of the button bound, through the
+    /// window as far as it is open.
     /// </summary>
     private void ShowMessage()
     {
-        MessageBox box = _box ?? throw new InvalidOperationException("The message has not been shown.");
-        if (_style is null)
-        {
-            box.Present(Session.Text.Get(_shown), asksYesOrNo: _asks);
-            box.Choose(_yes);
-            return;
-        }
-
+        MessageBox box = _box ?? throw NotShown();
+        MessageBoxStyle style = _style ?? throw NotShown();
         Content.ContentLibrary pictures = Pictures ?? Session.Content;
-        string picture = _style.PicturePath(_shown, _asks ? _yes : null, Session.Options.Bindings);
-        box.Present(pictures.LoadTexture(picture), _style.CentreY, _radius);
+        string picture = style.PicturePath(_shown, _asks ? _yes : null, Session.Options.Bindings);
+        box.Present(pictures.LoadTexture(picture), style.CentreY, _radius);
     }
+
+    private static InvalidOperationException NotShown() => new("The message has not been shown.");
 
     /// <inheritdoc/>
-    public override GameMode Step(GameInput input)
-    {
-        if (_style is not null)
-            return StepWindow(input, _style);
-        if (_wait > 0)
-        {
-            // Between a question answered yes and the message that follows it.
-            if (--_wait == 0)
-                ShowMessage();
-            return this;
-        }
-
-        if (_asks && (input.WasPressed(GameAction.Left) || input.WasPressed(GameAction.Right)))
-        {
-            _yes = !_yes;
-            ShowMessage();
-        }
-
-        if (_shownFor < _hold)
-        {
-            _shownFor++;
-            return this;
-        }
-
-        if (!input.WasPressed(GameAction.Confirm))
-            return this;
-        if (_asks)
-            _answer = _yes;
-        if (!_asks || !_yes || AfterYes is not { } after)
-        {
-            RestoreMusic();
-            return Finish(input);
-        }
-
-        Follow(after);
-        _shownFor = 0;
-        _wait = after.WaitUpdates;
-        if (_wait == 0)
-            ShowMessage();
-        return this;
-    }
+    public override GameMode Step(GameInput input) => StepWindow(input, _style ?? throw NotShown());
 
     /// <summary>Turns from the question answered yes to the message that follows it, sounding its sound.</summary>
     private void Follow(MessageAfterYes after)

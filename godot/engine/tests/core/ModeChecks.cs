@@ -68,43 +68,6 @@ public sealed class ModeChecks
     }
 
     [Check]
-    public void AMessageAskedForIsShownUntilItIsConfirmed()
-    {
-        using var game = new StandInGame();
-        GameMode playing = game.Mode;
-
-        game.Session.RequestMessage("hello");
-        game.Step(1);
-        var message = (MessageBoxMode)game.Mode;
-        Expect.Equal("hello", message.Message);
-        Expect.Equal("HELLO", message.GetNode<Engine.Ui.MessageBox>("MessageBox").Message);
-        game.Step(5);
-        Expect.True(ReferenceEquals(message, game.Mode));
-
-        game.Press(GameAction.Confirm);
-        Expect.True(ReferenceEquals(playing, game.Mode));
-    }
-
-    [Check]
-    public void AYesOrNoMessageGivesItsAnswerToWhoeverAsked()
-    {
-        using var game = new StandInGame(() => new AskingMode());
-        var asking = (AskingMode)game.Mode;
-        game.Step(1);
-        var message = (MessageBoxMode)game.Mode;
-        Expect.True(message.YesIsChosen);
-
-        game.Press(GameAction.Right);
-        Expect.False(message.YesIsChosen);
-        Expect.True(asking.Answer is null);
-
-        game.Press(GameAction.Confirm);
-        Expect.True(ReferenceEquals(asking, game.Mode));
-        Expect.Equal<bool?>(false, asking.Answer);
-        Expect.Equal(1, asking.TimesResumed);
-    }
-
-    [Check]
     public void ASaveAskedForDuringPlayIsWrittenToTheSessionsSlot()
     {
         using var game = new StandInGame();

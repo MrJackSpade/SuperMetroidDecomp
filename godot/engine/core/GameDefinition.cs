@@ -101,9 +101,8 @@ public partial class GameDefinition : Resource
     public string FontFile { get; set; } = "";
 
     /// <summary>
-    /// The data file, within the assets tree, of how the game's messages are shown, for a game that shows a message
-    /// as a picture in a window that opens and closes, and not as words (<see cref="Ui.MessageBoxStyle"/>). Empty for
-    /// a game whose messages are their words, shown at once.
+    /// The data file, within the assets tree, of how the game's messages are shown: each as a picture in a window
+    /// that opens and closes (<see cref="Ui.MessageBoxStyle"/>). A message asked for with none named is refused.
     /// </summary>
     [Export]
     public string MessageBoxFile { get; set; } = "";

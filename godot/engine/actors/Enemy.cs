@@ -836,13 +836,14 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
         // Its flash is its own pictures in the colours its data gives for it, shown only while it flashes, and on
         // each of its visuals: one drawn in parts flashes whole. A change is worked out for a visual by the pictures
-        // it shows, so one that shows none yet is left until it does.
+        // it shows, so one that shows none yet is left until it does, and one that flashes is shown the flash again
+        // each update, since a hurt may have it take up another set of its pictures.
         Visual.Tint(frozen ? FrozenTint : RestingTint);
         if (!flashes && _flashShownOn.Count == 0)
             return;
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
-            if (visual.Picture.Length == 0 || _flashShownOn.Contains(visual) == flashes)
+            if (visual.Picture.Length == 0 || (!flashes && !_flashShownOn.Contains(visual)))
                 continue;
             (flashes ? colours : Ui.ColourChange.None).ShowOn(visual, HurtFlashColours);
             if (flashes)

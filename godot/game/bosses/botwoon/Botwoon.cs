@@ -741,9 +741,8 @@ public partial class Botwoon : Enemy
                 {
                     FrameTimeline look = Timelines.Get($"{(segment == 0 ? "tail" : "body")}_{WayOf(ahead.X - x, ahead.Y - y)}");
                     TimelineStep step = look.Steps[ripple % look.Steps.Count];
+                    // Its body flashes with its head, in its flash's colours, as every visual of an enemy does.
                     visual.Show(step with { Picture = Shaded(step.Picture) });
-                    // Its body flashes with its head.
-                    visual.Tint(IsFlashing && Room.Session.Clock.ShortUpdates % 4 >= 2 ? new Color(2f, 2f, 2f) : Colors.White);
                 }
             }
 

@@ -52,6 +52,8 @@ internal sealed partial class EngineEnemy
     /// </summary>
     internal EngineEnemy ShadedSpawnedSet(string after, string name, IEnumerable<EnemyProjectileFrameId> frames, string shade)
     {
+        // They lie under the set's folder, and so flash in the colours written for the set (ShadedSet): what it spawns
+        // is drawn in its own colours, and the sheet they are cut from holds other things' colours beside.
         _sheets.CutSpawnedShade(_tree, $"{Folder}{after}/{name}", EnemyDefinitionIdKeys.Installed.Of(_id), frames.Select(EnemySheetDefinitions.ProjectileFrameName), shade);
         return this;
     }

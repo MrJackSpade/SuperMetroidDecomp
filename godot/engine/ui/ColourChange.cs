@@ -23,7 +23,7 @@ public sealed class ColourChange
     private readonly (string Place, ColourSwap[] Swaps)[] _places;
 
     /// <summary>For each thing it has been shown on, the colours it changes there.</summary>
-    private readonly Dictionary<IRecoloured, ColourSwap[]> _on = [];
+    private readonly Dictionary<IRecoloured, (string Places, ColourSwap[] Swaps)> _on = [];
 
     private ColourChange((string, ColourSwap[])[] places) => _places = places;
 
@@ -57,14 +57,19 @@ public sealed class ColourChange
 
     /// <summary>
     /// The colours it changes on <paramref name="target"/>: those it lists for the places the target shows pictures
-    /// from, worked out the first time it is asked of that target.
+    /// from now. What was worked out for a target holds while those places stay the same, and is worked out again
+    /// when they change, as when an enemy that keeps a set of its pictures for each of its shades takes up another.
     /// </summary>
     public IReadOnlyList<ColourSwap> On(IRecoloured target)
     {
         ArgumentNullException.ThrowIfNull(target);
-        if (_on.TryGetValue(target, out ColourSwap[]? known))
-            return known;
-        return _on[target] = [.. _places.Where(place => target.ShowsPicturesIn(place.Place)).SelectMany(place => place.Swaps)];
+        (string Place, ColourSwap[] Swaps)[] shown = [.. _places.Where(place => target.ShowsPicturesIn(place.Place))];
+        string places = string.Join('|', shown.Select(place => place.Place));
+        if (_on.TryGetValue(target, out (string Places, ColourSwap[] Swaps) known) && known.Places == places)
+            return known.Swaps;
+        ColourSwap[] swaps = [.. shown.SelectMany(place => place.Swaps)];
+        _on[target] = (places, swaps);
+        return swaps;
     }
 
     /// <summary>Shows it on <paramref name="target"/> at once, in place of whatever <paramref name="source"/> last asked for there.</summary>

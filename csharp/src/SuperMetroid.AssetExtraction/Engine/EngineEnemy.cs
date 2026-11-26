@@ -201,8 +201,42 @@ internal sealed partial class EngineEnemy
     internal EngineEnemy ShadedSet(string after, string shade)
     {
         const string family = Installation.GameInstallationLayout.EnemySheetDirectoryName;
-        _sheets.CutShade(_tree, family, Folder + after, _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(_id)), shade);
+        string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(_id));
+        _sheets.CutShade(_tree, family, Folder + after, sheet, shade);
+        FlashShaded(Folder + after, family, sheet, shade);
         return this;
+    }
+
+    /// <summary>
+    /// Adds, to the colours it is shown in while its hurt flash shows ("hurt_colours"), those for a set of its
+    /// pictures cut in one of a sheet's shades and kept in <paramref name="place"/>: each colour as the shade shows
+    /// it, as the flash shows the colour it came from. The flash's own colours are named for the pictures as the
+    /// sheet has them, which a set cut in a shade does not show. One with no flash colours, or whose sheet has no
+    /// flash shade, is left as it is.
+    /// </summary>
+    /// <exception cref="InvalidDataException">One colour of the set would flash as two.</exception>
+    private void FlashShaded(string place, string family, string sheet, string shade)
+    {
+        string flash = SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key;
+        if (Data["hurt_colours"] is not JsonObject colours || !_sheets.HasShade(family, sheet, flash))
+            return;
+        static string Written(int colour) => colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
+        var shaded = new Dictionary<(int Colour, int Region), int>();
+        foreach (ShadeSwap swap in _sheets.ShadeSwaps(family, sheet, shade))
+            shaded[(swap.From, swap.Region)] = swap.To;
+        if (colours[place] is not JsonObject into)
+            colours[place] = into = [];
+        foreach (ShadeSwap swap in _sheets.ShadeSwaps(family, sheet, flash))
+        {
+            int from = shaded.TryGetValue((swap.From, swap.Region), out int inRegion) ? inRegion
+                : shaded.TryGetValue((swap.From, ShadeSwap.Everywhere), out int everywhere) ? everywhere : swap.From;
+            if (from == swap.To)
+                continue;
+            string key = swap.Region == ShadeSwap.Everywhere ? Written(from) : $"{Written(from)}/{swap.Region}";
+            if (into[key] is JsonNode had && had.GetValue<string>() != Written(swap.To))
+                throw new InvalidDataException($"The colour {key} of the pictures in {place} would flash as {had.GetValue<string>()} and as {Written(swap.To)}.");
+            into[key] = Written(swap.To);
+        }
     }
 
     /// <summary>Writes the file.</summary>

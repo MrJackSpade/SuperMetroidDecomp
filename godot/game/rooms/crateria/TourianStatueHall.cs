@@ -123,9 +123,6 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     /// <summary>How long a light at a guardian's eyes lasts before it bursts, and how many sparks it bursts into.</summary>
     private const int EyeGlowUpdates = 111, Sparks = 4;
 
-    /// <summary>The waits between the sounds of the room shaking, in turn.</summary>
-    private static readonly int[] QuakeSoundWaits = [1, 3, 2, 1, 1, 2, 2, 1];
-
     /// <summary>The eyes' pictures while they glow, and for how long each.</summary>
     private static readonly (string Picture, int Updates)[] Glow = [("dim", 12), ("dark", 12), ("dim", 12), ("bright", 16)];
 
@@ -181,8 +178,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     private Pixels _sunk;
     private int _wait;
     private bool _settled;
-    private int _soundWait;
-    private int _soundTurn;
+    private readonly Rooms.QuakeRumble _rumble = new();
     private bool _begun;
 
     /// <summary>The hall begins as its room is set up, as the cartridge's does: what it clears, opens and shows is so before the first update.</summary>
@@ -224,7 +220,8 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         footing.Bind(room.Content);
         footing.PictureOffset = Offset(Data().Get("base").Get("offset"));
         footing.Show(Data().Get("base").Text("picture"));
-        (_releases, _settled, _sunk, _soundWait, _soundTurn) = (Releases.None, false, Pixels.Zero, 0, 0);
+        (_releases, _settled, _sunk) = (Releases.None, false, Pixels.Zero);
+        _rumble.StartOver();
         _firstGlow.Clear();
         _glows.Clear();
         _sparks.Clear();
@@ -530,12 +527,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         }
 
         room.Shake(2, ShakeUpdates, ShakeWay.Down);
-        if (--_soundWait < 0)
-        {
-            room.Session.Sounds.Request(Data().Text("quake_sound"), channel: "room");
-            _soundWait = QuakeSoundWaits[_soundTurn] + room.Session.Random.Last.Part(0, 2);
-            _soundTurn = (_soundTurn + 1) % QuakeSoundWaits.Length;
-        }
+        _rumble.Step(room, Data().Text("quake_sound"));
 
         if (_descent == Descent.Holding)
         {

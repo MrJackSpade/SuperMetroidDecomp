@@ -146,6 +146,22 @@ public partial class DoorTransitionMode : GameMode
     /// <summary>The view at which the scroll into the next room began, which the screen of the room left lies at.</summary>
     private Vector2I _scrollBeganAt;
 
+    /// <summary>How many rows of the kept screen lie above the play area, under the status bar.</summary>
+    private int _leftScreenTop;
+
+    /// <summary>
+    /// How far from where the scroll is set up the screen of the room left lies, by the way through the door: the
+    /// cartridge places it so, which lines its tiles up with the next room's through the scroll.
+    /// </summary>
+    private Vector2I KeptScreenOffset => _way switch
+    {
+        Door.Way.Right => new Vector2I(-4, 0),
+        Door.Way.Left => new Vector2I(4, 0),
+        Door.Way.Down => new Vector2I(0, -1),
+        Door.Way.Up => new Vector2I(0, 5),
+        _ => throw new InvalidOperationException($"Undefined way {_way} through a door."),
+    };
+
     /// <summary>The colours a room's tiles keep lit through this door, as its set of graphics has them.</summary>
     private LitColours LitOf(Room room) => LitColours.Read(
         room.Content.ReadData(room.Content.Named("tiles/{graphics}/door_lit.json")).List(_showsTilesThrough ? "lit_between_common_rooms" : "lit"));
@@ -181,14 +197,21 @@ public partial class DoorTransitionMode : GameMode
         var view = new Vector2(Session.Camera.Left, Session.Camera.Top);
         DropLitTiles();
         Terrain terrain = left.ReleaseTerrain();
-        _leftScreen = new Control { Name = "LeftScreen", Size = area.Size, ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 1 };
-        var black = new ColorRect { Name = "Black", Color = Colors.Black, Size = area.Size, MouseFilter = Control.MouseFilterEnum.Ignore };
+        // The window is the whole screen, the rows under the status bar with it: they were never seen in the room
+        // left, and slide into sight under the play area's top edge as a door leads up.
+        _leftScreenTop = (int)area.Position.Y;
+        var whole = new Vector2(area.Size.X, area.Size.Y + _leftScreenTop);
+        _leftScreen = new Control
+        {
+            Name = "LeftScreen", Size = whole, Position = new Vector2(0, -_leftScreenTop), ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 1,
+        };
+        var black = new ColorRect { Name = "Black", Color = Colors.Black, Size = whole, MouseFilter = Control.MouseFilterEnum.Ignore };
         _leftScreen.AddChild(black);
         _leftScreen.AddChild(terrain);
 
         // Its tiles lie in the window where they lay on the screen: where the terrain lies in its room, against the
-        // view the room was left with and the top of the play area.
-        terrain.Position = terrain.Position - view - area.Position;
+        // view the room was left with and the top of the screen.
+        terrain.Position = terrain.Position - view - new Vector2(area.Position.X, 0);
         terrain.Material = lit;
         area.AddChild(_leftScreen);
     }
@@ -213,7 +236,7 @@ public partial class DoorTransitionMode : GameMode
 
         if (_leftScreen is not null)
         {
-            _leftScreen.Position = new Vector2(_scrollBeganAt.X - _view.X, _scrollBeganAt.Y - _view.Y);
+            _leftScreen.Position = new Vector2(_scrollBeganAt.X - _view.X, _scrollBeganAt.Y - _view.Y - _leftScreenTop);
             _leftScreen.Visible = _stage < Stage.FadingIn;
         }
     }
@@ -522,7 +545,7 @@ public partial class DoorTransitionMode : GameMode
         // The screen of the room left stays in sight where it was, as the scroll begins.
         if (_showsTilesThrough)
             KeepScreenOf(_playing.Room);
-        _scrollBeganAt = setup;
+        _scrollBeganAt = setup + KeptScreenOffset;
         _playing.ChangeRoom(_toRoom, entry);
         ShowLitTilesOf(_playing.Room);
         PixelPosition? onElevator = journey.TakeSetDownPlace();

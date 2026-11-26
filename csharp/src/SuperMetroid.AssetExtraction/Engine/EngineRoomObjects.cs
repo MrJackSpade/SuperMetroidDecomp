@@ -212,7 +212,10 @@ internal sealed partial class EngineRoomObjects
     /// <param name="folder">The folder of the asset tree its pictures go under.</param>
     /// <param name="wanted">Which of its cells to draw, by how far across and down from the object's block; all of them when not given.</param>
     /// <param name="name">The picture's name, where it is not the frame's.</param>
-    /// <param name="over">Something drawn over it: its pixels, their width and height, and where their corner lies in the picture.</param>
+    /// <param name="over">
+    /// Something drawn over its blocks and under the part of them that the cartridge draws in front: its pixels, their
+    /// width and height, and where their corner lies in the picture.
+    /// </param>
     /// <param name="rows">How many blocks tall to make the picture at least, where that is more than its cells are.</param>
     internal string Picture(
         string directory, string frame, string folder, Func<int, int, bool>? wanted = null, string? name = null,
@@ -267,10 +270,9 @@ internal sealed partial class EngineRoomObjects
                         RgbaPixel pixel = drawn.Pixels[y * drawn.Width + x];
                         if (pixel.A == 0)
                             continue;
+                        // It lies over the blocks and under their front part, which is written beside the picture
+                        // as it is: where the cartridge draws one of its sprites of the ordinary standing.
                         canvas[(drawn.Top + y) * columns * Block + drawn.Left + x] = pixel;
-
-                        // What is drawn over the blocks is over their front part too.
-                        front[(drawn.Top + y) * columns * Block + drawn.Left + x] = default;
                     }
                 }
             }

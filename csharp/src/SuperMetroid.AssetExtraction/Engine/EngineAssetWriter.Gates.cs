@@ -22,49 +22,87 @@ public sealed partial class EngineAssetWriter
         const string directory = GameInstallationLayout.RoomObjectDownwardGateVisualDirectoryName, folder = "objects/gate";
         const int block = EngineRoomObjects.Block;
 
-        // The old game draws the housing with the room's blocks and the column with a sprite that slides a pixel at a
-        // time. Here each of the gate's steps is one picture of both: the housing, and under it as much of the column
-        // as that step has let down, so the gate moves a block at a step.
-        string GatePicture(DownwardGateImage image)
-        {
-            DownwardGateDraw draw = image.Draw is RoomObjectFrameDraw<DownwardGateDraw> framed
+        // The old game draws the housing with the room's blocks and the column with a sprite that slides a pixel an
+        // update, behind the part of the housing that is drawn in front. Here each update of the gate's way is one
+        // picture of both: the housing's blocks as that update has them, and the column where it has slid to.
+        const int way = (DownwardGateDefinitions.GateHeightInBlocks - 1) * block;
+        if (DownwardGateDefinitions.ClosedPositionOffsetPixels != way)
+            throw new InvalidDataException("A closed gate's column does not lie its whole way down, which the Godot gate's pictures take it to.");
+        static string FrameOf(DownwardGateImage image) =>
+            (image.Draw is RoomObjectFrameDraw<DownwardGateDraw> framed
                 ? framed.Frame
-                : throw new InvalidDataException("A gate shows something that is not one of its own frames.");
-            (string frame, int columnBlocks) = draw switch
+                : throw new InvalidDataException("A gate shows something that is not one of its own frames.")) switch
             {
-                DownwardGateDraw.Open => ("column-open", 0),
-                DownwardGateDraw.QuarterLowered => ("column-quarter-lowered", 1),
-                DownwardGateDraw.HalfLowered => ("column-half-lowered", 2),
-                DownwardGateDraw.ThreeQuartersLowered => ("column-three-quarters-lowered", 3),
-                DownwardGateDraw.FullyLowered => ("column-fully-lowered", 4),
-                DownwardGateDraw.Closed => ("column-closed", 4),
-                _ => throw new InvalidDataException($"A gate shows {draw}, which is not a look of its column."),
+                DownwardGateDraw.Open => "column-open",
+                DownwardGateDraw.QuarterLowered => "column-quarter-lowered",
+                DownwardGateDraw.HalfLowered => "column-half-lowered",
+                DownwardGateDraw.ThreeQuartersLowered => "column-three-quarters-lowered",
+                DownwardGateDraw.FullyLowered => "column-fully-lowered",
+                DownwardGateDraw.Closed => "column-closed",
+                DownwardGateDraw draw => throw new InvalidDataException($"A gate shows {draw}, which is not a look of its column."),
             };
-            (RgbaPixel[] Pixels, int Width, int Height, int Left, int Top)? column = null;
-            if (columnBlocks > 0)
+
+        // The gate with its column let down so many pixels, over the housing as the image has it. The old column is
+        // a picture a block taller for each block it has passed, placed by its lowest block: so its top lies within
+        // the housing's own block, and its foot that many pixels below the housing. As a block is passed the taller
+        // picture is taken on the way down at once, and on the way up only once the next block is entered; shut, it
+        // is the tallest, wholly below the housing.
+        string Lowered(DownwardGateImage image, int pixels, bool rising)
+        {
+            string frame = FrameOf(image);
+            if (pixels == 0)
+                return RoomObjects.Picture(directory, frame, folder, name: $"{frame}-00", rows: DownwardGateDefinitions.GateHeightInBlocks);
+            bool atBlock = pixels % block == 0;
+            int blocks = atBlock && (rising || pixels == way) ? pixels / block : pixels / block + 1;
+            int top = atBlock && (rising || pixels == way) ? block : pixels % block;
+            (RgbaPixel[] column, int width, int height) = _sheets.SpawnedFrame(EngineSheets.SharedSpawner, EnemySheetDefinitions.ProjectileFrameName(blocks switch
             {
-                (RgbaPixel[] pixels, int width, int height) = _sheets.SpawnedFrame(EngineSheets.SharedSpawner, EnemySheetDefinitions.ProjectileFrameName(columnBlocks switch
+                1 => EnemyProjectileFrameId.DownwardGateOneBlockTall,
+                2 => EnemyProjectileFrameId.DownwardGateTwoBlocksTall,
+                3 => EnemyProjectileFrameId.DownwardGateThreeBlocksTall,
+                4 => EnemyProjectileFrameId.DownwardGateFourBlocksTall,
+                _ => throw new InvalidDataException($"A gate's column let down {pixels} pixels would be {blocks} blocks tall, and it has no such picture."),
+            }));
+            if (height != blocks * block)
+                throw new InvalidDataException($"The picture of a gate's column {blocks} blocks tall is {height} pixels tall.");
+            return RoomObjects.Picture(
+                directory, frame, folder, name: $"{frame}-{pixels:00}", over: (column, width, height, 0, top), rows: DownwardGateDefinitions.GateHeightInBlocks);
+        }
+
+        // A movement, an update a step: the images of the housing in turn, each for its own updates, and the column a
+        // pixel further each update from the image that starts it moving, until its way is done.
+        JsonObject Moving(IReadOnlyList<DownwardGateImage> images, DownwardGateMovement movement)
+        {
+            bool rising = movement == DownwardGateMovement.Rising;
+            var steps = new JsonArray();
+            int? moved = null;
+            foreach (DownwardGateImage image in images)
+            {
+                if (image.Starts == movement)
+                    moved = 0;
+                for (int update = 0; update < image.Updates; update++)
                 {
-                    1 => EnemyProjectileFrameId.DownwardGateOneBlockTall,
-                    2 => EnemyProjectileFrameId.DownwardGateTwoBlocksTall,
-                    3 => EnemyProjectileFrameId.DownwardGateThreeBlocksTall,
-                    _ => EnemyProjectileFrameId.DownwardGateFourBlocksTall,
-                }));
-                column = (pixels, width, height, 0, block);
+                    if (moved is { } so && so < way)
+                        moved = so + 1;
+                    int lowered = moved is { } far ? rising ? way - far : far : rising ? way : 0;
+                    string picture = Lowered(image, lowered, rising);
+                    if (steps.Count > 0 && steps[^1]!["picture"]!.GetValue<string>() == picture)
+                        steps[^1]!["updates"] = steps[^1]!["updates"]!.GetValue<int>() + 1;
+                    else
+                        steps.Add(new JsonObject { ["picture"] = picture, ["updates"] = 1 });
+                }
             }
 
-            return RoomObjects.Picture(directory, frame, folder, over: column, rows: DownwardGateDefinitions.GateHeightInBlocks);
+            if (moved != way)
+                throw new InvalidDataException($"A gate's {movement} moves its column {moved} pixels of the {way} of its way.");
+            return new JsonObject { ["steps"] = steps };
         }
 
-        JsonObject Moving(Animation<DownwardGateSegment> movement)
+        JsonObject Resting(DownwardGateImage image, int lowered) => new()
         {
-            (List<IAnimationBeat<DownwardGateImage, NoAnimationCue>> lead, List<IAnimationBeat<DownwardGateImage, NoAnimationCue>>? cycle) =
-                EngineTimelines.Played(DownwardGateAnimations.Segments, movement);
-            return EngineTimelines.Of(lead, cycle, GatePicture, static (NoAnimationCue _) => null);
-        }
-
-        JsonObject Resting(DownwardGateImage image) =>
-            EngineTimelines.Of<DownwardGateImage, NoAnimationCue>([new AnimationBeat<DownwardGateImage, NoAnimationCue>.HeldFrame(image)], null, GatePicture, static _ => null);
+            ["steps"] = new JsonArray(new JsonObject { ["picture"] = Lowered(image, lowered, rising: false), ["updates"] = 1 }),
+            ["loops_to"] = 0,
+        };
 
         // Nothing wears a gate down: only its switch moves it. It starts shut. With no hit taking anything off it, it
         // never shows itself hurt, so it has no look for that.
@@ -74,10 +112,10 @@ public sealed partial class EngineAssetWriter
             .Value("open_sound", EngineNames.Sound(DownwardGateDefinitions.MovementSound))
             .Value("close_sound", EngineNames.Sound(DownwardGateDefinitions.MovementSound))
             .Collider("Solid", 0, 0, block, DownwardGateDefinitions.GateHeightInBlocks * block)
-            .Timeline("closed", Resting(DownwardGateMovementDefinitions.Closed))
-            .Timeline("opening", Moving(DownwardGateAnimations.Reopening))
-            .Timeline("open", Resting(DownwardGateMovementDefinitions.Open))
-            .Timeline("closing", Moving(DownwardGateAnimations.Closing))
+            .Timeline("closed", Resting(DownwardGateMovementDefinitions.Closed, way))
+            .Timeline("opening", Moving(DownwardGateMovementDefinitions.Reopening, DownwardGateMovement.Rising))
+            .Timeline("open", Resting(DownwardGateMovementDefinitions.Open, 0))
+            .Timeline("closing", Moving(DownwardGateMovementDefinitions.Closing, DownwardGateMovement.Lowering))
             .Write();
 
         // A switch is the one block beside the gate's housing, on its left or its right. The old switch looks the same

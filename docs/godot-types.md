@@ -1643,7 +1643,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   which its spikes and nails show with its arm and foot, and its eyes' own colours are shown over them; what it does
   to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
   its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
-  screens it keeps the view from until it has grown are `CameraZone`s it opens); Crocomire
+  screens it keeps the view from until it has grown are `CameraZone`s it opens; its body is a solid of its
+  definition's size, switched on as it starts to sink); Crocomire
   (its tongue is a visual; the pieces of it a shot or Samus meets are ten hurtboxes its `ColliderPoses` place for
   each picture, each pose saying what every piece does and how far its mouth is open; what it does in the acid is a
   script in its data; the bridge's blocks, the walls that hold Samus in while it dies and the opened spike wall are

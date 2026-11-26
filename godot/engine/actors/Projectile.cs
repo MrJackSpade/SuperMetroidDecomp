@@ -998,7 +998,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             : Position;
         if (_settings.EndingEffect.Length > 0)
         {
-            Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), at);
+            Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), at, standing: _settings.EndingEffectStanding);
             room.Spawn(effect);
             LeftOnEnding?.Invoke(effect);
         }

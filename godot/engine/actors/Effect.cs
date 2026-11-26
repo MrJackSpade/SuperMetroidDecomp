@@ -41,11 +41,18 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
     /// <param name="timeline">What it plays.</param>
     /// <param name="at">Where it is.</param>
     /// <param name="holdsPlace">Whether it holds one of the room's places for what its enemies launch and leave.</param>
-    public static Effect Of(FrameTimeline timeline, PixelPosition at, bool holdsPlace = false)
+    /// <param name="standing">Where it stands against the player; null for where what is launched and left lies.</param>
+    public static Effect Of(FrameTimeline timeline, PixelPosition at, bool holdsPlace = false, Standing? standing = null)
     {
         ArgumentNullException.ThrowIfNull(timeline);
-        return new Effect { _timeline = timeline, Position = at, Name = "Effect", HoldsPlace = holdsPlace };
+        return new Effect { _timeline = timeline, Position = at, Name = "Effect", HoldsPlace = holdsPlace, Standing = standing };
     }
+
+    /// <summary>
+    /// Where it stands against the player among the room's depths; null for where what is launched and left lies
+    /// (<see cref="RoomDepth.Launched"/>).
+    /// </summary>
+    public Standing? Standing { get; private init; }
 
     /// <summary>
     /// Something that shows nothing for <paramref name="updates"/> updates at <paramref name="at"/> and holds one of
@@ -70,7 +77,7 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
     public void EnterRoom(Room room)
     {
         _room = room;
-        ZIndex = RoomDepth.Launched;
+        ZIndex = Standing is { } standing ? RoomDepth.Of(standing) : RoomDepth.Launched;
         FrameTimeline timeline = _timeline ?? throw new InvalidOperationException("The effect has no timeline.");
         _player = new TimelinePlayer(timeline);
         _visual = new ActorVisual { PictureOffset = PictureOffset };

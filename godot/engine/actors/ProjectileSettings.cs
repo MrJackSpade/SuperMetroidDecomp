@@ -241,6 +241,12 @@ public sealed record ProjectileSettings
     public string EndingEffect { get; init; } = "";
 
     /// <summary>
+    /// Where the effect it leaves on ending stands against the player ("ending_effect_standing"); null for where what
+    /// is launched and left lies. What a shot leaves need not lie where the shot did.
+    /// </summary>
+    public Engine.World.Standing? EndingEffectStanding { get; init; }
+
+    /// <summary>
     /// The data file of the burst it leaves on ending: another projectile with a hit and settings of its own, as an
     /// explosion is; empty for none.
     /// </summary>
@@ -293,6 +299,7 @@ public sealed record ProjectileSettings
             Timeline = data.Has("timeline") ? data.Text("timeline") : "",
             FallingTimeline = data.Has("falling_timeline") ? data.Text("falling_timeline") : "",
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
+            EndingEffectStanding = data.Has("ending_effect_standing") ? data.Get("ending_effect_standing").AsEnum<Engine.World.Standing>() : null,
             ShotTimeline = data.Has("shot_timeline") ? data.Text("shot_timeline") : "",
             EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
             EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",

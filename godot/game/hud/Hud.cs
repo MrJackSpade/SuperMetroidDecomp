@@ -22,7 +22,7 @@ namespace Game;
 /// "auto_reserve" gives where the reserves' sign goes and its "full" and "empty" pictures, and "cleared", shown
 /// when she has reserves that do not refill by themselves. "minimap_at" is the top-left of the map, whose areas'
 /// files are in "area_folder"; "minimap_backing" is the picture of a cell of it that shows nothing, which lies under
-/// every cell. "timer" gives the countdown: its "label" and the ten "digits", and where each lies from the
+/// every cell, and is all that shows of the map in a room whose map is hidden. "timer" gives the countdown: its "label" and the ten "digits", and where each lies from the
 /// countdown's place ("label_at", "minutes_at", "seconds_at", "hundredths_at": the first of each pair of digits,
 /// the second "digit_spacing" to its right). Its child "Canvas" draws them; its child "Minimap" is the map.
 /// </remarks>
@@ -249,7 +249,8 @@ public partial class Hud : GameHud, IHasValues
     {
         if (GetNodeOrNull<MapView>("Minimap") is not { } minimap)
             return;
-        // A room whose map is hidden, as a boss's may be, shows none of it and explores none of it.
+        // A room whose map is hidden, as a boss's may be, explores none of it, and its every cell shows blank: the
+        // backing beneath, which is the cartridge's own picture of a hidden cell.
         minimap.Visible = room.MapShown && room.Area.Length > 0;
         if (!minimap.Visible)
             return;

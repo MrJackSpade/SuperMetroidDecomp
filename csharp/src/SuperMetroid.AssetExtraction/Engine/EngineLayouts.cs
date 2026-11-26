@@ -346,6 +346,27 @@ internal sealed partial class EngineLayouts
             }
         }
 
+        // The Ceres elevator shaft once Ridley is gone: its setup turns the blocks of the shaft's door solid and
+        // leaves their pictures as they were, so the door looks the same and stops Samus instead of leading out.
+        if (ReferenceEquals(state.SetupBehavior, RoomSetupBehavior.SealCeresElevatorDoorAndSpawnHaze))
+        {
+            if (SuperMetroid.Core.Areas.Ceres.CeresElevatorDoorSealDefinitions.SealedCollision != RoomCollisionType.SolidBlock)
+                throw new InvalidDataException("The seal of the Ceres elevator shaft's door is not solid blocks.");
+            Position16<RoomBlocks> top = SuperMetroid.Core.Areas.Ceres.CeresElevatorDoorSealDefinitions.DoorTop;
+            for (int row = 0; row < SuperMetroid.Core.Areas.Ceres.CeresElevatorDoorSealDefinitions.HeightInBlocks; row++)
+            {
+                int x = top.X, y = top.Y + row;
+                if (x >= level.Size.X || y >= level.Size.Y)
+                    throw new InvalidDataException($"The seal of the door of the layout {path} does not lie inside its level.");
+                int cell = y * level.Size.X + x;
+                var sealedBlock = new JsonObject { ["kind"] = "solid" };
+                RoomBlockAppearance shown = level.Foreground[cell].Appearance;
+                if (shown.Shows == RoomBlockShown.Block && Picture(tileset, shown.Block, shown.Mirroring) is { } picture)
+                    sealedBlock["picture"] = picture;
+                tiles[cell] = sealedBlock;
+            }
+        }
+
         return tiles;
     }
 

@@ -1180,12 +1180,19 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// The state the player enters when <paramref name="asked"/> is asked for (<see cref="PlayerState.EntersIn"/>).
     /// A state that names the form it is entered in has that form fitted first: fitted, it is entered; not fitted,
     /// the player stays in the state they are in; answered with another form, the player is in the state that goes
-    /// with that form, or stays in the one they are in when it is of that kind already.
+    /// with that form, or stays in the one they are in when it is of that kind already. A form asked for unfitted
+    /// (<see cref="FormAsked.Unfitted"/>) is taken where they are and the state entered.
     /// </summary>
     private State<Player> Admit(State<Player> asked)
     {
         if (asked is not PlayerState state || state.EntersIn(this) is not { } wants || wants.Form == Form)
             return asked;
+        if (wants.Unfitted)
+        {
+            ApplyForm(wants.Form);
+            return asked;
+        }
+
         string? taken = TakeFit(FitForm(wants.Form, wants.AroundMiddle));
         if (taken == wants.Form)
             return asked;

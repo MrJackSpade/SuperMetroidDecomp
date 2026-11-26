@@ -5,7 +5,11 @@ namespace Engine.Actors;
 /// <summary>The form a state is entered in, and how it is placed where it is not fitted by feeling for room.</summary>
 /// <param name="Form">The form's name.</param>
 /// <param name="AroundMiddle">Whether the body keeps its middle where it can, on the ground as in the air.</param>
-public readonly record struct FormAsked(string Form, bool AroundMiddle = false);
+/// <param name="Unfitted">
+/// Whether the form is taken where the player is, with no feeling for room: the body changes about its middle, into
+/// whatever is there, and the state is entered.
+/// </param>
+public readonly record struct FormAsked(string Form, bool AroundMiddle = false, bool Unfitted = false);
 
 /// <summary>
 /// What fitting a form to the player's body came to (<see cref="Player.FitForm"/>): the form they take, where that

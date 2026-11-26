@@ -78,7 +78,9 @@ public abstract class PlayerState : State<Player>
     /// the form they have. The player fits the form before anything of the state is entered
     /// (<see cref="Player.FitForm"/>): where it fits they are put where the fitting leaves them and the state is
     /// entered; where it does not they stay in the state they were in, and nothing of this one happens; and where the
-    /// fitting answers with another form they are put in the state that goes with that form instead.
+    /// fitting answers with another form they are put in the state that goes with that form instead. A state may ask
+    /// for its form unfitted (<see cref="FormAsked.Unfitted"/>): the player takes it where they are, whatever is
+    /// around them.
     /// </summary>
     public virtual FormAsked? EntersIn(Player owner) => null;
 

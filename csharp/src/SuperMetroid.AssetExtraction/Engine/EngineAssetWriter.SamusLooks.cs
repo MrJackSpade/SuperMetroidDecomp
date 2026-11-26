@@ -359,9 +359,17 @@ public sealed partial class EngineAssetWriter
         Add("facing_forward_suited", SamusHeld(P.ForwardFacingSuitedPose, still));
         Add("collecting_suit_suited", SamusHeld(P.ForwardFacingSuitedPose, still));
 
-        // A crystal flash: she rises, glows while her ammunition is taken, and the Godot state ends it.
-        foreach ((string side, P pose) in new[] { ("right", P.CrystalFlashRightPose), ("left", P.CrystalFlashLeftPose) })
+        // A crystal flash: she rises, glows while her ammunition is taken, and finishes standing.
+        foreach ((string side, P pose, P standing) in new[]
         {
+            ("right", P.CrystalFlashRightPose, P.FacingRightNormalPose),
+            ("left", P.CrystalFlashLeftPose, P.FacingLeftNormalPose),
+        })
+        {
+            // A picture the flash itself turns to is given the flash's own hold, which is counted down on the update
+            // it is given: it shows for an update less.
+            static SamusStep TurnedTo(SamusStep first) => first with { Updates = CrystalFlashDefinitions.PhasePictureHold - 1 };
+
             List<SamusStep> steps = [.. SamusSegment(pose, Seg.Rise)];
             int risen = steps.Sum(step => step.Updates);
             List<SamusStep> rising = SamusSegment(pose, Seg.Rising);
@@ -371,9 +379,19 @@ public sealed partial class EngineAssetWriter
                 risen += rising.Sum(step => step.Updates);
             }
 
+            // The glow's first picture is turned to as the rise ends, and the glow comes round from its second.
+            List<SamusStep> glowing = SamusSegment(pose, Seg.Glow);
+            steps.Add(TurnedTo(glowing[0]));
             int glow = steps.Count;
-            steps.AddRange(SamusSegment(pose, Seg.Glow));
+            steps.AddRange(glowing.Skip(1));
+            steps.Add(glowing[0]);
             Add($"crystal_flash_{side}", (steps, glow));
+
+            // The finish is turned to as the last of her ammunition is taken, and ends with her standing.
+            List<SamusStep> finish = SamusSegment(pose, Seg.Finish);
+            finish[0] = TurnedTo(finish[0]);
+            finish.Add(SamusPlayed(standing).Steps[0] with { Updates = 1 });
+            Add($"crystal_flash_finish_{side}", (finish, finish.Count - 1));
         }
 
         // Drained. The old game shows the left-facing crouch whichever way she faces for all but kneeling and rising,

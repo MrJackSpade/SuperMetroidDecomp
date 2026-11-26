@@ -946,6 +946,10 @@ in `engine/actors/player/`.
   upward, and goes straight back to its own movement. Some states hold an interruption off (`HoldsOffInterruptions`:
   the turns and the changes of posture); it waits, and a knockback that waited is shorter by as long as it waited
   (`StillInterrupts`).
+- A state names the form it is entered in (`PlayerState.EntersIn`), and the player fits it first (`FitForm`):
+  where it does not fit the state is not entered. A state may ask for its form unfitted (`FormAsked.Unfitted`):
+  the body changes about its middle where it is, into whatever is there, as this game's crystal flash stands
+  her up out of the ball.
 - The effect left at the player's feet on landing may come from their data.
 - Facing and aim are separate values, never part of a state's name.
 - Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
@@ -1115,6 +1119,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   flash's rise is done the same bomb plays the flash's own blast from where she has risen to
   (`PowerBomb.BeginFlashBlast`, by its `flash_blast_reaches`): it sweeps the enemies as any blast does, strikes
   no terrain and offers no flash. With no flash the bomb leaves on the update its blast ended.
+- **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
+  form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
+  whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three
+  pictures, then standing, set down a pixel an update while she is off the height she rose to. What a hurt
+  left her is ended as it begins, as the rise ends, on every update of the taking and as it lets her go, so
+  whatever touches her while her ammunition is taken hurts her every update; nothing knocks her back.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
   tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
 - **Her colours** (`SamusColours`) hold the colouring her suit shows and the colouring her beams show. Every colouring,

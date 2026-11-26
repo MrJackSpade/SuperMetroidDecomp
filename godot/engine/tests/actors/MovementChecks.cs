@@ -70,7 +70,9 @@ public sealed class MovementChecks
 
         Expect.True(landed);
         Expect.True(highest < Pixels.FromWhole(60));
-        Expect.Equal(Pixels.FromWhole(72), enemy.Position.Y);
+
+        // It lands on the pixel it left, at that pixel's far end: a hop's moves are tried where they end.
+        Expect.Equal(72, enemy.Position.Y.Whole);
         Expect.True(enemy.Position.X > Pixels.FromWhole(100));
         Expect.False(hop.IsInAir);
     }

@@ -134,10 +134,19 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
 
-    /// <summary>Plays its pictures on one update, to be drawn across <paramref name="view"/>.</summary>
-    internal void Step(PixelRect view)
+    /// <summary>
+    /// Takes the view it is drawn across. The room tells it each time the room shows itself, so it is drawn across
+    /// the view as shown, on an update the liquid itself is not stepped as on any other.
+    /// </summary>
+    internal void Follow(PixelRect view)
     {
         _view = view;
+        QueueRedraw();
+    }
+
+    /// <summary>Plays its pictures on one update.</summary>
+    internal void Step()
+    {
         _surface?.Step();
         _body?.Step();
         if (Drifts)
@@ -187,17 +196,19 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         if (top >= bottom)
             return;
 
-        // Each is tiled from the room's left edge, moved by its drift, starting with the tile that reaches into the view.
+        // Each is tiled from the room's left edge, moved by its drift, starting with the tile that reaches into the
+        // view. They are laid in the room's own pixels, which are the liquid's but for where it is put in the room:
+        // the room itself is moved against the screen.
         int stripWidth = strip.GetWidth(), stripHeight = strip.GetHeight();
         for (int x = FirstTile(_view.Left, stripWidth); x < right; x += stripWidth)
-            DrawTexture(strip, ToLocal(new Vector2(x, top)));
+            DrawTexture(strip, new Vector2(x, top) - Position);
         int bodyWidth = body.GetWidth(), bodyHeight = body.GetHeight();
         int under = top + stripHeight;
         int firstRow = under >= _view.Top ? under : under + (_view.Top - under) / bodyHeight * bodyHeight;
         for (int y = firstRow; y < bottom; y += bodyHeight)
         {
             for (int x = FirstTile(_view.Left, bodyWidth); x < right; x += bodyWidth)
-                DrawTexture(body, ToLocal(new Vector2(x, y)));
+                DrawTexture(body, new Vector2(x, y) - Position);
         }
 
         int FirstTile(int left, int width)

@@ -532,7 +532,7 @@ public partial class Room : Node2D
             ExitEntered = null;
         if (!stopped.HasFlag(Stopped.Room) && !energyGone)
         {
-            Liquid?.Step(Session.Camera.View);
+            Liquid?.Step();
             foreach (RoomEffect effect in _roomEffects)
                 effect.Step(this);
         }
@@ -1186,6 +1186,7 @@ public partial class Room : Node2D
             backdrop.Follow(viewTopLeft);
         foreach (OverlayEffect overlay in _roomEffects.OfType<OverlayEffect>())
             overlay.Follow(Session.Camera.View);
+        Liquid?.Follow(Session.Camera.View);
         EntityNode.Show(Player, (ShownTurn is { } turn ? turn.Turned(Player.Position) : Player.Position) - PixelOffset.FromWhole(shake.X, shake.Y));
         foreach (Enemy enemy in _enemies)
             enemy.ShowPosition();

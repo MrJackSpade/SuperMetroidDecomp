@@ -22,13 +22,17 @@ public partial class FirefleaDarkness : RoomEffect
     private int _killed;
     private int _pulse;
     private int _wait = PulseStepUpdates;
-    private PixelRect _view;
+
+    /// <summary>The room's size, in pixels: the dark lies over all of it, so it is in step with the room wherever the view is.</summary>
+    private Vector2 _room;
 
     /// <inheritdoc/>
     protected override void OnSetup(Room room)
     {
         (_killed, _pulse, _wait) = (0, 0, PulseStepUpdates);
-        ZIndex = 105;
+        _room = new Vector2(room.Terrain.WidthInPixels, room.Terrain.HeightInPixels);
+        ZAsRelative = false;
+        ZIndex = RoomDepth.Overlay;
     }
 
     /// <inheritdoc/>
@@ -46,8 +50,6 @@ public partial class FirefleaDarkness : RoomEffect
     /// <inheritdoc/>
     protected override void OnStep(Room room)
     {
-        _view = room.Session.Camera.View;
-
         // At its darkest the pulse stops at its darkest too.
         if (_killed >= DarknessLevels.Length - 1)
             _pulse = Array.IndexOf(Pulse, 6);
@@ -66,7 +68,8 @@ public partial class FirefleaDarkness : RoomEffect
         if (!IsActive)
             return;
         float dark = Math.Min(31, DarknessLevels[_killed] + Pulse[_pulse]) / 31f;
-        var topLeft = ToLocal(new Vector2(_view.Left, _view.Top));
-        DrawRect(new Rect2(topLeft, new Vector2(_view.Width, _view.Height)), new Color(0f, 0f, 0f, dark));
+
+        // The room's own pixels are this effect's but for where it is put in the room.
+        DrawRect(new Rect2(-Position, _room), new Color(0f, 0f, 0f, dark));
     }
 }

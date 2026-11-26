@@ -57,7 +57,8 @@ public sealed partial class EngineAssetWriter
             Layouts.PatchReactingBlock(room, state, WallShotBlocksPatch, new Position16<RoomBlocks>(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY),
                 EscapeAnimalWallDefinitions.HeightInBlocks, "shot_block_animal_escape",
                 // Its breaking is what lets the animals out: the old wall marks them escaped as its breaking ends.
-                new JsonObject { ["solid"] = true, ["broken_by"] = EngineLayouts.AnyWeapon(), ["records"] = AnimalsEscapedFact });
+                // Every shot and bomb breaks it; the grapple's touch does not (EscapeAnimalObjects).
+                new JsonObject { ["solid"] = true, ["broken_by"] = EngineLayouts.AnyShot(), ["records"] = AnimalsEscapedFact });
         }
     }
 

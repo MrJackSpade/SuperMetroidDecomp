@@ -678,8 +678,14 @@ internal sealed partial class EngineLayouts
     /// <summary>The hit kind of the Godot game by which an enemy cuts through the blocks an enemy breaks, as its Shaktool's saws do.</summary>
     private const string EnemyCutKind = "saw";
 
-    /// <summary>The hit kinds of the Godot game that are "any weapon" to a block.</summary>
-    internal static JsonArray AnyWeapon() => ["beam", "missile", "super_missile", "bomb", "power_bomb"];
+    /// <summary>
+    /// The hit kinds of the Godot game that are "any weapon" to a block: every shot and bomb, and the grapple's touch,
+    /// which strikes a block the cartridge's shots meet as a beam does (ShootableTable, BlockStrike.GrappleTouch).
+    /// </summary>
+    internal static JsonArray AnyWeapon() => ["beam", "missile", "super_missile", "bomb", "power_bomb", "grapple"];
+
+    /// <summary>Every shot and bomb without the grapple's touch, which the wall the animals escape through turns away.</summary>
+    internal static JsonArray AnyShot() => ["beam", "missile", "super_missile", "bomb", "power_bomb"];
 
     /// <summary>What a block of a kind that reacts is, or null for one that does nothing a plain tile does not.</summary>
     private ReactingBlock? Reacting(RoomCollisionType collision, RoomBlockBehavior behavior)

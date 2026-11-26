@@ -80,7 +80,9 @@ public sealed class Hop
     /// <summary>Moves one update of a hop whose speeds come from a curve.</summary>
     private MoveReport StepAlongCurve(IMoves mover, Mover room, Collider body, SpeedCurve curve)
     {
-        MoveOptions air = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        // Each move is tried where it ends, by the edge it leads with: a hopper the room sets a little way into
+        // the surface it hangs from or stands on moves away from it freely, and lands flush against it.
+        MoveOptions air = MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.Wall };
         int away = FromCeiling ? 1 : -1;
         Pixels speed = curve.SpeedAt(_place);
         if (!_returning)
@@ -127,7 +129,8 @@ public sealed class Hop
     /// <summary>Moves one update of a hop under gravity.</summary>
     private MoveReport StepUnderGravity(IMoves mover, Mover room, Collider body)
     {
-        MoveOptions air = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        // Tried where each move ends, as a hop along a curve is.
+        MoveOptions air = MoveOptions.Plain with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.Wall };
         bool hitWall = room.MoveAcross(body, mover.Velocity.X, air).Blocked;
         if (hitWall)
             mover.Velocity = mover.Velocity.WithX(Pixels.Zero);

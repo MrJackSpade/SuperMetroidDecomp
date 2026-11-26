@@ -203,11 +203,6 @@ public sealed partial class EngineAssetWriter
     private void WriteEscapeEtecoon()
     {
         EngineObjectFile etecoon = Creature("objects/escape_etecoon.json", "EscapeEtecoon", EnemyDefinitionId.EtecoonEscape, out EngineSheetPictures pictures);
-
-        // The trapped Etecoons are placed taking part in collision, where the others are not: Samus's shots are spent
-        // on one's own size.
-        Extent16<RoomPixels> size = RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.EtecoonEscape].Radius;
-        etecoon.Collider("Hurtbox", -size.X, -size.Y, 2 * size.X, 2 * size.Y);
         static string Cue(EscapeEtecoonCue cue) => cue switch
         {
             EscapeEtecoonCue.LowTideRunStarts run => $"low_tide_run:{EngineNames.Side(run.Running)}",

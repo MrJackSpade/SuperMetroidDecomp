@@ -7,6 +7,11 @@
           {
             "type": "command",
             "command": "python \"$CLAUDE_PROJECT_DIR/tools/require-build-script.py\""
+          },
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/require-ticket-declaration.py\"",
+            "statusMessage": "Requiring a ticket's design declaration"
           }
         ]
       }

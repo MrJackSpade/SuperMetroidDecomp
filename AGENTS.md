@@ -234,6 +234,20 @@ reproducing a reported bug.
 - Match the assertion to the report. Visual, positioning, animation, timing, and state-transition bugs need assertions for those exact properties; a nearby endpoint or no-crash assertion is not sufficient evidence of a fix.
 - Use a real room or recorded controller sequence when the behavior depends on retail room data, interactions across systems, or a sequence that a synthetic fixture cannot reproduce faithfully.
 
+## Ticket design declaration
+
+- The owner's rule, 2026-11-26, in the owner's words: "you need to add a hook that blocks you from opening
+  tickets on github without including a boolean as to whether or not the change is exclusively presentation.
+  If so, then it needs a boolean stating whether or not the change is idiomatic. If not, it needs a string
+  justification for the design pattern. So you can not create any presentation only change that is not
+  ideomatic without justification. If not presentation only, or it is ideomatic, then the subsequent fields
+  are not required".
+- A ticket is opened only with `python tools/new-ticket.py`, which takes `--presentation-only true|false`,
+  for a change that is exclusively presentation `--idiomatic true|false`, and for one that is not idiomatic
+  `--design-justification "..."`, and writes them into the ticket's body under "Design declaration".
+- The hook `tools/require-ticket-declaration.py` (wired in `.claude/settings.json`) refuses `gh issue create`
+  by any other route, a script that calls it, and a call of the tool that lacks what the rule asks.
+
 ## Issue report versions
 
 - Every player bug report must record the affected game version in the GitHub

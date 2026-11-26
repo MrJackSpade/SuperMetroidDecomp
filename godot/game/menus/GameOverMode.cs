@@ -92,9 +92,9 @@ public partial class GameOverMode : GameMode
         ScreenFade fade = _fade ?? throw NotShown();
         if (_blackUpdates < Data().Int("entry_black_updates"))
         {
-            // The room's sounds stop on its first update; the old game asks only the room's library here.
+            // Every sound stops on its first update.
             if (_blackUpdates++ == 0)
-                Session.Sounds.Request(Sounds.RoomStop, channel: "room");
+                Session.Sounds.StopAll();
             return this;
         }
 

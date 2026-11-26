@@ -123,7 +123,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
         if (picture.Length > 0 || _timeline is not null)
         {
-            (int x, int y) = _settings.PictureOffset ?? (-_settings.Width / 2, -_settings.Height / 2);
+            // A lone picture is centred on the projectile unless its settings say where it lies. A timeline's pictures
+            // lie where the timeline puts them, and its settings' offset, if they give one, is added to that.
+            (int x, int y) = _settings.PictureOffset ?? (_timeline is null ? (-_settings.Width / 2, -_settings.Height / 2) : (0, 0));
             _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(x, y) };
             AddChild(_visual);
             _visual.Bind(room.Content);

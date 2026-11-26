@@ -44,11 +44,15 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
     /// <summary>Which row of the picture shows at each row down from its top, when it is shown row by row.</summary>
     private IReadOnlyList<int?>? _rows;
 
-    /// <summary>Gives the visual where to load pictures from and shows its starting picture.</summary>
+    /// <summary>
+    /// Gives the visual where to load pictures from, and loads from there the picture it shows. What it shows and
+    /// where is left as it is: a visual that goes on from one room to the next, as the player's does through a door,
+    /// is bound again to the next room's library with a timeline's step still showing.
+    /// </summary>
     public void Bind(ContentLibrary content)
     {
         _content = content;
-        Show(Picture);
+        Load();
     }
 
     /// <summary>Shows the picture at <paramref name="path"/>; empty shows nothing.</summary>
@@ -56,7 +60,13 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
     {
         _stepOffset = Vector2I.Zero;
         Picture = path;
-        _texture = path.Length > 0 && _content is not null ? _content.LoadTexture(path) : null;
+        Load();
+    }
+
+    /// <summary>Loads the picture it shows from its library, and has it drawn again.</summary>
+    private void Load()
+    {
+        _texture = Picture.Length > 0 && _content is not null ? _content.LoadTexture(Picture) : null;
         QueueRedraw();
     }
 

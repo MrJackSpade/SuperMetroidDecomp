@@ -1621,6 +1621,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   `ColliderPoses` pose with every step of their timelines, which places two or three hurtboxes for her shots
   and as many hitboxes for her touch: the cartridge meets a shot and a touch on different edges of a frame's box,
   a pixel apart, so each box is written once for each (`EngineEnemy.ShotRect`, `TouchRect`).
+- Oum: met by the boxes of the picture it shows, as the pirates are (`EngineEnemy.PosedByFrame`), each pose saying
+  what each part does with a shot (its shell swallows one, its soft part answers by its reactions) and with Samus's
+  touch (its jet hurts and shoves her, any other part only shoves her); its body and solid stay one square.
 - Kzan: one enemy; its top and bottom are parts.
 - Rinka: an enemy; its source is a `RinkaSpawner`, a `Spawner` that shares its places with the others in the room.
 - Zebetite (one node that stands again as each barrier in turn); Draygon's wall cannons; the eye of an eye door
@@ -1640,7 +1643,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   which its spikes and nails show with its arm and foot, and its eyes' own colours are shown over them; what it does
   to its room, the ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
   its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
-  screens it keeps the view from until it has grown are `CameraZone`s it opens); Crocomire
+  screens it keeps the view from until it has grown are `CameraZone`s it opens; its body is a solid of its
+  definition's size, switched on as it starts to sink); Crocomire
   (its tongue is a visual; the pieces of it a shot or Samus meets are ten hurtboxes its `ColliderPoses` place for
   each picture, each pose saying what every piece does and how far its mouth is open; what it does in the acid is a
   script in its data; the bridge's blocks, the walls that hold Samus in while it dies and the opened spike wall are
@@ -1702,7 +1706,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
   (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`. The Dachora's
   glows, of speed and of the shine, are frames of changes of its pictures' colours, which its data lists
-  (`glow_colours`).
+  (`glow_colours`). The trapped Etecoons of the escape stand solid to Samus, a solid of their body's size.
 - The Tourian entrance statue is a plain node holding the pictures its hall's sequence
   shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, each with a state

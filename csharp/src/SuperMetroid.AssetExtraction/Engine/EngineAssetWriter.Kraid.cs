@@ -68,6 +68,8 @@ public sealed partial class EngineAssetWriter
         EngineEnemy kraid = Enemy("bosses/kraid.json", "Kraid", EnemyDefinitionId.Kraid, armKey, footKey);
         // What a shot that does it no harm leaves is its own class's, part by part.
         kraid.Data.Remove("dud");
+        // As it starts to sink its body is made solid to Samus, by its definition's size.
+        kraid.BodyColliders("Solid");
         List<(RoomDefinition Room, RoomStateSettings State)> states = StatesHolding(EnemyDefinitionId.Kraid);
 
         // What it does to its room: the ceiling's blocks it breaks as it grows, each with the rock that falls from

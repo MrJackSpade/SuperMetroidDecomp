@@ -47,9 +47,11 @@ internal sealed partial class EngineEnemy
     /// frame has its boxes: the one for a shot, the other for Samus's touch, which the old probe meets on different
     /// edges (<see cref="ShotRect"/>, <see cref="TouchRect"/>). A picture whose frame the old game gives no boxes is
     /// a pose with none. Where <paramref name="shot"/> is given, each pose says under "shots" what
-    /// it names each box's reaction to a shot.
+    /// it names each box's reaction to a shot, and where <paramref name="touch"/> is given, under "touches" what it
+    /// names each box's reaction to Samus's touch, both by the part's name.
     /// </summary>
-    internal EngineEnemy PosedByFrame(EnemyFrameCollision<EnemyCollisionHitbox> frames, Func<EnemyReaction, string>? shot = null)
+    internal EngineEnemy PosedByFrame(EnemyFrameCollision<EnemyCollisionHitbox> frames, Func<EnemyReaction, string>? shot = null,
+        Func<EnemyReaction, string>? touch = null)
     {
         var shown = new HashSet<string>(StringComparer.Ordinal);
         foreach ((string _, JsonNode? timeline) in _timelines)
@@ -66,7 +68,7 @@ internal sealed partial class EngineEnemy
         {
             if (frame == EnemyFrameId.PointAtOrigin || !shown.Remove(PoseName(frame)))
                 continue;
-            JsonObject colliders = [], shots = [];
+            JsonObject colliders = [], shots = [], touches = [];
             foreach (EnemyCollisionHitbox box in boxes)
             {
                 string part = $"Part{colliders.Count / 2 + 1}";
@@ -74,11 +76,15 @@ internal sealed partial class EngineEnemy
                 colliders[part + "Touch"] = TouchRect(box);
                 if (shot is not null)
                     shots[part] = shot(box.Shot);
+                if (touch is not null)
+                    touches[part] = touch(box.Touch);
             }
 
             var pose = new JsonObject { ["colliders"] = colliders };
             if (shot is not null)
                 pose["shots"] = shots;
+            if (touch is not null)
+                pose["touches"] = touches;
             poses[PoseName(frame)] = pose;
         }
 

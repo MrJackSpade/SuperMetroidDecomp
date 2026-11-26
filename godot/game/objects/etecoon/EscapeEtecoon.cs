@@ -10,6 +10,7 @@ namespace Game.Objects;
 /// <summary>
 /// One of the Etecoons trapped in the escape. Two run back and forth across their cell, more wildly once the acid
 /// has risen; the third waits by the wall. When Samus has blown the wall open they show their thanks and run out.
+/// Each stands solid to her.
 /// </summary>
 /// <remarks>
 /// Its timelines are "stationary", "running_left_low_tide", "running_right_low_tide", "running_left_high_tide",

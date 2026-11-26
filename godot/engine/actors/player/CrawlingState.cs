@@ -15,6 +15,13 @@ public sealed class CrawlingState : PlayerState
     /// <summary>Whether the low form is off the ground: fallen off a floor, jumped, or bouncing.</summary>
     private bool _airborne;
 
+    /// <summary>
+    /// Whether the low form is off the ground in this state, by what it is doing: fallen off a floor, jumped, or
+    /// bouncing. It is the state's own account, kept from one update to the next, and not a look at what lies under
+    /// the player now: a game whose enemies choose by what the player is doing asks it.
+    /// </summary>
+    public bool IsAirborne => _airborne;
+
     /// <summary>Whether it is in a jump of its own.</summary>
     private bool _jumping;
 

@@ -674,6 +674,22 @@ public partial class Samus : Player
     }
 
     /// <summary>
+    /// Whether what she is doing is one of the cartridge's movements of the air, which is not whether anything lies
+    /// under her: a jump, a spin, a fall, a wall jump, the flight out of a swing on the grapple beam, and the ball off
+    /// the ground. Thrown by a bomb she is as she was thrown (<see cref="BombJumpingState.MovesAsAirborne"/>). Thrown
+    /// back by a hurt or boosted by one, turning about in the air, changing her posture, on the grapple beam, or in
+    /// any of her special moves she is not, wherever she is. What chooses by her movement and not by her place, as
+    /// Mother Brain chooses her attacks, asks this.
+    /// </summary>
+    public bool MovesAsAirborne => State switch
+    {
+        JumpingState or SpinJumpingState or FallingState or WallJumpingState or GrappleReleasedState => true,
+        CrawlingState crawling => crawling.IsAirborne,
+        BombJumpingState thrown => thrown.MovesAsAirborne,
+        _ => false,
+    };
+
+    /// <summary>
     /// Throws her as a bomb of her own lies against her: straight up when the bomb was beneath her middle, and to the
     /// side away from it otherwise. The ball in her control is thrown as it is, and one already being thrown is
     /// thrown afresh. Upright she is thrown in a jump's pose, where that body fits, from standing, a wall stop, a
@@ -688,7 +704,7 @@ public partial class Samus : Player
         int away = Position.X.Whole - bomb.X.Whole;
         if (State is CrawlingState or BombJumpingState { Upright: false })
         {
-            Interrupt(new BombJumpingState(away));
+            Interrupt(new BombJumpingState(away, ballWasAirborne: MovesAsAirborne));
             return;
         }
 

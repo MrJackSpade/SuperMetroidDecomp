@@ -26,11 +26,23 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
     /// <summary>Whether the throw has yet to set the ball rising.</summary>
     private bool _starting = true;
 
-    /// <summary>A bomb jump throwing her the given way across: the ball, or upright.</summary>
-    public BombJumpingState(int across, bool upright = false) => (_across, Upright) = (Math.Sign(across), upright);
+    /// <summary>
+    /// A bomb jump throwing her the given way across: the ball, or upright. <paramref name="ballWasAirborne"/> says
+    /// the ball was moving as one in the air when it was thrown, which it goes on counting as: the cartridge throws
+    /// the ball in the pose it had.
+    /// </summary>
+    public BombJumpingState(int across, bool upright = false, bool ballWasAirborne = false) =>
+        (_across, Upright, MovesAsAirborne) = (Math.Sign(across), upright, upright || ballWasAirborne);
 
     /// <summary>Whether she is thrown upright, in a jump's pose, and not as the ball.</summary>
     public bool Upright { get; }
+
+    /// <summary>
+    /// Whether she counts as moving through the air while thrown (<see cref="Samus.MovesAsAirborne"/>): upright she
+    /// does, being in a jump's pose; the ball does only if it did when it was thrown, so that a ball thrown from the
+    /// ground counts as on it all the way up.
+    /// </summary>
+    public bool MovesAsAirborne { get; }
 
     /// <inheritdoc/>
     public string Look => Upright ? "jumping" : "morph_ball";

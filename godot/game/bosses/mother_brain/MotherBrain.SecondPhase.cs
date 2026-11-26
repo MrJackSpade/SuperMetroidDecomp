@@ -342,9 +342,10 @@ public partial class MotherBrain
         _attackCooldown = 64;
         _attack = Attack.Cooldown;
         int roll = Random.Last.Part(0, 8);
-        if (!samus.IsOnGround)
+        if (((Samus)samus).MovesAsAirborne)
         {
-            // Samus in the air gets rings or the laser.
+            // Samus moving as one in the air gets rings or the laser: it is what she is doing that is asked, as the
+            // cartridge asks it, and not whether anything lies under her.
             if (roll >= 128)
                 PlayHead("four_onion_rings_phase2");
             else

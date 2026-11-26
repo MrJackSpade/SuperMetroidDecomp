@@ -814,6 +814,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
   change into and out of it. A game that shows its low form as something else supplies the look, not the mechanic.
+  The crawling state says whether the low form is off the ground by what it is doing (`CrawlingState.IsAirborne`: fallen
+  off a floor, jumped or bouncing), for a game whose enemies choose by what the player is doing and not by what lies
+  under them, as Mother Brain chooses her attacks by Samus's movement (`Samus.MovesAsAirborne`).
 - **A mechanic may need equipment.** Each of those mechanics has a second setting naming the equipment that must be
   switched on for it to work, empty when it needs none. The states ask "may the player do this now", which is the
   switch and the equipment together. A game ties an item to a mechanic by naming it there, with no code.

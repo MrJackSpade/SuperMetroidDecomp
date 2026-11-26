@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -11,8 +11,9 @@
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -216,14 +217,20 @@ MeetsMiddle = true
 What = "rise"
 Target = NodePath("../Liquid")
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="LiquidQuake" type="Node" parent="."]
 script = ExtResource("12")
+StartsWhen = SubResource("r3")
+Sound = "enemy_lavaquake"
+Silent = true
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("13")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/tourian_pipe_room.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Escape" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 StartsWhen = SubResource("r3")
 ShakeStrength = 2
 SmallExplosionEffect = "effects/small_explosion.json"

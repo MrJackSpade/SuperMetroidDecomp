@@ -934,7 +934,16 @@ public partial class Room : Node2D
     }
 
     /// <summary>Starts the room shaking. A room with no earthquake of its own is given one.</summary>
-    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
+    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across) => OwnEarthquake().Shake(strength, updates, way);
+
+    /// <summary>
+    /// Keeps the room shaking for at least so many updates more without starting its shake over
+    /// (<see cref="Earthquake.Sustain"/>). A room with no earthquake of its own is given one.
+    /// </summary>
+    public void SustainShake(int strength, int atLeast, ShakeWay way = ShakeWay.Across) => OwnEarthquake().Sustain(strength, atLeast, way);
+
+    /// <summary>The room's earthquake, made where it has none.</summary>
+    private Earthquake OwnEarthquake()
     {
         Earthquake? quake = _roomEffects.OfType<Earthquake>().FirstOrDefault();
         if (quake is null)
@@ -945,7 +954,7 @@ public partial class Room : Node2D
             _roomEffects.Add(quake);
         }
 
-        quake.Shake(strength, updates, way);
+        return quake;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -16,7 +16,8 @@
 [ext_resource type="PackedScene" path="res://game/objects/etecoon/escape_etecoon.tscn" id="14"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="15"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="16"]
-[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="17"]
+[ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="17"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="18"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -243,8 +244,15 @@ What = "rise"
 Target = NodePath("../Liquid")
 PresentWhen = SubResource("r1")
 
-[node name="Escape" type="Node" parent="."]
+[node name="LiquidQuake" type="Node" parent="."]
 script = ExtResource("17")
+StartsWhen = SubResource("r13")
+Sound = "enemy_lavaquake"
+Silent = true
+PresentWhen = SubResource("r1")
+
+[node name="Escape" type="Node" parent="."]
+script = ExtResource("18")
 StartsWhen = SubResource("r13")
 Outdoors = true
 TurnsHarder = false

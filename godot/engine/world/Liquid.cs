@@ -148,6 +148,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _level = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
         _target = _level;
         (_motion, _speedSpent, _waiting, _tidePhase, _tide) = (Motion.Dormant, false, MoveDelay, 0, Pixels.Zero);
+        IsAstir = false;
         Surface = _level;
         _content = content;
         _surface = _type.Surface is { } surface ? new TimelinePlayer(surface) : null;
@@ -181,6 +182,12 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Cuts whatever wait is left to one update: a liquid already waiting starts to move on the update after its next.</summary>
     public void EndWait() => _waiting = 1;
 
+    /// <summary>
+    /// Whether its last update was one of a rise or fall under way: an update of its wait, or one on which it moved,
+    /// the one it arrived on among them. The update that only begins a wait is not one.
+    /// </summary>
+    public bool IsAstir { get; private set; }
+
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
 
@@ -212,6 +219,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// </summary>
     internal void Move()
     {
+        IsAstir = _motion != Motion.Dormant;
         switch (_motion)
         {
             case Motion.Dormant:

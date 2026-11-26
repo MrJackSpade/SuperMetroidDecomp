@@ -78,6 +78,11 @@ SPEED_BOOSTER_LAVA_RISE = 0.125
 
 # How fast the acid of the Lower Norfair statue's room falls once the statue has it fall, in pixels an update: the
 # old ChozoStatueFxData.LoweringVelocity, a quarter of a pixel. The fact the statue records once it has.
+# The rooms whose quakes are silent (RoomDefinitions, QuakesAreSilent), and those whose boss moves the room's liquid
+# by its own values, with no speed in the room's effect.
+SILENT_QUAKES = {'Climb', 'BombTorizo', 'Ridley', 'Pillar', 'MotherBrain', 'TourianEscape4'}
+BOSS_MOVED_LIQUIDS = {'Ridley', 'MotherBrain'}
+
 # The speed the lavaquake gives its hall's lava as it begins (SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity).
 LAVAQUAKE_START = 0.5
 CHOZO_ACID_FALL = 0.25
@@ -565,6 +570,13 @@ class Generator:
                 passed = sequences.past_point('PastAcidPoint', ESCAPE_ACID_POINT, room, 'rise')
                 shown.append(passed)
                 links[id(passed)] = {'Target': liquids[0]}
+            # Lava and acid that can rise or fall keep their room shaking while they wait and move, and rumble
+            # unless the room's quakes are silent.
+            if any(thing.name == 'Liquid' and thing.properties.get('TypeFile', '').startswith(('"liquids/lava', '"liquids/acid'))
+                   and ('MoveSpeed' in thing.properties or key in BOSS_MOVED_LIQUIDS) for thing in shown):
+                shown.append(sequences.sequence('RisingLiquidQuake.cs', 'LiquidQuake', {
+                    'StartsWhen': ctx.always(), 'Sound': quoted('enemy_lavaquake'),
+                    **({'Silent': 'true'} if key in SILENT_QUAKES else {})}))
             if lowers_acid:
                 # The statue gives the acid its wait as it gives it its speed (ChozoStatueFxData.LoweringDelay).
                 for thing in shown:

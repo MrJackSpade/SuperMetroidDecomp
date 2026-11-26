@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -14,9 +14,10 @@
 [ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="12"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="13"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="14"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/ninja_pirate.tscn" id="15"]
-[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="16"]
-[ext_resource type="Script" path="res://game/rooms/crateria/EscapeShaftWall.cs" id="17"]
+[ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="15"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/ninja_pirate.tscn" id="16"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="17"]
+[ext_resource type="Script" path="res://game/rooms/crateria/EscapeShaftWall.cs" id="18"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -97,6 +98,11 @@ Parts = Array[ExtResource("1")]([SubResource("r12"), SubResource("r10")])
 script = ExtResource("1")
 Kind = 4
 Parts = Array[ExtResource("1")]([SubResource("r12"), SubResource("r8")])
+
+[sub_resource type="Resource" id="r15"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r12")])
 
 [node name="Climb" type="Node2D"]
 script = ExtResource("3")
@@ -638,7 +644,14 @@ EffectName = "old_tourian_background_railings_flash_yellow"
 StepsFile = "colours/{graphics}/old_tourian_background_railings_flash_yellow.json"
 PresentWhen = SubResource("r14")
 
-[node name="PirateSilverNinja" parent="." instance=ExtResource("15")]
+[node name="LiquidQuake" type="Node" parent="."]
+script = ExtResource("15")
+StartsWhen = SubResource("r9")
+Sound = "enemy_lavaquake"
+Silent = true
+PresentWhen = SubResource("r15")
+
+[node name="PirateSilverNinja" parent="." instance=ExtResource("16")]
 position = Vector2(128, 2176)
 DataFile = "enemies/ninja_pirate_silver.json"
 StartsAtLeftPost = false
@@ -646,7 +659,7 @@ PostDistance = 0
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="PirateSilverNinja2" parent="." instance=ExtResource("15")]
+[node name="PirateSilverNinja2" parent="." instance=ExtResource("16")]
 position = Vector2(192, 2176)
 DataFile = "enemies/ninja_pirate_silver.json"
 StartsAtLeftPost = false
@@ -706,7 +719,7 @@ StepsFile = "colours/{graphics}/old_tourian_background_panels_flash_yellow.json"
 PresentWhen = SubResource("r1")
 
 [node name="Escape" type="Node" parent="."]
-script = ExtResource("16")
+script = ExtResource("17")
 StartsWhen = SubResource("r9")
 Outdoors = true
 TurnsHarder = false
@@ -721,7 +734,7 @@ SmokeSound = "enemy_big_explosion"
 PresentWhen = SubResource("r1")
 
 [node name="EscapeWall" type="Node" parent="."]
-script = ExtResource("17")
+script = ExtResource("18")
 Patch = "escape_wall_destroyed"
 BlastAt = Vector2i(272, 2184)
 BlastSpread = Vector2i(8, 16)

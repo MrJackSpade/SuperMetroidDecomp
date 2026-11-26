@@ -48,6 +48,24 @@ public partial class Earthquake : RoomEffect
         SetActive(true);
     }
 
+    /// <summary>
+    /// Keeps the room shaking with a shake of the given strength and way for at least <paramref name="atLeast"/>
+    /// updates more, without starting its length over: something that shakes the room for as long as it goes on asks
+    /// this on each update. The length left runs in rounds of twice <paramref name="atLeast"/>; one in the first
+    /// half of its round is moved on by <paramref name="atLeast"/>, and one in the second half is left. Asked every
+    /// update it never runs out, and once the asking stops it runs out within a round. It is no beginning of a shake
+    /// (<see cref="HasJustBegun"/>).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="atLeast"/> is not a power of two.</exception>
+    public void Sustain(int strength, int atLeast, ShakeWay way = ShakeWay.Across)
+    {
+        if (atLeast <= 0 || (atLeast & (atLeast - 1)) != 0)
+            throw new ArgumentOutOfRangeException(nameof(atLeast), atLeast, "A shake is kept going by a power of two of updates.");
+        (Strength, Way, Updates) = (strength, way, 0);
+        _left = Countdown.Of(_left.Remaining | atLeast);
+        SetActive(true);
+    }
+
     /// <inheritdoc/>
     protected override void OnSetup(Room room) => _left = Countdown.Of(StartsActive ? Updates : 0);
 

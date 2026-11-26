@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -13,7 +13,8 @@
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -41,6 +42,11 @@ About = "ToSpeedBooster"
 script = ExtResource("5")
 Kind = 6
 Parts = Array[ExtResource("5")]([SubResource("r4")])
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="SpeedBoosterHall" type="Node2D"]
 script = ExtResource("2")
@@ -209,8 +215,13 @@ EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 PresentWhen = SubResource("r5")
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="LiquidQuake" type="Node" parent="."]
 script = ExtResource("14")
+StartsWhen = SubResource("r6")
+Sound = "enemy_lavaquake"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("15")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_small_pattern_brown_purple.png"
 ScrollShare = Vector2(0.75, 0.75)

@@ -706,10 +706,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit with { At = Position }, area, from: _launcher, skipping: _alreadyHurt, landsOn: landsOn).ToList())
         {
             OnMetTarget(room, target, result);
-            if (result != HitResult.Ignored && !_shookForTarget && _settings.TargetShake is { } targetShake)
+            // A thing of the room its hit lands on, a door's cap or a gate, is part of the room as its blocks are, and
+            // shakes it as terrain does; anything else, an enemy, as a target does.
+            if (result != HitResult.Ignored && !_shookForTarget
+                && (target is RoomObject ? _settings.TerrainShake : _settings.TargetShake) is { } shake)
             {
                 _shookForTarget = true;
-                targetShake.Start(room);
+                shake.Start(room);
             }
 
             if (_settings.HitsEachUpdate)

@@ -168,9 +168,12 @@ public sealed record ProjectileSettings
     /// not <see cref="Acceleration"/>; null for the same.
     /// </summary>
     public Pixels? DiagonalAcceleration { get; init; }
-    /// <summary>The shake of the room it starts as terrain or something solid ends it; null for none.</summary>
+    /// <summary>
+    /// The shake of the room it starts as terrain or something solid ends it, or the first time its hit lands on a
+    /// thing of the room (a <see cref="Engine.World.RoomObject"/>: a door's cap, a gate); null for none.
+    /// </summary>
     public RoomShake? TerrainShake { get; init; }
-    /// <summary>The shake of the room it starts the first time its hit lands on anything; null for none.</summary>
+    /// <summary>The shake of the room it starts the first time its hit lands on anything else, an enemy; null for none.</summary>
     public RoomShake? TargetShake { get; init; }
     /// <summary>For one that moves in a wave: how far it swings to each side.</summary>
     public Pixels WaveSize { get; init; }

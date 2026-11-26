@@ -1354,7 +1354,6 @@ decides what to do about it.
 | Hop | Jumping in arcs, with settings for height, distance and the wait between. |
 | Dive | Waiting, then dropping or swooping at a target and returning or not. |
 | Patrol | Walking or flying back and forth, turning at walls or edges. |
-| Orbit | Circling a point or another thing at a set radius and speed. |
 | Bounce | Travelling straight and reflecting off what it meets. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the

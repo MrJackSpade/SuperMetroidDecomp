@@ -97,25 +97,6 @@ public sealed class MovementChecks
     }
 
     [Check]
-    public void AnOrbitStaysAtItsDistanceFromItsCentre()
-    {
-        using var world = new StandInWorld(Boxed).StartAt(40, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Circler" }, 100, 48);
-        world.Setup();
-        var orbit = new Orbit { Radius = Pixels.FromWhole(20), AngleStep = 64 };
-        PixelPosition centre = PixelPosition.FromWhole(120, 48);
-
-        orbit.Step(enemy, centre);
-        Expect.Equal(PixelPosition.FromWhole(120, 68), enemy.Position);
-        orbit.Step(enemy, centre);
-        Expect.Equal(PixelPosition.FromWhole(100, 48), enemy.Position);
-        orbit.Step(enemy, centre);
-        Expect.Equal(PixelPosition.FromWhole(120, 28), enemy.Position);
-        orbit.Step(enemy, centre);
-        Expect.Equal(PixelPosition.FromWhole(140, 48), enemy.Position);
-    }
-
-    [Check]
     public void ABounceReflectsOffWallsAndFloors()
     {
         using var world = new StandInWorld(Boxed).StartAt(40, 80);

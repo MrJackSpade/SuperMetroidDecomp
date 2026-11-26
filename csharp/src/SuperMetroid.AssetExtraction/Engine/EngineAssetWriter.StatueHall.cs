@@ -93,10 +93,7 @@ public sealed partial class EngineAssetWriter
         const int cellSize = RoomGridConversions.BlockPixels;
         int columns = imageWidth / cellSize;
 
-        // The pictures that stand in the room, each with the frame it is cut from and the colourings it is cut in, and
-        // each guardian's data with the shade of the light of its eyes: once the light is made, the cartridge shows
-        // the statue's sprites in that shade, laid over its entrance colours and under its other looks.
-        var inRoom = new List<(string Path, string Frame, string[] Shades)>();
+        // Each guardian's data with the shade of the light of its eyes.
         var glows = new List<(JsonObject Data, string Glow)>();
 
         // The folder of each effect a guardian lets out, with the frames cut there and the light it is cut in: the
@@ -153,10 +150,6 @@ public sealed partial class EngineAssetWriter
                 data["grey"] = grey.Of(Frame(Look.Released));
                 data["offset"] = new JsonObject { ["x"] = placed.Place.X + standing.OffsetX, ["y"] = placed.Place.Y + standing.OffsetY };
                 data["grey_offset"] = new JsonObject { ["x"] = placed.Place.X + grey.OffsetX, ["y"] = placed.Place.Y + grey.OffsetY };
-                foreach (Look look in new[] { Look.EyesBright, Look.EyesDim, Look.EyesDark })
-                    inRoom.Add((standing.Of(Frame(look)), Frame(look), [entrance]));
-                inRoom.Add((cleared.Of(Frame(Look.Released)), Frame(Look.Released), [entrance, definition.ClearedShade.Key]));
-                inRoom.Add((grey.Of(Frame(Look.Released)), Frame(Look.Released), [entrance, definition.ClearedShade.Key, definition.GreyShade.Key]));
             }
             else
             {
@@ -279,21 +272,12 @@ public sealed partial class EngineAssetWriter
         TourianStatueDecoration baseDecoration = TourianStatueDecorationDefinitions.SpawnOrder.Single(decoration => decoration.Kind == RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         string baseFrame = EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueBaseDecoration);
         EngineSheetPictures basePictures = _sheets.CutSpawnedShades(_tree, $"{StatueHallFolder}/base", spawner, [baseFrame], entrance);
-        inRoom.Add((basePictures.Of(baseFrame), baseFrame, [entrance]));
 
-        // The colours the light of each guardian's eyes changes, place by place: on each picture that stands in the
-        // room, each colour as the picture is cut and as it shows with the light's shade laid over its entrance
-        // colours; and on the effects of every other guardian, each colour as they are cut in their own light and as
-        // they show in this one, which takes its place.
+        // The colours the light of each guardian's eyes changes on the effects of every other guardian: each colour as
+        // they are cut in their own light and as they show in this one, which takes its place.
         JsonObject EyeGlowColours(string glow)
         {
             var written = new JsonObject();
-            foreach ((string path, string frame, string[] shades) in inRoom)
-            {
-                string[] litShades = [shades[0], glow, .. shades[1..]];
-                WriteChanges(written, glow, path, [(frame, shades, litShades)]);
-            }
-
             foreach ((string effectFolder, string[] frames, string cutIn) in effectFolders)
             {
                 if (cutIn == glow)

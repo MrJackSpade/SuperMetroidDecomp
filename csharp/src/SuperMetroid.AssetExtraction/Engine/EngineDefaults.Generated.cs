@@ -238,7 +238,7 @@ internal static partial class EngineDefaults
         ["Evir"] = [("arms_across", "4"), ("arms_down", "10"), ("grip_across", "4"), ("grip_down", "18")],
         ["EvirSpit"] = [("throw_distance", "128"), ("speed", "4"), ("regrow_margin", "256"), ("regrow_distance", "8")],
         ["EyeDoorEye"] = [("hits_to_destroy", "3"), ("hit_sound", "\"\""), ("dud_sound", "\"\""), ("spit_sound", "\"\""), ("smoke_effect", "\"\""), ("puff_effect", "\"\"")],
-        ["EyeDoorSpit"] = [("burst_timeline", "\"\""), ("shot_effect", "\"\"")],
+        ["EyeDoorSpit"] = [("burst_timeline", "\"\"")],
         ["EyeDoorSweat"] = [("gravity", "0.0"), ("splash_effect", "\"\"")],
         ["FaceBlock"] = [("wakes_with", "\"\""), ("glow_updates", "16")],
         ["FakeKraid"] = [("step_pixels", "4"), ("death_drops", "4"), ("cry_sound", "\"\""), ("spike_sound", "\"\"")],

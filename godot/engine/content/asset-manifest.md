@@ -86,7 +86,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/evir.json` | `Evir` | arms_across, arms_down, contact_damage, grip_across, grip_down, health |
 | `enemies/evir_spit.json` | `EvirSpit` | contact_damage, health, regrow_distance, regrow_margin, speed, throw_distance |
 | `enemies/eye_door_eye.json` | `EyeDoorEye` | contact_damage, dud_sound, health, hit_sound, hits_to_destroy, puff_effect, smoke_effect, spit_sound |
-| `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline, shot_effect |
+| `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline |
 | `enemies/eye_door_sweat.json` | `EyeDoorSweat` | gravity, splash_effect |
 | `enemies/face_block.json` | `FaceBlock` | contact_damage, glow_updates, health, wakes_with |
 | `enemies/fake_kraid.json` | `FakeKraid` | contact_damage, cry_sound, death_drops, health, spike_sound, step_pixels |
@@ -751,6 +751,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `objects/ceres_arrival_pad.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/ceres_arrival_platform.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/ceres_doors_escaping.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
+| `objects/ceres_getaway_wings.json` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_rest.json` | `game/objects/station/energy_station.tscn` |

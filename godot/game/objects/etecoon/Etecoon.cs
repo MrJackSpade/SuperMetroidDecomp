@@ -118,15 +118,31 @@ public partial class Etecoon : Creature
     private Doing _doing;
     private int _timer;
     private int _quakePause;
+
+    // Whether the quake's pause holds the picture it began on: a timeline begun in the update the pause began runs on.
+    private bool _holdsPicture;
     private int _teachingHops;
     private bool _headsRight;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_doing, _timer, _quakePause, _teachingHops, _headsRight) = (Doing.Dormant, 0, 0, 0, false);
+        (_doing, _timer, _quakePause, _holdsPicture, _teachingHops, _headsRight) = (Doing.Dormant, 0, 0, false, 0, false);
         Velocity = PixelVelocity.Zero;
         Play("starting_crouch");
+    }
+
+    /// <inheritdoc/>
+    protected override void OnStep()
+    {
+        // Through a quake's pause the picture it was showing as the pause began stays, its timeline standing still.
+        if (_quakePause > 0 && _holdsPicture)
+        {
+            _quakePause--;
+            return;
+        }
+
+        base.OnStep();
     }
 
     /// <inheritdoc/>
@@ -146,14 +162,14 @@ public partial class Etecoon : Creature
                     break;
                 if (CriesOnWaking)
                     Sound(WakeSound);
-                Play("flexing", restart: true);
+                Begin("flexing");
                 (_doing, _timer) = (Doing.Flexing, 256);
                 break;
 
             case Doing.Flexing:
                 if (--_timer > 0)
                     break;
-                Play("hopping_left", restart: true);
+                Begin("hopping_left");
                 (_doing, _timer) = (Doing.PreJumpCountdown, HopCrouch);
                 break;
 
@@ -161,7 +177,7 @@ public partial class Etecoon : Creature
                 if (--_timer > 0)
                     break;
                 Velocity = Velocity.WithY(Hop);
-                Play("continue_hopping_left", restart: true);
+                Begin("continue_hopping_left");
                 _doing = Doing.InitialJump;
                 JumpCry(samus);
                 break;
@@ -179,14 +195,14 @@ public partial class Etecoon : Creature
                 {
                     // It looks at her, and then runs the other way.
                     bool samusLeft = SamusIsToItsLeft(samus);
-                    Play(samusLeft ? "look_left_then_run_right" : "look_right_then_run_left", restart: true);
+                    Begin(samusLeft ? "look_left_then_run_right" : "look_right_then_run_left");
                     Head(right: samusLeft);
                     (_doing, _timer) = (Doing.FaceSamusPause, 32);
                 }
                 else
                 {
                     (_doing, _timer) = (Doing.PreJumpCountdown, HopCrouch);
-                    Play("hopping_left", restart: true);
+                    Begin("hopping_left");
                 }
 
                 break;
@@ -194,7 +210,7 @@ public partial class Etecoon : Creature
             case Doing.FaceSamusPause:
                 if (--_timer > 0)
                     break;
-                Play(_headsRight ? "begin_running_right" : "begin_running_left", restart: true);
+                Begin(_headsRight ? "begin_running_right" : "begin_running_left");
                 Velocity = new PixelVelocity(_headsRight ? RunRight : RunLeft, Hop);
                 _doing = _headsRight ? Doing.RunRightToWall : Doing.RunLeftToWall;
                 break;
@@ -204,7 +220,7 @@ public partial class Etecoon : Creature
                     break;
                 Velocity = Velocity.WithX(RunRight);
                 _doing = Doing.RunRightToWall;
-                Play("running_right", restart: true);
+                Begin("running_right");
                 Head(right: true);
                 break;
 
@@ -212,7 +228,7 @@ public partial class Etecoon : Creature
                 // With the shaft's wall just ahead it leaps at it.
                 if (Room.Terrain.IsSolidIn(MovingBody.RoomRect.MovedBy(32, 0), SlopeTreatment.Wall))
                 {
-                    Play("jumping_right", restart: true);
+                    Begin("jumping_right");
                     _doing = Doing.Airborne;
                     break;
                 }
@@ -225,7 +241,7 @@ public partial class Etecoon : Creature
                 if (MoveAcross())
                 {
                     // It clings to the wall a moment before kicking off it.
-                    Play(_headsRight ? "clinging_to_right_wall" : "clinging_to_left_wall", restart: true);
+                    Begin(_headsRight ? "clinging_to_right_wall" : "clinging_to_left_wall");
                     Head(right: !_headsRight);
                     (_doing, _timer) = (Doing.WallPause, 8);
                     if (samus.Position.X.Whole >= HeardFromSamusX)
@@ -235,7 +251,7 @@ public partial class Etecoon : Creature
 
                 if (!MoveDown())
                     break;
-                Play(_headsRight ? "hopping_left" : "hopping_right", restart: true);
+                Begin(_headsRight ? "hopping_left" : "hopping_right");
                 (_doing, _timer) = (Doing.RouteAfterLanding, HopCrouch);
                 Velocity = Velocity.WithY(Hop);
                 break;
@@ -244,7 +260,7 @@ public partial class Etecoon : Creature
                 PauseForQuake();
                 if (--_timer > 0)
                     break;
-                Play(_headsRight ? "wall_jump_right" : "wall_jump_left", restart: true);
+                Begin(_headsRight ? "wall_jump_right" : "wall_jump_left");
                 Velocity = new PixelVelocity(_headsRight ? RunRight : RunLeft, Hop);
                 _doing = Doing.Airborne;
                 break;
@@ -274,7 +290,7 @@ public partial class Etecoon : Creature
                     break;
                 _doing = Doing.LongJump;
                 Velocity = Velocity.WithY(Pixels.FromWhole(-4));
-                Play("jumping_right", restart: true);
+                Begin("jumping_right");
                 break;
 
             case Doing.LongJump:
@@ -282,7 +298,7 @@ public partial class Etecoon : Creature
                 MoveDown();
                 if (Position.X.Whole < LongLeapMiddleX)
                     break;
-                Play("running_right", restart: true);
+                Begin("running_right");
                 _doing = Doing.RunRightAfterLongJump;
                 break;
 
@@ -290,7 +306,7 @@ public partial class Etecoon : Creature
                 MoveAcross();
                 if (Position.X.Whole < LongLeapEndX)
                     break;
-                Play("jumping_right", restart: true);
+                Begin("jumping_right");
                 _doing = Doing.LongJumpLanding;
                 Velocity = Velocity.WithY(Pixels.FromWhole(-1));
                 break;
@@ -312,7 +328,7 @@ public partial class Etecoon : Creature
                 }
 
                 _timer = HopCrouch;
-                Play("hopping_left", restart: true);
+                Begin("hopping_left");
                 _doing = Route == Routes.TeachAtOnce && Position.X.Whole < LongRunFromBefore
                     ? Doing.WaitForSamusBeforeLongRun
                     : Doing.IdleBetweenTeachingJumps;
@@ -329,12 +345,12 @@ public partial class Etecoon : Creature
                 if (lessonGoesOn || Route == Routes.TeachAtOnce)
                 {
                     _doing = Doing.TeachingJump;
-                    Play("continue_hopping_left", restart: true);
+                    Begin("continue_hopping_left");
                 }
                 else
                 {
                     _doing = Doing.RunRightToReturnJump;
-                    Play("running_right", restart: true);
+                    Begin("running_right");
                     Velocity = Velocity.WithX(RunRight);
                 }
 
@@ -348,13 +364,13 @@ public partial class Etecoon : Creature
                     break;
                 if (WithinDown(samus, Near) && WithinAcross(samus, 48))
                 {
-                    Play("running_right", restart: true);
+                    Begin("running_right");
                     _doing = Doing.RunRightToLongJump;
                     break;
                 }
 
                 Velocity = Velocity.WithY(Hop);
-                Play("continue_hopping_left", restart: true);
+                Begin("continue_hopping_left");
                 _doing = Doing.TeachingJump;
                 JumpCry(samus);
                 break;
@@ -364,7 +380,7 @@ public partial class Etecoon : Creature
                 if (Position.X.Whole < RunStartX)
                     break;
                 _doing = Doing.ReturnJump;
-                Play("jumping_right", restart: true);
+                Begin("jumping_right");
                 break;
 
             case Doing.ReturnJump:
@@ -373,7 +389,7 @@ public partial class Etecoon : Creature
                     break;
                 Velocity = new PixelVelocity(RunLeft, Hop);
                 _doing = Doing.RunLeftToWall;
-                Play("running_left", restart: true);
+                Begin("running_left");
                 break;
 
             default:
@@ -388,17 +404,17 @@ public partial class Etecoon : Creature
         {
             case Routes.RunLeftToTeachingStart:
                 _doing = Doing.MoveLeftToTeachingStart;
-                Play("running_left", restart: true);
+                Begin("running_left");
                 Velocity = Velocity.WithX(RunLeft);
                 break;
             case Routes.RunRightToTeachingStart:
                 _doing = Doing.MoveRightToTeachingStart;
-                Play("running_right", restart: true);
+                Begin("running_right");
                 Velocity = Velocity.WithX(RunRight);
                 break;
             case Routes.TeachAtOnce:
                 _doing = Doing.TeachingJump;
-                Play(_headsRight ? "continue_hopping_left" : "continue_hopping_right", restart: true);
+                Begin(_headsRight ? "continue_hopping_left" : "continue_hopping_right");
                 Velocity = Velocity.WithX(RunRight);
                 break;
             default:
@@ -409,14 +425,14 @@ public partial class Etecoon : Creature
     private void BeginLessonPause()
     {
         (_doing, _timer) = (Doing.IdleBetweenTeachingJumps, HopCrouch);
-        Play("hopping_left", restart: true);
+        Begin("hopping_left");
     }
 
     /// <summary>It has struck its head on the way up: it hangs a moment and comes down.</summary>
     private void Crest()
     {
         Velocity = Velocity.WithY(Pixels.Zero);
-        Play("hop_from_crest", restart: true);
+        Begin("hop_from_crest");
     }
 
     private void Head(bool right)
@@ -431,11 +447,20 @@ public partial class Etecoon : Creature
             Sound(JumpSound);
     }
 
-    /// <summary>While the room shakes it stops what it is doing for a while.</summary>
+    /// <summary>While the room shakes it stops what it is doing for a while, holding the picture it is on.</summary>
     private void PauseForQuake()
     {
-        if (Room.ShakeStrength > 0)
-            _quakePause = 128;
+        if (Room.ShakeStrength <= 0)
+            return;
+        _quakePause = 128;
+        _holdsPicture = true;
+    }
+
+    /// <summary>Shows the timeline named <paramref name="timeline"/> from its start.</summary>
+    private void Begin(string timeline)
+    {
+        _holdsPicture = false;
+        Play(timeline, restart: true);
     }
 
     /// <summary>Moves it across at its speed. Returns whether something stopped it.</summary>

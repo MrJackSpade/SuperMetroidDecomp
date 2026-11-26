@@ -61,11 +61,13 @@ public partial class Crawler : Enemy
     private readonly SurfaceCrawl _crawl = new();
 
     private bool _settled;
+    private bool _fallsForGood;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         _settled = false;
+        _fallsForGood = false;
         _crawl.Speed = Pixels.FromNumber(CrawlSpeed);
         _crawl.SpeedOnLanding = CrawlSpeed == 0 ? Pixels.FromNumber(LandingSpeed) : null;
         _crawl.Start(StartsOn, PressesLeft, PressesUp);
@@ -82,10 +84,22 @@ public partial class Crawler : Enemy
             return;
         }
 
+        bool wasFalling = _crawl.IsFalling;
         MoveReport report = _crawl.Step(this, Pursues ? Target : null);
 
-        // The shake it answers lets it go as it begins: it has still crawled this update, and falls from the next.
-        if (_fallsWith is { } shake && Room.HasJustBegunShaking(shake))
+        // The shake it answers lets go of a crawler on its surface as it begins, as the cartridge sets it falling
+        // before it crawls that update: it still crawls, and falls from the next. A corner turned in that move takes it
+        // onto its new surface instead. Losing its surface too often in that move has it fall for good: on the
+        // cartridge falling itself is then what it goes back to on landing, so it lets go again each time it lands.
+        if (!wasFalling && _fallsWith is { } shake && Room.HasJustBegunShaking(shake))
+        {
+            if (_crawl.IsFalling)
+                _fallsForGood = true;
+            else if (!report.ReachedEdge)
+                _crawl.LetGo();
+        }
+
+        if (_fallsForGood && report.Finished)
             _crawl.LetGo();
         if (report.ReachedEdge || report.Finished)
             ShowSurface();

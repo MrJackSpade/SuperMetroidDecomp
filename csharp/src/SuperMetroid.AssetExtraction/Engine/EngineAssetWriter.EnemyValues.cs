@@ -35,4 +35,15 @@ public sealed partial class EngineAssetWriter
         EarthquakeDirection.Diagonal => "both",
         _ => throw new InvalidDataException($"A shake of the room goes a way this does not know: {shake.Direction}."),
     };
+
+    /// <summary>What of the room one of the old game's shakes throws about, in the Godot game's word for it.</summary>
+    /// <exception cref="InvalidDataException">The shake reaches what this does not know.</exception>
+    private static string ShakeReachName(EarthquakeShake shake) => shake.Reach switch
+    {
+        EarthquakeReach.RoomBlocks => "tiles",
+        EarthquakeReach.RoomBlocksAndScenery => "tiles_and_backdrops",
+        EarthquakeReach.RoomBlocksSceneryAndEnemies => "everything",
+        EarthquakeReach.SceneryAndEnemies => "backdrops_and_things",
+        _ => throw new InvalidDataException($"A shake of the room reaches what this does not know: {shake.Reach}."),
+    };
 }

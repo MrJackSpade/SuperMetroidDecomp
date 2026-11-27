@@ -554,7 +554,7 @@ public partial class Torizo : Enemy
                 {
                     Play(_landing, restart: true);
                     FallAtRest();
-                    Room.Shake(LandingShakeStrength, 32, ShakeWay.Down);
+                    Room.Shake(LandingShakeStrength, 32, ShakeWay.Down, ShakeReach.Tiles);
                     break;
                 }
 
@@ -573,7 +573,7 @@ public partial class Torizo : Enemy
         {
             if (!Velocity.Y.IsNegative && !_restingFall)
             {
-                Room.Shake(LandingShakeStrength, 32, ShakeWay.Down);
+                Room.Shake(LandingShakeStrength, 32, ShakeWay.Down, ShakeReach.Tiles);
                 FallAtRest();
             }
 

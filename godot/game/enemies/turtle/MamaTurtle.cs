@@ -266,7 +266,7 @@ public partial class MamaTurtle : Enemy
                     _quickening = Reversed(_quickening);
                     if (before.Whole == -1)
                         _quickening -= Pixels.FromWhole(1);
-                    Room.Shake(WallShakeStrength, WallShakeUpdates);
+                    Room.Shake(WallShakeStrength, WallShakeUpdates, ShakeWay.Across, ShakeReach.Tiles);
                     Sound(WallSound);
                     return;
                 }

@@ -472,7 +472,7 @@ public partial class Ridley
                 if (DustEffect.Length > 0)
                     LeaveHoldingPlace(DustEffect, Tail.Tip.Position + PixelOffset.FromWhole(0, 12));
                 Sound(BounceSound);
-                Room.Shake(2, 4, ShakeWay.Down);
+                Room.Shake(2, 4, ShakeWay.Down, ShakeReach.TilesAndBackdrops);
                 ChoosePogoWay(samus);
                 LaunchPogo();
                 foreach (RidleyTail.Link link in Tail.Links)

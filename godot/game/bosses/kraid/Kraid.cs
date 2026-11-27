@@ -647,7 +647,7 @@ public partial class Kraid : Enemy
                 _rise = Rise.SlowRocks;
                 _rocksWait = 120;
                 _wait = 496;
-                Room.Shake(2, 496, ShakeWay.Both);
+                Room.Shake(2, 496, ShakeWay.Both, ShakeReach.Tiles);
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
                 break;
@@ -885,7 +885,7 @@ public partial class Kraid : Enemy
                 _sinkSound = 43;
                 // As it starts to sink its body stands solid to Samus, until it is gone.
                 SolidBody.Enabled = true;
-                Room.Shake(1, 256);
+                Room.Shake(1, 256, ShakeWay.Down, ShakeReach.Tiles);
                 PlayPart("Arm", "arm_rising_or_sinking", restart: true);
                 PlayPart("Foot", "foot_initial", restart: true);
                 _foot = FootDoing.Resting;
@@ -1157,7 +1157,7 @@ public partial class Kraid : Enemy
             return false;
         _fight = Fight.HeadBeforeGrowth;
         _wait = 180;
-        Room.Shake(2, 340);
+        Room.Shake(2, 340, ShakeWay.Down, ShakeReach.Tiles);
         PlayPart("Foot", "foot_initial", restart: true);
         _foot = FootDoing.Resting;
         PlayPart("Arm", "arm_normal", restart: true);
@@ -1545,7 +1545,7 @@ public partial class Kraid : Enemy
                     break;
                 case "lower_body":
                     Position += PixelOffset.FromWhole(0, 1);
-                    Room.Shake(1, 10);
+                    Room.Shake(1, 10, ShakeWay.Down, ShakeReach.Tiles);
                     break;
                 case "walk_end":
                     _walkEnd = true;

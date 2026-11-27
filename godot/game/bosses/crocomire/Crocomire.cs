@@ -665,7 +665,7 @@ public partial class Crocomire : Enemy, ILatchable
 
                 break;
             case "shake":
-                Room.Shake(2, 5);
+                Room.Shake(2, 5, ShakeWay.Down, ShakeReach.Tiles);
                 Sound(ShakeSound);
                 break;
             case "toward_spike_wall":

@@ -21,6 +21,10 @@ public partial class EscapeRoom : RoomSequence
     [Export]
     public int ShakeStrength { get; set; } = 1;
 
+    /// <summary>What of the room the shaking throws about.</summary>
+    [Export]
+    public ShakeReach Reach { get; set; } = ShakeReach.Everything;
+
     /// <summary>Whether the shaking turns harder, corner to corner, for a moment now and then.</summary>
     [Export]
     public bool TurnsHarder { get; set; } = true;
@@ -75,12 +79,12 @@ public partial class EscapeRoom : RoomSequence
         if (!TurnsHarder)
         {
             if (room.ShakeStrength == 0)
-                room.Shake(ShakeStrength, 600);
+                room.Shake(ShakeStrength, 600, ShakeWay.Across, Reach);
         }
         else if (escape.HarderShakeLeft > 0)
         {
             if (--escape.HarderShakeLeft == 0)
-                room.Shake(ShakeStrength, 600);
+                room.Shake(ShakeStrength, 600, ShakeWay.Across, Reach);
         }
         else
         {
@@ -89,11 +93,11 @@ public partial class EscapeRoom : RoomSequence
             if (harder)
             {
                 escape.HarderShakeLeft = HarderUpdates;
-                room.Shake(ShakeStrength + 1, HarderUpdates, ShakeWay.Both);
+                room.Shake(ShakeStrength + 1, HarderUpdates, ShakeWay.Both, Reach);
             }
             else if (room.ShakeStrength == 0)
             {
-                room.Shake(ShakeStrength, 600);
+                room.Shake(ShakeStrength, 600, ShakeWay.Across, Reach);
             }
         }
     }
@@ -108,7 +112,7 @@ public partial class EscapeRoom : RoomSequence
             if (StartsShakeAfresh)
                 escape.HarderShakeLeft = 0;
             else if (TurnsHarder && escape.HarderShakeLeft > 0)
-                room.Shake(ShakeStrength + 1, escape.HarderShakeLeft, ShakeWay.Both);
+                room.Shake(ShakeStrength + 1, escape.HarderShakeLeft, ShakeWay.Both, Reach);
         }
 
         KeepShaking(room, escape);

@@ -312,7 +312,7 @@ public partial class MotherBrain : Enemy, IClosingStep
                 break;
 
             case "step":
-                Room.Shake(1, 4);
+                Room.Shake(1, 4, ShakeWay.Down, ShakeReach.Tiles);
                 if (_form == Form.Drained)
                     Sound(FootstepSound);
                 Position += PixelOffset.FromWhole(Number(parts[1]), Number(parts[2]));

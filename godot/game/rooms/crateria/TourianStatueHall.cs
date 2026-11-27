@@ -407,7 +407,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
             // The light bursts: the room shakes, and its sparks fly up and out.
             _glows.RemoveAt(index);
             room.Session.Sounds.Request(Data().Text("release_sound"), channel: "room");
-            room.Shake(1, ShakeUpdates, ShakeWay.Down);
+            room.SustainShake(1, ShakeUpdates, ShakeWay.Down, ShakeReach.Tiles);
             for (int spark = 0; spark < Sparks; spark++)
             {
                 // A spark the room has no place for is not made, and draws no number for its way.
@@ -489,7 +489,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                 return;
         }
 
-        room.Shake(2, ShakeUpdates, ShakeWay.Down);
+        room.SustainShake(2, ShakeUpdates, ShakeWay.Down, ShakeReach.TilesAndBackdrops);
         _rumble.Step(room, Data().Text("quake_sound"));
 
         if (_descent == Descent.Holding)

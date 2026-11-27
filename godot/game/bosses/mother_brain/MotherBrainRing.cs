@@ -102,7 +102,7 @@ public partial class MotherBrainRing : Projectile, IHasValues
         int inView = across - room.Session.Camera.View.Left;
         if (down < Top || down >= Floor || across < 0 || inView < 0 || inView >= ViewRight)
         {
-            room.Shake(2, 10);
+            room.Shake(2, 10, ShakeWay.Both, ShakeReach.Tiles);
             End(room);
         }
     }

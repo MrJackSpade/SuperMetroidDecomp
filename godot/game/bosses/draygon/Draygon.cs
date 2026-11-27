@@ -1025,7 +1025,7 @@ public partial class Draygon : Enemy
                     // Its tail lands: Samus is hurt where she hangs, the room shakes, and its swoops lose their edge.
                     _quickening = Pixels.FromNumber(SwoopQuickening);
                     Room.Player.Sap(new Hit(ContactDamage, HitSide.Enemies, HitKind.Contact) { Source = this });
-                    Room.Shake(WhipShakeStrength, 32, ShakeWay.Down);
+                    Room.Shake(WhipShakeStrength, 32, ShakeWay.Down, ShakeReach.Tiles);
                     if (DustEffect.Length > 0)
                         LeaveEffect(DustEffect, Room.Player.Position + PixelOffset.FromWhole(0, 16));
                 }

@@ -443,6 +443,7 @@ public sealed partial class EngineAssetWriter
         ["strength"] = ShakeStrength(shake),
         ["updates"] = updates,
         ["way"] = ShakeWayName(shake),
+        ["reach"] = ShakeReachName(shake),
     };
 
     /// <summary>Writes the missile or the super missile.</summary>

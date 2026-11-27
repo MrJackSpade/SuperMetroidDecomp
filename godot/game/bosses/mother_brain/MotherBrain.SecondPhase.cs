@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Core;
 using Engine.Shared;
+using Engine.World;
 using Game.Compatibility;
 using Godot;
 
@@ -517,7 +518,7 @@ public partial class MotherBrain
         {
             Leave(BigExplosionEffect, at);
             Sound(ExplosionSound, SoundPriority.Low);
-            Room.Shake(2, 10);
+            Room.Shake(2, 10, ShakeWay.Both, ShakeReach.Tiles);
             return;
         }
 

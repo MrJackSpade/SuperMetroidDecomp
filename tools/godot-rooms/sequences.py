@@ -48,6 +48,13 @@ ESCAPE_SHAKES = {
     'OpenRescuedAnimalsPassageAndQuake': 3, 'TurnWallIntoShotBlocksDuringEscape': 3, 'None': 3, 'LandSkyWithLandingSiteQuake': 3,
 }
 
+# What of a room a shake throws about, as the engine numbers them (ShakeReach).
+SHAKE_TILES, SHAKE_TILES_AND_BACKDROPS, SHAKE_EVERYTHING, SHAKE_BACKDROPS_AND_THINGS = '0', '1', '2', '3'
+
+# What each room of the escape shakes, by the old setup routine of its escape version: the Landing Site's quake
+# shakes its blocks alone; every other escape room's shakes the blocks, what lies behind them and what stands in it.
+ESCAPE_TILES_ALONE = {'LandSkyWithLandingSiteQuake'}
+
 # The setups that end, as the room is set up, whatever harder spell of shaking the room before left: the old game's
 # two that clear the diagonal quake.
 ESCAPE_STARTS_AFRESH = {'SetLightHorizontalRoomShaking', 'MediumHorizontalShakingWithRisingAcid'}
@@ -181,6 +188,7 @@ class Sequences:
         if state.main in ESCAPES:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
                 'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),
+                'Reach': SHAKE_TILES if state.setup in ESCAPE_TILES_ALONE else SHAKE_EVERYTHING,
                 **({'StartsShakeAfresh': 'true'} if state.setup in ESCAPE_STARTS_AFRESH else {}),
                 **{name: quoted(value) for name, value in ESCAPE_BLASTS.items()}}))
         elif state.setup in ESCAPE_STARTS_AFRESH:
@@ -243,7 +251,11 @@ class Sequences:
 
     def ceres(self, state: legacy.State, ridley_gone: bool, ctx, named: dict[str, Placed], landing: tuple[str, str],
               things: list[Placed]) -> None:
-        shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {'StartsWhen': ctx.always()})
+        # The old station's quake is kept going by the room's doors, or its elevator room's wall, and shakes the whole
+        # room but Samus; the door of Ridley's room keeps one that leaves the room's blocks still.
+        ridley_door = any(thing.name == 'RidleyRoomDoor' for thing in things)
+        shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {
+            'StartsWhen': ctx.always(), 'Reach': SHAKE_BACKDROPS_AND_THINGS if ridley_door else SHAKE_EVERYTHING})
         self.placed.append(shaking)
         doors = [thing for thing in things if thing.name in ('CeresDoor', 'RidleyRoomDoor', 'ElevatorDoor')]
         if doors:

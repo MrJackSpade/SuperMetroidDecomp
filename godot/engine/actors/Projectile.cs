@@ -742,10 +742,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
         // all have moved. The player's shot meets what it comes upon as it moves, but for enemies and their shots:
         // each enemy tries the shots against itself in its own turn, and the room tries them against the enemies'
-        // shots once all have moved.
+        // shots once all have moved. An enemy that takes its turn with the room's objects is a fitting of the room
+        // and is met as the shot moves, as they are: it may lie within something of the room that stops the shot, as
+        // an eye door's eye lies within its cap, and the shot would be gone before that enemy's turn came.
         if (!HarmsNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
-        if (!MeetTargets(room, area, target => target is not Enemy and not Projectile))
+        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false }))
             return false;
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
     }

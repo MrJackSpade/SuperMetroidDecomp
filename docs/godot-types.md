@@ -1508,6 +1508,10 @@ as it thaws, so that no class going through its own colliders ever meets it: the
 has to say so. There is no special case for standing on enemies. A solid actor is solid to the player: an
 enemy's or a creature's own move is stopped by terrain and by the solids that stand as part of the room (a door's
 cap, a gate, an item's shell) and by no other (`MoveOptions.AmongBlocks`), as the cartridge's enemies meet blocks only.
+An enemy that does something when the player stands on it asks `Enemy.IsRiddenByPlayer(feetAbove)`: the two overlap
+across, the player's feet are no more than so many pixels over its top, and the player's middle, reckoned as many
+pixels lower, lies above its own, so that a rider sunk into its top rides still and one that close over it rides
+already. How close is the game's to say: this game's enemies reckon her three pixels (`Riding.FeetAbove`).
 
 **Shared movement.** Ways of moving that more than one enemy uses are components in `engine/actors/movement/`, each
 moving its owner by the shared `Mover` and reporting what happened (hit a wall, reached an edge, landed). The enemy

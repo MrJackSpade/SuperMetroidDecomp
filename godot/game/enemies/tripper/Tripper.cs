@@ -57,7 +57,7 @@ public partial class Tripper : Enemy
     protected override void Behave()
     {
         SpeedCurve curve = _curve ?? throw new InvalidOperationException($"The Tripper \"{Name}\" is not in a room.");
-        bool sinking = IsRiddenByPlayer;
+        bool sinking = IsRiddenByPlayer(Riding.FeetAbove);
         int beforeX = Position.X.Whole;
         if (GoAcross(Facing.Toward(Pixels.FromNumber(Speed))))
         {

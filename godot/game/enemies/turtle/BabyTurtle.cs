@@ -91,11 +91,11 @@ public partial class BabyTurtle : Enemy
                 Play(Crawl, restart: true);
                 break;
             case "come_out":
-                if (IsRiddenByPlayer)
+                if (IsRiddenByPlayer(Riding.FeetAbove))
                     Play("leave_shell", restart: true);
                 break;
             case "out":
-                _doing = IsRiddenByPlayer ? Doing.CrawlingRidden : Doing.Crawling;
+                _doing = IsRiddenByPlayer(Riding.FeetAbove) ? Doing.CrawlingRidden : Doing.Crawling;
                 Play(Crawl, restart: true);
                 break;
             case "stoppable":
@@ -108,7 +108,7 @@ public partial class BabyTurtle : Enemy
     protected override void Touch(Collider part)
     {
         // A bump from the side turns it round, puts it clear of Samus, and wakes its mother.
-        if (_doing == Doing.CrawlingRidden || IsRiddenByPlayer)
+        if (_doing == Doing.CrawlingRidden || IsRiddenByPlayer(Riding.FeetAbove))
             return;
         Facing = Facing.Opposite();
         _speed = CrawlSpeed;
@@ -126,7 +126,7 @@ public partial class BabyTurtle : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        bool ridden = IsRiddenByPlayer;
+        bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
         switch (_doing)
         {
             case Doing.Crawling:
@@ -215,7 +215,7 @@ public partial class BabyTurtle : Enemy
     /// </summary>
     private void CrawlStep()
     {
-        bool ridden = IsRiddenByPlayer;
+        bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
         Pixels step = Facing.Toward(Pixels.FromWhole(_speed));
         if (ridden)
             ShiftPlayer(new PixelOffset(step, Pixels.Zero));

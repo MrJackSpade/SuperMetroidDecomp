@@ -221,7 +221,7 @@ public partial class MamaTurtle : Enemy
                 // She shudders up out of the ground a pixel at a time, taking no rider with her: the cartridge moves one
                 // standing on her only a pixel to the left, and leaves them a pixel inside her shell, which their own
                 // moves then pass through.
-                bool ridden = IsRiddenByPlayer;
+                bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
                 int shudder = Position.Y.Whole % 2 == 0 ? -1 : 1;
                 Position += PixelOffset.FromWhole(shudder, -1);
                 if (ridden)
@@ -275,7 +275,7 @@ public partial class MamaTurtle : Enemy
 
                 // Samus landed on her is moved back by the speed she drifted at, as the cartridge moves her, and then
                 // rides her up.
-                if (IsRiddenByPlayer)
+                if (IsRiddenByPlayer(Riding.FeetAbove))
                 {
                     _doing = Doing.RisingToPeak;
                     ShiftPlayer(new PixelOffset(-Velocity.X, Pixels.Zero));
@@ -293,7 +293,7 @@ public partial class MamaTurtle : Enemy
                     _doing = Doing.HoveringAtPeak;
                     Velocity = Velocity.WithY(Pixels.Zero);
                 }
-                else if (IsRiddenByPlayer)
+                else if (IsRiddenByPlayer(Riding.FeetAbove))
                 {
                     MoveCarrying(PixelOffset.FromWhole(0, -RiddenClimbSpeed));
                 }
@@ -350,7 +350,7 @@ public partial class MamaTurtle : Enemy
     /// </summary>
     private void MoveTo(PixelPosition rest, bool carriesRider)
     {
-        if (!carriesRider && IsRiddenByPlayer)
+        if (!carriesRider && IsRiddenByPlayer(Riding.FeetAbove))
             Position = rest;
         else
             MoveCarrying(rest - Position);

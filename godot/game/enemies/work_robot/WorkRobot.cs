@@ -203,7 +203,7 @@ public partial class WorkRobot : Enemy
         Cool();
         int pixels = int.Parse(parts[1], CultureInfo.InvariantCulture);
         Facing = parts[2] == "left" ? Facing.Left : Facing.Right;
-        bool ridden = IsRiddenByPlayer;
+        bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
         if (Room.Mover.MoveAcross(MovingBody(), Pixels.FromWhole(pixels), MovesAcross).Blocked)
         {
             _cooldown += TurnDelay;

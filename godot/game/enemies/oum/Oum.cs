@@ -225,7 +225,7 @@ public partial class Oum : Enemy
         // The boxes of its jet hurt her and then shove her, as every other box only does.
         if (PartMet(part).Touch == "hurts")
             base.Touch(part);
-        if (!IsRiddenByPlayer)
+        if (!IsRiddenByPlayer(Riding.FeetAbove))
             ShiftPlayer(PixelOffset.FromWhole(Target.X.Whole < Position.X.Whole ? -ShoveDistance : ShoveDistance, 0));
     }
 
@@ -378,7 +378,7 @@ public partial class Oum : Enemy
     /// <summary>Moves it down, or up, as far as terrain lets it, takes whoever stands on it along, and returns whether something stopped it.</summary>
     private bool MoveDownWithRider(Pixels distance)
     {
-        bool ridden = IsRiddenByPlayer;
+        bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
         int before = Position.Y.Whole;
         bool stopped = MoveDownBy(distance);
         if (ridden)

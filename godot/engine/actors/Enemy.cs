@@ -836,16 +836,21 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             Position += offset;
     }
 
-    /// <summary>Whether the player is standing on the enemy's solid collider.</summary>
-    protected bool IsRiddenByPlayer
+    /// <summary>
+    /// Whether the player stands on the enemy's solid collider: the two overlap across, the player's feet are no
+    /// more than <paramref name="feetAbove"/> pixels over its top, and the middle of the player, reckoned that many
+    /// pixels lower, lies above the collider's own. So a rider sunk into the top rides still, until their middle
+    /// passes the collider's, and one that close over it rides already. How close is the game's to say, and may be
+    /// one enemy's own.
+    /// </summary>
+    protected bool IsRiddenByPlayer(int feetAbove)
     {
-        get
-        {
-            if (Solid is not { Enabled: true } solid)
-                return false;
-            PixelRect top = solid.RoomRect, rider = Room.Player.BodyRect;
-            return rider.Bottom == top.Top && rider.Left < top.Right && rider.Right > top.Left;
-        }
+        if (Solid is not { Enabled: true } solid)
+            return false;
+        PixelRect top = solid.RoomRect, rider = Room.Player.BodyRect;
+        if (rider.Left >= top.Right || rider.Right <= top.Left)
+            return false;
+        return top.Top - rider.Bottom <= feetAbove && rider.Top + rider.Bottom + 2 * feetAbove < top.Top + top.Bottom;
     }
 
     /// <summary>Moves the player by <paramref name="offset"/>, as far as terrain lets them go: for an enemy that takes its rider with it.</summary>

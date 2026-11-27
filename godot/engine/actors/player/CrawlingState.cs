@@ -80,14 +80,15 @@ public sealed class CrawlingState : PlayerState
 
     /// <summary>
     /// Left while it is bouncing, as a change of posture leaves it, the bounce is over: the player is left with no
-    /// speed up or down, whatever the bounce had given them.
+    /// speed up or down, whatever the bounce had given them, and adrift, neither rising nor falling. A change of
+    /// posture presses one adrift to the ground, in the air too, where it would let a fall go on.
     /// </summary>
     public override void Exit(Player owner)
     {
         if (_bounces == 0)
             return;
         _bounces = 0;
-        owner.FallFromRest();
+        owner.Drift();
     }
 
     /// <inheritdoc/>

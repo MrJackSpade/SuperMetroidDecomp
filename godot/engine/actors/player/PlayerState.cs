@@ -251,11 +251,9 @@ public abstract class PlayerState : State<Player>
 
         PlayerState? ended = Ended(owner);
         bool givesWay = asked is not null && !ReferenceEquals(asked, this) && EndGivesWayTo(asked);
+        // An interruption waiting is left waiting.
         if (ended is not null && !givesWay)
-        {
-            owner.KeepInterruptionWaiting();
             return ended;
-        }
 
         if ((owner.TakeInterruption(this) ?? met) is { } forced)
             return forced;

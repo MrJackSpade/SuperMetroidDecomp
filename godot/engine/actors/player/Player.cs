@@ -804,6 +804,11 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     {
         ArgumentNullException.ThrowIfNull(input);
         _input = input;
+
+        // An interruption still waiting as an update begins has waited an update more: one a state held off, one
+        // that did not fit, and one asked for only once the player had moved on the update before.
+        if (_interruption is not null)
+            _interruptionWaited++;
         _medium = null;
         _reached.Clear();
         _met.Clear();
@@ -1107,13 +1112,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             ChangeState(next);
     }
 
-    /// <summary>The state waiting to interrupt the player, if any, and how many updates it has waited.</summary>
+    /// <summary>
+    /// The state waiting to interrupt the player, if any, and how many updates it has waited: how many have begun
+    /// with it waiting (<see cref="BeginUpdate"/>).
+    /// </summary>
     private PlayerState? _interruption;
     private int _interruptionWaited;
 
     /// <summary>
     /// Interrupts the player with <paramref name="state"/> from outside: they are put into it when they have next
-    /// moved as the state they are in, ahead of whatever that movement met and whatever their input asked for.
+    /// moved as the state they are in, ahead of whatever that movement met and whatever their input asked for. Asked
+    /// for before they move on an update, it has waited nothing when it is taken; asked for once they have moved, it
+    /// waits for their movement on the next and has waited an update by then.
     /// </summary>
     public void Interrupt(PlayerState state)
     {
@@ -1132,20 +1142,10 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         if (_interruption is not { } waiting)
             return null;
         if (from.HoldsOffInterruptions)
-        {
-            _interruptionWaited++;
             return null;
-        }
 
         _interruption = null;
         return waiting.StillInterrupts(this, _interruptionWaited) ? waiting : null;
-    }
-
-    /// <summary>Leaves a waiting interruption waiting one update more.</summary>
-    internal void KeepInterruptionWaiting()
-    {
-        if (_interruption is not null)
-            _interruptionWaited++;
     }
 
     /// <summary>
@@ -1527,10 +1527,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
         // Not entered, a state that waits when its form does not fit goes on waiting to interrupt.
         if (state.WaitsWhenItDoesNotFit)
-        {
             _interruption = state;
-            _interruptionWaited++;
-        }
 
         if (taken is null)
             return States.Current;

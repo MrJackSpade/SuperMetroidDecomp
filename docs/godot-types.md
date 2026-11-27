@@ -1088,7 +1088,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
 
   Some states hold an interruption off (`HoldsOffInterruptions`:
   the turns and the changes of posture); it waits, and a knockback that waited is shorter by as long as it waited
-  (`StillInterrupts`).
+  (`StillInterrupts`). An interruption has waited an update for each update that begins with it waiting
+  (`Player.BeginUpdate`): so has one asked for only once the player had moved on an update, as by a shot that hits
+  them after their movement, which is taken on the next and is an update shorter than one a touch gave them
+  before they moved.
 - A state names the form it is entered in (`PlayerState.EntersIn`), and the player fits it first (`FitForm`):
   where it does not fit the state is not entered. A wall jump is one of them, and is not begun at all where its
   body has no room (the game asks what the fitting would answer, `Player.FormAnsweredFor`): the player goes on as

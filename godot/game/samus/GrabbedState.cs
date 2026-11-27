@@ -63,14 +63,17 @@ public sealed class GrabbedState : PlayerState, ISamusLook
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// The upright body, taken where she is with no feeling for room and hers at once, as the cartridge sets the grabbed
+    /// pose and its size outright as it seizes her: whatever holds her has her, whatever was about her.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing, Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.Velocity = PixelVelocity.Zero;
         owner.LoseMomentum();
-
-        // The grab's body is hers at once, as the cartridge sets the grabbed pose's size as it seizes her.
-        owner.TrySetForm(Player.Standing, atOnce: true);
     }
 
     /// <inheritdoc/>

@@ -765,9 +765,10 @@ public partial class Samus : Player
     /// <summary>
     /// Throws her as a bomb of her own lies against her: straight up when the bomb was beneath her middle, and to the
     /// side away from it otherwise. The ball in her control is thrown as it is, and one already being thrown is
-    /// thrown afresh. Upright she is thrown in a jump's pose, where that body fits, from standing, a wall stop, a
-    /// run, a crouch, a fall, walking backwards, a wall jump or the grapple; a jump, a spin, a turn and every other
-    /// state refuse the throw, an upright throw under way among them.
+    /// thrown afresh. Upright she is thrown in a jump's pose from standing, a wall stop, a run, a crouch, a fall,
+    /// walking backwards, a wall jump or the grapple, where the jump's body fits as the throw is taken
+    /// (<see cref="BombJumpingState.EntersIn"/>); a jump, a spin, a turn and every other state refuse the throw, an
+    /// upright throw under way among them.
     /// </summary>
     public void BombJump(PixelPosition bomb)
     {
@@ -784,7 +785,7 @@ public partial class Samus : Player
 
         bool upright = State is StandingState or WallStoppedState or RunningState or CrouchingState or FallingState
             or MoonwalkingState or WallJumpingState or GrapplingState;
-        if (upright && CanTakeForm(FormOr(Jumping), aroundMiddle: true))
+        if (upright)
             Interrupt(new BombJumpingState(away, upright: true));
     }
 

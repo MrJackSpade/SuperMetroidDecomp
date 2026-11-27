@@ -27,12 +27,17 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     /// <inheritdoc/>
     public override bool InAnothersHands => true;
 
+    /// <summary>
+    /// The front view's body, taken with no feeling for room and hers at once, as the cartridge sets the front pose and
+    /// its size outright as the pickup begins: she is then put at her place of the screen.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.StopAcross();
         owner.Velocity = PixelVelocity.Zero;
-        owner.TrySetForm(Player.Standing);
 
         // She is put at a fixed place of the screen, by her whole pixels alone, and the view is told she stood there:
         // it follows none of the move.

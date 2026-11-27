@@ -880,13 +880,14 @@ internal sealed partial class EngineLayouts
                     // A plant that seizes Samus: a block that does nothing of itself, which the room's plants are found by.
                     SpecialAirReaction.FloorPlant or SpecialAirReaction.CeilingPlant => new JsonObject { ["solid"] = false },
 
-                    // Sand she sinks through: it stops her fall, and takes her down at its own pace.
+                    // Sand she sinks through: it ends her fall's speed and takes her down at its own pace, and holds
+                    // nothing up: she is in the air in it, as the cartridge's move passes through it.
                     SpecialAirReaction.SubmergingQuicksand => new JsonObject
                     {
                         ["solid"] = false,
                         ["contact"] = "pulls_down",
                         ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SubmergingSinkDisplacement),
-                        ["holds_up"] = SpecialAirReactions.CollisionOf(air).StopsFall,
+                        ["stops_fall"] = SpecialAirReactions.CollisionOf(air).StopsFall,
                     },
                     _ => null,
                 };

@@ -2217,7 +2217,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
                 bool moving = Velocity.Y != Pixels.Zero;
                 if (limit > Pixels.Zero && Velocity.Y < -limit)
                     Velocity = Velocity.WithY(-limit);
-                if (sand.HoldsUp && Velocity.Y > Pixels.Zero)
+                if ((sand.HoldsUp || sand.StopsFall) && Velocity.Y > Pixels.Zero)
                     Velocity = Velocity.WithY(Pixels.Zero);
                 Pixels pull = moving
                     ? (eased ? sand.Eased.MovingContactSpeed : sand.MovingContactSpeed)

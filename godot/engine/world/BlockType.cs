@@ -43,7 +43,7 @@ namespace Engine.World;
 /// unless the hit that broke it carries a kind "break_sound_by_kind" names, the first listed of them: then that
 /// kind's sound is.
 /// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
-/// it, "rise_limit", "holds_up", "feet_only", "stops_momentum", "standing_limit" for the most one who stands still
+/// it, "rise_limit", "holds_up", "stops_fall", "feet_only", "stops_momentum", "standing_limit" for the most one who stands still
 /// is pressed down into it on an update, and under "eased" the equipment ("by") that eases it with the three numbers
 /// it has for one who wears it.
 /// </remarks>
@@ -118,6 +118,12 @@ public sealed class BlockType
 
     /// <summary>For a block that pulls: whether what has its feet in it stands there as on ground, and does not fall through it.</summary>
     public bool HoldsUp { get; private init; }
+
+    /// <summary>
+    /// For a block that pulls: whether it ends the falling speed of what is in it without holding it up. What is in
+    /// it is still in the air, and goes down by the block's pull alone.
+    /// </summary>
+    public bool StopsFall { get; private init; }
 
     /// <summary>For a block that pulls: whether it pulls only what has its feet in it.</summary>
     public bool PullsFeetOnly { get; private init; }
@@ -243,6 +249,7 @@ public sealed class BlockType
             RiseLimit = data.Has("rise_limit") ? data.Distance("rise_limit") : Pixels.Zero,
             StandingLimit = data.Has("standing_limit") ? data.Distance("standing_limit") : Pixels.Zero,
             HoldsUp = data.Has("holds_up") && data.Flag("holds_up"),
+            StopsFall = data.Has("stops_fall") && data.Flag("stops_fall"),
             PullsFeetOnly = data.Has("feet_only") && data.Flag("feet_only"),
             StopsMomentum = data.Has("stops_momentum") && data.Flag("stops_momentum"),
             EasedBy = eased is null ? [] : [.. eased.List("by").Select(item => item.AsText())],

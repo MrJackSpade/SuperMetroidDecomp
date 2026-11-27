@@ -322,6 +322,9 @@ internal sealed partial class EngineLayouts
             ["holds_up"] = true,
             ["feet_only"] = true,
             ["stops_momentum"] = true,
+            // A Samus whose body is the Speed Booster's weapon is stopped by it outright, and so runs over it: the power's
+            // name is the one her own data gives it ("body_powers").
+            ["stops_body_powers"] = new JsonArray("speed_boost"),
             // Standing on it she sinks only this far an update, the downward probe of a standing Samus being held to it.
             ["standing_limit"] = EngineNames.Number(QuicksandDefinitions.StationarySurfaceProbeLimit),
             ["eased"] = new JsonObject

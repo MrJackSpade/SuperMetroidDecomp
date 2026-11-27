@@ -43,7 +43,8 @@ namespace Engine.World;
 /// unless the hit that broke it carries a kind "break_sound_by_kind" names, the first listed of them: then that
 /// kind's sound is.
 /// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
-/// it, "rise_limit", "holds_up", "stops_fall", "feet_only", "stops_momentum", "standing_limit" for the most one who stands still
+/// it, "rise_limit", "holds_up", "stops_fall", "feet_only", "stops_momentum", "stops_body_powers" for the body
+/// powers whose bearer it stops outright, "standing_limit" for the most one who stands still
 /// is pressed down into it on an update, and under "eased" the equipment ("by") that eases it with the three numbers
 /// it has for one who wears it.
 /// </remarks>
@@ -133,6 +134,13 @@ public sealed class BlockType
 
     /// <summary>For a block that pulls: the equipment that eases it; empty for none.</summary>
     public IReadOnlyList<string> EasedBy { get; private init; } = [];
+
+    /// <summary>
+    /// The body powers whose bearer this block stops outright, by their names: a player with one of them active who
+    /// moves down so that the bottom row of their body would end in the block does not move at all, and is stopped
+    /// as by ground. None for a block that lets every body in.
+    /// </summary>
+    public IReadOnlyList<string> StopsBodyPowers { get; private init; } = [];
 
     /// <summary>What <see cref="ContactSpeed"/>, <see cref="MovingContactSpeed"/> and <see cref="RiseLimit"/> are for one whose equipment eases it.</summary>
     public (Pixels ContactSpeed, Pixels MovingContactSpeed, Pixels RiseLimit) Eased { get; private init; }
@@ -250,6 +258,7 @@ public sealed class BlockType
             StandingLimit = data.Has("standing_limit") ? data.Distance("standing_limit") : Pixels.Zero,
             HoldsUp = data.Has("holds_up") && data.Flag("holds_up"),
             StopsFall = data.Has("stops_fall") && data.Flag("stops_fall"),
+            StopsBodyPowers = data.Has("stops_body_powers") ? [.. data.List("stops_body_powers").Select(item => item.AsText())] : [],
             PullsFeetOnly = data.Has("feet_only") && data.Flag("feet_only"),
             StopsMomentum = data.Has("stops_momentum") && data.Flag("stops_momentum"),
             EasedBy = eased is null ? [] : [.. eased.List("by").Select(item => item.AsText())],

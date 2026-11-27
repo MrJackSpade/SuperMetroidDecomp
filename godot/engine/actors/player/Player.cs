@@ -1830,6 +1830,15 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <param name="clearsWay">Whether an active body power first clears the way, as a move by the player's own speed does.</param>
     public MoveResult MoveDownBy(Pixels distance, bool clearsWay = false)
     {
+        // A block that stops outright the bearer of an active body power is not entered by a move down: the move goes
+        // nowhere, and is stopped as by ground.
+        if (distance > Pixels.Zero && IsStoppedOutrightBelow(distance))
+        {
+            (_groundStoppedMove, _stoppedOnTile) = (true, null);
+            OnBodyMoved(across: false, distance, Pixels.Zero);
+            return new MoveResult(Pixels.Zero, true, true, null);
+        }
+
         if (clearsWay)
             ClearWay(Pixels.Zero, distance);
         MoveResult result = MoveBodyDown(distance, BodyMoves);
@@ -2228,6 +2237,25 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         }
 
         _blockMove = new PixelOffset(across, down);
+    }
+
+    /// <summary>
+    /// Whether a move down by <paramref name="distance"/> would leave the bottom row of the player's body in a block
+    /// that stops outright the bearer of a body power they have active (<see cref="BlockType.StopsBodyPowers"/>).
+    /// </summary>
+    private bool IsStoppedOutrightBelow(Pixels distance)
+    {
+        if (!_bodyPowers.Any(power => power.IsActive))
+            return false;
+        PixelRect body = BodyRect;
+        int row = body.Bottom - 1 + ((Position.Y + distance).Whole - Position.Y.Whole);
+        foreach (Block under in Room.Terrain.BlocksIn(new PixelRect(body.Left, row, body.Width, 1)))
+        {
+            if (_bodyPowers.Any(power => power.IsActive && under.Type.StopsBodyPowers.Contains(power.Name)))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

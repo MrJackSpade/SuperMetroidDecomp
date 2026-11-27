@@ -736,10 +736,17 @@ def boss(kind: str) -> Rule:
 for kind in BOSSES:
     RULES[kind] = boss(kind)
 
-# The crack is the glass tube's own; the wall that seals Ceres's elevator room and the pictures of the Tourian
-# statue belong to those rooms' sequences.
-for kind in ('NoobTubeCrack', 'CeresElevatorRoomWall', 'TourianStatue'):
+# The crack is the glass tube's own; the pictures of the Tourian statue belong to its room's sequence.
+for kind in ('NoobTubeCrack', 'TourianStatue'):
     RULES[kind] = part
+
+
+@rule('CeresElevatorRoomWall')
+def ceres_elevator_room_wall(p, index, listed):
+    # Once Ridley has gone the elevator room's left door is an unseen solid wall: the door shut for good, opening
+    # for nobody and shown nowhere. Samus comes in through it, and it stops her once she is clear of it.
+    return Placed(O + 'ceres_door/ceres_door.tscn', 'ElevatorRoomWall', {
+        'DataFile': quoted('objects/ceres_door_left.json'), 'OpensWhenNear': '0', 'visible': 'false'}, enemy=False)
 
 
 @rule('CeresElevatorDoor')

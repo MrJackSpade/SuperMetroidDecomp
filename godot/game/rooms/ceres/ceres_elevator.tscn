@@ -130,6 +130,14 @@ script = ExtResource("12")
 [node name="Platform" type="Node2D" parent="Arrival"]
 script = ExtResource("12")
 
+[node name="ElevatorRoomWall" parent="." instance=ExtResource("7")]
+position = Vector2(224, 639)
+DataFile = "objects/ceres_door_left.json"
+OpensWhenNear = 0
+visible = false
+TurnsWithEnemies = true
+PresentWhen = SubResource("r1")
+
 [node name="Steam" parent="." instance=ExtResource("14")]
 position = Vector2(94, 108)
 DataFile = "objects/ceres_steam_left.json"

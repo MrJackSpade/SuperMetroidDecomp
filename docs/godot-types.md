@@ -1080,7 +1080,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   (`StillInterrupts`).
 - A state names the form it is entered in (`PlayerState.EntersIn`), and the player fits it first (`FitForm`):
   where it does not fit the state is not entered. A wall jump is one of them, and is not begun at all where its
-  body has no room (`WallJumpingState.HasRoom`): the player goes on as they were, with no sound of a launch.
+  body has no room (the game asks what the fitting would answer, `Player.FormAnsweredFor`): the player goes on as
+  they were, with no sound of a launch; and where this game's fitting answers with the crouch, blocked above and
+  below, she is put in the crouch, with no launch.
   A taller form that has no room leaves a crouching player in the plain crouch, their aim level for the update:
   whether the input asked for it (`CrouchingState.Asked`) or a state from outside did (`Player.Admit`).
   A state may move the player in the first part of the update, before the enemies act, in place of the second

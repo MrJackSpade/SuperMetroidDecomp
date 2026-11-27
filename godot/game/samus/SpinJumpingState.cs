@@ -256,11 +256,16 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             owner.Steering = Steering.Unsteered;
         owner.MoveAcross();
 
-        if (JumpsOffWall(owner))
+        switch (JumpsOffWall(owner))
         {
-            // The wall jump takes the place of this update's rise or fall.
-            owner.Room.Session.Sounds.Request(Sounds.Land, channel: "samus");
-            return new WallJumpingState();
+            case OffWall.Launched:
+                // The wall jump takes the place of this update's rise or fall.
+                owner.Room.Session.Sounds.Request(Sounds.Land, channel: "samus");
+                return new WallJumpingState();
+            case OffWall.NoRoom:
+                // With no room above or below for the wall jump's taller body she is put in the crouch, as the
+                // cartridge's fitting answers: the state is asked for and its fitting crouches her, with no launch.
+                return new WallJumpingState();
         }
 
         return AirStance.FallAndLand(owner, this);
@@ -271,29 +276,51 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// the spin ready from the next update, for as long as its ready picture lasts; ready, a fresh press of the jump
     /// with the wall still there jumps off it.
     /// </summary>
-    private bool JumpsOffWall(Player owner)
+    private OffWall JumpsOffWall(Player owner)
     {
         var samus = (Samus)owner;
         bool ready = _ready.IsRunning;
         _showsReady = ready;
         _ready = _ready.Stepped(samus);
         if (!_looksForWalls || FeelForWall(owner, out Enemy? enemy) is not { } gap)
-            return false;
+            return OffWall.No;
 
         // Ready, a fresh press of the jump launches her if the wall is nearer than her reach; something solid found
         // at her reach's very end is felt but not jumped from. An enemy she launches from, solid or frozen, is
         // shaken for a while where it is shown.
         if (ready)
         {
-            // With no room for the wall jump's taller body she does not jump, as the cartridge's does not: she spins on.
-            bool launches = owner.JumpPressed && gap < owner.WallJumpReach && WallJumpingState.HasRoom(owner);
-            if (launches)
-                enemy?.ShakeFor(LaunchShakeUpdates);
-            return launches;
+            if (!owner.JumpPressed || gap >= owner.WallJumpReach)
+                return OffWall.No;
+
+            // The wall jump's taller body is fitted as the cartridge fits it: with room she launches; blocked above
+            // and below, where the fitting answers with the crouch, she takes the crouch; blocked otherwise she
+            // spins on.
+            string body = owner.FormOr(Player.Jumping);
+            string? answered = owner.FormAnsweredFor(body, aroundMiddle: true);
+            if (answered is null)
+                return OffWall.No;
+            if (answered != body)
+                return OffWall.NoRoom;
+            enemy?.ShakeFor(LaunchShakeUpdates);
+            return OffWall.Launched;
         }
 
         _ready = PictureCount.Begin(samus, samus.WallJumpReadyPictures, asChangeBegins: false);
-        return false;
+        return OffWall.No;
+    }
+
+    /// <summary>What a fresh press of the jump at a wall comes to.</summary>
+    private enum OffWall
+    {
+        /// <summary>Nothing: she spins on.</summary>
+        No,
+
+        /// <summary>She jumps off the wall.</summary>
+        Launched,
+
+        /// <summary>The wall jump's body has no room above or below: she is put in the crouch.</summary>
+        NoRoom,
     }
 
     /// <summary>For how many updates an enemy she launches a wall jump from is shown shaken.</summary>

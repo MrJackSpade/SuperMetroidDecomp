@@ -10,12 +10,6 @@ namespace Engine.Actors;
 /// </summary>
 public sealed class WallJumpingState : PlayerState
 {
-    /// <summary>
-    /// Whether the body of a wall jump fits where the player is. A wall jump with no room for its body does not
-    /// happen: the player goes on as they were.
-    /// </summary>
-    public static bool HasRoom(Player owner) => owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
-
     /// <inheritdoc/>
     public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true);
 

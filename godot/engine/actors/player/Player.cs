@@ -1339,7 +1339,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>Whether the body could take <paramref name="form"/> where it is, as <see cref="TrySetForm"/> would place it.</summary>
-    public bool CanTakeForm(string form, bool aroundMiddle = false) => form == Form || FitForm(form, aroundMiddle).Form == form;
+    public bool CanTakeForm(string form, bool aroundMiddle = false) => FormAnsweredFor(form, aroundMiddle) == form;
+
+    /// <summary>
+    /// The form the fitting answers with when <paramref name="form"/> is asked for where the body is, changing
+    /// nothing: the form itself where it fits, another where the game's fitting puts the player in one in its place,
+    /// and null where they would stay as they are.
+    /// </summary>
+    public string? FormAnsweredFor(string form, bool aroundMiddle = false) => form == Form ? form : FitForm(form, aroundMiddle).Form;
 
     /// <summary>
     /// Fits <paramref name="form"/> to the body where it is, changing nothing: the form taken, where that leaves the

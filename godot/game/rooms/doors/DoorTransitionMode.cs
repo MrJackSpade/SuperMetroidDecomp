@@ -301,7 +301,7 @@ public partial class DoorTransitionMode : GameMode
                 // every sound asked for is turned away.
                 room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 room.StepForTransition(enemies: true);
-                StopSounds(samus, input);
+                StopSounds(samus);
                 CartridgeSounds.Of(Session).DoorTurnsSoundsAway = true;
                 _stage = Stage.WaitingForSounds;
                 break;
@@ -663,14 +663,15 @@ public partial class DoorTransitionMode : GameMode
 
     /// <summary>
     /// Tells Samus's sounds and the enemies' to stop as the door is entered: her spin's alone while she spins, and
-    /// otherwise all of hers unless she holds the attack or a charge has begun to sound. No number of sounds waiting
-    /// turns these away.
+    /// otherwise all of hers unless she holds the attack or a charge has begun to sound. The attack is as it was held
+    /// on the last update she was played, the one she entered the door on: the door's own updates take none of her
+    /// input. No number of sounds waiting turns these away.
     /// </summary>
-    private void StopSounds(Samus samus, GameInput input)
+    private void StopSounds(Samus samus)
     {
         if (samus.State is SpinJumpingState or Engine.Actors.WallJumpingState)
             Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
-        else if (!input.IsHeld(GameAction.Attack) && !samus.ChargeIsSounding)
+        else if (!samus.Input.IsHeld(GameAction.Attack) && !samus.ChargeIsSounding)
             Session.Sounds.Request(Sounds.SamusStop, channel: "samus", priority: SoundPriority.Essential);
         Session.Sounds.Request(Sounds.EnemyStop, channel: "enemies", priority: SoundPriority.Essential);
     }

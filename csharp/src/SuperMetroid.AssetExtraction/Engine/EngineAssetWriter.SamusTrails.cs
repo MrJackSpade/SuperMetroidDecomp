@@ -27,7 +27,7 @@ public sealed partial class EngineAssetWriter
     /// shot that flies one way only), the old direction of it and of its twin where two give the one way, and the
     /// animation it plays flying so.
     /// </summary>
-    private sealed partial record ShotWay(string? Name, SamusProjectileDirection Direction, SamusProjectileDirection? Twin, Segment Animation);
+    private sealed record ShotWay(string? Name, SamusProjectileDirection Direction, SamusProjectileDirection? Twin, Segment Animation);
 
     /// <summary>The ways a shot that can be launched every way flies, each with the animation it plays.</summary>
     private static ShotWay[] FlyingWays(Func<SamusProjectileDirection, Segment> animation) =>

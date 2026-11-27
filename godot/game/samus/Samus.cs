@@ -923,10 +923,13 @@ public partial class Samus : Player
     /// <summary>
     /// The view also leads the other way while she moonwalks, and for as long as a knockback she has left still has
     /// time to run: through the first of a damage boost, and through whatever she left the boost for. Once that time
-    /// is up it leads the way she faces, which in a boost is the way it carries her.
+    /// is up it leads the way she faces, which in a boost is the way it carries her. Facing out of the screen she
+    /// faces neither way, and the view leads as it does for anyone not facing left: to the right.
     /// </summary>
     public override Facing ViewFacing =>
-        State is MoonwalkingState or DamageBoostState { KnockbackRuns: true } || _knockbackCarried.IsRunning ? Facing.Opposite() : base.ViewFacing;
+        SamusLooks.FacesOut(this) ? Facing.Right
+        : State is MoonwalkingState or DamageBoostState { KnockbackRuns: true } || _knockbackCarried.IsRunning ? Facing.Opposite()
+        : base.ViewFacing;
 
     /// <summary>Where her grapple beam starts: as a shot does, at the places her data gives the line.</summary>
     public PixelPosition GrapplePoint => Origin(_grappleOrigins);

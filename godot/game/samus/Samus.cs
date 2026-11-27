@@ -1108,8 +1108,7 @@ public partial class Samus : Player
         // Stopped by a wall or by something solid, the run does not begin: she is left in the wall-stop pose, aiming
         // as she was. The step is not put on a slope's surface afterwards, as the cartridge's is not.
         PixelPosition stood = Position;
-        MoveResult step = Room.Mover.MoveAcross(
-            Body, headed.Toward(Pixels.FromWhole(1)), BodyMoves with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
+        MoveResult step = MoveBodyAcross(headed.Toward(Pixels.FromWhole(1)), BodyMoves with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
         if (!step.Blocked)
             return to;
 

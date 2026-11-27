@@ -21,6 +21,14 @@ public readonly record struct MoveResult(Pixels Moved, bool Blocked, bool Blocke
     /// </summary>
     public PixelRect? StoppedByTile { get; init; }
 
+    /// <summary>
+    /// For a move tried only where it ends that asked the terrain: the stretch of the body's leading edge, where the
+    /// move was tried, that came before whatever stopped it, in the order the edge is asked about; all of the edge
+    /// when nothing stopped it. What lies there the move reached, though the body may have been stopped short of it.
+    /// Null for any other move.
+    /// </summary>
+    public PixelRect? Reached { get; init; }
+
     /// <summary>A move that went the whole way.</summary>
     public static MoveResult Free(Pixels moved) => new(moved, false, false, null);
 }

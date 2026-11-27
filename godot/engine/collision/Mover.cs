@@ -135,6 +135,9 @@ public sealed class Mover
         int step = tried.IsNegative ? -1 : 1;
         MoveResult result;
 
+        // The stretch of the body's leading edge the terrain was asked about before anything stopped it, when it is asked.
+        PixelRect? reached = null;
+
         // Solids come first, and one in the way settles the move by itself. A move up or down asks after them even
         // when it goes nowhere; a move across only when it goes somewhere.
         (Collider Solid, int Gap)? inTheWay = options.StoppedBySolids && (!across || !tried.IsZero) ? SolidInTheWay(body, tried, across) : null;
@@ -150,7 +153,7 @@ public sealed class Mover
             result = new MoveResult(Pixels.FromWhole(step * met.Gap), true, false, met.Solid);
         }
         else if (!tried.IsZero && options.StoppedByTerrain &&
-            StopByTerrain(body, start, tried, step, options, across, out PixelRect? tile, out bool putsOnSlope) is { } rest)
+            StopByTerrain(body, start, tried, step, options, across, out PixelRect? tile, out bool putsOnSlope, out reached) is { } rest)
         {
             // A stopped move went whole pixels: where within its pixel the stop leaves the body is no part of it.
             Place(owner, rest, across);
@@ -164,14 +167,15 @@ public sealed class Mover
 
         // Having moved across, or tried to, the body is put where sloped ground holds it under its middle.
         bool put = across && options.Slopes == SlopeTreatment.ClimbUnderMiddle && RestUnderMiddle(body);
-        return result with { PutOnSlope = put || result.PutOnSlope };
+        return result with { PutOnSlope = put || result.PutOnSlope, Reached = reached };
     }
 
     /// <summary>
     /// Where terrain leaves a body whose move is tried only where it ends, along the axis of the move; null when the
     /// terrain its leading edge would end in does not stop it.
     /// </summary>
-    private Pixels? StopByTerrain(Collider body, Pixels start, Pixels tried, int step, MoveOptions options, bool across, out PixelRect? stoppedBy, out bool putsOnSlope)
+    private Pixels? StopByTerrain(
+        Collider body, Pixels start, Pixels tried, int step, MoveOptions options, bool across, out PixelRect? stoppedBy, out bool putsOnSlope, out PixelRect? reached)
     {
         int shift = (start + tried).Whole - start.Whole;
         PixelRect here = body.RoomRect;
@@ -181,6 +185,9 @@ public sealed class Mover
         EdgeStop stop = _world.Terrain.StopsEdge(edge, across ? step : 0, across ? 0 : step, options.Slopes, options.TriesFromRight);
         stoppedBy = stop.Tile;
         putsOnSlope = stop.PutsOnSlope;
+
+        // The edge is asked about tile by tile, and what comes after the tile that stops it is not asked about at all.
+        reached = stop.Tile is { } stopping ? Before(edge, stopping, across, options.TriesFromRight) : edge;
 
         // A solid that stands as part of the room stops the edge as a tile of terrain would, and is met with the
         // terrain: by a move the terrain stops, whether or not other solids stop it.
@@ -195,6 +202,7 @@ public sealed class Mover
                     ? (step > 0 ? edge.Left - other.Left + 1 : other.Right - edge.Left)
                     : (step > 0 ? edge.Top - other.Top + 1 : other.Bottom - edge.Top);
                 stop = new EdgeStop(true, into, false);
+                reached = Before(edge, other, across, options.TriesFromRight);
                 break;
             }
         }
@@ -218,6 +226,15 @@ public sealed class Mover
         int moved = stop.Back is not { } back ? 0 : step > 0 ? Math.Max(0, shift - back) : Math.Min(0, shift + back);
         return Pixels.FromParts(start.Whole + moved, step > 0 ? Pixels.FractionsPerPixel - 1 : 0);
     }
+
+    /// <summary>
+    /// The stretch of a leading edge that comes before what stopped it, in the order the edge is asked about: from its
+    /// top for a move across; for a move down from its left, or from its right when it is tried from the right.
+    /// </summary>
+    private static PixelRect Before(PixelRect edge, PixelRect stopper, bool across, bool fromRight) =>
+        across ? new PixelRect(edge.Left, edge.Top, edge.Width, Math.Max(0, stopper.Top - edge.Top))
+        : fromRight ? new PixelRect(stopper.Right, edge.Top, Math.Max(0, edge.Right - stopper.Right), edge.Height)
+        : new PixelRect(edge.Left, edge.Top, Math.Max(0, stopper.Left - edge.Left), edge.Height);
 
     /// <summary>
     /// The solid that stops a move tried only where it ends, and the whole pixels between it and the body: the first

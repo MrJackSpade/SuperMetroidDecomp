@@ -56,7 +56,7 @@ public sealed class ChangingPostureState : PlayerState
         // drop is the low body's own: tried with the body they had it would be stopped by the floor they stand on.
         int drop = owner.HalfHeightOf(Player.Crouching) - owner.HalfHeightOf(Player.Crawling);
         owner.TrySetForm(Player.Crawling, aroundMiddle: true, atOnce: true);
-        owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(drop), owner.BodyMoves);
+        owner.MoveBodyDown(Pixels.FromWhole(drop), owner.BodyMoves);
     }
 
     /// <inheritdoc/>

@@ -125,7 +125,7 @@ public partial class Samus
         // after a try against something solid always, after one against the blocks when they stopped it.
         MoveResult Feel(int distance, MoveOptions options, PixelRect? shapedAs, bool marksAlways)
         {
-            MoveResult tried = Room.Mover.TryDown(Body, Pixels.FromWhole(distance), options, out PixelPosition rest, shapedAs);
+            MoveResult tried = TryBodyDown(Pixels.FromWhole(distance), options, out PixelPosition rest, shapedAs);
             if (marksAlways || tried.Blocked)
                 Position = Position with { Y = Pixels.FromParts(Position.Y.Whole, rest.Y.Fraction) };
             return tried;

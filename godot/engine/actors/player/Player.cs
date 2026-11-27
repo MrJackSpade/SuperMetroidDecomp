@@ -453,6 +453,47 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         Room.Session.Definition.BodyMoves(
             Room.Session, MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel });
 
+    /// <summary>
+    /// The stretches of the room that moves of the player's body reached on this update, made or only tried: for each
+    /// move tried only where it ends, the part of the body's leading edge there that came before whatever stopped it
+    /// (<see cref="MoveResult.Reached"/>).
+    /// </summary>
+    private readonly List<PixelRect> _reached = [];
+
+    /// <summary>
+    /// Moves the player's body across through the room's mover. Every move of the player's body is made by this or
+    /// by <see cref="MoveBodyDown"/>, or tried by <see cref="TryBodyAcross"/> or <see cref="TryBodyDown"/>, whoever
+    /// moves it, so that what the move reached is known (<see cref="Reaches"/>).
+    /// </summary>
+    public MoveResult MoveBodyAcross(Pixels distance, MoveOptions options, Pixels? triedAs = null) =>
+        Noted(Room.Mover.MoveAcross(Body, distance, options, triedAs));
+
+    /// <summary>Moves the player's body down through the room's mover, upward when the distance is negative (<see cref="MoveBodyAcross"/>).</summary>
+    public MoveResult MoveBodyDown(Pixels distance, MoveOptions options) => Noted(Room.Mover.MoveDown(Body, distance, options));
+
+    /// <summary>Tries a move of the player's body across without making it; what it reached counts as a made move's does.</summary>
+    public MoveResult TryBodyAcross(Pixels distance, MoveOptions options, out PixelPosition rest) =>
+        Noted(Room.Mover.TryAcross(Body, distance, options, out rest));
+
+    /// <summary>Tries a move of the player's body down without making it; what it reached counts as a made move's does.</summary>
+    public MoveResult TryBodyDown(Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null) =>
+        Noted(Room.Mover.TryDown(Body, distance, options, out rest, shapedAs));
+
+    /// <summary>Notes what a move of the body reached.</summary>
+    private MoveResult Noted(MoveResult result)
+    {
+        if (result.Reached is { IsEmpty: false } reached)
+            _reached.Add(reached);
+        return result;
+    }
+
+    /// <summary>
+    /// Whether the player reaches into <paramref name="area"/>: their body lies in it, or a move of their body on this
+    /// update was tried into it, though something beside it stopped them short of it. What is taken by being touched
+    /// is touched so: a thing standing on a block is touched by a player who runs against that block.
+    /// </summary>
+    public bool Reaches(PixelRect area) => BodyRect.Overlaps(area) || _reached.Exists(reached => reached.Overlaps(area));
+
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
 
@@ -661,6 +702,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         ArgumentNullException.ThrowIfNull(input);
         _input = input;
         _medium = null;
+        _reached.Clear();
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
 
@@ -1475,7 +1517,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         ClearWay(distance, Pixels.Zero);
 
         // The slopes take their share of how far the player goes, not of how far ahead the move is tried.
-        MoveResult result = Room.Mover.MoveAcross(Body, distance, BodyMoves, triedAs: reach);
+        MoveResult result = MoveBodyAcross(distance, BodyMoves, triedAs: reach);
         if (result.PutOnSlope)
             _putOnSlope = true;
         OnBodyMoved(across: true, distance, result.Moved);
@@ -1526,7 +1568,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     {
         if (clearsWay)
             ClearWay(Pixels.Zero, distance);
-        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
+        MoveResult result = MoveBodyDown(distance, BodyMoves);
         if (!distance.IsZero && result.BlockedBy is null)
             _putOnSlope = false;
         if (result.PutOnSlope)
@@ -1894,9 +1936,9 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         }
 
         if (across != Pixels.Zero)
-            Room.Mover.MoveAcross(Body, across, BodyMoves);
+            MoveBodyAcross(across, BodyMoves);
         if (down != Pixels.Zero)
-            Room.Mover.MoveDown(Body, down, BodyMoves);
+            MoveBodyDown(down, BodyMoves);
     }
 
     /// <summary>

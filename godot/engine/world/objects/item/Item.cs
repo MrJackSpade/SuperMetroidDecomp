@@ -7,8 +7,9 @@ using Godot;
 namespace Engine.World.Objects;
 
 /// <summary>
-/// A permanent upgrade lying in a room. It grants its item type once, when the player touches it, records that in
-/// progress, and asks for its message. An item is just an item: one held in a shell has a barrier around it, and one
+/// A permanent upgrade lying in a room. It grants its item type once, when the player touches it
+/// (<see cref="Player.Reaches"/>: by their body, or by a move of it tried into the item that something beside the item
+/// stopped short), records that in progress, and asks for its message. An item is just an item: one held in a shell has a barrier around it, and one
 /// hidden in the wall is behind a block, and in both cases it cannot be seen or touched until what covers it is gone.
 /// <para>
 /// Its pickup ends as its message closes, on the update it was touched: until then it is shown where it lies. Then
@@ -116,7 +117,7 @@ public partial class Item : RoomObject, IFinishesAfterMessages
                 visual.Show(_timeline.Shown);
         }
 
-        if (covered || !Area.Overlaps(Room.Player.BodyRect))
+        if (covered || !Room.Player.Reaches(Area))
             return;
 
         Inventory inventory = Room.Player.Inventory;

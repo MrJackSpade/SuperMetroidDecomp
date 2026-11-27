@@ -50,7 +50,7 @@ public partial class TubeRide : RoomSequence
             _speed = Pixels.FromNumber(StartSpeed);
         Player samus = room.Player;
         samus.Position = new PixelPosition(Pixels.FromWhole(HoldsAtX), samus.Position.Y);
-        room.Mover.MoveDown(samus.Body, _speed, samus.BodyMoves with { StoppedBySolids = false });
+        samus.MoveBodyDown(_speed, samus.BodyMoves with { StoppedBySolids = false });
 
         // She has moved after the room's own test of its exits: the door she has reached takes her on this update.
         room.MeetExits();

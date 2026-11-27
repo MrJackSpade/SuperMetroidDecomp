@@ -309,8 +309,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         if (!left && !owner.Input.IsHeld(GameAction.Right))
             return null;
         Facing side = left ? Facing.Right : Facing.Left;
-        MoveResult tried = owner.Room.Mover.TryAcross(
-            owner.Body, side.Toward(Pixels.FromWhole(owner.WallJumpReach)), owner.BodyMoves, out PixelPosition rest);
+        MoveResult tried = owner.TryBodyAcross(side.Toward(Pixels.FromWhole(owner.WallJumpReach)), owner.BodyMoves, out PixelPosition rest);
         if (!tried.Blocked)
             return null;
         enemy = tried.BlockedBy?.CollisionOwner as Enemy;

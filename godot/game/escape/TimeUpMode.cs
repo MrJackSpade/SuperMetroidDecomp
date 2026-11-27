@@ -41,6 +41,12 @@ public partial class TimeUpMode : GameMode
     /// <inheritdoc/>
     public override GameMode? Keeps => _playing;
 
+    /// <summary>
+    /// Has the time up begin at its fade to black, with no white-out: time ran out on the update the pause's darkening
+    /// went black, and the cartridge goes on from the black screen.
+    /// </summary>
+    public void BeginAtBlackOut() => _blackingOut = true;
+
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {

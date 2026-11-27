@@ -196,12 +196,25 @@ public sealed partial class EngineAssetWriter
             Whole(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(picture), name, EndingColourLoad.ExplosionBackgrounds);
         string After(string frame, string name) => Whole(SpriteSheetId.EndingPostCreditsPictures, frame, name, EndingColourLoad.PostCredits);
 
+        // The gunship's floor is the one picture the old game loads other colours for while it is shown: those the
+        // explosion's hold restored as it is first seen, and the final gunship's once it has flown clear. It is written
+        // as its sheet has it, with each of those as a change of colours on it.
+        SpriteSheetId gunshipSheet = EndingFloorDefinitions.Sheets[EndingFloorShot.Flyaway];
+        string gunshipFloor = _sheets.WriteSpriteWithRegions(_tree, gunshipSheet, EndingFloorDefinitions.FrameName, $"{folder}/gunship_floor.png");
+        var gunshipPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [gunshipFloor] = [EngineSheets.SheetOf(gunshipSheet)] };
+        JsonObject GunshipColours(EndingColourLoad stage) => ShadeChange(EndingShades.Loaded(stage).Key, EngineSheets.SpriteFamily, gunshipPlaces);
+
         var data = new JsonObject
         {
             ["cloud_floor"] = Floor(EndingFloorShot.SideCloudEscape, "cloud_floor", EndingColourLoad.Escape),
             ["top_and_bottom_cloud_floor"] = Floor(EndingFloorShot.TopAndBottomCloudEscape, "top_and_bottom_cloud_floor", EndingColourLoad.Escape),
             ["planet_floor"] = Floor(EndingFloorShot.PlanetExplosion, "planet_floor", EndingColourLoad.Explosion),
-            ["gunship_floor"] = Floor(EndingFloorShot.Flyaway, "gunship_floor", EndingColourLoad.FinalGunship),
+            ["gunship_floor"] = gunshipFloor,
+            ["gunship_colours"] = new JsonObject
+            {
+                ["flying_out"] = GunshipColours(EndingColourLoad.ExplosionBackgrounds),
+                ["clear"] = GunshipColours(EndingColourLoad.FinalGunship),
+            },
             ["shot_floor"] = Floor(EndingFloorShot.RewardIcon, "shot_floor", EndingColourLoad.RestoredShot),
             ["planet_explosion"] = Blast(EndingExplosionDisplayDefinitions.PlanetExplosion, "planet_explosion"),
             ["burst_glow"] = Blast(EndingExplosionDisplayDefinitions.BurstGlow, "burst_glow"),

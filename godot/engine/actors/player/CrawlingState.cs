@@ -68,8 +68,10 @@ public sealed class CrawlingState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        // One adrift takes the low form as on the ground: its first move finds no floor and it falls from rest.
-        _airborne = owner.IsRising || (!owner.IsAdrift && !owner.IsOnGround);
+        // One with any speed up or down takes the low form in the air, whatever lies under it: something solid it
+        // has sunk into as it curled does not make ground of itself. One adrift takes the form as on the ground: its
+        // first move finds no floor and it falls from rest.
+        _airborne = owner.IsRising || !owner.Velocity.Y.IsZero || (!owner.IsAdrift && !owner.IsOnGround);
         _asOnGround = false;
     }
 

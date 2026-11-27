@@ -30,7 +30,7 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
     /// The front view's body, taken with no feeling for room and hers at once, as the cartridge sets the front pose and
     /// its size outright as the pickup begins: she is then put at her place of the screen.
     /// </summary>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true, AtOnce: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.FacingForward, Unfitted: true, AtOnce: true);
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

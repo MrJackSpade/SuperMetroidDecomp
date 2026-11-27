@@ -13,29 +13,8 @@ namespace Game;
 /// </summary>
 public sealed class RidingElevatorState : PlayerState, ISamusLook
 {
-    /// <summary>The name of the form she rides in.</summary>
-    public const string Form = "facing_forward";
-
-    /// <summary>How far the cartridge's turn to face the screen lifts her, out of a body of another height.</summary>
-    private const int FrontViewLift = 3;
-
-    /// <summary>
-    /// What the cartridge's turn to face the screen where she stands does to her place, once she has the front view's
-    /// form (taken with no feeling for room, as the cartridge sets the front pose outright): unless the body she had
-    /// was the front view's already, she is lifted three pixels, whatever is above her, and the view takes her to have
-    /// stood there. Her body keeps the shape it had until her next update, so it still says which she had.
-    /// </summary>
-    public static void TurnToFaceForward(Player owner)
-    {
-        ArgumentNullException.ThrowIfNull(owner);
-        if (owner.Body.Rect.Height / 2 == owner.HalfHeightOf(Form))
-            return;
-        owner.Position += PixelOffset.FromWhole(0, -FrontViewLift);
-        owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);
-    }
-
     /// <inheritdoc/>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(Form, Unfitted: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.FacingForward, Unfitted: true);
 
     /// <inheritdoc/>
     public string Look => "facing_forward";
@@ -67,7 +46,7 @@ public sealed class RidingElevatorState : PlayerState, ISamusLook
         owner.Velocity = PixelVelocity.Zero;
         // Her run's speed ends; her boost does not (Samus.OnMomentumLost), as the cartridge's setup leaves its count.
         owner.LoseMomentum();
-        TurnToFaceForward(owner);
+        ((Samus)owner).TurnToFaceForward();
     }
 
     /// <inheritdoc/>

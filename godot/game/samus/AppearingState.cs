@@ -42,7 +42,7 @@ public sealed class AppearingState : PlayerState, ISamusLook
     /// is given the front view's body about her middle with no feeling for room, as the cartridge puts her in the
     /// front pose outright, which sets her feet on the ground there.
     /// </summary>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.FacingForward, Unfitted: true);
 
     /// <inheritdoc/>
     public override void Enter(Player owner) => owner.Velocity = PixelVelocity.Zero;

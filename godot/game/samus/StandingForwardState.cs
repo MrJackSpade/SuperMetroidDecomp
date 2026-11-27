@@ -22,7 +22,7 @@ public sealed class StandingForwardState(string look = "facing_forward") : Playe
     public override bool CanAttack => false;
 
     /// <summary>The front view's own body, taken with no feeling for room, as the cartridge sets the front pose outright.</summary>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.FacingForward, Unfitted: true);
 
     /// <summary>
     /// Put in it out of another body (a demo that starts her so), she turns to face the screen where she stands, as
@@ -31,7 +31,7 @@ public sealed class StandingForwardState(string look = "facing_forward") : Playe
     public override void Enter(Player owner)
     {
         owner.Velocity = PixelVelocity.Zero;
-        RidingElevatorState.TurnToFaceForward(owner);
+        ((Samus)owner).TurnToFaceForward();
     }
 
     /// <inheritdoc/>

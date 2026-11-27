@@ -1335,7 +1335,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   something puts her in it (Ceres's start, the landing on Zebes, a saved game taken up); where she turns to it
   where she stands (going aboard her gunship, boarding an elevator or arriving through its door, a demo that starts
   her so) she is also lifted three pixels unless the body she had was the front view's already
-  (`RidingElevatorState.TurnToFaceForward`), as the cartridge's turn to face the screen does. An upright bomb jump
+  (`Samus.TurnToFaceForward`, her own: the states in which she turns so call it as they are entered), as the cartridge's turn to face the screen does. An upright bomb jump
   and a shinespark's windup fit their form as a jump's is fitted: a bomb jump with no room for the jump's body is
   not taken, and with none above or below she is put in the crouch.
 - **Some changes of her form take their body at once** (`FormAsked.AtOnce`, or `atOnce` given to `TrySetForm`), as

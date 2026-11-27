@@ -24,6 +24,27 @@ public partial class Samus : Player
     /// <summary>The name of the form her body takes swinging on the grapple beam.</summary>
     public const string Swinging = "swinging";
 
+    /// <summary>The name of the form her body takes facing the screen: on an elevator, at a station, aboard her ship.</summary>
+    public const string FacingForward = "facing_forward";
+
+    /// <summary>How far the cartridge's turn to face the screen lifts her, out of a body of another height.</summary>
+    private const int FrontViewLift = 3;
+
+    /// <summary>
+    /// What the cartridge's turn to face the screen where she stands does to her place, once she has the front view's
+    /// form (taken with no feeling for room, as the cartridge sets the front pose outright): unless the body she had
+    /// was the front view's already, she is lifted three pixels, whatever is above her, and the view takes her to have
+    /// stood there. Her body keeps the shape it had until her next update, so it still says which she had. The states
+    /// in which she turns so call it as they are entered.
+    /// </summary>
+    public void TurnToFaceForward()
+    {
+        if (Body.Rect.Height / 2 == HalfHeightOf(FacingForward))
+            return;
+        Position += PixelOffset.FromWhole(0, -FrontViewLift);
+        Room.Session.Camera.TakePlayerToHaveStoodAtY(Position.Y.Whole);
+    }
+
     /// <summary>The data files of her weapons.</summary>
     [Export, DataValue("weapons")]
     public string[] WeaponFiles { get; set; } = [];

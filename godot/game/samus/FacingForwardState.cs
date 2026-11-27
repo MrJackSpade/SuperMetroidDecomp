@@ -9,7 +9,7 @@ namespace Game;
 /// </summary>
 /// <param name="turned">
 /// Whether she turns to face the screen where she stands, as she does going aboard her gunship, and is lifted as the
-/// cartridge's turn lifts her (<see cref="RidingElevatorState.TurnToFaceForward"/>); otherwise she is put in the front
+/// cartridge's turn lifts her (<see cref="Samus.TurnToFaceForward"/>); otherwise she is put in the front
 /// view about her middle, as where Ceres begins and where she lands on Zebes.
 /// </param>
 public sealed class FacingForwardState(bool turned = false) : PlayerState, ISamusLook
@@ -33,7 +33,7 @@ public sealed class FacingForwardState(bool turned = false) : PlayerState, ISamu
     public override bool HoldsOffInterruptions => !turned;
 
     /// <summary>The front view's own body, taken with no feeling for room, as the cartridge sets the front pose outright.</summary>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.FacingForward, Unfitted: true);
 
     /// <inheritdoc/>
     public override void Enter(Player owner)
@@ -42,7 +42,7 @@ public sealed class FacingForwardState(bool turned = false) : PlayerState, ISamu
         // Her charge is kept as it stands, as the cartridge keeps it: she cannot attack here to count it on or let it go.
         owner.LoseMomentum();
         if (turned)
-            RidingElevatorState.TurnToFaceForward(owner);
+            ((Samus)owner).TurnToFaceForward();
     }
 
     /// <inheritdoc/>

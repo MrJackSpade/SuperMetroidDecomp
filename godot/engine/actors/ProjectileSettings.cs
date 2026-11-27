@@ -108,9 +108,6 @@ public sealed record ProjectileSettings
         /// <summary>In a straight line, gaining speed each update, once it has moved that update.</summary>
         Accelerating,
 
-        /// <summary>Along its line while swinging from side to side.</summary>
-        Wave,
-
         /// <summary>Steering toward its target.</summary>
         Homing,
 
@@ -175,15 +172,6 @@ public sealed record ProjectileSettings
     public RoomShake? TerrainShake { get; init; }
     /// <summary>The shake of the room it starts the first time its hit lands on anything else, an enemy; null for none.</summary>
     public RoomShake? TargetShake { get; init; }
-    /// <summary>For one that moves in a wave: how far it swings to each side.</summary>
-    public Pixels WaveSize { get; init; }
-
-    /// <summary>For one that moves in a wave: how many angle steps, of 256 to a full swing, it advances each update.</summary>
-    public int WaveStep { get; init; } = 16;
-
-    /// <summary>For one that moves in a wave: the angle step its swing starts from; half a swing on mirrors it.</summary>
-    public int WaveStart { get; init; }
-
     /// <summary>Whether it delivers its hit to what it meets. One that does not only carries its ending, as a bomb does.</summary>
     public bool DeliversHit { get; init; } = true;
 
@@ -295,9 +283,6 @@ public sealed record ProjectileSettings
             DiagonalAcceleration = data.Has("diagonal_acceleration") ? data.Distance("diagonal_acceleration") : null,
             TerrainShake = data.Has("terrain_shake") ? RoomShake.Read(data.Get("terrain_shake")) : null,
             TargetShake = data.Has("target_shake") ? RoomShake.Read(data.Get("target_shake")) : null,
-            WaveSize = data.Has("wave_size") ? data.Distance("wave_size") : Pixels.Zero,
-            WaveStep = data.Has("wave_step") ? data.Int("wave_step") : plain.WaveStep,
-            WaveStart = data.Has("wave_start") ? data.Int("wave_start") : 0,
             DeliversHit = !data.Has("delivers_hit") || data.Flag("delivers_hit"),
             HitsEachUpdate = data.Has("hits_each_update") && data.Flag("hits_each_update"),
             LastsUpdates = data.Has("lasts_updates") ? data.Int("lasts_updates") : 0,

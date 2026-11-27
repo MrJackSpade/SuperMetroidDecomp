@@ -116,7 +116,6 @@ internal static partial class EngineDefaults
         ["KraidRoomColours"] = "RoomSequence",
         ["Kzan"] = "Enemy",
         ["LavaBubbling"] = "RoomSequence",
-        ["LoadingMode"] = "GameMode",
         ["Magdollite"] = "Enemy",
         ["MamaTurtle"] = "Enemy",
         ["MessageBoxMode"] = "GameMode",

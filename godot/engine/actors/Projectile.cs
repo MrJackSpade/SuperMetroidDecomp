@@ -28,8 +28,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     private ActorVisual? _visual;
     private TimelinePlayer? _timeline;
     private Countdown _left;
-    private int _wavePhase;
-    private Pixels _waveOffset;
     private string _direction = "right";
     private int _width = 8;
     private int _height = 8;
@@ -67,7 +65,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         _launcher = launcher;
         _direction = DirectionName(velocity);
         (_launchedAcross, _launchedDown) = (velocity.X.IsZero ? 0 : velocity.X.IsNegative ? -1 : 1, velocity.Y.IsZero ? 0 : velocity.Y.IsNegative ? -1 : 1);
-        _wavePhase = settings.WaveStart;
         (_width, _height) = (settings.Width, settings.Height);
     }
 
@@ -79,7 +76,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     internal void LaunchAnew(PixelVelocity velocity)
     {
         Launch(Hit with { Direction = velocity.OverOneUpdate }, Position, velocity, _settings, _launcher);
-        _waveOffset = Pixels.Zero;
         if (_hurtbox is not null)
             _hurtbox.Rect = new PixelRect(-_width / 2, -_height / 2, _width, _height);
         if (_settings.Timeline.Length > 0)
@@ -508,7 +504,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         switch (_settings.Motion)
         {
             case ProjectileSettings.Moves.Straight:
-            case ProjectileSettings.Moves.Wave:
             case ProjectileSettings.Moves.Accelerating:
             case ProjectileSettings.Moves.Falling:
                 break;
@@ -552,16 +547,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     private void Travel(Room room)
     {
         PixelOffset offset = Velocity.OverOneUpdate;
-        if (_settings.Motion == ProjectileSettings.Moves.Wave)
-        {
-            // The swing is across the line of travel: up and down for a shot travelling sideways, and the reverse.
-            _wavePhase += _settings.WaveStep;
-            Pixels swing = Turns.Sine(_wavePhase, _settings.WaveSize);
-            Pixels change = swing - _waveOffset;
-            _waveOffset = swing;
-            offset = Velocity.X.Abs() >= Velocity.Y.Abs() ? offset with { Y = offset.Y + change } : offset with { X = offset.X + change };
-        }
-
         if (LeadsIntoTerrain)
         {
             TravelLeadingWithEdge(room, offset);

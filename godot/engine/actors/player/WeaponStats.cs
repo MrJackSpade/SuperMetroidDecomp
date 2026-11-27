@@ -34,8 +34,8 @@ namespace Engine.Actors;
 ///   "properties": [ { "equipment": "ice_beam", "kinds": ["ice"], "damage": 10 } ],
 ///   "projectile": { "width": 8, "height": 4, "picture": "shots/beam.png" },
 ///   "variants": [ { "when": ["ice_beam", "wave_beam"], "damage": 60, "kinds": ["beam", "ice", "wave"],
-///                   "shots": [ { "side": 0, "projectile": { "motion": "wave" } } ],
-///                   "charged_shots": [ { "side": 0, "projectile": { "motion": "wave" } } ] } ]
+///                   "shots": [ { "side": 0, "projectile": { "motion": "accelerating" } } ],
+///                   "charged_shots": [ { "side": 0, "projectile": { "motion": "accelerating" } } ] } ]
 /// }
 /// </code>
 /// </remarks>

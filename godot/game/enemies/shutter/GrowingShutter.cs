@@ -10,7 +10,8 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A shutter that grows out of the wall, a section at a time, until it is four sections long. It waits for a set
-/// time or for Samus to come near, and then grows up or down. It is solid, and one growing upward lifts Samus.
+/// time or for Samus to come near, and then grows up or down. It is solid, and one growing upward lifts Samus when
+/// she stands on it; it pushes no one out of its way, up or down.
 /// </summary>
 /// <remarks>Its timelines are "quarter", "half", "three_quarters" and "full", one for each length.</remarks>
 public partial class GrowingShutter : Enemy
@@ -80,18 +81,25 @@ public partial class GrowingShutter : Enemy
         if (_section >= Lengths.Length)
             return;
         int way = GrowsUp ? -1 : 1;
-        MoveCarrying(new PixelOffset(Pixels.Zero, Pixels.FromNumber(GrowthSpeed * way)));
+        int before = Position.Y.Whole;
+        Position += new PixelOffset(Pixels.Zero, Pixels.FromNumber(GrowthSpeed * way));
         int target = _home + (_section * SectionSpacing + SectionLength) * way;
         bool reached = GrowsUp ? Position.Y.Whole <= target : Position.Y.Whole > target;
-        if (!reached)
-            return;
+        if (reached)
+        {
+            // The section is out: it settles, a little back while there is more to come, and the next begins.
+            bool last = _section + 1 >= Lengths.Length;
+            Position = new PixelPosition(Position.X, Pixels.FromWhole(last ? target : target - Inset * way));
+            _section++;
+            if (!last)
+                ShowSection();
+        }
 
-        // The section is out: it settles, a little back while there is more to come, and the next begins.
-        bool last = _section + 1 >= Lengths.Length;
-        Position = new PixelPosition(Position.X, Pixels.FromWhole(last ? target : target - Inset * way));
-        _section++;
-        if (!last)
-            ShowSection();
+        // Growing up, it takes whoever stands on it, as it now stands, up by the whole pixels it rose. Growing down
+        // it moves no one.
+        int risen = Position.Y.Whole - before;
+        if (GrowsUp && risen < 0 && IsRiddenByPlayer(Riding.FeetAbove))
+            ShiftPlayer(PixelOffset.FromWhole(0, risen));
     }
 
     /// <summary>Shows it at its present length, and makes it as tall as it shows.</summary>

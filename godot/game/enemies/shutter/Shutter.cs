@@ -178,10 +178,17 @@ public partial class Shutter : Enemy
         SoundIfInView();
     }
 
-    /// <summary>Slides it one update's way, carrying whoever stands on it, and stops it at the end of its travel.</summary>
+    /// <summary>
+    /// Slides it one update's way and stops it at the end of its travel. Whoever stood on it before it moved goes
+    /// with it by the whole pixels it moved; it pushes no one out of its way.
+    /// </summary>
     private void Move(bool up)
     {
-        MoveCarrying(new PixelOffset(Pixels.Zero, Pixels.FromNumber(up ? -Speed : Speed)));
+        int before = Position.Y.Whole;
+        bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
+        Position += new PixelOffset(Pixels.Zero, Pixels.FromNumber(up ? -Speed : Speed));
+        if (ridden)
+            ShiftPlayer(PixelOffset.FromWhole(0, Position.Y.Whole - before));
         bool arrived = up ? Position.Y.Whole <= _top : Position.Y.Whole >= _bottom;
         if (!arrived)
             return;

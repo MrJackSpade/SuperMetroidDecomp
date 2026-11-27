@@ -1381,11 +1381,6 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   cartridge's do.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
   tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
-- **A liquid that burns her** (lava, acid) throws up its spray on every update it harms her, as the engine's player
-  tells the game's of each thing of the room that does (`Player.OnRoomDamage`): while her head is above its surface
-  and no spray holds the next off, four puffs on the surface about her, each a timeline of its own that drifts up and
-  to its side, with the spray's sound on the clock's cadence. The first puff holds the next spray off and the third
-  her breath's next bubble, for as long as each shows. Crossing their surface throws up nothing.
 - **Her colours** (`SamusColours`) hold the colouring her suit shows and the colouring her beams show. Every colouring,
   her suits' own among them, is a change of the colours of her one set of pictures, named in `samus/colours.json`
   with every glow (`SamusGlow`: the colourings it shows in turn, each for so many updates, and the step it goes

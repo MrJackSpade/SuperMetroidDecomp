@@ -70,6 +70,7 @@ SamusStep = 0.78125
 [node name="Dragon" parent="." instance=ExtResource("6")]
 position = Vector2(896, 488)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Geruta")
 
 [node name="Geruta" parent="." instance=ExtResource("7")]
 position = Vector2(918, 127)
@@ -78,14 +79,17 @@ DataFile = "enemies/geruta.json"
 [node name="Dragon2" parent="." instance=ExtResource("6")]
 position = Vector2(704, 488)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Dragon3")
 
 [node name="Dragon3" parent="." instance=ExtResource("6")]
 position = Vector2(512, 488)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Dragon4")
 
 [node name="Dragon4" parent="." instance=ExtResource("6")]
 position = Vector2(320, 488)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Dragon5")
 
 [node name="Dragon5" parent="." instance=ExtResource("6")]
 position = Vector2(128, 488)

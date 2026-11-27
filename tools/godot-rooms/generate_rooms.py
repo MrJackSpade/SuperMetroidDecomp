@@ -593,7 +593,8 @@ class Generator:
                 if not placed.enemy and placed.scene.endswith('.tscn'):
                     placed.properties.setdefault('TurnsWithEnemies', 'true')
                 things.append(placed)
-                links[id(placed)] = {name: by_index[target] for name, target in placed.refers.items()}
+                # A place of the list that places nothing in the Godot room is named by nothing.
+                links[id(placed)] = {name: by_index[target] for name, target in placed.refers.items() if target in by_index}
                 if placed.until_beaten:
                     placed.only_when = ctx.none_of([ctx.fact(placed.until_beaten + '_defeated')])
                 if placed.boss:

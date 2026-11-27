@@ -283,7 +283,10 @@ def hopper(p, index, listed):
 def dragon(p, index, listed):
     if legacy.last_name(p.settings['Part']) != 'Body':
         return None
-    return Placed(E + 'dragon/dragon.tscn', 'Dragon')
+    # The cartridge carries a hit on its wing, the part listed right after its body, onto whatever is listed after
+    # that: the Dragon is told which of the room's enemies that is, where the list goes on.
+    after_wing = index + 2
+    return Placed(E + 'dragon/dragon.tscn', 'Dragon', refers={'ListedAfterWing': after_wing} if after_wing < len(listed) else {})
 
 
 @rule('Evir')

@@ -790,6 +790,37 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         return effect;
     }
 
+    /// <summary>
+    /// What a hit has left of the enemy, as it stands: for a kind that carries a hit of its own onto another enemy
+    /// (<see cref="TakeAftermath"/>).
+    /// </summary>
+    public HitAftermath AftermathOfHit => new(_shake.Remaining, _unhittable.Remaining, _flash.Remaining, Status, StatusUpdatesLeft);
+
+    /// <summary>
+    /// Gives the enemy what a hit left of another, or of a part of another: its shake, the time it cannot be hit, its
+    /// hurt flash and its status take those counts in place of their own, a status of none ending the one it has.
+    /// It counts them down on its own turns from then. Nothing of its health changes.
+    /// </summary>
+    public void TakeAftermath(HitAftermath left)
+    {
+        if (IsDead)
+            return;
+        _shake = Countdown.Of(left.ShakeShows);
+        _unhittable = Countdown.Of(left.UnhittableUpdates);
+        _flash = Countdown.Of(left.FlashUpdates);
+        _hurt = left.FlashUpdates > 0;
+        if (left.Status.Length > 0)
+            BeginStatus(left.Status, left.StatusUpdates);
+        else if (Status.Length > 0)
+            EndStatus();
+    }
+
+    /// <summary>
+    /// Takes the enemy out of its room at another's word, with no death: for a kind whose destroyed part deletes
+    /// another enemy outright.
+    /// </summary>
+    public void BeTakenOut() => Vanish();
+
     /// <summary>Takes the enemy out of its room with no death: no effect, no drop, and not recorded as gone.</summary>
     protected void Vanish()
     {

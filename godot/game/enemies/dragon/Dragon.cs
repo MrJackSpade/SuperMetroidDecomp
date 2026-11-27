@@ -1,7 +1,9 @@
 using Engine.Actors;
 using Engine.Actors.Components;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -64,9 +66,75 @@ public partial class Dragon : Enemy
     private int _shotsLeft;
     private TimelinePlayer? _wings;
 
+    /// <summary>
+    /// The enemy the room lists after its wing, written by the rooms' generator; empty where that place holds nothing
+    /// the Godot room places. On the cartridge a hit on a part of a Dragon is carried onto the enemy listed right
+    /// after that part: the body's onto its own wing, and the wing's onto this one.
+    /// </summary>
+    [Export]
+    public NodePath ListedAfterWing { get; set; } = new();
+
+    /// <summary>The health its wing has left: the wing is a part with health of its own that only a power bomb's blast strikes.</summary>
+    private int _wingHealth;
+
+    /// <summary>
+    /// Whether its wing is closed to a blast. A hit on its body, or her touch, leaves the wing the time its body then
+    /// cannot be hit for, and the wing, which takes no notice of Samus, never counts that time down: so it stays
+    /// closed until a later hit or touch finds the body's own time run out. The wing's own hit closes it the same way.
+    /// </summary>
+    private bool _wingClosed;
+
+    /// <summary>
+    /// A power bomb's blast strikes its wing before its body, as the blast sweeps the room's enemies last listed
+    /// first; every hit that lands on its body then leaves the wing the body's time of not being hit.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        if (!IsDead && !_wingClosed && hit.Carries(new HitKind(Data.HitKinds.PowerBomb)))
+            StrikeWing(hit, part);
+        HitResult result = base.TakeHit(hit, part);
+        if (result != HitResult.Ignored)
+            _wingClosed = IsSafeFromHits;
+        return result;
+    }
+
+    /// <summary>Her touch on its body leaves the wing the body's time of not being hit too, which opens the wing again once that has run out.</summary>
+    protected override void Touch(Collider part)
+    {
+        base.Touch(part);
+        _wingClosed = IsSafeFromHits;
+    }
+
+    /// <summary>
+    /// The blast's hit on the wing, which answers a hit as its body does: it loses the hit's damage, is closed from
+    /// then, and carries the hit onto the enemy listed after it. A wing the hit leaves alive gives that enemy the
+    /// time it cannot be hit, its hurt flash and the freeze the Dragon has, in place of that enemy's own; a wing the
+    /// hit destroys takes that enemy out of the room outright. (The wing's own death, its burst and the Dragon going
+    /// on without it, is not carried: it needs a second blast on a wing opened again by her touch.)
+    /// </summary>
+    private void StrikeWing(Hit hit, Collider part)
+    {
+        Reaction reaction = ReactionTo(hit, part);
+        int damage = reaction.DamageFrom(hit.Damage);
+        _wingHealth -= damage;
+        _wingClosed = true;
+        if (ListedAfterWing.IsEmpty || GetNodeOrNull<Enemy>(ListedAfterWing) is not { IsDead: false } next)
+            return;
+        if (_wingHealth <= 0)
+        {
+            next.BeTakenOut();
+            return;
+        }
+
+        int flash = damage > 0 ? Math.Max(0, HurtFlashUpdates - hit.FlashFewer) : 0;
+        next.TakeAftermath(new HitAftermath(0, damage > 0 ? reaction.UnhittableUpdates : 0, flash, Status, StatusUpdatesLeft));
+    }
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        _wingHealth = MaxHealth;
+        _wingClosed = false;
         Facing = Facing.Left;
         Play("idle_left");
         _wings = new TimelinePlayer(Timelines.Get("wings_left"));

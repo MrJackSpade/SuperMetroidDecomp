@@ -1497,6 +1497,11 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 - **An enemy replaced when killed** (`RespawnsWhenKilled`) is replaced by a copy of it as it was placed. As it dies
   it is told of that copy (`Enemy.OnReplacedBy`), so that a kind something of which its setup does not set afresh
   hands that on: this game's Beetom the way it last faced, and its Bull what is left of its guard against a knock.
+- **A hit carried onto another enemy.** An enemy may be given what a hit left of another, or of a part another keeps
+  to itself (`Enemy.TakeAftermath`, a `HitAftermath`: the shake, the time of not being hit, the hurt flash and the
+  status, each with its updates), or be taken out of the room at another's word with no death (`BeTakenOut`). This
+  game's Dragon does both to the enemy its room lists after its wing, when a power bomb's blast strikes the wing: the
+  rooms' generator tells it which enemy that is (`ListedAfterWing`).
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
   and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then

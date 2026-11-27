@@ -67,14 +67,17 @@ SamusStep = 0.78125
 [node name="Dragon" parent="." instance=ExtResource("6")]
 position = Vector2(344, 248)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Dragon2")
 
 [node name="Dragon2" parent="." instance=ExtResource("6")]
 position = Vector2(216, 248)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Dragon3")
 
 [node name="Dragon3" parent="." instance=ExtResource("6")]
 position = Vector2(152, 248)
 Look = "crocomire_escape"
+ListedAfterWing = NodePath("../Sova")
 
 [node name="Sova" parent="." instance=ExtResource("7")]
 position = Vector2(120, 69)

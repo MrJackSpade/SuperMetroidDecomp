@@ -1151,11 +1151,16 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   charges lets its charge go at once, as for the shot a jump's pose is handed on a fresh press of the attack.
   Unfired, the handed shot is lost.
 - **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
-  another aim or the attack is asked; her body is compact for as long (`aiming_down`).
+  another aim or the attack is asked; her body is compact for as long (`aiming_down`). Coming down so she lands
+  aiming level from the landing's own update (`Samus.OnLanded`), as the cartridge's plain landing does.
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
   aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
   direction the way she faces does not start a run. Crouched, up does not aim: a press of it stands her up with her
-  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up.
+  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up. Settling from
+  a landing she came down aiming up or diagonally in, she keeps that aim while nothing is held that the landing
+  answers (no direction, no aim, no fresh jump or press of down; the attack alone is nothing to it), and stands
+  aiming so as the settling ends: the standing state is then not asked at all (`Samus.KeepsLandingAim`), as asking
+  it would lower her aim. A press of down crouches her before the moonwalk is tried.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged

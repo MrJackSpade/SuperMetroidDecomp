@@ -701,6 +701,10 @@ public partial class Samus : Player
     /// </summary>
     protected override void OnLanded()
     {
+        // Come down aiming straight down she is in the plain landing, which aims level from this update on.
+        if (Aim == Aim.Down && State is JumpingState or FallingState)
+            Aim = Aim.Forward;
+
         bool hard = LandedAtLeast(HardLandingSpeed);
         if (!hard && LandingSpeed.Fraction == 0)
             return;
@@ -1460,9 +1464,11 @@ public partial class Samus : Player
                 }
 
                 // On the update her landing's own end falls, that end outranks what the input asks of her stance: the
-                // moonwalk and the aim straight up wait an update, as a run and a turn do.
-                if (current is StandingState { LandingEndsNow: false } && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
-                    Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                // moonwalk and the aim straight up wait an update, as a run and a turn do. A press of down crouches her
+                // before the moonwalk is tried, as the cartridge's list has it: the standing state crouches her.
+                bool crouchAsked = CanCrouch && input.WasPressed(GameAction.Down);
+                if (current is StandingState { LandingEndsNow: false } && !crouchAsked && Room.Session.Options.IsOn(Toggles.Moonwalk) &&
+                    input.IsHeld(GameAction.Attack) && Intent != 0 && Intent > 0 != (Facing == Facing.Right))
                 {
                     // The moonwalk is taken up aiming as asked, angle-down tested first whichever way she faces.
                     Aim = MoonwalkingState.AimOf(this, angleDownFirst: true);
@@ -1480,7 +1486,10 @@ public partial class Samus : Player
                     return new XrayState();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)
                     grapple.Fire(this);
-                return null;
+
+                // Settling from a landing she keeps the aim she came down in while nothing is asked of her that the
+                // landing answers: the standing state, asked, would lower it.
+                return KeepsLandingAim(current) ? current : null;
 
             case WallStoppedState:
                 // Stopped against a wall she may still look through the scope or fire the grapple.
@@ -1539,6 +1548,22 @@ public partial class Samus : Player
             default:
                 return null;
         }
+    }
+
+    /// <summary>
+    /// Whether she keeps, on this update, the aim she landed in: she is settling from a landing she came down aiming up
+    /// or diagonally in, and nothing is held that the landing's pose answers (no direction, no aim, no fresh jump and
+    /// no fresh press of down; the attack alone is nothing to it), as the cartridge's aimed landings keep their aim
+    /// until they end in the aimed stand. On the update the landing's own end falls the standing state asks nothing of
+    /// her aim itself.
+    /// </summary>
+    private bool KeepsLandingAim(PlayerState current)
+    {
+        if (current is not StandingState { IsSettling: true, LandingEndsNow: false } || Aim is not (Aim.Up or Aim.DiagonalUp or Aim.DiagonalDown))
+            return false;
+        GameInput input = Input;
+        return Intent == 0 && !JumpPressed && !input.WasPressed(GameAction.Down) &&
+            !input.IsHeld(GameAction.Up) && !input.IsHeld(Actions.AngleUp) && !input.IsHeld(Actions.AngleDown);
     }
 
     /// <summary>Her grapple beam, when her scene gives her one.</summary>

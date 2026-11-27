@@ -83,6 +83,18 @@ public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasVal
     public bool TurnsWithEnemies { get; set; }
 
     /// <summary>
+    /// Whether, taking its turn among the enemies, it takes one only while its place lies within the window the
+    /// room's enemies take their turns in (the view widened as the game's definition says, and to either side by
+    /// <see cref="TurnHalfWidth"/>), as an enemy that is not always active does: outside it, it stands as it was.
+    /// </summary>
+    [Export]
+    public bool TurnsOnlyInView { get; set; }
+
+    /// <summary>For one that takes its turn only in view: how far to either side of its place the window is widened for it.</summary>
+    [Export]
+    public int TurnHalfWidth { get; set; }
+
+    /// <summary>
     /// Whether it takes its turn among the enemies, in the order all joined the room: before the player moves, and
     /// held still with the enemies. Every other object takes its turn with the room's objects, after the player and
     /// the projectiles. A kind that always does says so itself; any other does where its placing says so.

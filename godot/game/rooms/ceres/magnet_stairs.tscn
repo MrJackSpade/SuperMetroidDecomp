@@ -120,30 +120,35 @@ PresentWhen = SubResource("r6")
 [node name="Steam" parent="." instance=ExtResource("11")]
 position = Vector2(112, 156)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam2" parent="." instance=ExtResource("11")]
 position = Vector2(194, 176)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam3" parent="." instance=ExtResource("11")]
 position = Vector2(120, 278)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam4" parent="." instance=ExtResource("11")]
 position = Vector2(62, 304)
 DataFile = "objects/ceres_steam_left.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam5" parent="." instance=ExtResource("11")]
 position = Vector2(136, 404)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 

@@ -718,7 +718,10 @@ public partial class Room : Node2D
             }
             else
             {
-                ((RoomObject)entity).Step();
+                // An object that takes its turn only in view takes none outside the window, as an enemy does not.
+                var roomObject = (RoomObject)entity;
+                if (!roomObject.TurnsOnlyInView || _objectsInView.Contains(roomObject))
+                    roomObject.Step();
             }
         }
     }
@@ -1145,7 +1148,13 @@ public partial class Room : Node2D
     /// </summary>
     private readonly HashSet<Enemy> _takingTurns = [];
 
-    /// <summary>Settles which enemies take a turn on this update.</summary>
+    /// <summary>
+    /// The objects that take their turn only in view (<see cref="RoomObject.TurnsOnlyInView"/>) and lie within the
+    /// window on the update being played, settled with the enemies.
+    /// </summary>
+    private readonly HashSet<RoomObject> _objectsInView = [];
+
+    /// <summary>Settles which enemies, and which objects that take their turn only in view, take a turn on this update.</summary>
     private void SettleWhoTakesTurns()
     {
         _takingTurns.Clear();
@@ -1153,6 +1162,13 @@ public partial class Room : Node2D
         {
             if (IsActive(enemy))
                 _takingTurns.Add(enemy);
+        }
+
+        _objectsInView.Clear();
+        foreach (RoomObject roomObject in _objects)
+        {
+            if (roomObject.TurnsOnlyInView && IsWithinTurnReach(roomObject.Position, roomObject.TurnHalfWidth))
+                _objectsInView.Add(roomObject);
         }
     }
 
@@ -1167,12 +1183,18 @@ public partial class Room : Node2D
     /// Whether an enemy's middle lies within the window in which enemies take their turns: the view widened as the
     /// game's definition says, and to either side by the enemy's own half-width besides. The edges count as within.
     /// </summary>
-    internal bool IsWithinTurnReach(Enemy enemy)
+    internal bool IsWithinTurnReach(Enemy enemy) => IsWithinTurnReach(enemy.Position, enemy.BodyHalfWidth);
+
+    /// <summary>
+    /// Whether <paramref name="place"/> lies within the window in which enemies take their turns, widened to either
+    /// side by <paramref name="halfWidth"/>. The edges count as within.
+    /// </summary>
+    private bool IsWithinTurnReach(PixelPosition place, int halfWidth)
     {
         PixelRect view = Session.Camera.View;
         GameDefinition game = Session.Definition;
-        int across = enemy.BodyHalfWidth + game.EnemyTurnMarginAcross;
-        int x = enemy.Position.X.Whole, y = enemy.Position.Y.Whole;
+        int across = halfWidth + game.EnemyTurnMarginAcross;
+        int x = place.X.Whole, y = place.Y.Whole;
         return x >= view.Left - across && x <= view.Left + view.Width + across &&
             y >= view.Top - game.EnemyTurnMarginAbove && y <= view.Top + view.Height + game.EnemyTurnMarginBelow;
     }

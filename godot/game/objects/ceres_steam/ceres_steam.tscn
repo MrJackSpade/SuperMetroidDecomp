@@ -7,6 +7,7 @@
 script = ExtResource("1")
 DataFile = "objects/ceres_steam_up.json"
 StartsWithinUpdates = 32
+TurnHalfWidth = 8
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")

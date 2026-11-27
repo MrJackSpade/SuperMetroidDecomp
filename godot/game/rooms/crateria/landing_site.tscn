@@ -180,6 +180,7 @@ SamusStep = 0.78125
 position = Vector2(1152, 1119)
 SaveQuestion = "gunship_save_confirmation"
 SavedMessage = "save_completed"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 ToldWhenAway = Array[NodePath]([NodePath("../Departure")])
 
@@ -297,132 +298,154 @@ script = ExtResource("15")
 [node name="Steam" parent="." instance=ExtResource("16")]
 position = Vector2(81, 1194)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam2" parent="." instance=ExtResource("16")]
 position = Vector2(128, 1212)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam3" parent="." instance=ExtResource("16")]
 position = Vector2(161, 1232)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam4" parent="." instance=ExtResource("16")]
 position = Vector2(229, 1239)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam5" parent="." instance=ExtResource("16")]
 position = Vector2(347, 1239)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam6" parent="." instance=ExtResource("16")]
 position = Vector2(413, 1237)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam7" parent="." instance=ExtResource("16")]
 position = Vector2(448, 1225)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam8" parent="." instance=ExtResource("16")]
 position = Vector2(546, 1224)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam9" parent="." instance=ExtResource("16")]
 position = Vector2(579, 1220)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam10" parent="." instance=ExtResource("16")]
 position = Vector2(636, 1230)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam11" parent="." instance=ExtResource("16")]
 position = Vector2(791, 1239)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam12" parent="." instance=ExtResource("16")]
 position = Vector2(831, 1225)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam13" parent="." instance=ExtResource("16")]
 position = Vector2(876, 1206)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam14" parent="." instance=ExtResource("16")]
 position = Vector2(912, 1193)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam15" parent="." instance=ExtResource("16")]
 position = Vector2(985, 1207)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam16" parent="." instance=ExtResource("16")]
 position = Vector2(1050, 1241)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam17" parent="." instance=ExtResource("16")]
 position = Vector2(1180, 1240)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam18" parent="." instance=ExtResource("16")]
 position = Vector2(1273, 1226)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam19" parent="." instance=ExtResource("16")]
 position = Vector2(1317, 1211)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam20" parent="." instance=ExtResource("16")]
 position = Vector2(1367, 1225)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam21" parent="." instance=ExtResource("16")]
 position = Vector2(1478, 1236)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam22" parent="." instance=ExtResource("16")]
 position = Vector2(1572, 1236)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 

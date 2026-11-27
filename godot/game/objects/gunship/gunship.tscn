@@ -8,6 +8,7 @@
 z_index = 10
 script = ExtResource("1")
 DataFile = "objects/gunship.json"
+TurnHalfWidth = 92
 
 [node name="Bottom" type="Node2D" parent="."]
 script = ExtResource("3")

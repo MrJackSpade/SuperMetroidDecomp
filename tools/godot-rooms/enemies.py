@@ -617,11 +617,17 @@ def yapping_maw(p, index, listed):
         'StrikesDown': truth(legacy.last_name(p.settings['Attack']) == 'Down')})
 
 
+def only_in_view(p) -> dict[str, str]:
+    """What an object placed for an old enemy says of its turns: one the old game does not play out of view takes its turn only in view."""
+    return {} if 'EnemyProcessing.OffScreen' in ' '.join(p.arguments[2:6]) else {'TurnsOnlyInView': 'true'}
+
+
 @rule('SteamVent')
 def steam(p, index, listed):
     # A vent of the turning shaft blows left or right like any other; the room shows it turned.
     way = legacy.last_name(p.settings['Variant']).replace('RotatingElevator', '').lower()
-    return Placed(O + 'ceres_steam/ceres_steam.tscn', 'Steam', {'DataFile': quoted(f'objects/ceres_steam_{way}.json')}, enemy=False)
+    return Placed(O + 'ceres_steam/ceres_steam.tscn', 'Steam',
+                  {'DataFile': quoted(f'objects/ceres_steam_{way}.json'), **only_in_view(p)}, enemy=False)
 
 
 # The elevator's scene; the room's generator tells each one the blocks it rests on.
@@ -758,7 +764,7 @@ GUNSHIP_TOP_RAISE = 25
 def gunship(p, index, listed):
     # The gunship stands where its top half rests.
     return Placed(O + 'gunship/gunship.tscn', 'Gunship', {
-        'SaveQuestion': quoted('gunship_save_confirmation'), 'SavedMessage': quoted('save_completed')},
+        'SaveQuestion': quoted('gunship_save_confirmation'), 'SavedMessage': quoted('save_completed'), **only_in_view(p)},
         at=(p.at[0], p.at[1] - GUNSHIP_TOP_RAISE), enemy=False)
 
 

@@ -134,66 +134,77 @@ script = ExtResource("12")
 [node name="Steam" parent="." instance=ExtResource("14")]
 position = Vector2(94, 108)
 DataFile = "objects/ceres_steam_left.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam2" parent="." instance=ExtResource("14")]
 position = Vector2(162, 108)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam3" parent="." instance=ExtResource("14")]
 position = Vector2(158, 200)
 DataFile = "objects/ceres_steam_left.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam4" parent="." instance=ExtResource("14")]
 position = Vector2(98, 200)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam5" parent="." instance=ExtResource("14")]
 position = Vector2(94, 296)
 DataFile = "objects/ceres_steam_left.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam6" parent="." instance=ExtResource("14")]
 position = Vector2(162, 296)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam7" parent="." instance=ExtResource("14")]
 position = Vector2(158, 392)
 DataFile = "objects/ceres_steam_left.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam8" parent="." instance=ExtResource("14")]
 position = Vector2(98, 408)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam9" parent="." instance=ExtResource("14")]
 position = Vector2(94, 504)
 DataFile = "objects/ceres_steam_left.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam10" parent="." instance=ExtResource("14")]
 position = Vector2(162, 504)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam11" parent="." instance=ExtResource("14")]
 position = Vector2(114, 600)
 DataFile = "objects/ceres_steam_right.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 

@@ -787,114 +787,133 @@ PresentWhen = SubResource("r11")
 [node name="Steam" parent="." instance=ExtResource("14")]
 position = Vector2(325, 181)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam2" parent="." instance=ExtResource("14")]
 position = Vector2(441, 186)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam3" parent="." instance=ExtResource("14")]
 position = Vector2(478, 169)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam4" parent="." instance=ExtResource("14")]
 position = Vector2(551, 177)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam5" parent="." instance=ExtResource("14")]
 position = Vector2(573, 185)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam6" parent="." instance=ExtResource("14")]
 position = Vector2(623, 192)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam7" parent="." instance=ExtResource("14")]
 position = Vector2(689, 208)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam8" parent="." instance=ExtResource("14")]
 position = Vector2(721, 200)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam9" parent="." instance=ExtResource("14")]
 position = Vector2(779, 192)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam10" parent="." instance=ExtResource("14")]
 position = Vector2(815, 160)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam11" parent="." instance=ExtResource("14")]
 position = Vector2(862, 136)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam12" parent="." instance=ExtResource("14")]
 position = Vector2(900, 119)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam13" parent="." instance=ExtResource("14")]
 position = Vector2(988, 121)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam14" parent="." instance=ExtResource("14")]
 position = Vector2(1022, 142)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam15" parent="." instance=ExtResource("14")]
 position = Vector2(1055, 161)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam16" parent="." instance=ExtResource("14")]
 position = Vector2(1116, 196)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam17" parent="." instance=ExtResource("14")]
 position = Vector2(1151, 179)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam18" parent="." instance=ExtResource("14")]
 position = Vector2(1194, 174)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="Steam19" parent="." instance=ExtResource("14")]
 position = Vector2(1228, 166)
 DataFile = "objects/ceres_steam_up.json"
+TurnsOnlyInView = true
 TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 

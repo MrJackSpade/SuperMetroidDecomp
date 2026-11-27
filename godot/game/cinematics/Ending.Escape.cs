@@ -10,8 +10,7 @@ namespace Game.Cinematics;
 /// mission's result typed over it.
 /// </summary>
 /// <remarks>
-/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"), the changes of
-/// colours the gunship's floor is shown with as it flies out ("gunship_colours": "flying_out", then "clear" once it has flown clear), the blast's ("planet_explosion",
+/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"), the blast's ("planet_explosion",
 /// "burst_glow", "finale_explosion", "finale_glow"), and the timelines "right_side_cloud", "left_side_cloud",
 /// "top_cloud_pattern", "top_cloud_edge", "bottom_cloud_edge", "bottom_cloud_pattern", "exploding_planet" (which gives
 /// the cue "silhouette"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
@@ -184,8 +183,6 @@ public partial class Ending
                     break;
                 }
 
-                // The gunship, flown clear, shows its own colours as the result begins.
-                ShowGunshipColours("clear");
                 BeginTyping("ending_operation_was");
                 _phase = Phase.CompletionText;
                 break;
@@ -325,7 +322,6 @@ public partial class Ending
         (_backdrop ?? throw NotEntered()).Color = Colors.Black;
         // From the gunship's flight away on, nothing is shown beyond the floor's edges.
         ShowFloorPicture("gunship_floor", GunshipCentre, repeats: false);
-        ShowGunshipColours("flying_out");
         TurningFloor gunship = _floor ?? throw NotEntered();
         gunship.Modulate = Colors.White;
 
@@ -334,10 +330,6 @@ public partial class Ending
         SetFloor(-72, -104, 3072, -112);
         (_slowShake, _shake, _whiteHold) = (false, 0, 192);
     }
-
-    /// <summary>Shows the gunship's floor in the colours its data gives for a stage of its flight away, in place of those it showed before.</summary>
-    private void ShowGunshipColours(string stage) =>
-        ColourChange.Read(Data().Get("gunship_colours").Get(stage)).ShowOn(_floor ?? throw NotEntered(), FloorColours);
 
     /// <summary>
     /// The white the blast left is held a while and then clears, a step on the first update after the hold and every

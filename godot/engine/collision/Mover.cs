@@ -220,14 +220,19 @@ public sealed class Mover
         if (!stop.Stopped)
             return null;
 
-        // Stopped keeping its part of a pixel, the body goes only the whole pixels of the move, less what the stop
-        // takes back, and never backwards.
-        if (stop.KeepsFraction)
+        if (stop.BySlopeUnderMiddle)
         {
-            // Going up it stays where it began, unless its move rests it against what it came up under.
-            int kept = stop.Back is not { } taken ? 0
-                : step > 0 ? Math.Max(0, tried.Whole - taken)
-                : options.RestsUnderSlopes ? Math.Min(0, shift + taken) : 0;
+            // A move that rests against slopes leaves the body on the slope's surface, wherever that lies from where
+            // it began, at the end of its pixel that lies against the slope.
+            if (options.RestsAgainstSlopes && stop.Back is { } surface)
+            {
+                int rested = step > 0 ? shift - surface : shift + surface;
+                return Pixels.FromParts(start.Whole + rested, step > 0 && !options.RestsAtPixelStart ? Pixels.FractionsPerPixel - 1 : 0);
+            }
+
+            // Otherwise the body keeps its part of a pixel: going down it goes only the whole pixels of the move,
+            // less what the stop takes back, and never backwards; going up it stays where it began.
+            int kept = stop.Back is not { } taken ? 0 : step > 0 ? Math.Max(0, tried.Whole - taken) : 0;
             return start + Pixels.FromWhole(kept);
         }
 

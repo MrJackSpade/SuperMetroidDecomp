@@ -1809,7 +1809,10 @@ and the room asks it of each of its exits. The rest of the way:
   stops only the body's middle column, and stops a move that would end resting exactly on it as well; the body then
   goes the whole pixels of its move, less what the slope takes back, and keeps its part of a pixel. Up, such a
   ceiling stops the middle column and the body does not move at all. A floor of the kind stops no rise and a
-  ceiling no fall.
+  ceiling no fall. A move may say instead that it rests against such slopes (`MoveOptions.RestsAgainstSlopes`), as
+  the cartridge's enemies do and this game's enemies' moves say: stopped by one, down or up, the body is left on
+  the slope's surface, wherever that lies from where it began, at the end of its pixel that lies against the
+  slope, as against any other terrain.
 
 The game says which way its player's body is moved (`GameDefinition.BodyMoves`). The player's own code then reads only what a move reports: a player moved the second way has landed
 when ground stopped a fall, not when they come to lie on it, stands on the terrain that stopped a move down of

@@ -380,7 +380,7 @@ public partial class Oum : Enemy
     /// things up by their middle met under its middle alone.
     /// </summary>
     private static readonly MoveOptions Moves =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     /// <summary>
     /// How its roll is tried: as its other moves, but such sloped ground in the column it rolls into is a whole wall

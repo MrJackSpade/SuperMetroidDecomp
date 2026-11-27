@@ -181,7 +181,7 @@ public partial class WallPirate : SpacePirate
     /// that holds things up by their middle met under its middle alone.
     /// </summary>
     private static readonly MoveOptions Moves =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     /// <summary>The collider it moves by.</summary>
     private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The wall Space Pirate \"{Name}\" has no body collider.");

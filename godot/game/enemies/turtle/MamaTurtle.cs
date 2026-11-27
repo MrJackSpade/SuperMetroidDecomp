@@ -89,7 +89,7 @@ public partial class MamaTurtle : Enemy
     /// ground that holds things up by their middle met under her middle alone.
     /// </summary>
     private static readonly MoveOptions MovesDown =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     /// <summary>
     /// How her push out of her shell and her drift are tried, as the cartridge moves an enemy across: only where each

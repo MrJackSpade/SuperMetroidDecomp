@@ -64,7 +64,7 @@ public partial class Swooper : Enemy
     /// things up by their middle met under its middle alone.
     /// </summary>
     private static readonly MoveOptions Moves =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
     private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };

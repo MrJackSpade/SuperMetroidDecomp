@@ -120,7 +120,7 @@ public sealed class SurfaceCrawl
     /// under its middle alone.
     /// </summary>
     private static readonly MoveOptions Moves =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     /// <summary>
     /// How a crawler's moves across are tried, feeling for a wall or going along a floor or ceiling: as its other

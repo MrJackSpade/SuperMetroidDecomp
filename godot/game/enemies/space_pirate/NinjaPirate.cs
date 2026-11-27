@@ -198,7 +198,7 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
     /// ground that holds things up by their middle met under its middle alone.
     /// </summary>
     private static readonly MoveOptions Falls =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     private Doing _doing;
     private Facing _heading;

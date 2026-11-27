@@ -265,7 +265,7 @@ public partial class KraidNail : Enemy
     /// holds things up by their middle met under its middle alone.
     /// </summary>
     private static readonly MoveOptions Flies =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     /// <summary>How its flight across is tried: as the rest of it, and such sloped ground is no part of it.</summary>
     private static readonly MoveOptions FliesAcross = Flies with { Slopes = SlopeTreatment.IgnoreMiddleHeld };

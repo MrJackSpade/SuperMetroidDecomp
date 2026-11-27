@@ -39,11 +39,14 @@ public sealed record MoveOptions
     public bool TriesFromRight { get; init; }
 
     /// <summary>
-    /// For a move up tried only where it ends, that reaches a ceiling's slope which holds things by their middle:
-    /// whether the body is brought up to rest against the slope's surface, however far that is short of the move, as
-    /// the cartridge's enemies are, and not left where the move began, as the player is.
+    /// For a move up or down tried only where it ends, that is stopped by sloped ground which holds things by their
+    /// middle: whether the body is brought to rest against the slope's surface, wherever that lies from where the
+    /// move began, at the end of its pixel that lies against the slope as against any other terrain; so the
+    /// cartridge's enemies rest. A move that does not say so is the player's: stopped going down the body goes the
+    /// whole pixels of its move, less what the slope takes back, and keeps its part of a pixel, and stopped going
+    /// up it stays where it began.
     /// </summary>
-    public bool RestsUnderSlopes { get; init; }
+    public bool RestsAgainstSlopes { get; init; }
 
     /// <summary>
     /// For a move tried only where it ends: whether, stopped by terrain going right or down, the body rests at the

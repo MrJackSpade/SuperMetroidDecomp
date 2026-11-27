@@ -96,7 +96,7 @@ public partial class Powamp : Enemy, ILatchable
     /// ground that holds things up by their middle met under its middle alone.
     /// </summary>
     private static readonly MoveOptions Moves =
-        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true };
 
     private readonly Dictionary<string, int> _balloonHeights = new(StringComparer.Ordinal);
     private readonly List<int> _wiggle = [];

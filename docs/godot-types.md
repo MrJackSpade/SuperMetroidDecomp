@@ -191,6 +191,13 @@ something that leaves the room.
   part of the way from one to another moves each of a colour's red, green and blue by the cartridge's own thirty-two
   steps of brightness, the difference times the fade's step over its steps, cut off toward nothing, as the
   extractor's fades written ahead of time do. The Torizos' colourings, fades and belly's glow are worked out so.
+  `EnemyView` is the cartridge's view for its enemies, which is not the screen: a square of 256 pixels each way from
+  the camera's corner, so reaching further below than the screen shows, its right and bottom edges counted in
+  (`Contains`, widened on every side by a margin where an enemy asks for one) or not (`ContainsBeforeFarEdges`). An
+  enemy that counts as on screen by it, or is heard only inside it, asks it (the pipe bugs, the Zoa, the shutters,
+  the Evir's spine ball, the small Kraid, the Magdollite's hand, the Yapping Maw); one whose cartridge code has a
+  window of its own (the Rinka, Ridley in Norfair, Mother Brain's turrets and rings, the work robot) keeps that in
+  itself.
   `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll
   layout loads all fifty (its own screens and what the layout's load writes after them, from
   `rooms/scroll_layouts.json`), a room with none writes only its own, and the camera reads the cells past a room's

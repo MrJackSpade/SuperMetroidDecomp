@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -218,9 +219,10 @@ public partial class Shutter : Enemy
         SoundIfInView();
     }
 
+    /// <summary>Sounds its start only while its middle is in the enemies' view.</summary>
     private void SoundIfInView()
     {
-        if (IsInView(0))
+        if (EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
             Sound(ActivationSound);
     }
 }

@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Actors.Movement;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -143,10 +144,10 @@ public partial class Geega : Enemy
     /// <summary>The name of its flying timeline for the way it faces.</summary>
     private string Flying => Facing == Facing.Left ? "flying_left" : "flying_right";
 
-    /// <summary>Puts it back in its pipe if it has left the view, and returns whether it did.</summary>
+    /// <summary>Puts it back in its pipe if its middle has left the enemies' view, and returns whether it did.</summary>
     private bool GoneBackToPipe()
     {
-        if (IsInView(0))
+        if (EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
             return false;
         Position = _pipe;
         _doing = Doing.WaitingForSamus;

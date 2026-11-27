@@ -101,7 +101,7 @@ public partial class EvirSpit : Enemy
 
             case Doing.Flying:
                 Play("idle");
-                if (!IsInView(RegrowMargin) && !holder.IsFrozen)
+                if (!EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole, RegrowMargin) && !holder.IsFrozen)
                 {
                     _doing = Doing.GrowingBack;
                     Play("regrowing", restart: true);

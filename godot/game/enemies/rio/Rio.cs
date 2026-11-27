@@ -38,7 +38,7 @@ public partial class Rio : Enemy
     [Export, DataValue("return_speed")]
     public double ReturnSpeed { get; set; } = 0.00390625;
 
-    /// <summary>The sound of a swoop beginning, by name.</summary>
+    /// <summary>The sound of a swoop beginning, by name: heard only from one inside the window in which enemies take turns.</summary>
     [Export, DataValue("dive_sound")]
     public string DiveSound { get; set; } = "";
 
@@ -88,7 +88,10 @@ public partial class Rio : Enemy
                 Velocity = new PixelVelocity(TowardPlayer.Toward(Pixels.FromNumber(AcrossSpeed)), Pixels.FromNumber(DiveSpeed));
                 Play("swoop_start");
                 _doing = Doing.Swooping;
-                Sound(DiveSound);
+
+                // Its cry is heard only when the swoop begins inside the window in which enemies take turns.
+                if (IsWithinTurnReach)
+                    Sound(DiveSound);
                 return;
 
             case Doing.Swooping:

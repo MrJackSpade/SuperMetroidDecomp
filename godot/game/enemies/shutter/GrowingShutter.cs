@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -71,7 +72,7 @@ public partial class GrowingShutter : Enemy
             if (!due)
                 return;
             _growing = true;
-            if (IsInView(0))
+            if (EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
                 Sound(ActivationSound);
             return;
         }

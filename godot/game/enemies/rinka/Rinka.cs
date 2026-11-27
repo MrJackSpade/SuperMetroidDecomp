@@ -136,8 +136,21 @@ public partial class Rinka : Enemy
                 throw new InvalidOperationException($"A Rinka has nothing to do called {_doing}.");
         }
 
-        if (!IsInView(ViewMargin))
+        if (!IsInFlightWindow())
             Vanish();
+    }
+
+    /// <summary>
+    /// Whether it is inside the window it flies in: the screen widened by its margin on every side, the far edges
+    /// outside, and nothing above or left of the room.
+    /// </summary>
+    private bool IsInFlightWindow()
+    {
+        PixelRect screen = Room.Session.Camera.View;
+        int x = Position.X.Whole, y = Position.Y.Whole;
+        return x >= 0 && y >= 0 &&
+            x >= screen.Left - ViewMargin && x < screen.Right + ViewMargin &&
+            y >= screen.Top - ViewMargin && y < screen.Bottom + ViewMargin;
     }
 
     private void Hide(bool hidden)

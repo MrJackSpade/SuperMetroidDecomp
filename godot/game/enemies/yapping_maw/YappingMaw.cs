@@ -102,6 +102,12 @@ public partial class YappingMaw : Enemy
     private bool _drawingBack;
     private bool _holds;
     private int _cooldown;
+
+    /// <summary>
+    /// Whether its mouth was in the enemies' view as its last behaviour began, before it moved: its bite is heard only
+    /// then, as the cartridge reads it.
+    /// </summary>
+    private bool _inViewAsTurnBegan = true;
     private Countdown _drawnBack;
     private TimelinePlayer? _link;
     private TimelinePlayer? _root;
@@ -140,7 +146,7 @@ public partial class YappingMaw : Enemy
     {
         if (cue == "bite")
         {
-            if (IsInView(0))
+            if (_inViewAsTurnBegan)
                 Sound(BiteSound);
         }
         else if (cue.StartsWith("hold:", StringComparison.Ordinal))
@@ -208,6 +214,7 @@ public partial class YappingMaw : Enemy
         // The cooldown counts down every update with no floor, within 65536: past nothing it lets it catch Samus for
         // 32768 updates, then reads as above nothing again and refuses for 32768, and so on until it starts again.
         _cooldown = unchecked((short)(_cooldown - 1));
+        _inViewAsTurnBegan = EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole);
         switch (_doing)
         {
             case Doing.Watching:

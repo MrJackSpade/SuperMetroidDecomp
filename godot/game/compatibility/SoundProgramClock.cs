@@ -8,7 +8,7 @@ namespace Game.Compatibility;
 /// between two looks is never seen. It is a count for the waits play keeps: it starts no sound, since what is heard
 /// is started as it is asked for.
 /// </summary>
-internal sealed class SoundProgramClock
+internal sealed class SoundProgramClock : ISoundProgram
 {
     /// <summary>The program's samples in one update.</summary>
     private const int SamplesPerUpdate = 534;

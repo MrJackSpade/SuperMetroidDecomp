@@ -12,6 +12,9 @@ public static class Cartridge
     /// <summary>The random number.</summary>
     public const int Random = 0x05e5;
 
+    /// <summary>The states of the sound handler's three libraries, a byte each: Samus's, the enemies', the room's.</summary>
+    public const int SoundStates = 0x0649, SoundLibraries = 3;
+
     /// <summary>The room, by the address of its header.</summary>
     public const int Room = 0x079b;
 

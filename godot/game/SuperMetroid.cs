@@ -80,8 +80,9 @@ public partial class SuperMetroid : GameDefinition
     public override bool StatusLasts(GameSession session, string status) =>
         status != Engine.Actors.Enemy.Frozen || session.Player.Inventory.IsOn(Data.Equipment.IceBeam);
 
-    /// <summary>Sounds and music wait their turn as the cartridge's do.</summary>
-    public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) => new CartridgeSounds(content);
+    /// <summary>Sounds and music wait their turn as the cartridge's do, the sound program answering by its own clock.</summary>
+    public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) =>
+        new CartridgeSounds(content, new SoundProgramClock(CartridgeSounds.Libraries));
 
     /// <summary>
     /// Every way out of this game's rooms is a door, an elevator's and a fall through sand among them, and is passed

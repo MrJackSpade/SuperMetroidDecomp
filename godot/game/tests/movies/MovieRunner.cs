@@ -8,7 +8,8 @@ namespace Game.Tests.Movies;
 /// Plays one recorded movie through the game and checks the game against the cartridge on every update: the scene
 /// <c>godot/movie.ps1</c> runs. The game is given one update for each update of the movie, with the movie's buttons;
 /// hardware lag is not played. It stops at the first update on which the game and the cartridge differ, and never
-/// puts the game right from the movie.
+/// puts the game right from the movie. What the host of a recording stands in for is the hardware the recording was
+/// made on: its sound program answers the game when the cartridge's answered (<see cref="MovieGame"/>).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -33,6 +34,9 @@ public partial class MovieRunner : Node
     private GameLoop? _loop;
     private Engine.Audio.AudioDirector? _director;
     private MovieController? _controller;
+
+    /// <summary>The states of the cartridge's sound handler in the record of the update last played; null when that update had none.</summary>
+    private int[]? _soundStates;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -74,7 +78,7 @@ public partial class MovieRunner : Node
         Console.WriteLine($"MOVIE {trace.Name}: {trace.Updates.Count} updates, {trace.RecordCount} records, layout {trace.Layout}, " +
             (trace.StartsFromReset ? "from switching on" : "from a snapshot"));
 
-        GameDefinition definition = ResourceLoader.Load<GameDefinition>("res://game/game_definition.tres");
+        GameDefinition definition = MovieGame.Of(ResourceLoader.Load<GameDefinition>("res://game/game_definition.tres"));
         string saves = Path.Combine(Path.GetTempPath(), "movie-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(saves);
         try
@@ -161,6 +165,7 @@ public partial class MovieRunner : Node
             MovieUpdate update = updates[index];
             MovieUpdate? next = index + 1 < updates.Count ? updates[index + 1] : null;
             bool boxContinues = Session.Mode is MessageBoxMode;
+            ExpectSounds(trace, definition, update);
             Step(InputOf(update.Buttons, update.Pressed));
             string? box = PlayMessageBox(file, update, next, boxContinues);
 
@@ -178,6 +183,7 @@ public partial class MovieRunner : Node
                 Console.WriteLine($"RESET of the console before update {next.Number} (movie frame {next.SourceFrame}).");
                 End();
                 Begin(definition, saves);
+                _soundStates = null;
             }
             else if (update.ExpectedRecord is { } record)
             {
@@ -210,6 +216,24 @@ public partial class MovieRunner : Node
             return 3;
         Console.WriteLine($"PASSED {trace.Name}.");
         return 0;
+    }
+
+    /// <summary>
+    /// Tells the game's sound program what the recording shows of the update about to be played: the states of the
+    /// cartridge's sound handler as it began and as it ended, where the update and the one before it have records.
+    /// </summary>
+    private void ExpectSounds(MovieTrace trace, GameDefinition definition, MovieUpdate update)
+    {
+        CapturedSoundProgram program = ((MovieGame)definition).Program ?? throw new InvalidOperationException("The game has not been begun.");
+        int[]? before = _soundStates;
+        _soundStates = null;
+        if (update.ExpectedRecord is { } record)
+        {
+            trace.ReadTo(record);
+            _soundStates = [.. Enumerable.Range(0, Cartridge.SoundLibraries).Select(library => trace.Word(Cartridge.SoundStates + library) & 0xFF)];
+        }
+
+        program.Expect(before, _soundStates);
     }
 
     /// <summary>

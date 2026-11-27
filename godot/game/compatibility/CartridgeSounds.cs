@@ -61,12 +61,13 @@ public sealed class CartridgeSounds : ISoundFlow
     private readonly Dictionary<string, HashSet<string>> _musicVersions = new(StringComparer.Ordinal);
 
     /// <summary>The libraries, in the order their turns are taken and the program serves them.</summary>
-    private static readonly string[] Libraries = ["samus", "enemy", "room"];
+    internal static readonly string[] Libraries = ["samus", "enemy", "room"];
 
     private readonly Dictionary<string, SoundLibraryQueue> _queues =
         Libraries.ToDictionary(library => library, _ => new SoundLibraryQueue(), StringComparer.Ordinal);
 
-    private readonly SoundProgramClock _clock = new(Libraries);
+    /// <summary>The sound program the libraries' exchanges are with.</summary>
+    private readonly ISoundProgram _program;
     private readonly DataNode _themes;
     private readonly string _setAtPowerOn;
     private readonly MusicQueue _music;
@@ -76,10 +77,15 @@ public sealed class CartridgeSounds : ISoundFlow
     private bool _programDropsAsked;
     private int _downtime;
 
-    /// <summary>The cartridge's flow at power-on, with the sets of music read from the game's data.</summary>
-    public CartridgeSounds(ContentLibrary content)
+    /// <summary>
+    /// The cartridge's flow at power-on, with the sets of music read from the game's data, its libraries' exchanges
+    /// made with <paramref name="program"/>.
+    /// </summary>
+    public CartridgeSounds(ContentLibrary content, ISoundProgram program)
     {
         ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(program);
+        _program = program;
         DataNode sets = content.ReadData(SetsFile);
         _themes = sets.Get("themes");
         _setAtPowerOn = sets.Text("loaded_at_start");
@@ -314,12 +320,12 @@ public sealed class CartridgeSounds : ISoundFlow
         // The program acts on what this update asked during the update's own samples; what it reports is read by
         // the next update's turns. A set's load came first, on the music's turn.
         if (_programDropsAsked)
-            _clock.DropAsked();
+            _program.DropAsked();
         _programDropsAsked = false;
         foreach ((string library, string? sound) in _askedOfProgram)
-            _clock.Ask(library, sound);
+            _program.Ask(library, sound);
         _askedOfProgram.Clear();
-        _clock.Advance();
+        _program.Advance();
     }
 
     /// <inheritdoc/>
@@ -350,7 +356,7 @@ public sealed class CartridgeSounds : ISoundFlow
 
         foreach (string library in Libraries)
         {
-            if (_queues[library].TakeTurn(_clock.Reported(library), out string? asked))
+            if (_queues[library].TakeTurn(_program.Reported(library), out string? asked))
                 _askedOfProgram.Add((library, asked));
         }
     }

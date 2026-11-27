@@ -605,14 +605,7 @@ LowSurface = 2312
 HighSurface = 0
 MoveSpeed = 0.5
 MoveDelay = 32
-PresentWhen = SubResource("r14")
-
-[node name="LiquidMoves" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-Size = Vector2i(768, 2304)
-What = "rise"
-Target = NodePath("../Liquid")
+SetsOffAtOnce = true
 PresentWhen = SubResource("r14")
 
 [node name="CrateriaLightning" type="Node2D" parent="."]
@@ -701,14 +694,7 @@ LowSurface = 2280
 HighSurface = 16
 MoveSpeed = 0.40625
 MoveDelay = 40
-PresentWhen = SubResource("r1")
-
-[node name="LiquidMoves2" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-Size = Vector2i(768, 2304)
-What = "rise"
-Target = NodePath("../Liquid2")
+SetsOffAtOnce = true
 PresentWhen = SubResource("r1")
 
 [node name="OldTourianRedFlashing2" type="Node2D" parent="."]

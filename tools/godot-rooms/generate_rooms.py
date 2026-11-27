@@ -637,9 +637,9 @@ class Generator:
             booster = placed_objects.raises_liquid
             lowers_acid = any(thing.chozo == 'LowerNorfair' for thing in things)
             raises_acid = state.setup == ESCAPE_ACID_SETUP
-            shown, told = fx.things(self.room_fx[state.fx], room, ctx,
-                                    lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door,
-                                    told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else CHOZO_ACID_FALL if lowers_acid
+            shown = fx.things(self.room_fx[state.fx], ctx,
+                              lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door,
+                              told_speed=SPEED_BOOSTER_LAVA_RISE if booster is not None else CHOZO_ACID_FALL if lowers_acid
                                     else ESCAPE_ACID_RISE if raises_acid
                                     else LAVAQUAKE_START if any(thing.name == 'Lavaquake' for thing in placed_objects.placed) else None)
             if raises_acid:
@@ -685,8 +685,6 @@ class Generator:
                 raised.only_when = ctx.none_of([lowered]) if raised.only_when is None else ctx.all_of([raised.only_when, ctx.none_of([lowered])])
                 shown.insert(shown.index(raised) + 1, settled)
             things.extend(shown)
-            for teller, target in told:
-                links[id(teller)] = {'Target': target}
             if booster is not None:
                 # The item tells the room's lava to rise as its pickup ends, and the lava has its speed from that.
                 liquids = [thing for thing in shown if thing.name == 'Liquid']

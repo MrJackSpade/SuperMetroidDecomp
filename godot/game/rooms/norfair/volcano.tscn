@@ -235,14 +235,7 @@ LowSurface = 736
 HighSurface = 608
 MoveSpeed = 0.0390625
 MoveDelay = 64
-PresentWhen = SubResource("r2")
-
-[node name="LiquidMoves" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-Size = Vector2i(768, 768)
-What = "rise"
-Target = NodePath("../Liquid")
+SetsOffAtOnce = true
 PresentWhen = SubResource("r2")
 
 [node name="Heat" type="Node2D" parent="."]

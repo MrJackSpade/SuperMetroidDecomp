@@ -16,10 +16,8 @@ import legacy
 
 LIQUID = 'res://engine/world/Liquid.cs'
 OVERLAY = 'res://engine/world/OverlayEffect.cs'
-TRIGGER = 'res://engine/world/Trigger.cs'
 DARKNESS = 'res://game/effects/FirefleaDarkness.cs'
 COLOURS = 'res://engine/world/ColourEffect.cs'
-SCREEN = 256
 
 # What heat takes from Samus each update, in hundredths of a point of energy.
 HEAT_DAMAGE = 25
@@ -90,13 +88,12 @@ def colour_effect(name: str, ctx) -> Placed:
     return Placed(COLOURS, name, properties, at=(0, 0), enemy=False, only_when=only_when)
 
 
-def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None = None) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
+def effect_things(effect: dict, ctx, told_speed: float | None = None) -> list[Placed]:
     """
-    What one of the old code's effects places, and which of those tells which. `told_speed` is the speed a liquid
-    with a level to go to and no speed of its own is given by whatever of the room tells it to go.
+    What one of the old code's effects places. `told_speed` is the speed a liquid with a level to go to and no speed
+    of its own is given by whatever of the room tells it to go.
     """
     placed: list[Placed] = []
-    links: list[tuple[Placed, Placed]] = []
     kind = effect['type']
     if kind in LIQUIDS and effect['start'] is not None:
         start, target = effect['start'], effect['target']
@@ -129,15 +126,11 @@ def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None
         if effect['tide'] in TIDES:
             reach, above, below = TIDES[effect['tide']]
             properties.update({'TideReach': str(reach), 'TideTurnAbove': repr(above), 'TideTurnBelow': repr(below)})
-        liquid = Placed(LIQUID, 'Liquid', properties, at=(0, 0), enemy=False)
-        placed.append(liquid)
         if (rises or falls) and not waits:
-            # It sets off by itself as the room is entered.
-            tide = Placed(TRIGGER, 'LiquidMoves', {
-                'Size': f'Vector2i({room.screens[0] * SCREEN}, {room.screens[1] * SCREEN})',
-                'What': quoted('rise' if rises else 'fall')}, at=(0, 0), enemy=False)
-            placed.append(tide)
-            links.append((tide, liquid))
+            # It sets off by itself as the room is set up: the old effect's step sets it waiting on its second pass,
+            # which a door's passage makes before play begins.
+            properties['SetsOffAtOnce'] = 'true'
+        placed.append(Placed(LIQUID, 'Liquid', properties, at=(0, 0), enemy=False))
     elif kind in STIRRING and effect['start'] is None:
         # Lava's or acid's effect with no level: the liquid is the room's, lying below it all through. Nothing is
         # ever under it and it is seen nowhere, but it moves, and the game's random number is stirred by its moves
@@ -156,32 +149,29 @@ def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None
         placed.append(Placed(DARKNESS, 'Darkness', {'EffectName': quoted('darkness')}, at=(0, 0), enemy=False))
     # Its colour effects on the room's own pictures, in the order it starts them.
     placed.extend(colour_effect(name, ctx) for name in effect['colours'] if name in ROOM_COLOUR_EFFECTS)
-    return placed, links
+    return placed
 
 
-def things(selection: dict, room: legacy.Room, ctx, entry_point, told_speed: float | None = None) -> tuple[list[Placed], list[tuple[Placed, Placed]]]:
+def things(selection: dict, ctx, entry_point, told_speed: float | None = None) -> list[Placed]:
     """
     What a version's effect places. `entry_point` gives the entry point of the room that one of the old code's doors
     arrives at; `told_speed` is as for `effect_things`.
     """
     placed: list[Placed] = []
-    links: list[tuple[Placed, Placed]] = []
     by_door = [(entry_point(door), effect) for door, effect in selection['doors']]
     def also(thing: Placed, entered: str) -> str:
         """A thing's own condition, if it has one, together with the way the room was entered."""
         return entered if thing.only_when is None else ctx.all_of([thing.only_when, entered])
 
     for point, effect in by_door:
-        mine, told = effect_things(effect, room, ctx, told_speed)
+        mine = effect_things(effect, ctx, told_speed)
         for thing in mine:
             thing.only_when = also(thing, ctx.entered_at(point))
         placed.extend(mine)
-        links.extend(told)
     if selection['default'] is not None:
-        mine, told = effect_things(selection['default'], room, ctx, told_speed)
+        mine = effect_things(selection['default'], ctx, told_speed)
         if by_door:
             for thing in mine:
                 thing.only_when = also(thing, ctx.none_of([ctx.entered_at(point) for point, _ in by_door]))
         placed.extend(mine)
-        links.extend(told)
-    return placed, links
+    return placed

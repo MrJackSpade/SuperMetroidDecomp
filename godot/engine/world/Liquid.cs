@@ -43,6 +43,14 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Whether the speed it has brought the surface where it was heading, and so moves it no more.</summary>
     private bool _speedSpent;
 
+    /// <summary>
+    /// Whether it sets off for its other level by itself as its room is set up, with nothing telling it to: one that
+    /// starts lowered rises and one that starts raised falls, after its wait. Its moves begin with its room's, so one
+    /// entered through a passage that moves the room's liquid is waiting, or on its way, by the time play begins.
+    /// </summary>
+    [Export]
+    public bool SetsOffAtOnce { get; set; }
+
     /// <summary>Whether the liquid starts raised.</summary>
     [Export]
     public bool StartsRaised { get; set; }
@@ -154,7 +162,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
             throw new InvalidOperationException($"The liquid \"{Name}\" names no liquid type.");
         _type = LiquidType.Read(content.ReadData(TypeFile));
         _level = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
-        _target = _level;
+        _target = SetsOffAtOnce ? Pixels.FromWhole(StartsRaised ? LowSurface : HighSurface) : _level;
         (_motion, _speedSpent, _waiting, _tidePhase, _tide) = (Motion.Dormant, false, MoveDelay, 0, Pixels.Zero);
         _begun = false;
         IsAstir = false;

@@ -445,9 +445,14 @@ public partial class DoorTransitionMode : GameMode
                     samus.Position.X.WithWhole(OffFarEdge(OffNearEdge(samus.Position.X.Whole))),
                     samus.Position.Y.WithWhole(OffNearEdge(samus.Position.Y.Whole)));
 
-                // An elevator's door leaves her in the elevator's hands.
-                if (ElevatorJourney.Of(Session).DoorArmed && samus.State is not RidingElevatorState)
+                // An elevator's door leaves her in the elevator's hands. One going down sets her up for the ride
+                // afresh though she rides already: she is turned to face the screen again, which lifts her again,
+                // the body she rides in being still the one she boarded with.
+                ElevatorJourney ride = ElevatorJourney.Of(Session);
+                if (ride.DoorArmed && samus.State is not RidingElevatorState)
                     samus.ChangeState(new RidingElevatorState());
+                else if (ride.DoorArmed && ride.GoesDown)
+                    samus.TurnToFaceForward();
                 room.ShowNow();
 
                 // A door forces the screen fully lit before the room beyond fades in, however dark a pause's fade left it.

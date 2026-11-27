@@ -72,6 +72,34 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
+    /// Writes the colours Ridley's getaway shows his room in by the size of the floor he flies off over: for each whole
+    /// floor pixel to a pixel of the screen, from none to eight, the change the old game's shade for that size makes to
+    /// the room's own pictures, its blocks, what lies behind them, and the floor with what is shown on it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No room has the getaway's turning floor.</exception>
+    private void WriteCeresGetawayFloorColours()
+    {
+        var places = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach ((RoomDefinition _, RoomStateSettings state) in EngineLayouts.States())
+        {
+            if (state.TurningFloor != RoomTurningFloor.RidleyGetaway)
+                continue;
+            string set = GraphicsFolder(state), floorSheet = RoomFloorSheet.NameOf(RoomTilesets.Get(state.GraphicsSet));
+            AddRoomPlaces(places, state);
+            places[$"backdrops/{set}/ceres_ridley_floor.png"] = floorSheet;
+            foreach (CeresFloorActorPicture picture in Enum.GetValues<CeresFloorActorPicture>())
+                places[CeresFloorPicture(set, picture)] = floorSheet;
+        }
+
+        if (places.Count == 0)
+            throw new InvalidDataException("No room has the turning floor of Ridley's getaway.");
+        var bySize = new JsonArray();
+        foreach (SuperMetroid.Core.Bosses.Ridley.RidleyFadeImage size in SuperMetroid.Core.Bosses.Ridley.RidleyFadeDefinitions.GetawayFloorZoom.Images)
+            bySize.Add(ShadeChange(SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyShades.Fade(size).Key, places));
+        _tree.WriteData("objects/ceres_getaway_floor_colours.json", new JsonObject { ["by_whole_size"] = bySize });
+    }
+
+    /// <summary>
     /// The steps of the elevator room's glow, which its blocked door cycles, in order: each the colours the step shows
     /// changed on the room's own pictures, place by place. The old game lays each step's shade over the room's
     /// pictures: its blocks and its turning floor with what is shown on it, the sheets that have the glow.

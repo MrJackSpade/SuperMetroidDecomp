@@ -270,6 +270,8 @@ class Sequences:
                 'WingPictures': strings([floor_picture(name) for name in ('wings_raised', 'wings_lowered')]),
                 # What each of those pictures leaves where Samus's stride reads the pace the cartridge never wrote.
                 'WingLeftoversFile': quoted('objects/ceres_getaway_wings.json'),
+                # The room's colours by the floor's size as he flies, which the room keeps once he is gone.
+                'SizeColoursFile': quoted('objects/ceres_getaway_floor_colours.json'),
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
                 'Subtitle': quoted('ceres_self_destruct_subtitle'),
                 # The old getaway asks for his departure's sound on its first update, at the ordinary priority.

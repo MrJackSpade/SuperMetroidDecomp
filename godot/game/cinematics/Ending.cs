@@ -111,6 +111,12 @@ public partial class Ending : Cinematic
     /// <summary>How many steps a wash of white over the whole screen clears in: the cartridge's thirty-one levels of added white.</summary>
     private const int WashLevels = 31;
 
+    /// <summary>The name the floor's colours are changed under for the stage of the ending it is shown in.</summary>
+    private const string FloorColours = "Stage";
+
+    /// <summary>The name the exploding planet's colours are changed under: its own, and then its fade's.</summary>
+    private const string PlanetColours = "Planet";
+
     /// <summary>The points of the floor that stay put as it turns: among the clouds and over the planet, and behind the gunship.</summary>
     private static readonly Vector2 AtmosphereCentre = new(128, 128), GunshipCentre = new(56, 24);
 
@@ -142,6 +148,9 @@ public partial class Ending : Cinematic
     private int _floorAngle;
     private Vector2 _floorCentre = AtmosphereCentre;
     private int _crossfade;
+
+    /// <summary>The fade of the exploding planet's colours, from its cue until the planet goes; none before or after.</summary>
+    private ColourSteps? _planetFade;
     private int _shake;
     private bool _slowShake;
     private double _planetSpeed;
@@ -363,6 +372,8 @@ public partial class Ending : Cinematic
     private void ShowFloorPicture(string name, Vector2 centre, bool repeats)
     {
         TurningFloor floor = _floor ?? throw NotEntered();
+        // A picture shows its own colours until it is given others.
+        ColourChange.None.ShowOn(floor, FloorColours);
         floor.Picture = Data().Text(name);
         floor.Repeats = repeats;
         floor.Setup(Session.Content, new Vector2I(256, 224));

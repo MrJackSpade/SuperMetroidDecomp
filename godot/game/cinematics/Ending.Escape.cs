@@ -10,10 +10,12 @@ namespace Game.Cinematics;
 /// mission's result typed over it.
 /// </summary>
 /// <remarks>
-/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"), the blast's ("planet_explosion",
+/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"), the changes of
+/// colours the gunship's floor is shown with as it flies out ("gunship_colours": "flying_out", then "clear" once it has flown clear), the blast's ("planet_explosion",
 /// "burst_glow", "finale_explosion", "finale_glow"), and the timelines "right_side_cloud", "left_side_cloud",
 /// "top_cloud_pattern", "top_cloud_edge", "bottom_cloud_edge", "bottom_cloud_pattern", "exploding_planet" (which gives
-/// the cue "silhouette"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
+/// the cues "fade_colours" and "silhouette"; its pictures are shown in the colours "exploding_planet_colours" gives
+/// them, and from its cue "fade_colours" on in the steps of colours "exploding_planet_fade"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
 /// "explosion_stars" (cues "finale" and "end"), "explosion_afterglow", "animal_escape", and "digit_0" to "digit_9"
 /// and "colon". The result's lines are its "result_texts": each by the name of its words ("ending_operation_was",
 /// "ending_completed_successfully", "ending_clear_time"), with the font it is typed in and where its first
@@ -37,6 +39,7 @@ public partial class Ending
     private void StepEscape()
     {
         ScreenFade fade = Fade();
+        _planetFade?.Step();
         switch (_phase)
         {
             case Phase.WaitingForEscapeMusic:
@@ -183,6 +186,8 @@ public partial class Ending
                     break;
                 }
 
+                // The gunship, flown clear, shows its own colours as the result begins.
+                ShowGunshipColours("clear");
                 BeginTyping("ending_operation_was");
                 _phase = Phase.CompletionText;
                 break;
@@ -209,7 +214,16 @@ public partial class Ending
     {
         switch (cue)
         {
+            case "fade_colours":
+                // After its rumbles the planet's colours fade out, its glow under the fade; the first look shows at once.
+                _planetFade = new ColourSteps(Data().Get("exploding_planet_fade"), PlanetColours);
+                _planetFade.ShowOn(_actors.First(actor => actor.Role == "exploding_planet").Sprite);
+                _planetFade.Step();
+                break;
+
             case "silhouette":
+                // The planet, which gave the cue as it went, takes its colours with it.
+                _planetFade = null;
                 Spawn("explosion_silhouette", "explosion_silhouette", 128, 128, Motion.Still);
                 (_backdrop ?? throw NotEntered()).Color = Colors.White;
                 break;
@@ -273,7 +287,9 @@ public partial class Ending
     private void SetUpExplosion()
     {
         ClearActors();
-        Spawn("exploding_planet", "exploding_planet", 128, 128, Motion.Still);
+        // The planet's pictures show the colours the explosion has for them.
+        Spawn("exploding_planet", "exploding_planet", 128, 128, Motion.Still).Sprite
+            .Recolour(PlanetColours, ColourChange.ReadSwaps(Data().Get("exploding_planet_colours")));
         Spawn("explosion_lava", "explosion_lava", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_glow", "explosion_glow", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_stars", "stars", 128, 128, Motion.ExplosionLayer, behind: true);
@@ -322,6 +338,7 @@ public partial class Ending
         (_backdrop ?? throw NotEntered()).Color = Colors.Black;
         // From the gunship's flight away on, nothing is shown beyond the floor's edges.
         ShowFloorPicture("gunship_floor", GunshipCentre, repeats: false);
+        ShowGunshipColours("flying_out");
         TurningFloor gunship = _floor ?? throw NotEntered();
         gunship.Modulate = Colors.White;
 
@@ -330,6 +347,10 @@ public partial class Ending
         SetFloor(-72, -104, 3072, -112);
         (_slowShake, _shake, _whiteHold) = (false, 0, 192);
     }
+
+    /// <summary>Shows the gunship's floor in the colours its data gives for a stage of its flight away, in place of those it showed before.</summary>
+    private void ShowGunshipColours(string stage) =>
+        ColourChange.Read(Data().Get("gunship_colours").Get(stage)).ShowOn(_floor ?? throw NotEntered(), FloorColours);
 
     /// <summary>
     /// The white the blast left is held a while and then clears, a step on the first update after the hold and every

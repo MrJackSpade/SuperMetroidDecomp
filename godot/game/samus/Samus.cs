@@ -797,9 +797,19 @@ public partial class Samus : Player
 
     /// <summary>
     /// How far, in whole pixels, the view takes her to have moved at most on an update something that holds her has
-    /// placed her: a Yapping Maw, or Draygon.
+    /// placed her: a Yapping Maw, Draygon, or the grapple's line as it takes hold of her or stops her at an angle.
     /// </summary>
     public const int PlacedViewCap = 12;
+
+    /// <summary>
+    /// Has the view take her to have moved no more than <see cref="PlacedViewCap"/> each way on this update, once
+    /// something has put her where she now is: the view follows the placement by that much and its one pixel more.
+    /// </summary>
+    public void CapViewAfterPlacing()
+    {
+        Room.Session.Camera.CapFollowUpOrDown(Position.Y, PlacedViewCap);
+        Room.Session.Camera.CapFollowAcross(Position.X, PlacedViewCap);
+    }
 
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;

@@ -123,6 +123,9 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         owner.Velocity = PixelVelocity.Zero;
         PlaceFromLine(owner, rules);
         grapple.ShowLineAs(WholeStep, _length);
+
+        // Taking hold puts her at the line's end, and the view follows that by no more than its cap.
+        samus.CapViewAfterPlacing();
     }
 
     /// <inheritdoc/>

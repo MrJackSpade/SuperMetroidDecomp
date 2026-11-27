@@ -238,7 +238,7 @@ public partial class Ridley
         // In Norfair it stands behind Samus, where its data has it in front of her as aboard Ceres. The cartridge
         // draws it in front of the room's tiles as well, which one order of drawing cannot show together with its
         // standing behind her: here it is drawn among the room's things, behind her.
-        InFrontOfTiles = false;
+        Lies = LiesAgainstTiles.WhereItStands;
         Standing = Standing.Behind;
 
         // The capsule is only in its claws aboard Ceres.

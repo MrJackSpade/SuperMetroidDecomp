@@ -81,9 +81,11 @@ internal sealed partial class EngineEnemy
             };
         }
 
-        // One whose every picture the cartridge draws in front of all the room's tiles is drawn there.
+        // One whose every picture the cartridge draws in front of all the room's tiles is drawn there, in the word a
+        // timeline says it in; one drawn behind the tiles' front part, as most are, says nothing and is drawn where it
+        // stands.
         if (pictures.Depth == SuperMetroid.Core.Assets.ActorDepth.InFront)
-            Data["in_front_of_tiles"] = true;
+            Data["lies"] = "in_front_of_tiles";
         Data["reactions"] = EngineReactions.Of(Definition);
         if (EngineAssetWriter.Drops(Definition.Drops) is { } drops)
             Data["drops"] = drops;

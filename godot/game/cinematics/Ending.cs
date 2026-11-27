@@ -138,7 +138,6 @@ public partial class Ending : Cinematic
 
     private ScreenFade? _fade;
     private ScreenFade? _white;
-    private CanvasLayer? _front;
     private CanvasLayer? _picture;
     private ColorRect? _backdrop;
     private TurningFloor? _floor;
@@ -229,10 +228,6 @@ public partial class Ending : Cinematic
         }
         _white = new ScreenFade { Name = "White", Layer = 3, Colour = Colors.White };
         AddChild(_white);
-
-        // What passes in front of the white over the screen: the gunship as it flies away, and her shot after it.
-        _front = new CanvasLayer { Name = "Front", Layer = 4 };
-        AddChild(_front);
         _fade = new ScreenFade { Name = "Fade", Layer = 5, Levels = FadeLevels };
         AddChild(_fade);
         _fade.FadeOut(1);

@@ -138,9 +138,11 @@ public sealed partial class EngineAssetWriter
         // A helmet looks away until its saved game is chosen; then it turns to face out, and stays so.
         string[] helmetFrames = [.. FileSelectHelmetAnimation.Turn.Select(FileSelectParts.HelmetSpriteName)];
         EngineSheetPictures helmetPictures = _sheets.CutSprites(_tree, SpriteSheetId.FileSelect, folder + "/helmet", helmetFrames);
+        // The cartridge starts the turn with its count at one ($81:A1C2), so the picture of the helmet looking away
+        // lasts the one update and each after it the whole count.
         var turn = new JsonArray();
         foreach (string frame in helmetFrames)
-            turn.Add(new JsonObject { ["picture"] = helmetPictures.Of(frame), ["updates"] = placed.HelmetFrameDuration });
+            turn.Add(new JsonObject { ["picture"] = helmetPictures.Of(frame), ["updates"] = turn.Count == 0 ? 1 : placed.HelmetFrameDuration });
         JsonObject helmetOffset = At(helmetPictures.OffsetX, helmetPictures.OffsetY);
         // The turn stays on its last picture: the Godot screen counts the turn's length itself.
         timelines["helmet_turn"] = new JsonObject { ["steps"] = turn, ["loops_to"] = helmetFrames.Length - 1, ["offset"] = helmetOffset };

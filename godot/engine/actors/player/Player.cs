@@ -376,10 +376,12 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public Facing Travel => Steering == Steering.Reversing ? Facing.Opposite() : Facing;
 
     /// <summary>
-    /// The way the view leads: the way the player faces, unless they are being carried the other way, by a knockback
-    /// or by the speed a turn has not yet spent. A game with other ways of going backward says so here.
+    /// The way the view leads: the way the player faces, unless they are being carried the other way, by a hit's
+    /// throw for as long as it has time to run (whatever state they are thrown in, and not on the update after it,
+    /// when a knockback sets them down) or by the speed a turn has not yet spent. A game with other ways of going
+    /// backward says so here.
     /// </summary>
-    public virtual Facing ViewFacing => State is KnockedBackState || Steering == Steering.Reversing ? Facing.Opposite() : Facing;
+    public virtual Facing ViewFacing => Thrown is not null || Steering == Steering.Reversing ? Facing.Opposite() : Facing;
 
     /// <summary>The speed a dash is adding across, in the way the player is going.</summary>
     public Pixels DashSpeed { get; private set; }

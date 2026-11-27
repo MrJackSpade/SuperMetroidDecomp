@@ -421,6 +421,11 @@ public partial class SamusGrapple : Node2D
                 room.DeliverHit(hit, square, from: samus, landsOn: Engine.World.Room.IsStandingThing);
                 stopped = true;
             }
+
+            // An item lying in sight is a block to the line on the cartridge, though none to her: one that nothing
+            // covers stops the line whose end has moved into it.
+            if (room.Objects.OfType<Engine.World.Objects.Item>().Any(item => !room.IsLeaving(item) && !item.IsCovered && item.Area.Overlaps(point)))
+                stopped = true;
         }
 
         // Only the block at the last substep's end gives the line up.

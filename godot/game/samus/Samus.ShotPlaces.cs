@@ -23,7 +23,13 @@ public partial class Samus
     private int[] _shotPlaceKeeps = [];
 
     /// <summary>Each of her shot places keeps the part of a pixel across of what holds it as the room is left.</summary>
-    protected internal override void OnLeavingRoom(Room room)
+    protected internal override void OnLeavingRoom(Room room) => KeepWhatShotPlacesHold();
+
+    /// <summary>
+    /// Has each of her shot places keep the part of a pixel across of what holds it now, for the next shot to take
+    /// the place: asked as her shots are all cleared at once, when a room is left and when an elevator takes her.
+    /// </summary>
+    public void KeepWhatShotPlacesHold()
     {
         string pool = ShotsPool;
         int places = Weapons.PlacesIn(pool);

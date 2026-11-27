@@ -2,7 +2,6 @@ using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
 using Game.Compatibility;
-using Game.Effects;
 using Godot;
 
 namespace Game;
@@ -12,13 +11,6 @@ namespace Game;
 /// hidden blocks it passes over for what they are. It is a child of Samus and only looks; it changes nothing but
 /// which blocks are hidden.
 /// </summary>
-/// <remarks>
-/// What it shows is the room outside its cone washed with the scope's grey, and the room inside it as it is: the
-/// cartridge's colour maths outside a window. The grey is added to every colour of the room and of what is in it,
-/// or taken from them in a room whose own liquid or overlay darkens what it lies over, and lies under the room's
-/// liquid and overlays (<see cref="RoomDepth.OverRoom"/>). A room that shows none of its blocks to the scope
-/// (<see cref="Room.ShowsBlocksToSight"/>) is not washed, and neither is one that has a Fireflea room's dark.
-/// </remarks>
 public partial class SamusXray : Node2D
 {
     /// <summary>How far above her middle the scope looks from while she stands, in pixels.</summary>
@@ -48,26 +40,9 @@ public partial class SamusXray : Node2D
     /// <summary>Whether the scope is being looked through.</summary>
     public bool IsOpen { get; private set; }
 
-    /// <summary>The scope's grey, as a part of each colour: seven of the cartridge's thirty-one levels.</summary>
-    private const float Wash = 7f / 31f;
-
-    /// <summary>Whether the room it was opened in is washed outside its cone.</summary>
-    private bool _washes;
-
     /// <summary>Opens the scope, level, with its cone closed.</summary>
     public void Open(Samus samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
-        Room room = samus.Room;
-        _washes = room.ShowsBlocksToSight && !room.GetChildren().OfType<FirefleaDarkness>().Any();
-
-        // The grey is taken from the room where the room's own liquid or overlay darkens what it lies over, whether
-        // or not any of it is in view, and added to it everywhere else.
-        bool darkens = room.Liquid?.Type.Blend == CanvasItemMaterial.BlendModeEnum.Sub
-            || room.GetChildren().OfType<OverlayEffect>().Any(overlay => overlay.Material is CanvasItemMaterial { BlendMode: CanvasItemMaterial.BlendModeEnum.Sub });
-        Material = new CanvasItemMaterial { BlendMode = darkens ? CanvasItemMaterial.BlendModeEnum.Sub : CanvasItemMaterial.BlendModeEnum.Add };
-        ZAsRelative = false;
-        ZIndex = RoomDepth.OverRoom;
         IsOpen = true;
         _widening = Pixels.Zero;
         _opened = Pixels.Zero;
@@ -177,29 +152,26 @@ public partial class SamusXray : Node2D
     public override void _Draw()
     {
         // Nothing is seen until the scope is first looked through.
-        if (!IsOpen || !_lookedThrough || !_washes)
+        if (!IsOpen || !_lookedThrough)
             return;
         float forward = _facingLeft ? -1 : 1;
-
-        // Far enough from the eye that the corners between two points of the round reach past the view's corners.
-        const float length = 480f / DirectionLength;
-        const int step = Turns.PerTurn / 8;
-        Vector2 Around(int angle)
+        (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
+        (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
+        const float length = 400f / DirectionLength;
+        var colour = new Color(1, 1, 1, 0.35f);
+        Vector2 upperEnd = _eye + new Vector2(upperAhead * forward, upperBelow) * length;
+        // A cone with no width is a ray one pixel wide.
+        if (_halfWidth == 0)
         {
-            (long ahead, long below) = Direction(angle);
-            return _eye + new Vector2(ahead * forward, below) * length;
+            DrawLine(_eye, upperEnd, colour, 1);
+            return;
         }
-
-        // What is washed is everything outside the cone: round the eye from the cone's lower edge, behind her, to
-        // its upper edge. A cone with no width is a ray a pixel wide, and all the view round the eye is washed.
-        int from = _swing + _halfWidth, to = _swing - _halfWidth + Turns.PerTurn;
-        var outside = new List<Vector2>();
-        if (_halfWidth > 0)
-            outside.Add(_eye);
-        for (int angle = from; angle < to; angle += step)
-            outside.Add(Around(angle));
-        if (_halfWidth > 0)
-            outside.Add(Around(to));
-        DrawColoredPolygon([.. outside], new Color(Wash, Wash, Wash));
+        Vector2[] cone =
+        [
+            _eye,
+            upperEnd,
+            _eye + new Vector2(lowerAhead * forward, lowerBelow) * length,
+        ];
+        DrawColoredPolygon(cone, colour);
     }
 }

@@ -1171,10 +1171,6 @@ public partial class Samus : Player
     /// </summary>
     protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked)
     {
-        // Crouching out of a run at full boost stores a shine.
-        if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
-            StoreShine();
-
         // Standing up from a crouch, the cartridge's change of pose tests the ground a little below her feet, among the
         // blocks she stands on, as the standing pose: on an elevator's blocks that is a stand at its door, an update
         // before her first move upright makes one. The test is made for a stand-up refused for want of room too.
@@ -2323,6 +2319,12 @@ public partial class Samus : Player
         {
             StepStride();
             StepFootsteps();
+
+            // Crouching out of a run at full boost stores a shine. The boost is asked about once the run's last
+            // stride has been counted, as the cartridge asks as it takes up the crouch, after the run's own update:
+            // the stride that ends as she crouches can be the one that brings the boost to its full stage.
+            if (IsBoosting && State is ChangingPostureState { Then: CrouchingState } or CrouchingState)
+                StoreShine();
         }
 
         WarnOfLowEnergy();

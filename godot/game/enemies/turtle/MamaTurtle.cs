@@ -211,9 +211,12 @@ public partial class MamaTurtle : Enemy
                 // Every other update of the short count, which a door's scroll starts over.
                 if (Room.Session.Clock.ShortUpdates % 2 != 0)
                     return;
-                // She shudders up out of the ground a pixel at a time.
+                // She shudders up out of the ground a pixel at a time. Her shudder to the side takes no rider with it:
+                // the cartridge moves one standing on her only a pixel to the left.
                 bool ridden = IsRiddenByPlayer;
-                MoveCarrying(PixelOffset.FromWhole(Position.Y.Whole % 2 == 0 ? -1 : 1, -1));
+                int shudder = Position.Y.Whole % 2 == 0 ? -1 : 1;
+                MoveCarrying(PixelOffset.FromWhole(0, -1));
+                Position += PixelOffset.FromWhole(shudder, 0);
                 if (ridden)
                     ShiftPlayer(PixelOffset.FromWhole(-1, 0));
                 SetShellHeight(AwakeHalfHeight);
@@ -257,9 +260,17 @@ public partial class MamaTurtle : Enemy
                     return;
                 }
 
-                MoveCarrying(drift);
+                // Her drift takes no rider with it. Samus landed on her is moved back by the speed she drifted at, as
+                // the cartridge moves her, and then rides her up.
                 if (IsRiddenByPlayer)
+                    Position += drift;
+                else
+                    MoveCarrying(drift);
+                if (IsRiddenByPlayer)
+                {
                     _doing = Doing.RisingToPeak;
+                    ShiftPlayer(new PixelOffset(-Velocity.X, Pixels.Zero));
+                }
                 Pixels faster = Velocity.X + _quickening;
                 if (faster.Whole >= FastestHover || faster.Whole <= -FastestHover)
                     faster = faster.WithWhole(Velocity.X.IsNegative ? -FastestHover : FastestHover);

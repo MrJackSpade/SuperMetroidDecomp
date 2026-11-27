@@ -33,6 +33,8 @@ class Placed:
     at: tuple[int, int] | None = None
     # Whether it is an enemy, which takes the settings every enemy has.
     enemy: bool = True
+    # For something that is no enemy: whether it is drawn in a look of its room's own, as an enemy can be ('Look').
+    takes_look: bool = False
     # A condition, beyond being in one of its room's versions, that it is present under: a Condition resource.
     only_when: str | None = None
     # For something that is a script and no scene: the kind of node it is.
@@ -598,8 +600,12 @@ def waver(p, index, listed):
 
 @rule('WorkRobot', 'UnpoweredWorkRobot')
 def work_robot(p, index, listed):
-    return Placed(E + 'work_robot/work_robot.tscn', p.enemy, {
-        'Powered': truth(p.enemy == 'WorkRobot'), 'Pose': quoted(snake(legacy.last_name(p.settings['Pose'])))})
+    powered = p.enemy == 'WorkRobot'
+    properties = {'Powered': truth(powered), 'Pose': quoted(snake(legacy.last_name(p.settings['Pose'])))}
+    # The robot without power is an enemy of its own, with a data file of its own.
+    if not powered:
+        properties['DataFile'] = quoted('enemies/work_robot_unpowered.json')
+    return Placed(E + 'work_robot/work_robot.tscn', p.enemy, properties)
 
 
 @rule('YappingMaw')
@@ -762,7 +768,7 @@ def morph_ball_eye(p, index, listed):
     eye = beside(listed, index, 'MorphBallEyeBodySpawnSettings')
     side = {'Left': '0', 'Right': '1', 'Above': '2', 'Below': '3'}[legacy.last_name(p.settings['Side'])]
     return Placed(O + 'morph_ball_eye/morph_ball_eye.tscn', 'MorphBallEye', {
-        'Faces': facing(eye.settings['Facing']), 'MountedOn': side}, enemy=False)
+        'Faces': facing(eye.settings['Facing']), 'MountedOn': side}, enemy=False, takes_look=True)
 
 
 # The places Rinkas form at in Mother Brain's room, in the order they are looked through.

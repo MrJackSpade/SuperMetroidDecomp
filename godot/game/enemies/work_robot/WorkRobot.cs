@@ -21,6 +21,8 @@ namespace Game.Enemies;
 /// "laser:&lt;up|level|down&gt;:&lt;timeline&gt;" fires if it may and then plays that timeline. "footstep" sounds its
 /// step and "cool" counts its cooldown down. It starts on "standing_left"; a shot plays "shot_left_ahead",
 /// "shot_left_behind", "shot_right_ahead" or "shot_right_behind". Its shots are "laser_level" and "laser_diagonal".
+/// One without power is read from a file of its own, which holds only the timelines of the poses it stands in and
+/// no glow.
 /// </remarks>
 public partial class WorkRobot : Enemy
 {
@@ -81,7 +83,8 @@ public partial class WorkRobot : Enemy
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        _glowSteps = data.Get("glow");
+        // The file of one without power, which has no glow, gives none.
+        _glowSteps = data.Has("glow") ? data.Get("glow") : null;
     }
 
     /// <summary>Set up, a powered robot begins its glow; one without power shows none.</summary>

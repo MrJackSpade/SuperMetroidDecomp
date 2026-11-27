@@ -46,6 +46,14 @@ public partial class MorphBallEye : RoomObject
     [Export]
     public Side MountedOn { get; set; }
 
+    /// <summary>
+    /// The look it is drawn in where it is placed, the cartridge drawing it in one room's colours here and another's
+    /// there: the word its pictures are named with in place of <see cref="Enemy.LookPlaceholder"/>, as they are
+    /// read. Empty where its pictures name no look.
+    /// </summary>
+    [Export]
+    public string Look { get; set; } = "";
+
     /// <summary>How near Samus must come for it to open, in pixels across and down.</summary>
     [Export]
     public Vector2I OpensWithin { get; set; } = new(128, 128);
@@ -106,15 +114,19 @@ public partial class MorphBallEye : RoomObject
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        _timelines = TimelineSet.ReadFrom(data);
+        _timelines = TimelineSet.ReadFrom(data).WithPictures(InLook);
         _mounts.Clear();
         foreach ((string side, DataNode mount) in data.Get("mounts").Entries())
-            _mounts[side] = (mount.Text("picture"), new Vector2I(mount.Int("x"), mount.Int("y")));
+            _mounts[side] = (InLook(mount.Text("picture")), new Vector2I(mount.Int("x"), mount.Int("y")));
         _aims.Clear();
-        _aims.AddRange(data.List("aims").Select(picture => picture.AsText()));
+        _aims.AddRange(data.List("aims").Select(picture => InLook(picture.AsText())));
         if (_aims.Count == 0)
             throw data.Problem("gives the Morph Ball eye no \"aims\" to look with");
     }
+
+    /// <summary>A picture its data names, in the look it is drawn in.</summary>
+    private string InLook(string picture) =>
+        Look.Length > 0 ? picture.Replace(Enemy.LookPlaceholder, Look, StringComparison.Ordinal) : picture;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()

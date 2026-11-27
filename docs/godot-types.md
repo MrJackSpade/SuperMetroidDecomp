@@ -1377,6 +1377,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   in place of "{look}" in its timelines' pictures as it reads them (`TimelineSet.WithPictures`). This game's extractor writes which look each room's enemy population draws such an enemy in
   (`enemies/looks_by_room.json`), and the room generator places them by it. An enemy every room draws alike has no
   "{look}" and no look; one of which each data file serves rooms of one look is cut in that look (the Chozo statues).
+  A room object of this game's that the cartridge drew as one of its enemies, and in colours of the room's own, is
+  drawn the same way by a setting of its own (the morph ball eye's `Look`), its looks written into the same file.
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
   that starts another timeline taking effect in the same update; having a timeline begin where the step showing
   ends (`PlayAfterStep`), so that the picture showing stays out its time, as this game's Yard turns round when it
@@ -1746,8 +1748,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - Hoppers and the rest: Sidehopper, Large Sidehopper, Tourian Sidehopper; Dessgeega, Large Dessgeega; Boyon; Puyo;
   Beetom; Powamp; Cacatac; Zoa; Skultera; Bull; Alcoon; Polyp; Fune; Namihe; Magdollite; Nuclear Waffle; Hibashi;
   Yapping Maw; Boulder; Oum; Mama Turtle with her Baby Turtles as children; Evir; Dragon; Shaktool; Work Robot (the
-  unpowered one is the same scene, switched off; a powered one steps a glow of its own, a `ColourSteps` on its own
-  visual, begun as it is set up).
+  unpowered one is the same scene, switched off, with a data file of its own, `enemies/work_robot_unpowered.json`,
+  holding only the poses it stands in, drawn in the look of its room; a powered one steps a glow of its own, a
+  `ColourSteps` on its own visual, begun as it is set up).
 - Pipe bugs: Zeb, Zebbo, Gamet, Geega. Each pipe is a `Spawner`.
 - Metroids: Metroid; Mochtroid; the giant Metroid of Tourian (`BabyMetroid`, with the Sidehopper it feeds on,
   `DeadSidehopper`); and the giant Metroid of Mother Brain's fight (`MotherBrainBaby`, which she makes). The two
@@ -1862,7 +1865,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - The Tourian entrance statue is a plain node holding the pictures its hall's sequence
   shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, each with a state
-  machine of its own; the face blocks and the corpses are enemies.
+  machine of its own; the eye is drawn in the look of its room (`MorphBallEye.Look`, as an enemy's look by the
+  room). The face blocks and the corpses are enemies.
 
 ### Terrain
 

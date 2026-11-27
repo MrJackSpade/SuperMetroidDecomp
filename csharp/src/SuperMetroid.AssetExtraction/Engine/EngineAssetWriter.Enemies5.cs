@@ -188,8 +188,10 @@ public sealed partial class EngineAssetWriter
         powamp.Write();
 
         // The work robot: all it does is written in its animations, so each of its timelines is named for the old
-        // segment it plays, and its cues name the timelines they lead to. The robot without power is the same thing
-        // standing in one of three poses, whose pictures are on a sheet of their own.
+        // segment it plays, and its cues name the timelines they lead to. The robot without power is an enemy of its
+        // own in the old game's list, read by the same class from a file of its own: it stands in one of three poses,
+        // drawn from sheets of its own, in a look for each room that places it.
+        WorkRobotSegment[] unpoweredPoses = [WorkRobotSegment.NoPowerNeutral, WorkRobotSegment.NoPowerLeaningLeft, WorkRobotSegment.NoPowerLeaningRight];
         static string RobotLook(WorkRobotSegment segment) => segment switch
         {
             WorkRobotSegment.StandingFacingLeft => "standing_left",
@@ -222,7 +224,7 @@ public sealed partial class EngineAssetWriter
             projectile["picture_offset"] = EngineEnemy.NoOffset();
         }
 
-        EngineEnemy robot = Enemy("enemies/work_robot.json", "WorkRobot", EnemyDefinitionId.WorkRobot, "WorkRobot", "UnpoweredWorkRobot")
+        EngineEnemy robot = Enemy("enemies/work_robot.json", "WorkRobot", EnemyDefinitionId.WorkRobot)
             .BodyColliders("Body", "Solid", "Hurtbox")
             .Value("gravity", EngineNames.Number(WorkRobotMotionDefinitions.Gravity))
             .Value("laser_cooldown", WorkRobotLaserDefinitions.CooldownBase)
@@ -236,7 +238,10 @@ public sealed partial class EngineAssetWriter
             .Shot("laser_level", RoomEnemyProjectileKind.WorkRobotLaserHorizontal, RobotLaser)
             .Shot("laser_diagonal", RoomEnemyProjectileKind.WorkRobotLaserDiagonal, RobotLaser);
         foreach ((WorkRobotSegment segment, SuperMetroid.Core.Animation.Animation<WorkRobotSegment> animation) in WorkRobotAnimations.StartingAt)
-            robot.Timeline(RobotLook(segment), WorkRobotAnimations.Segments, animation, RobotCue);
+        {
+            if (!unpoweredPoses.Contains(segment))
+                robot.Timeline(RobotLook(segment), WorkRobotAnimations.Segments, animation, RobotCue);
+        }
 
         // The glow a powered robot shows, as its setup starts it: resting a step on its last place, then its steps from
         // the first, over and over. Each step is a change of the robot's colours.
@@ -267,6 +272,14 @@ public sealed partial class EngineAssetWriter
             ["loops_to"] = WorkRobotGlowAnimations.Segments.Beats(WorkRobotGlowSegment.Restarting).Count,
         });
         robot.Write();
+
+        // The robot without power stands where it is placed, under the same gravity, and does nothing else.
+        EngineEnemy unpowered = Enemy("enemies/work_robot_unpowered.json", "WorkRobot", EnemyDefinitionId.UnpoweredWorkRobot)
+            .BodyColliders("Body", "Solid", "Hurtbox")
+            .Value("gravity", EngineNames.Number(WorkRobotMotionDefinitions.Gravity));
+        foreach (WorkRobotSegment pose in unpoweredPoses)
+            unpowered.Timeline(RobotLook(pose), WorkRobotAnimations.Segments, WorkRobotAnimations.StartingWith(pose), RobotCue);
+        unpowered.Write();
     }
 
     /// <summary>An amount of energy as a whole number of hundredths of a point.</summary>

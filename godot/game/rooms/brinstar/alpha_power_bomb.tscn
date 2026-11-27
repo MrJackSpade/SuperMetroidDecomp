@@ -101,6 +101,7 @@ RememberedAs = "alpha_power_bomb_exposed_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToCaterpillar"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

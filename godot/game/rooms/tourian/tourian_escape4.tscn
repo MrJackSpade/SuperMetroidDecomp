@@ -175,10 +175,12 @@ PatrolReach = 16
 position = Vector2(16, 864)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r2")
+ClosesBehindEntry = "ToTourianEscape3"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(736, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToClimb"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

@@ -146,6 +146,7 @@ position = Vector2(736, 352)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "early_supers_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToBrinstarReserveTank"
 
 [node name="MissileTank" parent="." instance=ExtResource("11")]
 position = Vector2(312, 440)
@@ -160,6 +161,7 @@ RememberedAs = "early_supers_exposed_super_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGreenBrinstarMainShaft"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("12")

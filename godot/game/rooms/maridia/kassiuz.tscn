@@ -97,10 +97,12 @@ Look = "thread_the_needle"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToPlasmaTutorial"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 864)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToPlasmaSpark"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")

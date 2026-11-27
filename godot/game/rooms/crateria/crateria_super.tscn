@@ -85,10 +85,12 @@ RememberedAs = "crateria_super_exposed_super_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToClimbUpper"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 1888)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToClimbLower"
 
 [node name="Screen0x1" type="Node2D" parent="."]
 script = ExtResource("8")

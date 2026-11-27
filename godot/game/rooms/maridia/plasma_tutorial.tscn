@@ -89,10 +89,12 @@ Look = "plasma_tutorial"
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToPlasma"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToKassiuz"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("7")

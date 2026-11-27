@@ -168,11 +168,13 @@ position = Vector2(736, 96)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "flyway_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToBombTorizo"
 PresentWhen = SubResource("r10")
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToParlor"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
@@ -183,6 +185,7 @@ ScrollShare = Vector2(0.75, 0.75)
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBombTorizo"
 PresentWhen = SubResource("r1")
 
 [node name="Escape" type="Node" parent="."]

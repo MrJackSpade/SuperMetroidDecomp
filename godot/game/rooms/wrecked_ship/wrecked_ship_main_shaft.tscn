@@ -373,6 +373,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToWreckedShipWestSuper"
 
 [node name="GreyCap2" parent="." instance=ExtResource("11")]
 position = Vector2(1248, 1120)
@@ -380,28 +381,34 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToSpongeBath"
 
 [node name="GreenCap" parent="." instance=ExtResource("11")]
 position = Vector2(1120, 2000)
 DataFile = "objects/door_cap_green_up.json"
 RememberedAs = "wrecked_ship_main_shaft_green_door_facing_up"
 Remembered = 1
+ClosesBehindEntry = "ToBasement"
 
 [node name="BlueCap" parent="." instance=ExtResource("11")]
 position = Vector2(1040, 864)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToWreckedShipEntrance"
 
 [node name="BlueCap2" parent="." instance=ExtResource("11")]
 position = Vector2(1120, 32)
 DataFile = "objects/door_cap_blue_down.json"
+ClosesBehindEntry = "ToAttic"
 
 [node name="BlueCap3" parent="." instance=ExtResource("11")]
 position = Vector2(1504, 1632)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWreckedShipEastSuper"
 
 [node name="BlueCap4" parent="." instance=ExtResource("11")]
 position = Vector2(1248, 864)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWreckedShipSave"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("12")

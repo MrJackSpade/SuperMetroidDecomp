@@ -344,6 +344,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "attic_grey_door_facing_right_until_area_boss_dead"
 Remembered = 1
+ClosesBehindEntry = "ToWestOcean"
 PresentWhen = SubResource("r6")
 
 [node name="GreyCap2" parent="." instance=ExtResource("9")]
@@ -352,11 +353,13 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "attic_grey_door_facing_left_until_area_boss_dead"
 Remembered = 1
+ClosesBehindEntry = "ToAssemblyLine"
 PresentWhen = SubResource("r6")
 
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(1120, 224)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToWreckedShipMainShaft"
 PresentWhen = SubResource("r6")
 
 [node name="Backdrop" type="Node2D" parent="."]
@@ -485,6 +488,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r4")
 RememberedAs = "attic_grey_door_facing_right_until_enemies_killed"
 Remembered = 1
+ClosesBehindEntry = "ToWestOcean"
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes" type="Node" parent="."]
@@ -500,6 +504,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r4")
 RememberedAs = "attic_grey_door_facing_left_until_enemies_killed"
 Remembered = 1
+ClosesBehindEntry = "ToAssemblyLine"
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes2" type="Node" parent="."]
@@ -515,6 +520,7 @@ DataFile = "objects/door_cap_grey_up.json"
 HeldShutBy = SubResource("r4")
 RememberedAs = "attic_grey_door_facing_up"
 Remembered = 1
+ClosesBehindEntry = "ToWreckedShipMainShaft"
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes3" type="Node" parent="."]

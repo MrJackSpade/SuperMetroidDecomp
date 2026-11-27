@@ -140,14 +140,17 @@ TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWarehouseEntrance"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGlassTunnel"
 
 [node name="BlueCap3" parent="." instance=ExtResource("9")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToCrabHole"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

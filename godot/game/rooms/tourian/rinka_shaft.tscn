@@ -80,14 +80,17 @@ position = Vector2(16, 608)
 DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "rinka_shaft_red_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToMotherBrain"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToTourianEyeDoor"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToMotherBrainSave"
 
 [node name="TourianGlowingArkanoidBlocksAndRedOrbs" type="Node2D" parent="."]
 script = ExtResource("7")

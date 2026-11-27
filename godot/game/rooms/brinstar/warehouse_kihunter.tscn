@@ -109,14 +109,17 @@ RememberedAs = "warehouse_kihunter_shot_block_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(96, 192)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToWarehouseZeela"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(480, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToMiniKraid"
 
 [node name="BlueCap3" parent="." instance=ExtResource("8")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWarehouseSave"
 
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("9")

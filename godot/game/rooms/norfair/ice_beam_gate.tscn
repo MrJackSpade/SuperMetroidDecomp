@@ -145,18 +145,22 @@ AlwaysActive = true
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(784, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToIceBeamAcid"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(1760, 608)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBusinessCenter"
 
 [node name="BlueCap3" parent="." instance=ExtResource("9")]
 position = Vector2(784, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToIceBeamTutorial"
 
 [node name="BlueCap4" parent="." instance=ExtResource("9")]
 position = Vector2(16, 864)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToCrumbleShaft"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

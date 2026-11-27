@@ -85,6 +85,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r2")
 RememberedAs = "metal_pirates_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToPlowerhouse"
 
 [node name="ZebesWakes" type="Node" parent="."]
 script = ExtResource("8")
@@ -95,6 +96,7 @@ Records = PackedStringArray("zebes_awake")
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWasteland"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

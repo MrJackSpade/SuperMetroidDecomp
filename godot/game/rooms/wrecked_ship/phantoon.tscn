@@ -88,3 +88,4 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "phantoon_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToBasement"

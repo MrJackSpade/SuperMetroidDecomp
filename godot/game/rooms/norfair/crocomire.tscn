@@ -116,6 +116,7 @@ DataFile = "objects/door_cap_grey_down.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "crocomire_grey_door_facing_down"
 Remembered = 1
+ClosesBehindEntry = "ToCrocomireSpeedway"
 
 [node name="EnergyTank" parent="." instance=ExtResource("9")]
 position = Vector2(2008, 104)
@@ -125,6 +126,7 @@ RememberedAs = "crocomire_exposed_energy_tank"
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToPostCrocomireFarming"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

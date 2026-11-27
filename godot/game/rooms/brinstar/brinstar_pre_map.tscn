@@ -99,6 +99,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r2")
 RememberedAs = "brinstar_pre_map_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToGreenBrinstarMainShaft"
 
 [node name="ZebesWakes" type="Node" parent="."]
 script = ExtResource("9")
@@ -109,6 +110,7 @@ Records = PackedStringArray("zebes_awake")
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGreenBrinstarMap"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")

@@ -68,6 +68,7 @@ PresentWhen = SubResource("r3")
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToConstructionZone"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")

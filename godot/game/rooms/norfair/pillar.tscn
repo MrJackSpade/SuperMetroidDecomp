@@ -77,10 +77,12 @@ WaitUpdates = 32
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToFastPillarsSetup"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWorstRoomInTheGame"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("8")

@@ -125,10 +125,12 @@ DataFile = "enemies/skree.json"
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToBubbleMountain"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToSpeedBoosterHall"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("9")

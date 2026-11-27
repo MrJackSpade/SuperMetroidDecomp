@@ -79,10 +79,12 @@ RestsOn = Rect2i(112, 160, 32, 16)
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToLavaDive"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToLowerNorfairElevatorSave"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("7")

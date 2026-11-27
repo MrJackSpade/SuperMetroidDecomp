@@ -68,10 +68,12 @@ position = Vector2(331, 69)
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToParlor"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToCrateriaMap"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")

@@ -102,6 +102,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "ridley_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToLowerNorfairFarming"
 
 [node name="GreyCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 352)
@@ -109,6 +110,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "ridley_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToRidleyEnergyTank"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

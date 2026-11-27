@@ -111,6 +111,7 @@ RememberedAs = "waterway_energy_tank_exposed_energy_tank"
 [node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(1760, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBigPink"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("11")

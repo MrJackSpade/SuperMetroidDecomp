@@ -61,10 +61,12 @@ RememberedAs = "lower_norfair_escape_power_bombs_exposed_power_bomb_tank"
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(96, 32)
 DataFile = "objects/door_cap_blue_down.json"
+ClosesBehindEntry = "ToLowerNorfairSpringBallMaze"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToLowerNorfairFireflea"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("7")

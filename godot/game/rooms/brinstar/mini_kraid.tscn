@@ -111,6 +111,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r4")
 RememberedAs = "mini_kraid_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToKraidEyeDoor"
 
 [node name="ZebesWakes" type="Node" parent="."]
 script = ExtResource("9")
@@ -124,6 +125,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r4")
 RememberedAs = "mini_kraid_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToWarehouseKihunter"
 
 [node name="ZebesWakes2" type="Node" parent="."]
 script = ExtResource("9")

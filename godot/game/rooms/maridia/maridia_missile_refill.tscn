@@ -45,6 +45,7 @@ position = Vector2(112, 160)
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToHalfieClimb"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("7")

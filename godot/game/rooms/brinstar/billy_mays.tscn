@@ -58,6 +58,7 @@ RememberedAs = "billy_mays_shot_block_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBlueBrinstarBoulders"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")

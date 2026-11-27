@@ -65,6 +65,7 @@ position = Vector2(96, 32)
 DataFile = "objects/door_cap_yellow_down.json"
 RememberedAs = "red_brinstar_elevator_yellow_door_facing_down"
 Remembered = 1
+ClosesBehindEntry = "ToCrateriaKihunter"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("7")

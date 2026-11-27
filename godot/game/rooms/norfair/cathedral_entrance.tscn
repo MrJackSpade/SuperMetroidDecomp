@@ -109,10 +109,12 @@ position = Vector2(736, 96)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "cathedral_entrance_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToCathedral"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToBusinessCenter"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

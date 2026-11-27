@@ -146,10 +146,12 @@ Look = "pants"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 864)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToEastSandHall"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(224, 864)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToEastPants"
 
 [node name="Screen0x1" type="Node2D" parent="."]
 script = ExtResource("8")

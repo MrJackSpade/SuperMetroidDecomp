@@ -126,10 +126,12 @@ DataFile = "enemies/maridia_fly.json"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToWateringHole"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(992, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToPseudoPlasmaSpark"
 
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("8")

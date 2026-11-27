@@ -173,12 +173,14 @@ position = Vector2(16, 96)
 DataFile = "objects/door_cap_green_right.json"
 RememberedAs = "bubble_mountain_green_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToGreenBubblesMissiles"
 
 [node name="GreenCap2" parent="." instance=ExtResource("9")]
 position = Vector2(480, 96)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "bubble_mountain_green_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToBatCave"
 
 [node name="MissileTank" parent="." instance=ExtResource("10")]
 position = Vector2(328, 968)
@@ -188,22 +190,27 @@ RememberedAs = "bubble_mountain_exposed_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(480, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToSingleChamber"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(96, 976)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToPurpleShaft"
 
 [node name="BlueCap3" parent="." instance=ExtResource("9")]
 position = Vector2(16, 864)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToUpperNorfairFarming"
 
 [node name="BlueCap4" parent="." instance=ExtResource("9")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToRisingTide"
 
 [node name="BlueCap5" parent="." instance=ExtResource("9")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToBubbleMountainSave"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("11")

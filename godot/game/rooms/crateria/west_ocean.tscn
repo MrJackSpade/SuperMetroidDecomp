@@ -207,12 +207,14 @@ FastestMark = 0
 position = Vector2(1504, 864)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r2")
+ClosesBehindEntry = "ToGravitySuit"
 
 [node name="GreenCap" parent="." instance=ExtResource("10")]
 position = Vector2(2016, 1120)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "west_ocean_green_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToWreckedShipEntrance"
 
 [node name="MissileTank" parent="." instance=ExtResource("11")]
 position = Vector2(40, 1464)
@@ -232,18 +234,22 @@ RememberedAs = "west_ocean_exposed_missile_tank_at1x47"
 [node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(736, 608)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBowlingAlleyPath"
 
 [node name="BlueCap2" parent="." instance=ExtResource("10")]
 position = Vector2(16, 1120)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToMoat"
 
 [node name="BlueCap3" parent="." instance=ExtResource("10")]
 position = Vector2(2016, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBowlingAlley"
 
 [node name="BlueCap4" parent="." instance=ExtResource("10")]
 position = Vector2(2016, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToAttic"
 
 [node name="Screen3x2" type="Node2D" parent="."]
 script = ExtResource("12")

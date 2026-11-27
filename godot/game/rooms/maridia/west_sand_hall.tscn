@@ -72,10 +72,12 @@ FirstBobUpdates = 0
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToWestSandHallTunnel"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToOasis"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("7")

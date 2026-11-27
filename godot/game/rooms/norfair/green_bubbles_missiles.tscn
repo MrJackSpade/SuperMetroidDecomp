@@ -108,10 +108,12 @@ RememberedAs = "green_bubbles_missiles_exposed_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToNorfairReserveTank"
 
 [node name="BlueCap2" parent="." instance=ExtResource("10")]
 position = Vector2(480, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBubbleMountain"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("11")

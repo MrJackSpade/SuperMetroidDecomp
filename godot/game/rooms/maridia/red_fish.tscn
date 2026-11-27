@@ -84,10 +84,12 @@ RespawnsWhenKilled = true
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToCaterpillar"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(608, 464)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToMtEverest"
 
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("8")

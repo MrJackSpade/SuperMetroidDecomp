@@ -183,22 +183,27 @@ Look = "main_street"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToMainStreetUpper"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(352, 976)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToFishTankLeft"
 
 [node name="BlueCap3" parent="." instance=ExtResource("7")]
 position = Vector2(1120, 976)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToFishTankRight"
 
 [node name="BlueCap4" parent="." instance=ExtResource("7")]
 position = Vector2(608, 32)
 DataFile = "objects/door_cap_blue_down.json"
+ClosesBehindEntry = "ToRedFish"
 
 [node name="BlueCap5" parent="." instance=ExtResource("7")]
 position = Vector2(1504, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToCrabShaft"
 
 [node name="Screen0x2" type="Node2D" parent="."]
 script = ExtResource("8")

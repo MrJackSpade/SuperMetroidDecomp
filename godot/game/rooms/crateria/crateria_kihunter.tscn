@@ -103,16 +103,19 @@ position = Vector2(736, 96)
 DataFile = "objects/door_cap_yellow_left.json"
 RememberedAs = "crateria_kihunter_yellow_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToMoat"
 
 [node name="YellowCap2" parent="." instance=ExtResource("7")]
 position = Vector2(352, 720)
 DataFile = "objects/door_cap_yellow_up.json"
 RememberedAs = "crateria_kihunter_yellow_door_facing_up"
 Remembered = 1
+ClosesBehindEntry = "ToRedBrinstarElevator"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToCrateriaTube"
 
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("8")

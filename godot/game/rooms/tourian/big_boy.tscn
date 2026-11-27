@@ -125,6 +125,7 @@ DataFile = "enemies/corpse_skree.json"
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r4")
+ClosesBehindEntry = "ToDustTorizo"
 
 [node name="TourianGlowingArkanoidBlocksAndRedOrbs" type="Node2D" parent="."]
 script = ExtResource("10")

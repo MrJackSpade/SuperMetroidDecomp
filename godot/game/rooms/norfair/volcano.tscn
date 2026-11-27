@@ -126,10 +126,12 @@ position = Vector2(264, 712)
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(528, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToSpikyPlatformsTunnel"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToKronicBoost"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("9")

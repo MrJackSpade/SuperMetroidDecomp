@@ -89,14 +89,17 @@ SamusStep = 0.78125
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToEastOcean"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToSpikyDeath"
 
 [node name="BlueCap3" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToWreckedShipEnergyTank"
 PresentWhen = SubResource("r4")
 
 [node name="Screen0x0" type="Node2D" parent="."]
@@ -172,6 +175,7 @@ position = Vector2(16, 96)
 DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "electric_death_red_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToWreckedShipEnergyTank"
 PresentWhen = SubResource("r1")
 
 [node name="Liquid" type="Node2D" parent="."]

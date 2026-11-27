@@ -160,14 +160,17 @@ PatrolReach = 16
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToMickeyMouse"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 1376)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToPillar"
 
 [node name="BlueCap3" parent="." instance=ExtResource("8")]
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToAmphitheatre"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("9")

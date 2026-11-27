@@ -608,6 +608,16 @@ class Generator:
                 elif placed.chozo == 'LowerNorfair':
                     placed.properties.update({'WakesWhen': ctx.owns('space_jump'), 'RecordsFact': quoted(CHOZO_ACID_LOWERED)})
             placed_objects = objects.Objects(ctx, self.object_lists[state.objects], doors_in)
+            # The cap of the door Samus comes in through stands open and closes behind her: each cap is told the
+            # entry point of the door it closes.
+            for door in doors_in:
+                if door.object_block is None:
+                    continue
+                entered = self.arrival_in(key, door) or 'From' + door.name
+                for thing in placed_objects.placed:
+                    if thing.scene.endswith('door_cap/door_cap.tscn') and thing.at == objects.corner(door.object_block):
+                        if thing.properties.setdefault('ClosesBehindEntry', quoted(entered)) != quoted(entered):
+                            raise ValueError(f'{key}: the cap at {door.object_block} closes behind two ways in, and a cap names one.')
             things.extend(placed_objects.placed)
             for boss in [thing for thing in things if thing.boss == 'phantoon']:
                 # The door of Phantoon's room is drawn shut over its cap while the fight lasts, so the cap is put out

@@ -53,6 +53,7 @@ RememberedAs = "hopper_energy_tank_exposed_energy_tank"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToPinkBrinstarHoppers"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")

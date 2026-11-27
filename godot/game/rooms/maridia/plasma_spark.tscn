@@ -187,20 +187,24 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r2")
 RememberedAs = "plasma_spark_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToKassiuz"
 
 [node name="GreenCap" parent="." instance=ExtResource("9")]
 position = Vector2(96, 720)
 DataFile = "objects/door_cap_green_up.json"
 RememberedAs = "plasma_spark_green_door_facing_up"
 Remembered = 1
+ClosesBehindEntry = "ToToilet"
 
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(992, 864)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBugSandHole"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(992, 1376)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToButterfly"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

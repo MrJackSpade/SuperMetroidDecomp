@@ -136,10 +136,12 @@ RememberedAs = "pseudo_plasma_spark_exposed_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToNorthwestMaridiaBug"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(96, 720)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToCrabShaft"
 
 [node name="Screen2x2" type="Node2D" parent="."]
 script = ExtResource("10")

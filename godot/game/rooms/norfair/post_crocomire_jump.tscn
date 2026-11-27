@@ -148,10 +148,12 @@ RememberedAs = "post_crocomire_jump_exposed_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(1632, 544)
 DataFile = "objects/door_cap_blue_down.json"
+ClosesBehindEntry = "ToPostCrocomireShaft"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGrappleBeam"
 
 [node name="Screen5x0" type="Node2D" parent="."]
 script = ExtResource("10")

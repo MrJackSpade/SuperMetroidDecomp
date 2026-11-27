@@ -197,11 +197,13 @@ PresentWhen = SubResource("r9")
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r6")
+ClosesBehindEntry = "ToClimb"
 PresentWhen = SubResource("r9")
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToElevatorToBlueBrinstar"
 PresentWhen = SubResource("r9")
 
 [node name="Screen0x0" type="Node2D" parent="."]
@@ -336,6 +338,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r7")
 RememberedAs = "pit_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToElevatorToBlueBrinstar"
 PresentWhen = SubResource("r3")
 
 [node name="ZebesWakes" type="Node" parent="."]
@@ -351,6 +354,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r7")
 RememberedAs = "pit_grey_door_facing_right_until_enemies_killed"
 Remembered = 1
+ClosesBehindEntry = "ToClimb"
 PresentWhen = SubResource("r3")
 
 [node name="ZebesWakes2" type="Node" parent="."]

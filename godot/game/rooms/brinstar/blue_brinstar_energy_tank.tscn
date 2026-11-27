@@ -133,10 +133,12 @@ RememberedAs = "blue_brinstar_energy_tank_shot_block_energy_tank"
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToConstructionZone"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(528, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToBlueBrinstarBoulders"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

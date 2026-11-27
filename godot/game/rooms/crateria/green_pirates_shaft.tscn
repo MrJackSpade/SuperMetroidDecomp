@@ -138,18 +138,22 @@ position = Vector2(224, 1632)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "green_pirates_shaft_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToStatuesHallway"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToGauntletEnergyTank"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(224, 1120)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToTerminator"
 
 [node name="BlueCap3" parent="." instance=ExtResource("8")]
 position = Vector2(16, 1632)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToLowerMushrooms"
 
 [node name="Screen0x3" type="Node2D" parent="."]
 script = ExtResource("9")

@@ -110,14 +110,17 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r2")
 RememberedAs = "warehouse_zeela_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToWarehouseEnergyTank"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(352, 304)
 DataFile = "objects/door_cap_blue_down.json"
+ClosesBehindEntry = "ToWarehouseKihunter"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToWarehouseEntrance"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("8")

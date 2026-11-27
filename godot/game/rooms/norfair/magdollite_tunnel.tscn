@@ -99,10 +99,12 @@ Speed = 2
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToKronicBoost"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToPurpleShaft"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

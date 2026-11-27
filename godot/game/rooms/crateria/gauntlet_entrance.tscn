@@ -104,10 +104,12 @@ StrikesDown = false
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(1248, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToLandingSite"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGauntletEnergyTank"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

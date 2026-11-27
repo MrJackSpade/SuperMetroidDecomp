@@ -83,10 +83,12 @@ Look = "toilet"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(96, 208)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToAqueduct"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToBotwoon"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("8")

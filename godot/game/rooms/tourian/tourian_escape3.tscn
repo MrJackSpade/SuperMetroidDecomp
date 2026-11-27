@@ -123,10 +123,12 @@ PatrolReach = 16
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r2")
+ClosesBehindEntry = "ToTourianEscape2"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(1504, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToTourianEscape4"
 
 [node name="TourianBackgroundRedFlashing" type="Node2D" parent="."]
 script = ExtResource("8")

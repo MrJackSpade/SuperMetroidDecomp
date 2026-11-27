@@ -101,6 +101,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "draygon_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToThePrecious"
 
 [node name="GreyCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 352)
@@ -108,6 +109,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "draygon_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToSpaceJump"
 
 [node name="UpperLeftCannon" parent="." instance=ExtResource("9")]
 position = Vector2(32, 176)

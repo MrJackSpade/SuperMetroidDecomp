@@ -188,6 +188,7 @@ position = Vector2(2272, 1120)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "landing_site_green_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToCrateriaTube"
 PresentWhen = SubResource("r16")
 
 [node name="YellowCap" parent="." instance=ExtResource("7")]
@@ -195,16 +196,19 @@ position = Vector2(2272, 352)
 DataFile = "objects/door_cap_yellow_left.json"
 RememberedAs = "landing_site_yellow_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToCrateriaPowerBombs"
 PresentWhen = SubResource("r16")
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGauntletEntrance"
 PresentWhen = SubResource("r16")
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 1120)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToParlor"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("8")
@@ -446,18 +450,21 @@ PresentWhen = SubResource("r1")
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r9")
+ClosesBehindEntry = "ToGauntletEntrance"
 PresentWhen = SubResource("r1")
 
 [node name="GreyCap2" parent="." instance=ExtResource("7")]
 position = Vector2(2272, 1120)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r9")
+ClosesBehindEntry = "ToCrateriaTube"
 PresentWhen = SubResource("r1")
 
 [node name="GreyCap3" parent="." instance=ExtResource("7")]
 position = Vector2(2272, 352)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r9")
+ClosesBehindEntry = "ToCrateriaPowerBombs"
 PresentWhen = SubResource("r1")
 
 [node name="UpperCrateriaRedFlashing" type="Node2D" parent="."]

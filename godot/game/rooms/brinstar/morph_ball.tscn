@@ -153,11 +153,13 @@ PresentWhen = SubResource("r6")
 [node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGreenHillZone"
 PresentWhen = SubResource("r6")
 
 [node name="BlueCap2" parent="." instance=ExtResource("10")]
 position = Vector2(2016, 608)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToConstructionZone"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -342,6 +344,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r5")
 RememberedAs = "morph_ball_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToGreenHillZone"
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes" type="Node" parent="."]

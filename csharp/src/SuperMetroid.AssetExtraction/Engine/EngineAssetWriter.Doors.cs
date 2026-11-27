@@ -46,7 +46,8 @@ public sealed partial class EngineAssetWriter
                     .Timeline("hurt", CapTimeline(own, way, looks.Flash, untilCleared: false))
                     .Timeline("opening", CapTimeline(own, way, looks.Opening, untilCleared: true))
                     .Timeline("open", CapOpen(way))
-                    .Timeline("closing", CapTimeline(own, way, DoorCapSequenceDefinitions.CapClosing, untilCleared: false));
+                    .Timeline("closing", CapTimeline(own, way, DoorCapSequenceDefinitions.CapClosing, untilCleared: false))
+                    .Timeline("closing_behind", CapClosingBehind(own, way, DoorCapSequenceDefinitions.CapClosing));
                 if (colour == ColoredDoorColor.Red)
                     coloured.Value("hurt_sound", EngineNames.Sound(DoorCapSequenceDefinitions.RedHitSound));
                 // Once opened and remembered it comes back as a blue cap.
@@ -62,7 +63,8 @@ public sealed partial class EngineAssetWriter
                 .Timeline("closed", CapTimeline("grey", way, GreyDoorDefinitions.Flash, untilCleared: false))
                 .Timeline("opening", CapTimeline("grey", way, GreyDoorDefinitions.Opening, untilCleared: true))
                 .Timeline("open", CapOpen(way))
-                .Timeline("closing", CapTimeline("grey", way, DoorCapSequenceDefinitions.CapClosing, untilCleared: false));
+                .Timeline("closing", CapTimeline("grey", way, DoorCapSequenceDefinitions.CapClosing, untilCleared: false))
+                .Timeline("closing_behind", CapClosingBehind("grey", way, DoorCapSequenceDefinitions.CapClosing));
 
             // The one grey cap held open, Bomb Torizo's, faces right: held, it shows its cleared doorway over and
             // over, and its hold is looked at as each showing ends; let go, it stands open a while longer before it
@@ -111,7 +113,16 @@ public sealed partial class EngineAssetWriter
         .Timeline(before + "closed", CapHeld("blue", way, FirstShown(DoorCapSequenceDefinitions.BlueClosed)))
         .Timeline(before + "opening", CapTimeline("blue", way, DoorCapSequenceDefinitions.BlueOpening, untilCleared: true))
         .Timeline(before + "open", CapOpen(way))
-        .Timeline(before + "closing", CapTimeline("blue", way, DoorCapSequenceDefinitions.BlueClosing, untilCleared: false));
+        .Timeline(before + "closing", CapTimeline("blue", way, DoorCapSequenceDefinitions.BlueClosing, untilCleared: false))
+        .Timeline(before + "closing_behind", CapClosingBehind("blue", way, DoorCapSequenceDefinitions.BlueClosing));
+
+    /// <summary>
+    /// The timeline of a cap closing behind Samus as she comes in through it. The old cap's blocks are air while its
+    /// doorway is drawn cleared, so it is shut, unheard, on the first step that shows anything else; and the old
+    /// sequence asks for its sound part way through, so the step it falls on says so.
+    /// </summary>
+    private JsonObject CapClosingBehind(string own, ColoredDoorOrientation way, Animation<DoorCapSegment> sequence) =>
+        ShutWhereNoLongerCleared(CapTimeline(own, way, sequence, untilCleared: false, soundCue: "close_sound"), way, "shut_unheard");
 
     /// <summary>The kind of hit one of the old game's shots is, as a cap's data names it.</summary>
     private static string Kind(SamusProjectileFamily family) => family switch
@@ -139,7 +150,7 @@ public sealed partial class EngineAssetWriter
     /// left out. An opening is cut off where the old sequence clears the doorway: from there the cap is open, and
     /// the Godot game stops it blocking as its opening ends.
     /// </summary>
-    private JsonObject CapTimeline(string own, ColoredDoorOrientation way, Animation<DoorCapSegment> sequence, bool untilCleared)
+    private JsonObject CapTimeline(string own, ColoredDoorOrientation way, Animation<DoorCapSegment> sequence, bool untilCleared, string? soundCue = null)
     {
         (List<IAnimationBeat<DoorCapShown, SoundEffectId>> lead, List<IAnimationBeat<DoorCapShown, SoundEffectId>>? cycle) =
             EngineTimelines.Played(DoorCapSequenceDefinitions.Segments, sequence);
@@ -150,7 +161,8 @@ public sealed partial class EngineAssetWriter
             lead = [.. lead.TakeWhile(beat => beat.ShownFrame is not { Look: DoorCapLook.Cleared })];
         }
 
-        JsonObject timeline = EngineTimelines.Of<DoorCapShown, SoundEffectId>(lead, cycle, look => CapPicture(own, way, look), static _ => null);
+        // Its sounds are left out, but for a sequence whose own step is to say where its sound falls.
+        JsonObject timeline = EngineTimelines.Of<DoorCapShown, SoundEffectId>(lead, cycle, look => CapPicture(own, way, look), _ => soundCue);
 
         // The old cap's collision goes with the look it is drawn in: nearly open, many caps are solid only at their two
         // end blocks. A timeline that passes through such a look says, step by step, how the cap stands.
@@ -181,13 +193,13 @@ public sealed partial class EngineAssetWriter
     /// A cap's timeline that begins with its doorway cleared, with the cap said to be shut on the first step that
     /// shows anything else: the old cap's blocks are air while its doorway is drawn cleared.
     /// </summary>
-    private JsonObject ShutWhereNoLongerCleared(JsonObject timeline, ColoredDoorOrientation way)
+    private JsonObject ShutWhereNoLongerCleared(JsonObject timeline, ColoredDoorOrientation way, string cue = "shut")
     {
         string cleared = CapPicture("grey", way, new DoorCapShown(DoorCapLook.Cleared, DoorCapShownPaint.Grey));
         JsonObject shuts = timeline["steps"]!.AsArray().Select(step => step!.AsObject()).First(step => step["picture"]!.GetValue<string>() != cleared);
         if (shuts["cues"] is not JsonArray cues)
             shuts["cues"] = cues = [];
-        cues.Insert(0, "shut");
+        cues.Insert(0, cue);
         return timeline;
     }
 

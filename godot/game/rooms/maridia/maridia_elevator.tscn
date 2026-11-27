@@ -121,10 +121,12 @@ position = Vector2(224, 1120)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "maridia_elevator_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToForgottenHighwaySave"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 1376)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToThreadTheNeedle"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

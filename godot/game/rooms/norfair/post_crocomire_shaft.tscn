@@ -110,18 +110,22 @@ position = Vector2(224, 864)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "post_crocomire_shaft_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToPostCrocomireMissile"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(96, 32)
 DataFile = "objects/door_cap_blue_down.json"
+ClosesBehindEntry = "ToPostCrocomireFarming"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToGrappleTutorial3"
 
 [node name="BlueCap3" parent="." instance=ExtResource("6")]
 position = Vector2(96, 1232)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToPostCrocomireJump"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("7")

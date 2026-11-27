@@ -52,10 +52,12 @@ SamusStep = 0.78125
 [node name="BlueCap" parent="." instance=ExtResource("5")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToBelowSpazer"
 
 [node name="BlueCap2" parent="." instance=ExtResource("5")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToGlassTunnel"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("6")

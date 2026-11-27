@@ -110,10 +110,12 @@ RememberedAs = "crumble_shaft_shot_block_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToIceBeamGate"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(224, 864)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToCrocomireSpeedway"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("8")

@@ -163,6 +163,7 @@ HeldShutBy = SubResource("r3")
 RememberedAs = "bomb_torizo_grey_door"
 Remembered = 1
 HeldOpenBy = SubResource("r8")
+ClosesBehindEntry = "ToFlyway"
 PresentWhen = SubResource("r16")
 
 [node name="Bombs" parent="." instance=ExtResource("9")]
@@ -220,6 +221,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r11")
 RememberedAs = "bomb_torizo_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToFlyway"
 PresentWhen = SubResource("r1")
 
 [node name="Liquid" type="Node2D" parent="."]

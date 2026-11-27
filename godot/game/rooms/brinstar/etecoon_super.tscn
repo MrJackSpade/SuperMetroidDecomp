@@ -55,6 +55,7 @@ RememberedAs = "etecoon_super_exposed_super_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToEtecoonEnergyTank"
 
 [node name="BrinstarBlueBackgroundSpores" type="Node2D" parent="."]
 script = ExtResource("8")

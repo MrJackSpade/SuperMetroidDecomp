@@ -111,10 +111,12 @@ CrawlSpeed = 0.75
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToUpperNorfairFarming"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(96, 720)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToAcidSnakesTunnel"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")

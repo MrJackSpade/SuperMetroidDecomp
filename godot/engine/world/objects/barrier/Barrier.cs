@@ -22,7 +22,9 @@ namespace Engine.World.Objects;
 /// "passable" and "blocking", and "solid_height:" with how many pixels down from its top its solid part reaches, for
 /// one that comes down or goes up bit by bit; what the first step of "open" or "closed" says holds from the moment
 /// that look is taken up. A step of "let_go" says where the barrier is shut ("shut"): until then it stands open
-/// as it did while held. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
+/// as it did while held. One the player has just come in through (<see cref="ClosesBehindEntry"/>) stands open as
+/// the room is set up and plays "closing_behind", a step of which says where it is shut with no sound
+/// ("shut_unheard") and another where its closing is heard ("close_sound"). Its data may also name its "open_sound", "close_sound", "hurt_sound" and
 /// "sealed_sound", and its "refused_sound" for a hit of no kind that wears it down. One that is plain, having once been opened and remembered so, shows the timeline named with
 /// "plain_" before each of those names where its data has one, and is opened by the kinds its data lists under
 /// "plain_opened_by", or by any hit where it lists none: a red door's cap comes back as a blue one.
@@ -96,6 +98,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <summary>What they are told.</summary>
     [Export]
     public string TellsWhat { get; set; } = "open";
+
+    /// <summary>
+    /// The entry point of its room whose use has it stand open as the room is set up and close behind the player:
+    /// arriving there they have come through it, and it plays its "closing_behind" look, open and letting through
+    /// until the step of that look that shuts it. One that is open anyway stays open. Empty for none.
+    /// </summary>
+    [Export]
+    public string ClosesBehindEntry { get; set; } = "";
 
     /// <summary>
     /// How near the player must come, in pixels both across and down from where it stands, for it to open by itself;
@@ -205,6 +215,17 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             return;
         }
 
+        // One the player has just come in through stands open, and closes behind them as its look says.
+        if (!IsOpen && ClosesBehindEntry.Length > 0 && Room.Entry?.EntryPoint == ClosesBehindEntry)
+        {
+            if (!_timelines.Has("closing_behind"))
+                throw new InvalidOperationException($"The barrier \"{Name}\" closes behind whoever comes in at \"{ClosesBehindEntry}\", and its data has no \"closing_behind\" look to show it by.");
+            IsOpen = true;
+            SetSolid(false);
+            Show("closing_behind");
+            return;
+        }
+
         // One that is held shut as the room is entered may show itself shutting first.
         Show(IsOpen ? "open" : IsSealed ? _timelines.Has("sealing") ? "sealing" : "sealed" : "closed");
     }
@@ -307,14 +328,15 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         Show(_timelines.Has("closing") ? "closing" : "closed");
     }
 
-    /// <summary>Shuts it where it stands, at full strength, whatever it goes on showing.</summary>
-    private void Shut()
+    /// <summary>Shuts it where it stands, at full strength, whatever it goes on showing; its closing is heard unless <paramref name="heard"/> says not.</summary>
+    private void Shut(bool heard = true)
     {
         IsOpen = false;
         _opening = false;
         _health = _plain ? 1 : MaxHealth;
         SetSolid(true);
-        Sound(CloseSound);
+        if (heard)
+            Sound(CloseSound);
     }
 
     /// <inheritdoc/>
@@ -432,6 +454,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                     Show("open");
                     break;
                 case "closing":
+                case "closing_behind":
                 case "hurt":
                 case "sealing":
                 case "let_go":
@@ -507,9 +530,15 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         foreach (string cue in cues)
         {
             // One let go is shut where its look says, and stands whole until a later cue says otherwise.
-            if (cue == "shut")
+            if (cue is "shut" or "shut_unheard")
             {
-                Shut();
+                Shut(heard: cue == "shut");
+                continue;
+            }
+
+            if (cue == "close_sound")
+            {
+                Sound(CloseSound);
                 continue;
             }
 

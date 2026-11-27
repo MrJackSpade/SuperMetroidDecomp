@@ -112,10 +112,12 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "golden_torizo_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToScrewAttack"
 
 [node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToAcidStatue"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

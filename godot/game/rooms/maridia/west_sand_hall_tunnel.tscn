@@ -63,10 +63,12 @@ Look = "main_street"
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToCrabHole"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWestSandHall"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("7")

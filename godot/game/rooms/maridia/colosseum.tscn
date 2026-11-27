@@ -92,6 +92,7 @@ position = Vector2(1760, 96)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "colosseum_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToDraygonSave"
 
 [node name="GreenCap" parent="." instance=ExtResource("6")]
 position = Vector2(1248, 608)
@@ -104,10 +105,12 @@ position = Vector2(1760, 352)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "colosseum_green_door_facing_left_at110x22"
 Remembered = 1
+ClosesBehindEntry = "ToThePrecious"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToHalfieClimb"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("7")

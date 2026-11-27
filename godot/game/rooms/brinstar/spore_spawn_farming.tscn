@@ -99,10 +99,12 @@ position = Vector2(16, 96)
 DataFile = "objects/door_cap_green_right.json"
 RememberedAs = "spore_spawn_farming_green_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToBigPink"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToSporeSpawnSuper"
 
 [node name="Spores" type="Node2D" parent="."]
 script = ExtResource("9")

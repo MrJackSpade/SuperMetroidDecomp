@@ -224,40 +224,48 @@ position = Vector2(992, 1120)
 DataFile = "objects/door_cap_yellow_left.json"
 RememberedAs = "big_pink_yellow_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToPinkBrinstarHoppers"
 
 [node name="GreenCap" parent="." instance=ExtResource("11")]
 position = Vector2(992, 1632)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "big_pink_green_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToGreenHillZone"
 
 [node name="RedCap" parent="." instance=ExtResource("11")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "big_pink_red_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToSporeSpawnKihunters"
 
 [node name="RedCap2" parent="." instance=ExtResource("11")]
 position = Vector2(16, 2400)
 DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "big_pink_red_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToWaterwayEnergyTank"
 
 [node name="BlueCap" parent="." instance=ExtResource("11")]
 position = Vector2(528, 608)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToDachora"
 
 [node name="BlueCap2" parent="." instance=ExtResource("11")]
 position = Vector2(528, 1120)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToPinkBrinstarPowerBombsLower"
 
 [node name="BlueCap3" parent="." instance=ExtResource("11")]
 position = Vector2(1248, 1376)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToSporeSpawnFarming"
 
 [node name="BlueCap4" parent="." instance=ExtResource("11")]
 position = Vector2(272, 96)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToBigPinkSaveRoom"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("12")

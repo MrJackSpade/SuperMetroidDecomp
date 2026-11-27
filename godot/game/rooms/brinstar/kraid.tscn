@@ -184,6 +184,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "kraid_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToVariaSuit"
 
 [node name="GreyCap2" parent="." instance=ExtResource("11")]
 position = Vector2(16, 352)
@@ -191,6 +192,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "kraid_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToKraidEyeDoor"
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("12")

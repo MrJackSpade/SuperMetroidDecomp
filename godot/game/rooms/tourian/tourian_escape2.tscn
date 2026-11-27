@@ -83,10 +83,12 @@ JumpSpan = 160
 position = Vector2(96, 48)
 DataFile = "objects/door_cap_grey_down.json"
 HeldShutBy = SubResource("r2")
+ClosesBehindEntry = "ToTourianEscape1"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToTourianEscape3"
 
 [node name="TourianBackgroundRedFlashing" type="Node2D" parent="."]
 script = ExtResource("8")

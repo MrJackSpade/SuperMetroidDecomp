@@ -136,6 +136,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r2")
 RememberedAs = "mickey_mouse_grey_door_facing_right"
 Remembered = 1
+ClosesBehindEntry = "ToFastPillarsSetup"
 
 [node name="ZebesWakes" type="Node" parent="."]
 script = ExtResource("9")
@@ -151,6 +152,7 @@ RememberedAs = "mickey_mouse_exposed_missile_tank"
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
+ClosesBehindEntry = "ToWorstRoomInTheGame"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("11")

@@ -83,6 +83,7 @@ DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r2")
 RememberedAs = "hi_jump_energy_tank_grey_door_facing_left"
 Remembered = 1
+ClosesBehindEntry = "ToBusinessCenter"
 
 [node name="ZebesWakes" type="Node" parent="."]
 script = ExtResource("8")
@@ -103,6 +104,7 @@ RememberedAs = "hi_jump_energy_tank_exposed_energy_tank"
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
+ClosesBehindEntry = "ToHiJumpBoots"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

@@ -158,6 +158,7 @@ AlwaysActive = true
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(96, 192)
 DataFile = "objects/door_cap_blue_up.json"
+ClosesBehindEntry = "ToTourianEscape2"
 
 [node name="TourianBackgroundRedFlashing" type="Node2D" parent="."]
 script = ExtResource("8")

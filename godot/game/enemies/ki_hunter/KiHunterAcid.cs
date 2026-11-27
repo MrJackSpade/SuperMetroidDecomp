@@ -79,12 +79,17 @@ public partial class KiHunterAcid : Projectile, IHasValues
         }
     }
 
+    /// <summary>It is moved by its own class, down and then across, each tried where it ends.</summary>
+    protected override bool MovesItself => true;
+
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {
         if (!_flying || _splashed)
             return;
-        if (room.Terrain.IsSolidIn(Area.MovedBy(0, Velocity.Y.Whole + 1), SlopeTreatment.Wall))
+
+        // It moves as the cartridge's enemy shots do, down first: stopped there, it splashes where that leaves it.
+        if (MoveAgainstTerrain(room, Velocity.Y, across: false))
         {
             _splashed = true;
             Velocity = PixelVelocity.Zero;
@@ -92,8 +97,9 @@ public partial class KiHunterAcid : Projectile, IHasValues
             return;
         }
 
-        int across = Velocity.X.IsZero ? 0 : Velocity.X.IsNegative ? Velocity.X.Whole : Velocity.X.Whole + 1;
-        if (across != 0 && room.Terrain.IsSolidIn(Area.MovedBy(across, 0), SlopeTreatment.Wall))
+        // Then across, where a wall only ends its speed across, and it gains no fall on that update. With no speed
+        // across its right side is still tried where it lies.
+        if (MoveAgainstTerrain(room, Velocity.X, across: true))
         {
             Velocity = Velocity.WithX(Pixels.Zero);
             return;

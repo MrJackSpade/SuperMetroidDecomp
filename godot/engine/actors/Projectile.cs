@@ -389,6 +389,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     {
     }
 
+    /// <summary>
+    /// Whether the projectile's own class moves it (in <see cref="BeforeTravel"/>, as by
+    /// <see cref="MoveAgainstTerrain"/>), so that its speed carries it nowhere of itself: it then only meets what is
+    /// where its class left it. Its speed is still its speed, for whatever reads it.
+    /// </summary>
+    protected virtual bool MovesItself => false;
+
     /// <inheritdoc/>
     public virtual bool IsHitBy(HitSide side) =>
         _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded && (!_shotDown || _meetingShots)
@@ -559,7 +566,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <summary>Moves the projectile for this update a pixel at a time, meeting terrain and targets as it goes.</summary>
     private void Travel(Room room)
     {
-        PixelOffset offset = Velocity.OverOneUpdate;
+        // One whose own class moves it goes nowhere here, and only meets what is where it lies.
+        PixelOffset offset = MovesItself ? default : Velocity.OverOneUpdate;
         if (LeadsIntoTerrain)
         {
             TravelLeadingWithEdge(room, offset);

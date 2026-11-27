@@ -37,6 +37,9 @@ public sealed class AirTurningState : PlayerState
         // A turn is made in the full form of the jump or the fall; with no room for that form there is no turn.
         new FormAsked(owner.FormOr(FromJump ? Player.Jumping : Player.Falling), AroundMiddle: true);
 
+    /// <summary>The turn's body is taken once the update's movement is made, as the cartridge's turning pose is.</summary>
+    public override bool FormComesBeforeMoving => false;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

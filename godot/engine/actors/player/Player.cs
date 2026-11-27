@@ -1039,13 +1039,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
     internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked)
     {
-        _enteringAsAsked = !unasked;
+        _enteringAsAsked = !unasked && to.FormComesBeforeMoving;
         return Entering(from, to, unasked);
     }
 
     /// <summary>
-    /// Whether the state being entered as this update's movement ends is the one the input asked for. A change of
-    /// form made for such a state stands for one made before the update's movement, and tells the view so
+    /// Whether the state being entered as this update's movement ends is the one the input asked for, and one whose
+    /// form comes before the movement (<see cref="PlayerState.FormComesBeforeMoving"/>). A change of form made for
+    /// such a state stands for one made before the update's movement, and tells the view so
     /// (<see cref="TakeFit"/>). False from the update's beginning until then, and again once the state is entered.
     /// </summary>
     private bool _enteringAsAsked;

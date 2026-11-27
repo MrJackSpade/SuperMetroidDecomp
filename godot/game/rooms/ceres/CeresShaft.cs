@@ -71,8 +71,13 @@ public partial class CeresShaft : RoomSequence
         if (elapsed == 0)
             count.LeftByShaft(_tilt + FullTilt, _backward);
 
+        // The elevator takes her only on an update that is play's own, as the cartridge's does only while the game is
+        // still in its main play: not on the update the countdown runs out, which the time up takes, nor beneath the
+        // time up's white-out. Once play is its own again it takes her, the countdown at nothing or not.
         Player samus = room.Player;
-        if (!_taken && IsOnElevator(samus))
+        Escape escape = room.Session.Service<Escape>();
+        bool playIsItsOwn = !escape.WantsToTakeOver && room.Session.Mode is not TimeUpMode;
+        if (!_taken && playIsItsOwn && IsOnElevator(samus))
         {
             // The elevator has her: she stands still, and her departure begins after this update. The shaft goes on
             // tilting beneath it.
@@ -81,7 +86,6 @@ public partial class CeresShaft : RoomSequence
             _taken = true;
 
             // The countdown stands still while the elevator has her, and still shows.
-            Escape escape = room.Session.Service<Escape>();
             escape.ShowsWhileHeld = true;
             escape.Depart(LandingRoom, LandingEntry);
         }

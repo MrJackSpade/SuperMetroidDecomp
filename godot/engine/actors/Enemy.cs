@@ -932,15 +932,18 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         return top.Top - rider.Bottom <= feetAbove && rider.Top + rider.Bottom + 2 * feetAbove < top.Top + top.Bottom;
     }
 
-    /// <summary>Moves the player by <paramref name="offset"/>, as far as terrain lets them go: for an enemy that takes its rider with it.</summary>
+    /// <summary>
+    /// Gives the player <paramref name="offset"/> to move by: for an enemy that takes its rider with it, or pushes
+    /// whoever it meets. In its own turn, before the player has moved, the offset becomes part of the player's own
+    /// move of that update (<see cref="Player.MoveFromOutside"/>), so the enemies whose turns come after meet
+    /// the player where they were; given at any other time it moves them at once, as far as terrain lets them go.
+    /// </summary>
     protected void ShiftPlayer(PixelOffset offset)
     {
-        // The player is carried as far as terrain lets them go, and into a way out of the room as by their own move.
+        // Moved at once, the player is carried as far as terrain lets them go, and into a way out of the room as by
+        // their own move.
         MoveOptions carried = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall, StoppedByWaysOut = false };
-        if (!offset.X.IsZero)
-            Room.Player.MoveBodyAcross(offset.X, carried);
-        if (!offset.Y.IsZero)
-            Room.Player.MoveBodyDown(offset.Y, carried);
+        Room.Player.MoveFromOutside(offset, carried);
     }
 
     /// <summary>Whether the enemy stands on terrain, or on a solid that stands as part of the room.</summary>

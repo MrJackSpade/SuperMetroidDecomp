@@ -807,6 +807,37 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             ChangeState(EnteringFrom(state, wanted, unasked: false));
             (_asked, _askedOf) = (null, null);
         }
+
+        // From here until the player has moved, what moves them from outside is given to that move.
+        _ownMoveToCome = true;
+    }
+
+    /// <summary>
+    /// Whether the player's own move of this update is still to come: from the end of the update's first part until
+    /// their state has moved them. What something outside gives them to move by meanwhile is part of that move.
+    /// </summary>
+    private bool _ownMoveToCome;
+
+    /// <summary>
+    /// Moves the player by <paramref name="offset"/> at the word of something outside them, as an enemy that carries
+    /// or pushes them does. While their own move of this update is still to come the offset is given to it
+    /// (<see cref="_blockMove"/>): they are not moved now, and what comes between, the enemies that take their turns
+    /// later among them, meets them where they were. At any other time, with them not being played or already moved,
+    /// they are moved at once, as far as <paramref name="atOnce"/> lets them go.
+    /// </summary>
+    public void MoveFromOutside(PixelOffset offset, MoveOptions atOnce)
+    {
+        ArgumentNullException.ThrowIfNull(atOnce);
+        if (_ownMoveToCome)
+        {
+            _blockMove = new PixelOffset(_blockMove.X + offset.X, _blockMove.Y + offset.Y);
+            return;
+        }
+
+        if (!offset.X.IsZero)
+            MoveBodyAcross(offset.X, atOnce);
+        if (!offset.Y.IsZero)
+            MoveBodyDown(offset.Y, atOnce);
     }
 
     /// <summary>
@@ -824,6 +855,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         BeforeMoving();
         MovedAs = State;
         States.Step();
+        _ownMoveToCome = false;
         _enteringAsAsked = false;
         DeliverBodyPowers();
         AfterState();
@@ -1745,9 +1777,11 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
-    /// What the blocks the player stood in as this update began give them to move by, over and above their own
-    /// movement: across by one that carries, down by one that pulls. Each part is made part of the player's own move
-    /// that way as it is made, once; what their state made no move of is moved by itself once they have moved.
+    /// What is given the player to move by on this update, over and above their own movement: by the blocks they
+    /// stood in as it began (across by one that carries, down by one that pulls), and by whatever outside them moves
+    /// them before their own move (<see cref="MoveFromOutside"/>), each adding to it. Each part is made part of the
+    /// player's own move that way as it is made, once; what their state made no move of is moved by itself once they
+    /// have moved.
     /// </summary>
     private PixelOffset _blockMove;
 
@@ -1872,7 +1906,19 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public bool PressToGround()
     {
         if (!_blockMove.Y.IsZero)
-            return MoveDownBy(StandingSink(TakeBlockPull())).Blocked | StandsInBlockThatHoldsUp();
+        {
+            Pixels given = TakeBlockPull();
+
+            // Taken upward, they go up by as much and stand as they stood: nothing is felt for beneath them, so one
+            // who rides something rising does not walk off it.
+            if (given.IsNegative)
+            {
+                MoveDownBy(given);
+                return true;
+            }
+
+            return MoveDownBy(StandingSink(given)).Blocked | StandsInBlockThatHoldsUp();
+        }
         if (StandsInBlockThatHoldsUp())
             return true;
 

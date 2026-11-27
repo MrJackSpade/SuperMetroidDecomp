@@ -112,8 +112,7 @@ public sealed partial class EngineAssetWriter
                 }
             }
 
-            // The crack is left in the room as an effect; the shards and bubbles are the tube's own to show.
-            _tree.WriteData(crack, pictures.Lay(Placed(steps), crack));
+            _tree.WriteData(crack, Placed(steps));
         }
 
         // The shards and the bubbles are the tube's own, which it moves and shows by their timelines' cues: how a

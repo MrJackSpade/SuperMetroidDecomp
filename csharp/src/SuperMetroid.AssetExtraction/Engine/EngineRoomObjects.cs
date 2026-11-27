@@ -24,16 +24,6 @@ internal sealed partial class EngineRoomObjects
     private readonly IReadOnlyList<string> _graphicsSets;
     private readonly Dictionary<string, Dictionary<string, JsonArray>> _frames = new(StringComparer.Ordinal);
 
-    /// <summary>
-    /// The folders of the pictures of what the Godot game places in a room as an object of the room and draws with
-    /// the set's own blocks alone: a door's cap, an item, its shell, a station. Each holds a folder for every set of
-    /// graphics. Their pictures are of the set's sheet, so a change of a room's colours is written for them with the
-    /// colours it has for the set's blocks, and the Godot game shows it on them. None of them may hold a picture with
-    /// one of the cartridge's sprites drawn into it, as a gate's folder does for its column: a sprite's colours are
-    /// not the room's, and a change written for the blocks would reach any of its pixels of the same colour.
-    /// </summary>
-    internal static readonly IReadOnlyList<string> FoldersShownRoomColours = ["items", "objects/door_cap", "objects/item_shell", "objects/station"];
-
     /// <summary>The room objects' pictures of the installation at <paramref name="content"/>, for the sets of graphics <paramref name="graphicsSets"/>.</summary>
     internal EngineRoomObjects(EngineAssetTree tree, EngineSheets sheets, string content, IReadOnlyList<string> graphicsSets)
     {
@@ -42,13 +32,6 @@ internal sealed partial class EngineRoomObjects
         _content = content;
         _graphicsSets = graphicsSets;
     }
-
-    /// <summary>
-    /// Where the top-left corner of a picture made of the room's blocks lies from its thing's place, for a picture whose
-    /// blocks start <paramref name="x"/> across and <paramref name="y"/> down from it: a row higher, with the room's
-    /// tiles (<see cref="EngineSheets.LayersRowAbove"/>). Its thing's place, which is where it is in play, stays.
-    /// </summary>
-    internal static JsonObject PictureCorner(int x, int y) => new() { ["x"] = x, ["y"] = y - EngineSheets.LayersRowAbove };
 
     /// <summary>The name of a set of graphics as the Godot game's files write it: a layout's "graphics" and the folder of its pictures.</summary>
     internal static string GraphicsName(string graphicsSet) => EngineSheets.FileName(graphicsSet);
@@ -173,14 +156,7 @@ internal sealed partial class EngineRoomObjects
                 pixels[index] = front is not null && front[index].A != 0 ? front[index] : behind is not null ? behind[index] : default;
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
             if (!_tree.Holds(path))
-            {
                 _tree.WritePicture(path, Block, Block, pixels);
-
-                // Its map of regions lies beside it, as a tile's does, where the set's sheet tells regions apart.
-                if (NamedBlockRegions(_sheets, graphicsSet, picture, mirroredAcross: false, mirroredDown: false) is { } regions)
-                    _tree.WriteRegionMap(path, Block, Block, regions);
-            }
-
             written = true;
         }
 
@@ -237,11 +213,8 @@ internal sealed partial class EngineRoomObjects
     /// <param name="wanted">Which of its cells to draw, by how far across and down from the object's block; all of them when not given.</param>
     /// <param name="name">The picture's name, where it is not the frame's.</param>
     /// <param name="over">
-    /// Something drawn over its blocks and under the part of them that the cartridge draws in front, one of the
-    /// cartridge's sprites: its pixels, their width and height, and where their corner lies from the corner of the
-    /// blocks by the sprite's place. The blocks are shown a row above their place and the sprite where its place says
-    /// (<see cref="EngineSheets.LayersRowAbove"/>), so it is laid that much lower among them, and the picture is made
-    /// tall enough to hold it.
+    /// Something drawn over its blocks and under the part of them that the cartridge draws in front: its pixels, their
+    /// width and height, and where their corner lies in the picture.
     /// </param>
     /// <param name="rows">How many blocks tall to make the picture at least, where that is more than its cells are.</param>
     internal string Picture(
@@ -251,24 +224,13 @@ internal sealed partial class EngineRoomObjects
         JsonArray cells = Cells(directory, frame);
         (int firstColumn, int firstRow, int columns, int rowsOfCells) = Bounds(directory, frame, wanted);
         rows = Math.Max(rows, rowsOfCells);
-        int overTop = (over?.Top ?? 0) + EngineSheets.LayersRowAbove;
-        int height = Math.Max(rows * Block, over is null ? 0 : overTop + over.Value.Height);
         name = EngineSheets.FileName(name ?? frame);
-        if (over is not null && FoldersShownRoomColours.Contains(folder))
-            throw new InvalidDataException($"The room object frame {frame} has one of the cartridge's sprites drawn into it and lies in {folder}, whose pictures are shown the room's changes of colour as its blocks are.");
         foreach (string graphicsSet in _graphicsSets)
         {
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
             if (_tree.Holds(path))
                 continue;
-            var canvas = new RgbaPixel[columns * Block * height];
-
-            // The region of each pixel, for the map written beside the picture and beside its front part, where the
-            // set's sheet tells regions apart: a change of the room's colours in one region then reaches the same
-            // pixels of the picture as of the set's blocks.
-            var canvasRegions = new int[canvas.Length];
-            var frontRegions = new int[canvas.Length];
-            bool hasRegions = false;
+            var canvas = new RgbaPixel[columns * Block * rows * Block];
 
             // The part of its blocks that the cartridge draws in front of what stands in the room is written beside
             // the picture, as a tile's is, for the Godot game to draw there.
@@ -289,23 +251,11 @@ internal sealed partial class EngineRoomObjects
                 int left = (cell["x"]!.GetValue<int>() - firstColumn) * Block, top = (cell["y"]!.GetValue<int>() - firstRow) * Block;
                 for (int y = 0; y < Block; y++)
                     pixels.AsSpan(y * Block, Block).CopyTo(canvas.AsSpan((top + y) * columns * Block + left, Block));
-                if (NamedBlockRegions(_sheets, graphicsSet, BlockFrame(block), across, down) is { } regions)
-                {
-                    for (int y = 0; y < Block; y++)
-                        regions.AsSpan(y * Block, Block).CopyTo(canvasRegions.AsSpan((top + y) * columns * Block + left, Block));
-                    hasRegions = true;
-                }
-
                 if (NamedBlockFrontPixels(_sheets, graphicsSet, BlockFrame(block), across, down) is { } inFront)
                 {
                     for (int y = 0; y < Block; y++)
                         inFront.AsSpan(y * Block, Block).CopyTo(front.AsSpan((top + y) * columns * Block + left, Block));
                     hasFront = true;
-                    if (NamedBlockFrontRegions(_sheets, graphicsSet, BlockFrame(block), across, down) is { } inFrontRegions)
-                    {
-                        for (int y = 0; y < Block; y++)
-                            inFrontRegions.AsSpan(y * Block, Block).CopyTo(frontRegions.AsSpan((top + y) * columns * Block + left, Block));
-                    }
                 }
             }
 
@@ -322,23 +272,14 @@ internal sealed partial class EngineRoomObjects
                             continue;
                         // It lies over the blocks and under their front part, which is written beside the picture
                         // as it is: where the cartridge draws one of its sprites of the ordinary standing.
-                        canvas[(overTop + y) * columns * Block + drawn.Left + x] = pixel;
-
-                        // A sprite's pixel is of none of the blocks' regions; it is written as the first.
-                        canvasRegions[(overTop + y) * columns * Block + drawn.Left + x] = 0;
+                        canvas[(drawn.Top + y) * columns * Block + drawn.Left + x] = pixel;
                     }
                 }
             }
 
-            _tree.WritePicture(path, columns * Block, height, canvas);
-            if (hasRegions)
-                _tree.WriteRegionMap(path, columns * Block, height, canvasRegions);
+            _tree.WritePicture(path, columns * Block, rows * Block, canvas);
             if (hasFront && front.Any(pixel => pixel.A != 0))
-            {
-                _tree.WritePicture(EngineAssetTree.FrontPath(path), columns * Block, height, front);
-                if (hasRegions)
-                    _tree.WriteRegionMap(EngineAssetTree.FrontPath(path), columns * Block, height, frontRegions);
-            }
+                _tree.WritePicture(EngineAssetTree.FrontPath(path), columns * Block, rows * Block, front);
         }
 
         return $"{folder}/{GraphicsPlaceholder}/{name}.png";

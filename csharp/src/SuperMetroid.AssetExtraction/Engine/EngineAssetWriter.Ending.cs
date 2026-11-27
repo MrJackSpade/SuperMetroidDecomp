@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -26,18 +25,18 @@ public sealed partial class EngineAssetWriter
         var timelines = new JsonObject();
 
         // A sprite of the ending's scenes: the clouds, the planet and what lies over it, the result's figures, Samus waiting.
-        void Scene(string name, EndingSceneAnimation animation, SpriteSheetId sheet, CinematicSpriteFamily family, PictureShade? shade) =>
+        void Scene(string name, EndingSceneAnimation animation, SpriteSheetId sheet, CinematicSpriteFamily family, PictureShade shade) =>
             timelines[name] = SpriteTimeline(
                 EndingSceneAnimations.Pictures.Segments, EndingSceneAnimations.Pictures.StartingWith(animation), sheet, family, $"{folder}/{name}", shade,
                 static (EndingSceneCue cue) => cue switch
                 {
-                    EndingSceneCue.FadeExplosionColours => "fade_colours",
                     EndingSceneCue.SpawnExplosionSilhouette => "silhouette",
                     EndingSceneCue.StartZebesExplosion => "burst",
                     EndingSceneCue.ExplosionFinale => "finale",
                     EndingSceneCue.EndZebesExplosion => "end",
-                    // The Godot ending sets the stars waiting as the blast ends.
-                    EndingSceneCue.WaitForFlyaway => null,
+                    // The Godot ending fades the planet's colours in from the start of its scene, and sets the
+                    // stars waiting as the blast ends.
+                    EndingSceneCue.FadeExplosionColours or EndingSceneCue.WaitForFlyaway => null,
                     _ => throw new InvalidDataException($"A sprite of the ending raises {cue}, which this does not know."),
                 });
 
@@ -52,44 +51,13 @@ public sealed partial class EngineAssetWriter
         Cloud("top_cloud_edge", EndingActorDefinitions.TopCloudEdge);
         Cloud("bottom_cloud_edge", EndingActorDefinitions.BottomCloudEdge);
         Cloud("bottom_cloud_pattern", EndingActorDefinitions.BottomCloudPattern);
-        // The exploding planet is cut as its sheet has it, and shown in the explosion's colours for it as a change of
-        // colours. After its five rumbles its cue starts the old fade of its colours, with its glow under the fade: each
-        // step is the fade's look laid over the glow, laid over the planet's own colours.
-        string planetPictures = $"{folder}/exploding_planet";
-        EndingSpriteColouring planetColouring = EndingActorDefinitions.ExplodingZebes.Colouring;
-        Scene("exploding_planet", EndingActorDefinitions.ExplodingZebes.Animation, EndingSpriteSheets.Explosion, CinematicSpriteFamily.EndingExplosion, null);
-        var planetPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
-        {
-            [planetPictures] = [EngineSheets.SheetOf(EndingSpriteSheets.Explosion)],
-        };
-        PictureShade planetDrawn = EndingShades.Drawn(planetColouring);
-        string planetOwn = EndingShade(planetColouring, EndingColourLoad.Explosion).Key;
-        string planetGlow = EndingShades.Under(planetDrawn, EndingShades.Flashed(EndingFlash.PlanetGlow)).Key;
-        // The explosion's own colours for the planet are the colours its sheet has it in: there is no change to show
-        // until the fade begins, and the fade's steps are laid over them all the same, as the old game lays them.
-        if (ShadeChange(planetOwn, EngineSheets.SpriteFamily, planetPlaces).Count != 0)
-            throw new InvalidDataException("The explosion's colours change the exploding planet's pictures, which the Godot ending shows as their sheet has them until the fade.");
-        JsonObject planetFade = ColourSteps(
-            EndingColourEffectDefinitions.FadePlanet, shade => ShadeChange($"{planetOwn}+{planetGlow}+{planetDrawn.Effect}.{shade}", EngineSheets.SpriteFamily, planetPlaces));
+        Explosion("exploding_planet", EndingActorDefinitions.ExplodingZebes);
         Explosion("explosion_lava", EndingActorDefinitions.ExplosionLava);
         Explosion("explosion_glow", EndingActorDefinitions.ExplosionGlow);
         Explosion("stars", EndingActorDefinitions.ExplosionStars);
         Explosion("explosion_silhouette", EndingActorDefinitions.ExplosionSilhouette);
         Explosion("explosion_stars", EndingActorDefinitions.ExplosionStarsRight);
-
-        // The planet's afterglow is cut as its sheet has it, and shown in the explosion's colours for it as a change of
-        // colours. As the gunship flies out its glow plays: each step is the glow's look laid over those colours.
-        EndingSpriteDefinition afterglow = EndingActorDefinitions.ExplosionAfterglow;
-        Scene("explosion_afterglow", afterglow.Animation, EndingSpriteSheets.Explosion, CinematicSpriteFamily.EndingExplosion, null);
-        var afterglowPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
-        {
-            [$"{folder}/explosion_afterglow"] = [EngineSheets.SheetOf(EndingSpriteSheets.Explosion)],
-        };
-        string afterglowOwn = EndingShade(afterglow.Colouring, EndingColourLoad.Explosion).Key;
-        string afterglowDrawn = EndingShades.Drawn(afterglow.Colouring).Effect;
-        JsonObject afterglowColours = ShadeChange(afterglowOwn, EngineSheets.SpriteFamily, afterglowPlaces);
-        JsonObject afterglowGlow = ColourSteps(
-            EndingColourEffectDefinitions.PlanetAfterglow, shade => ShadeChange($"{afterglowOwn}+{afterglowDrawn}.{shade}", EngineSheets.SpriteFamily, afterglowPlaces));
+        Explosion("explosion_afterglow", EndingActorDefinitions.ExplosionAfterglow);
         if (EndingActorDefinitions.ExplosionStarsLeft.Animation != EndingSceneAnimation.ExplosionLeftStars
             || EndingSceneAnimations.Pictures.Segments.Beats(EndingSceneAnimation.ExplosionLeftStars) is not [AnimationBeat<CinematicSpritePose, EndingSceneCue>.HeldFrame left]
             || EndingSceneAnimations.Pictures.Segments.Beats(EndingSceneAnimation.ExplosionStars) is not [AnimationBeat<CinematicSpritePose, EndingSceneCue>.HeldFrame still]
@@ -185,11 +153,8 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException("Samus lands without firing, which the Godot ending waits for.");
         timelines["landing"] = landing;
 
-        // Her emblem, its pieces cut as their sheet has them and shown in the emblem's first colours as a change of
-        // colours. As its upper half lands its glare plays: each step is the glare's look laid over those colours.
-        string emblem = EndingShade(EndingLogoDefinitions.Colouring, EndingColourLoad.LogoInitial).Key;
-        string emblemDrawn = EndingShades.Drawn(EndingLogoDefinitions.Colouring).Effect;
-        var emblemPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        // Her emblem.
+        PictureShade emblem = EndingShade(EndingLogoDefinitions.Colouring, EndingColourLoad.LogoInitial);
         (string Name, EndingLogoActorDefinition Part)[] parts =
         [
             ("logo_upper_s", EndingLogoDefinitions.UpperS), ("logo_lower_s", EndingLogoDefinitions.LowerS),
@@ -199,14 +164,9 @@ public sealed partial class EngineAssetWriter
         {
             timelines[name] = SpriteTimeline(
                 EndingLogoAnimations.Logo.Segments, EndingLogoAnimations.Logo.StartingWith(part.Animation), EndingSpriteSheets.FallingSamusAndLogo,
-                CinematicSpriteFamily.EndingLogo, $"{folder}/{name}", null,
+                CinematicSpriteFamily.EndingLogo, $"{folder}/{name}", emblem,
                 static (EndingLogoCue cue) => cue == EndingLogoCue.GreyOut ? "grey_out" : throw new InvalidDataException($"The emblem raises {cue}, which this does not know."));
-            emblemPlaces[$"{folder}/{name}"] = [EngineSheets.SheetOf(EndingSpriteSheets.FallingSamusAndLogo)];
         }
-
-        JsonObject emblemColours = ShadeChange(emblem, EngineSheets.SpriteFamily, emblemPlaces);
-        JsonObject emblemGlare = ColourSteps(
-            EndingLogoDefinitions.LandingColourEffect, shade => ShadeChange($"{emblem}+{emblemDrawn}.{shade}", EngineSheets.SpriteFamily, emblemPlaces));
 
         // The shooting stars, from faintest to fullest.
         EngineSheetPictures stars = _sheets.CutSprites(
@@ -236,66 +196,19 @@ public sealed partial class EngineAssetWriter
             Whole(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(picture), name, EndingColourLoad.ExplosionBackgrounds);
         string After(string frame, string name) => Whole(SpriteSheetId.EndingPostCreditsPictures, frame, name, EndingColourLoad.PostCredits);
 
-        // The gunship's floor is the one picture the old game loads other colours for while it is shown: those the
-        // explosion's hold restored as it is first seen, and the final gunship's once it has flown clear. It is written
-        // as its sheet has it, with each of those as a change of colours on it.
-        SpriteSheetId gunshipSheet = EndingFloorDefinitions.Sheets[EndingFloorShot.Flyaway];
-        string gunshipFloor = _sheets.WriteSpriteWithRegions(_tree, gunshipSheet, EndingFloorDefinitions.FrameName, $"{folder}/gunship_floor.png");
-        var gunshipPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [gunshipFloor] = [EngineSheets.SheetOf(gunshipSheet)] };
-        JsonObject GunshipColours(EndingColourLoad stage) => ShadeChange(EndingShades.Loaded(stage).Key, EngineSheets.SpriteFamily, gunshipPlaces);
-
-        // The gunship comes out of the blast's white: from its first update it is shown in steps from white to the
-        // explosion's colours for it, over those colours.
-        JsonObject gunshipEmergence = ColourSteps(
-            EndingColourEffectDefinitions.GunshipEmergence, shade => ShadeChange(shade, EngineSheets.SpriteFamily, gunshipPlaces));
-
-        // The two floors of clouds are written as their sheets have them, with the escape's colours for both as one
-        // change of colours on them. Under the clouds at the sides the lava glows and the crust fades; under those
-        // above and below, the grey clouds fade. Each is steps of colours on its floor, over the escape's.
-        Dictionary<string, IReadOnlyList<string>> CloudFloor(EndingFloorShot shot, string name)
-        {
-            SpriteSheetId sheet = EndingFloorDefinitions.Sheets[shot];
-            string written = _sheets.WriteSpriteWithRegions(_tree, sheet, EndingFloorDefinitions.FrameName, $"{folder}/{name}.png");
-            return new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [written] = [EngineSheets.SheetOf(sheet)] };
-        }
-
-        Dictionary<string, IReadOnlyList<string>> sideClouds = CloudFloor(EndingFloorShot.SideCloudEscape, "cloud_floor");
-        Dictionary<string, IReadOnlyList<string>> topAndBottomClouds = CloudFloor(EndingFloorShot.TopAndBottomCloudEscape, "top_and_bottom_cloud_floor");
-        var bothClouds = new Dictionary<string, IReadOnlyList<string>>(sideClouds, StringComparer.Ordinal);
-        foreach ((string place, IReadOnlyList<string> sheets) in topAndBottomClouds)
-            bothClouds[place] = sheets;
-        JsonObject CloudSteps(ColourEffectId effect, IReadOnlyDictionary<string, IReadOnlyList<string>> places) =>
-            ColourSteps(effect, shade => ShadeChange(shade, EngineSheets.SpriteFamily, places));
-
         var data = new JsonObject
         {
-            ["cloud_floor"] = sideClouds.Keys.Single(),
-            ["top_and_bottom_cloud_floor"] = topAndBottomClouds.Keys.Single(),
-            ["cloud_colours"] = ShadeChange(EndingShades.Loaded(EndingColourLoad.Escape).Key, EngineSheets.SpriteFamily, bothClouds),
-            ["cloud_lava"] = CloudSteps(EndingColourEffectDefinitions.Lava, sideClouds),
-            ["cloud_crust"] = CloudSteps(EndingColourEffectDefinitions.Crust, sideClouds),
-            ["grey_clouds"] = CloudSteps(EndingColourEffectDefinitions.GreyClouds, topAndBottomClouds),
+            ["cloud_floor"] = Floor(EndingFloorShot.SideCloudEscape, "cloud_floor", EndingColourLoad.Escape),
+            ["top_and_bottom_cloud_floor"] = Floor(EndingFloorShot.TopAndBottomCloudEscape, "top_and_bottom_cloud_floor", EndingColourLoad.Escape),
             ["planet_floor"] = Floor(EndingFloorShot.PlanetExplosion, "planet_floor", EndingColourLoad.Explosion),
-            ["gunship_floor"] = gunshipFloor,
-            ["gunship_colours"] = new JsonObject
-            {
-                ["flying_out"] = GunshipColours(EndingColourLoad.ExplosionBackgrounds),
-                ["clear"] = GunshipColours(EndingColourLoad.FinalGunship),
-            },
-            ["gunship_emergence"] = gunshipEmergence,
-            ["explosion_afterglow_colours"] = afterglowColours,
-            ["explosion_afterglow_glow"] = afterglowGlow,
-            ["emblem_colours"] = emblemColours,
-            ["emblem_glare"] = emblemGlare,
+            ["gunship_floor"] = Floor(EndingFloorShot.Flyaway, "gunship_floor", EndingColourLoad.FinalGunship),
             ["shot_floor"] = Floor(EndingFloorShot.RewardIcon, "shot_floor", EndingColourLoad.RestoredShot),
             ["planet_explosion"] = Blast(EndingExplosionDisplayDefinitions.PlanetExplosion, "planet_explosion"),
             ["burst_glow"] = Blast(EndingExplosionDisplayDefinitions.BurstGlow, "burst_glow"),
             ["finale_explosion"] = Blast(EndingExplosionDisplayDefinitions.FinaleExplosion, "finale_explosion"),
             ["finale_glow"] = Blast(EndingExplosionDisplayDefinitions.FinaleGlow, "finale_glow"),
-            ["exploding_planet_fade"] = planetFade,
             ["credits_roll"] = credits,
             ["credits_scroll"] = CreditsRollLines.FinishingScroll,
-            ["post_credits_backdrop"] = Colour(_installation.LoadEndingBackdrops().PostCredits),
             ["waiting_backdrop"] = After(EndingPictureNames.WaitingBackdrop, "waiting_backdrop"),
             ["wavy_samus"] = Whole(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus, "wavy_samus", EndingColourLoad.PostCredits),
             ["result_panel"] = After(EndingPictureNames.ResultPanel, "result_panel"),

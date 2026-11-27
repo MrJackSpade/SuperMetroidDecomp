@@ -36,7 +36,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 import camera  # noqa: E402
 import enemies  # noqa: E402
 import fx  # noqa: E402
-import ground  # noqa: E402
 import legacy  # noqa: E402
 import objects  # noqa: E402
 import sequences  # noqa: E402
@@ -682,11 +681,6 @@ class Generator:
             things.extend(shown)
             for teller, target in told:
                 links[id(teller)] = {'Target': target}
-            # What its ground raises where Samus lands or runs, and the rain it is wet while, where it is so.
-            grounds, wetted_by = ground.things(room, shown)
-            things.extend(grounds)
-            for placed, rain in wetted_by:
-                links.setdefault(id(placed), {})['WhileShowing'] = rain
             if booster is not None:
                 # The item tells the room's lava to rise as its pickup ends, and the lava has its speed from that.
                 liquids = [thing for thing in shown if thing.name == 'Liquid']
@@ -854,12 +848,7 @@ class Generator:
             # The scope shows no blocks in a room the old game marks so, nor while one of those bosses is in it.
             hides = room.properties.get('XrayRevealsNoBlocks') == 'true' or any(
                 placement.enemy in SIGHT_HIDING_ENEMIES for placement in self.populations[state.enemies])
-            sight = {'HidesBlocksFromSight': 'true'} if hides else {}
-            # A room the old game marks so draws nothing behind it while the scope is open, which the cartridge does
-            # only in a room that shows the scope none of its blocks.
-            if hides and room.properties.get('XrayHidesBackground') == 'true':
-                sight['HidesBackdropsFromSight'] = 'true'
-            return sight
+            return {'HidesBlocksFromSight': 'true'} if hides else {}
 
         def boss_of(state: legacy.State) -> dict[str, str]:
             # A room is a boss's, beaten or not, when its enemies as the old game lists them include a boss's kind.
@@ -913,10 +902,7 @@ class Generator:
         if room.area in FROZEN_UPDATES:
             room_settings['StatusUpdates'] = 'Dictionary[String, int]({"frozen": %d})' % FROZEN_UPDATES[room.area]
         scene.node(room.name, None, room_settings, script='res://engine/world/Room.cs')
-        # The room's tiles are shown a row above its own rows, as its backdrops lie (sequences.PLANES_AT); where they
-        # are in play does not move.
-        scene.node('Terrain', '.', {'position': 'Vector2({}, {})'.format(*sequences.PLANES_AT), 'LayoutFile': quoted(layout_of(room, base))},
-                   script='res://engine/world/Terrain.cs')
+        scene.node('Terrain', '.', {'LayoutFile': quoted(layout_of(room, base))}, script='res://engine/world/Terrain.cs')
 
         entries: list[tuple[str, int, int]] = []
         for name, (x, y, width, height) in self.room_doors[key].items():

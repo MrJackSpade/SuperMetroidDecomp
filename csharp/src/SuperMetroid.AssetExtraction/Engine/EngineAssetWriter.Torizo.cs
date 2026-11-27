@@ -296,7 +296,7 @@ public sealed partial class EngineAssetWriter
             first["cues"] = cues;
         }
 
-        _tree.WriteData(file, pictures.Lay(timeline, file));
+        _tree.WriteData(file, timeline);
         return file;
     }
 
@@ -666,7 +666,7 @@ public sealed partial class EngineAssetWriter
         JsonObject timeline = EngineTimelines.Of(lead, null, frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)),
             static (TorizoProjectileCue cue) => cue is TorizoProjectileCue.PlaySound sound ? EngineNames.SoundCue(sound.Sound, sound.Priority) : null);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
-        _tree.WriteData(file, pictures.Lay(timeline, file));
+        _tree.WriteData(file, timeline);
         return file;
     }
 
@@ -744,8 +744,7 @@ public sealed partial class EngineAssetWriter
         const int block = EngineRoomObjects.Block;
         new EngineObjectFile(_tree, file, "BombTorizoHand")
             .Value("debris_look", TorizoLookName(TorizoArtworkLookKeys.Installed.Of(TorizoArtworkLook.ChozoCrumbled)))
-            // It is of the room's blocks, and lies a row up with the room's tiles.
-            .Group("picture_offset", EngineRoomObjects.PictureCorner(left * block, top * block))
+            .Group("picture_offset", new JsonObject { ["x"] = left * block, ["y"] = top * block })
             .Group("crumble", EngineNames.List(BombTorizoHandCrumbleDefinitions.Crumble.Select(step => (JsonNode)new JsonObject
             {
                 ["picture"] = Picture(step.Image),

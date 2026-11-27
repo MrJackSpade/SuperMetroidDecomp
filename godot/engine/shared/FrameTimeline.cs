@@ -42,7 +42,6 @@ public sealed class FrameTimeline
     public static FrameTimeline Read(DataNode data)
     {
         (int X, int Y) offset = data.Has("offset") ? (data.Get("offset").Int("x"), data.Get("offset").Int("y")) : (0, 0);
-        LiesAgainstTiles lies = data.Has("lies") ? data.Get("lies").AsEnum<LiesAgainstTiles>() : LiesAgainstTiles.WhereItStands;
         var steps = data.List("steps").Select(step => new TimelineStep(
             step.Has("picture") ? step.Text("picture") : "",
             step.Int("updates"),
@@ -51,7 +50,6 @@ public sealed class FrameTimeline
             Offset = step.Has("offset")
                 ? (offset.X + step.Get("offset").Int("x"), offset.Y + step.Get("offset").Int("y"))
                 : offset,
-            Lies = step.Has("lies") ? step.Get("lies").AsEnum<LiesAgainstTiles>() : lies,
         }).ToList();
         int? loopsTo = data.Has("loops_to") ? data.Int("loops_to") : null;
         try

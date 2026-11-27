@@ -1,6 +1,5 @@
 using Engine.Actors.Components;
 using Engine.Collision;
-using Engine.Content;
 using Engine.Shared;
 using Engine.World;
 using Godot;
@@ -139,14 +138,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (_settings.Timeline.Length > 0)
         {
             _timeline = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(Named(_settings.Timeline))));
-            _laid.Show(this, _timeline.Current.Lies);
             picture = _timeline.Current.Picture;
-        }
-
-        if (_settings.Trail.Length > 0)
-        {
-            _trail = ProjectileTrail.Read(room.Content.ReadData(Named(_settings.Trail)));
-            _trailLeft = _trail.FirstAfter;
         }
 
         if (picture.Length > 0 || _timeline is not null)
@@ -172,35 +164,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         .Replace("{direction}", _direction, StringComparison.Ordinal)
         .Replace("{side}", Velocity.X.IsNegative ? "left" : "right", StringComparison.Ordinal);
 
-    /// <summary>Where the step it shows lies against the room's tiles, when the step or its timeline says.</summary>
-    private readonly LaidDepth _laid = new();
-
-    /// <summary>What it leaves behind it as it flies, and the updates left before the next is left; none for a shot that leaves nothing.</summary>
-    private ProjectileTrail? _trail;
-    private int _trailLeft;
-
-    /// <summary>
-    /// Leaves the sparkles of the step its flying timeline shows, each an effect of its own that holds none of the
-    /// room's places. A shot showing no timeline's step leaves none.
-    /// </summary>
-    private void LeaveTrail(Room room, ProjectileTrail trail)
-    {
-        if (_timeline is not { } timeline)
-            return;
-        if (timeline.StepIndex >= trail.Steps.Count)
-            throw new ContentException(Named(_settings.Trail), $"gives sparkles for {trail.Steps.Count} steps of a timeline that is at step {timeline.StepIndex + 1}");
-        foreach (ProjectileTrail.Sparkle sparkle in trail.Steps[timeline.StepIndex])
-            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(sparkle.Timeline)), Position + sparkle.At));
-    }
-
-    /// <summary>
-    /// Starts the projectile on another timeline, by its data file. It is drawn where each step it shows lies against
-    /// the room's tiles, or at its own depth where the step says nothing.
-    /// </summary>
+    /// <summary>Starts the projectile on another timeline, by its data file.</summary>
     protected void PlayTimeline(string file)
     {
         _timeline = new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(Named(file))));
-        _laid.Show(this, _timeline.Current.Lies);
         _visual?.Show(_timeline.Current);
     }
 
@@ -242,15 +209,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         }
 
         Age++;
-
-        // Its trail is counted on each update it is stepped, before its pictures move on and before it moves or
-        // ignites: what is left is the step's that showed as the update began, where it stood then.
-        if (_trail is { } trail && --_trailLeft == 0)
-        {
-            LeaveTrail(room, trail);
-            _trailLeft = trail.Every;
-        }
-
         if (_timeline is not null)
         {
             foreach (string cue in _timeline.Step())
@@ -275,7 +233,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
             // The picture is that of the step this update fell in: it changes on the update the step's cues come.
             _visual?.Show(_timeline.Shown);
-            _laid.Show(this, _timeline.Shown.Lies);
         }
 
         // Shot down, it holds still and only meets what is where it lies.

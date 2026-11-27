@@ -110,22 +110,13 @@ public sealed partial class EngineAssetWriter
         places["caption"] = At(SpaceColonyCaption.Left(0), SpaceColonyCaptionDefinitions.Top);
         places["caption_second"] = At(SpaceColonyCaptionDefinitions.JapaneseLeft, SpaceColonyCaptionDefinitions.JapaneseTop);
 
-        // The Japanese subtitles under the pages, all in one strip of the screen.
-        (int subtitleX, int subtitleY, Dictionary<IntroNarrationPageId, (string First, string? Second)> subtitles) = WriteIntroSubtitles(folder, raise);
-        places["subtitle"] = At(subtitleX, subtitleY);
-
-        // The pages: each one's words, the scene it turns to, its subtitle, and whether a second press is waited for
-        // where it has a second subtitle, which the press shows.
+        // The pages: each one's words, the scene it turns to, and whether a second press is waited for where the
+        // old game showed a second wording.
         var pages = new JsonArray();
         foreach (IntroNarrationPageId id in Enum.GetValues<IntroNarrationPageId>())
         {
             IntroNarrationPageDefinition page = IntroNarrationPageDefinitions.Pages[id];
-            var entry = new JsonObject
-            {
-                ["text"] = Words("intro_" + Named(id), NarrationWords(narration.GetLines(id))), ["subtitle"] = subtitles[id].First,
-            };
-            if (subtitles[id].Second is { } second)
-                entry["second_subtitle"] = second;
+            var entry = new JsonObject { ["text"] = Words("intro_" + Named(id), NarrationWords(narration.GetLines(id))) };
             if (page.TurnsTo is { } scene)
             {
                 entry["scene"] = scene switch

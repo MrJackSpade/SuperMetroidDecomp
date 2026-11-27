@@ -136,7 +136,6 @@ public sealed class GameSession
         Progress = new Progress();
         EnemyPasses = 0;
         PlaceLeftovers = [];
-        BackdropPlace = Vector2I.Zero;
         // A player left in a room went with the room; one that is in no room is done with here.
         if (_player is not null && GodotObject.IsInstanceValid(_player) && _player.GetParent() is null)
             _player.Free();
@@ -338,15 +337,6 @@ public sealed class GameSession
     /// room being left gives it and the room entered takes it.
     /// </summary>
     internal IReadOnlyList<World.PlaceLeftover> PlaceLeftovers { get; set; } = [];
-
-    /// <summary>
-    /// Where the backdrop of the room last left stood as it was left: the pixel of its picture that lay at the view's
-    /// top-left corner, along each axis; nought, as a game begins. A backdrop that follows the view along no part of
-    /// an axis keeps this place along it (<see cref="World.Backdrop.KeepPlace"/>), as the cartridge's background keeps
-    /// the position the room before left it on an axis its room holds it still on. The room being left gives it and
-    /// the room entered takes it.
-    /// </summary>
-    internal Vector2I BackdropPlace { get; set; }
 
     /// <summary>Counts an enemies' pass that has just ended. The room does this.</summary>
     internal void CountEnemyPass() => EnemyPasses++;

@@ -1,4 +1,3 @@
-using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Ui;
 using Engine.World;
@@ -9,8 +8,7 @@ namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// Ridley's getaway from Ceres and what follows it. Told to start as he leaves with the capsule, it shows him flying
-/// off over the turning floor toward the screen, the room in the colours of the floor's size, throws Samus aside as he
-/// passes, and then begins the station's
+/// off over the turning floor toward the screen, throws Samus aside as he passes, and then begins the station's
 /// self-destruct: the warning comes up, the escape music starts, the words are typed out, and the countdown begins.
 /// The warning stays up, flashing, for as long as the room is there.
 /// </summary>
@@ -40,12 +38,9 @@ public partial class CeresGetaway : RoomSequence
     [Export(PropertyHint.File)]
     public string WingLeftoversFile { get; set; } = "";
 
-    /// <summary>
-    /// The data file of the colours the room is shown in through the flight by the floor's size: under "by_whole_size",
-    /// a change of colours for each whole floor pixel to a pixel of the screen, from none on; empty for none.
-    /// </summary>
-    [Export(PropertyHint.File)]
-    public string SizeColoursFile { get; set; } = "";
+    /// <summary>The floor's tint at each whole size it is shown at, from nearest to farthest; empty for none.</summary>
+    [Export]
+    public Godot.Collections.Array<Color> SizeTints { get; set; } = [];
 
     /// <summary>The sound of him leaving, by name.</summary>
     [Export]
@@ -68,9 +63,8 @@ public partial class CeresGetaway : RoomSequence
     /// are typed in, where their first letter's cell lies ("x", "y"), how many updates each letter takes
     /// ("updates_per_letter"), how many letters at the start are followed by the next at once ("undelayed_letters"),
     /// how many letters appear for each sound ("letters_per_sound"), the sound of a letter appearing ("letter_sound"),
-    /// its "second_wordings", each under a name with the "languages" it is shown in and its "pictures", each with
-    /// where it goes, and its "alarm": the steps of colours everything written on the warning flashes through, a step
-    /// on each of the updates the clock's count is a multiple of four.
+    /// and its "second_wordings", each under a name with the "languages" it is shown in and its "pictures", each with
+    /// where it goes.
     /// </summary>
     [Export]
     public string LayoutFolder { get; set; } = "text/typed";
@@ -78,6 +72,10 @@ public partial class CeresGetaway : RoomSequence
     /// <summary>The warning's second wording, shown beneath a moment into the typing; by its name in the warning's layout, empty for none.</summary>
     [Export]
     public string Subtitle { get; set; } = "";
+
+    /// <summary>The colours the warning flashes through, in order; empty for none.</summary>
+    [Export]
+    public Godot.Collections.Array<Color> AlarmColours { get; set; } = [];
 
     /// <summary>The things told "start" as the countdown begins: the room's shaking, say.</summary>
     [Export]
@@ -132,23 +130,12 @@ public partial class CeresGetaway : RoomSequence
     private Vector2I _scroll;
     private int _capsule;
     private int _wings;
-
-    /// <summary>The alarm's steps of colours, shown on everything written on the warning; none before the warning comes up.</summary>
-    private ColourSteps? _alarm;
-
-    /// <summary>The name the warning's colours are changed under by its alarm.</summary>
-    private const string AlarmColours = "Alarm";
+    private int _alarm = -1;
     private int _typedFor;
     private CanvasLayer? _warning;
     private TypedText? _words;
     private Node2D? _subtitle;
     private IReadOnlyList<int[]> _wingStrideUpdates = [];
-
-    /// <summary>The room's colours for each whole size of the floor, from none on.</summary>
-    private IReadOnlyList<ColourChange> _sizeColours = [];
-
-    /// <summary>The name the room's colours are changed under for the floor's size.</summary>
-    private const string SizeColours = "GetawayFloorSize";
 
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
@@ -173,13 +160,13 @@ public partial class CeresGetaway : RoomSequence
             case Stage.BeforeHeading:
                 if (--_wait > 0)
                     break;
-                SetUpWarning(room);
+                ShowHeading(room);
                 room.Session.Sounds.RequestMusic(EscapeMusic);
                 (_stage, _wait) = (Stage.HoldingHeading, 128);
                 break;
 
             case Stage.HoldingHeading:
-                StepAlarm(room);
+                StepAlarm(elapsed);
                 if (--_wait > 0)
                     break;
                 BeginTyping(room);
@@ -187,7 +174,7 @@ public partial class CeresGetaway : RoomSequence
                 break;
 
             case Stage.Typing:
-                StepAlarm(room);
+                StepAlarm(elapsed);
                 TypedText words = _words ?? throw new InvalidOperationException("The warning is not being typed.");
                 if (_subtitle is not null && ++_typedFor == 32)
                     _subtitle.Visible = true;
@@ -199,7 +186,7 @@ public partial class CeresGetaway : RoomSequence
                 break;
 
             case Stage.Finishing:
-                StepAlarm(room);
+                StepAlarm(elapsed);
 
                 // The station is now going to blow up, and the way out is open.
                 room.Session.Progress.Record(StoryEvents.CeresSelfDestructStarted);
@@ -216,7 +203,7 @@ public partial class CeresGetaway : RoomSequence
                 break;
 
             case Stage.Alarm:
-                StepAlarm(room);
+                StepAlarm(elapsed);
                 break;
 
             default:
@@ -230,16 +217,12 @@ public partial class CeresGetaway : RoomSequence
     {
         room.Session.Progress.Record(StoryEvents.CeresRidleyEscaped);
         (_stage, _flown, _angle, _scroll) = (Stage.Flying, 0, 1, new Vector2I(-128, 32));
-        (_capsule, _wings, _typedFor) = (0, 0, 0);
-        _alarm = null;
+        (_capsule, _wings, _alarm, _typedFor) = (0, 0, -1, 0);
         _wingStrideUpdates = WingLeftoversFile.Length == 0
             ? []
             : [.. room.Content.ReadData(WingLeftoversFile).List("stride_updates").Select(wing => wing.Items().Select(updates => updates.AsInt()).ToArray())];
         if (_wingStrideUpdates.Count != 0 && _wingStrideUpdates.Count != WingPictures.Count)
             throw new InvalidOperationException($"Ridley's getaway \"{Name}\" has {WingPictures.Count} wing pictures but what {_wingStrideUpdates.Count} of them leave behind.");
-        _sizeColours = SizeColoursFile.Length == 0
-            ? []
-            : [.. room.Content.ReadData(SizeColoursFile).List("by_whole_size").Select(ColourChange.Read)];
         TurningFloor floor = FloorOf();
         floor.Visible = true;
 
@@ -275,16 +258,6 @@ public partial class CeresGetaway : RoomSequence
         _scroll = new Vector2I(_scroll.X - drift.X, _scroll.Y + drift.Y);
         _angle += TurnPerUpdate;
         ShowFloor(floor, size);
-
-        // The room is shown in the colours of the floor's whole size on every update of the flight, and keeps the last
-        // of them once he is gone.
-        if (_sizeColours.Count > 0)
-        {
-            int whole = size / 256;
-            if (whole >= _sizeColours.Count)
-                throw new InvalidOperationException($"Ridley's getaway \"{Name}\" shows the floor at {whole} floor pixels to a pixel, which its colours do not reach.");
-            room.Recolour(SizeColours, _sizeColours[whole]);
-        }
 
         long updates = room.Session.Clock.Updates;
         if (updates % 4 == 0 && CapsulePictures.Count > 0)
@@ -333,19 +306,25 @@ public partial class CeresGetaway : RoomSequence
     private void ShowFloor(TurningFloor floor, int size)
     {
         floor.Turn(_angle * Math.Tau / 65536, size / 256.0, new Vector2(64, 64), _scroll);
+        int whole = size / 256;
+        if (SizeTints.Count > 0)
+            floor.Modulate = SizeTints[Math.Min(whole, SizeTints.Count - 1)];
     }
 
-    /// <summary>
-    /// Puts up the warning's heading, and makes ready what will be written under it: the words, typed later, and the
-    /// second wording in the languages that have one, hidden until its moment. The alarm is shown on all of it.
-    /// </summary>
-    private void SetUpWarning(Room room)
+    private void ShowHeading(Room room)
+    {
+        if (HeadingPicture.Length == 0)
+            return;
+        var heading = new Sprite2D
+        {
+            Name = "Heading", Texture = room.Content.LoadTexture(HeadingPicture), Centered = false, Position = HeadingAt,
+        };
+        Warning().AddChild(heading);
+    }
+
+    private void BeginTyping(Room room)
     {
         DataNode layout = room.Session.Content.ReadData($"{LayoutFolder}/{Message}.json");
-        ColourSteps alarm = _alarm = new ColourSteps(layout.Get("alarm"), AlarmColours);
-        if (HeadingPicture.Length > 0)
-            alarm.ShowOn(Written(room, Warning(), "Heading", HeadingPicture, HeadingAt));
-
         _words = new TypedText
         {
             Name = "Words", Font = PixelFont.Read(room.Session.Content, layout.Text("font")), UpdatesPerCharacter = layout.Int("updates_per_letter"),
@@ -353,7 +332,8 @@ public partial class CeresGetaway : RoomSequence
             Position = new Vector2(layout.Int("x"), layout.Int("y")),
         };
         Warning().AddChild(_words);
-        alarm.ShowOn(_words);
+        _words.Type(room.Session.Text.Get(Message));
+        _typedFor = 0;
         if (Subtitle.Length == 0)
             return;
 
@@ -362,34 +342,25 @@ public partial class CeresGetaway : RoomSequence
         if (!second.List("languages").Any(language => language.AsText() == room.Session.Options.Language))
             return;
         _subtitle = new Node2D { Name = "Subtitle", Visible = false };
+        foreach (DataNode line in second.List("pictures"))
+        {
+            _subtitle.AddChild(new Sprite2D
+            {
+                Texture = room.Content.LoadTexture(line.Text("picture")), Centered = false, Position = new Vector2(line.Int("x"), line.Int("y")),
+            });
+        }
+
         Warning().AddChild(_subtitle);
-        IReadOnlyList<DataNode> lines = second.List("pictures");
-        for (int line = 0; line < lines.Count; line++)
-            alarm.ShowOn(Written(room, _subtitle, $"Line{line}", lines[line].Text("picture"), new Vector2I(lines[line].Int("x"), lines[line].Int("y"))));
     }
 
-    /// <summary>A picture written on the warning, its corner where it goes: a visual whose colours can be changed.</summary>
-    private static ActorVisual Written(Room room, Node on, string name, string picture, Vector2I corner)
+    /// <summary>Moves the warning's flashing on, every fourth update.</summary>
+    private void StepAlarm(int elapsed)
     {
-        var written = new ActorVisual { Name = name, Position = corner };
-        on.AddChild(written);
-        written.Bind(room.Content);
-        written.Show(picture);
-        return written;
-    }
-
-    private void BeginTyping(Room room)
-    {
-        (_words ?? throw new InvalidOperationException("The warning has not come up.")).Type(room.Session.Text.Get(Message));
-        _typedFor = 0;
-    }
-
-    /// <summary>Moves the warning's alarm on, on the updates the clock's count is a multiple of four.</summary>
-    private void StepAlarm(Room room)
-    {
-        ColourSteps alarm = _alarm ?? throw new InvalidOperationException("The warning has not come up.");
-        if (room.Session.Clock.Updates % 4 == 0)
-            alarm.Step();
+        if (elapsed % 4 != 0 || AlarmColours.Count == 0)
+            return;
+        _alarm = (_alarm + 1) % AlarmColours.Count;
+        foreach (CanvasItem written in Warning().GetChildren().OfType<CanvasItem>())
+            written.Modulate = AlarmColours[_alarm];
     }
 
     private CanvasLayer Warning() => _warning ?? throw new InvalidOperationException("The warning has not come up.");

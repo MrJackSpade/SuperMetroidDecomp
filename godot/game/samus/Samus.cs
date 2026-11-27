@@ -207,36 +207,6 @@ public partial class Samus : Player
     /// <summary>The updates left before another bubble may rise.</summary>
     private Countdown _bubbleWait = Countdown.Over;
 
-    /// <summary>
-    /// The puffs of the spray a liquid that burns her throws up about her, each by the data file of its timeline, in the
-    /// order they are thrown.
-    /// </summary>
-    [Export, DataValue("liquid_spray_effects")]
-    public string[] LiquidSprayEffects { get; set; } = [];
-
-    /// <summary>How many pixels right of her middle each puff of the spray begins, in the same order.</summary>
-    [Export, DataValue("liquid_spray_across")]
-    public int[] LiquidSprayAcross { get; set; } = [];
-
-    /// <summary>How many updates a spray holds the next one off.</summary>
-    [Export, DataValue("liquid_spray_hold_updates")]
-    public int LiquidSprayHoldUpdates { get; set; } = 1;
-
-    /// <summary>How many updates a spray holds her breath's next bubble off.</summary>
-    [Export, DataValue("liquid_spray_bubble_hold_updates")]
-    public int LiquidSprayBubbleHoldUpdates { get; set; } = 1;
-
-    /// <summary>The sound of the spray, by name; empty for none.</summary>
-    [Export, DataValue("liquid_spray_sound")]
-    public string LiquidSpraySound { get; set; } = "";
-
-    /// <summary>That sound is heard with a spray thrown on a count of the clock that this divides.</summary>
-    [Export, DataValue("liquid_spray_sound_every")]
-    public int LiquidSpraySoundEvery { get; set; } = 2;
-
-    /// <summary>The updates left before another spray may be thrown.</summary>
-    private Countdown _sprayWait = Countdown.Over;
-
     /// <summary>The echoes a shinespark throws off as it ends, by the data file of their shot; empty for none.</summary>
     [Export(PropertyHint.File), DataValue("shinespark_echo_shot")]
     public string ShinesparkEchoShot { get; set; } = "";
@@ -736,9 +706,8 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// Her landing makes its sound, a harder one from a fast fall, and raises what the ground she came down on raises,
-    /// on her feet or as a ball. A landing that is not a hard one and came down at a whole number of pixels an update,
-    /// none included, does neither.
+    /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
+    /// landing that is not a hard one and came down at a whole number of pixels an update, none included, does neither.
     /// </summary>
     protected override void OnLanded()
     {
@@ -749,8 +718,8 @@ public partial class Samus : Player
         bool hard = LandedAtLeast(HardLandingSpeed);
         if (!hard && LandingSpeed.Fraction == 0)
             return;
+        base.OnLanded();
         Room.Session.Sounds.Request(hard ? Sounds.HardLand : Sounds.Land, channel: "samus");
-        RaiseFromLanding();
     }
 
     /// <summary>A landing out of a spin or a wall jump takes a spin's landing to settle.</summary>
@@ -2066,32 +2035,6 @@ public partial class Samus : Player
         {
             Room.Session.Sounds.Request(RoomDamageSound, channel: "samus", priority: source == HeatName ? SoundPriority.Normal : SoundPriority.Low);
         }
-
-        // A liquid that burns her throws up its spray on every update it does, as the cartridge's lava and acid do.
-        if (Room.Liquid is { } liquid && source == liquid.Type.Name)
-            Spray(liquid);
-    }
-
-    /// <summary>
-    /// Throws up the spray of the liquid that burns her, while her head is above its surface and no spray holds the next
-    /// off: its puffs on the surface about her, and its sound on the clock's cadence. It holds the next spray off, and
-    /// her breath's next bubble, for as long as the puffs that took their places show.
-    /// </summary>
-    private void Spray(Liquid liquid)
-    {
-        int surface = liquid.Surface.Whole;
-        if (Head.Y.Whole >= surface || _sprayWait.IsRunning)
-            return;
-        for (int puff = 0; puff < LiquidSprayEffects.Length; puff++)
-        {
-            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(LiquidSprayEffects[puff])),
-                PixelPosition.FromWhole(Position.X.Whole + LiquidSprayAcross[puff], surface)));
-        }
-
-        _sprayWait = Countdown.Of(LiquidSprayHoldUpdates);
-        _bubbleWait = Countdown.Of(LiquidSprayBubbleHoldUpdates);
-        if (LiquidSpraySound.Length > 0 && Room.Session.Clock.Updates % LiquidSpraySoundEvery == 0)
-            Room.Session.Sounds.Request(LiquidSpraySound, channel: "samus");
     }
 
     /// <summary>What her suit divides damage by.</summary>
@@ -2325,17 +2268,13 @@ public partial class Samus : Player
         bool feetInLiquid = Room.Liquid is not null && FeetAreInLiquid;
         if (feetInLiquid ? Room.Liquid!.Type.Name == WaterName : _liquidLastEntered == WaterName)
             Breathe();
+        _bubbleWait = _bubbleWait.Stepped();
         _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
         if (_ranFromStart && State is RunningState)
         {
             StepStride();
             StepFootsteps();
         }
-
-        // What holds off her next bubble and the next spray is counted down once her feet have raised what they raise,
-        // as the cartridge counts what its effects hold off after it has raised them.
-        _bubbleWait = _bubbleWait.Stepped();
-        _sprayWait = _sprayWait.Stepped();
 
         WarnOfLowEnergy();
         Grapple?.Step(this);
@@ -2409,16 +2348,15 @@ public partial class Samus : Player
     private static readonly int[] FootContacts = [2, 7];
 
     /// <summary>
-    /// On the last update of each picture of her stride that brings a foot down, raises what the foot raises and asks
-    /// for her footsteps' sound, as the cartridge does: the sound not in a boss's room, not while she holds a shine as
-    /// the game's tests see it, not once the boost is at its full stage, and not while a scene is showing her. The
-    /// request counts among the sounds waiting whether or not it is heard.
+    /// Asks for her footsteps' sound on the last update of each picture of her stride that brings a foot down, as the
+    /// cartridge does: not in a boss's room, not while she holds a shine as the game's tests see it, not once the
+    /// boost is at its full stage, and not while a scene is showing her. The request counts among the sounds waiting
+    /// whether or not it is heard.
     /// </summary>
     private void StepFootsteps()
     {
         if (_strideLeft != 1 || !FootContacts.Contains(_strideAt))
             return;
-        RaiseFromFootstep();
         if (Room.HasBoss || ReadsAsHoldingShine || IsBoosting || IsShownByScene)
             return;
         Room.Session.Sounds.Request(Sounds.Footsteps, channel: "samus");

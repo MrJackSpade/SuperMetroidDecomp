@@ -126,14 +126,6 @@ internal sealed partial class EngineSheets
     internal const string SharedSpawner = "Shared";
 
     /// <summary>
-    /// How many pixels above its place the cartridge shows what it draws on a room's own layers, against its sprites:
-    /// one. It shows a room's tiles and background from the row below the view's and draws a sprite where its place
-    /// says, so the Godot game lays a room's terrain and backdrops a row up, and a picture made of the room's blocks,
-    /// or a boss's body, lies a row above its place with them. Its place, where it is in play, does not move.
-    /// </summary>
-    internal const int LayersRowAbove = 1;
-
-    /// <summary>
     /// Where a look keeps the picture named <paramref name="frame"/>: its sheet, or an empty name for a picture that
     /// shows nothing; null when the look has no such picture.
     /// </summary>
@@ -234,7 +226,6 @@ internal sealed partial class EngineSheets
 
         int width = right - left, height = bottom - top;
         var paths = new Dictionary<string, string>(StringComparer.Ordinal);
-        var depths = new Dictionary<string, ActorDepth?>(StringComparer.Ordinal);
         var canvas = new RgbaPixel[width * height];
         foreach ((string Name, string Sheet) frame in frames)
         {
@@ -269,7 +260,6 @@ internal sealed partial class EngineSheets
             string path = $"{folder}/{(fileName is null ? FileName(frame.Name) : fileName(frame.Name))}.png";
             tree.WritePicture(path, width, height, canvas);
             paths[frame.Name] = path;
-            depths[path] = placed.Depth;
             if (regionMaps && image.RecolourRegions is { } placedRegions)
             {
                 // The picture's map of regions lies beside it, where any pixel it shows is in a region but the first.
@@ -290,40 +280,9 @@ internal sealed partial class EngineSheets
                 if (told)
                     tree.WriteRegionMap(path, width, height, canvasRegions);
             }
-
-            WriteBlendsMap(tree, path, width, height, image, document, placed, across, down);
         }
 
-        return new EngineSheetPictures(left, top, width, height, paths) { PictureDepths = depths };
-    }
-
-    /// <summary>
-    /// Writes, beside a picture cut from a sheet, the map of its pixels that take part in a room's blends, where any
-    /// does: every pixel it shows of a frame that blends whole, or the pixels the sheet's own map marks of a sheet
-    /// whose pictures blend in part.
-    /// </summary>
-    private static void WriteBlendsMap(
-        EngineAssetTree tree, string path, int width, int height, SpriteImagePixels image, InstalledSheetDocument document,
-        InstalledSheetFrameDocument frame, int across, int down)
-    {
-        if (!frame.Blends && image.Blending is null)
-            return;
-        var takesPart = new bool[width * height];
-        bool any = false;
-        for (int y = 0; y < frame.Size.Y; y++)
-        {
-            int from = (frame.Corner.Y + y) * document.Size.X + frame.Corner.X, to = (down + y) * width + across;
-            for (int x = 0; x < frame.Size.X; x++)
-            {
-                if (image.Pixels[from + x].A == 0 || !(image.Blending is { } marked ? marked[from + x] : frame.Blends))
-                    continue;
-                takesPart[to + x] = true;
-                any = true;
-            }
-        }
-
-        if (any)
-            tree.WriteBlendsMap(path, width, height, takesPart);
+        return new EngineSheetPictures(left, top, width, height, paths);
     }
 
     /// <summary>
@@ -477,8 +436,6 @@ internal sealed partial class EngineSheets
                     if (told)
                         tree.WriteRegionMap(path, width, height, canvasRegions);
                 }
-
-                WriteBlendsMap(tree, path, width, height, image, document, frame, across, down);
             }
 
             foreach (string blank in document.Blank ?? [])
@@ -552,59 +509,6 @@ internal sealed partial record EngineSheetPictures(int OffsetX, int OffsetY, int
     /// null where they differ, have none, or the cut does not say.
     /// </summary>
     internal ActorDepth? Depth { get; init; }
-
-    /// <summary>
-    /// The depth against the room's tiles the installed sheet gives each picture cut one frame at a time, by its path;
-    /// null for one whose frame has none. Pictures cut a whole sheet at once are not listed.
-    /// </summary>
-    internal IReadOnlyDictionary<string, ActorDepth?> PictureDepths { get; init; } = new Dictionary<string, ActorDepth?>(StringComparer.Ordinal);
-
-    /// <summary>
-    /// Says on a timeline of something launched or left, which shows these pictures, where its pictures lie against
-    /// the room's tiles ("lies"): in front of every tile, or behind the room. One whose pictures lie behind the
-    /// tiles' front part, as most things do, says nothing and lies where what plays it stands.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The timeline shows a picture not cut here or with no depth.</exception>
-    internal JsonObject Lay(JsonObject timeline, string file)
-    {
-        var lies = new Dictionary<string, ActorDepth>(StringComparer.Ordinal);
-        var stepsLaid = new List<(JsonObject Step, string Word)>();
-        foreach (JsonNode? step in timeline["steps"]!.AsArray())
-        {
-            string picture = step!["picture"]!.GetValue<string>();
-            if (picture.Length == 0)
-                continue;
-            ActorDepth depth = PictureDepths.TryGetValue(picture, out ActorDepth? known)
-                ? known ?? throw new InvalidDataException($"The timeline {file} shows {picture}, whose frame the installed sheets give no depth.")
-                : throw new InvalidDataException($"The timeline {file} shows {picture}, which was not cut with its depth.");
-            string laid = depth switch
-            {
-                ActorDepth.InFront => "in_front_of_tiles",
-                ActorDepth.BehindRoom or ActorDepth.BehindRoomInFrontOfFloor => "behind_room",
-                ActorDepth.BehindFrontParts => "",
-                _ => throw new InvalidDataException($"The timeline {file} shows {picture} at {depth}, which has no name here."),
-            };
-            lies.TryAdd(laid, depth);
-            stepsLaid.Add((step.AsObject(), laid));
-        }
-
-        // Pictures that all lie alike are said once, on the timeline. Where they differ, each step says its own, and
-        // a step that lies behind the tiles' front part says nothing, as a whole timeline that does says nothing.
-        if (lies.Count > 1)
-        {
-            foreach ((JsonObject step, string laid) in stepsLaid)
-            {
-                if (laid.Length > 0)
-                    step["lies"] = laid;
-            }
-        }
-        else if (lies.Keys.SingleOrDefault() is { Length: > 0 } word)
-        {
-            timeline["lies"] = word;
-        }
-
-        return timeline;
-    }
 
     /// <summary>The picture of the frame named <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>

@@ -179,29 +179,18 @@ def initializer_of(expression: str) -> dict[str, str]:
 
 def rooms() -> dict[str, Room]:
     text = without_comments(read('Rooms', 'RoomDefinitions.cs'))
-    # What each helper a room may be wrapped in gives it: `room with { A = x, B = y }`.
-    helpers = {}
-    for name, expression in properties_of(text, r'private static RoomDefinition (\w+)\(RoomDefinition room\) =>'):
-        given = expression[expression.index('{'):] if expression.startswith('room with') else ''
-        if not given:
-            raise ValueError(f'The room helper {name} is not a `room with {{ ... }}`, which this can read.')
-        helpers[name] = {part.split('=', 1)[0].strip(): part.split('=', 1)[1].strip()
-                         for part in split_arguments(given[1:matching(given, 0) - 1]) if '=' in part}
     result = {}
     for name, expression in properties_of(text, r'public static RoomDefinition (\w+) \{ get; \} ='):
         inner = expression
-        properties = {}
-        # A room wrapped in a helper (`WetWithShallowerFall(new(...))`) is the `new(...)` inside it, with what the
-        # helper gives it over what it gives itself.
+        # A room wrapped in a helper (`WetWithShallowerFall(new(...))`) is the `new(...)` inside it.
         if not inner.startswith('new('):
-            helper = inner[:inner.index('(')].strip()
-            if helper not in helpers:
-                raise ValueError(f'The room {name} is wrapped in {helper}, which is no helper this has read.')
             inner = inner[inner.index('new('):]
-            properties = helpers[helper]
         arguments = call_arguments(inner)
         cell, size = numbers(arguments[2]), numbers(arguments[3])
-        properties = initializer_of(inner) | properties
+        properties = initializer_of(inner)
+        if 'WithShallowerFall(' in expression:
+            # The helper gives the room this camera lead.
+            properties.setdefault('CameraLead', 'RoomCameraLeads.ShallowerFall')
         result[name] = Room(arguments[0].strip('"'), last_name(arguments[1]), (cell[0], cell[1]), (size[0], size[1]), properties)
     return result
 
@@ -456,11 +445,6 @@ def _room_effect(expression: str) -> dict | None:
         'speed': a[2], 'delay': int(a[3]), 'type': last_name(a[4]), 'tide': tide.group(1) if tide else 'None',
         'colours': re.findall(r'ColourEffectId\.(\w+)', a[8]), 'tint': last_name(a[10]),
         'drifts': 'SurfaceDrift: true' in a[7],
-        # Whether the effect's blend lays the room's background behind the room with the effect's own picture: the
-        # background is then seen only as what it takes from the room's colours.
-        'background_behind': last_name(a[6]) == 'WaterfallDarkensBehind',
-        # Whether what lies behind the room wavers with its liquid: water's background wave, or the heat's sway.
-        'waves_backdrops': 'BackgroundWave: true' in a[7] or 'HeatHazeDirection.Vertical' in a[7],
         # Water Samus's movement ignores until something of the room lets it at her: the water behind the glass tube.
         'held_back': 'IgnoresSurfaceUntilEnabled: true' in a[7],
     }

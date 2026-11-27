@@ -11,9 +11,6 @@ namespace Engine.Ui;
 /// A colour may also be added to or taken from every colour the thing shows, after its swaps (<see cref="Shift"/>).
 /// A swap may be of one region of a picture only: the shader reads the region of each pixel from the picture's map
 /// of regions, which a picture that has one is drawn with (<see cref="Content.ContentLibrary.LoadTexture"/>).
-/// The thing's rows may also be waved (<see cref="Wave"/>): each row reads its picture some pixels further on, by a
-/// table of offsets gone round row by row, as the cartridge moves a layer's lines one by one. Only a thing drawn
-/// from one picture can be waved so, and only one that is waved is drawn with the part of the shader that does it.
 /// </summary>
 /// <remarks>
 /// Where two sources change the same colour, the one that asked last is shown, as the last to write a colour of a
@@ -61,172 +58,6 @@ public sealed class Recolouring
         }
         """;
 
-    /// <summary>
-    /// What is put into the shader for a thing whose rows are waved: where the picture is read is moved, for the row
-    /// of the thing the pixel lies on, by the table's entry for that row.
-    /// </summary>
-    private const string WaveHead = """
-        uniform int wave_count = 0;
-        uniform float wave_offsets[64];
-        uniform float wave_phase = 0.0;
-        uniform float wave_first = 0.0;
-        uniform bool wave_down = false;
-        vec2 waved(vec2 uv, vec2 own_place, vec2 pixel) {
-            float row = floor(own_place.y);
-            if (wave_count < 1 || row < wave_first) {
-                return uv;
-            }
-            int entry = min(int(mod(wave_phase + row, float(wave_count))), wave_count - 1);
-            float by = wave_offsets[entry];
-            return wave_down ? uv + vec2(0.0, by * pixel.y) : uv + vec2(by * pixel.x, 0.0);
-        }
-
-        """;
-
-    /// <summary>The most entries a wave's table can have.</summary>
-    public const int MostWaveEntries = 64;
-
-    /// <summary>
-    /// What is put into the shader for a thing shown in blocks across: every pixel takes the colour of the pixel at
-    /// the left edge of its block, the blocks counted from the screen's left edge; a block that begins left of the
-    /// picture shows nothing.
-    /// </summary>
-    private const string BlocksHead = """
-        uniform float block_width = 1.0;
-        uniform float block_origin = 0.0;
-        vec2 blocked(vec2 uv, vec2 own_place, vec2 pixel) {
-            if (block_width <= 1.0) {
-                return uv;
-            }
-            float back = mod(floor(own_place.x) + block_origin, block_width);
-            return uv - vec2(back * pixel.x, 0.0);
-        }
-
-        """;
-
-    /// <summary>The shader's texts with the waving of rows, the blocks, or both put in, each made the first time it is wanted.</summary>
-    private static readonly Dictionary<(bool Waved, bool Blocks), string> Variants = [];
-
-    /// <summary>
-    /// The one shader with what a thing asks beyond its colours put into it: the heads of the parts before the
-    /// shader's own, the thing's own place handed on from each corner, and both readings of the picture made at the
-    /// place those parts give. With neither part it is the shader as it is.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The shader no longer has one of the places the parts are put in at.</exception>
-    private static string Variant(bool waved, bool blocks)
-    {
-        if (!waved && !blocks)
-            return Code;
-        if (Variants.TryGetValue((waved, blocks), out string? made))
-            return made;
-        string at = "UV";
-        if (waved)
-            at = $"waved({at}, own, TEXTURE_PIXEL_SIZE)";
-        if (blocks)
-            at = $"blocked({at}, own, TEXTURE_PIXEL_SIZE)";
-        string read = $"vec2 at = {at};\n    vec4 shown = texture(TEXTURE, at);" + (blocks ? "\n    if (at.x < 0.0) {\n        shown.a = 0.0;\n    }" : "");
-        string code = Code;
-        foreach ((string from, string to) in new[]
-        {
-            ("varying vec4 tint;", (waved ? WaveHead : "") + (blocks ? BlocksHead : "") + "varying vec4 tint;\nvarying vec2 own;"),
-            ("tint = COLOR;", "tint = COLOR;\n    own = VERTEX;"),
-            ("vec4 shown = texture(TEXTURE, UV);", read),
-            ("texture(SPECULAR_SHININESS_TEXTURE, UV)", "texture(SPECULAR_SHININESS_TEXTURE, at)"),
-        })
-        {
-            int found = code.IndexOf(from, StringComparison.Ordinal);
-            if (found < 0 || code.IndexOf(from, found + from.Length, StringComparison.Ordinal) >= 0)
-                throw new InvalidOperationException($"The shader that changes colours has not exactly one \"{from}\" for what a thing asks beyond its colours to be put in at.");
-            code = code.Replace(from, to, StringComparison.Ordinal);
-        }
-
-        return Variants[(waved, blocks)] = code;
-    }
-
-    /// <summary>How many pixels wide the blocks are that the thing is shown in across; one for none.</summary>
-    private int _blockWidth = 1;
-
-    /// <summary>The column of the screen the thing's own column nought lies on, from which its blocks are counted.</summary>
-    private int _blockOrigin;
-
-    /// <summary>
-    /// Shows the thing in blocks across, each <paramref name="width"/> pixels wide and counted from the screen's left
-    /// edge: every pixel takes the colour of the pixel at the left edge of its block. <paramref name="origin"/> is the
-    /// column of the screen the thing's own column nought lies on. A width of one shows it as it is. What draws the
-    /// thing a row at a time gives its rows their blocks down the screen itself.
-    /// </summary>
-    public void Blocks(int width, int origin)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
-        if (width == _blockWidth && origin == _blockOrigin)
-            return;
-        bool changes = (width > 1) != (_blockWidth > 1);
-        (_blockWidth, _blockOrigin) = (width, origin);
-        if (changes || _material is null || !ReferenceEquals(_item.Material, _material))
-        {
-            Show();
-            return;
-        }
-
-        if (width > 1)
-            ShowBlocks(_material);
-    }
-
-    /// <summary>Hands the shader the thing's blocks.</summary>
-    private void ShowBlocks(ShaderMaterial material)
-    {
-        material.SetShaderParameter("block_width", (float)_blockWidth);
-        material.SetShaderParameter("block_origin", (float)_blockOrigin);
-    }
-
-    /// <summary>The wave of the thing's rows, or null for none.</summary>
-    private RowWave? _wave;
-
-    /// <summary>The table of the wave the material was last given, so that it is given a table only when the table changes.</summary>
-    private IReadOnlyList<int>? _waveTableShown;
-
-    /// <summary>Which of the shader's parts the material's shader has: the waving of rows, the blocks.</summary>
-    private (bool Waved, bool Blocks) _shows;
-
-    /// <summary>The thing's shaders, one for each set of the shader's parts it has been drawn with.</summary>
-    private readonly Dictionary<(bool Waved, bool Blocks), Shader> _shaders = [];
-
-    /// <summary>
-    /// Waves the thing's rows as <paramref name="wave"/> says, in place of whatever wave it had, or stops waving them
-    /// for null. A wave by itself, with no colour changed, is drawn through the shader as a change of colours is.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The wave's table has more entries than a thing can be waved by.</exception>
-    public void Wave(RowWave? wave)
-    {
-        if (wave == _wave)
-            return;
-        if (wave is { } given && (given.Offsets.Count < 1 || given.Offsets.Count > MostWaveEntries))
-            throw new InvalidOperationException($"\"{_item.Name}\" is waved by a table of {given.Offsets.Count} entries; a table has 1 to {MostWaveEntries}.");
-        _wave = wave;
-        if (_material is null || !ReferenceEquals(_item.Material, _material) || _shows.Waved != (wave is not null))
-            Show();
-        else if (wave is { } shown)
-            ShowWave(_material, shown);
-    }
-
-    /// <summary>Hands the shader a wave.</summary>
-    private void ShowWave(ShaderMaterial material, RowWave wave)
-    {
-        if (!ReferenceEquals(_waveTableShown, wave.Offsets))
-        {
-            var offsets = new float[MostWaveEntries];
-            for (int index = 0; index < wave.Offsets.Count; index++)
-                offsets[index] = wave.Offsets[index];
-            material.SetShaderParameter("wave_count", wave.Offsets.Count);
-            material.SetShaderParameter("wave_offsets", offsets);
-            _waveTableShown = wave.Offsets;
-        }
-
-        material.SetShaderParameter("wave_phase", (float)wave.Phase);
-        material.SetShaderParameter("wave_first", (float)wave.FirstRow);
-        material.SetShaderParameter("wave_down", wave.Down);
-    }
-
     /// <summary>What each source asked for, the source that asked last first.</summary>
     private readonly List<(string Source, IReadOnlyList<ColourSwap> Swaps)> _asked = [];
 
@@ -244,42 +75,6 @@ public sealed class Recolouring
     {
         ArgumentNullException.ThrowIfNull(item);
         _item = item;
-    }
-
-    /// <summary>
-    /// The changed colours of <paramref name="item"/>, which is drawn by adding its colours to what is under it, or
-    /// taking them from it, as <paramref name="blend"/> says: a thing that is drawn with a blend and waved or
-    /// recoloured as well has both of the one shader, and keeps the shader whatever is asked of it.
-    /// </summary>
-    public Recolouring(CanvasItem item, CanvasItemMaterial.BlendModeEnum blend)
-        : this(item) => _blend = blend;
-
-    /// <summary>How the thing is drawn onto what is under it.</summary>
-    private readonly CanvasItemMaterial.BlendModeEnum _blend = CanvasItemMaterial.BlendModeEnum.Mix;
-
-    /// <summary>
-    /// Has the thing drawn through the shader from now, though nothing has been asked of it yet: for a thing made
-    /// with a blend, which is drawn with that blend from the first.
-    /// </summary>
-    public void Begin() => Show();
-
-    /// <summary>The shader's text for the thing's blend: as it is for one that covers what is under it, and with the blend said after its first line otherwise.</summary>
-    /// <exception cref="InvalidOperationException">The blend is one the shader is not written for, or the shader no longer begins as it did.</exception>
-    private string Blended(string code)
-    {
-        string mode = _blend switch
-        {
-            CanvasItemMaterial.BlendModeEnum.Mix => "",
-            CanvasItemMaterial.BlendModeEnum.Add => "render_mode blend_add;",
-            CanvasItemMaterial.BlendModeEnum.Sub => "render_mode blend_sub;",
-            _ => throw new InvalidOperationException($"\"{_item.Name}\" is drawn with the blend {_blend}, which the shader that changes colours is not written for."),
-        };
-        if (mode.Length == 0)
-            return code;
-        const string head = "shader_type canvas_item;";
-        if (!code.StartsWith(head, StringComparison.Ordinal))
-            throw new InvalidOperationException("The shader that changes colours no longer begins with its kind, after which a blend is said.");
-        return head + "\n" + mode + code[head.Length..];
     }
 
     /// <summary>Whether the picture at <paramref name="picture"/> is <paramref name="place"/> or lies in the folder that names.</summary>
@@ -329,7 +124,7 @@ public sealed class Recolouring
     /// <summary>Hands the shader every colour changed and what is added to them all, or takes the shader away when nothing is asked.</summary>
     private void Show()
     {
-        if (_asked.Count == 0 && _shifted.Count == 0 && _wave is null && _blockWidth <= 1 && _blend == CanvasItemMaterial.BlendModeEnum.Mix)
+        if (_asked.Count == 0 && _shifted.Count == 0)
         {
             if (ReferenceEquals(_item.Material, _material))
                 _item.Material = null;
@@ -355,17 +150,7 @@ public sealed class Recolouring
             }
         }
 
-        // A thing whose rows are waved is drawn with the shader that waves them, and any other with the one without.
-        _material ??= new ShaderMaterial();
-        _shows = (_wave is not null, _blockWidth > 1);
-        if (!_shaders.TryGetValue(_shows, out Shader? shader))
-            _shaders[_shows] = shader = new Shader { Code = Blended(Variant(_shows.Waved, _shows.Blocks)) };
-        _material.Shader = shader;
-        if (_shows.Blocks)
-            ShowBlocks(_material);
-        _waveTableShown = null;
-        if (_wave is { } wave)
-            ShowWave(_material, wave);
+        _material ??= new ShaderMaterial { Shader = new Shader { Code = Code } };
         _material.SetShaderParameter("swap_count", count);
         _material.SetShaderParameter("swap_from", from);
         _material.SetShaderParameter("swap_to", to);

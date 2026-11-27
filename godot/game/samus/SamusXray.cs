@@ -2,7 +2,6 @@ using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
 using Game.Compatibility;
-using Game.Effects;
 using Godot;
 
 namespace Game;
@@ -12,17 +11,6 @@ namespace Game;
 /// hidden blocks it passes over for what they are. It is a child of Samus and only looks; it changes nothing but
 /// which blocks are hidden.
 /// </summary>
-/// <remarks>
-/// What it shows is the room outside its cone washed with the scope's grey, and the room inside it as it is: the
-/// cartridge's colour maths outside a window. The grey is added to every colour of the room and of what is in it,
-/// or taken from them in a room whose own liquid or overlay darkens what it lies over, and lies under the room's
-/// liquid and overlays (<see cref="RoomDepth.OverRoom"/>). A room that shows none of its blocks to the scope
-/// (<see cref="Room.ShowsBlocksToSight"/>) is not washed. In a Fireflea room the room's own dark, never less than the
-/// scope's grey, is what is taken from everything outside the cone, and the dark is lifted from the room meanwhile,
-/// so that nothing is dark inside the cone. Where the room's liquid lies, outside the cone, the room and the liquid
-/// are halved together and take no grey (<see cref="RoomDepth.OverLiquid"/>), in a room that shows none of its blocks
-/// too.
-/// </remarks>
 public partial class SamusXray : Node2D
 {
     /// <summary>How far above her middle the scope looks from while she stands, in pixels.</summary>
@@ -52,65 +40,9 @@ public partial class SamusXray : Node2D
     /// <summary>Whether the scope is being looked through.</summary>
     public bool IsOpen { get; private set; }
 
-    /// <summary>The scope's grey, out of the cartridge's thirty-one levels.</summary>
-    private const int Grey = 7;
-
-    /// <summary>What the room outside the cone is washed with, as a part of each colour.</summary>
-    private float _wash = Grey / 31f;
-
-    /// <summary>The dark of the Fireflea room it was opened in, which is lifted while it is open; null in any other room.</summary>
-    private FirefleaDarkness? _darkness;
-
-    /// <summary>
-    /// What halves the room where its liquid lies, outside the cone: the cartridge combines the room with a liquid
-    /// lying behind it and halves the two there, where above the liquid it combines the room with the grey unhalved.
-    /// Drawn over the liquid, each a piece of the view outside the cone and below the liquid's surface.
-    /// </summary>
-    private readonly List<Polygon2D> _halved = [];
-
-    /// <summary>How many pieces the view outside the cone and below a surface can fall into.</summary>
-    private const int MostHalvedPieces = 4;
-
-    /// <summary>How far down the room Samus's own place is, as the scope was last looked through: what a room's row is counted from here.</summary>
-    private int _ownRow;
-
-    /// <summary>Whether the room it was opened in is washed outside its cone.</summary>
-    private bool _washes;
-
-    /// <summary>The room it was opened in, which is told when it closes; null while it is closed.</summary>
-    private Room? _room;
-
     /// <summary>Opens the scope, level, with its cone closed.</summary>
     public void Open(Samus samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
-        Room room = samus.Room;
-        // A Fireflea room's dark goes before all else: the scope takes it, never less than its own grey, from
-        // everything outside its cone, and the room's own darkening is lifted while it does.
-        _darkness = room.GetChildren().OfType<FirefleaDarkness>().FirstOrDefault(darkness => darkness.IsActive);
-        _darkness?.BeLifted(true);
-        _washes = _darkness is not null || room.ShowsBlocksToSight;
-        _wash = Math.Max(Grey, _darkness?.Dark ?? 0) / 31f;
-
-        // The grey is taken from the room where the room's own liquid or overlay darkens what it lies over, whether
-        // or not any of it is in view, and added to it everywhere else.
-        bool darkens = _darkness is not null || room.Liquid?.Type.Blend == CanvasItemMaterial.BlendModeEnum.Sub
-            || room.GetChildren().OfType<OverlayEffect>().Any(overlay => overlay.Material is CanvasItemMaterial { BlendMode: CanvasItemMaterial.BlendModeEnum.Sub });
-        Material = new CanvasItemMaterial { BlendMode = darkens ? CanvasItemMaterial.BlendModeEnum.Sub : CanvasItemMaterial.BlendModeEnum.Add };
-        ZAsRelative = false;
-        ZIndex = RoomDepth.OverRoom;
-
-        // The pieces that halve the room over its liquid are made once and shown as they are wanted.
-        while (_halved.Count < MostHalvedPieces)
-        {
-            var piece = new Polygon2D { Name = $"Halved{_halved.Count}", Color = new Color(0, 0, 0, 0.5f), ZAsRelative = false, ZIndex = RoomDepth.OverLiquid, Visible = false };
-            AddChild(piece);
-            _halved.Add(piece);
-        }
-
-        // A room that hides what lies behind it from the scope, the glass tunnel, does so from here until it closes.
-        _room = room;
-        room.BeLookedThrough(true);
         IsOpen = true;
         _widening = Pixels.Zero;
         _opened = Pixels.Zero;
@@ -124,10 +56,6 @@ public partial class SamusXray : Node2D
     /// <summary>Closes the scope.</summary>
     public void Close()
     {
-        _room?.BeLookedThrough(false);
-        _room = null;
-        _darkness?.BeLifted(false);
-        _darkness = null;
         IsOpen = false;
         QueueRedraw();
     }
@@ -161,7 +89,6 @@ public partial class SamusXray : Node2D
         int height = samus.Form == Player.Crouching ? CrouchingEyeHeight : StandingEyeHeight;
         var eye = new PixelPosition(samus.Position.X + Pixels.FromWhole(ahead), samus.Position.Y - Pixels.FromWhole(height));
         _eye = new Vector2(ahead, -height);
-        _ownRow = samus.Position.Y.Whole;
 
         int reach = samus.XrayReach;
         int forward = _facingLeft ? -1 : 1;
@@ -225,56 +152,26 @@ public partial class SamusXray : Node2D
     public override void _Draw()
     {
         // Nothing is seen until the scope is first looked through.
-        foreach (Polygon2D piece in _halved)
-            piece.Visible = false;
         if (!IsOpen || !_lookedThrough)
             return;
         float forward = _facingLeft ? -1 : 1;
-
-        // Far enough from the eye that the corners between two points of the round reach past the view's corners.
-        const float length = 480f / DirectionLength;
-        const int step = Turns.PerTurn / 8;
-        Vector2 Around(int angle)
+        (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
+        (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
+        const float length = 400f / DirectionLength;
+        var colour = new Color(1, 1, 1, 0.35f);
+        Vector2 upperEnd = _eye + new Vector2(upperAhead * forward, upperBelow) * length;
+        // A cone with no width is a ray one pixel wide.
+        if (_halfWidth == 0)
         {
-            (long ahead, long below) = Direction(angle);
-            return _eye + new Vector2(ahead * forward, below) * length;
-        }
-
-        // What is washed is everything outside the cone: round the eye from the cone's lower edge, behind her, to
-        // its upper edge. A cone with no width is a ray a pixel wide, and all the view round the eye is washed.
-        int from = _swing + _halfWidth, to = _swing - _halfWidth + Turns.PerTurn;
-        var outside = new List<Vector2>();
-        if (_halfWidth > 0)
-            outside.Add(_eye);
-        for (int angle = from; angle < to; angle += step)
-            outside.Add(Around(angle));
-        if (_halfWidth > 0)
-            outside.Add(Around(to));
-        IEnumerable<Vector2[]> washed = [[.. outside]];
-
-        // Where the room's liquid lies, from the row below its surface down, the room and the liquid are halved and
-        // take no grey; the grey is for what is above. A Fireflea room's dark is whole wherever it falls.
-        if (_darkness is null && _room?.Liquid is { } liquid)
-        {
-            const float far = 600;
-            float surface = liquid.Surface.Whole + 1 - _ownRow;
-            washed = Geometry2D.IntersectPolygons([.. outside], [new(-far, -far), new(far, -far), new(far, surface), new(-far, surface)]);
-            int shown = 0;
-            foreach (Vector2[] under in Geometry2D.IntersectPolygons([.. outside], [new(-far, surface), new(far, surface), new(far, far), new(-far, far)]))
-            {
-                if (shown == _halved.Count || under.Length < 3)
-                    continue;
-                (_halved[shown].Polygon, _halved[shown].Visible) = (under, true);
-                shown++;
-            }
-        }
-
-        if (!_washes)
+            DrawLine(_eye, upperEnd, colour, 1);
             return;
-        foreach (Vector2[] piece in washed)
-        {
-            if (piece.Length >= 3)
-                DrawColoredPolygon(piece, new Color(_wash, _wash, _wash));
         }
+        Vector2[] cone =
+        [
+            _eye,
+            upperEnd,
+            _eye + new Vector2(lowerAhead * forward, lowerBelow) * length,
+        ];
+        DrawColoredPolygon(cone, colour);
     }
 }

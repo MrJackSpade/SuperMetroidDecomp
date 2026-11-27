@@ -32,9 +32,8 @@ public sealed partial class EngineAssetWriter
         internal (int X, int Y) Anchor(EnemyFrameId frame)
         {
             (string _, int x, int y) = Of(frame);
-            // The sheet's pictures share one corner, which a picture's own place on the canvas is measured from. The
-            // body is of the room's background, which lies a row above its place against the boss's sprites.
-            return (x + Pictures.OffsetX, y + Pictures.OffsetY - EngineSheets.LayersRowAbove);
+            // The sheet's pictures share one corner, which a picture's own place on the canvas is measured from.
+            return (x + Pictures.OffsetX, y + Pictures.OffsetY);
         }
     }
 

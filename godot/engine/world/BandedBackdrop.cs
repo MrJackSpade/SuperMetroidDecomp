@@ -49,9 +49,6 @@ public partial class BandedBackdrop : Backdrop
         _bands = bands;
     }
 
-    /// <summary>Its bands slide by themselves: its share of the room's scrolling says nothing of where a background would stand.</summary>
-    protected override bool FollowsAsItsShareSays => false;
-
     /// <inheritdoc/>
     internal override void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {

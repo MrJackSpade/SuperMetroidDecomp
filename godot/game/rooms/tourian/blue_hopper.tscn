@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,8 +8,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="8"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -92,12 +91,8 @@ position = Vector2(0, 0)
 EffectName = "tourian_glowing_arkanoid_blocks_and_red_orbs"
 StepsFile = "colours/{graphics}/tourian_glowing_arkanoid_blocks_and_red_orbs.json"
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("9")
-Kind = 1
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/tourian_vertical_structures.png"
 ScrollShare = Vector2(0.75, 0.75)

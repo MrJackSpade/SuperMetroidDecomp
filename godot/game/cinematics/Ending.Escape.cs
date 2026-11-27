@@ -10,16 +10,10 @@ namespace Game.Cinematics;
 /// mission's result typed over it.
 /// </summary>
 /// <remarks>
-/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"); the
-/// escape's colours for both floors of clouds ("cloud_colours"), with the steps of colours played on them: "cloud_lava"
-/// and "cloud_crust" under the clouds at the sides from their fade in, "grey_clouds" under those above and below; the changes of
-/// colours the gunship's floor is shown with as it flies out ("gunship_colours": "flying_out", then "clear" once it has flown clear),
-/// with the steps it comes out of the white by over the first ("gunship_emergence"); the afterglow's colours ("explosion_afterglow_colours")
-/// and the steps of its glow as the gunship flies out ("explosion_afterglow_glow"); the blast's ("planet_explosion",
+/// The data names the floor's pictures ("cloud_floor", "top_and_bottom_cloud_floor", "planet_floor", "gunship_floor"), the blast's ("planet_explosion",
 /// "burst_glow", "finale_explosion", "finale_glow"), and the timelines "right_side_cloud", "left_side_cloud",
 /// "top_cloud_pattern", "top_cloud_edge", "bottom_cloud_edge", "bottom_cloud_pattern", "exploding_planet" (which gives
-/// the cues "fade_colours" and "silhouette"; its pictures are shown as their sheet has them, which is in the explosion's colours,
-/// and from its cue "fade_colours" on in the steps of colours "exploding_planet_fade"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
+/// the cue "silhouette"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
 /// "explosion_stars" (cues "finale" and "end"), "explosion_afterglow", "animal_escape", and "digit_0" to "digit_9"
 /// and "colon". The result's lines are its "result_texts": each by the name of its words ("ending_operation_was",
 /// "ending_completed_successfully", "ending_clear_time"), with the font it is typed in and where its first
@@ -43,7 +37,6 @@ public partial class Ending
     private void StepEscape()
     {
         ScreenFade fade = Fade();
-        _planetFade?.Step();
         switch (_phase)
         {
             case Phase.WaitingForEscapeMusic:
@@ -51,10 +44,6 @@ public partial class Ending
                 if (Session.Sounds.HasQueuedMusic)
                     break;
                 fade.FadeIn(FadeUpdates);
-
-                // As they begin to fade in, the lava glows and the crust fades beneath the clouds.
-                BeginColourSteps("cloud_lava", "Lava", Floor());
-                BeginColourSteps("cloud_crust", "Crust", Floor());
                 _phase = Phase.FadingInSideClouds;
                 break;
 
@@ -173,11 +162,8 @@ public partial class Ending
                 _phase = Phase.PlanetEscapeAccelerating;
                 if (AnimalsEscaped)
                 {
-                    // The animals' pod is seen leaving too: over the starfields and under the planet's afterglow, as
-                    // the cartridge draws them.
+                    // The animals' pod is seen leaving too.
                     Actor pod = Spawn("animal_escape", "animal_escape", 128, 128, Motion.AnimalPod);
-                    CinematicSprite afterglow = _actors.First(actor => actor.Role == "explosion_afterglow").Sprite;
-                    afterglow.GetParent().MoveChild(pod.Sprite, afterglow.GetIndex());
                     Move(pod);
                     pod.Sprite.Step();
                 }
@@ -197,13 +183,6 @@ public partial class Ending
                     break;
                 }
 
-                // The gunship, flown clear, shows its own colours as the result begins, its coming out of the white
-                // long over. The afterglow goes on the next update, in the colours its glow has reached.
-                StopColourSteps(_gunshipEmergence ?? throw NotEntered());
-                _gunshipEmergence = null;
-                _colourSteps.Remove(_afterglowGlow ?? throw NotEntered());
-                _afterglowGlow = null;
-                ShowGunshipColours("clear");
                 BeginTyping("ending_operation_was");
                 _phase = Phase.CompletionText;
                 break;
@@ -230,16 +209,7 @@ public partial class Ending
     {
         switch (cue)
         {
-            case "fade_colours":
-                // After its rumbles the planet's colours fade out, its glow under the fade; the first look shows at once.
-                _planetFade = new ColourSteps(Data().Get("exploding_planet_fade"), PlanetColours);
-                _planetFade.ShowOn(_actors.First(actor => actor.Role == "exploding_planet").Sprite);
-                _planetFade.Step();
-                break;
-
             case "silhouette":
-                // The planet, which gave the cue as it went, takes its colours with it.
-                _planetFade = null;
                 Spawn("explosion_silhouette", "explosion_silhouette", 128, 128, Motion.Still);
                 (_backdrop ?? throw NotEntered()).Color = Colors.White;
                 break;
@@ -256,10 +226,8 @@ public partial class Ending
             case "finale":
                 ShowExplosion("finale_explosion", "finale_glow");
 
-                // The afterglow plays ahead of the starfields, so it first plays on the next update, in the explosion's
-                // colours for it.
+                // The afterglow plays ahead of the starfields, so it first plays on the next update.
                 Actor afterglow = Spawn("explosion_afterglow", "explosion_afterglow", 128, 128, Motion.FinaleExit);
-                afterglow.Colours = ColourChange.Read(Data().Get("explosion_afterglow_colours"));
                 _actors.Remove(afterglow);
                 _actors.Insert(_actors.FindIndex(actor => actor.Motion == Motion.FlyawayStars), afterglow);
                 break;
@@ -287,39 +255,24 @@ public partial class Ending
         Spawn("side_cloud", "right_side_cloud", 320, 448, Motion.SideCloudFromRight);
         Spawn("side_cloud", "left_side_cloud", -64, -192, Motion.SideCloudFromLeft);
         // From the clouds until the planet has gone, the floor repeats beyond its edges.
-        ShowCloudFloor("cloud_floor");
+        ShowFloorPicture("cloud_floor", AtmosphereCentre, repeats: true);
         SetFloor(0, 0, 64, 32);
     }
 
     private void SetUpTopAndBottomClouds()
     {
-        // The clouds at the sides take their lava and crust with them; the grey of those above and below begins to fade.
-        StopAllColourSteps();
         ClearActors();
         Spawn("cloud", "top_cloud_pattern", 128, -96, Motion.CloudDown);
         Spawn("cloud", "top_cloud_edge", 128, -32, Motion.CloudDown);
         Spawn("cloud", "bottom_cloud_edge", 128, 288, Motion.CloudUp);
         Spawn("cloud", "bottom_cloud_pattern", 128, 352, Motion.CloudUp);
-        ShowCloudFloor("top_and_bottom_cloud_floor");
+        ShowFloorPicture("top_and_bottom_cloud_floor", AtmosphereCentre, repeats: true);
         SetFloor(0, 0, 64, 32);
-        BeginColourSteps("grey_clouds", "GreyClouds", Floor());
     }
-
-    /// <summary>Shows a floor of clouds, repeated beyond its edges, in the escape's colours.</summary>
-    private void ShowCloudFloor(string name)
-    {
-        ShowFloorPicture(name, AtmosphereCentre, repeats: true);
-        ColourChange.Read(Data().Get("cloud_colours")).ShowOn(Floor(), FloorColours);
-    }
-
-    private TurningFloor Floor() => _floor ?? throw NotEntered();
 
     private void SetUpExplosion()
     {
-        // The grey clouds' fade ends with them.
-        StopAllColourSteps();
         ClearActors();
-        // The planet's pictures are in the colours the explosion has for them as their sheet has them.
         Spawn("exploding_planet", "exploding_planet", 128, 128, Motion.Still);
         Spawn("explosion_lava", "explosion_lava", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_glow", "explosion_glow", 128, 128, Motion.ExplosionLayer);
@@ -369,26 +322,14 @@ public partial class Ending
         (_backdrop ?? throw NotEntered()).Color = Colors.Black;
         // From the gunship's flight away on, nothing is shown beyond the floor's edges.
         ShowFloorPicture("gunship_floor", GunshipCentre, repeats: false);
-        ShowGunshipColours("flying_out");
         TurningFloor gunship = _floor ?? throw NotEntered();
         gunship.Modulate = Colors.White;
 
-        // The planet's afterglow glows, and the gunship comes out of the white the blast left, from this update.
-        _afterglowGlow = BeginColourSteps(
-            "explosion_afterglow_glow", "explosion_afterglow", _actors.First(actor => actor.Role == "explosion_afterglow").Sprite);
-        _gunshipEmergence = BeginColourSteps("gunship_emergence", "GunshipEmergence", gunship);
-
-        // The gunship passes in front of everything else from here on, the white the blast left included: that white
-        // lightens the sky and what flies across it, never the gunship.
-        gunship.GetParent().RemoveChild(gunship);
-        (_front ?? throw NotEntered()).AddChild(gunship);
+        // The gunship passes in front of everything else from here on.
+        gunship.GetParent().MoveChild(gunship, -1);
         SetFloor(-72, -104, 3072, -112);
         (_slowShake, _shake, _whiteHold) = (false, 0, 192);
     }
-
-    /// <summary>Shows the gunship's floor in the colours its data gives for a stage of its flight away, in place of those it showed before.</summary>
-    private void ShowGunshipColours(string stage) =>
-        ColourChange.Read(Data().Get("gunship_colours").Get(stage)).ShowOn(_floor ?? throw NotEntered(), FloorColours);
 
     /// <summary>
     /// The white the blast left is held a while and then clears, a step on the first update after the hold and every

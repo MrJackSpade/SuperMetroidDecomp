@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,8 +8,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -66,12 +65,8 @@ PresentWhen = SubResource("r3")
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("9")
-Kind = 1
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_cavern_stalactites.png"
 ScrollShare = Vector2(0.75, 0.75)

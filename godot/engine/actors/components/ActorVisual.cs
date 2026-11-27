@@ -119,44 +119,6 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
         Redraw();
     }
 
-    /// <summary>How far the row of the picture lying on a line of the screen is moved across, when its rows are moved; null when they are not.</summary>
-    private Func<int, int>? _rowShift;
-
-    /// <summary>The width a moved row comes round within; nought for a row that only moves.</summary>
-    private int _rowsRound;
-
-    /// <summary>
-    /// Shows the picture with each of its rows moved across by whole pixels: <paramref name="acrossAtLine"/> gives,
-    /// for a line of the screen, how far the row of the picture lying on it is moved, to the right when positive.
-    /// With <paramref name="round"/> a row moved past the edge of a width of that many pixels comes round again from
-    /// the other edge, as a layer that repeats does. For a picture drawn once, which cannot read past its own edge:
-    /// what is drawn over and over is waved where it is drawn instead (<see cref="Ui.Recolouring.Wave"/>). Null shows
-    /// the picture as it lies.
-    /// </summary>
-    public void ShiftRows(Func<int, int>? acrossAtLine, int round = 0)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(round);
-        (_rowShift, _rowsRound) = (acrossAtLine, round);
-        Redraw();
-    }
-
-    /// <summary>How many pixels wide and tall the blocks of the screen are that the picture is shown in; one for none.</summary>
-    private int _blockWidth = 1;
-
-    /// <summary>
-    /// Shows the picture in blocks of the screen, <paramref name="width"/> pixels each way and counted from the
-    /// screen's top-left corner: every pixel of a block takes the colour of the block's top-left pixel, as the
-    /// picture then lies, its rows moved if they are (<see cref="ShiftRows"/>). A width of one shows it as it is.
-    /// </summary>
-    public void ShowInBlocks(int width)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
-        _blockWidth = width;
-        if (width == 1)
-            _recolouring?.Blocks(1, 0);
-        Redraw();
-    }
-
     /// <summary>Tints the picture; white leaves it as it is.</summary>
     public void Tint(Color colour) => Modulate = colour;
 
@@ -184,43 +146,17 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
             return;
         var size = texture.GetSize();
         Vector2I offset = PictureOffset + _stepOffset;
-        // Its blocks across are the shader's to show, counted from the screen's left edge; its blocks down are shown
-        // here, a row at a time.
-        if (_blockWidth > 1)
-            (_recolouring ??= new Ui.Recolouring(this)).Blocks(_blockWidth, Mathf.FloorToInt(GlobalPosition.X));
-        if (_rows is not null || _rowShift is not null || _blockWidth > 1)
+        if (_rows is { } rows)
         {
-            // The line of the screen its first row lies on: a room is put on the screen by its own place, so where
-            // the visual is on the canvas is where it is on the screen.
-            int firstLine = Mathf.FloorToInt(GlobalPosition.Y) + offset.Y;
-            int count = _rows is { } listed ? Math.Min(listed.Count, (int)size.Y) : (int)size.Y;
-            for (int row = 0; row < count; row++)
+            for (int row = 0; row < rows.Count && row < (int)size.Y; row++)
             {
-                // In blocks, every line of a block shows what the block's top line shows: the row lying there, moved
-                // as that line is. A block whose top line is above the picture shows nothing of it.
-                int lineShown = firstLine + row - Mathf.PosMod(firstLine + row, _blockWidth);
-                int rowShown = lineShown - firstLine;
-                if (rowShown < 0)
+                if (rows[row] is not { } shown)
                     continue;
-                int? shown = _rows is { } rows ? rows[rowShown] : rowShown;
-                if (shown is not { } source)
-                    continue;
-                var from = new Rect2(0, source, size.X, 1);
-                int shift = _rowShift?.Invoke(lineShown) ?? 0;
-                if (_rowsRound > 0)
-                    shift = Mathf.PosMod(shift + _rowsRound / 2, _rowsRound) - _rowsRound / 2;
+                var from = new Rect2(0, shown, size.X, 1);
                 Rect2 at = _mirrored
-                    ? new Rect2(-offset.X + shift, offset.Y + row, -size.X, 1)
-                    : new Rect2(offset.X + shift, offset.Y + row, size.X, 1);
+                    ? new Rect2(-offset.X, offset.Y + row, -size.X, 1)
+                    : new Rect2(offset.X, offset.Y + row, size.X, 1);
                 on.DrawTextureRectRegion(texture, at, from);
-
-                // A row that comes round is drawn a width to either side as well, so whatever of it has left one
-                // edge shows at the other.
-                if (_rowsRound > 0)
-                {
-                    on.DrawTextureRectRegion(texture, new Rect2(at.Position - new Vector2(_rowsRound, 0), at.Size), from);
-                    on.DrawTextureRectRegion(texture, new Rect2(at.Position + new Vector2(_rowsRound, 0), at.Size), from);
-                }
             }
 
             return;

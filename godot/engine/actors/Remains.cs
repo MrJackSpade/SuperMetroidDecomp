@@ -59,9 +59,6 @@ public partial class Remains : Node2D, IRoomEntity
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 
-    /// <summary>Where the step it shows lies against the room's tiles, when the step or its timeline says.</summary>
-    private readonly LaidDepth _laid = new();
-
     /// <inheritdoc/>
     public void EnterRoom(Room room)
     {
@@ -73,7 +70,6 @@ public partial class Remains : Node2D, IRoomEntity
         AddChild(_visual);
         _visual.Bind(room.Content);
         _visual.Show(_player.Current);
-        _laid.Show(this, _player.Current.Lies);
     }
 
     /// <summary>Plays one update of the death; as it ends, the drop appears and the remains are gone.</summary>
@@ -97,7 +93,6 @@ public partial class Remains : Node2D, IRoomEntity
         {
             if (!_dropped)
                 _visual?.Show(player.Shown);
-                _laid.Show(this, player.Shown.Lies);
             return;
         }
 

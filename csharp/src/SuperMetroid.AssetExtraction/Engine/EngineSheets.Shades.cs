@@ -30,9 +30,7 @@ internal sealed partial class EngineSheets
         {
             string picture = frame!["picture"]!.GetValue<string>();
             EngineSheetPictures one = CutFrames(tree, family, folder, [(picture, sheet)]);
-            // The body is of the room's background, which lies a row above its place against the boss's sprites.
-            cut[name] = new EngineBodyFrame(one.Of(picture), frame["anchor"]!["x"]!.GetValue<int>() + one.OffsetX,
-                frame["anchor"]!["y"]!.GetValue<int>() + one.OffsetY - LayersRowAbove);
+            cut[name] = new EngineBodyFrame(one.Of(picture), frame["anchor"]!["x"]!.GetValue<int>() + one.OffsetX, frame["anchor"]!["y"]!.GetValue<int>() + one.OffsetY);
         }
 
         return cut;
@@ -78,8 +76,7 @@ internal sealed partial class EngineSheets
                 : throw new InvalidDataException($"The installation has no sheet {sheet} in {EnemyFamily}.")));
         }
 
-        // Where the body's frame of a name lies from the boss's place, and its frame on the body's sheet. The body is of
-        // the room's background, which lies a row above its place against the sprites laid with it.
+        // Where the body's frame of a name lies from the boss's place, and its frame on the body's sheet.
         (int X, int Y, InstalledSheetFrameDocument Frame)? BodyOf(string name)
         {
             if (bodyFrames[name] is not JsonObject listed)
@@ -88,7 +85,7 @@ internal sealed partial class EngineSheets
             InstalledSheetFrameDocument frame = bodyDocument.Frames.TryGetValue(picture, out InstalledSheetFrameDocument? found)
                 ? found
                 : throw new InvalidDataException($"The sheet {bodySheet} has no frame {picture}.");
-            return (listed["anchor"]!["x"]!.GetValue<int>() - frame.Origin.X, listed["anchor"]!["y"]!.GetValue<int>() - frame.Origin.Y - LayersRowAbove, frame);
+            return (listed["anchor"]!["x"]!.GetValue<int>() - frame.Origin.X, listed["anchor"]!["y"]!.GetValue<int>() - frame.Origin.Y, frame);
         }
 
         int left = 0, top = 0, right = 1, bottom = 1;

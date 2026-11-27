@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -11,11 +11,10 @@
 [ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="12"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
-[ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="14"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="15"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="16"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="14"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -373,12 +372,8 @@ AtEntry = "ToPhantoon"
 What = "open_to_top"
 Target = NodePath("../Screen4x0")
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("12")
-Kind = 1
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/wrecked_ship_columns_tubes.png"
 ScrollShare = Vector2(0.75, 0.75)
@@ -397,28 +392,28 @@ Powered = true
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Atomic" parent="." instance=ExtResource("14")]
+[node name="Atomic" parent="." instance=ExtResource("13")]
 position = Vector2(152, 77)
 Spin = "up_right_turning"
 Speed = 0.5
 Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
-[node name="Atomic2" parent="." instance=ExtResource("14")]
+[node name="Atomic2" parent="." instance=ExtResource("13")]
 position = Vector2(638, 168)
 Spin = "up_right_turning_back"
 Speed = 0.5
 Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
-[node name="Atomic3" parent="." instance=ExtResource("14")]
+[node name="Atomic3" parent="." instance=ExtResource("13")]
 position = Vector2(852, 73)
 Spin = "up_right_turning_back"
 Speed = 0.5
 Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
-[node name="Spark" parent="." instance=ExtResource("15")]
+[node name="Spark" parent="." instance=ExtResource("14")]
 position = Vector2(1145, 106)
 Does = 1
 SpellUpdates = 32
@@ -430,14 +425,14 @@ DataFile = "objects/door_cap_blue_left.json"
 PresentWhen = SubResource("r1")
 
 [node name="WreckedShipGreenLights" type="Node2D" parent="."]
-script = ExtResource("16")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "wrecked_ship_green_lights"
 StepsFile = "colours/{graphics}/wrecked_ship_green_lights.json"
 PresentWhen = SubResource("r1")
 
 [node name="Backdrop2" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/wrecked_ship_columns_tubes.png"
 ScrollShare = Vector2(0.75, 0)

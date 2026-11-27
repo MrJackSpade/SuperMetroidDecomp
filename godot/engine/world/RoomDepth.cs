@@ -82,17 +82,8 @@ public static class RoomDepth
     /// <summary>In front of every tile of the room, the ones in front of its things too: where a pickup lies, and an enemy whose data says so.</summary>
     public const int InFrontOfRoom = 30;
 
-    /// <summary>
-    /// Over the room and everything in it, under its liquid and its overlays: where something lies that changes how
-    /// the whole room is seen, as the wash of a player's scope does.
-    /// </summary>
-    public const int OverRoom = 80;
-
     /// <summary>The room's liquid: over the room and what is in it, under the overlays.</summary>
     public const int Liquid = 90;
-
-    /// <summary>Over the room's liquid and under what is laid over the whole room: where something lies that changes how the room and its liquid together are seen.</summary>
-    public const int OverLiquid = 95;
 
     /// <summary>What is laid over the whole room.</summary>
     public const int Overlay = 100;

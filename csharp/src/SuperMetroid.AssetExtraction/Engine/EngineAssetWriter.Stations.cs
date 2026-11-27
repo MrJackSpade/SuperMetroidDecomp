@@ -43,8 +43,7 @@ public sealed partial class EngineAssetWriter
             }
 
             JsonObject timeline = EngineTimelines.Of(lead, cycle, draw => RoomObjects.Picture(directory, Frame(draw), folder), static (NoAnimationCue _) => null);
-            // It is of the room's blocks, and lies a row up with the room's tiles.
-            timeline["offset"] = EngineRoomObjects.PictureCorner(stationX + left * block, stationY + top * block);
+            timeline["offset"] = At(stationX + left * block, stationY + top * block);
             return timeline;
         }
 
@@ -114,8 +113,7 @@ public sealed partial class EngineAssetWriter
                 JsonObject timeline = EngineTimelines.Of(
                     StationAccessTimingDefinitions.Segments, StationAccessTimingDefinitions.Use, Pose,
                     static (StationAccessCue cue) => cue == StationAccessCue.Disengages ? EngineNames.SoundCue(EnemySound.StationDisengaged) : null);
-                // The arm is of the room's blocks too.
-                timeline["offset"] = EngineRoomObjects.PictureCorner((rule.ColumnsToAccessOn(side) - rule.LeftOffset) * block, 0);
+                timeline["offset"] = At((rule.ColumnsToAccessOn(side) - rule.LeftOffset) * block, 0);
                 _tree.WriteData($"objects/{name}_arm_{EngineNames.Side(side)}.json", timeline);
             }
         }

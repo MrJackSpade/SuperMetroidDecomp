@@ -97,9 +97,6 @@ public partial class Ending : Cinematic
         public bool Released { get; set; }
         public bool Moving { get; set; }
         public Pixels Speed { get; set; }
-
-        /// <summary>Colours of its own it is shown in, given it once it shows its first picture; null once given, or for none.</summary>
-        public ColourChange? Colours { get; set; }
     }
 
     /// <summary>How many updates the set-up waits out before the update that sets the clouds up.</summary>
@@ -113,12 +110,6 @@ public partial class Ending : Cinematic
 
     /// <summary>How many steps a wash of white over the whole screen clears in: the cartridge's thirty-one levels of added white.</summary>
     private const int WashLevels = 31;
-
-    /// <summary>The name the floor's colours are changed under for the stage of the ending it is shown in.</summary>
-    private const string FloorColours = "Stage";
-
-    /// <summary>The name the exploding planet's colours are changed under: its own, and then its fade's.</summary>
-    private const string PlanetColours = "Planet";
 
     /// <summary>The points of the floor that stay put as it turns: among the clouds and over the planet, and behind the gunship.</summary>
     private static readonly Vector2 AtmosphereCentre = new(128, 128), GunshipCentre = new(56, 24);
@@ -138,7 +129,6 @@ public partial class Ending : Cinematic
 
     private ScreenFade? _fade;
     private ScreenFade? _white;
-    private CanvasLayer? _front;
     private CanvasLayer? _picture;
     private ColorRect? _backdrop;
     private TurningFloor? _floor;
@@ -152,18 +142,6 @@ public partial class Ending : Cinematic
     private int _floorAngle;
     private Vector2 _floorCentre = AtmosphereCentre;
     private int _crossfade;
-
-    /// <summary>The fade of the exploding planet's colours, from its cue until the planet goes; none before or after.</summary>
-    private ColourSteps? _planetFade;
-
-    /// <summary>
-    /// The other steps of colours playing on what the ending shows, in the order they began: each from the update the
-    /// old game starts it until the scene it plays in ends or what it is shown on goes.
-    /// </summary>
-    private readonly List<ColourSteps> _colourSteps = [];
-
-    /// <summary>The gunship's coming out of the blast's white, and the planet's afterglow, while they play.</summary>
-    private ColourSteps? _gunshipEmergence, _afterglowGlow;
     private int _shake;
     private bool _slowShake;
     private double _planetSpeed;
@@ -196,16 +174,11 @@ public partial class Ending : Cinematic
     {
         _data = Session.Content.ReadData(DataFile);
         _timelines = TimelineSet.ReadFrom(_data);
-        // The colour behind everything lies on a layer of its own beneath the picture. The stars, the shooting stars
-        // and the emblem's picture lie at depths below the rest of the picture's layer, and a colour laid in the same
-        // layer would hide them.
-        var behind = new CanvasLayer { Name = "Behind", Layer = 0 };
-        AddChild(behind);
-        _backdrop = new ColorRect { Name = "Backdrop", Color = Colors.Black };
-        _backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        behind.AddChild(_backdrop);
         _picture = new CanvasLayer { Name = "Picture", Layer = 1 };
         AddChild(_picture);
+        _backdrop = new ColorRect { Name = "Backdrop", Color = Colors.Black };
+        _backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        _picture.AddChild(_backdrop);
         _floor = new TurningFloor { Name = "Floor", Visible = false };
         _picture.AddChild(_floor);
         _explosionPicture = new Sprite2D { Name = "Explosion", Centered = false, Visible = false };
@@ -229,10 +202,6 @@ public partial class Ending : Cinematic
         }
         _white = new ScreenFade { Name = "White", Layer = 3, Colour = Colors.White };
         AddChild(_white);
-
-        // What passes in front of the white over the screen: the gunship as it flies away, and her shot after it.
-        _front = new CanvasLayer { Name = "Front", Layer = 4 };
-        AddChild(_front);
         _fade = new ScreenFade { Name = "Fade", Layer = 5, Levels = FadeLevels };
         AddChild(_fade);
         _fade.FadeOut(1);
@@ -264,20 +233,12 @@ public partial class Ending : Cinematic
             Session.Sounds.RequestMusic(Music.ZebesExplosion, MusicWait);
             _phase = Phase.WaitingForEscapeMusic;
         }
+        else if (_phase < Phase.Credits)
+            StepEscape();
+        else if (_phase < Phase.Gesture)
+            StepCreditsAndWaiting();
         else
-        {
-            // Steps of colours begun on an earlier update take theirs before anything else of the update; one begun
-            // on this update shows its first step as it begins.
-            foreach (ColourSteps steps in _colourSteps)
-                steps.Step();
-            if (_phase < Phase.Credits)
-                StepEscape();
-            else if (_phase < Phase.Gesture)
-                StepCreditsAndWaiting();
-            else
-                StepReward();
-        }
-
+            StepReward();
         if (_phase >= Phase.PostCreditsBlank)
             StepShootingStars();
         _frame++;
@@ -322,11 +283,6 @@ public partial class Ending : Cinematic
                 foreach (string cue in actor.Sprite.Step())
                     OnCue(cue);
                 stays = !actor.Sprite.IsOver;
-                if (actor.Colours is { } colours && colours.On(actor.Sprite).Count > 0)
-                {
-                    colours.ShowOn(actor.Sprite, actor.Role);
-                    actor.Colours = null;
-                }
             }
 
             place = _actors.IndexOf(actor);
@@ -407,8 +363,6 @@ public partial class Ending : Cinematic
     private void ShowFloorPicture(string name, Vector2 centre, bool repeats)
     {
         TurningFloor floor = _floor ?? throw NotEntered();
-        // A picture shows its own colours until it is given others.
-        ColourChange.None.ShowOn(floor, FloorColours);
         floor.Picture = Data().Text(name);
         floor.Repeats = repeats;
         floor.Setup(Session.Content, new Vector2I(256, 224));
@@ -448,35 +402,6 @@ public partial class Ending : Cinematic
             return;
         (_washLeft, _washWait) = (_washLeft - 1, _washPace);
         (_white ?? throw NotEntered()).Cover(_washLeft, WashLevels);
-    }
-
-    /// <summary>
-    /// Begins the steps of colours the data names, shown on <paramref name="on"/> under <paramref name="source"/>: the
-    /// first shows at once, and each later update steps them before anything else.
-    /// </summary>
-    private ColourSteps BeginColourSteps(string data, string source, params IRecoloured[] on)
-    {
-        var steps = new ColourSteps(Data().Get(data), source);
-        foreach (IRecoloured target in on)
-            steps.ShowOn(target);
-        steps.Step();
-        _colourSteps.Add(steps);
-        return steps;
-    }
-
-    /// <summary>Ends steps of colours, taking their colours back from what they are shown on.</summary>
-    private void StopColourSteps(ColourSteps steps)
-    {
-        steps.Stop();
-        _colourSteps.Remove(steps);
-    }
-
-    /// <summary>Ends every step of colours still playing, as the old game does at the start of a new scene.</summary>
-    private void StopAllColourSteps()
-    {
-        foreach (ColourSteps steps in _colourSteps)
-            steps.Stop();
-        _colourSteps.Clear();
     }
 
     private ScreenFade Fade() => _fade ?? throw NotEntered();

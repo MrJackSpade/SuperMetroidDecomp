@@ -81,11 +81,9 @@ internal sealed partial class EngineEnemy
             };
         }
 
-        // One whose every picture the cartridge draws in front of all the room's tiles is drawn there, in the word a
-        // timeline says it in; one drawn behind the tiles' front part, as most are, says nothing and is drawn where it
-        // stands.
+        // One whose every picture the cartridge draws in front of all the room's tiles is drawn there.
         if (pictures.Depth == SuperMetroid.Core.Assets.ActorDepth.InFront)
-            Data["lies"] = "in_front_of_tiles";
+            Data["in_front_of_tiles"] = true;
         Data["reactions"] = EngineReactions.Of(Definition);
         if (EngineAssetWriter.Drops(Definition.Drops) is { } drops)
             Data["drops"] = drops;
@@ -211,10 +209,6 @@ internal sealed partial class EngineEnemy
             Timeline(name, segments, startingWith(segment), cue);
         return this;
     }
-
-    /// <summary>Adds a timeline that shows one of its frames' pictures, unchanging, for as long as it plays.</summary>
-    internal EngineEnemy Still(string name, EnemyFrameId frame) =>
-        Timeline(name, new JsonObject { ["steps"] = new JsonArray(new JsonObject { ["picture"] = Picture(frame), ["updates"] = 1 }), ["loops_to"] = 0 });
 
     /// <summary>Adds a timeline already made.</summary>
     internal EngineEnemy Timeline(string name, JsonObject timeline)

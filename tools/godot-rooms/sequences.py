@@ -16,19 +16,12 @@ VISUAL = 'res://engine/actors/components/ActorVisual.cs'
 OVERLAY = 'res://engine/world/OverlayEffect.cs'
 BACKDROP = 'res://engine/world/Backdrop.cs'
 BANDED_BACKDROP = 'res://engine/world/BandedBackdrop.cs'
-# The setups of the room states whose background is the scrolling sky with its bands drifting, and the bands' file:
-# the sky's own, and the Landing Site's in the escape, which spawns the same bands (RoomSetupBehavior,
-# LandingSiteEscapeSetup).
-SKY_BANDS_SETUPS = {'SpawnScrollingSkyBands', 'LandSkyWithLandingSiteQuake'}
+# The setup of a room state whose background is the scrolling sky with its bands drifting, and the bands' file.
+SKY_BANDS_SETUP = 'SpawnScrollingSkyBands'
 SKY_BANDS_FILE = 'backdrops/scrolling_sky_bands.json'
 TURNING_FLOOR = 'res://engine/world/TurningFloor.cs'
 TRIGGER = 'res://engine/world/Trigger.cs'
 SCREEN = 256
-
-# Where a room's terrain is shown and its backdrops lie: a row above the room's own rows. The cartridge shows a room's
-# tiles and background from the row below the view's and draws what stands in the room where its place says.
-PLANES_AT = (0, -1)
-PLANES_LIE_AT = 'Vector2i({}, {})'.format(*PLANES_AT)
 
 # The routines that are the escape as a room shows it, with how each room's differs.
 ESCAPES = {
@@ -138,19 +131,6 @@ def strings(values: list[str]) -> str:
     return 'Array[String]([' + ', '.join(quoted(value) for value in values) + '])'
 
 
-# Each effect selection a room state can name, for what its effect says of the room's background.
-ROOM_FX = legacy.room_fx()
-
-
-def darkens_room(state: legacy.State) -> dict[str, str]:
-    """
-    What a room's background is given where the room's effect lays the background behind the room: it is not shown
-    itself but taken from the room's colours, as in the cartridge's waterfall rooms.
-    """
-    effect = ROOM_FX[state.fx]['default']
-    return {'DarkensRoom': 'true'} if effect is not None and effect['background_behind'] else {}
-
-
 class Sequences:
     """The sequences and backdrops of one version of a room."""
 
@@ -166,30 +146,28 @@ class Sequences:
         whole = f'Vector2i({room.screens[0] * SCREEN}, {room.screens[1] * SCREEN})'
 
         # The background, where the room has a picture of its own for one; a room's layout draws the others.
-        if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties and state.setup in SKY_BANDS_SETUPS:
+        if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties and state.setup == SKY_BANDS_SETUP:
             # The scrolling sky: its rows are the room's rows, so it moves down the screen with the room, and it does
             # not follow the view across; each band of it drifts by itself. The scroll the state gives its background
             # is not what its lines are shown by.
             self.placed.append(Placed(BANDED_BACKDROP, 'Backdrop', {
                 'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
                 'ScrollShare': 'Vector2(0, 1)',
-                'BandsFile': quoted(SKY_BANDS_FILE), 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False))
+                'BandsFile': quoted(SKY_BANDS_FILE)}, at=(0, 0), enemy=False))
 
         elif state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties:
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 # A background is coloured by the room's set of graphics, so its picture is kept once for each set.
                 'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
-                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT,
-                **darkens_room(state)}, at=(0, 0), enemy=False))
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
         elif state.background == 'null':
             # What the level draws behind itself, which is kept as one picture for each set of graphics it is drawn in.
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 'Picture': quoted(f'backdrops/{{graphics}}/level_{snake(state.level)}.png'),
-                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT,
-                **darkens_room(state)}, at=(0, 0), enemy=False))
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
         if room.area == 'Brinstar':
             # The plants that seize Samus are blocks of the layout: one watcher finds and plays whichever the room has.
@@ -295,8 +273,7 @@ class Sequences:
         if state.main == 'CeresRidleyGetaway' and 'TurningFloor' in state.properties:
             # The floor he flies off over is put away until he does: the room rests on its own picture.
             # Nothing shows beyond its edges: the cartridge's floor for his flight does not come round again, as
-            # the shaft's does. It lies at the room's corner, not a row up: the cartridge shows it by the getaway's
-            # own scroll, not from the view's row.
+            # the shaft's does.
             floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png'), 'Repeats': 'false', 'visible': 'false'}, at=(0, 0), enemy=False,
                            children=[('Capsule', VISUAL, {'position': f'Vector2{FLOOR_CAPSULE_AT}'}),
                                      ('Wings', VISUAL, {'position': f'Vector2{FLOOR_WINGS_AT}'})])
@@ -306,8 +283,6 @@ class Sequences:
                 'WingPictures': strings([floor_picture(name) for name in ('wings_raised', 'wings_lowered')]),
                 # What each of those pictures leaves where Samus's stride reads the pace the cartridge never wrote.
                 'WingLeftoversFile': quoted('objects/ceres_getaway_wings.json'),
-                # The room's colours by the floor's size as he flies, which the room keeps once he is gone.
-                'SizeColoursFile': quoted('objects/ceres_getaway_floor_colours.json'),
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
                 'Subtitle': quoted('ceres_self_destruct_subtitle'),
                 # The old getaway asks for his departure's sound on its first update, at the ordinary priority.
@@ -318,9 +293,10 @@ class Sequences:
             if 'Ridley' in named:
                 self.links.append((named['Ridley'], 'ToldWhenGone', [getaway]))
         if state.main == 'CeresElevatorShaft':
-            # The shaft, which is all the room's picture, lies a row above the room's own rows as every room's planes
-            # do, so the black that hides the landing pad until the platform lands covers its top row.
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png'), 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False,
+            # The cartridge shows a room's picture from the row below the view's, and draws what stands in it where
+            # its place says: the shaft, which is all the room's picture, lies a row above the room's own rows, so
+            # the black that hides the landing pad until the platform lands covers its top row.
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png'), 'LiesAt': 'Vector2i(0, -1)'}, at=(0, 0), enemy=False,
                            children=[('Platform', VISUAL, {'position': f'Vector2{FLOOR_PLATFORM_AT}'})])
             self.placed.append(floor)
             if 'ElevatorDoor' in named:

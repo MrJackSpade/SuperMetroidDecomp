@@ -133,7 +133,10 @@ public sealed class JumpingState : PlayerState
             return new AirTurningState(fromJump: true);
         owner.AimFromInput();
         _stanceAsked = Stance.Kept(AirStance.Of(owner, forwardCounts: true));
-        return AirStance.AsksNothing(owner, jumpCounts: true) ? null : this;
+
+        // The jump held asks for the jump to go on in every stance but the arm held out, which only the attack, an
+        // aim or a direction keeps asked: with the jump alone held it is asked nothing.
+        return AirStance.AsksNothing(owner, jumpCounts: Stance.Arm != AirArm.Out) ? null : this;
     }
 
     /// <inheritdoc/>
@@ -191,7 +194,8 @@ public sealed class JumpingState : PlayerState
     }
 
     /// <summary>
-    /// With nothing at all held, a jumper who has speed across becomes unsteered: the dash is added into that speed
+    /// With nothing at all held, or with the jump alone held by a jumper whose arm is held out, a jumper who has
+    /// speed across becomes unsteered: the dash is added into that speed
     /// and lost, and the momentum ends. One with no speed is steered. A jump aiming up, or diagonally either way,
     /// lets its aim go for the stance of steering the way the player faces, so that the same aim asked again is a
     /// stance taken up anew; one aiming straight down, or with the arm held out, stays as it is.

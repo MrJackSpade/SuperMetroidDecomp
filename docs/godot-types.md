@@ -981,7 +981,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   from something else starts in the stance it is given (`JumpingState(AirStance)`), or failing that the one the
   input asks for as it begins. A change of stance within a jump takes effect only when the body can take the form
   of the new one, and the jump says so for that update (`TookUpStance`), which the game's player can read as it is
-  told (`Entering`). An update with nothing at all held makes a jumper who has speed unsteered
+  told (`Entering`). An update with nothing at all held, or with the jump alone held by a jumper whose arm is held
+  out, makes a jumper who has speed unsteered
   (the dash is folded into their speed and their momentum ends) and takes a faller's dash and momentum. It also has a
   jump that aims up, or diagonally either way, let its aim go for the stance of steering the way the player faces,
   so that the same aim asked again is a stance taken up anew. Steering

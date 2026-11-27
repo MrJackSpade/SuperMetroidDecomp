@@ -44,6 +44,7 @@ public sealed class RidingElevatorState : PlayerState, ISamusLook
     public override void Enter(Player owner)
     {
         owner.Velocity = PixelVelocity.Zero;
+        // Her run's speed ends; her boost does not (Samus.OnMomentumLost), as the cartridge's setup leaves its count.
         owner.LoseMomentum();
         owner.TrySetForm(Form);
     }

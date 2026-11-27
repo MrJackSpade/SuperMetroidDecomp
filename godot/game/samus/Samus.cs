@@ -1114,6 +1114,12 @@ public partial class Samus : Player
         if (from is RunningState && IsBoosting && to is ChangingPostureState { Then: CrouchingState } or CrouchingState)
             StoreShine();
 
+        // Standing up from a crouch, the cartridge's change of pose tests the ground a little below her feet, among the
+        // blocks she stands on, as the standing pose: on an elevator's blocks that is a stand at its door, an update
+        // before her first move upright makes one.
+        if (from is CrouchingState && to is StandingState or ChangingPostureState { Then: StandingState })
+            NoteElevatorStand(new PixelRect(BodyRect.Left, BodyRect.Bottom, BodyRect.Width, 1));
+
         // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
         // once the taller body of the jump has been fitted. Her arm is as it was before this update's input, as the
         // old pose she jumped from was.
@@ -2060,10 +2066,14 @@ public partial class Samus : Player
         _stridesLeft = BoostStrideCounts[0];
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Her boost ends with her momentum, except in a shinespark and as an elevator's ride takes her: the cartridge's
+    /// setup for the ride clears her run's speed and leaves the boost's count as it stood, so a boost she had, a
+    /// shinespark's not yet spent among them, outlasts the ride.
+    /// </summary>
     protected override void OnMomentumLost()
     {
-        if (State is not ShinesparkState)
+        if (State is not (ShinesparkState or RidingElevatorState))
             EndBoost();
     }
 

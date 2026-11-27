@@ -740,9 +740,12 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 
 - **An elevator** of this game is not built from these: it is the game's own `Elevator` (`game/objects/elevator/`),
   because the cartridge's ride is its own thing, update for update. Samus arms it by standing on the blocks it
-  rests on, as she moved upright and settled; the elevator hears of that on its next turn, and a fresh press of its
-  way on that turn starts the ride (without one the door is disarmed again). She then rides in a state of her own
-  (`RidingElevatorState`): facing forward, held a set height above the elevator each time it takes its turn, and
+  rests on, as she moved upright and settled, or as she stood up from a crouch there (the cartridge's change of pose
+  tests the ground under her as the standing pose, an update before her first move upright); the elevator hears of
+  that on its next turn, and a fresh press of its way on that turn starts the ride (without one the door is disarmed
+  again). The ride's start takes every shot and bomb of hers away, her charge and the wait her shots and bombs share,
+  and ends her run's speed but not her boost, which outlasts the ride as the cartridge's count of it does. She then
+  rides in a state of her own (`RidingElevatorState`): facing forward, held a set height above the elevator each time it takes its turn, and
   moved by her own step down of one pixel, which only the terrain under her feet stops. While the ride is leaving
   that step is what meets the door of the shaft, so the door is entered when her feet reach it and not when her
   body first overlaps it; she meets no exit by overlapping it while she rides. The ride itself is the session's

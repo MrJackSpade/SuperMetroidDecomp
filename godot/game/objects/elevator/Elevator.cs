@@ -156,10 +156,11 @@ public partial class Elevator : RoomObject
         Sound(Sounds.SpinJumpStop, "samus");
         samus.ChangeState(new RidingElevatorState());
 
-        // Every shot of hers is gone, and her charge with them.
+        // Every shot and bomb of hers is gone, and her charge with them, and the wait her shots and bombs share is over.
         foreach (Projectile shot in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList())
             Room.Remove(shot);
         (samus as Samus)?.ForgetCharge();
+        samus.Weapons.SetWait(0);
         Hold(samus);
         journey.Begin(GoesDown);
     }

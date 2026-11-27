@@ -54,12 +54,57 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException("The wall the animals escape through is not one block that shots meet and the blocks below that answer for it.");
         foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States().Where(placed => wallRooms.Contains(placed.Room)))
         {
+            // Its breaking is what lets the animals out: the old wall marks them escaped as its breaking ends. Every
+            // shot and bomb breaks it; the grapple's touch does not (EscapeAnimalObjects). Struck, it is struck no more
+            // and goes on standing: only its pictures change.
+            var rules = new JsonObject
+            {
+                ["solid"] = true,
+                ["stays_solid"] = true,
+                ["broken_by"] = EngineLayouts.AnyShot(),
+                ["records"] = AnimalsEscapedFact,
+            };
+            AddAnimalWallBreaking(rules, state);
             Layouts.PatchReactingBlock(room, state, WallShotBlocksPatch, new Position16<RoomBlocks>(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY),
-                EscapeAnimalWallDefinitions.HeightInBlocks, "shot_block_animal_escape",
-                // Its breaking is what lets the animals out: the old wall marks them escaped as its breaking ends.
-                // Every shot and bomb breaks it; the grapple's touch does not (EscapeAnimalObjects).
-                new JsonObject { ["solid"] = true, ["broken_by"] = EngineLayouts.AnyShot(), ["records"] = AnimalsEscapedFact });
+                EscapeAnimalWallDefinitions.HeightInBlocks, "shot_block_animal_escape", rules);
         }
+    }
+
+    /// <summary>
+    /// Gives the animals' wall its breaking as the old wall plays it from the update it is struck: each of its pictures
+    /// over its column, tile by tile, for as long as the old change shows it, and the crumble's sound, at the priority
+    /// the change asks it at, with the first.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The old change does not begin as the wall is struck, moves, lets something through or sounds later.</exception>
+    private void AddAnimalWallBreaking(JsonObject rules, RoomStateSettings state)
+    {
+        TerrainChange change = ScriptedTerrainChangeDefinitions.CritterWallBreakthrough;
+        if (change.FirstFrameDelay != 1)
+            throw new InvalidDataException("The animals' wall does not show its first picture of breaking on the update it is struck.");
+        var steps = new JsonArray();
+        foreach (TerrainChangeFrame frame in change.Frames)
+        {
+            if (frame.MoveBefore != Offset16<RoomBlocks>.Zero)
+                throw new InvalidDataException("A picture of the animals' wall breaking is drawn away from the wall.");
+            if (frame.Draw is not RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: var shown }
+                || EscapeAnimalObjectDrawDefinitions.Shapes[shown].Cells.Any(cell => cell.Collision != RoomCollisionType.SolidBlock))
+                throw new InvalidDataException($"The animals' wall draws {frame.Draw} as it breaks, which is not a picture of the wall standing solid.");
+            if (frame.SoundBefore is { } sound)
+            {
+                if (steps.Count > 0)
+                    throw new InvalidDataException("The animals' wall sounds after its first picture of breaking, which a block's breaking cannot say.");
+                rules["break_sound"] = EngineNames.Sound(sound, frame.SoundPriority);
+            }
+
+            steps.Add(new JsonObject
+            {
+                ["pictures"] = Layouts.ColumnPictures(state, GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName,
+                    RoomObjectRevealAndWallVisualFiles.VisualId(frame.Draw), EscapeAnimalWallDefinitions.HeightInBlocks),
+                ["updates"] = frame.Updates,
+            });
+        }
+
+        rules["breaking"] = new JsonObject { ["steps"] = steps };
     }
 
     /// <summary>The name the Godot Torizo plays one of the old animations by.</summary>

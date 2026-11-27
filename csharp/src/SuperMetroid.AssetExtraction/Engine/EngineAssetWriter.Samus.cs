@@ -212,6 +212,18 @@ public sealed partial class EngineAssetWriter
             .Value("breath_low_sound", EngineNames.Sound(EnemySound.LowBubbles))
             .Value("breath_high_sound", EngineNames.Sound(EnemySound.HighBubbles))
 
+            // The spray a burning liquid throws up about her while it harms her: its puffs and where each begins; its
+            // first puff holds the next spray off and its third her breath's bubbles while each shows; its sound on the
+            // clock's cadence.
+            .Value("liquid_spray_effects", new JsonArray([.. LiquidSprayPuffs.Select(puff => (JsonNode?)LiquidSprayFile(puff))]))
+            .Value("liquid_spray_across", new JsonArray([.. LiquidSprayPuffs.Select(puff => (JsonNode?)puff.Across)]))
+            .Value("liquid_spray_hold_updates", SamusParticle.UpdatesUntilFinished(
+                SamusParticleKind.LavaSpray, SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.AtOnce))
+            .Value("liquid_spray_bubble_hold_updates", SamusParticle.UpdatesUntilFinished(
+                SamusParticleKind.LavaSpray, SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.OneUpdateLate))
+            .Value("liquid_spray_sound", EngineNames.Sound(EnemySound.LiquidDamage))
+            .Value("liquid_spray_sound_every", SamusCadenceDefinitions.LavaSpraySound.Period)
+
             // She climbs as steeply as the old game's sloped shapes step from one pixel column to the next.
             .Value("climb_per_pixel", SteepestSlopeStep())
             .Value("starting_energy", SamusEnergyDefinitions.StartingEnergy)

@@ -100,7 +100,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/hibashi.json` | `Hibashi` | contact_damage, first_wait, half_width, health |
 | `enemies/holtz.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, idles_whenever_perched, lift, reach, return_sound, return_speed, slow_dive_speed |
 | `enemies/jet_ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
-| `enemies/kago.json` | `Kago` | contact_damage, health, shake_strength, shake_updates, shake_way |
+| `enemies/kago.json` | `Kago` | contact_damage, health, shake_reach, shake_strength, shake_updates, shake_way |
 | `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, first_sound_after, gravity, health, homing_distance, jump_speed, shortest_wait, sound |
 | `enemies/kamer.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/ki_hunter_acid.json` | `KiHunterAcid` | fastest_fall, gravity, launch_shift, splash |

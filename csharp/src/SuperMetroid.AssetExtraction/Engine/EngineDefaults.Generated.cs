@@ -261,7 +261,7 @@ internal static partial class EngineDefaults
         ["Hud"] = [("select_sound", "\"\""), ("area_folder", "\"areas\"")],
         ["IntroEgg"] = [("hatch_sound", "\"\""), ("cry_sound", "\"\""), ("slime", "\"\""), ("slime_splash", "\"\"")],
         ["IntroMotherBrain"] = [("ring", "\"\""), ("small_explosion", "\"\""), ("big_explosion", "\"\"")],
-        ["Kago"] = [("shake_strength", "1"), ("shake_updates", "16"), ("shake_way", "\"across\"")],
+        ["Kago"] = [("shake_strength", "1"), ("shake_updates", "16"), ("shake_way", "\"across\""), ("shake_reach", "\"tiles\"")],
         ["KagoBug"] = [("jump_speed", "8"), ("across_speed", "2.0"), ("gravity", "0.875"), ("fall_start_speed", "1.0"), ("shortest_wait", "2"), ("homing_distance", "48"), ("clear_distance", "23"), ("sound", "\"\""), ("first_sound_after", "3")],
         ["KiHunter"] = [("swoop_distance", "96"), ("swoop_least_depth", "32"), ("patrol_speed", "1"), ("patrol_rise", "16"), ("patrol_depth", "32"), ("swoop_quickening", "32"), ("swoop_fastest_turn", "2"), ("strike_after_steps", "16"), ("gravity", "0.875"), ("hop_across_speed", "2"), ("hop_up_speed", "8"), ("landing_wait", "12"), ("spit_wait", "24"), ("spit_range", "96"), ("spit_reach", "22"), ("spit_height", "16"), ("spit_sound", "\"\""), ("wing_arc_radius", "48"), ("wing_arc_climb", "32"), ("wing_arc_step", "384"), ("wing_half_width", "10"), ("wing_half_height", "10"), ("speed_curve", "\"\"")],
         ["KiHunterAcid"] = [("launch_shift", "19"), ("gravity", "0.0625"), ("fastest_fall", "2.0"), ("splash", "\"\"")],

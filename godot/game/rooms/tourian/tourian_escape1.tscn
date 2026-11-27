@@ -190,6 +190,7 @@ script = ExtResource("10")
 StartsWhen = SubResource("r2")
 TurnsHarder = false
 ShakeStrength = 1
+Reach = 2
 SmallExplosionEffect = "effects/small_explosion.json"
 DustPuffEffect = "effects/smoke_puff.json"
 SmokeEffect = "effects/smoke.json"

@@ -101,6 +101,7 @@ LiesAt = Vector2i(0, -1)
 [node name="Shaking" type="Node" parent="."]
 script = ExtResource("8")
 StartsWhen = SubResource("r4")
+Reach = 2
 
 [node name="DoorColours" type="Node" parent="."]
 script = ExtResource("9")

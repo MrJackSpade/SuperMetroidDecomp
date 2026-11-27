@@ -457,6 +457,7 @@ StartsWhen = SubResource("r10")
 Outdoors = true
 TurnsHarder = false
 ShakeStrength = 3
+Reach = 0
 SmallExplosionEffect = "effects/small_explosion.json"
 DustPuffEffect = "effects/smoke_puff.json"
 SmokeEffect = "effects/smoke.json"

@@ -233,6 +233,7 @@ LiesAt = Vector2i(0, -1)
 script = ExtResource("14")
 StartsWhen = SubResource("r3")
 ShakeStrength = 2
+Reach = 2
 StartsShakeAfresh = true
 SmallExplosionEffect = "effects/small_explosion.json"
 DustPuffEffect = "effects/smoke_puff.json"

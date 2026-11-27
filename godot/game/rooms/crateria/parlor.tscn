@@ -94,6 +94,8 @@ Hears = "open"
 AppliesPatch = "animals_passage_open"
 ShakeStrength = 1
 ShakeUpdates = 60
+ShakeWay = 0
+ShakeReach = 2
 
 [node name="Parlor" type="Node2D"]
 script = ExtResource("3")
@@ -950,6 +952,7 @@ StartsWhen = SubResource("r7")
 Outdoors = true
 TurnsHarder = false
 ShakeStrength = 3
+Reach = 2
 SmallExplosionEffect = "effects/small_explosion.json"
 DustPuffEffect = "effects/smoke_puff.json"
 SmokeEffect = "effects/smoke.json"

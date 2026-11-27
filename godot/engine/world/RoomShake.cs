@@ -7,13 +7,14 @@ namespace Engine.World;
 /// <param name="Strength">How far the view is thrown, in pixels.</param>
 /// <param name="Updates">How many updates the shake lasts.</param>
 /// <param name="Way">The way the view is thrown about.</param>
-public sealed record RoomShake(int Strength, int Updates, ShakeWay Way)
+public sealed record RoomShake(int Strength, int Updates, ShakeWay Way, ShakeReach Reach)
 {
     /// <summary>Reads a shake from a data file's group.</summary>
     public static RoomShake Read(DataNode data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        var shake = new RoomShake(data.Int("strength"), data.Int("updates"), data.Has("way") ? data.Get("way").AsEnum<ShakeWay>() : ShakeWay.Across);
+        var shake = new RoomShake(data.Int("strength"), data.Int("updates"), data.Has("way") ? data.Get("way").AsEnum<ShakeWay>() : ShakeWay.Across,
+            data.Get("reach").AsEnum<ShakeReach>());
         if (shake.Strength <= 0 || shake.Updates <= 0)
             throw data.Problem("gives a shake of no strength or no length");
         return shake;
@@ -23,6 +24,6 @@ public sealed record RoomShake(int Strength, int Updates, ShakeWay Way)
     public void Start(Room room)
     {
         ArgumentNullException.ThrowIfNull(room);
-        room.Shake(Strength, Updates, Way);
+        room.Shake(Strength, Updates, Way, Reach);
     }
 }

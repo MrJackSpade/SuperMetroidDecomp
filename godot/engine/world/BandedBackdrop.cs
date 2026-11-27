@@ -50,9 +50,9 @@ public partial class BandedBackdrop : Backdrop
     }
 
     /// <inheritdoc/>
-    internal override void Follow(Vector2I viewTopLeft)
+    internal override void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {
-        base.Follow(viewTopLeft);
+        base.Follow(viewTopLeft, thrown);
         for (int index = 0; index < _bands.Length; index++)
             _bands[index].Drifted += _bands[index].Drift;
         QueueRedraw();

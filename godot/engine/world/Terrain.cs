@@ -33,8 +33,25 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     /// </summary>
     public Vector2I ShownShift
     {
-        get => new((int)Position.X, (int)Position.Y);
-        set => Position = value;
+        get => new((int)Position.X - _thrown.X, (int)Position.Y - _thrown.Y);
+        set => Position = value + _thrown;
+    }
+
+    private Vector2I _thrown;
+
+    /// <summary>
+    /// How far a shake of the room throws the terrain this update, beyond where it is shown at rest
+    /// (<see cref="ShownShift"/>, which it leaves as it is). The room says, each time it shows itself.
+    /// </summary>
+    internal Vector2I Thrown
+    {
+        get => _thrown;
+        set
+        {
+            Vector2I rest = ShownShift;
+            _thrown = value;
+            Position = rest + value;
+        }
     }
 
     /// <summary>The loaded layout.</summary>

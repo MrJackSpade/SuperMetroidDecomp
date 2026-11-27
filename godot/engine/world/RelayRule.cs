@@ -23,4 +23,12 @@ public partial class RelayRule : Resource
     /// <summary>For how many updates it shakes.</summary>
     [Export]
     public int ShakeUpdates { get; set; }
+
+    /// <summary>Which way the shake throws what it reaches.</summary>
+    [Export]
+    public ShakeWay ShakeWay { get; set; }
+
+    /// <summary>What of the room the shake throws about.</summary>
+    [Export]
+    public ShakeReach ShakeReach { get; set; }
 }

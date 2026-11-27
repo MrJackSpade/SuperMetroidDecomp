@@ -31,7 +31,7 @@ public partial class Relay : Node, ITriggerTarget, IPlaced
             if (rule.AppliesPatch.Length > 0)
                 room.Terrain.ApplyPatch(rule.AppliesPatch);
             if (rule.ShakeStrength > 0)
-                room.Shake(rule.ShakeStrength, rule.ShakeUpdates);
+                room.Shake(rule.ShakeStrength, rule.ShakeUpdates, rule.ShakeWay, rule.ShakeReach);
         }
 
         if (!heard)

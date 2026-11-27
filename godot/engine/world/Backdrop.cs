@@ -86,11 +86,11 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     }
 
     /// <summary>Places the layer for a view whose top-left corner is at <paramref name="viewTopLeft"/> in the room.</summary>
-    internal virtual void Follow(Vector2I viewTopLeft)
+    internal virtual void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {
         Position = new Vector2(
-            LiesAt.X + viewTopLeft.X * (1 - ScrollShare.X),
-            LiesAt.Y + viewTopLeft.Y * (1 - ScrollShare.Y));
+            LiesAt.X + viewTopLeft.X * (1 - ScrollShare.X) + thrown.X,
+            LiesAt.Y + viewTopLeft.Y * (1 - ScrollShare.Y) + thrown.Y);
     }
 
     /// <inheritdoc/>

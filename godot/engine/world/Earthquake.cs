@@ -23,8 +23,20 @@ public partial class Earthquake : RoomEffect
     /// <summary>The updates left in the shake.</summary>
     private Countdown _left = Countdown.Over;
 
-    /// <summary>How far the view is offset this update.</summary>
-    public Vector2I ViewOffset { get; private set; }
+    /// <summary>How far what the shake reaches is thrown this update.</summary>
+    public Vector2I Thrown { get; private set; }
+
+    /// <summary>What of the room the shake last asked for throws about.</summary>
+    public ShakeReach Reach { get; private set; }
+
+    /// <summary>Whether the shake throws the room's tiles.</summary>
+    public bool ThrowsTiles => Reach != ShakeReach.BackdropsAndThings;
+
+    /// <summary>Whether the shake throws the room's backdrops.</summary>
+    public bool ThrowsBackdrops => Reach != ShakeReach.Tiles;
+
+    /// <summary>Whether the shake throws what the room's enemies have launched and left.</summary>
+    public bool ThrowsThings => Reach is ShakeReach.Everything or ShakeReach.BackdropsAndThings;
 
     /// <summary>
     /// Whether the room is shaking: a shake has updates left. The update a shake takes its last, the room is still
@@ -35,21 +47,22 @@ public partial class Earthquake : RoomEffect
     /// <summary>Whether a shake has been started and has yet to take its first update: it has its whole length left.</summary>
     public bool HasJustBegun => IsActive && _left.Remaining == Updates;
 
-    /// <summary>The way the view is thrown about by the shake last asked for.</summary>
+    /// <summary>The way things are thrown about by the shake last asked for.</summary>
     public ShakeWay Way { get; private set; }
 
-    /// <summary>Starts a shake of the given strength, length and way.</summary>
-    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
+    /// <summary>Starts a shake of the given strength, length, way and reach.</summary>
+    public void Shake(int strength, int updates, ShakeWay way, ShakeReach reach)
     {
         Strength = strength;
         Updates = updates;
         Way = way;
+        Reach = reach;
         _left = Countdown.Of(updates);
         SetActive(true);
     }
 
     /// <summary>
-    /// Keeps the room shaking with a shake of the given strength and way for at least <paramref name="atLeast"/>
+    /// Keeps the room shaking with a shake of the given strength, way and reach for at least <paramref name="atLeast"/>
     /// updates more, without starting its length over: something that shakes the room for as long as it goes on asks
     /// this on each update. The length left runs in rounds of twice <paramref name="atLeast"/>; one in the first
     /// half of its round is moved on by <paramref name="atLeast"/>, and one in the second half is left. Asked every
@@ -57,11 +70,11 @@ public partial class Earthquake : RoomEffect
     /// (<see cref="HasJustBegun"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="atLeast"/> is not a power of two.</exception>
-    public void Sustain(int strength, int atLeast, ShakeWay way = ShakeWay.Across)
+    public void Sustain(int strength, int atLeast, ShakeWay way, ShakeReach reach)
     {
         if (atLeast <= 0 || (atLeast & (atLeast - 1)) != 0)
             throw new ArgumentOutOfRangeException(nameof(atLeast), atLeast, "A shake is kept going by a power of two of updates.");
-        (Strength, Way, Updates) = (strength, way, 0);
+        (Strength, Way, Reach, Updates) = (strength, way, reach, 0);
         _left = Countdown.Of(_left.Remaining | atLeast);
         SetActive(true);
     }
@@ -74,7 +87,7 @@ public partial class Earthquake : RoomEffect
     {
         if (_left.IsOver)
         {
-            ViewOffset = Vector2I.Zero;
+            Thrown = Vector2I.Zero;
             SetActive(false);
             return;
         }
@@ -82,7 +95,7 @@ public partial class Earthquake : RoomEffect
         // The far side is the room shown the other way from its shake's own.
         const int sides = 4;
         int by = _left.Remaining % sides >= sides / 2 ? Strength : -Strength;
-        ViewOffset = new Vector2I(Way == ShakeWay.Down ? 0 : by, Way == ShakeWay.Across ? 0 : by);
+        Thrown = new Vector2I(Way == ShakeWay.Down ? 0 : by, Way == ShakeWay.Across ? 0 : by);
         _left = _left.Stepped();
     }
 }

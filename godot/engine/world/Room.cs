@@ -584,6 +584,8 @@ public partial class Room : Node2D
         bool energyGone = EnergySettled is EmptyEnergy.Saved or EmptyEnergy.Dying;
         if (EnergySettled == EmptyEnergy.Saved)
             ExitEntered = null;
+        // Held still, the room is shown still: a shake neither counts on nor throws anything on such an update.
+        _shownStill = stopped.HasFlag(Stopped.Room);
         if (!stopped.HasFlag(Stopped.Room) && !energyGone)
         {
             foreach (RoomEffect effect in _roomEffects)
@@ -981,25 +983,30 @@ public partial class Room : Node2D
     public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsShaking)?.Strength ?? 0;
 
     /// <summary>
-    /// Whether the room has just begun to shake as <paramref name="shake"/> says: a shake of that strength, length
-    /// and way was started on this update and has not yet taken an update of its own. For what answers one kind of
+    /// Whether the room has just begun to shake as <paramref name="shake"/> says: a shake of that strength, length,
+    /// way and reach was started on this update and has not yet taken an update of its own. For what answers one kind of
     /// shake, as it starts, and no other.
     /// </summary>
     public bool HasJustBegunShaking(RoomShake shake)
     {
         ArgumentNullException.ThrowIfNull(shake);
         return _roomEffects.OfType<Earthquake>().Any(quake =>
-            quake.HasJustBegun && quake.Strength == shake.Strength && quake.Updates == shake.Updates && quake.Way == shake.Way);
+            quake.HasJustBegun && quake.Strength == shake.Strength && quake.Updates == shake.Updates && quake.Way == shake.Way
+            && quake.Reach == shake.Reach);
     }
 
-    /// <summary>Starts the room shaking. A room with no earthquake of its own is given one.</summary>
-    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across) => OwnEarthquake().Shake(strength, updates, way);
+    /// <summary>
+    /// Starts the room shaking: so hard, for so long, thrown which way, and what of it is thrown (its tiles, its
+    /// backdrops, what its enemies have launched and left). A room with no earthquake of its own is given one.
+    /// </summary>
+    public void Shake(int strength, int updates, ShakeWay way, ShakeReach reach) => OwnEarthquake().Shake(strength, updates, way, reach);
 
     /// <summary>
     /// Keeps the room shaking for at least so many updates more without starting its shake over
     /// (<see cref="Earthquake.Sustain"/>). A room with no earthquake of its own is given one.
     /// </summary>
-    public void SustainShake(int strength, int atLeast, ShakeWay way = ShakeWay.Across) => OwnEarthquake().Sustain(strength, atLeast, way);
+    public void SustainShake(int strength, int atLeast, ShakeWay way, ShakeReach reach) =>
+        OwnEarthquake().Sustain(strength, atLeast, way, reach);
 
     /// <summary>The room's earthquake, made where it has none.</summary>
     private Earthquake OwnEarthquake()
@@ -1306,20 +1313,26 @@ public partial class Room : Node2D
     }
 
     /// <summary>Puts every node where its exact place says, with the room where the view has it.</summary>
+    /// <summary>Whether the update last played held the room still, so that it is shown with nothing thrown by a shake.</summary>
+    private bool _shownStill;
+
     private void ShowAll()
     {
         var viewTopLeft = new Vector2I(Session.Camera.Left, Session.Camera.Top);
 
-        // The room is put on screen where the view has it, thrown about by any shaking. The player is not thrown about
-        // with it: they are shown where they would be were the room still.
-        Vector2I shake = _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.ViewOffset ?? Vector2I.Zero;
-        Position = new Vector2(shake.X - viewTopLeft.X, shake.Y - viewTopLeft.Y);
+        // The room is put on screen where the view has it. A shake throws about what it reaches of the room: its
+        // tiles, its backdrops, what its enemies have launched and left. The player and the enemies themselves are
+        // never thrown, and on an update the room is held still nothing is.
+        Earthquake? quake = _shownStill ? null : _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive);
+        Vector2I thrown = quake?.Thrown ?? Vector2I.Zero;
+        Position = new Vector2(-viewTopLeft.X, -viewTopLeft.Y);
+        Terrain.Thrown = quake is { ThrowsTiles: true } ? thrown : Vector2I.Zero;
         foreach (Backdrop backdrop in _backdrops)
-            backdrop.Follow(viewTopLeft);
+            backdrop.Follow(viewTopLeft, quake is { ThrowsBackdrops: true } ? thrown : Vector2I.Zero);
         foreach (OverlayEffect overlay in _roomEffects.OfType<OverlayEffect>())
             overlay.Follow(Session.Camera.View);
         Liquid?.Follow(Session.Camera.View);
-        EntityNode.Show(Player, (ShownTurn is { } turn ? turn.Turned(Player.Position) : Player.Position) - PixelOffset.FromWhole(shake.X, shake.Y));
+        EntityNode.Show(Player, ShownTurn is { } turn ? turn.Turned(Player.Position) : Player.Position);
         foreach (Enemy enemy in _enemies)
             enemy.ShowPosition();
         foreach (Projectile projectile in _projectiles)
@@ -1330,6 +1343,14 @@ public partial class Room : Node2D
             effect.ShowPosition();
         foreach (Remains remains in _remains)
             remains.ShowPosition();
+
+        // What the enemies have launched and left, each of which holds one of the room's places, is shown thrown by a
+        // shake that reaches it.
+        if (quake is { ThrowsThings: true })
+        {
+            foreach (Node2D held in _places.Held().OfType<Node2D>())
+                held.Position += thrown;
+        }
         foreach (RoomObject roomObject in _objects)
         {
             roomObject.ShowPosition();

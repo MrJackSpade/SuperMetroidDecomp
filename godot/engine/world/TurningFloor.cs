@@ -25,8 +25,8 @@ public partial class TurningFloor : Backdrop
         LayLevel();
     }
 
-    /// <summary>The floor keeps the place its turn gave it, whatever the view does.</summary>
-    internal override void Follow(Vector2I viewTopLeft)
+    /// <summary>The floor keeps the place its turn gave it, whatever the view does and whatever shakes the room.</summary>
+    internal override void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {
     }
 

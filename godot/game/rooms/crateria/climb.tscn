@@ -171,6 +171,7 @@ ArrivalOffset = Vector2i(40, 40)
 Travel = 1
 ToScreen = Vector2i(2, 1)
 SamusStep = 0.78125
+ExchangesExploredMaps = false
 
 [node name="Sbug" parent="." instance=ExtResource("6")]
 position = Vector2(276, 76)

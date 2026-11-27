@@ -86,6 +86,7 @@ SamusStep = 0.78125
 position = Vector2(552, 616)
 Faces = 1
 MountedOn = 1
+Look = "morph_ball_default"
 TurnsWithEnemies = true
 PresentWhen = SubResource("r5")
 

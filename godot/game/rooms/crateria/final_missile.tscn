@@ -63,6 +63,7 @@ SamusStep = 0.78125
 position = Vector2(50, 120)
 Faces = 1
 MountedOn = 0
+Look = "final_missile_default"
 TurnsWithEnemies = true
 PresentWhen = SubResource("r4")
 

@@ -288,14 +288,18 @@ PresentWhen = SubResource("r6")
 position = Vector2(77, 192)
 Powered = false
 Pose = "no_power_leaning_left"
+DataFile = "enemies/work_robot_unpowered.json"
 AlwaysActive = true
+Look = "basement_default"
 PresentWhen = SubResource("r6")
 
 [node name="UnpoweredWorkRobot2" parent="." instance=ExtResource("7")]
 position = Vector2(880, 192)
 Powered = false
 Pose = "no_power_neutral"
+DataFile = "enemies/work_robot_unpowered.json"
 AlwaysActive = true
+Look = "basement_default"
 PresentWhen = SubResource("r6")
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]

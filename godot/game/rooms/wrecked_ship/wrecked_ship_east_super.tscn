@@ -257,14 +257,18 @@ PresentWhen = SubResource("r4")
 position = Vector2(376, 144)
 Powered = false
 Pose = "no_power_neutral"
+DataFile = "enemies/work_robot_unpowered.json"
 AlwaysActive = true
+Look = "wrecked_ship_east_super_default"
 PresentWhen = SubResource("r4")
 
 [node name="UnpoweredWorkRobot2" parent="." instance=ExtResource("8")]
 position = Vector2(708, 144)
 Powered = false
 Pose = "no_power_leaning_right"
+DataFile = "enemies/work_robot_unpowered.json"
 AlwaysActive = true
+Look = "wrecked_ship_east_super_default"
 PresentWhen = SubResource("r4")
 
 [node name="Atomic" parent="." instance=ExtResource("9")]

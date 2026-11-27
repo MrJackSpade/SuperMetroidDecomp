@@ -359,6 +359,20 @@ internal sealed partial class EngineSheets
         string together = string.Join('+', sheets);
         if (_cut.TryGetValue((family, together, folder), out EngineSheetPictures? done))
             return done;
+        EngineSheetPictures pictures = LaidOut(tree, family, folder, sheets);
+        _cut[(family, together, folder)] = pictures;
+        return pictures;
+    }
+
+    /// <summary>
+    /// Where <see cref="Cut"/> would put each frame of the sheets under <paramref name="folder"/>, and the offset they
+    /// would share, with nothing written: for pictures that are only ever shown from other folders laid out alike.
+    /// </summary>
+    internal EngineSheetPictures LayOut(string family, string folder, params ReadOnlySpan<string> sheets) => LaidOut(null, family, folder, sheets);
+
+    /// <summary>Lays out the frames of the sheets under <paramref name="folder"/>, writing each picture to <paramref name="tree"/> when one is given.</summary>
+    private EngineSheetPictures LaidOut(EngineAssetTree? tree, string family, string folder, ReadOnlySpan<string> sheets)
+    {
         var documents = new List<(string Sheet, InstalledSheetDocument Document)>();
         foreach (string sheet in sheets)
         {
@@ -382,7 +396,8 @@ internal sealed partial class EngineSheets
         var canvas = new RgbaPixel[width * height];
         foreach ((string sheet, InstalledSheetDocument document) in documents)
         {
-            SpriteImagePixels image = _store.Assemble(sheet, document);
+            // The sheet's pixels are needed only to write its pictures.
+            SpriteImagePixels? image = tree is null ? null : _store.Assemble(sheet, document);
             foreach ((string name, InstalledSheetFrameDocument frame) in document.Frames)
             {
                 if (paths.ContainsKey(name))
@@ -394,6 +409,11 @@ internal sealed partial class EngineSheets
                     continue;
                 }
 
+                string path = $"{folder}/{FileName(name)}.png";
+                paths[name] = path;
+                if (tree is null || image is null)
+                    continue;
+
                 Array.Clear(canvas);
                 int across = -frame.Origin.X - left, down = -frame.Origin.Y - top;
                 for (int y = 0; y < frame.Size.Y; y++)
@@ -402,9 +422,7 @@ internal sealed partial class EngineSheets
                         .CopyTo(canvas.AsSpan((down + y) * width + across, frame.Size.X));
                 }
 
-                string path = $"{folder}/{FileName(name)}.png";
                 tree.WritePicture(path, width, height, canvas);
-                paths[name] = path;
                 if (image.RecolourRegions is { } regions)
                 {
                     // The picture's map of regions lies beside it, where any pixel it shows is in a region but the
@@ -434,9 +452,7 @@ internal sealed partial class EngineSheets
 
         // Where the frames lie against the room's tiles, when every one of them lies at the one depth.
         ActorDepth?[] depths = [.. documents.SelectMany(sheet => sheet.Document.Frames.Values).Select(frame => frame.Depth).Distinct()];
-        var pictures = new EngineSheetPictures(left, top, width, height, paths) { Depth = depths.Length == 1 ? depths[0] : null };
-        _cut[(family, together, folder)] = pictures;
-        return pictures;
+        return new EngineSheetPictures(left, top, width, height, paths) { Depth = depths.Length == 1 ? depths[0] : null };
     }
 
     private readonly Dictionary<(string Family, string Sheet), SpriteImagePixels> _images = [];

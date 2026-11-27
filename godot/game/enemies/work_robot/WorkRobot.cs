@@ -22,7 +22,7 @@ namespace Game.Enemies;
 /// step and "cool" counts its cooldown down. It starts on "standing_left"; a shot plays "shot_left_ahead",
 /// "shot_left_behind", "shot_right_ahead" or "shot_right_behind". Its shots are "laser_level" and "laser_diagonal".
 /// One without power is read from a file of its own, which holds only the timelines of the poses it stands in and
-/// no glow.
+/// no glow, and stands in its pose wherever it is placed, doing nothing else.
 /// </remarks>
 public partial class WorkRobot : Enemy
 {
@@ -34,7 +34,7 @@ public partial class WorkRobot : Enemy
     [Export]
     public string Pose { get; set; } = "no_power_neutral";
 
-    /// <summary>The downward speed it gains each update in the air, as a number of pixels.</summary>
+    /// <summary>The downward speed a powered one gains each update in the air, as a number of pixels.</summary>
     [Export, DataValue("gravity")]
     public double Gravity { get; set; } = 0.5;
 
@@ -104,8 +104,11 @@ public partial class WorkRobot : Enemy
     protected override void WhileHurt() => _glow?.Step();
 
     /// <inheritdoc/>
+    /// <remarks>One without power does nothing on its turn: it never moves, not even to fall.</remarks>
     protected override void Behave()
     {
+        if (!Powered)
+            return;
         _glow?.Step();
 
         // In the air its timeline waits, and it falls faster; landed, it keeps the speed it landed with.

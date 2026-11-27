@@ -150,18 +150,19 @@ public sealed partial class EngineAssetWriter
             var named = new List<string>();
             foreach (string sheet in sheets)
                 named.Add(_sheets.EnemySheet(sheet));
-            return Enemy(file, type, id, named, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = named });
+            return Enemy(file, type, id, named, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = named }, cutsPictures: true);
         }
 
         string enemy = EnemyDefinitionIdKeys.Installed.Of(id);
         IReadOnlyList<EngineEnemyLook> looks = _sheets.EnemyLooks(enemy);
         if (looks.Count == 1)
-            return Enemy(file, type, id, [looks[0].Sheet], new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = [looks[0].Sheet] });
+            return Enemy(file, type, id, [looks[0].Sheet], new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = [looks[0].Sheet] }, cutsPictures: true);
 
+        // Its pictures are shown only from its looks' folders, so they are laid out under its own name and not cut there.
         var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         foreach (EngineEnemyLook look in looks)
             places[$"{folder}_{look.Word}"] = [look.Sheet];
-        EngineEnemy drawn = Enemy(file, type, id, [looks[0].Sheet], places);
+        EngineEnemy drawn = Enemy(file, type, id, [looks[0].Sheet], places, cutsPictures: false);
         CutLooks(folder, enemy, looks, drawn.Pictures);
         return drawn.PictureSets(LookPlaceholder);
     }
@@ -204,7 +205,7 @@ public sealed partial class EngineAssetWriter
     internal EngineEnemy EnemyPlacedIn(string file, string type, EnemyDefinitionId id, IEnumerable<string> populations)
     {
         string sheet = _sheets.EnemySheetIn(EnemyDefinitionIdKeys.Installed.Of(id), populations);
-        return Enemy(file, type, id, [sheet], new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [file[..file.LastIndexOf('.')]] = [sheet] });
+        return Enemy(file, type, id, [sheet], new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [file[..file.LastIndexOf('.')]] = [sheet] }, cutsPictures: true);
     }
 
     /// <summary>What a picture's name holds where the word of the look it is shown in goes, after the enemy's folder and an underscore.</summary>
@@ -238,13 +239,16 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// Starts an enemy's data file whose pictures are cut from the sheets <paramref name="named"/> into a folder beside
     /// the file named as the file is, with the colours of its hurt flash and of its being frozen for the places
-    /// <paramref name="places"/> its pictures are shown from.
+    /// <paramref name="places"/> its pictures are shown from. Where <paramref name="cutsPictures"/> is not asked, they
+    /// are only laid out there, for one shown from other folders alike.
     /// </summary>
-    private EngineEnemy Enemy(string file, string type, EnemyDefinitionId id, IReadOnlyList<string> named, IReadOnlyDictionary<string, IReadOnlyList<string>> places)
+    private EngineEnemy Enemy(
+        string file, string type, EnemyDefinitionId id, IReadOnlyList<string> named, IReadOnlyDictionary<string, IReadOnlyList<string>> places, bool cutsPictures)
     {
         const string family = GameInstallationLayout.EnemySheetDirectoryName;
         string folder = file[..file.LastIndexOf('.')];
-        var enemy = new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]), places);
+        EngineSheetPictures pictures = cutsPictures ? _sheets.Cut(_tree, family, folder, [.. named]) : _sheets.LayOut(family, folder, [.. named]);
+        var enemy = new EngineEnemy(_tree, _sheets, file, type, id, pictures, places);
 
         // The colours it is shown in on the updates its hurt flash shows: the cartridge's one flash shade over its
         // own pictures, each of their colours as a pale grey or white.

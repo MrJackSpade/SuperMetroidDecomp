@@ -1298,9 +1298,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)
     {
-        if (IsDying || ShrugsOff(hit) || !AcceptsHit(hit))
+        if (IsDying || ShrugsOff(hit))
             return HitResult.Ignored;
+
+        // A body that is an attack strikes whatever touches it, whether or not hits land on the player just now: this
+        // is where an enemy is struck by it.
         if (hit.Carries(HitKind.Contact) && hit.Source is IHittable toucher && BodyPowerStops(toucher))
+            return HitResult.Ignored;
+        if (!AcceptsHit(hit))
             return HitResult.Ignored;
         // A hit that takes the last of the player's energy is a hit like any other: what follows from having none is
         // settled once, as the update ends (SettleEmptyEnergy).
@@ -2243,7 +2248,11 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         return false;
     }
 
-    /// <summary>Delivers each active body power's hit to whatever the body touches.</summary>
+    /// <summary>
+    /// Delivers each active body power's hit to whatever the body touches that is no enemy. An enemy is struck in its
+    /// own turn, as its touch is tried against the player (<see cref="BodyPowerStops"/>), and nowhere else: one the
+    /// player's move has just brought them against is struck on the next update, when its turn comes.
+    /// </summary>
     private void DeliverBodyPowers()
     {
         foreach (BodyPower power in _bodyPowers)
@@ -2253,7 +2262,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             PixelRect body = BodyRect;
             var reach = new PixelRect(body.Left - 1, body.Top - 1, body.Width + 2, body.Height + 2);
             Hit hit = power.Hit with { Source = this };
-            foreach ((IHittable target, HitResult result) in Room.DeliverHit(hit, reach, from: this))
+            foreach ((IHittable target, HitResult result) in Room.DeliverHit(hit, reach, from: this, landsOn: target => target is not Enemy))
                 OnBodyPowerLanded(power, target, result);
 
             Room.Terrain.TakeHit(hit, reach);

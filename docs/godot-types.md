@@ -1160,7 +1160,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
 - **Does not:** know any enemy, boss, room object or item by type. It contains nothing only Samus does.
 
 **The body as a weapon.** A body power, while active, makes the player's own body deliver a `Hit` of a named kind
-to whatever it touches: enemies, barriers and blocks alike. The engine knows that a power is active, what hit it
+to whatever it touches: enemies, barriers and blocks alike. An enemy is struck in its own turn, as its touch is
+tried against the player, and nowhere else; barriers and blocks as the player's update ends. The engine knows that a power is active, what hit it
 gives, and that the player takes no contact damage from what that hit kills. The game says what makes each power
 active, whether what a power harms makes no cry (`BodyPower.Quiet`) and shows the hurt for less (`FlashFewer`), and what follows each blow
 (`Player.OnBodyPowerLanded`, told what became of it: here the contact's sound and the end of her invincibility after one that harms, and a charged spin's charge spent by any touch on an enemy). Nothing else treats the

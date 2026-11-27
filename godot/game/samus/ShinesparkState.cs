@@ -426,9 +426,12 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
                 break;
 
             default:
-                _left = _left.Stepped();
+                // The hold is counted out in full, and the echoes are let go on the update after its last.
                 if (_left.IsRunning)
+                {
+                    _left = _left.Stepped();
                     return false;
+                }
 
                 // The echoes are let go along the line the spark flew: to either side of it, or along a diagonal.
                 (int first, int second) = _across == 0 ? (64, 192) : _down == 0 ? (0, 128) : _across > 0 ? (224, 96) : (32, 160);

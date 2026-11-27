@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using HudItem = SuperMetroid.Core.Samus.HudItem;
 using P = SuperMetroid.Core.Samus.Poses.SamusPoseId;
+using LiquidParticles = SuperMetroid.Core.Samus.Movement.SamusLiquidParticleDefinitions;
 using Seg = SuperMetroid.Core.Samus.Poses.SamusAnimationSegmentName;
 
 namespace SuperMetroid.AssetExtraction.Engine;
@@ -730,8 +731,16 @@ public sealed partial class EngineAssetWriter
                 lead, null, frame => pictures.Of(SamusAtmosphereSheetDefinitions.FrameName(frame)), static _ => null);
             timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
 
+            // Lava spray drifts to the side it is thrown, and its puffs begin apart, so each puff a spray throws is a
+            // timeline of its own.
+            if (kind == SamusParticleKind.LavaSpray)
+            {
+                foreach (LiquidSprayPuff puff in LiquidSprayPuffs)
+                    _tree.WriteData(LiquidSprayFile(puff), LiquidSprayTimeline(puff, pictures));
+                continue;
+            }
+
             // One that drifts the same way wherever it is raised, as her dust rises, moves on each update it is shown.
-            // Lava spray drifts to the side it is thrown, which is not known here.
             if (SteadyParticles.SingleOrDefault(steady => steady.Kind == kind) is { } drifting && drifting.Drift != default)
                 timeline["steps"] = Drifted(kind, timeline, drifting.Drift.X, drifting.Drift.Y);
             _tree.WriteData(file, timeline);
@@ -775,5 +784,68 @@ public sealed partial class EngineAssetWriter
         }
 
         return drifted;
+    }
+
+    /// <summary>One puff of the spray a burning liquid throws up about Samus.</summary>
+    /// <param name="Name">The puff's name, which its data file is named for.</param>
+    /// <param name="Across">How many pixels right of her middle it begins.</param>
+    /// <param name="Start">Whether it shows at once or an update late.</param>
+    /// <param name="Side">The side it drifts to.</param>
+    private sealed partial record LiquidSprayPuff(string Name, int Across, SamusParticleStart Start, HorizontalDirection Side);
+
+    /// <summary>
+    /// The four puffs of a spray, in the order the old spray starts them: the outer two at once and the middle two an
+    /// update late, the first two drifting right and the last two left.
+    /// </summary>
+    private static readonly LiquidSprayPuff[] LiquidSprayPuffs =
+    [
+        new("outer_right", LiquidParticles.LavaSprayOuterOffset, LiquidParticles.AtOnce, HorizontalDirection.Right),
+        new("inner_right", 0, LiquidParticles.OneUpdateLate, HorizontalDirection.Right),
+        new("inner_left", 0, LiquidParticles.OneUpdateLate, HorizontalDirection.Left),
+        new("outer_left", -LiquidParticles.LavaSprayOuterOffset, LiquidParticles.AtOnce, HorizontalDirection.Left),
+    ];
+
+    /// <summary>The data file of the timeline of one puff of a spray.</summary>
+    private static string LiquidSprayFile(LiquidSprayPuff puff) =>
+        $"samus/effects/{EngineSheets.FileName(nameof(SamusParticleKind.LavaSpray))}_{puff.Name}.json";
+
+    /// <summary>
+    /// The timeline of one puff of a spray, played as the old puff plays from the update it is thrown: each update a
+    /// step of its own, showing nothing while it waits to show, and placed as far as it has drifted, rising and to its
+    /// side on each update it is shown, its first among them.
+    /// </summary>
+    private static JsonObject LiquidSprayTimeline(LiquidSprayPuff puff, EngineSheetPictures pictures)
+    {
+        // The old puff's place is never below nothing, so it is followed from a place clear of the edges.
+        Position16<RoomPixels> from = Position16<RoomPixels>.Of(256, 256);
+        int across = puff.Side == HorizontalDirection.Right ? LiquidParticles.LavaSprayDrift : -LiquidParticles.LavaSprayDrift;
+        var particle = new SamusParticle(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, puff.Start, from,
+            new Offset16<RoomPixels>(across, SamusAtmosphericAnimationDefinitions.LavaSprayRise));
+        var steps = new JsonArray();
+        while (true)
+        {
+            particle.Advance();
+            if (particle.IsFinished)
+                break;
+            if (particle.Stage is not SamusParticleStage.Showing showing)
+            {
+                steps.Add(new JsonObject { ["picture"] = "", ["updates"] = 1 });
+                continue;
+            }
+
+            Offset16<RoomPixels> drifted = particle.Position - from;
+            steps.Add(new JsonObject
+            {
+                ["picture"] = pictures.Of(SamusAtmosphereSheetDefinitions.FrameName(showing.Picture)),
+                ["updates"] = 1,
+                ["offset"] = new JsonObject { ["x"] = (int)drifted.X, ["y"] = (int)drifted.Y },
+            });
+        }
+
+        return new JsonObject
+        {
+            ["steps"] = steps,
+            ["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY },
+        };
     }
 }

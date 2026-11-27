@@ -253,16 +253,15 @@ public sealed partial class EngineAssetWriter
             ["blend"] = BlendName(effect),
             ["drift"] = effect.Liquid is RoomWater ? -WaterWaveDefinitions.SurfaceDriftSpeed.Pixels : 0m,
         };
+        // Lava and acid throw up nothing as she crosses their surface: their spray is Samus's, while they harm her.
         switch (effect.Type)
         {
             case RoomFxType.Lava:
                 type["damage_hundredths"] = Hundredths(SamusLiquidDamageDefinitions.Lava);
                 type["damage_cancelled_by"] = new JsonArray(GravitySuit);
-                type["splash"] = SamusParticleFile(SamusParticleKind.LavaSpray);
                 break;
             case RoomFxType.Acid:
                 type["damage_hundredths"] = Hundredths(SamusLiquidDamageDefinitions.Acid);
-                type["splash"] = SamusParticleFile(SamusParticleKind.LavaSpray);
                 break;
             default:
                 type["splash"] = SamusParticleFile(SamusParticleKind.DivingSplash);

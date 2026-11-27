@@ -302,6 +302,9 @@ public sealed partial class EngineAssetWriter
             .Value("bomb_spread_updates_per_pixel", MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel)
             .Value("bomb_spread_fuses", EngineNames.List(SamusBombSpreadLaunchDefinitions.LeftToRight.Select(launch => launch.FuseTimer)))
             .Value("hard_landing_speed", SamusMovementDefinitions.HardLandingSpeed.Whole)
+            // The old refill from the reserve tanks gives one unit of energy an update (SamusReserveAutoRecoveryState),
+            // a step it names no definition for.
+            .Value("reserve_refill_per_update", 1)
             .Value("crystal_flash_energy_below", CrystalFlashDefinitions.AdmittingEnergyBelow)
             .Value("crystal_flash_ammunition", CrystalFlashDefinitions.AmmunitionPerKind)
             .Value("crystal_flash_energy_each", CrystalFlashDefinitions.EnergyPerAmmunition)

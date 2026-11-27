@@ -2044,7 +2044,10 @@ explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinsta
   and on the update it is black the countdown stops and what follows begins. Time running out on the update the
   pause's darkening goes black has no white-out: the time up begins at its fade to black. The intro
   (`Intro`, written across three files: its pages, the scenes between them, and the flight to the colony) is what a
-  new game begins with. Its two flashbacks are rooms played by Samus herself from recorded input, each with the
+  new game begins with. In Japanese its pages show the cartridge's subtitles under them: pictures the extractor
+  composes from the cartridge's own font and each page's lists of characters, read from the ROM
+  (`cinematics/intro/subtitle_<page>.png`, and `_second` for the one a second press shows), named for each page,
+  with the strip they lie in, in `cinematics/intro.json`. Its two flashbacks are rooms played by Samus herself from recorded input, each with the
   thing she met there in it: `IntroMotherBrain` (an enemy) and `IntroEgg` (a room object), both in
   `game/cinematics/` because they exist only for the intro, as do the two rooms the flashbacks play in
   (`intro_mother_brain_room.tscn`, `intro_discovery_room.tscn`), which a flashback's recording names with the entry

@@ -18,10 +18,12 @@ namespace Game.Cinematics;
 /// between pages and the flight to the colony. Its data names its pictures ("first_card", "portrait", "final_line"),
 /// the "font" its pages are typed in and their "typing_sound", the timelines of what it shows ("eye", "eye_closing",
 /// "caret", "caret_blinking", "next_page_arrow", "next_page_arrow_delayed"), where things are ("places", among them
-/// "words", the corner of a page's first letter), its "pages", and what each scene needs. A page gives the name of
-/// its words ("text"), the "scene" it turns to if it turns to one, and whether, in the "subtitled_languages", a
-/// second press is waited for before it may be turned ("awaits_second_press"). The words of a page are its lines,
-/// with a line feed for every row down from one line to the next.
+/// "words", the corner of a page's first letter, and "subtitle", the corner of the strip its subtitles are shown in),
+/// its "pages", and what each scene needs. A page gives the name of its words ("text"), the "scene" it turns to if it
+/// turns to one, its "subtitle" picture, and whether, in the "subtitled_languages", a second press is waited for
+/// before it may be turned ("awaits_second_press"), which shows its "second_subtitle" in place of the first. In
+/// those languages a page's subtitle shows from when the page begins until it is turned, fading with it. The words
+/// of a page are its lines, with a line feed for every row down from one line to the next.
 /// </remarks>
 public partial class Intro : Cinematic
 {
@@ -86,6 +88,7 @@ public partial class Intro : Cinematic
     private Node2D? _narration;
     private Sprite2D? _card;
     private PixelText? _words;
+    private Sprite2D? _subtitle;
 
     /// <summary>The fonts of a typed letter's glow, brightest first, and how many updates each shows for.</summary>
     private readonly List<PixelFont> _glowFonts = [];
@@ -156,6 +159,11 @@ public partial class Intro : Cinematic
         _caret = CinematicSprite.Of(Session.Content, _timelines.Get("caret"), _wordsAt);
         _caret.Name = "Caret";
         _narration.AddChild(_caret);
+
+        // A page's subtitle lies over her portrait and the page's words.
+        DataNode subtitleAt = _data.Get("places").Get("subtitle");
+        _subtitle = new Sprite2D { Name = "Subtitle", Centered = false, Position = new Vector2(subtitleAt.Int("x"), subtitleAt.Int("y")), Visible = false };
+        _narration.AddChild(_subtitle);
 
         _fade = new ScreenFade { Name = "Fade", Layer = 5, Levels = FadeLevels };
         AddChild(_fade);
@@ -379,6 +387,7 @@ public partial class Intro : Cinematic
         words.VisibleCharacters = 0;
         _arrow?.QueueFree();
         _arrow = null;
+        ShowSubtitle(IsSubtitled ? entry.Text("subtitle") : null);
         CinematicSprite caret = _caret ?? throw NotEntered();
         if (restoresCaret || page == LastPage)
         {
@@ -438,9 +447,11 @@ public partial class Intro : Cinematic
         _arrow?.Step();
         if (_awaitingSecondSubtitle && Input.AnyPressed)
         {
-            // The second press has come: the page is held a moment before it may be turned, its arrow gone meanwhile.
+            // The second press has come: it shows the page's second subtitle, and the page is held a moment before it
+            // may be turned, its arrow gone meanwhile.
             _awaitingSecondSubtitle = false;
             _subtitleHold = SecondPressHoldUpdates;
+            ShowSubtitle(Data().List("pages")[_page].Text("second_subtitle"));
             _arrow?.Play(_timelines.Get("next_page_arrow_delayed"));
             return;
         }
@@ -515,7 +526,9 @@ public partial class Intro : Cinematic
         string scene = page.Has("scene") ? page.Text("scene") : "";
         if (scene.Length == 0)
         {
-            // With subtitles the last page starts on the update after the press; without, on the same update.
+            // The press takes the subtitle away at once. With subtitles the last page starts on the update after the
+            // press; without, on the same update.
+            ShowSubtitle(null);
             if (IsSubtitled)
                 _phase = Phase.StartingLastPage;
             else
@@ -562,6 +575,16 @@ public partial class Intro : Cinematic
         PixelText words = _words ?? throw NotEntered();
         (_text, _typed, words.Text, words.VisibleCharacters) = ("", 0, "", 0);
         ClearGlows();
+        ShowSubtitle(null);
+    }
+
+    /// <summary>Shows a subtitle picture under the page, or, given none, takes the one shown away.</summary>
+    private void ShowSubtitle(string? picture)
+    {
+        Sprite2D subtitle = _subtitle ?? throw NotEntered();
+        subtitle.Visible = picture is not null;
+        if (picture is not null)
+            subtitle.Texture = Session.Content.LoadTexture(picture);
     }
 
     /// <summary>Where the cell of the letter at an index of the page's words is on the screen.</summary>

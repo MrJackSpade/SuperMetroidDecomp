@@ -161,6 +161,14 @@ public partial class Room : Node2D
     public bool HasStandingSolidOver(PixelRect area, ICollisionOwner? except = null) =>
         Collision.Overlapping(area, ColliderRole.Solid, except: except).Any(solid => solid.StandsAsTerrain);
 
+    /// <summary>
+    /// Whether <paramref name="target"/> is a thing that stands as part of a room, as a door's cap, a gate or an
+    /// item's shell does: one with a solid that stands as terrain. What meets terrain where its move ends meets such
+    /// a thing by the squares it lies in, as it meets blocks.
+    /// </summary>
+    public static bool IsStandingThing(IHittable target) =>
+        target is Node node && EntityNode.CollidersOf(node).Any(collider => collider.Role == ColliderRole.Solid && collider.StandsAsTerrain);
+
     /// <summary>How many enemies have been killed in the room since it was set up, counting each time one that comes back is killed.</summary>
     public int EnemiesKilled { get; private set; }
 

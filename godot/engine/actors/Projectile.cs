@@ -809,8 +809,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         _settings.MeetsTerrainBy is ProjectileSettings.TerrainBy.FrontEdge or ProjectileSettings.TerrainBy.Middle;
 
     /// <summary>Whether <paramref name="target"/> is a thing that stands as part of the room: one with a solid that stands as terrain.</summary>
-    private static bool StandsAsPartOfRoom(IHittable target) =>
-        target is Node node && EntityNode.CollidersOf(node).Any(collider => collider.Role == ColliderRole.Solid && collider.StandsAsTerrain);
+    private static bool StandsAsPartOfRoom(IHittable target) => World.Room.IsStandingThing(target);
 
     /// <summary>The whole squares of the room's tiles that <paramref name="area"/> lies in.</summary>
     private static PixelRect SquaresOf(Room room, PixelRect area)

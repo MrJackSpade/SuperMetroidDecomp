@@ -355,7 +355,10 @@ public partial class SamusGrapple : Node2D
         // One it destroys, and anything that takes no notice of it, lets it go on.
         // The hit lands on the enemy reached, on whatever of it is there to be hit, and on whatever else lies at the
         // line's end that is no enemy.
-        var met = new List<(IHittable Target, HitResult Result)>(room.DeliverHit(hit, around, from: samus, landsOn: target => target is not Enemy));
+        // What stands as part of the room, an item's shell or a door's cap, is no part of this: it is met as the end
+        // moves into it, below, as the blocks it is on the cartridge.
+        var met = new List<(IHittable Target, HitResult Result)>(room.DeliverHit(
+            hit, around, from: samus, landsOn: target => target is not Enemy && !Engine.World.Room.IsStandingThing(target)));
         if (reached?.OwnRect is { } size)
             met.AddRange(room.DeliverHit(hit, size, from: samus, landsOn: target => ReferenceEquals(target, reached)));
 
@@ -407,6 +410,17 @@ public partial class SamusGrapple : Node2D
             // A block the line's touch sets off is set off, and stops the line if it was solid as the line met it.
             stopped = room.Terrain.IsSolidIn(point, SlopeTreatment.Wall);
             room.Terrain.TakeHit(hit, point);
+
+            // A thing standing as part of the room is a block to the line too: it is struck in the square the end has
+            // moved into, at each of the line's four steps, and it stops the line as a solid block does.
+            if (room.HasStandingSolidOver(point, samus))
+            {
+                int tile = room.Terrain.TileSize;
+                var square = new PixelRect(
+                    (int)Math.Floor(_tip.X.Whole / (double)tile) * tile, (int)Math.Floor(_tip.Y.Whole / (double)tile) * tile, tile, tile);
+                room.DeliverHit(hit, square, from: samus, landsOn: Engine.World.Room.IsStandingThing);
+                stopped = true;
+            }
         }
 
         // Only the block at the last substep's end gives the line up.

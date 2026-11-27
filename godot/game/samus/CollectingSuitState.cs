@@ -5,7 +5,7 @@ namespace Game;
 
 /// <summary>
 /// Collecting a suit: she is put at a fixed place of the screen and held there, bathed in light, while the suit
-/// is put on, and then let go from there. The suit is first seen on her part way through, on the update the light
+/// is put on, and then let go from there, still facing the screen (<see cref="StandingForwardState"/>). The suit is first seen on her part way through, on the update the light
 /// shows it. Nothing can hurt her meanwhile, and everything else in the room waits.
 /// </summary>
 public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
@@ -62,7 +62,8 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
         samus.SuitLight?.Step();
         if (samus.SuitPickupUpdates - _left.Remaining == samus.SuitShownOnUpdate)
             samus.ShowSuitPutOn();
-        return _left.IsRunning ? null : owner.StateAtRest();
+        // Let go, she stands in the front view in her own hands until she is turned, as an elevator leaves her.
+        return _left.IsRunning ? null : new StandingForwardState();
     }
 
     /// <summary>However she leaves it, the suit is seen on her from then.</summary>

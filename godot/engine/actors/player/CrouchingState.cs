@@ -17,12 +17,15 @@ public sealed class CrouchingState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
-        owner.AimFromInput();
         GameInput input = owner.Input;
-        if (input.WasPressed(GameAction.Up))
-            return owner.CanTakeForm(Player.Standing) ? owner.StandUp() : PlainCrouch(owner);
-        if (input.WasPressed(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right))
+        bool up = input.WasPressed(GameAction.Up);
+
+        // A turn is made aiming as the player aimed before it: what is held with the way behind aims nothing.
+        if (!up && input.WasPressed(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right))
             return new TurningState(crouched: true);
+        owner.AimFromInput();
+        if (up)
+            return owner.CanTakeForm(Player.Standing) ? owner.StandUp() : PlainCrouch(owner);
         if (owner.MayCrawl && input.WasPressed(GameAction.Down))
             return owner.TakeLowForm();
         if (owner.JumpPressed)

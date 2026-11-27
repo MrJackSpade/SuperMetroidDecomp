@@ -1164,6 +1164,15 @@ public partial class Samus : Player
                 Position += PixelOffset.FromWhole(0, -CrouchJumpLift);
         }
 
+        // A crouched turn made aiming, up or on a slant, is given up on an update with nothing held: every one of
+        // the cartridge's aimed crouched turns, to the left and to the right alike, names the plain crouch facing
+        // left as the pose it falls back to. A crouched turn made with her arm level goes on.
+        if (unasked && ReferenceEquals(from, to) && from is TurningState { Crouched: true } && Aim != Aim.Forward)
+        {
+            (Facing, Aim) = (Facing.Left, Aim.Forward);
+            return new CrouchingState();
+        }
+
         // A fresh press of the attack on the update a jump's pose is taken up, or changed, hands the shot to the
         // next update's firing.
         if (to is JumpingState handing && Input.WasPressed(GameAction.Attack) && (!ReferenceEquals(from, to) || handing.TookUpStance))

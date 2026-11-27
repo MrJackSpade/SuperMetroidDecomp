@@ -989,7 +989,11 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
   not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from, a
   jump aiming level then being in the stance of steering the way they now face, and a turn made aiming diagonally
-  down coming out aiming straight down. A landing ends standing whatever is held.
+  down coming out aiming straight down. A turn in the air is made aiming as the player aimed before it: the jump
+  and the fall test the turn before they read the aim from what is held. A fall with the arm held out level, or
+  aiming straight down, reads up and down before the way behind (`PlayerState.PassesOverBehind`, which
+  `Player.Intent` asks): with either held the player aims straight up or down and does not turn. A landing ends
+  standing whatever is held.
 - **Postures.** Crouching down, standing up, taking the low form and leaving it each last as long as the pictures the game
   gives them (`crouch_pictures`, `stand_pictures`, `crawl_enter_pictures`, `crawl_leave_pictures`; none is at once). For
   that long the player is in `ChangingPostureState`: they have the new form from the first update (a smaller form's body at once, a taller one's from their next update, as the cartridge sets a crouch's and a morph's size at once and a stand's a frame later; the drop into the low form is tried with the low body), the input is
@@ -1004,7 +1008,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   from rest. **Crouching** keeps no speed across: a dash still carries the player for the update and is then spent,
   while their momentum lasts until an update whose input asks nothing of the crouch. A press of the direction
   behind turns them round crouched (`TurningState`, crouched, which ends in a crouch and listens only for whether
-  anything is held); the direction ahead held stands them at once, with no change between. A fall entered by
+  anything is held), aiming as they aimed before it; the direction ahead held stands them at once, with no change
+  between. A fall entered by
   walking off a floor starts from rest unless the player is rising.
 - **The low form** rolls on the ground while a direction is held, by the ground rule, turning by reversal; let go,
   it loses everything across after that update's move and sits still. Rolled off a floor it falls from rest. In the
@@ -1192,6 +1197,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   each keeping the boost when it is the way the boost carries her and otherwise leaving it, facing as she did, for
   a jump in the stance of steering that way; anything else leaves it for a jump with her arm at rest. When the
   knockback she left runs out her rise ends at once, and she flies on and falls. It holds off interruptions.
+- **Her aimed crouched turn.** A crouched turn made aiming, up or on a slant, is given up on an update with
+  nothing held: she is left crouched with her arm level, facing left whichever way she was turning
+  (`Samus.Entering`). A crouched turn made with her arm level goes on.
 - **Her jumps.** A jump from standing or a crouch is a plain jump whatever is held, gathered for one update; a jump
   from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. The
   first pose of a plain jump aims as the press chose (`Samus.Entering`): from standing, up with up held, else

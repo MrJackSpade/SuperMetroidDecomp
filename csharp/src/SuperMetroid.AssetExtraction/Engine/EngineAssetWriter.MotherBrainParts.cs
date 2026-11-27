@@ -25,7 +25,7 @@ public sealed partial class EngineAssetWriter
     /// old enemy spawns.
     /// </summary>
     private EngineEnemy PartOf(string file, string type, EnemyDefinitionId owner) =>
-        new(_tree, _sheets, file, type, owner, new EngineSheetPictures(0, 0, 1, 1, new Dictionary<string, string>(StringComparer.Ordinal)));
+        new(_tree, _sheets, file, type, owner, new EngineSheetPictures(0, 0, 1, 1, new Dictionary<string, string>(StringComparer.Ordinal)), EngineEnemy.NoPlaces);
 
     /// <summary>The name of the patch that is one of the pictures her tank's glass draws into the room.</summary>
     private static string GlassPatch(MotherBrainGlassDraw draw) => "glass_" + EngineSheets.FileName(draw.ToString());

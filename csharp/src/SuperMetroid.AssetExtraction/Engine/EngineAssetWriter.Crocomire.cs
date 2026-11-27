@@ -31,7 +31,7 @@ public sealed partial class EngineAssetWriter
         EngineSheetPictures pictures = _sheets.CutWithBossBody(_tree, _installation.ContentDirectory, folder, "Crocomire",
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Crocomire)),
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.CrocomireTongue)));
-        var crocomire = new EngineEnemy(_tree, _sheets, file, "Crocomire", EnemyDefinitionId.Crocomire, pictures);
+        var crocomire = new EngineEnemy(_tree, _sheets, file, "Crocomire", EnemyDefinitionId.Crocomire, pictures, EngineEnemy.NoPlaces);
         // What a shot that does it no harm leaves is its own class's, part by part.
         crocomire.Data.Remove("dud");
 

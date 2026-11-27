@@ -1335,7 +1335,7 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   another for others, has one data file with a set of its pictures for each look, its pictures' names holding
   "{look}" where the look's word goes, and the colours of its hurt, its freeze and any change of colours of its own
   written for each set; the room places it with the look its version draws it in (`Enemy.Look`), which the base puts
-  in place of "{look}". This game's extractor writes which look each room's enemy population draws such an enemy in
+  in place of "{look}" in its timelines' pictures as it reads them (`TimelineSet.WithPictures`). This game's extractor writes which look each room's enemy population draws such an enemy in
   (`enemies/looks_by_room.json`), and the room generator places them by it. An enemy every room draws alike has no
   "{look}" and no look; one of which each data file serves rooms of one look is cut in that look (the Chozo statues).
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue

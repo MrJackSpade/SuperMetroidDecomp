@@ -11,7 +11,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 
 | File | Read by | Values by name |
 | --- | --- | --- |
-| `bosses/bomb_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
+| `bosses/bomb_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_colouring, start_look, start_timeline, turn_delay |
 | `bosses/bomb_torizo_hand.json` | `BombTorizoHand` | debris_look |
 | `bosses/botwoon.json` | `Botwoon` | contact_damage, dud_sound, explosion_effect, explosion_sound, floor_y, health, opening_delay, pre_fall_wait, segment_damage, smoke_effect, speed_curve, wall_drops, wall_explosion_effect, wall_updates, wall_x |
 | `bosses/ceres_ridley.json` | `Ridley` | arena_reveal_step_updates, arena_reveal_updates, baby_cry_sound, before_roar_updates, body_fade_step_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, eye_fade_step_updates, eye_hold_updates, fade_steps, health, hit_flash_updates, hits_to_drive_off, piece_end_effect, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, tail_tip_arc_start, wounded_health |
@@ -20,11 +20,11 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/draygon_cannon.json` | `DraygonCannon` | contact_damage, grapple_drain, health |
 | `bosses/draygon_cannon_shot.json` | `DraygonCannonShot` | chamber_size |
 | `bosses/draygon_goop.json` | `DraygonGoop` | chamber_size, most_stuck, reach_across, reach_down, stack_spacing, stack_top, stuck_timeline, stuck_updates |
-| `bosses/golden_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
+| `bosses/golden_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_colouring, start_look, start_timeline, turn_delay |
 | `bosses/golden_torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/golden_torizo_orb.json` | `TorizoOrb` | bounce_drag, bounces, gravity |
 | `bosses/golden_torizo_sonic_boom.json` | `TorizoSonicBoom` | quickening |
-| `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, dud_effect, dud_sound, health, lunge_delay_updates, mouth_dud_effect, rise_wait_updates, rock_sound, samus_in_view_facing_left, samus_in_view_facing_right, spit_cadence_updates, thinking_step_updates |
+| `bosses/kraid.json` | `Kraid`, `KraidRoomColours` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, dud_effect, dud_sound, health, lunge_delay_updates, mouth_dud_effect, rise_wait_updates, rock_sound, samus_in_view_facing_left, samus_in_view_facing_right, spit_cadence_updates, thinking_step_updates |
 | `bosses/kraid_ceiling_rock.json` | `KraidRock` | drift, drift_limit, gravity |
 | `bosses/kraid_lint.json` | `KraidLint` | charge_updates, contact_damage, emerge_pixels, fire_sound, fire_speed, harmless_x, health, point_x, reload_updates, return_x |
 | `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left, second_death_effect |

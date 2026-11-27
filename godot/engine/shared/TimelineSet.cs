@@ -43,6 +43,19 @@ public sealed class TimelineSet
     /// <summary>Reads the timelines under "timelines" in a thing's data file, or none when the file has no such group.</summary>
     public static TimelineSet ReadFrom(DataNode data) => data.Has("timelines") ? Read(data.Get("timelines")) : None;
 
+    /// <summary>
+    /// The same timelines with every picture named as <paramref name="named"/> names it: for a thing whose pictures'
+    /// names hold a word that is decided where the thing is placed.
+    /// </summary>
+    public TimelineSet WithPictures(Func<string, string> named)
+    {
+        ArgumentNullException.ThrowIfNull(named);
+        var timelines = new Dictionary<string, FrameTimeline>(StringComparer.Ordinal);
+        foreach ((string name, FrameTimeline timeline) in _timelines)
+            timelines[name] = new FrameTimeline(timeline.Steps.Select(step => step with { Picture = named(step.Picture) }).ToList(), timeline.LoopsTo);
+        return new TimelineSet(_file, timelines);
+    }
+
     /// <summary>Whether the set has a timeline named <paramref name="name"/>.</summary>
     public bool Has(string name) => _timelines.ContainsKey(name);
 

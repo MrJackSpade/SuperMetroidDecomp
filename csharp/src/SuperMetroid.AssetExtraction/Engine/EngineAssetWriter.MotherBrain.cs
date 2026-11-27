@@ -72,7 +72,7 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException($"Mother Brain's far leg is kept as {farLegOfStanding}, which is not her frame's name with something before it.");
         EngineSheetPictures pictures = _sheets.CutWithBossBodyAndBehind(_tree, _installation.ContentDirectory, folder, "MotherBrain",
             farLegOfStanding[..^standing.Length], _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainBody)));
-        var mother = new EngineEnemy(_tree, _sheets, file, "MotherBrain", EnemyDefinitionId.MotherBrainHead, pictures);
+        var mother = new EngineEnemy(_tree, _sheets, file, "MotherBrain", EnemyDefinitionId.MotherBrainHead, pictures, EngineEnemy.NoPlaces);
         string headSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainHead));
         EngineSheetPictures head = _sheets.Cut(_tree, family, $"{folder}/head", headSheet);
         JsonObject HeadOffset() => new() { ["x"] = head.OffsetX - pictures.OffsetX, ["y"] = head.OffsetY - pictures.OffsetY };

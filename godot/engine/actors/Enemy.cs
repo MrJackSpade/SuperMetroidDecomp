@@ -265,12 +265,25 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             ZIndex = RoomDepth.InFrontOfRoom;
     }
 
+    /// <summary>What a picture's name holds where the word of the look it is shown in goes (<see cref="Look"/>).</summary>
+    public const string LookPlaceholder = "{look}";
+
+    /// <summary>
+    /// The look it is drawn in where it is placed, for an enemy whose pictures come in one look for some rooms and
+    /// another for others: the word its timelines' pictures are named with in place of
+    /// <see cref="LookPlaceholder"/>, as they are read. Empty for an enemy every room draws alike.
+    /// </summary>
+    [Export]
+    public string Look { get; set; } = "";
+
     /// <inheritdoc/>
     public virtual void ReadValues(DataNode data)
     {
         _reactions = data.Has("reactions") ? Reactions.Read(data.List("reactions")) : Reactions.None;
         _drops = data.Has("drops") ? DropTable.Read(data.Get("drops")) : DropTable.Nothing;
         Timelines = TimelineSet.ReadFrom(data);
+        if (Look.Length > 0)
+            Timelines = Timelines.WithPictures(picture => picture.Replace(LookPlaceholder, Look, StringComparison.Ordinal));
         EntityNode.ReadColliders(this, data);
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
         _hurtColours = data.Has("hurt_colours") ? Ui.ColourChange.Read(data.Get("hurt_colours")) : null;
@@ -823,9 +836,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         MoveOptions carried = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall };
         if (!offset.X.IsZero)
-            Room.Mover.MoveAcross(Room.Player.Body, offset.X, carried);
+            Room.Player.MoveBodyAcross(offset.X, carried);
         if (!offset.Y.IsZero)
-            Room.Mover.MoveDown(Room.Player.Body, offset.Y, carried);
+            Room.Player.MoveBodyDown(offset.Y, carried);
     }
 
     /// <summary>Whether the enemy stands on terrain, or on a solid that stands as part of the room.</summary>

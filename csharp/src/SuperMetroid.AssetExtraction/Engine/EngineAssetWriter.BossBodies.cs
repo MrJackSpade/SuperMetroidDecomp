@@ -106,7 +106,7 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     private EngineEnemy BossWithBody(string file, string type, EnemyDefinitionId id, BossBody body, EnemyFrameId main)
     {
-        var boss = new EngineEnemy(_tree, _sheets, file, type, id, body.Pictures);
+        var boss = new EngineEnemy(_tree, _sheets, file, type, id, body.Pictures, EngineEnemy.NoPlaces);
         (int x, int y) = body.Anchor(main);
         boss.Data["picture_offset"] = new JsonObject { ["x"] = x, ["y"] = y };
         return boss;

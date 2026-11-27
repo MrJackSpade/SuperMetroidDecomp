@@ -112,6 +112,13 @@ internal sealed partial class EngineEnemy
     /// </summary>
     internal IReadOnlyDictionary<string, IReadOnlyList<string>> Places { get; }
 
+    /// <summary>
+    /// The places of an enemy none of whose pictures is cut plainly from the enemies' sheets: one put together with a
+    /// body on a sheet of its own, or one that shows only what another enemy's sheets hold.
+    /// </summary>
+    internal static IReadOnlyDictionary<string, IReadOnlyList<string>> NoPlaces { get; } =
+        new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+
     /// <summary>The file's values so far.</summary>
     internal JsonObject Data { get; } = [];
 

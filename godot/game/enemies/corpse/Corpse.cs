@@ -18,7 +18,7 @@ public partial class Corpse : Enemy
 {
     /// <summary>The timeline it lies in.</summary>
     [Export, DataValue("look")]
-    public string Look { get; set; } = "corpse";
+    public string LiesIn { get; set; } = "corpse";
 
     /// <summary>How many rows of it there are to crumble: the height of its picture.</summary>
     [Export, DataValue("rows")]
@@ -56,7 +56,7 @@ public partial class Corpse : Enemy
     protected override void OnEnterRoom()
     {
         _crumble = null;
-        Play(Look);
+        Play(LiesIn);
     }
 
     /// <inheritdoc/>

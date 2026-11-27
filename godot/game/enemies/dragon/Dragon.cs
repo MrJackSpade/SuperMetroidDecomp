@@ -93,8 +93,7 @@ public partial class Dragon : Enemy
                     break;
                 _wait = Countdown.Of(RiseUpdates);
                 _doing = Doing.Rising;
-                // It faces Samus by whole pixels: in its own pixel column she counts as on its right.
-                Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
+                Facing = TowardPlayer;
                 Play(Named("idle"));
                 FrameTimeline wings = Timelines.Get(Named("wings"));
                 if (_wings is null || _wings.Timeline != wings)

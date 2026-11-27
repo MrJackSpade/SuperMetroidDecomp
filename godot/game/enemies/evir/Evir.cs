@@ -124,8 +124,7 @@ public partial class Evir : Enemy
     /// <summary>Turns to face Samus, body and arms.</summary>
     private void FaceSamus(bool restart)
     {
-        // By whole pixels: in its own pixel column Samus counts as on its right.
-        Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
+        Facing = TowardPlayer;
         Play(Facing == Facing.Left ? "body_left" : "body_right", restart);
         FrameTimeline arms = Timelines.Get(Facing == Facing.Left ? "arms_left" : "arms_right");
         if (_arms is null || _arms.Timeline != arms)

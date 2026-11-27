@@ -389,6 +389,7 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
     /// <summary>The name of one of its timelines for a side.</summary>
     private static string Sided(string timeline, Facing side) => side == Facing.Left ? $"{timeline}_left" : $"{timeline}_right";
 
+    // Its own and not the engine's side of the player, which is right where the two stand in one pixel column.
     /// <summary>The way it turns to face Samus: right only while her whole pixel lies right of its own, as on the cartridge.</summary>
     private Facing FacingSamus => Position.X.Whole < Target.X.Whole ? Facing.Right : Facing.Left;
 

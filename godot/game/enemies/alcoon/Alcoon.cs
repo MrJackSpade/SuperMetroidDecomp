@@ -160,7 +160,7 @@ public partial class Alcoon : Enemy
                 if (Math.Abs(across) >= EmergeAcrossDistance)
                     return;
                 Velocity = new PixelVelocity(Pixels.Zero, -Pixels.FromNumber(EmergeJumpSpeed));
-                Facing = across < 0 ? Facing.Left : Facing.Right;
+                Facing = TowardPlayer;
                 _walks = false;
                 Play(Facing == Facing.Left ? "leap_left" : "leap_right", restart: true);
                 _doing = Doing.LeapingOut;
@@ -183,7 +183,7 @@ public partial class Alcoon : Enemy
                     return;
                 }
 
-                Facing = TowardSamus;
+                Facing = TowardPlayer;
                 _walks = true;
                 Play(Facing == Facing.Left ? "walking_left" : "walking_right", restart: true);
                 _doing = Doing.Pacing;
@@ -202,7 +202,7 @@ public partial class Alcoon : Enemy
                 }
 
                 // It breathes fire only once its cycles are paced out and Samus is on the side it faces.
-                if (_cyclesLeft > 0 || TowardSamus != Facing)
+                if (_cyclesLeft > 0 || TowardPlayer != Facing)
                     return;
                 Play(Facing == Facing.Left ? "fire_left" : "fire_right", restart: true);
                 _doing = Doing.Breathing;
@@ -259,7 +259,4 @@ public partial class Alcoon : Enemy
 
     /// <summary>The collider it moves by.</summary>
     private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Alcoon \"{Name}\" has no body collider.");
-
-    /// <summary>The side Samus is on, by whole pixels alone: in the same pixel column she counts as on its right.</summary>
-    private Facing TowardSamus => Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
 }

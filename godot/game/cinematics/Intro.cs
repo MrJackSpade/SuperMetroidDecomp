@@ -78,7 +78,7 @@ public partial class Intro : Cinematic
     private int _crossfade;
 
     private ScreenFade? _fade;
-    private GradedGroup? _sceneRoot;
+    private GradedView? _sceneRoot;
     private Node2D? _narration;
     private Sprite2D? _card;
     private PixelText? _words;
@@ -123,7 +123,7 @@ public partial class Intro : Cinematic
         behind.AddChild(black);
         var scenes = new CanvasLayer { Name = "Scenes", Layer = 1 };
         AddChild(scenes);
-        _sceneRoot = new GradedGroup { Name = "Scene", Modulate = new Color(1, 1, 1, 0) };
+        _sceneRoot = new GradedView { Name = "Scene", Modulate = new Color(1, 1, 1, 0) };
         scenes.AddChild(_sceneRoot);
 
         var pages = new CanvasLayer { Name = "Pages", Layer = 2 };
@@ -155,6 +155,9 @@ public partial class Intro : Cinematic
         _fade.FadeOut(1);
         _fade.Step();
         _phase = Phase.Initial;
+
+        // No page is under way until the first is started.
+        _pageFinished = true;
     }
 
     /// <inheritdoc/>
@@ -246,19 +249,7 @@ public partial class Intro : Cinematic
                 break;
 
             case Phase.PageText:
-                // A page that has been typed out waits to be turned; the last is held and then fades.
-                if (!_pageFinished || _awaitingSecondSubtitle)
-                    break;
-                if (_page == LastPage)
-                {
-                    fade.FadeOut(FadeUpdates);
-                    _phase = Phase.FadingOut;
-                }
-                else
-                {
-                    _phase = Phase.PageAwaitingInput;
-                }
-
+                // The page is typed below, and what follows its last letter is settled after it.
                 break;
 
             case Phase.PageAwaitingInput:
@@ -314,8 +305,24 @@ public partial class Intro : Cinematic
                 throw new InvalidOperationException($"The opening has no phase {_phase}.");
         }
 
-        if (_phase is >= Phase.FadingInFirstPage and <= Phase.FadingOut)
+        // The pages' eye and caret run from the update the first page is set up, while the screen is still black.
+        if (_phase is >= Phase.WaitingForPageMusic and <= Phase.FadingOut)
             StepNarration();
+
+        // A page typed out on this update waits from this update to be turned, and the last, held, fades from it.
+        if (_phase == Phase.PageText && _pageFinished && !_awaitingSecondSubtitle)
+        {
+            if (_page == LastPage)
+            {
+                fade.FadeOut(FadeUpdates);
+                _phase = Phase.FadingOut;
+            }
+            else
+            {
+                _phase = Phase.PageAwaitingInput;
+            }
+        }
+
         if (_scene.Length > 0)
             StepScene(_phase == Phase.CrossfadingToScene);
         return _phase == Phase.Finished;
@@ -410,14 +417,16 @@ public partial class Intro : Cinematic
 
         if (_pageFinished)
             return;
+
+        // Each letter is shown for its time before the next comes, the last as well: what follows the last waits for it.
+        if (_letterWait > 0 && --_letterWait > 0)
+            return;
         if (_typed >= _text.Length)
         {
             FinishTyping(caret);
             return;
         }
 
-        if (--_letterWait > 0)
-            return;
         _letterWait = LetterUpdates;
         char letter = _text[_typed];
         if (!char.IsWhiteSpace(letter) && _glowFonts.Count > 0)

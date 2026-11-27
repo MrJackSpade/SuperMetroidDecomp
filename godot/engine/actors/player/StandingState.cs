@@ -9,15 +9,15 @@ namespace Engine.Actors;
 /// </summary>
 public sealed class StandingState : PlayerState
 {
-    /// <summary>The updates left in which the player is still settling from a landing.</summary>
-    private Countdown _settling;
+    /// <summary>What is left of the player's settling from a landing, counted by its pictures.</summary>
+    private PictureCount _settling;
 
     /// <summary>Standing.</summary>
-    /// <param name="settlingUpdates">
-    /// How many updates the player takes to settle, having just landed: when they have stood that long, a jump
-    /// already held may once more count as pressed afresh.
+    /// <param name="settling">
+    /// The count of the player's settling, having just landed, begun: when they have stood as long as it runs, a
+    /// jump already held may once more count as pressed afresh. A player who did not land gives none.
     /// </param>
-    public StandingState(int settlingUpdates = 0) => _settling = Countdown.Of(settlingUpdates);
+    public StandingState(PictureCount settling = default) => _settling = settling;
 
     /// <summary>Whether the player is still settling from a landing.</summary>
     public bool IsSettling => _settling.IsRunning;
@@ -36,7 +36,7 @@ public sealed class StandingState : PlayerState
         // An aim taken up while settling ends the landing at once: the player stands aiming, and the landing's own
         // end, with what it gives, never comes.
         if (_settling.IsRunning && owner.Aim != Shared.Aim.Forward)
-            _settling = Countdown.Over;
+            _settling = PictureCount.Over;
         if (owner.JumpPressed)
             return new JumpingState();
         if (owner.CanCrouch && owner.Input.WasPressed(GameAction.Down))
@@ -45,7 +45,7 @@ public sealed class StandingState : PlayerState
             return owner.Aim == Shared.Aim.Forward ? null : this;
         if ((owner.Intent > 0) == (owner.Facing == Shared.Facing.Right))
             return new RunningState();
-        if (owner.TurnUpdates > 0)
+        if (owner.TurnPictures.Length > 0)
             return new TurningState();
 
         // A player who turns at once is already running the other way.
@@ -63,7 +63,7 @@ public sealed class StandingState : PlayerState
         MovedSettling = _settling.IsRunning;
         if (_settling.IsRunning)
         {
-            _settling = _settling.Stepped();
+            _settling = _settling.Stepped(owner);
             if (_settling.IsOver)
                 owner.ArmJumpBuffer();
         }

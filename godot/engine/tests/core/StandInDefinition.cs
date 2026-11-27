@@ -36,6 +36,9 @@ public partial class StandInDefinition : GameDefinition
     public override Dictionary<string, List<string>> StandardBindings => [];
 
     /// <inheritdoc/>
+    public override IReadOnlyDictionary<string, string> StandardControls => new Dictionary<string, string>();
+
+    /// <inheritdoc/>
     public override bool PauseMayBeAsked(GameSession session, Engine.World.Room room) => true;
 
     /// <inheritdoc/>

@@ -66,6 +66,9 @@ public sealed class Escape : ISessionService
 
     private (string Room, string EntryPoint)? _leavingFor;
     private bool _leftZebes;
+
+    /// <summary>Whether the tester's assists hold the countdown from running out on this update.</summary>
+    private bool _held;
     private bool _timeUpDue;
     private int _whiteOutSteps;
 
@@ -165,6 +168,7 @@ public sealed class Escape : ISessionService
         if (!_played)
             return;
         long updates = session.Clock.Updates;
+        _held = Assists.TesterAssists.Of(session).Now(session).CountdownHolds;
         switch (_phase)
         {
             case Phase.Inactive:
@@ -227,7 +231,8 @@ public sealed class Escape : ISessionService
             _leftZebes = false;
             Stop();
             GameSession session = playing.Room.Session;
-            long minutes = session.Progress.PlayUpdates / 3600;
+            // The tester's assists may give the ending a clear time of their own; the time played is not changed.
+            long minutes = Assists.TesterAssists.Of(session).Now(session).EndingMinutes ?? session.Progress.PlayUpdates / 3600;
             return new Ending
             {
                 ClearHours = (int)Math.Min(99, minutes / 60),
@@ -269,6 +274,8 @@ public sealed class Escape : ISessionService
     private void Count(long updates)
     {
         Remaining = Math.Max(0, Remaining - Cadence[(int)(updates % Cadence.Length)]);
+        if (_held && Remaining < Assists.TesterAssists.CountdownHeldAt)
+            Remaining = Assists.TesterAssists.CountdownHeldAt;
         if (Remaining == 0)
             (_phase, _timeUpDue) = (Phase.Expired, true);
     }

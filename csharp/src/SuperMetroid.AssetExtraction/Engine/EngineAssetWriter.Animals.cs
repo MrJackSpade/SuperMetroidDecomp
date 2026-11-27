@@ -58,18 +58,6 @@ public sealed partial class EngineAssetWriter
             .Timeline("falling_left", Look(DachoraSegment.FallingLeft))
             .Timeline("falling_right", Look(DachoraSegment.FallingRight));
 
-        // The echoes it leaves behind as it shoots up: its own stretched picture, there for a moment.
-        const string echo = "objects/dachora_echo.json";
-        _tree.WriteData(echo, new JsonObject
-        {
-            ["steps"] = new JsonArray(new JsonObject
-            {
-                ["picture"] = PictureOf(pictures, EnemyFrameId.DachoraStretchedUpFacingRight),
-                ["updates"] = DachoraTimingDefinitions.EchoLifetime,
-            }),
-            ["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY },
-        });
-
         // Its glows: each frame of its speed's and its shine's colours, as changes of the colours of its pictures.
         string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Dachora));
         JsonArray Glow(DachoraColourPhase phase)
@@ -82,7 +70,10 @@ public sealed partial class EngineAssetWriter
 
         dachora
             .Group("glow_colours", new JsonObject { ["speed"] = Glow(DachoraColourPhase.Speed), ["shine"] = Glow(DachoraColourPhase.Shine) })
-            .Value("echo_effect", echo)
+            // The echoes it leaves as it shoots up play its shinespark's timeline: how long each lasts, and how many
+            // updates apart it leaves them (it waits so many updates between one and the next).
+            .Value("echo_updates", DachoraTimingDefinitions.EchoLifetime)
+            .Value("echo_spacing", DachoraTimingDefinitions.EchoPlacementInterval + 1)
             .Value("activation_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraActivationSound))
             .Value("speed_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraSpeedBoosterSound))
             .Value("speed_stop_sound", EngineNames.SoundOrStop(EnemySoundEffectDefinitions.DachoraSpeedBoosterSoundStop))

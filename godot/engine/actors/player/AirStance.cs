@@ -61,7 +61,7 @@ public readonly record struct AirStance(Aim Aim, AirArm Arm)
     /// <summary>
     /// Moves the player down under gravity and lands them when a fall is stopped by ground: their speed across comes
     /// to rest, they are steered, a held jump may count as pressed afresh, and they stand, settling for as long as a
-    /// landing out of <paramref name="from"/>, the state they are in, takes (<see cref="Player.SettlingUpdatesAfter"/>).
+    /// landing out of <paramref name="from"/>, the state they are in, takes (<see cref="Player.SettlingPicturesAfter"/>).
     /// </summary>
     public static PlayerState? FallAndLand(Player owner, PlayerState from)
     {
@@ -74,7 +74,7 @@ public readonly record struct AirStance(Aim Aim, AirArm Arm)
         if (falling && landed)
         {
             owner.Land(owner.Velocity.Y);
-            return new StandingState(owner.SettlingUpdatesAfter(from));
+            return new StandingState(PictureCount.Begin(owner, owner.SettlingPicturesAfter(from)));
         }
 
         // A ceiling ends a rise.

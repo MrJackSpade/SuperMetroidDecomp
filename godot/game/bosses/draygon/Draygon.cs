@@ -851,14 +851,14 @@ public partial class Draygon : Enemy
             _phase = Phase.Flail;
     }
 
-    /// <summary>Lets Samus go, if it holds her.</summary>
+    /// <summary>Lets Samus go, if it holds her: she stands, on the ground or not, as the cartridge lets her go.</summary>
     private void LetSamusGo()
     {
         if (!_holds)
             return;
         _holds = false;
         if (Room.Player.State is GrabbedState)
-            Room.Player.Release();
+            Room.Player.ChangeState(new StandingState());
     }
 
     /// <summary>

@@ -94,9 +94,10 @@ public partial class GameLoop : Node
     {
         try
         {
-            var actions = GameAction.Standard.Concat(definition.Actions.Select(name => new GameAction(name))).ToList();
+            IReadOnlyList<GameAction> actions = definition.AllActions;
             Options options = Options.Load(ProjectSettings.GlobalizePath("user://options.json"));
             options.AddMissingBindings(definition.StandardBindings);
+            options.AddMissingControls(definition.StandardControls);
             options.ApplyBindings(actions);
             var devices = new DeviceInputSource();
             AddChild(devices);

@@ -272,6 +272,7 @@ public partial class SaveMapMode : GameMode
         DataNode marker = room.Get("marker"), backing = marker.Get("backing");
         _backing = Picture("Backing", backing.Text("picture"), backing.Int("x"), backing.Int("y"));
         _marks.AddChild(_backing);
+        LiftMarkers();
         _marks.AddChild(_arrowMarks);
         foreach ((string way, _, _) in ScrollingMap.Ways)
         {
@@ -303,7 +304,15 @@ public partial class SaveMapMode : GameMode
         scene.AddChild(_map);
         if (_marks?.GetParent() == scene)
             scene.MoveChild(_map, _marks.GetIndex());
+        if (_backing?.GetParent() is not null)
+            LiftMarkers();
     }
+
+    /// <summary>
+    /// Lays the map's markers over the save's marker and its backing, and under the arrows: the cartridge draws the
+    /// ship and the stations over where the game was saved, and the map's labels under it.
+    /// </summary>
+    private void LiftMarkers() => Map().LiftMarkersOver(_backing ?? throw NotShown());
 
     /// <summary>Sets the area's map as it is each time it is come to: laid about the place saved at, its marker's pulse and its highlight begun again.</summary>
     private void BeginRoomMap()

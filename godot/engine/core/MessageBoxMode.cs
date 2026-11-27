@@ -165,7 +165,7 @@ public partial class MessageBoxMode : GameMode
         MessageBox box = _box ?? throw NotShown();
         MessageBoxStyle style = _style ?? throw NotShown();
         Content.ContentLibrary pictures = Pictures ?? Session.Content;
-        string picture = style.PicturePath(_shown, _asks ? _yes : null, Session.Options.Bindings);
+        string picture = style.PicturePath(_shown, _asks ? _yes : null, Session.Options.ControlOf);
         box.Present(pictures.LoadTexture(picture), style.CentreY, _radius);
     }
 

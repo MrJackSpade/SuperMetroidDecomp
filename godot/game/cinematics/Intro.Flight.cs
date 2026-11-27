@@ -32,8 +32,14 @@ public partial class Intro
         Finished,
     }
 
-    /// <summary>How many updates pass between the caption's letters, how long it is held, and how long its second wording takes to follow.</summary>
-    private const int CaptionLetterUpdates = 16, CaptionHoldUpdates = 128;
+    /// <summary>
+    /// How many updates each of the caption's letters shows before the next, how long its second wording shows before
+    /// the hold, and how long the whole caption is then held.
+    /// </summary>
+    private const int CaptionLetterUpdates = 16, CaptionSecondUpdates = 1, CaptionHoldUpdates = 128;
+
+    /// <summary>How many steps the white flash into the view from behind goes in, one an update: the cartridge's thirty-one levels of added white.</summary>
+    private const int FlashLevels = 31;
 
     /// <summary>The point of the gunship's picture that stays put as it turns.</summary>
     private static readonly Vector2 FlightCentre = new(56, 24);
@@ -55,6 +61,7 @@ public partial class Intro
     private int _flightAngle;
     private int _captionShown;
     private int _captionWait;
+    private bool _captionHeld;
 
     /// <summary>Sets up the flight, in the dark; it asks for its music on its first update.</summary>
     private void BeginFlight()
@@ -81,7 +88,7 @@ public partial class Intro
         _captionSecond = Picture("CaptionSecond", "caption_second_picture", "caption_second");
         _captionSecond.Visible = false;
         layer.AddChild(_captionSecond);
-        _flash = new ScreenFade { Name = "Flash", Layer = 4, Colour = Colors.White, Levels = FadeLevels };
+        _flash = new ScreenFade { Name = "Flash", Layer = 4, Colour = Colors.White, Levels = FlashLevels };
         AddChild(_flash);
 
         (_flightScrollX, _flightScrollY, _flightSize, _flightAngle, _starsSpeed) = (-72, -104, 512, 224, -4);
@@ -224,42 +231,58 @@ public partial class Intro
         ScreenFade flash = _flash ?? throw NotEntered();
         flash.FadeOut(1);
         flash.Step();
-        flash.FadeIn(FadeLevels);
+        flash.FadeIn(FlashLevels);
         _flight = Flight.FlyingTowardCeres;
     }
 
-    /// <summary>The gunship is lost in the distance, and the colony's name begins to be typed.</summary>
+    /// <summary>The gunship is lost in the distance, and the colony's name begins to be typed, its first letter at once.</summary>
     private void BeginCaption()
     {
         (_gunship ?? throw NotEntered()).Visible = false;
         (_caption ?? throw NotEntered()).Visible = true;
-        (_flight, _captionShown, _captionWait) = (Flight.Caption, 0, 1);
+        (_flight, _captionShown, _captionHeld) = (Flight.Caption, 0, false);
+        TypeCaptionLetter();
     }
 
+    /// <summary>
+    /// One update of the caption: each letter shows its while before the next; the last one's while past, the second
+    /// wording shows a moment, where the language has one, and the whole caption is held before the screen fades.
+    /// </summary>
     private void StepCaption(ScreenFade fade)
     {
         if (--_captionWait > 0)
             return;
-        PixelText caption = _caption ?? throw NotEntered();
-        string words = caption.Text;
-        if (_captionShown < words.Length)
+        if (_captionShown < (_caption ?? throw NotEntered()).Text.Length)
         {
-            // A letter at a time, a space coming with the letter after it.
-            _captionShown++;
-            while (_captionShown < words.Length && char.IsWhiteSpace(words[_captionShown - 1]))
-                _captionShown++;
-            caption.VisibleCharacters = _captionShown;
-            _captionWait = CaptionLetterUpdates;
-            if (_captionShown < words.Length)
-                return;
-            (_captionSecond ?? throw NotEntered()).Visible = IsSubtitled;
+            TypeCaptionLetter();
+            return;
+        }
 
-            _captionWait += CaptionHoldUpdates;
+        if (!_captionHeld)
+        {
+            _captionHeld = true;
+            _captionWait = CaptionHoldUpdates;
+            if (!IsSubtitled)
+                return;
+            (_captionSecond ?? throw NotEntered()).Visible = true;
+            _captionWait += CaptionSecondUpdates;
             return;
         }
 
         fade.FadeOut(FadeUpdates);
         _flight = Flight.FadingOut;
+    }
+
+    /// <summary>Shows the caption's next letter, a space coming with the letter after it.</summary>
+    private void TypeCaptionLetter()
+    {
+        PixelText caption = _caption ?? throw NotEntered();
+        string words = caption.Text;
+        _captionShown++;
+        while (_captionShown < words.Length && char.IsWhiteSpace(words[_captionShown - 1]))
+            _captionShown++;
+        caption.VisibleCharacters = _captionShown;
+        _captionWait = CaptionLetterUpdates;
     }
 
     /// <summary>Shows the gunship as the view now has it.</summary>

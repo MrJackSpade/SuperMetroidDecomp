@@ -21,6 +21,10 @@ namespace Game.Cinematics;
 /// ("station_floor", "explosion_floor", "approach_floor", "zebes"), its "backdrop" colour, the "blast_sound" of the
 /// station going up, and the languages its second title is shown in ("second_title_languages"). The title's
 /// timeline gives the cues "fade_in", "second_title", "fade_out" and "fly".
+/// The great blast that takes the station is a power bomb's, seen as one is: on each update from the one after it
+/// goes off, the oval it shows ("blast_ovals", how far across, nought for none) and the colour it adds to everything
+/// inside it ("blast_glows", red, green and blue in one number), the oval "blast_height_parts" high for every
+/// "blast_width_parts" across; it stays where the station was on the screen as the view moves.
 /// </remarks>
 public partial class CeresDestruction : Cinematic
 {
@@ -75,6 +79,9 @@ public partial class CeresDestruction : Cinematic
     /// <summary>The point of each floor that stays put as it turns.</summary>
     private static readonly Vector2 CeresCentre = new(52, 48), ZebesCentre = new(56, 24);
 
+    /// <summary>How many points the great blast's oval is drawn with.</summary>
+    private const int BlastOvalPoints = 128;
+
     /// <summary>How far a blast is carried each update, as the gunship flies from it.</summary>
     private static readonly PixelVelocity BlastDrift = new(Pixels.FromNumber(0.25), Pixels.FromNumber(-0.0625));
 
@@ -106,7 +113,8 @@ public partial class CeresDestruction : Cinematic
     private int _spawnerUpdates;
     private int _titleFade = TitleFadeUpdates;
     private bool _titleFadesIn;
-    private Pixels _blastReach, _blastSpread;
+    /// <summary>How many updates the great blast has shown itself on; none while there is no blast.</summary>
+    private int _blastUpdate;
     private bool _blasting;
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
@@ -135,10 +143,19 @@ public partial class CeresDestruction : Cinematic
         layer.AddChild(_floor);
         _sprites = new Node2D { Name = "Sprites" };
         layer.AddChild(_sprites);
-        var oval = new Vector2[32];
+        // The great blast adds its colour to everything inside its oval.
+        var oval = new Vector2[BlastOvalPoints];
+        float down = (float)_data.Int("blast_height_parts") / _data.Int("blast_width_parts");
         for (int point = 0; point < oval.Length; point++)
-            oval[point] = Vector2.FromAngle(Mathf.Tau * point / oval.Length);
-        _blastGlow = new Polygon2D { Name = "Blast", Polygon = oval, Color = new Color(1f, 1f, 0.6f, 0.6f), Visible = false };
+        {
+            float angle = Mathf.Tau * point / oval.Length;
+            oval[point] = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle) * down);
+        }
+
+        _blastGlow = new Polygon2D
+        {
+            Name = "Blast", Polygon = oval, Visible = false, Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add },
+        };
         layer.AddChild(_blastGlow);
         _fade = new ScreenFade { Name = "Fade", Layer = 2, Levels = FadeLevels };
         AddChild(_fade);
@@ -416,10 +433,8 @@ public partial class CeresDestruction : Cinematic
     private void BlowUpStation()
     {
         SpawnBlast("station_blast", 0, 0, 1);
-        (_blasting, _blastReach, _blastSpread) = (true, Pixels.FromWhole(4), Pixels.FromWhole(1));
-        Polygon2D glow = Glow();
-        glow.Position = new Vector2(CeresCentre.X - (float)Math.Floor(_scrollX), CeresCentre.Y - (float)Math.Floor(_scrollY));
-        glow.Visible = true;
+        (_blasting, _blastUpdate) = (true, 0);
+        Glow().Position = new Vector2(CeresCentre.X - (float)Math.Floor(_scrollX), CeresCentre.Y - (float)Math.Floor(_scrollY));
         Session.Sounds.Request(Data().Text("blast_sound"), channel: "explosions", priority: SoundPriority.Essential);
         if (SamusAboard)
             Floor().Visible = false;
@@ -427,19 +442,24 @@ public partial class CeresDestruction : Cinematic
             ShowFloorPicture("explosion_floor");
     }
 
-    /// <summary>Spreads the great blast's glow, faster and faster, until it has passed the edges of the screen.</summary>
+    /// <summary>Shows the great blast as it stands on this update, before anything else of the update; done when its glow has faded.</summary>
     private void StepBlastGlow()
     {
         if (!_blasting)
             return;
         Polygon2D glow = Glow();
-        glow.Scale = new Vector2(_blastReach.ToDisplay(), _blastReach.ToDisplay() * 3 / 4);
-        _blastReach += _blastSpread;
-        _blastSpread += Pixels.FromNumber(0.1875);
-        if (_blastReach.Whole < 320)
+        IReadOnlyList<DataNode> ovals = Data().List("blast_ovals"), glows = Data().List("blast_glows");
+        if (_blastUpdate >= ovals.Count)
+        {
+            (_blasting, glow.Visible) = (false, false);
             return;
-        _blasting = false;
-        glow.Visible = false;
+        }
+
+        int across = ovals[_blastUpdate].AsInt(), colour = glows[_blastUpdate].AsInt();
+        _blastUpdate++;
+        glow.Visible = across > 0;
+        glow.Scale = new Vector2(across, across);
+        glow.Color = new Color(((colour >> 16) & 255) / 255f, ((colour >> 8) & 255) / 255f, (colour & 255) / 255f);
     }
 
     private void SetUpZebes()
@@ -562,8 +582,8 @@ public partial class CeresDestruction : Cinematic
             case "second_title":
                 if (!Data().List("second_title_languages").Any(language => language.AsText() == Session.Options.Language))
                     break;
+                // It shows its first look on this update, stepped once with the title.
                 _secondTitle = Spawn(null, "second_title", Pixels.Zero, loops: false);
-                _secondTitle.Step();
                 break;
             case "fade_out":
                 (_titleFade, _titleFadesIn) = (0, false);

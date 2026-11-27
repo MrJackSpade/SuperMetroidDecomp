@@ -250,9 +250,10 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                 Visual(decoration + "Grey").SetShown(there);
         }
 
-        if (room.Session.Progress.Has(StoryEvents.TourianUnlocked))
+        if (room.Session.Progress.Has(StoryEvents.TourianUnlocked) || Assists.TesterAssists.Of(room.Session).Now(room.Session).TourianOpen)
         {
-            // The way down was opened before: the statue is already sunk and the floor already gone.
+            // The way down was opened before, or the tester's assists hold it open: the statue is already sunk and
+            // the floor already gone.
             _sunk = Pixels.FromWhole(DescentDistance);
             if (ClearPatch.Length > 0)
                 room.Terrain.ApplyPatch(ClearPatch);

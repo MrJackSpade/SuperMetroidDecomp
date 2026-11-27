@@ -87,9 +87,13 @@ public partial class OptionsMode : GameMode
 
     /// <summary>
     /// The actions of play, in the order of the page's rows: the shot, the jump, and the game's own. No two of them
-    /// keep one button: binding one to a button another has swaps the two, as the cartridge's page does with its seven.
+    /// are on one control: putting one on a control another is on swaps the two, as the cartridge's page does with its
+    /// seven.
     /// </summary>
     private IReadOnlyList<string> PlayActions => [GameAction.Attack.Name, GameAction.Jump.Name, .. Session.Definition.Actions];
+
+    /// <summary>The cartridge's controls, which the actions of play share out between them.</summary>
+    private static IReadOnlyList<string> PlayControls => Data.Controls.All;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -166,7 +170,7 @@ public partial class OptionsMode : GameMode
     private HashSet<string> KeptButtons() =>
     [
         .. new[] { GameAction.Up, GameAction.Down, GameAction.Left, GameAction.Right, GameAction.Pause }
-            .SelectMany(action => Session.Options.Bindings.GetValueOrDefault(action.Name) ?? []),
+            .SelectMany(action => Session.Options.ButtonsOf(action.Name)),
     ];
 
     /// <inheritdoc/>
@@ -326,8 +330,16 @@ public partial class OptionsMode : GameMode
         {
             if (KeptButtons().Contains(pressed))
                 return;
-            Session.Options.Bind(PlayActions[_row], pressed, PlayActions);
-            Session.Options.ApplyBindings([]);
+
+            // A button that stands for one of the cartridge's controls puts the row's action on that control, the
+            // action that was on it taking the one this leaves, as the cartridge's page swaps its seven. Any other
+            // button becomes the button of the control the row's action is on.
+            Options options = Session.Options;
+            if (PlayControls.FirstOrDefault(held => (options.Bindings.GetValueOrDefault(held) ?? []).Contains(pressed)) is { } control)
+                options.PutOn(PlayActions[_row], control, PlayActions);
+            else
+                options.Bindings[options.ControlOf(PlayActions[_row])] = [pressed];
+            options.ApplyBindings(Session.Definition.AllActions);
             ShowButtons();
             return;
         }
@@ -340,10 +352,13 @@ public partial class OptionsMode : GameMode
             return;
         }
 
-        // The standard buttons are put back for the device the row was confirmed on.
-        Session.Options.RestoreBindings(PlayActions, Session.Definition.StandardBindings);
-        Session.Options.KeepOneButton(PlayActions, _onController);
-        Session.Options.ApplyBindings([]);
+        // Each action goes back on the control a new file has it on, and the controls' standard buttons are put
+        // back for the device the row was confirmed on.
+        foreach ((string action, string control) in Session.Definition.StandardControls)
+            Session.Options.Controls[action] = control;
+        Session.Options.RestoreBindings(PlayControls, Session.Definition.StandardBindings);
+        Session.Options.KeepOneButton(PlayControls, _onController);
+        Session.Options.ApplyBindings(Session.Definition.AllActions);
         ShowButtons();
     }
 
@@ -467,10 +482,10 @@ public partial class OptionsMode : GameMode
                 heading = "controller";
                 picture.Texture = Session.Content.LoadTexture(data.Get("controller").Text(language));
 
-                // An action set here has one button. One that still has its standard two, a key and a controller's,
+                // A control set here has one button. One that still has its standard two, a key and a controller's,
                 // keeps the one of the device the player came to the page on.
-                options.KeepOneButton(PlayActions, _onController);
-                options.ApplyBindings([]);
+                options.KeepOneButton(PlayControls, _onController);
+                options.ApplyBindings(Session.Definition.AllActions);
                 BeginTakingButtons();
                 ShowButtons();
                 break;
@@ -520,7 +535,7 @@ public partial class OptionsMode : GameMode
             // One line in the game's font, where the cartridge's page names its own controller's button.
             var name = new ChoiceList { Name = $"Button{row + 1}", Font = Session.Font, Mark = "", Position = new Vector2(places[row].Int("x"), places[row].Int("y")) };
             names.AddChild(name);
-            name.Present([InFont(string.Join(", ", options.Bindings.GetValueOrDefault(PlayActions[row]) ?? []))]);
+            name.Present([InFont(string.Join(", ", options.ButtonsOf(PlayActions[row])))]);
         }
     }
 

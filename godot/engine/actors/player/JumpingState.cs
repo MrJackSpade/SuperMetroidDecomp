@@ -22,7 +22,7 @@ public sealed class JumpingState : PlayerState
     private readonly bool _keepsSpeed;
 
     /// <summary>The updates left in which a jump from the ground gathers itself, and whether the gathering ended on this update.</summary>
-    private Countdown _gathering;
+    private PictureCount _gathering;
     private bool _gathered;
 
     /// <summary>Whether the player had any speed of their own across as this update's input was asked.</summary>
@@ -64,7 +64,7 @@ public sealed class JumpingState : PlayerState
     /// Whether the jump is on an update of its gathering before the last: what is held on those can end the
     /// gathering, and a game whose player listens for more there says so as it is asked (<see cref="Player.ChooseState"/>).
     /// </summary>
-    public bool GatheringListens => _gathering.Remaining > 1;
+    public bool GatheringListens => _gathering.IsRunning && !_gathering.IsOnLastUpdate;
 
     /// <summary>
     /// A jump from the ground is entered in the jump's full form; one that carries on, in the form of the aim its
@@ -96,7 +96,7 @@ public sealed class JumpingState : PlayerState
         _stance = new AirStance(owner.Aim);
         _stanceAsked = Stance;
         owner.Rise(owner.LaunchSpeed(offWall: false, AirStance.FormFor(owner, Player.Jumping)));
-        _gathering = Countdown.Of(owner.InMedium("jump_start_updates", owner.JumpStartUpdates));
+        _gathering = PictureCount.Begin(owner, owner.JumpStartPictures);
     }
 
     /// <inheritdoc/>
@@ -123,7 +123,7 @@ public sealed class JumpingState : PlayerState
                 return this;
             }
 
-            _gathering = Countdown.Over;
+            _gathering = PictureCount.Over;
             owner.SteerAfresh();
             _gathered = true;
         }
@@ -144,7 +144,7 @@ public sealed class JumpingState : PlayerState
             // Gathering, the player moves nothing of their own: a dash still carries them, and nothing else.
             owner.Steering = Steering.Steered;
             owner.MoveAcross(byDashAlone: true);
-            _gathering = _gathering.Stepped();
+            _gathering = _gathering.Stepped(owner);
             if (_gathering.IsOver)
             {
                 owner.SteerAfresh();

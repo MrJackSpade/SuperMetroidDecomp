@@ -138,7 +138,7 @@ public partial class Intro
         DataNode data = Session.Content.ReadData(file);
         DemoRecording recording = DemoRecording.Read(data);
         Room room = Session.Definition.CreateRoom(recording.Room);
-        (_sceneRoot ?? throw NotEntered()).AddChild(room);
+        (_sceneRoot ?? throw NotEntered()).Stage.AddChild(room);
         Player samus = Session.Player;
         room.Setup(Session, samus, new RoomEntry(recording.EntryPoint, PixelVelocity.Zero, Facing.Left));
         _room = room;
@@ -181,7 +181,7 @@ public partial class Intro
 
     private void BeginLaboratory(string picture, string larva, Vector2 startsAt)
     {
-        Node2D root = _sceneRoot ?? throw NotEntered();
+        Node2D root = (_sceneRoot ?? throw NotEntered()).Stage;
         _laboratory = new Sprite2D
         {
             Name = "Laboratory", Centered = false, Position = startsAt, Texture = Session.Content.LoadTexture(Data().Text(picture)),

@@ -5,8 +5,15 @@ using Godot;
 namespace Engine.Core;
 
 /// <summary>
-/// The player's settings: which buttons give which action, the language, and the game's own toggles. They are kept
-/// in one plain text file outside any save slot, and do not change during an update.
+/// The player's settings: which buttons stand for which control, which control each action is on, the language, and
+/// the game's own toggles. They are kept in one plain text file outside any save slot, and do not change during an
+/// update. A control is a button of the game's own controller, by name. An action is on one control: its own, of the
+/// action's name, unless the game puts it on another (<see cref="Controls"/>); the player's keys and controller's
+/// buttons are bound to controls (<see cref="Bindings"/>). So what a game keeps of its controls with a save, which
+/// control each of its actions is on, is apart from what belongs to the machine it is played on. A save carries the
+/// controls, the language and the toggles as they stood when it was made (<see cref="SaveData.Controls"/>,
+/// <see cref="SaveData.Toggles"/>, <see cref="SaveData.Language"/>), for a game that gives a chosen save's back to
+/// the options.
 /// </summary>
 public sealed class Options
 {
@@ -22,15 +29,21 @@ public sealed class Options
     public Dictionary<string, bool> Toggles { get; set; } = [];
 
     /// <summary>
-    /// The buttons bound to each action, by the action's name. A keyboard key is written "key:" and its name, such as
-    /// "key:Space"; a controller button "pad:" and its number; a controller's axis pushed one way "axis:", its number
-    /// and "+" or "-", such as "axis:5+", which is how a trigger, a stick or a pad that reports itself as axes is
-    /// bound. A controller's binding holds for whichever controller is used. An action's standard buttons are a key
-    /// and a controller's button, so that either works; one the player has set has the one button they pressed.
+    /// The control each action is on, by the action's name, for the actions a game puts on a control other than
+    /// their own.
+    /// </summary>
+    public Dictionary<string, string> Controls { get; set; } = [];
+
+    /// <summary>
+    /// The buttons bound to each control, by the control's name. A keyboard key is written "key:" and its name, such
+    /// as "key:Space"; a controller button "pad:" and its number; a controller's axis pushed one way "axis:", its
+    /// number and "+" or "-", such as "axis:5+", which is how a trigger, a stick or a pad that reports itself as axes
+    /// is bound. A controller's binding holds for whichever controller is used. A control's standard buttons are a
+    /// key and a controller's button, so that either works; one the player has set has the one button they pressed.
     /// </summary>
     public Dictionary<string, List<string>> Bindings { get; set; } = [];
 
-    /// <summary>The engine's bindings for its own actions, which a game or a player may replace.</summary>
+    /// <summary>The engine's bindings for the controls of its own actions, which a game or a player may replace.</summary>
     public static Dictionary<string, List<string>> StandardBindings => new()
     {
         [GameAction.Left.Name] = ["key:Left", "pad:13"],
@@ -47,6 +60,12 @@ public sealed class Options
     /// <summary>Whether a toggle is on. One that has never been set is off.</summary>
     public bool IsOn(string toggle) => Toggles.GetValueOrDefault(toggle);
 
+    /// <summary>The control an action is on: the one the game put it on, or its own, of the action's name.</summary>
+    public string ControlOf(string action) => Controls.GetValueOrDefault(action, action);
+
+    /// <summary>The buttons that give an action now: those bound to the control it is on.</summary>
+    public IReadOnlyList<string> ButtonsOf(string action) => Bindings.GetValueOrDefault(ControlOf(action)) ?? [];
+
     /// <summary>Reads the options kept in <paramref name="file"/>, or the standard ones when there is no such file yet.</summary>
     /// <exception cref="InvalidDataException">The file cannot be read as options.</exception>
     public static Options Load(string file)
@@ -57,8 +76,8 @@ public sealed class Options
         {
             Options options = JsonSerializer.Deserialize<Options>(File.ReadAllText(file))
                 ?? throw new InvalidDataException($"The options file {file} holds nothing that can be read.");
-            foreach ((string action, List<string> buttons) in StandardBindings)
-                options.Bindings.TryAdd(action, buttons);
+            foreach ((string control, List<string> buttons) in StandardBindings)
+                options.Bindings.TryAdd(control, buttons);
             options._file = file;
             return options;
         }
@@ -68,15 +87,22 @@ public sealed class Options
         }
     }
 
-    /// <summary>Binds each action in <paramref name="bindings"/> that has no binding yet, as a game does for its own actions.</summary>
+    /// <summary>Binds each control in <paramref name="bindings"/> that has no binding yet, as a game does for its own controls.</summary>
     public void AddMissingBindings(IReadOnlyDictionary<string, List<string>> bindings)
     {
         ArgumentNullException.ThrowIfNull(bindings);
-        foreach ((string action, List<string> buttons) in bindings)
-            Bindings.TryAdd(action, buttons);
+        foreach ((string control, List<string> buttons) in bindings)
+            Bindings.TryAdd(control, buttons);
     }
 
-    /// <summary>Writes the options to <paramref name="file"/>.</summary>
+    /// <summary>Puts each action in <paramref name="controls"/> that is on no control of the game's yet on the one given for it.</summary>
+    public void AddMissingControls(IReadOnlyDictionary<string, string> controls)
+    {
+        ArgumentNullException.ThrowIfNull(controls);
+        foreach ((string action, string control) in controls)
+            Controls.TryAdd(action, control);
+    }
+
     /// <summary>Writes the options to the file they were loaded from.</summary>
     /// <exception cref="InvalidOperationException">They were not loaded from a file.</exception>
     public void Save()
@@ -86,6 +112,7 @@ public sealed class Options
         Save(_file);
     }
 
+    /// <summary>Writes the options to <paramref name="file"/>.</summary>
     public void Save(string file)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(file)) ?? ".");
@@ -93,25 +120,21 @@ public sealed class Options
     }
 
     /// <summary>
-    /// Puts the bindings into Godot's input map, replacing what it held for each action bound here, and makes sure
-    /// every action in <paramref name="actions"/> exists there even if nothing is bound to it.
+    /// Puts into Godot's input map, for each action in <paramref name="actions"/>, the buttons bound to the control
+    /// it is on, in place of what the map held for it. An action whose control has no button is in the map with
+    /// nothing bound.
     /// </summary>
     /// <exception cref="InvalidDataException">A binding is not written in a way that can be read.</exception>
     public void ApplyBindings(IEnumerable<GameAction> actions)
     {
+        ArgumentNullException.ThrowIfNull(actions);
         foreach (GameAction action in actions)
         {
             if (!InputMap.HasAction(action.Name))
                 InputMap.AddAction(action.Name);
-        }
-
-        foreach ((string action, List<string> buttons) in Bindings)
-        {
-            if (!InputMap.HasAction(action))
-                InputMap.AddAction(action);
-            InputMap.ActionEraseEvents(action);
-            foreach (string button in buttons)
-                InputMap.ActionAddEvent(action, ReadButton(action, button));
+            InputMap.ActionEraseEvents(action.Name);
+            foreach (string button in ButtonsOf(action.Name))
+                InputMap.ActionAddEvent(action.Name, ReadButton(action.Name, button));
         }
     }
 
@@ -136,64 +159,60 @@ public sealed class Options
     private static bool IsKey(string button) => button.StartsWith("key:", StringComparison.Ordinal);
 
     /// <summary>
-    /// Binds an action to a button the player has pressed: it becomes the action's one button, whatever the action
-    /// had. Among the actions of <paramref name="keptApart"/>, when the action is one of them, no two keep one
-    /// button: the one that had this button is given the one this action gives up, so the two swap.
+    /// Puts an action on a control. Among the actions of <paramref name="keptApart"/>, when the action is one of
+    /// them, no two are on one control: the one that was on this control takes the one this action leaves, so the two
+    /// swap.
     /// </summary>
-    public void Bind(string action, string button, IReadOnlyCollection<string> keptApart)
+    public void PutOn(string action, string control, IReadOnlyCollection<string> keptApart)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(action);
-        ArgumentException.ThrowIfNullOrWhiteSpace(button);
+        ArgumentException.ThrowIfNullOrWhiteSpace(control);
         ArgumentNullException.ThrowIfNull(keptApart);
-        List<string> held = Bindings.GetValueOrDefault(action) ?? [];
-        if (held.Count == 1 && held[0] == button)
+        string left = ControlOf(action);
+        if (left == control)
             return;
-
-        // What it gives up: its button of the pressed one's kind, where it still has one of each, or its only one.
-        string? givenUp = held.FirstOrDefault(other => IsKey(other) == IsKey(button)) ?? held.FirstOrDefault();
-        Bindings[action] = [button];
+        Controls[action] = control;
         if (!keptApart.Contains(action))
             return;
         foreach (string other in keptApart)
         {
-            if (other == action || !Bindings.TryGetValue(other, out List<string>? theirs) || !theirs.Contains(button))
-                continue;
-            Bindings[other] = givenUp is null ? [] : [givenUp];
+            if (other != action && ControlOf(other) == control)
+                Controls[other] = left;
         }
     }
 
     /// <summary>
-    /// Leaves each of <paramref name="actions"/> one button: a controller's, when the player is on one and the
-    /// action has one, a key otherwise, and failing that the first it has. An action's standard buttons name one
-    /// for the keyboard and one for a controller, so that either works before anything is chosen; an action the
+    /// Leaves each of <paramref name="controls"/> one button: a controller's, when the player is on one and the
+    /// control has one, a key otherwise, and failing that the first it has. A control's standard buttons name one
+    /// for the keyboard and one for a controller, so that either works before anything is chosen; a control the
     /// player sets has one, and this settles which, by the device they are using.
     /// </summary>
-    public void KeepOneButton(IEnumerable<string> actions, bool onController)
+    public void KeepOneButton(IEnumerable<string> controls, bool onController)
     {
-        ArgumentNullException.ThrowIfNull(actions);
-        foreach (string action in actions)
+        ArgumentNullException.ThrowIfNull(controls);
+        foreach (string control in controls)
         {
-            if (!Bindings.TryGetValue(action, out List<string>? held) || held.Count <= 1)
+            if (!Bindings.TryGetValue(control, out List<string>? held) || held.Count <= 1)
                 continue;
-            Bindings[action] = [held.FirstOrDefault(button => IsKey(button) != onController) ?? held[0]];
+            Bindings[control] = [held.FirstOrDefault(button => IsKey(button) != onController) ?? held[0]];
         }
     }
 
     /// <summary>
-    /// Puts back the buttons each of <paramref name="actions"/> has until the player chooses otherwise: the engine's
-    /// own for its actions and <paramref name="gameStandard"/> for the game's.
+    /// Puts back the buttons each of <paramref name="controls"/> has until the player chooses otherwise: the engine's
+    /// own for the controls of its actions and <paramref name="gameStandard"/> for the game's.
     /// </summary>
-    /// <exception cref="InvalidOperationException">An action has no standard buttons.</exception>
-    public void RestoreBindings(IEnumerable<string> actions, IReadOnlyDictionary<string, List<string>> gameStandard)
+    /// <exception cref="InvalidOperationException">A control has no standard buttons.</exception>
+    public void RestoreBindings(IEnumerable<string> controls, IReadOnlyDictionary<string, List<string>> gameStandard)
     {
-        ArgumentNullException.ThrowIfNull(actions);
+        ArgumentNullException.ThrowIfNull(controls);
         ArgumentNullException.ThrowIfNull(gameStandard);
         Dictionary<string, List<string>> engineStandard = StandardBindings;
-        foreach (string action in actions)
+        foreach (string control in controls)
         {
-            List<string> standard = engineStandard.GetValueOrDefault(action) ?? gameStandard.GetValueOrDefault(action)
-                ?? throw new InvalidOperationException($"The action \"{action}\" has no standard buttons to be put back.");
-            Bindings[action] = [.. standard];
+            List<string> standard = gameStandard.GetValueOrDefault(control) ?? engineStandard.GetValueOrDefault(control)
+                ?? throw new InvalidOperationException($"The control \"{control}\" has no standard buttons to be put back.");
+            Bindings[control] = [.. standard];
         }
     }
 

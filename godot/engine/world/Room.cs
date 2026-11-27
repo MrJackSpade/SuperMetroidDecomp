@@ -1282,13 +1282,18 @@ public partial class Room : Node2D
             Session.Progress.Record(fact);
     }
 
-    /// <summary>Records the map cell the player is in as explored.</summary>
+    /// <summary>
+    /// Records the map cell the player is in as explored. Nothing is recorded while the player's place lies outside
+    /// the room's blocks: beyond an edge they are in no cell of the room's.
+    /// </summary>
     private void MarkExplored()
     {
         if (Area.Length == 0 || !MapShown)
             return;
-        Session.Progress.MarkExplored(
-            Area, MapCell.X + Player.Position.X.Whole / MapCellSize.X, MapCell.Y + Player.Position.Y.Whole / MapCellSize.Y);
+        int x = Player.Position.X.Whole, y = Player.Position.Y.Whole;
+        if (x < 0 || y < 0 || x >= Terrain.WidthInPixels || y >= Terrain.HeightInPixels)
+            return;
+        Session.Progress.MarkExplored(Area, MapCell.X + x / MapCellSize.X, MapCell.Y + y / MapCellSize.Y);
     }
 
     /// <summary>

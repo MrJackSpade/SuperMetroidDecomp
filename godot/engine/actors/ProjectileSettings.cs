@@ -229,6 +229,12 @@ public sealed record ProjectileSettings
     public string Timeline { get; init; } = "";
 
     /// <summary>
+    /// The data file of what it leaves behind it as it flies (<see cref="ProjectileTrail"/>), named with
+    /// "{direction}" as the timeline is; empty for a shot that leaves nothing.
+    /// </summary>
+    public string Trail { get; init; } = "";
+
+    /// <summary>
     /// For a falling projectile launched upward, the data file of the timeline it changes to at the top of its arc;
     /// empty for one that keeps the timeline it left with. It takes the same placeholders.
     /// </summary>
@@ -301,6 +307,7 @@ public sealed record ProjectileSettings
             Picture = data.Has("picture") ? data.Text("picture") : "",
             PictureOffset = data.Has("picture_offset") ? (data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y")) : null,
             Timeline = data.Has("timeline") ? data.Text("timeline") : "",
+            Trail = data.Has("trail") ? data.Text("trail") : "",
             FallingTimeline = data.Has("falling_timeline") ? data.Text("falling_timeline") : "",
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
             EndingEffectStanding = data.Has("ending_effect_standing") ? data.Get("ending_effect_standing").AsEnum<Engine.World.Standing>() : null,

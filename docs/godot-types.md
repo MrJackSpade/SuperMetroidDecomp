@@ -1542,6 +1542,7 @@ How a projectile behaves is settings, not code:
 | Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. |
 | Where it stands | In front of the player with whatever else is launched, or a `Standing` of its own against the player: Samus's beams and missiles stand just behind her, as the cartridge draws them. |
 | Gaining speed | One gain along each axis; one launched diagonally may have its own. |
+| Leaving a trail | A `ProjectileTrail`, read from the file the shot's data names (`"trail"`, a file for each way the shot flies): the shot counts it on each update it is stepped, before its pictures move on and before it moves or ignites, and as the count runs out leaves an `Effect` for each sparkle of the step its flying timeline shows, at its place from the shot's own; the count then starts again. A sparkle holds none of the room's places. |
 | Shaking the room | A `RoomShake` (strength, length, way, and reach: what of the room it throws, `ShakeReach`) started as terrain or a solid ends it, and one started the first time its hit lands. |
 
 A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm

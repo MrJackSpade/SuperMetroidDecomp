@@ -152,7 +152,7 @@ public partial class PlayingMode : GameMode, IRoomPlay
 
         // The player's state plays its part in the update's beginning first: what it gives way to is the state the
         // whole update is played in, the pause and what the update holds still decided by it.
-        Room.Player.BeginUpdate();
+        Room.Player.GiveWayAsUpdateBegins();
 
         // A pause that play asked for comes once the messages asked for with it have been shown, before play goes on.
         if (terms.MayPause && Session.TakePauseRequest() is { } askedBy)

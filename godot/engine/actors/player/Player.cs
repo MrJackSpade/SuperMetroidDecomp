@@ -973,9 +973,10 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>
     /// Lets the state the player is in play its part as an update of play begins
     /// (<see cref="PlayerState.AsUpdateBegins"/>), and puts the player in the state it gives way to, if it does.
-    /// Play calls this before it decides anything of the update.
+    /// Play calls this before it decides anything of the update, and so before the update's first part
+    /// (<see cref="BeginUpdate"/>).
     /// </summary>
-    internal void BeginUpdate()
+    internal void GiveWayAsUpdateBegins()
     {
         if (State.AsUpdateBegins(this) is { } next && !ReferenceEquals(next, State))
             ChangeState(next);

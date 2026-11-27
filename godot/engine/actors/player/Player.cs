@@ -2019,8 +2019,9 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
     /// <summary>
     /// Steers the player for one update in the air by <paramref name="moves"/> and moves them across. Steered with
-    /// neither direction held, they stop across at once and do not move across this update; unsteered or reversing,
-    /// they carry on. Returns the move, or null when there was none.
+    /// neither direction held, they stop across at once and do not move across this update: no move across is made
+    /// at all, so whatever they were given to move by across (<see cref="MoveFromOutside"/>, a block that carries)
+    /// is lost with it. Unsteered or reversing, they carry on. Returns the move, or null when there was none.
     /// </summary>
     public MoveResult? SteerAndMoveInAir(MoveValues moves)
     {
@@ -2029,6 +2030,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         if (Steering == Steering.Steered && !directionHeld)
         {
             ComeToRest();
+            _blockMove = _blockMove with { X = Pixels.Zero };
             return null;
         }
 

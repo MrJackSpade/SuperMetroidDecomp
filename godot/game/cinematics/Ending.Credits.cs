@@ -1,5 +1,4 @@
 using Engine.Content;
-using Engine.Shared;
 using Engine.Ui;
 using Godot;
 
@@ -11,45 +10,26 @@ namespace Game.Cinematics;
 /// </summary>
 /// <remarks>
 /// The data names the credits' picture ("credits_roll") and how far it scrolls before it is done ("credits_scroll"),
-/// the colour shown behind everything after the credits ("post_credits_backdrop"), the pictures "waiting_backdrop",
-/// "wavy_samus", "result_panel" and "copyright_panel", and the four pictures of a "shooting_star" from faintest to
-/// fullest, with where those lie from the star's place ("shooting_star_offset").
+/// the pictures "waiting_backdrop", "wavy_samus", "result_panel" and "copyright_panel", and the four pictures of a
+/// "shooting_star" from faintest to fullest, with where those lie from the star's place ("shooting_star_offset").
 /// </remarks>
 public partial class Ending
 {
-    /// <summary>
-    /// The wavering glow: each line of the screen shows the picture pushed sideways by its own whole number of pixels
-    /// and scrolled up, added over what lies beneath, and only where the backdrop she waits against is drawn.
-    /// </summary>
     private const string WaveCode = """
         shader_type canvas_item;
         render_mode blend_add;
         uniform sampler2D picture : repeat_enable, filter_nearest;
-        uniform sampler2D backdrop : filter_nearest;
-        uniform int shift[224];
-        uniform int scroll = 0;
+        uniform float reach = 0.0;
+        uniform float turn = 0.0;
+        uniform float period = 128.0;
+        uniform float scroll = 0.0;
         void fragment() {
-            int x = int(floor(UV.x * 256.0));
-            int line = int(floor(UV.y * 224.0));
             vec2 size = vec2(textureSize(picture, 0));
-            vec4 glow = texture(picture, (vec2(float(x + shift[line]), float(line + scroll)) + 0.5) / size);
-            ivec2 under = textureSize(backdrop, 0);
-            float drawn = x < under.x && line < under.y ? texture(backdrop, (vec2(float(x), float(line)) + 0.5) / vec2(under)).a : 0.0;
-            COLOR = vec4(glow.rgb, glow.a * drawn);
+            float line = UV.y * 224.0;
+            float across = UV.x * 256.0 + reach * sin(6.2831853 * (line / period + turn));
+            COLOR = texture(picture, vec2(across, line + scroll) / size);
         }
         """;
-
-    /// <summary>The screen's lines, each pushed sideways by the wave on its own.</summary>
-    private const int ScreenLines = 224;
-
-    /// <summary>
-    /// The wave: how far it pushes a line at most, in pixels; how many lines a whole turn of it takes; the angle at the
-    /// top line on its first update, a step short of a whole turn; and how far that angle moves on each update after.
-    /// </summary>
-    private const int WaveReach = 64, WaveLines = 128, WaveFirstAngle = 255, WaveTurnSteps = 8;
-
-    /// <summary>How many lines the picture is scrolled up on each update.</summary>
-    private const int WaveScrollLines = 2;
 
     /// <summary>How long the screen stays dark after the credits.</summary>
     private const int BlankUpdates = 60;
@@ -147,14 +127,9 @@ public partial class Ending
 
             case Phase.ShootingStars:
                 _age++;
-                float brought = (float)_age / BackdropFadeUpdates;
-                (_waitingBackdrop ?? throw NotEntered()).Modulate = new Color(brought, brought, brought);
-                if (_age < BackdropFadeUpdates)
-                    break;
-
-                // Samus is seen over it from the update it has come in, still unpushed.
-                (_phase, _age) = (Phase.WaitingBackdrop, 0);
-                ShowWavySamus(_age);
+                (_waitingBackdrop ?? throw NotEntered()).Modulate = new Color(1, 1, 1, (float)_age / BackdropFadeUpdates);
+                if (_age >= BackdropFadeUpdates)
+                    (_phase, _age) = (Phase.WaitingBackdrop, 0);
                 break;
 
             case Phase.WaitingBackdrop:
@@ -194,22 +169,15 @@ public partial class Ending
         (_credits ?? throw NotEntered()).Visible = false;
         fade.FadeOut(1);
         fade.Step();
-
-        // Everything after the credits lies over the colour of its own scenes, which shows wherever nothing is drawn:
-        // behind the stars, Samus's shot and the white flash after it as much as anywhere.
-        (_backdrop ?? throw NotEntered()).Color = new Color(Data().Text("post_credits_backdrop"));
         CanvasLayer picture = _picture ?? throw NotEntered();
-
-        // The backdrop she waits against comes in from black, as its colours do.
         _waitingBackdrop = new Sprite2D
         {
-            Name = "WaitingBackdrop", Centered = false, Visible = false, Modulate = new Color(0, 0, 0),
+            Name = "WaitingBackdrop", Centered = false, Visible = false, Modulate = new Color(1, 1, 1, 0),
             Texture = Session.Content.LoadTexture(Data().Text("waiting_backdrop")),
         };
         picture.AddChild(_waitingBackdrop);
         var wave = new ShaderMaterial { Shader = new Shader { Code = WaveCode } };
         wave.SetShaderParameter("picture", Session.Content.LoadTexture(Data().Text("wavy_samus")));
-        wave.SetShaderParameter("backdrop", _waitingBackdrop.Texture);
         _wavySamus = new ColorRect { Name = "WavySamus", Size = new Vector2(256, 224), Visible = false, Material = wave };
         picture.AddChild(_wavySamus);
         _panel = new Sprite2D { Name = "Panel", Centered = false, Visible = false };
@@ -232,26 +200,14 @@ public partial class Ending
 
     private Node2D StarField() => _starField ?? throw NotEntered();
 
-    /// <summary>
-    /// Shows Samus wavering, <paramref name="age"/> updates after the backdrop has come in: unpushed on its first two,
-    /// and from then each line pushed by the cartridge's sine at the line's angle, cut toward nothing, as the
-    /// cartridge's ripple is.
-    /// </summary>
     private void ShowWavySamus(int age)
     {
         ColorRect samus = _wavySamus ?? throw NotEntered();
         samus.Visible = true;
-        var shift = new int[ScreenLines];
-        if (age >= 2)
-        {
-            int top = WaveFirstAngle + WaveTurnSteps * (age - 1);
-            for (int line = 0; line < ScreenLines; line++)
-                shift[line] = Compatibility.CartridgeAngles.ReachCutShort(top + line * Turns.PerTurn / WaveLines, WaveReach);
-        }
-
         var wave = (ShaderMaterial)samus.Material;
-        wave.SetShaderParameter("shift", shift);
-        wave.SetShaderParameter("scroll", age * WaveScrollLines);
+        wave.SetShaderParameter("reach", age < 2 ? 0f : 64f);
+        wave.SetShaderParameter("turn", (-1 + 8 * (age - 1)) / 256f);
+        wave.SetShaderParameter("scroll", age * 2f);
     }
 
     private void ShowPanel(string picture, int y)
@@ -324,9 +280,8 @@ public partial class Ending
             return;
         }
 
-        // The backdrop goes to black as she comes in, as its colours do.
         float shown = _revealStep / 32f;
-        backdrop.Modulate = new Color(1 - shown, 1 - shown, 1 - shown);
+        backdrop.Modulate = new Color(1, 1, 1, 1 - shown);
         foreach (Actor actor in _actors)
             actor.Sprite.Tint(new Color(1, 1, 1, shown));
     }

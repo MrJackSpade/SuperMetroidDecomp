@@ -241,7 +241,6 @@ public sealed partial class EngineAssetWriter
             ["exploding_planet_fade"] = planetFade,
             ["credits_roll"] = credits,
             ["credits_scroll"] = CreditsRollLines.FinishingScroll,
-            ["post_credits_backdrop"] = Colour(_installation.LoadEndingBackdrops().PostCredits),
             ["waiting_backdrop"] = After(EndingPictureNames.WaitingBackdrop, "waiting_backdrop"),
             ["wavy_samus"] = Whole(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus, "wavy_samus", EndingColourLoad.PostCredits),
             ["result_panel"] = After(EndingPictureNames.ResultPanel, "result_panel"),

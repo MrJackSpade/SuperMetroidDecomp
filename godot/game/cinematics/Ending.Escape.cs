@@ -165,11 +165,8 @@ public partial class Ending
                 _phase = Phase.PlanetEscapeAccelerating;
                 if (AnimalsEscaped)
                 {
-                    // The animals' pod is seen leaving too: over the starfields and under the planet's afterglow, as
-                    // the cartridge draws them.
+                    // The animals' pod is seen leaving too.
                     Actor pod = Spawn("animal_escape", "animal_escape", 128, 128, Motion.AnimalPod);
-                    CinematicSprite afterglow = _actors.First(actor => actor.Role == "explosion_afterglow").Sprite;
-                    afterglow.GetParent().MoveChild(pod.Sprite, afterglow.GetIndex());
                     Move(pod);
                     pod.Sprite.Step();
                 }

@@ -336,14 +336,10 @@ public partial class Ending
     {
         StepJump();
         _shotAge++;
-
-        // They fade to black, as their colours do, and are drawn black over the colour behind them once faded.
-        float shot = Math.Max(0, ShotFadeSteps - _shotAge) / (float)ShotFadeSteps;
-        var shotShown = new Color(shot, shot, shot);
+        var shotShown = new Color(1, 1, 1, Math.Max(0, ShotFadeSteps - _shotAge) / (float)ShotFadeSteps);
         (_floor ?? throw NotEntered()).Modulate = shotShown;
         StarField().Modulate = shotShown;
-        float samus = 1 - Math.Clamp((_shotAge - 16) / (float)ShotFadeSteps, 0f, 1f);
-        (_jumpBody ?? throw NotEntered()).Tint(new Color(samus, samus, samus));
+        (_jumpBody ?? throw NotEntered()).Tint(new Color(1, 1, 1, 1 - Math.Clamp((_shotAge - 16) / (float)ShotFadeSteps, 0f, 1f)));
         if (!_shotHolding)
         {
             _shotAngle -= 8;

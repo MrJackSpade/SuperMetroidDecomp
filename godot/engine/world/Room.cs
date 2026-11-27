@@ -345,7 +345,9 @@ public partial class Room : Node2D
         _play = play;
         EnergySettled = EmptyEnergy.NotGone;
         _playerAtUpdateStart = Player.Position;
-        OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.PlayerShots));
+        // A projectile's part in the opening is played whatever is held still: what it does there is no shot's flight,
+        // and goes on through held time as a blast already loosed goes on growing.
+        OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: true);
 
         SettleWhoTakesTurns();
 

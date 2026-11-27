@@ -112,7 +112,7 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// A timeline of pictures every room shares, cut into a folder named as the timeline's file is, with where those
-    /// pictures lie from the place of what they show, and against the room's tiles.
+    /// pictures lie from the place of what they show.
     /// </summary>
     private JsonObject SharedTimeline<TFrame, TEvent>(
         string file, IReadOnlyList<IAnimationBeat<TFrame, TEvent>> lead, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> frameName,
@@ -124,7 +124,7 @@ public sealed partial class EngineAssetWriter
         EngineSheetPictures pictures = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], EngineSheets.SharedSpawner, frames);
         JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(frameName(frame)), cue);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
-        return pictures.Lay(timeline, file);
+        return timeline;
     }
 
     /// <summary>Writes one of the pickups an enemy drops, and the timeline that shows it.</summary>

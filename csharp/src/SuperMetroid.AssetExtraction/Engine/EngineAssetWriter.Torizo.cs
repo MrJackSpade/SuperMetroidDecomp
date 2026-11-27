@@ -296,7 +296,7 @@ public sealed partial class EngineAssetWriter
             first["cues"] = cues;
         }
 
-        _tree.WriteData(file, pictures.Lay(timeline, file));
+        _tree.WriteData(file, timeline);
         return file;
     }
 
@@ -666,7 +666,7 @@ public sealed partial class EngineAssetWriter
         JsonObject timeline = EngineTimelines.Of(lead, null, frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)),
             static (TorizoProjectileCue cue) => cue is TorizoProjectileCue.PlaySound sound ? EngineNames.SoundCue(sound.Sound, sound.Priority) : null);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
-        _tree.WriteData(file, pictures.Lay(timeline, file));
+        _tree.WriteData(file, timeline);
         return file;
     }
 

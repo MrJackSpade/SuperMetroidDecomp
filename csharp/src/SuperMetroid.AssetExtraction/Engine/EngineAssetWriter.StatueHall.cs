@@ -252,7 +252,7 @@ public sealed partial class EngineAssetWriter
                     frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), static (TourianStatueProjectileCue _) => null);
                 timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
                 string file = $"{folder}/{effect}.json";
-                _tree.WriteData(file, pictures.Lay(timeline, file));
+                _tree.WriteData(file, timeline);
                 data[effect] = file;
             }
 

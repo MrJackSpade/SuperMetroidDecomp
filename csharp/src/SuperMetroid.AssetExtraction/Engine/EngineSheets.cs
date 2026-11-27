@@ -234,7 +234,6 @@ internal sealed partial class EngineSheets
 
         int width = right - left, height = bottom - top;
         var paths = new Dictionary<string, string>(StringComparer.Ordinal);
-        var depths = new Dictionary<string, ActorDepth?>(StringComparer.Ordinal);
         var canvas = new RgbaPixel[width * height];
         foreach ((string Name, string Sheet) frame in frames)
         {
@@ -269,7 +268,6 @@ internal sealed partial class EngineSheets
             string path = $"{folder}/{(fileName is null ? FileName(frame.Name) : fileName(frame.Name))}.png";
             tree.WritePicture(path, width, height, canvas);
             paths[frame.Name] = path;
-            depths[path] = placed.Depth;
             if (regionMaps && image.RecolourRegions is { } placedRegions)
             {
                 // The picture's map of regions lies beside it, where any pixel it shows is in a region but the first.
@@ -292,7 +290,7 @@ internal sealed partial class EngineSheets
             }
         }
 
-        return new EngineSheetPictures(left, top, width, height, paths) { PictureDepths = depths };
+        return new EngineSheetPictures(left, top, width, height, paths);
     }
 
     /// <summary>
@@ -519,47 +517,6 @@ internal sealed partial record EngineSheetPictures(int OffsetX, int OffsetY, int
     /// null where they differ, have none, or the cut does not say.
     /// </summary>
     internal ActorDepth? Depth { get; init; }
-
-    /// <summary>
-    /// The depth against the room's tiles the installed sheet gives each picture cut one frame at a time, by its path;
-    /// null for one whose frame has none. Pictures cut a whole sheet at once are not listed.
-    /// </summary>
-    internal IReadOnlyDictionary<string, ActorDepth?> PictureDepths { get; init; } = new Dictionary<string, ActorDepth?>(StringComparer.Ordinal);
-
-    /// <summary>
-    /// Says on a timeline of something launched or left, which shows these pictures, where its pictures lie against
-    /// the room's tiles ("lies"): in front of every tile, or behind the room. One whose pictures lie behind the
-    /// tiles' front part, as most things do, says nothing and lies where what plays it stands.
-    /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The timeline shows a picture not cut here or with no depth, or pictures that lie at different depths.
-    /// </exception>
-    internal JsonObject Lay(JsonObject timeline, string file)
-    {
-        var lies = new Dictionary<string, ActorDepth>(StringComparer.Ordinal);
-        foreach (JsonNode? step in timeline["steps"]!.AsArray())
-        {
-            string picture = step!["picture"]!.GetValue<string>();
-            if (picture.Length == 0)
-                continue;
-            ActorDepth depth = PictureDepths.TryGetValue(picture, out ActorDepth? known)
-                ? known ?? throw new InvalidDataException($"The timeline {file} shows {picture}, whose frame the installed sheets give no depth.")
-                : throw new InvalidDataException($"The timeline {file} shows {picture}, which was not cut with its depth.");
-            lies.TryAdd(depth switch
-            {
-                ActorDepth.InFront => "in_front_of_tiles",
-                ActorDepth.BehindRoom or ActorDepth.BehindRoomInFrontOfFloor => "behind_room",
-                ActorDepth.BehindFrontParts => "",
-                _ => throw new InvalidDataException($"The timeline {file} shows {picture} at {depth}, which has no name here."),
-            }, depth);
-        }
-
-        if (lies.Count > 1)
-            throw new InvalidDataException($"The timeline {file} shows pictures that lie at different depths against the room's tiles ({string.Join(", ", lies.Values)}), which a timeline cannot say.");
-        if (lies.Keys.SingleOrDefault() is { Length: > 0 } word)
-            timeline["lies"] = word;
-        return timeline;
-    }
 
     /// <summary>The picture of the frame named <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>

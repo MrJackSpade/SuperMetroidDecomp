@@ -560,6 +560,12 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
 
+    /// <summary>
+    /// Whether the player's feet are in something that holds them up without being solid, as the surface of quicksand
+    /// does. A fall asks this once it has moved: with the feet left in such a thing it has landed.
+    /// </summary>
+    internal bool IsHeldUpWhereTheyStand => StandsInBlockThatHoldsUp();
+
     /// <summary>Whether the player's feet are in a block that pulls down and yet holds up what stands in it, as quicksand does.</summary>
     private bool StandsInBlockThatHoldsUp() =>
         Room.Terrain.BlocksIn(FeetRect).Any(block => block.Type.Contact == BlockContact.PullsDown && block.Type.HoldsUp);

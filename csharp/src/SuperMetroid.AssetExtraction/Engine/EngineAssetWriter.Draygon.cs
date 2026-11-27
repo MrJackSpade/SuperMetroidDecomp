@@ -332,8 +332,8 @@ public sealed partial class EngineAssetWriter
                 ["view_margin"] = -1,
                 ["timeline"] = Launched("cannon_shot", DraygonProjectileSegment.WallTurretBloom),
                 ["picture_offset"] = EngineEnemy.NoOffset(),
-                // One her shot meets bursts.
-                ["ending_effect"] = DustFile(DustExplosionAnimation.SmallExplosion),
+                // One that touches her is gone with nothing left. Her shots pass through it, so the burst the old
+                // game names for one they meet never shows.
             },
         };
         draygon.ProjectileData("bosses/draygon_cannon_shot.json", "DraygonCannonShot", ("chamber_size", DraygonArenaDefinitions.ArenaSize));

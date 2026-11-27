@@ -179,6 +179,12 @@ public partial class Samus
         _appearanceGlow = new SamusGlowPlay(Colours.Glow($"loading_{SuitWorn}"));
     }
 
+    /// <summary>
+    /// An elevator's ride setting off ends a charged or hyper shot's glow of her suit where it stands, and starts a full
+    /// charge's pulse over, as the cartridge's does.
+    /// </summary>
+    public void EndShotGlow() => (_shotGlow, _chargePulsePlace) = (null, 0);
+
     /// <summary>The grapple beam's firing, like a beam shot, and the gift of the hyper beam take back the asking again of a charge's sound.</summary>
     public void ForgetChargingSoundResume() => _chargingSoundArmed = false;
 

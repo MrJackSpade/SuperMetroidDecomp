@@ -1135,8 +1135,8 @@ public partial class Samus : Player
 
         // Standing up from a crouch, the cartridge's change of pose tests the ground a little below her feet, among the
         // blocks she stands on, as the standing pose: on an elevator's blocks that is a stand at its door, an update
-        // before her first move upright makes one.
-        if (from is CrouchingState && to is StandingState or ChangingPostureState { Then: StandingState })
+        // before her first move upright makes one. The test is made for a stand-up refused for want of room too.
+        if (from is CrouchingState && (to is StandingState or ChangingPostureState { Then: StandingState } || (!unasked && StandUpRefused(to))))
             NoteElevatorStand(new PixelRect(BodyRect.Left, BodyRect.Bottom, BodyRect.Width, 1));
 
         // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
@@ -2214,6 +2214,14 @@ public partial class Samus : Player
         if (Room.Objects.OfType<Elevator>().Any(elevator => elevator.IsStoodOn(under, fromLeft)))
             ElevatorJourney.Of(Room.Session).NoteStand();
     }
+
+    /// <summary>
+    /// Whether a crouch the input asked to carry on, <paramref name="to"/>, is a stand-up refused for want of room: a
+    /// fresh press of up, or the way she faces held, asks a crouch to stand.
+    /// </summary>
+    private bool StandUpRefused(PlayerState to) =>
+        to is CrouchingState && !CanTakeForm(Standing) &&
+        (Input.WasPressed(GameAction.Up) || Input.IsHeld(Facing == Facing.Right ? GameAction.Right : GameAction.Left));
 
     /// <summary>
     /// Lets a bubble out, on the clock's cadence, while her mouth is under water and no bubble holds it off: the bubble

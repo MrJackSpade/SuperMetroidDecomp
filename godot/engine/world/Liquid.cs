@@ -66,6 +66,14 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Lets a liquid that was held back at the player, for as long as the room lasts.</summary>
     public void LetIn() => _letIn = true;
 
+    /// <summary>
+    /// Whether it lies below its room all through, with no surface in it: nothing is ever under it and it is drawn
+    /// nowhere. It moves as any other does, so whatever watches a liquid's moves is told of them: a room may have a
+    /// liquid's effect and none of the liquid.
+    /// </summary>
+    [Export]
+    public bool LiesBelowRoom { get; set; }
+
     /// <summary>How many updates it waits, once told to rise or fall, before it starts to.</summary>
     [Export]
     public int MoveDelay { get; set; }
@@ -190,7 +198,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     public bool IsAstir { get; private set; }
 
     /// <summary>Whether <paramref name="point"/> lies under the surface: the pixel row it is in is below the surface's line, not on it.</summary>
-    public bool IsSubmerged(PixelPosition point) => point.Y > Surface;
+    public bool IsSubmerged(PixelPosition point) => !LiesBelowRoom && point.Y > Surface;
 
     /// <summary>
     /// Takes the view it is drawn across. The room tells it each time the room shows itself, so it is drawn across
@@ -290,7 +298,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>Draws the strip along the surface and the body under it, across the view.</summary>
     public override void _Draw()
     {
-        if (_surface is null || _body is null || _content is null)
+        if (LiesBelowRoom || _surface is null || _body is null || _content is null)
             return;
         Texture2D strip = _content.LoadTexture(_surface.Shown.Picture);
         Texture2D body = _content.LoadTexture(_body.Shown.Picture);

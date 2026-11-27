@@ -33,6 +33,9 @@ OVERLAYS = {'Rain': 'rain', 'Fog': 'fog', 'Spores': 'spores'}
 # The liquid each of the old code's kinds of effect fills a room with. The water of the statues' hall is water.
 LIQUIDS = {'Water': 'water', 'TourianEntranceStatue': 'water', 'Lava': 'lava', 'Acid': 'acid'}
 
+# The liquids whose effect moves, and stirs the game's random number, though it has no level in the room.
+STIRRING = ('Lava', 'Acid')
+
 # What follows a liquid's name in the name of its type, by how the old code colours it: liquids of one kind that
 # differ in colour are types of their own.
 COLOURED = {
@@ -135,6 +138,15 @@ def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None
                 'What': quoted('rise' if rises else 'fall')}, at=(0, 0), enemy=False)
             placed.append(tide)
             links.append((tide, liquid))
+    elif kind in STIRRING and effect['start'] is None:
+        # Lava's or acid's effect with no level: the liquid is the room's, lying below it all through. Nothing is
+        # ever under it and it is seen nowhere, but it moves, and the game's random number is stirred by its moves
+        # as by any lava's: the old effect stirs the number whether or not it has a level (RoomFxOverlayState).
+        coloured = (LIQUIDS[kind], effect['tint'])
+        if coloured not in COLOURED:
+            raise ValueError(f'No liquid is known for the effect {kind} coloured {effect["tint"]}.')
+        placed.append(Placed(LIQUID, 'Liquid', {
+            'TypeFile': quoted(f'liquids/{LIQUIDS[kind] + COLOURED[coloured]}.json'), 'LiesBelowRoom': 'true'}, at=(0, 0), enemy=False))
     if 'SamusInHeat' in effect['colours']:
         placed.append(Placed(OVERLAY, 'Heat', {'EffectName': quoted('heat'), 'DamageHundredths': str(HEAT_DAMAGE)}, at=(0, 0), enemy=False))
     if kind in OVERLAYS:

@@ -589,6 +589,9 @@ A scene. One per room of the game.
   first part of the player's update; the player's own shots; the enemies; the rest of the player's update; triggers
   and exits; every other projectile, pickups and remains; room objects, terrain, the liquid's pictures, the room effects and the sequence;
   effects.
+- **Its liquid** may lie below the room all through (`Liquid.LiesBelowRoom`): nothing is ever under it and it is
+  drawn nowhere, but it moves, and what watches a liquid's moves is told. This game's rooms with lava's or acid's
+  effect and no level have one, because the cartridge stirs its random number in them as in any lava room.
 - **Its liquid** may be held back from the player (`Liquid.HeldBack`): it is there, moves and is drawn, and the
   player moves as though it were not, until something of the room lets it in (`Liquid.LetIn`). This game's water
   behind Maridia's glass tube is let in by the tube, as it breaks or as it finds itself broken; the other room

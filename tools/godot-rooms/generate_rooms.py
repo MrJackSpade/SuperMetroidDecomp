@@ -660,7 +660,8 @@ class Generator:
                     **({'Silent': 'true'} if key in SILENT_QUAKES else {})}))
             # Lava bubbles while its surface is in the room; acid does not (the old RoomFxTypeDefinitions: only
             # lava's BubblesAmbiently).
-            if any(thing.name == 'Liquid' and thing.properties.get('TypeFile') == quoted('liquids/lava.json') for thing in shown):
+            if any(thing.name == 'Liquid' and thing.properties.get('TypeFile') == quoted('liquids/lava.json')
+                   and 'LiesBelowRoom' not in thing.properties for thing in shown):
                 shown.append(sequences.sequence('LavaBubbling.cs', 'LavaBubbling', {
                     'StartsWhen': ctx.always(), 'Interval': str(LAVA_BUBBLING['interval']),
                     'Sounds': sequences.strings(LAVA_BUBBLING['sounds'])}))

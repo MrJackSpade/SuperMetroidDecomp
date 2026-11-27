@@ -124,6 +124,11 @@ public partial class EyeDoorEye : Enemy
     /// </summary>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
+        // Destroyed, it is no longer there to be shot: its door's blocks are a blue cap's from that moment, and a
+        // shot goes on to the cap while its last pictures are drawn over it.
+        if (_doing == Doing.Destroyed)
+            return HitResult.Ignored;
+
         // With its lid down it is as solid as the wall: a shot stops on it and that is all.
         if (!_takesShots || !_lidUp)
             return HitResult.Absorbed;

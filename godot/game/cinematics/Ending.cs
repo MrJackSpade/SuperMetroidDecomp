@@ -183,11 +183,16 @@ public partial class Ending : Cinematic
     {
         _data = Session.Content.ReadData(DataFile);
         _timelines = TimelineSet.ReadFrom(_data);
-        _picture = new CanvasLayer { Name = "Picture", Layer = 1 };
-        AddChild(_picture);
+        // The colour behind everything lies on a layer of its own beneath the picture. The stars, the shooting stars
+        // and the emblem's picture lie at depths below the rest of the picture's layer, and a colour laid in the same
+        // layer would hide them.
+        var behind = new CanvasLayer { Name = "Behind", Layer = 0 };
+        AddChild(behind);
         _backdrop = new ColorRect { Name = "Backdrop", Color = Colors.Black };
         _backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        _picture.AddChild(_backdrop);
+        behind.AddChild(_backdrop);
+        _picture = new CanvasLayer { Name = "Picture", Layer = 1 };
+        AddChild(_picture);
         _floor = new TurningFloor { Name = "Floor", Visible = false };
         _picture.AddChild(_floor);
         _explosionPicture = new Sprite2D { Name = "Explosion", Centered = false, Visible = false };

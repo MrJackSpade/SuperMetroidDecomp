@@ -48,8 +48,8 @@ public partial class IntroMotherBrain : Enemy
     private const int RingStillUpdates = 31;
 
     /// <summary>
-    /// How many updates the ring that strikes Samus throws her back for: longer than a hit of play's, far enough to
-    /// carry her from the pillar onto the ledge behind her.
+    /// How many updates the ring that strikes Samus throws her back for, and leaves her safe for: longer than a hit of
+    /// play's throw, far enough to carry her from the pillar onto the ledge behind her.
     /// </summary>
     private const int RingKnockbackUpdates = 11;
 
@@ -146,7 +146,7 @@ public partial class IntroMotherBrain : Enemy
         StepRings();
     }
 
-    /// <summary>Takes her, her blasts and her rings out of the room, once the page has turned.</summary>
+    /// <summary>Takes her, her blasts and her rings out of the room, as the crossfade back to the page nears its end.</summary>
     public void Leave()
     {
         foreach (Effect blast in _blasts)
@@ -206,9 +206,15 @@ public partial class IntroMotherBrain : Enemy
             bool gone;
             if (strikes)
             {
+                // It throws her back to the right, away from it, and leaves her safe for as long as the throw
+                // lasts, as the cartridge's ring does; it takes no energy.
                 bool reached = ring.Position.X.Whole + 8 >= samus.Position.X.Whole - 5;
                 if (reached)
+                {
+                    samus.BeInvincibleFor(RingKnockbackUpdates);
                     samus.KnockBack(Facing.Left, RingKnockbackUpdates);
+                }
+
                 gone = reached || IsExploding;
             }
             else

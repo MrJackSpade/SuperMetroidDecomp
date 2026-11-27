@@ -293,7 +293,14 @@ public partial class Intro : Cinematic
                 }
 
                 if (!StepCrossfade(toScene: false))
+                {
+                    // The scene's characters are gone from the crossfade's update before its last, as the cartridge
+                    // takes them away then: its last step shows the scene's picture alone.
+                    if (_crossfade == CrossfadeUpdates - 1)
+                        SceneCharactersLeave();
                     break;
+                }
+
                 EndScene();
                 _phase = Phase.PageText;
                 break;

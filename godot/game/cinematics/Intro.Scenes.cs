@@ -82,8 +82,10 @@ public partial class Intro
 
             case "delivery":
             case "examination":
+                // Once the larva has gone, as the crossfade back nears its end, nothing of the scene moves.
+                if (_larva is not { } larva)
+                    break;
                 Sprite2D picture = _laboratory ?? throw NotEntered();
-                CinematicSprite larva = _larva ?? throw NotEntered();
 
                 // As the scene comes in, every fourth update, the third of each four the crossfade takes, the picture
                 // slides a pixel toward its place.
@@ -117,11 +119,44 @@ public partial class Intro
         _ => throw new InvalidOperationException($"The opening has no scene named \"{_scene}\"."),
     };
 
+    /// <summary>
+    /// Takes the scene's characters away as the crossfade back to the page reaches its update before its last: Samus
+    /// and what she met in a flashback, or the larva in the laboratory. The scene's picture is left until the end.
+    /// </summary>
+    private void SceneCharactersLeave()
+    {
+        switch (_scene)
+        {
+            case "mother_brain":
+                foreach (IntroMotherBrain brain in RoomNow().Enemies.OfType<IntroMotherBrain>())
+                    brain.Leave();
+                Session.Player.Visible = false;
+                break;
+
+            case "discovery":
+                foreach (IntroEgg egg in RoomNow().Objects.OfType<IntroEgg>())
+                    egg.Leave();
+                Session.Player.Visible = false;
+                break;
+
+            case "delivery":
+            case "examination":
+                _larva?.QueueFree();
+                _larva = null;
+                break;
+
+            default:
+                throw new InvalidOperationException($"The opening has no scene named \"{_scene}\".");
+        }
+    }
+
     /// <summary>Puts the scene away, once the page that follows it has come.</summary>
     private void EndScene()
     {
         if (_room is { } room)
         {
+            // Samus, hidden as the crossfade back neared its end, is shown again wherever she goes next.
+            Session.Player.Visible = true;
             ((Samus)Session.Player).IsShownByScene = false;
             (_sceneRoot ?? throw NotEntered()).Grade([]);
             room.Teardown();

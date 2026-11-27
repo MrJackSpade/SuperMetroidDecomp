@@ -327,9 +327,10 @@ public partial class Samus
     /// <summary>
     /// What is looked at once she has been shown: energy found lost since the last look starts a hurt if none is
     /// running (a knockback has started its own by then, <see cref="OnThrown"/>), and the charge's sound, if armed,
-    /// is asked for again while the attack is still held.
+    /// is asked for again while the attack is still held, as <paramref name="input"/> holds it: the input of the
+    /// update she is shown on.
     /// </summary>
-    private void LookAfterShown()
+    private void LookAfterShown(GameInput input)
     {
         int energy = Inventory.Amount(Amounts.Energy);
         if (energy < _energyAtLastCheck && _hurt == 0)
@@ -338,7 +339,7 @@ public partial class Samus
         if (!_chargingSoundArmed)
             return;
         _chargingSoundArmed = false;
-        if (Input.IsHeld(GameAction.Attack))
+        if (input.IsHeld(GameAction.Attack))
             Room.Session.Sounds.Request(Sounds.ChargingResumed, channel: "weapons", priority: SoundPriority.High);
     }
 }

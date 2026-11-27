@@ -264,9 +264,14 @@ public partial class DoorTransitionMode : GameMode
         _closing = _stage is Stage.Loading or Stage.Scrolling ? ClosingSoundWork.None : ClosingSoundWork.Usual;
 
         // Through the door's waits and its fades she is shown as in play, and what is pressed there is seen as it is
-        // in play: a press made on the door's last update still fires a weapon that takes one an update late.
+        // in play: a press made on the door's last update still fires a weapon that takes one an update late. What
+        // is looked at once she is shown is looked at on each of them: on the door's first, with sounds still let
+        // in, the stop of a spin her last played update ended is asked for once more.
         if (_stage is Stage.Entering or Stage.WaitingForSounds or Stage.FadingOut or Stage.FadingIn)
+        {
+            samus.BeShownUnplayed(input);
             samus.SeeInput(input);
+        }
 
         // From the update that places Samus for the next room's load to the one that finishes the scroll, the
         // clock's short count is started over on every update, so what is timed by it begins together afterwards.
@@ -301,7 +306,7 @@ public partial class DoorTransitionMode : GameMode
                 // every sound asked for is turned away.
                 room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 room.StepForTransition(enemies: true);
-                StopSounds(samus);
+                StopSounds(samus, input);
                 CartridgeSounds.Of(Session).DoorTurnsSoundsAway = true;
                 _stage = Stage.WaitingForSounds;
                 break;
@@ -663,15 +668,15 @@ public partial class DoorTransitionMode : GameMode
 
     /// <summary>
     /// Tells Samus's sounds and the enemies' to stop as the door is entered: her spin's alone while she spins, and
-    /// otherwise all of hers unless she holds the attack or a charge has begun to sound. The attack is as it was held
-    /// on the last update she was played, the one she entered the door on: the door's own updates take none of her
-    /// input. No number of sounds waiting turns these away.
+    /// otherwise all of hers unless the attack is held or a charge has begun to sound. The attack is as
+    /// <paramref name="input"/> holds it, the input of this update, the door's first. No number of sounds waiting
+    /// turns these away.
     /// </summary>
-    private void StopSounds(Samus samus)
+    private void StopSounds(Samus samus, GameInput input)
     {
         if (samus.State is SpinJumpingState or Engine.Actors.WallJumpingState)
             Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
-        else if (!samus.Input.IsHeld(GameAction.Attack) && !samus.ChargeIsSounding)
+        else if (!input.IsHeld(GameAction.Attack) && !samus.ChargeIsSounding)
             Session.Sounds.Request(Sounds.SamusStop, channel: "samus", priority: SoundPriority.Essential);
         Session.Sounds.Request(Sounds.EnemyStop, channel: "enemies", priority: SoundPriority.Essential);
     }

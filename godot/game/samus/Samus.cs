@@ -2338,17 +2338,32 @@ public partial class Samus : Player
         // and a spin or a boost her death ends asks for no stop.
         if (State is not DyingState)
         {
-            LookAfterShown();
-            StopEndedSounds();
+            LookAfterShown(Input);
+            StopEndedSounds(Input);
         }
+    }
+
+    /// <summary>
+    /// Shows her on an update she is not played on, as a door's waits and fades show her: what is looked at once she
+    /// has been shown is looked at then too, by the attack as <paramref name="input"/>, that update's, holds it, and
+    /// by how the last update she was played on began. So a spin that update ended has its sound's stop asked for
+    /// again on every such update, as the cartridge asks it, and the first of a door's, on which sounds are still
+    /// let in, puts it in the queue once more.
+    /// </summary>
+    public void BeShownUnplayed(GameInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        LookAfterShown(input);
+        StopEndedSounds(input);
     }
 
     /// <summary>
     /// As the cartridge does once she has been shown: on the update her boost ends the speed booster's sound is
     /// stopped, and on the update a spin or a wall jump ends the spin's is. Quicksand that stops her momentum forgets
-    /// the boost's sound without stopping it.
+    /// the boost's sound without stopping it. The attack is as <paramref name="input"/> holds it: the input of the
+    /// update she is shown on.
     /// </summary>
-    private void StopEndedSounds()
+    private void StopEndedSounds(GameInput input)
     {
         if (Room.Terrain.BlocksIn(BodyRect).Any(block => block.Type.Contact == BlockContact.PullsDown && block.Type.StopsMomentum))
             _boostSounding = false;
@@ -2366,7 +2381,7 @@ public partial class Samus : Player
 
             // A charge that had begun to sound is asked for again at the next look after she is shown, if the attack
             // is held now and still held then.
-            if (ChargeIsSounding && Input.IsHeld(GameAction.Attack))
+            if (ChargeIsSounding && input.IsHeld(GameAction.Attack))
                 _chargingSoundArmed = true;
         }
     }

@@ -151,17 +151,10 @@ public partial class Gamet : Enemy
         Position = new PixelPosition(Pixels.FromParts(_pipe.X.Whole, Position.X.Fraction), Pixels.FromParts(_pipe.Y.Whole, Position.Y.Fraction));
     }
 
-    /// <summary>
-    /// Sets it rising out of the pipe, facing right or left. The leader's pictures start over; as on the cartridge, the
-    /// others' take up the rise only once the picture each shows has had its time, so their wings are not in step.
-    /// </summary>
+    /// <summary>Sets it rising out of the pipe, facing right or left.</summary>
     private void ComeOut(bool right)
     {
-        string rising = right ? "rising_right" : "rising_left";
-        if (Leader.IsEmpty)
-            Play(rising, restart: true);
-        else
-            PlayAfterStep(rising);
+        Play(right ? "rising_right" : "rising_left", restart: true);
         _doing = Doing.Rising;
     }
 

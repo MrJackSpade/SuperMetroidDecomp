@@ -13,8 +13,7 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// Its timelines are "still_left", "still_right", "moving_left" and "moving_right": the way it is heading, and
-/// whether it is rising or sinking; and "frozen_left" and "frozen_right" where it has them. Its solid collider is what
-/// Samus stands on.
+/// whether it is rising or sinking. Its solid collider is what Samus stands on.
 /// </remarks>
 public partial class Tripper : Enemy
 {
@@ -100,30 +99,6 @@ public partial class Tripper : Enemy
         if (sinking != _wasSinking)
             _place = 0;
         _wasSinking = sinking;
-    }
-
-    /// <summary>Where its gliding was when a frozen picture took its place; none while it shows its gliding.</summary>
-    private TimelineMark? _beforeFrozen;
-
-    /// <inheritdoc/>
-    protected override void OnStatusBegan(string status)
-    {
-        // Frozen, it shows its frozen picture for the way it heads, where it has one.
-        string frozen = Facing == Facing.Left ? "frozen_left" : "frozen_right";
-        if (status != Frozen || !Timelines.Has(frozen) || Playing == frozen)
-            return;
-        _beforeFrozen = MarkTimeline();
-        Play(frozen);
-    }
-
-    /// <inheritdoc/>
-    protected override void OnStatusEnded(string status)
-    {
-        // Thawed, its gliding goes on from where it was; one with no frozen picture never left it.
-        if (_beforeFrozen is not { } mark)
-            return;
-        _beforeFrozen = null;
-        ResumeTimeline(mark);
     }
 
     /// <summary>Shows it heading the way it faces, moving up or down or not, unless it already counts as showing that.</summary>

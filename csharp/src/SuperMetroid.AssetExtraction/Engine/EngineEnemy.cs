@@ -210,10 +210,6 @@ internal sealed partial class EngineEnemy
         return this;
     }
 
-    /// <summary>Adds a timeline that shows one of its frames' pictures, unchanging, for as long as it plays.</summary>
-    internal EngineEnemy Still(string name, EnemyFrameId frame) =>
-        Timeline(name, new JsonObject { ["steps"] = new JsonArray(new JsonObject { ["picture"] = Picture(frame), ["updates"] = 1 }), ["loops_to"] = 0 });
-
     /// <summary>Adds a timeline already made.</summary>
     internal EngineEnemy Timeline(string name, JsonObject timeline)
     {

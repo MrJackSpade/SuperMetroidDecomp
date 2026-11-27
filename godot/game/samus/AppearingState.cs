@@ -32,6 +32,12 @@ public sealed class AppearingState : PlayerState, ISamusLook
     public override bool InAnothersHands => true;
 
     /// <summary>
+    /// A knockback waits while she appears, as the cartridge looks at none until her appearance has ended, and is
+    /// taken on its last update, in place of her standing, if its time has not run out.
+    /// </summary>
+    public override bool HoldsOffInterruptions => _updatesLeft > 0;
+
+    /// <summary>
     /// The place a game is taken up at is her middle's in the front view, as the cartridge's table of them has it: she
     /// is given the front view's body about her middle with no feeling for room, as the cartridge puts her in the
     /// front pose outright, which sets her feet on the ground there.

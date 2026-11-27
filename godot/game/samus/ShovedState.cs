@@ -20,6 +20,9 @@ public sealed class ShovedState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <summary>A knockback waits through the shove, as the cartridge's knockback pose she is shoved in refuses one.</summary>
+    public override bool HoldsOffInterruptions => true;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

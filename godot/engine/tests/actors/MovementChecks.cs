@@ -14,44 +14,6 @@ public sealed class MovementChecks
     ];
 
     [Check]
-    public void APatrolTurnsAroundAtAWall()
-    {
-        using var world = new StandInWorld(Boxed).StartAt(40, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Walker", StartsFacing = Facing.Right }, 200, 72);
-        world.Setup();
-        var patrol = new Patrol { Speed = Pixels.FromWhole(2) };
-
-        bool hitWall = false;
-        for (int update = 0; update < 40 && !hitWall; update++)
-            hitWall = patrol.Step(enemy).HitWall;
-
-        Expect.True(hitWall);
-        Expect.Equal(Facing.Left, enemy.Facing);
-        // The right wall's face is at pixel 240 and the enemy reaches 8 to the right of its middle.
-        Expect.Equal(Pixels.FromWhole(232), enemy.Position.X);
-    }
-
-    [Check]
-    public void AWalkingPatrolTurnsAtTheEdgeOfItsGround()
-    {
-        using var world = new StandInWorld(
-            "................", "................", "................", "....######......", "................", "################")
-            .StartAt(20, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Walker", StartsFacing = Facing.Right }, 100, 40);
-        world.Setup();
-        var patrol = new Patrol { Speed = Pixels.FromWhole(1) };
-
-        bool turned = false;
-        for (int update = 0; update < 120 && !turned; update++)
-            turned = patrol.Step(enemy).ReachedEdge;
-
-        Expect.True(turned);
-        Expect.Equal(Facing.Left, enemy.Facing);
-        Expect.Equal(Pixels.FromWhole(40), enemy.Position.Y);
-        Expect.True(enemy.Position.X < Pixels.FromWhole(160));
-    }
-
-    [Check]
     public void AHopLeapsLandsAndWaits()
     {
         using var world = new StandInWorld(Boxed).StartAt(40, 80);
@@ -76,49 +38,6 @@ public sealed class MovementChecks
         Expect.True(enemy.Position.X > Pixels.FromWhole(100));
         Expect.False(hop.IsInAir);
     }
-
-    [Check]
-    public void ADiveWaitsForItsTargetThenDropsToTheFloor()
-    {
-        using var world = new StandInWorld(Boxed).StartAt(40, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Diver" }, 200, 30);
-        world.Setup();
-        var dive = new Dive { Reach = 20, DiveSpeed = Pixels.FromWhole(3) };
-
-        for (int update = 0; update < 10; update++)
-            dive.Step(enemy, PixelPosition.FromWhole(40, 80));
-        Expect.Equal(Pixels.FromWhole(30), enemy.Position.Y);
-
-        bool landed = false;
-        for (int update = 0; update < 60 && !landed; update++)
-            landed = dive.Step(enemy, PixelPosition.FromWhole(195, 80)).HitFloor;
-        Expect.True(landed);
-        Expect.Equal(Pixels.FromWhole(72), enemy.Position.Y);
-    }
-
-    [Check]
-    public void ABounceReflectsOffWallsAndFloors()
-    {
-        using var world = new StandInWorld(Boxed).StartAt(40, 80);
-        var enemy = world.Place(new StandInEnemy { Name = "Bouncer" }, 220, 60);
-        world.Setup();
-        enemy.Velocity = new PixelVelocity(Pixels.FromWhole(3), Pixels.FromWhole(3));
-        var bounce = new Bounce();
-
-        bool hitWall = false, hitFloor = false;
-        for (int update = 0; update < 20; update++)
-        {
-            MoveReport report = bounce.Step(enemy);
-            hitWall |= report.HitWall;
-            hitFloor |= report.HitFloor;
-        }
-
-        Expect.True(hitWall);
-        Expect.True(hitFloor);
-        Expect.True(enemy.Velocity.X.IsNegative);
-        Expect.True(enemy.Velocity.Y.IsNegative);
-    }
-
 
     [Check]
     public void ASurfaceCrawlGoesRoundTheOutsideOfABlock()

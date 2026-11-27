@@ -1607,9 +1607,6 @@ decides what to do about it.
 | --- | --- |
 | Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. It can feel for its surface some way ahead of itself, so that it meets a corner early; its owner can ask which way it presses. |
 | Hop | Jumping in arcs, with settings for height, distance and the wait between. |
-| Dive | Waiting, then dropping or swooping at a target and returning or not. |
-| Patrol | Walking or flying back and forth, turning at walls or edges. |
-| Bounce | Travelling straight and reflecting off what it meets. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
 player to enter the held state, moves with them, and, where it is one that hurts by its hold, adds ongoing damage

@@ -6,7 +6,8 @@ namespace Engine.World.Objects;
 
 /// <summary>
 /// What is special about a boss fight, kept apart from the boss. When the player enters its region it wakes the
-/// boss; when the boss is destroyed it records the defeat and puts the room's music back. It does
+/// boss; when the boss is destroyed it records the defeat. It asks for no music: the music of a fight and of its
+/// end is the boss's own to ask for. It does
 /// not touch the room's barriers: they hold themselves shut on a condition about this fight's fact. The boss itself
 /// knows nothing of any of this.
 /// </summary>
@@ -78,7 +79,5 @@ public partial class BossEncounter : RoomObject
         _finished = true;
         Remember();
         Room.MarkGone(Name);
-        if (Room.Version is not { KeepsMusic: true })
-            Room.Session.Sounds.RequestMusic(Room.Version?.Music ?? "");
     }
 }

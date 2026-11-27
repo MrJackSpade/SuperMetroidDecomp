@@ -43,16 +43,19 @@ public sealed class ChangingPostureState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        // A smaller body is the player's at once, as they shrink into it; a taller one is theirs from their next
+        // update, so that what meets them meanwhile meets the body they had.
         if (_form != Player.Crawling)
         {
-            owner.TrySetForm(_form);
+            owner.TrySetForm(_form, atOnce: owner.HalfHeightOf(_form) < owner.HalfHeight);
             return;
         }
 
         // The low form is taken as from a crouch, wherever the player is: the body shrinks about its middle, and the
-        // middle then drops by as much as a crouch stands taller than the low form, or as far as there is room.
+        // middle then drops by as much as a crouch stands taller than the low form, or as far as there is room. The
+        // drop is the low body's own: tried with the body they had it would be stopped by the floor they stand on.
         int drop = owner.HalfHeightOf(Player.Crouching) - owner.HalfHeightOf(Player.Crawling);
-        owner.TrySetForm(Player.Crawling, aroundMiddle: true);
+        owner.TrySetForm(Player.Crawling, aroundMiddle: true, atOnce: true);
         owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(drop), owner.BodyMoves);
     }
 

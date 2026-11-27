@@ -99,7 +99,7 @@ internal sealed partial class EngineEnemy
             : _sheets.CutSpawnedShade(_tree, folder, spawner, frames, shade);
         JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(frameName(frame)), cue);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
-        _tree.WriteData(file, timeline);
+        _tree.WriteData(file, pictures.Lay(timeline, file));
         return file;
     }
 

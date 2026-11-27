@@ -132,7 +132,7 @@ public sealed partial class EngineAssetWriter
             EngineSheetPictures clouds = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.ShipTop), frames);
             JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => clouds.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), static (GunshipDustCue _) => null);
             timeline["offset"] = new JsonObject { ["x"] = clouds.OffsetX, ["y"] = clouds.OffsetY };
-            _tree.WriteData(file, timeline);
+            _tree.WriteData(file, clouds.Lay(timeline, file));
             dust.Add(file);
         }
 

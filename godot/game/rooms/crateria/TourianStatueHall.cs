@@ -486,7 +486,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         }
 
         room.SustainShake(2, ShakeUpdates, ShakeWay.Down, ShakeReach.TilesAndBackdrops);
-        _rumble.Step(room, Data().Text("quake_sound"));
+        _rumble.Step(room, Data().Text("quake_sound"), chanceAt: 0);
 
         if (_descent == Descent.Holding)
         {

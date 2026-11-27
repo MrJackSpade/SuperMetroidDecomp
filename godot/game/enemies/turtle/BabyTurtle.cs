@@ -209,16 +209,23 @@ public partial class BabyTurtle : Enemy
         MoveDownBy(Pixels.FromWhole(SpinFallSpeed));
     }
 
-    /// <summary>Takes one crawling step, over its mother's shell if she lies in it, and takes Samus along if she stands on it.</summary>
+    /// <summary>
+    /// Takes one crawling step, over its mother's shell if she lies in it. Samus standing on it is taken along as far
+    /// across as the step asks, wall or not, and up or down as it went only while it walks the shell.
+    /// </summary>
     private void CrawlStep()
     {
         bool ridden = IsRiddenByPlayer;
-        PixelPosition before = Position;
-        Position = new PixelPosition(Position.X, Position.Y.WithWhole(_placedTop.Y.Whole));
-        MoveAcrossBy(Facing.Toward(Pixels.FromWhole(_speed)));
-        if (!Mother.IsEmpty && GetNodeOrNull<MamaTurtle>(Mother) is { LiesInShell: true } mother)
-            MoveDownBy(Pixels.FromWhole(mother.ShellSurface(Position.X.Whole - mother.Position.X.Whole) ?? 1));
+        Pixels step = Facing.Toward(Pixels.FromWhole(_speed));
         if (ridden)
-            ShiftPlayer(Position - before);
+            ShiftPlayer(new PixelOffset(step, Pixels.Zero));
+        int beforeY = Position.Y.Whole;
+        Position = new PixelPosition(Position.X, Position.Y.WithWhole(_placedTop.Y.Whole));
+        MoveAcrossBy(step);
+        if (Mother.IsEmpty || GetNodeOrNull<MamaTurtle>(Mother) is not { LiesInShell: true } mother)
+            return;
+        MoveDownBy(Pixels.FromWhole(mother.ShellSurface(Position.X.Whole - mother.Position.X.Whole) ?? 1));
+        if (ridden)
+            ShiftPlayer(PixelOffset.FromWhole(0, Position.Y.Whole - beforeY));
     }
 }

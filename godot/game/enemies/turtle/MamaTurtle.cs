@@ -156,8 +156,11 @@ public partial class MamaTurtle : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        // Asleep she hurts nobody; awake, only her hitbox does, and base rules decide the rest.
-        if (_hurts is { Enabled: true } && !Room.Player.IsInvincible)
+        // Asleep she hurts nobody; awake, only her hitbox does, and only while she leaves her shell or is out of it
+        // and moving: not while she poses or turns to go back in.
+        bool hurts = _doing is Doing.LeavingShell or Doing.RisingToHover or Doing.Hovering or Doing.RisingToPeak
+            or Doing.HoveringAtPeak or Doing.Falling;
+        if (hurts && _hurts is { Enabled: true } && !Room.Player.IsInvincible)
             base.Touch(part);
     }
 
@@ -232,7 +235,7 @@ public partial class MamaTurtle : Enemy
 
             case Doing.Hovering:
                 var drift = new PixelOffset(Velocity.X, Pixels.Zero);
-                if (Blocked(drift))
+                if (StoppedFlush((Position.X + Velocity.X).Whole - Position.X.Whole, across: true))
                 {
                     // Off a wall she comes back the other way, by the cartridge's own lopsided arithmetic.
                     Pixels before = Velocity.X;
@@ -284,10 +287,10 @@ public partial class MamaTurtle : Enemy
             case Doing.Falling:
                 if (Velocity.Y < Pixels.FromWhole(FastestFall))
                     Velocity = Velocity.WithY(Velocity.Y + Pixels.FromNumber(FallQuickening));
-                var fall = PixelOffset.FromWhole(0, Velocity.Y.Whole);
-                if (!Blocked(fall))
+                // She falls by the whole pixels of her speed alone.
+                if (!StoppedFlush(Velocity.Y.Whole, across: false))
                 {
-                    MoveCarrying(fall);
+                    MoveCarrying(PixelOffset.FromWhole(0, Velocity.Y.Whole));
                     return;
                 }
 
@@ -316,6 +319,25 @@ public partial class MamaTurtle : Enemy
             return false;
         PixelRect moved = shell.RoomRect.MovedBy(offset.X.Whole, offset.Y.Whole);
         return Room.Terrain.IsSolidIn(moved, SlopeTreatment.Wall);
+    }
+
+    /// <summary>
+    /// Whether terrain stops her shell moving <paramref name="pixels"/> whole pixels across, or down. Stopped, she is
+    /// put against what stopped her as the cartridge puts her: as far as she can go, at the far edge of her last pixel
+    /// moving right or down and at its near edge moving left or up.
+    /// </summary>
+    private bool StoppedFlush(int pixels, bool across)
+    {
+        PixelOffset By(int distance) => across ? PixelOffset.FromWhole(distance, 0) : PixelOffset.FromWhole(0, distance);
+        if (pixels == 0 || !Blocked(By(pixels)))
+            return false;
+        int way = Math.Sign(pixels), free = 0;
+        while (free + way != pixels && !Blocked(By(free + way)))
+            free += way;
+        Pixels from = across ? Position.X : Position.Y;
+        Pixels to = Pixels.FromParts(from.Whole + free, way > 0 ? Pixels.FractionsPerPixel - 1 : 0);
+        MoveCarrying(across ? new PixelOffset(to - from, Pixels.Zero) : new PixelOffset(Pixels.Zero, to - from));
+        return true;
     }
 
     /// <summary>A speed turned round as the cartridge turns it: its whole pixels complemented and its fine part negated.</summary>

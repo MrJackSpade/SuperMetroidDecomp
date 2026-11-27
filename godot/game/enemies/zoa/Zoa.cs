@@ -59,7 +59,7 @@ public partial class Zoa : Enemy
             case Doing.Hidden:
                 if (Math.Abs(Target.X.Whole - Position.X.Whole) >= Reach)
                     return;
-                Facing = TowardPlayer;
+                Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
                 Play(Facing == Facing.Left ? "rising_left" : "rising_right");
                 _doing = Doing.Rising;
                 return;
@@ -80,11 +80,12 @@ public partial class Zoa : Enemy
                 Position += new PixelOffset(Facing.Toward(_speed), Pixels.Zero);
                 if (Room.Session.Camera.View.Contains(Position.X.Whole, Position.Y.Whole))
                     return;
+                // Back home it keeps where it lay within a pixel, the speed its timeline last gave it, and that timeline
+                // if it shot left: it plays on unseen.
                 Visual?.SetShown(false);
-                Position = _home;
+                Position = new PixelPosition(Pixels.FromParts(_home.X.Whole, Position.X.Fraction), Pixels.FromParts(_home.Y.Whole, Position.Y.Fraction));
                 Facing = Facing.Left;
-                _speed = Pixels.Zero;
-                Play("shooting_left", restart: true);
+                Play("shooting_left");
                 _doing = Doing.Hidden;
                 return;
 

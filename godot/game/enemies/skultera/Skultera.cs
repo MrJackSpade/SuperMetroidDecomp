@@ -32,10 +32,12 @@ public partial class Skultera : Enemy
     private int _lastBob;
     private bool _turning;
     private bool _turned;
+    private Facing _startFacing;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        _startFacing = Facing;
         _lastBob = Bob();
         Swim(restart: false);
     }
@@ -69,7 +71,8 @@ public partial class Skultera : Enemy
         if (MoveDownBy(Pixels.FromWhole(bob - _lastBob)))
             BeginTurn();
         else
-            _angle = Turns.Wrap(_angle + AngleStep);
+            // Its wave steps on while it swims the way it set off, and back while it swims the other way.
+            _angle = Turns.Wrap(_angle + (Facing == _startFacing ? AngleStep : -AngleStep));
         _lastBob = bob;
     }
 

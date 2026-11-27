@@ -81,7 +81,8 @@ public partial class Squeept : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        // It draws a number every update, and its flame draws another, whether or not either is used.
+        // It draws a number every update, and its flame, a thing of its own on the cartridge listed after it, draws
+        // another, whether or not either is used.
         RandomDraw draw = Random.Draw();
         Random.Draw();
         Pixels gravity = Pixels.FromNumber(Gravity);
@@ -117,7 +118,8 @@ public partial class Squeept : Enemy
                 Position += new PixelOffset(Pixels.Zero, Velocity.Y);
                 if (Position.Y.Whole % ScreenHeight >= ScreenHeight - BlockHeight)
                 {
-                    Position = _placed;
+                    // Back where it was placed, keeping where it lay within a pixel for its next leap.
+                    Position = new PixelPosition(Pixels.FromParts(_placed.X.Whole, Position.X.Fraction), Pixels.FromParts(_placed.Y.Whole, Position.Y.Fraction));
                     Play("hidden");
                     _doing = Doing.BeginLeap;
                     AlwaysActive = false;
@@ -133,10 +135,33 @@ public partial class Squeept : Enemy
                 throw new InvalidOperationException($"Undefined Squeept stage {_doing}.");
         }
 
+        ShowFlame();
+    }
+
+    /// <summary>
+    /// While it is hurt its flame, a thing of its own on the cartridge, goes on: it draws its number and plays on.
+    /// </summary>
+    protected override void WhileHurt()
+    {
+        Random.Draw();
+        ShowFlame();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnStatusBegan(string status)
+    {
+        // Its flame is not shown while it is frozen.
+        if (IsFrozen)
+            GetNodeOrNull<ActorVisual>("Flame")?.SetShown(false);
+    }
+
+    /// <summary>Moves its flame on an update, shown only while it rises.</summary>
+    private void ShowFlame()
+    {
         if (_flame is null || GetNodeOrNull<ActorVisual>("Flame") is not { } flame)
             return;
         _flame.Step();
-        flame.SetShown(Velocity.Y.IsNegative);
+        flame.SetShown(Velocity.Y.IsNegative && !IsFrozen);
         flame.Show(_flame.Shown);
     }
 

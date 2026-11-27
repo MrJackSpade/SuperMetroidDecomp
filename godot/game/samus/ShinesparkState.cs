@@ -55,6 +55,17 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <param name="down">The way it flies down: -1 up, 0 neither.</param>
     public static ShinesparkState Launched(int across, int down) => new((across, down));
 
+    /// <summary>
+    /// Whether its windup is left standing: begun on the very update a knockback she carried ran out, it is never
+    /// counted down, and she stands wound up until a direction launches her. The cartridge's knockback, ending,
+    /// gives her movement back to her pose, and takes it from the windup that had just been set up. Her body is no
+    /// attack while her pose moves her, so hits land on her until she has flown an update of the spark.
+    /// </summary>
+    private bool _leftStanding;
+
+    /// <inheritdoc/>
+    public bool NoHitLands => !_leftStanding;
+
     private Stage _stage;
     private Crash _crash;
     private int _crashRadius;
@@ -126,6 +137,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // was left of the one she let a damage boost go with, which would otherwise end her speed up or down as it ran
         // out. No bomb's throw is left waiting into it: one is refused in every state the windup is begun from, and
         // one given in any other is taken, ahead of what her input asks, before a windup can be begun.
+        _leftStanding = samus.CarriedKnockbackEndsNow;
         owner.EndThrow();
         samus.EndCarriedKnockback();
         owner.Velocity = PixelVelocity.Zero;
@@ -184,15 +196,19 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// cartridge has it: up launches her straight up, the angle-up action diagonally the way she faces, and the way she
     /// faces across. The way behind her does nothing. The windup running out launches her straight up, whatever is
     /// held on that update: the cartridge's launch then takes the place of what the input asked for. An update that
-    /// launches nothing lets her run's momentum go.
+    /// launches nothing lets her run's momentum go. A windup left standing (<see cref="_leftStanding"/>) never runs
+    /// out: only a direction launches her from it.
     /// </summary>
     private void WindUp(Samus samus)
     {
-        _left = _left.Stepped();
-        if (_left.IsOver)
+        if (!_leftStanding)
         {
-            Launch(samus, 0, -1);
-            return;
+            _left = _left.Stepped();
+            if (_left.IsOver)
+            {
+                Launch(samus, 0, -1);
+                return;
+            }
         }
 
         GameInput input = samus.Input;
@@ -248,6 +264,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     {
         if (samus.Power(HitKinds.Shinespark) is { } power)
             power.IsActive = true;
+        _leftStanding = false;
 
         // While it flies no hurt colours her or is heard, and its glow is kept going.
         samus.HoldHurtForSpark();

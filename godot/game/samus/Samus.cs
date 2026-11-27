@@ -549,6 +549,9 @@ public partial class Samus : Player
     /// <summary>Ends what she carries of a knockback she left a damage boost with, as a shinespark's windup ends a knockback.</summary>
     public void EndCarriedKnockback() => _knockbackCarried = Countdown.Over;
 
+    /// <summary>Whether the knockback she carries runs out as this update ends: its last update is this one, not yet counted.</summary>
+    public bool CarriedKnockbackEndsNow => _knockbackCarried.Remaining == 1 && !_knockbackCountedThisUpdate;
+
     /// <summary>Whether the enemies' shots are being tried against her, all of which land once the trying has begun.</summary>
     private bool _shotsLand;
 
@@ -2043,7 +2046,7 @@ public partial class Samus : Player
         item.Length == 0 || (Amounts.All.Contains(item) ? Inventory.Amount(item) > 0 : Inventory.IsOn(item));
 
     /// <inheritdoc/>
-    protected override bool AcceptsHit(Hit hit) => State is not IUntouchable;
+    protected override bool AcceptsHit(Hit hit) => State is not IUntouchable { NoHitLands: true };
 
     /// <summary>A hit's damage, lessened by her suit: the Gravity suit's share when it is on, else the Varia suit's.</summary>
     protected override int DamageFrom(Hit hit) => hit.Damage / SuitDivisor;

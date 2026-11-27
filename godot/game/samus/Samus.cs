@@ -340,7 +340,6 @@ public partial class Samus : Player
     private bool _spreadCharged;
     private int _spreadHeld;
     private bool _ballCharge;
-    private bool _aimedDownLastUpdate;
     private bool _woreVaria;
     private bool _woreGravity;
     private bool _warningOfLowEnergy;
@@ -1531,8 +1530,6 @@ public partial class Samus : Player
     protected override PlayerState? ChooseState(PlayerState current)
     {
         GameInput input = Input;
-        bool aimedDown = _aimedDownLastUpdate;
-        _aimedDownLastUpdate = Aim == Aim.Down;
 
         switch (current)
         {
@@ -1618,8 +1615,9 @@ public partial class Samus : Player
                 return new AirTurningState(fromJump: true);
 
             case JumpingState or FallingState or SpinJumpingState:
-                // Down pressed again while already aiming down curls her into the ball in the air.
-                if (input.WasPressed(GameAction.Down) && aimedDown && MayCrawl)
+                // Down pressed again while she aims straight down curls her into the ball in the air: her aim here
+                // is the one the last update left her with, for she aims once her state is chosen.
+                if (input.WasPressed(GameAction.Down) && Aim == Aim.Down && MayCrawl)
                     return TakeLowForm();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } inAir)
                     inAir.Fire(this);

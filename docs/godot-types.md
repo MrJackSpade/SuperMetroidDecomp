@@ -1158,11 +1158,16 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   charges lets its charge go at once, as for the shot a jump's pose is handed on a fresh press of the attack.
   Unfired, the handed shot is lost.
 - **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
-  another aim or the attack is asked; her body is compact for as long (`aiming_down`).
+  another aim or the attack is asked; her body is compact for as long (`aiming_down`). Coming down so she lands
+  aiming level from the landing's own update (`Samus.OnLanded`), as the cartridge's plain landing does.
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
   aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
   direction the way she faces does not start a run. Crouched, up does not aim: a press of it stands her up with her
-  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up.
+  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up. Settling from
+  a landing she came down aiming up or diagonally in, she keeps that aim while nothing is held that the landing
+  answers (no direction, no aim, no fresh jump or press of down; the attack alone is nothing to it), and stands
+  aiming so as the settling ends: the standing state is then not asked at all (`Samus.KeepsLandingAim`), as asking
+  it would lower her aim. A press of down crouches her before the moonwalk is tried.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
@@ -1242,11 +1247,19 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   blast that ends beneath a message offers the flash at once, by what was held on the last update she played, and
   asks for nothing again.
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
-  form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
+  form as it begins with no feeling for room (`FormAsked.Unfitted`), and with its body at once, rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three
   pictures, then standing, set down a pixel an update while she is off the height she rose to. What a hurt
   left her is ended as it begins, as the rise ends, on every update of the taking and as it lets her go, so
   whatever touches her while her ammunition is taken hurts her every update; nothing knocks her back.
+- **Some changes of her form take their body at once** (`FormAsked.AtOnce`, or `atOnce` given to `TrySetForm`), as
+  the cartridge sets the size of those poses as it puts her in them, so that what meets her for the rest of the
+  update meets the new body: a shinespark's windup, Draygon's grab, a Yapping Maw standing her up out of a spin or
+  a wall jump, a crystal flash's start, the spin a moonwalk's turn runs out into with no jump begun, and the jump's
+  pose an upright bomb jump throws her in; with crouching and curling up, which the engine's change of posture
+  takes so. A landing, standing up, leaving the ball on the ground, a jump from the ground or from a crouch, a wall
+  jump, an aim taken up in the air, a turn in the air and a knockback take their body from her next update, as the
+  cartridge's do.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
   tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
 - **Her colours** (`SamusColours`) hold the colouring her suit shows and the colouring her beams show. Every colouring,

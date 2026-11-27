@@ -53,7 +53,10 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
         if (!Upright)
             return;
         owner.Aim = Aim.Forward;
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
+
+        // The jump's body is hers at once, as the cartridge sets the size of the jump pose it throws her in as it
+        // puts her in it.
+        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true, atOnce: true);
     }
 
     /// <summary>What she is once the throw is over: the ball, or the jump she was thrown in, falling.</summary>

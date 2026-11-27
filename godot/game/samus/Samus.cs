@@ -1060,7 +1060,8 @@ public partial class Samus : Player
     /// Sets her aim: the angle actions aim diagonally, and both together straight up on the ground; crouched, the way she
     /// faces held (with no new press of up) aims level, for it stands her up; up aims up, or diagonally up
     /// while she steers, except in a crouch, where it does not aim; down aims down in the air, or diagonally down while she steers. On the ground down aims only
-    /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
+    /// with a direction. Running with a direction held, she aims level or diagonally and never straight up, and level
+    /// on the update a fresh press of down crouches her. In a jump
     /// or a fall up and down win over the angle actions, and standing still up does; elsewhere the angle actions win.
     /// In a jump or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
     /// </summary>
@@ -1077,7 +1078,12 @@ public partial class Samus : Player
         if (staysDown)
             return;
         if (State is RunningState && steering)
-            Aim = angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
+        {
+            // A fresh press of down crouches her out of the run with her arm level, whatever else is held: down aims
+            // her diagonally only once it has been held into the run.
+            Aim = CanCrouch && CrouchWhileRunning && Input.WasPressed(GameAction.Down) ? Aim.Forward
+                : angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
+        }
         else if (State is JumpingState or FallingState)
             // In a jump or a fall up and down are tested before the angle actions, the angle-up action first of those.
             Aim = up ? (steering ? Aim.DiagonalUp : Aim.Up) : down ? (steering ? Aim.DiagonalDown : Aim.Down)

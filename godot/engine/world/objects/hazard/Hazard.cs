@@ -89,8 +89,9 @@ public partial class Hazard : RoomObject
         StepLook();
         if (!Area.Overlaps(player.BodyRect))
             return;
+        // Its hit is a touch, as an enemy's is: the hurt it gives lasts as a touch's does, not as the terrain's.
         if (HitDamage > 0 || HitsWithoutDamage)
-            player.TakeHit(new Hit(HitDamage, HitSide.Neutral, HitKind.Hazard) { Source = this }, player.Hurtbox);
+            player.TakeHit(new Hit(HitDamage, HitSide.Neutral, HitKind.Contact) { Source = this }, player.Hurtbox);
     }
 
     /// <summary>Moves what shows it on by one update and acts on its cues.</summary>

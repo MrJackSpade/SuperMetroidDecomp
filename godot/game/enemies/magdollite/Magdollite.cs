@@ -27,6 +27,15 @@ namespace Game.Enemies;
 /// the lava it has thrown, which shows its thrower's glow while it flies. The list "grows_at_full_height" says, for
 /// each place in a room's list of enemies, whether a pillar listed there grows one more length on reaching its full
 /// height.
+/// <para>
+/// The cartridge lists it as three enemies in a row, its head, its rising body and the overlay that follows the
+/// body, each with the creature's health, and carries a hit on any of them onto the two enemies listed after the
+/// one struck: a part the hit destroyed deletes them outright. Shots and touches reach only the head, whose two are
+/// its own body and overlay, so the creature dies whole. A power bomb's blast strikes the body and the overlay as
+/// well, which nothing else can touch, and theirs reach past the creature: the enemies the room lists first and
+/// second after its overlay (<see cref="ListedAfter"/>, <see cref="ListedSecondAfter"/>) are taken out of the room
+/// with no death.
+/// </para>
 /// </remarks>
 public partial class Magdollite : Enemy
 {
@@ -44,6 +53,17 @@ public partial class Magdollite : Enemy
     /// </summary>
     [Export]
     public int ListedAt { get; set; }
+
+    /// <summary>
+    /// The enemy the room lists first after its overlay, its last part, written by the rooms' generator; empty where
+    /// that place holds nothing the Godot room places.
+    /// </summary>
+    [Export]
+    public NodePath ListedAfter { get; set; } = new();
+
+    /// <summary>The enemy the room lists second after its overlay, written by the rooms' generator; empty as <see cref="ListedAfter"/> is.</summary>
+    [Export]
+    public NodePath ListedSecondAfter { get; set; } = new();
 
     /// <summary>How far below the surface its pillar and hand wait, in pixels.</summary>
     [Export, DataValue("hidden_depth")]
@@ -149,6 +169,51 @@ public partial class Magdollite : Enemy
     /// <summary>The name its glow's colours are shown under.</summary>
     private const string GlowColours = "Glow";
 
+    /// <summary>The health its rising body and its overlay have left: parts with health of their own that only a power bomb's blast strikes.</summary>
+    private int _bodyHealth, _overlayHealth;
+
+    /// <summary>
+    /// A power bomb's blast strikes its overlay, then its rising body, before its head, as the blast sweeps the
+    /// room's enemies last listed first.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        if (!IsDead && hit.Carries(new HitKind(Data.HitKinds.PowerBomb)))
+            StrikeTrailingParts(hit, part);
+        return base.TakeHit(hit, part);
+    }
+
+    /// <summary>
+    /// The blast's hit on the overlay and on the rising body, each of which answers it as the head does and loses the
+    /// hit's damage. A part the hit destroys deletes the two enemies listed after it: the overlay's are the two
+    /// listed after the creature, and the body's are its own overlay and the first of those. (A part's own death, its
+    /// burst and what it would drop, is not carried: the head's hit deletes both parts on the same blast.)
+    /// </summary>
+    private void StrikeTrailingParts(Hit hit, Collider part)
+    {
+        int damage = ReactionTo(hit, part).DamageFrom(hit.Damage);
+        if (damage <= 0)
+            return;
+        if (_overlayHealth > 0 && (_overlayHealth -= damage) <= 0)
+        {
+            TakeOut(ListedAfter);
+            TakeOut(ListedSecondAfter);
+        }
+
+        if (_bodyHealth > 0 && (_bodyHealth -= damage) <= 0)
+        {
+            _overlayHealth = 0;
+            TakeOut(ListedAfter);
+        }
+    }
+
+    /// <summary>Takes the enemy at <paramref name="listed"/> out of the room with no death, if the room places one there and it still lives.</summary>
+    private void TakeOut(NodePath listed)
+    {
+        if (!listed.IsEmpty && GetNodeOrNull<Enemy>(listed) is { IsDead: false } next)
+            next.BeTakenOut();
+    }
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
@@ -168,6 +233,7 @@ public partial class Magdollite : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        _bodyHealth = _overlayHealth = MaxHealth;
         _originY = Position.Y.Whole;
         _pillarY = Pixels.FromWhole(_originY + HiddenDepth);
         _handAt = (Position.X.Whole, _originY + HiddenDepth);

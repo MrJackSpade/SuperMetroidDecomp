@@ -466,9 +466,12 @@ def kzan(p, index, listed):
 def magdollite(p, index, listed):
     if p.settings_type != 'MagdolliteHeadSpawnSettings':
         return None
-    # Its pillar is listed straight after its head.
+    # Its pillar is listed straight after its head, and its overlay after that. The cartridge carries a hit on a
+    # part onto the two enemies listed after it: the creature is told which of the room's enemies are listed first
+    # and second after its overlay, where the list goes on.
+    after = {name: place for name, place in (('ListedAfter', index + 3), ('ListedSecondAfter', index + 4)) if place < len(listed)}
     return Placed(E + 'magdollite/magdollite.tscn', 'Magdollite', {
-        'Speed': number(p.settings['Speed']), 'Range': p.settings['Range'], 'ListedAt': str(index + 1)})
+        'Speed': number(p.settings['Speed']), 'Range': p.settings['Range'], 'ListedAt': str(index + 1)}, refers=after)
 
 
 @rule('Metroid')

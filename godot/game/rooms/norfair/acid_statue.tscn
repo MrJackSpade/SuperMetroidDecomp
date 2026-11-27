@@ -115,6 +115,7 @@ Speed = 2
 Range = 240
 ListedAt = 2
 AlwaysActive = true
+ListedAfter = NodePath("../Holtz")
 
 [node name="Holtz" parent="." instance=ExtResource("8")]
 position = Vector2(512, 616)

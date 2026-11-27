@@ -66,6 +66,7 @@ public sealed class GrappleWallGrabState : PlayerState, ISamusLook
                 // Dropped from the wall's pose, which is compact and aims diagonally down, she is crouched so aiming,
                 // her speeds cleared.
                 owner.Velocity = PixelVelocity.Zero;
+                owner.FallFromRest();
                 owner.Aim = Aim.DiagonalDown;
                 return new CrouchingState();
             case Ending.WallJump:

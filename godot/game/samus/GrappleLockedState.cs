@@ -48,7 +48,7 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
         SamusGrapple grapple = samus.Grapple ?? throw new InvalidOperationException("Samus is held by a grapple beam she has not got.");
         GrappleSwingRules rules = grapple.Swing;
         owner.LoseMomentum();
-        owner.Velocity = PixelVelocity.Zero;
+        GrapplingState.StopKeepingRise(owner);
         if (_at is { } at && _aim is { } aim)
         {
             // She is put there outright, in the pose's body (EntersIn).
@@ -78,6 +78,7 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
         if (_lettingGo)
         {
             owner.Velocity = PixelVelocity.Zero;
+            owner.FallFromRest();
             return _crouched ? new CrouchingState() : new StandingState();
         }
 

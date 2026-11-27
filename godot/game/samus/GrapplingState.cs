@@ -98,6 +98,19 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         }
     }
 
+    /// <summary>
+    /// Stops <paramref name="owner"/> across and up and down as the line takes hold, and keeps a rise a rise: the
+    /// cartridge clears her speeds there and leaves which way she was going up or down, so the view goes on leading
+    /// a Samus caught on her way up for as long as she hangs.
+    /// </summary>
+    internal static void StopKeepingRise(Player owner)
+    {
+        bool rising = owner.IsRising;
+        owner.Velocity = PixelVelocity.Zero;
+        if (rising)
+            owner.Rise(Pixels.Zero);
+    }
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -132,7 +145,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         (_turning, _pushing, _pulling, _correcting, _kick, _bounceLeft, _restsByHand) = (0, 0, 0, 0, 0, 0, false);
         _lengthChange = rules.Retraction;
         _submerged = IsSubmerged(owner);
-        owner.Velocity = PixelVelocity.Zero;
+        StopKeepingRise(owner);
         PlaceFromLine(owner, rules);
         grapple.ShowLineAs(WholeStep, _length);
 
@@ -154,7 +167,10 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         // and in the air too, as the cartridge drops a swing into its standing pose. Nothing of her moves meanwhile.
         if (_dropping)
         {
+            // Here her rise is over with her speeds. (The cartridge's drop keeps which way she was going into its
+            // standing pose; what its standing then makes of that was not read, so it is not carried.)
             owner.Velocity = PixelVelocity.Zero;
+            owner.FallFromRest();
             return new StandingState();
         }
 

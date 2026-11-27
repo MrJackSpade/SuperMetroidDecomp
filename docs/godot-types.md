@@ -1039,7 +1039,7 @@ what it breaks.
 **Ongoing damage.** Damage that arrives a little every update (heat, a damaging liquid, spikes held against) is
 not a stream of hits. Each source adds its amount to the player's ongoing damage for the update, naming itself;
 equipment cancels sources by name; the total is taken off once, at one point in the update, with fractions carried
-to the next. Enemies that take ongoing damage use the same mechanism. On each update, for each thing of the room itself (its heat, its liquid) that does the player ongoing damage, the player is told so with its name (`OnRoomDamage`), which the game's player answers with its sound, at a priority of the source's own.
+to the next. Enemies that take ongoing damage use the same mechanism. A damaging liquid harms the player while the lowest row of their body is under its surface, the test of being in a liquid at all. While the player's state holds the room still (`PlayerState.Stops`, as this game's X-ray scope and refill from reserves do), the room does nothing to them: its blocks neither carry nor pull them, and the damage the update gathered is let go untaken, as the cartridge drops it while its time is frozen. On each update, for each thing of the room itself (its heat, its liquid) that does the player ongoing damage, the player is told so with its name (`OnRoomDamage`), which the game's player answers with its sound, at a priority of the source's own.
 
 **Input actions.** The engine names the actions its standard states need: move in four directions, jump, attack,
 aim, crouch, and pause, confirm and cancel for menus. The game adds its own to the `GameDefinition` (here: run,

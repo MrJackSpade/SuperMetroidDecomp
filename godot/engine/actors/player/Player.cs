@@ -477,7 +477,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public static bool IsUnder(Liquid liquid, PixelPosition point)
     {
         ArgumentNullException.ThrowIfNull(liquid);
-        return point.Y > liquid.Surface;
+        return liquid.IsSubmerged(point);
     }
 
     /// <summary>Whether the player's feet are in the room's liquid, whatever their equipment makes of it.</summary>
@@ -740,9 +740,17 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         (LandingSpeed, _landingHeld) = (Pixels.Zero, Pixels.Zero);
         (_cameDown, _groundStoppedMove, _stoppedOnTile) = (false, false, null);
         _wasOnGround = onGround;
-        BeMovedByBlocks();
+
+        // While the player's state holds the room still, the room does nothing to them either: its blocks do not
+        // carry or pull them, and whatever damage the update gathered for them is let go, not taken.
+        bool roomHeldStill = State.Stops.HasFlag(World.Stopped.Room);
+        if (!roomHeldStill)
+            BeMovedByBlocks();
         Splash();
-        TakeOngoingDamage();
+        if (roomHeldStill)
+            _addedOngoing = 0;
+        else
+            TakeOngoingDamage();
     }
 
     /// <summary>Whether a state said, on this update, that the player came down onto ground.</summary>
@@ -1887,14 +1895,15 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
     /// <summary>
     /// Takes this update's ongoing damage: what the room does where the player is, and what blocks they touch do, less
-    /// whatever their equipment cancels. Parts of a point carry over to later updates.
+    /// whatever their equipment cancels. Parts of a point carry over to later updates. The room's liquid harms them
+    /// by where their feet are: while the lowest row of their body is under its surface.
     /// </summary>
     private void TakeOngoingDamage()
     {
         int hundredths = _addedOngoing;
         _addedOngoing = 0;
         int fromRoom = 0;
-        foreach ((string source, int amount) in Room.OngoingDamageAt(Position))
+        foreach ((string source, int amount) in Room.OngoingDamageAt(Feet))
         {
             if (Room.Liquid is { } liquid && source == liquid.Type.Name && Inventory.IsAnyOn(liquid.Type.DamageCancelledBy))
                 continue;

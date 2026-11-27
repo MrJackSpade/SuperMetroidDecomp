@@ -5,15 +5,14 @@ namespace Game;
 
 /// <summary>
 /// Collecting a suit: she is put at a fixed place of the screen and held there, bathed in light, while the suit
-/// is put on, and then let go from there, still facing the screen (<see cref="StandingForwardState"/>). The suit is first seen on her part way through, on the update the light
-/// shows it. Nothing can hurt her meanwhile, and everything else in the room waits.
+/// is put on, and then let go from there, still facing the screen (<see cref="StandingForwardState"/>). It lasts as
+/// long as the light (<see cref="SamusSuitLight"/>), as the cartridge's pickup does, and the suit is first seen on her
+/// on the update the light shows it. Nothing can hurt her meanwhile, and everything else in the room waits.
 /// </summary>
 public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
 {
     /// <summary>Where on the screen she is put, in pixels from the view's corner.</summary>
     private static readonly Godot.Vector2I ScreenPlace = new(120, 136);
-
-    private Countdown _left;
 
     /// <inheritdoc/>
     public string Look => "collecting_suit";
@@ -50,20 +49,17 @@ public sealed class CollectingSuitState : PlayerState, IUntouchable, ISamusLook
         // The suit's own sound is asked for as she is put there.
         owner.Room.Session.Sounds.Request(Game.Data.Sounds.SuitAcquired, channel: "samus");
         var samus = (Samus)owner;
-        _left = Countdown.Of(samus.SuitPickupUpdates);
-        samus.SuitLight?.Begin(samus.SuitBeingPutOn);
+        samus.SuitLight.Begin(samus.SuitBeingPutOn);
     }
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
-        _left = _left.Stepped();
-        samus.SuitLight?.Step();
-        if (samus.SuitPickupUpdates - _left.Remaining == samus.SuitShownOnUpdate)
+        if (samus.SuitLight.Step())
             samus.ShowSuitPutOn();
         // Let go, she stands in the front view in her own hands until she is turned, as an elevator leaves her.
-        return _left.IsRunning ? null : new StandingForwardState();
+        return samus.SuitLight.IsDone ? new StandingForwardState() : null;
     }
 
     /// <summary>However she leaves it, the suit is seen on her from then.</summary>

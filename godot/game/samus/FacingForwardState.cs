@@ -26,6 +26,12 @@ public sealed class FacingForwardState(bool turned = false) : PlayerState, ISamu
     /// <inheritdoc/>
     public override bool InAnothersHands => true;
 
+    /// <summary>
+    /// Put in the front view (Ceres's start, the landing on Zebes) a knockback waits, as the cartridge looks at none
+    /// until she is let go.
+    /// </summary>
+    public override bool HoldsOffInterruptions => !turned;
+
     /// <summary>The front view's own body, taken with no feeling for room, as the cartridge sets the front pose outright.</summary>
     public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true);
 

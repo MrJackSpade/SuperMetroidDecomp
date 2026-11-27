@@ -6,7 +6,9 @@ namespace Game;
 
 /// <summary>
 /// The light that puts a suit on Samus as she collects it (<see cref="CollectingSuitState"/>), which steps it once on
-/// each of her updates. It is a child of hers and only shows; nothing in play reads it.
+/// each of her updates. It is a child of hers that her scene must have: its stages say how long collecting a suit lasts
+/// (until it has gone out) and on which update the suit is first seen on her (the one it shows it on), as the
+/// cartridge's pickup lasts as long as its light.
 /// </summary>
 /// <remarks>
 /// <para>After a wait, a narrow beam reaches in from the top and the bottom of the screen until the two halves meet;
@@ -101,10 +103,15 @@ public partial class SamusSuitLight : Node2D
         _beam = (Shape.None, 0, 0, 0);
     }
 
+    /// <summary>Whether the light has gone out, which ends the collecting of the suit.</summary>
+    public bool IsDone => _stage == Stage.Done;
+
     /// <summary>Moves the light on by one update.</summary>
-    public void Step()
+    /// <returns>Whether this update is the one on which the light shows the suit on her.</returns>
+    public bool Step()
     {
         _steppedThisUpdate = true;
+        bool reveals = _stage == Stage.Revealing;
         int lines = _lines / 2;
         switch (_stage)
         {
@@ -182,6 +189,8 @@ public partial class SamusSuitLight : Node2D
             default:
                 throw new InvalidOperationException($"The suit's light has no stage {_stage}.");
         }
+
+        return reveals;
     }
 
     /// <summary>

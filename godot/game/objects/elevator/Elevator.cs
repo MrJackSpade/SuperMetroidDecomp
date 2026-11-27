@@ -160,6 +160,8 @@ public partial class Elevator : RoomObject
         foreach (Projectile shot in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList())
             Room.Remove(shot);
         (samus as Samus)?.ForgetCharge();
+        // A shot's glow of her suit ends where it stands, and a full charge's pulse starts over.
+        (samus as Samus)?.EndShotGlow();
         samus.Weapons.SetWait(0);
         Hold(samus);
         journey.Begin(GoesDown);

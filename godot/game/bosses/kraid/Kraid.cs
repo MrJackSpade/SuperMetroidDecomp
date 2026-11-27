@@ -188,7 +188,6 @@ public partial class Kraid : Enemy
 
     private enum Death
     {
-        Begin,
         FadeOut,
         ShowBody,
         StartSinking,
@@ -503,10 +502,18 @@ public partial class Kraid : Enemy
     {
         if (_stage is Stage.Fighting or Stage.Growing)
         {
+            // Its death is set going by the killing shot itself, on this very update: its arm and head take up
+            // their dying, and the spikes of the floor start to crumble. Its hurt then holds it still like any other,
+            // and the room starts to fade once that is over.
             _stage = Stage.Dying;
-            _death = Death.Begin;
+            _death = Death.FadeOut;
             (_mouthReopens, _mouthReopenMarked) = (0, false);
             ShowShields();
+            PlayPart("Arm", "arm_dying_or_preparing_to_lunge", restart: true);
+            PlayPart("Head", "head_death", restart: true);
+            if (_deathSpikes is { } spikes)
+                Room.Play(spikes.FromStart());
+            _backdropStep = 0;
         }
 
         return false;
@@ -859,15 +866,6 @@ public partial class Kraid : Enemy
     {
         switch (_death)
         {
-            case Death.Begin:
-                PlayPart("Arm", "arm_dying_or_preparing_to_lunge", restart: true);
-                PlayPart("Head", "head_death", restart: true);
-                if (_deathSpikes is { } spikes)
-                    Room.Play(spikes.FromStart());
-                _backdropStep = 0;
-                _death = Death.FadeOut;
-                break;
-
             case Death.FadeOut:
                 StepHead();
                 // The room fades from what it shows: its colours once its growth's fade is done, its own before.

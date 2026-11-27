@@ -355,7 +355,9 @@ public sealed class Weapons
     {
         ArgumentNullException.ThrowIfNull(player);
         ArgumentNullException.ThrowIfNull(weapon);
-        if (_cooldown.IsRunning)
+
+        // The wait holds it back, unless it is one the wait holds only while something of its pools is out.
+        if (_cooldown.IsRunning && (weapon.UnwaitedWithNoneOut.Count == 0 || weapon.UnwaitedWithNoneOut.Any(pool => PlacesHeld(pool) > 0)))
             return false;
         if (!_live.TryGetValue(weapon.Name, out List<Projectile>? live))
             _live[weapon.Name] = live = [];

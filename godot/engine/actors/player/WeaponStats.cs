@@ -19,7 +19,9 @@ namespace Engine.Actors;
 /// while the attack stays held, whenever the cooldown allows, and waits that long after such a shot; with
 /// "repeats_every" it fires every so many held updates instead. With "press_carries_over" a press counts once more
 /// on the update after it, so one made an update before the weapon could fire still fires it; for a weapon with a
-/// "held_cooldown", which fires only while held, the carried press says which wait its shot leaves.
+/// "held_cooldown", which fires only while held, the carried press says which wait its shot leaves. A weapon may
+/// list pools under "unwaited_with_none_out": while no place of any of them is held, the wait between shots does
+/// not hold it back.
 /// </para>
 /// <para>
 /// "max_live" is how many places there are for its shots out at once. Weapons that give the same "pool" share those
@@ -81,6 +83,12 @@ public sealed class WeaponStats
 
     /// <summary>Whether a press of the attack counts once more on the update after it, for a weapon that fires on a press.</summary>
     public bool PressCarriesOver { get; private init; }
+
+    /// <summary>
+    /// The pools that must have something out for the wait between shots to hold this weapon back: with no place of
+    /// any of them held, it fires whatever the wait. Empty for a weapon the wait always holds.
+    /// </summary>
+    public IReadOnlyList<string> UnwaitedWithNoneOut { get; private init; } = [];
 
     /// <summary>
     /// How many places its pool has for shots that are out at once; zero for no limit. A shot is out until every
@@ -162,6 +170,7 @@ public sealed class WeaponStats
             HeldCooldown = data.Has("held_cooldown") ? data.Int("held_cooldown") : 0,
             PartChargeFires = data.Has("part_charge_fires") && data.Flag("part_charge_fires"),
             PressCarriesOver = data.Has("press_carries_over") && data.Flag("press_carries_over"),
+            UnwaitedWithNoneOut = data.Has("unwaited_with_none_out") ? [.. data.List("unwaited_with_none_out").Select(pool => pool.AsText())] : [],
             MaxLive = data.Has("max_live") ? data.Int("max_live") : 0,
             Pool = data.Has("pool") ? data.Text("pool") : data.Text("name"),
             PlacesTaken = data.Has("places") ? data.Int("places") : 0,

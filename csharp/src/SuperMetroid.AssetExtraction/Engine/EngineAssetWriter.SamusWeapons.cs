@@ -605,6 +605,8 @@ public sealed partial class EngineAssetWriter
             ["kinds"] = new JsonArray("bomb"),
             ["speed"] = 0,
             ["cooldown"] = MorphBallBombDefinitions.NormalBombCooldown,
+            // The first bomb is laid whatever the wait: the old game asks about the wait only with a bomb out.
+            ["unwaited_with_none_out"] = new JsonArray("bomb", "power_bomb"),
             ["max_live"] = MorphBallBombDefinitions.PlaceCount,
             ["requires"] = "bombs",
             ["scene"] = "res://game/samus/bomb.tscn",
@@ -635,6 +637,7 @@ public sealed partial class EngineAssetWriter
             ["kinds"] = new JsonArray("power_bomb"),
             ["speed"] = 0,
             ["cooldown"] = MorphBallBombDefinitions.PowerBombCooldown,
+            ["unwaited_with_none_out"] = new JsonArray("bomb", "power_bomb"),
             ["max_live"] = 1,
             ["costs"] = "power_bombs",
             ["cost"] = 1,

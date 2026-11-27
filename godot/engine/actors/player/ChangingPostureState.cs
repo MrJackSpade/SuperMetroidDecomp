@@ -51,7 +51,8 @@ public sealed class ChangingPostureState : PlayerState
     /// <summary>
     /// Whether the player is in the air through the change: rising or falling as it began, until ground stops a fall
     /// of theirs. One begun on the ground, or come down onto it, presses them to the ground on every update after,
-    /// ground or none: it does not notice the ground gone from under them, and they go down by the press alone.
+    /// ground or none: it does not notice the ground gone from under them, and they go down by the press alone,
+    /// adrift.
     /// </summary>
     private bool _inAir;
 
@@ -100,9 +101,11 @@ public sealed class ChangingPostureState : PlayerState
                 _inAir = false;
             }
         }
-        else
+        else if (!owner.PressToGround())
         {
-            owner.PressToGround();
+            // Pressed down with the ground gone they are in the air neither rising nor falling: adrift, and the state
+            // the change leads to takes them as it takes anyone adrift.
+            owner.Drift();
         }
 
         _left = _left.Stepped(owner);

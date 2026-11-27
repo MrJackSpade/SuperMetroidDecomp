@@ -288,27 +288,31 @@ public partial class EyeDoorEye : Enemy
         Play(timeline, restart: true);
     }
 
-    /// <summary>Leaves a puff of smoke somewhere about it: where the number last drawn puts it. Another number is then drawn.</summary>
+    /// <summary>
+    /// Leaves a puff of smoke somewhere about it: where the number last drawn puts it. Another number is then drawn,
+    /// if the smoke was made.
+    /// </summary>
     private void LeaveSmoke()
     {
         RandomDraw roll = Random.Last;
-        Random.Draw();
-        Leave(SmokeEffect, Position + _smokeAt + PixelOffset.FromWhole(roll.Part(_smokeAcross.From, _smokeAcross.Digits), roll.Part(_smokeDown.From, _smokeDown.Digits)));
+        if (Leave(SmokeEffect, Position + _smokeAt + PixelOffset.FromWhole(roll.Part(_smokeAcross.From, _smokeAcross.Digits), roll.Part(_smokeDown.From, _smokeDown.Digits))))
+            Random.Draw();
     }
 
-    /// <summary>Leaves the puff of its destruction on its middle. A number is drawn for it too, as for any smoke of its.</summary>
+    /// <summary>Leaves the puff of its destruction on its middle. A number is drawn for it too, if it was made, as for any smoke of its.</summary>
     private void LeavePuff()
     {
-        Random.Draw();
-        Leave(PuffEffect, Position + _puffAt);
+        if (Leave(PuffEffect, Position + _puffAt))
+            Random.Draw();
     }
 
-    /// <summary>Leaves smoke of its: behind everything that stands in the room, where the cartridge draws the eye door's smoke.</summary>
-    private void Leave(string effect, PixelPosition at)
-    {
-        if (effect.Length > 0)
-            LeaveEffect(effect, at, Standing.Hindmost);
-    }
+    /// <summary>
+    /// Leaves smoke of its: behind everything that stands in the room, where the cartridge draws the eye door's smoke.
+    /// The smoke holds one of the room's places for what its enemies launch, as the cartridge's is one of its enemies'
+    /// shots, and with none free it is not made. Returns whether it was.
+    /// </summary>
+    private bool Leave(string effect, PixelPosition at) =>
+        effect.Length > 0 && Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), at, holdsPlace: true, standing: Standing.Hindmost));
 
     /// <summary>Whether Samus is within so many blocks of it, across and down.</summary>
     private bool IsSamusWithin(Vector2I blocks)

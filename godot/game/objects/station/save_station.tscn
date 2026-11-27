@@ -14,6 +14,7 @@ AsksFirst = "save_confirmation"
 DoneMessage = "save_completed"
 MessageHoldUpdates = 10
 WorkingEffect = "objects/save_station_electricity.json"
+WorkingEffectHoldsPlace = true
 StartSound = "samus_saving"
 
 [node name="Visual" type="Node2D" parent="."]

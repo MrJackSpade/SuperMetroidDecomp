@@ -1264,10 +1264,11 @@ public partial class Samus : Player
         if (!step.Blocked)
             return to;
 
-        // Something solid found ahead, an enemy frozen or solid, stops the run without moving her at all: the
-        // cartridge only feels for it. Terrain's stop leaves her brought up against it.
+        // Something solid found ahead, an enemy frozen or solid, stops the run without moving her across at all: the
+        // cartridge only feels for it. What lying exactly against it does to her place down stays done. Terrain's
+        // stop leaves her brought up against it.
         if (!step.BlockedByTerrain)
-            Position = stood;
+            Position = Position with { X = stood.X };
         return from is WallStoppedState ? from : new WallStoppedState();
     }
 

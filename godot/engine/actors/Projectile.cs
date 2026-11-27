@@ -1206,7 +1206,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         {
             Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(at, PixelVelocity.Zero, Side, _launcher, Hit.Source);
             if (room.Spawn(burst))
+            {
                 LeftOnEnding?.Invoke(burst);
+
+                // The burst is the projectile gone on to its end: the update that ends the one is the first the
+                // other plays, in the same turn.
+                burst.Step();
+            }
         }
 
         if (_settings.EndingSound.Length > 0)

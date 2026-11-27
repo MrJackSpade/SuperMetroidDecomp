@@ -247,7 +247,7 @@ public sealed record ProjectileSettings
 
     /// <summary>
     /// The data file of the burst it leaves on ending: another projectile with a hit and settings of its own, as an
-    /// explosion is; empty for none.
+    /// explosion is; empty for none. The burst plays its first update in the turn that leaves it.
     /// </summary>
     public string EndingBurst { get; init; } = "";
 

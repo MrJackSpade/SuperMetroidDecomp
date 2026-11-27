@@ -1752,8 +1752,12 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// </summary>
     private List<Block> _stoodIn = [];
 
-    /// <summary>Takes what a block that pulls gave the player to go down by this update, to be part of the move being made.</summary>
-    private Pixels TakeBlockPull()
+    /// <summary>
+    /// Takes what a block that pulls gave the player to go down by this update, to be part of the move being made:
+    /// the player's own moves down take it themselves, and a state that moves the player up or down by a distance of
+    /// its own adds it to that distance.
+    /// </summary>
+    public Pixels TakeBlockPull()
     {
         Pixels pull = _blockMove.Y;
         _blockMove = _blockMove with { Y = Pixels.Zero };

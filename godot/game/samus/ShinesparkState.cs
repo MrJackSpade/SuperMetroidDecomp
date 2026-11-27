@@ -283,7 +283,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 
             // Something solid in her way, that is no part of the room, is felt for first, and stops her where she is:
             // she is not brought up against it as an ordinary rise is, and nothing of the room is broken or met.
-            Pixels climb = rise * _down;
+            // What a block that pulls gave her this update is part of the rise, as it is of any move of hers up or
+            // down; the solid thing felt for is felt for over the same distance.
+            Pixels climb = rise * _down + samus.TakeBlockPull();
             stoppedDown = samus.TryBodyDown(climb, samus.BodyMoves with { StoppedByTerrain = false }, out _).Blocked
                 || samus.MoveDownBy(climb, clearsWay: true).Blocked;
 

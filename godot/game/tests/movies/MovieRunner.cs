@@ -9,7 +9,8 @@ namespace Game.Tests.Movies;
 /// <c>godot/movie.ps1</c> runs. The game is given one update for each update of the movie, with the movie's buttons;
 /// hardware lag is not played. It stops at the first update on which the game and the cartridge differ, and never
 /// puts the game right from the movie. What the host of a recording stands in for is the hardware the recording was
-/// made on: its sound program answers the game when the cartridge's answered (<see cref="MovieGame"/>).
+/// made on: its sound program answers the game when the cartridge's answered, and its doors load their rooms at the
+/// pace the console did (<see cref="MovieGame"/>).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -166,6 +167,7 @@ public partial class MovieRunner : Node
             MovieUpdate? next = index + 1 < updates.Count ? updates[index + 1] : null;
             bool boxContinues = Session.Mode is MessageBoxMode;
             ExpectSounds(trace, definition, update);
+            ((MovieGame)definition).Loads.Expect(updates, index);
             Step(InputOf(update.Buttons, update.Pressed));
             string? box = PlayMessageBox(file, update, next, boxContinues);
 

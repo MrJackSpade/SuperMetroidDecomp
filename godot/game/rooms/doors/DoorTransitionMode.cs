@@ -92,6 +92,12 @@ public partial class DoorTransitionMode : GameMode
     private ClosingSoundWork _closing = ClosingSoundWork.Usual;
     private bool _elevatorAsked;
     private int _elevatorWait;
+    private readonly IRoomLoadPace _loads;
+
+    /// <summary>How many of the scroll's updates are left before the main loop's turn, and after it before the room's enemies are set up.</summary>
+    private int _turnIn;
+    private int _enemiesIn;
+    private bool _enemiesSetUp;
 
     /// <summary>
     /// Whether the passage itself has begun: from then until play has control again, what holds still through a
@@ -99,11 +105,16 @@ public partial class DoorTransitionMode : GameMode
     /// </summary>
     public bool PassageBegun { get; private set; }
 
-    /// <summary>The passage that follows Samus entering <paramref name="door"/> during <paramref name="playing"/>.</summary>
-    public DoorTransitionMode(PlayingMode playing, Door door)
+    /// <summary>
+    /// The passage that follows Samus entering <paramref name="door"/> during <paramref name="playing"/>, the room
+    /// it leads to loaded at the pace <paramref name="loads"/> gives.
+    /// </summary>
+    public DoorTransitionMode(PlayingMode playing, Door door, IRoomLoadPace loads)
     {
         ArgumentNullException.ThrowIfNull(playing);
         ArgumentNullException.ThrowIfNull(door);
+        ArgumentNullException.ThrowIfNull(loads);
+        _loads = loads;
         if (door.LeadsToRoom.Length == 0 || door.LeadsToExit.Length == 0)
             throw new InvalidOperationException($"The door \"{door.Name}\" does not say which room and exit it leads to.");
         _playing = playing;
@@ -348,19 +359,41 @@ public partial class DoorTransitionMode : GameMode
 
             case Stage.Loading:
                 // The cartridge's main loop turns once as the next room's load ends, and a random number is drawn
-                // then. Its load lasts some of the scroll's updates, the scroll carrying on by itself meanwhile: how
-                // many is the time its hardware takes over that room. The game's load is this one update, and the
-                // number is drawn on it.
-                Session.OpenUpdate();
+                // then; the room's enemies are set up some updates after. Its load lasts some of the scroll's
+                // updates, the scroll carrying on by itself meanwhile: how many is the time its hardware takes over
+                // that room (IRoomLoadPace). The game's own load is this one update: the number is drawn on it and
+                // the enemies set up in it.
+                (_turnIn, _enemiesIn) = (_loads.UpdatesBeforeTurn, _loads.UpdatesBeforeEnemies);
+                if (_turnIn == 0)
+                    Session.OpenUpdate();
                 Load(samus);
                 _stage = Stage.Scrolling;
                 break;
 
             case Stage.Scrolling:
-                // The scroll's own updates open with nothing: no random number is drawn on them.
+                // The scroll's own updates open with nothing: no random number is drawn on them, but for the one
+                // the main loop's turn falls on where the room's load has lasted into the scroll. The enemies are
+                // set up before the update's step of the scroll.
+                if (_turnIn > 0)
+                {
+                    if (--_turnIn == 0)
+                    {
+                        Session.OpenUpdate();
+                        if (_enemiesIn == 0)
+                            SetUpEnemies(samus);
+                    }
+                }
+                else if (_enemiesIn > 0 && --_enemiesIn == 0)
+                {
+                    SetUpEnemies(samus);
+                }
+
                 Scroll(samus);
                 if (--_scrollLeft == 0)
                 {
+                    if (!_enemiesSetUp)
+                        throw new InvalidOperationException($"The load of \"{_toRoom}\" outlasts the door's scroll: its enemies were to be set up {_turnIn} and {_enemiesIn} updates on.");
+
                     // The view comes to rest on the door's screen, a little lower for a door going up, and the
                     // room's objects run once before the fade begins.
                     _view = new Vector2I(_toScreen.X * Camera.Screen, _toScreen.Y * Camera.Screen + (_way == Door.Way.Up ? UpwardViewSnap : 0));
@@ -547,7 +580,7 @@ public partial class DoorTransitionMode : GameMode
         // A ride that was leaving the room arrives in the next.
         ElevatorJourney journey = ElevatorJourney.Of(Session);
         journey.PassDoor();
-        var entry = new RoomEntry(_toExit, samus.Velocity, samus.Facing) { At = rebased, KeepsView = true };
+        var entry = new RoomEntry(_toExit, samus.Velocity, samus.Facing) { At = rebased, KeepsView = true, EnemiesEnterLater = true };
 
         // The screen of the room left stays in sight where it was, as the scroll begins.
         string left = _playing.Room.Area;
@@ -561,17 +594,30 @@ public partial class DoorTransitionMode : GameMode
         if (_exchangesExploredMaps && entered != left)
             KeptExploredMaps.Of(Session).PassDoor(left, entered);
         ShowLitTilesOf(_playing.Room);
-        PixelPosition? onElevator = journey.TakeSetDownPlace();
         samus.Position = rebased;
         _view = setup;
         _scrollLeft = MovingUpdates;
+        _enemiesSetUp = false;
         Scroll(samus);
-        if (onElevator is { } place)
-            samus.Position = new PixelPosition(samus.Position.X.WithWhole(place.X.Whole), Pixels.FromWhole(place.Y.Whole));
+        if (_turnIn == 0 && _enemiesIn == 0)
+            SetUpEnemies(samus);
         Scroll(samus);
         _scrollLeft -= 2;
         _fadeSteps = 0;
         _playing.Room.ShowNow();
+    }
+
+    /// <summary>
+    /// Sets up the enemies of the room the door led to, which was set up without them: they enter it now. A ride
+    /// that was leaving the room left arrives with them: its elevator puts Samus above it, and the scroll carries
+    /// her on from that place.
+    /// </summary>
+    private void SetUpEnemies(Samus samus)
+    {
+        _playing.Room.BringInEnemies();
+        if (ElevatorJourney.Of(Session).TakeSetDownPlace() is { } place)
+            samus.Position = new PixelPosition(samus.Position.X.WithWhole(place.X.Whole), Pixels.FromWhole(place.Y.Whole));
+        _enemiesSetUp = true;
     }
 
     /// <summary>One update of the scroll: the view and Samus each move along the door's way.</summary>

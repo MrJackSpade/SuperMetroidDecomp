@@ -29,4 +29,11 @@ public sealed record RoomEntry(string EntryPoint, PixelVelocity Velocity, Facing
     /// a passage that scrolls the room in. Otherwise the room places the view on the player as it is set up.
     /// </summary>
     public bool KeepsView { get; init; }
+
+    /// <summary>
+    /// Whether what takes its turn among the room's enemies is left to enter the room later, when whoever brings the
+    /// player in says (<see cref="Room.BringInEnemies"/>): a passage that sets the room up and shows it before its
+    /// enemies are set up. Otherwise everything enters as the room is set up.
+    /// </summary>
+    public bool EnemiesEnterLater { get; init; }
 }

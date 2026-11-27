@@ -70,6 +70,9 @@ public partial class Room : Node2D
     private readonly List<Trigger> _triggers = [];
     private readonly List<RoomEffect> _roomEffects = [];
     private readonly List<RoomSequence> _sequences = [];
+
+    /// <summary>What takes its turn among the enemies and was left to enter later (<see cref="RoomEntry.EnemiesEnterLater"/>), in the order it is placed.</summary>
+    private readonly List<IRoomEntity> _enemiesToEnter = [];
     private readonly List<Backdrop> _backdrops = [];
     private readonly List<IRoomEntity> _leaving = [];
     private readonly List<PatchSequence> _terrainChanges = [];
@@ -294,7 +297,10 @@ public partial class Room : Node2D
                 case IRoomEntity entity:
                     if (HoldsPlace(entity) && !_places.TryTake(entity))
                         throw new InvalidOperationException($"The room \"{Name}\" places more of what enemies launch and leave than it has places for: \"{child.Name}\" has none.");
-                    Join(entity);
+                    if (entry.EnemiesEnterLater && entity is Enemy or RoomObject { ActsWithEnemies: true })
+                        _enemiesToEnter.Add(entity);
+                    else
+                        Join(entity);
                     break;
                 case RoomExit exit:
                     _exits.Add(exit);
@@ -358,6 +364,8 @@ public partial class Room : Node2D
     {
         if (_suspended is not null)
             throw new InvalidOperationException($"The room \"{Name}\" was given a new update while one was still suspended for a message.");
+        if (_enemiesToEnter.Count > 0)
+            throw new InvalidOperationException($"The room \"{Name}\" is played while {_enemiesToEnter.Count} of its enemies, left to enter later, have not been brought in.");
         _play = play;
         EnergySettled = EmptyEnergy.NotGone;
         _playerAtUpdateStart = Player.Position;
@@ -1232,6 +1240,17 @@ public partial class Room : Node2D
         int x = place.X.Whole, y = place.Y.Whole;
         return x >= view.Left - across && x <= view.Left + view.Width + across &&
             y >= view.Top - game.EnemyTurnMarginAbove && y <= view.Top + view.Height + game.EnemyTurnMarginBelow;
+    }
+
+    /// <summary>
+    /// Brings in what a way in left to enter later (<see cref="RoomEntry.EnemiesEnterLater"/>): each enters now, in
+    /// the order it is placed. With nothing left to enter it does nothing.
+    /// </summary>
+    public void BringInEnemies()
+    {
+        foreach (IRoomEntity entity in _enemiesToEnter)
+            Join(entity);
+        _enemiesToEnter.Clear();
     }
 
     /// <summary>Makes something part of the room: registers its colliders, lists it, and tells it it has entered.</summary>

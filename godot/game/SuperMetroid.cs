@@ -91,8 +91,11 @@ public partial class SuperMetroid : GameDefinition
     /// <exception cref="InvalidOperationException">The way out is not a door.</exception>
     public override GameMode CreateRoomTransition(PlayingMode playing, Engine.World.RoomExit exit) =>
         exit is Door door
-            ? new DoorTransitionMode(playing, door)
+            ? new DoorTransitionMode(playing, door, RoomLoadPace)
             : throw new InvalidOperationException($"The way out \"{exit.Name}\" is not a door, and this game passes between its rooms only through doors.");
+
+    /// <summary>The pace a door's passage loads its room at: the game's own, at once.</summary>
+    protected virtual Compatibility.IRoomLoadPace RoomLoadPace => Compatibility.RoomLoadedAtOnce.Instance;
 
     /// <summary>The room's scroll cells are the cartridge's fifty, which outlive each room.</summary>
     public override Engine.World.IScrollCells CreateScrollCells(GameSession session) => new Compatibility.KeptScrollCells(session);

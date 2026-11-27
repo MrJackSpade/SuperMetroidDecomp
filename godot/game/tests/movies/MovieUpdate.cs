@@ -22,9 +22,13 @@ namespace Game.Tests.Movies;
 /// <param name="MessageBoxStartFrame">The movie's frame on which a message box opened inside the update, when one did.</param>
 /// <param name="MessageBoxEndFrame">The movie's frame on which that message box closed, when it closed inside the update.</param>
 /// <param name="ConsoleReset">Whether the console was reset before the update: it is the first of the cartridge's updates after a reset.</param>
+/// <param name="EnemiesSetUp">
+/// How many of the next room's enemies a door's loader had set up by the update's end, where the recording says:
+/// from the update the main loop turns on, while the door's scroll lasts.
+/// </param>
 public sealed record MovieUpdate(
     int Number, string Kind, int Buttons, int Pressed, int SourceFrame, int EndSourceFrame, int? ExpectedRecord,
-    int? MessageBoxStartFrame, int? MessageBoxEndFrame, bool ConsoleReset)
+    int? MessageBoxStartFrame, int? MessageBoxEndFrame, bool ConsoleReset, int? EnemiesSetUp)
 {
     /// <summary>The kind of an update that goes on inside something the cartridge's main loop had begun.</summary>
     public const string Continuation = "nmi-continuation";
@@ -45,6 +49,7 @@ public sealed record MovieUpdate(
             Whole(update, "expectedRecord"),
             Whole(update, "messageBoxStartFrame"),
             Whole(update, "messageBoxEndFrame"),
-            update.TryGetProperty("consoleReset", out JsonElement reset) && reset.ValueKind == JsonValueKind.True);
+            update.TryGetProperty("consoleReset", out JsonElement reset) && reset.ValueKind == JsonValueKind.True,
+            Whole(update.GetProperty("timingEvidence"), "doorLoaderCompletedEnemySlots"));
     }
 }

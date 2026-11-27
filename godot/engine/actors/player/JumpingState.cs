@@ -139,10 +139,20 @@ public sealed class JumpingState : PlayerState
         return AirStance.AsksNothing(owner, jumpCounts: Stance.Arm != AirArm.Out) ? null : this;
     }
 
+    /// <summary>
+    /// Whether this update's movement was the jump's gathering. A gathering is not interrupted, its last update
+    /// included: what would interrupt the player waits for the jump to have risen once.
+    /// </summary>
+    private bool _movedGathering;
+
+    /// <inheritdoc/>
+    public override bool HoldsOffInterruptions => _movedGathering;
+
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
         owner.StepDash(building: false);
+        _movedGathering = _gathering.IsRunning;
         if (_gathering.IsRunning)
         {
             // Gathering, the player moves nothing of their own: a dash still carries them, and nothing else.

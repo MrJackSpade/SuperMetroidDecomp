@@ -48,6 +48,20 @@ public partial class Samus
     /// <summary>How many more updates the shinespark's glow lasts.</summary>
     private Countdown _sparkGlow = Countdown.Over;
 
+    /// <summary>
+    /// Whether the spark's glow is hers to show and count down: from a windup's beginning until the glow runs out.
+    /// A spark that keeps its glow going after that counts nothing, as the cartridge counts the glow only while its
+    /// colouring is hers and takes that colouring up only as a windup begins: one launched from a windup left
+    /// standing longer than its glow lasts goes on setting the glow's time, and what its crash leaves of it stands.
+    /// </summary>
+    private bool _sparkGlowCounts;
+
+    /// <summary>
+    /// Whether something of a spark's glow stands uncounted. It is not seen, and it reads as a shine held for as
+    /// long as it stands (<see cref="ReadsAsHoldingShine"/>): until a windup or a shine stored takes its place.
+    /// </summary>
+    private bool SparkGlowStands => _sparkGlow.IsRunning && !_sparkGlowCounts;
+
     /// <summary>Where the shine's glow stands in its colourings; the stored shine's and the shinespark's each start it over.</summary>
     private int _shineGlowPlace;
 
@@ -160,6 +174,7 @@ public partial class Samus
     {
         _shineGlowPlace = 0;
         _sparkGlow = Countdown.Of(SparkWindupGlowUpdates);
+        _sparkGlowCounts = true;
     }
 
     /// <summary>A shinespark flying or crashing keeps its glow going for <paramref name="updates"/> more updates.</summary>
@@ -300,8 +315,13 @@ public partial class Samus
     /// </summary>
     private string? ShineGlowShade()
     {
-        _sparkGlow = _sparkGlow.Stepped();
-        string? glow = _sparkGlow.IsRunning ? "active_shinespark" : HasStoredShine ? "stored_shine" : null;
+        if (_sparkGlowCounts)
+        {
+            _sparkGlow = _sparkGlow.Stepped();
+            _sparkGlowCounts = _sparkGlow.IsRunning;
+        }
+
+        string? glow = _sparkGlowCounts ? "active_shinespark" : HasStoredShine ? "stored_shine" : null;
         if (glow is not null)
             return Colours.Glow($"{glow}_{SuitWorn}").Next(ref _shineGlowPlace);
         _shineGlowPlace = 0;

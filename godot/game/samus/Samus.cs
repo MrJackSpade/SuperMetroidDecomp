@@ -407,9 +407,10 @@ public partial class Samus : Player
 
     /// <summary>
     /// Whether she reads as holding a shine, as a jump into a windup and her body's flicker test it: a stored shine,
-    /// or a crystal flash's colouring still running, which the cartridge keeps in the stored shine's timer.
+    /// or a crystal flash's colouring still running, or what is left of a spark's glow standing uncounted, both of
+    /// which the cartridge keeps in the stored shine's timer.
     /// </summary>
-    public bool ReadsAsHoldingShine => HasStoredShine || _crystalFlashColouring != CrystalFlashColouring.None;
+    public bool ReadsAsHoldingShine => HasStoredShine || _crystalFlashColouring != CrystalFlashColouring.None || SparkGlowStands;
 
     /// <summary>Where a crystal flash's colouring of her is.</summary>
     private enum CrystalFlashColouring
@@ -1322,6 +1323,9 @@ public partial class Samus : Player
         _shine = Countdown.Of(StoredShineUpdates);
         _crystalFlashColouring = CrystalFlashColouring.None;
         _shineGlowPlace = 0;
+
+        // The stored shine's time takes the place of whatever stood of a spark's glow.
+        (_sparkGlow, _sparkGlowCounts) = (Countdown.Over, false);
     }
 
     /// <summary>

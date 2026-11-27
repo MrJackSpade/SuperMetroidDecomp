@@ -30,8 +30,10 @@ try {
     if (-not (Test-Path $trace)) { throw "No movie trace at $Movie or under csharp/test-fixtures/replay-traces." }
     $trace = (Resolve-Path $trace).Path
 
-    $out = Join-Path $PSScriptRoot '.godot\movie.out.log'
-    $err = Join-Path $PSScriptRoot '.godot\movie.err.log'
+    # Each movie has logs of its own, so that two movies can be played at once.
+    $name = Split-Path $trace -Leaf
+    $out = Join-Path $PSScriptRoot ".godot\movie.$name.out.log"
+    $err = Join-Path $PSScriptRoot ".godot\movie.$name.err.log"
     $arguments = @('--headless', '--path', "`"$PSScriptRoot`"", 'res://game/tests/movies/movie_runner.tscn', '--', "`"$trace`"")
     if ($Until -gt 0) { $arguments += @('--until', "$Until") }
     $process = Start-Process -FilePath $godot -ArgumentList $arguments -NoNewWindow -Wait -PassThru `

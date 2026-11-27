@@ -502,10 +502,15 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     public IReadOnlyList<Block> TakeHit(Hit hit, PixelRect area)
     {
         var broken = new List<Block>();
+        bool revealed = false;
         foreach (Block block in BlocksIn(area))
         {
             if (block.Hidden && hit.CarriesAny(block.Type.HiddenUntil))
+            {
                 block.Reveal();
+                revealed = true;
+            }
+
             if (hit.CarriesAny(block.Type.BrokenBy))
             {
                 block.Break();
@@ -514,7 +519,8 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             }
         }
 
-        if (broken.Count > 0)
+        // A block uncovered and left standing looks different from then on, as one broken does.
+        if (revealed || broken.Count > 0)
             Redraw();
         return broken;
     }

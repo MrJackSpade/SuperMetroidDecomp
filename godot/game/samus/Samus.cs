@@ -21,6 +21,9 @@ public partial class Samus : Player
     /// <summary>The name of the form her body takes in a spin jump.</summary>
     public const string Spinning = "spinning";
 
+    /// <summary>The name of the form her body takes swinging on the grapple beam.</summary>
+    public const string Swinging = "swinging";
+
     /// <summary>The data files of her weapons.</summary>
     [Export, DataValue("weapons")]
     public string[] WeaponFiles { get; set; } = [];

@@ -32,6 +32,12 @@ public sealed class GrappleReleasedState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
+    /// <summary>
+    /// The jump's body, taken with no feeling for room and hers at once, as the cartridge sets its release pose, a
+    /// jump's, outright once the update's first move of the flight is made in the swing's body.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {

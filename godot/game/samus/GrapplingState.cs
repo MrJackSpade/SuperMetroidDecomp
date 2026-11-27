@@ -105,10 +105,10 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     public override bool HoldsOffInterruptions => true;
 
     /// <summary>
-    /// The swing's body, taken with no feeling for room and hers at once, as the cartridge sets the swinging pose and
-    /// its size outright as the line takes hold: she is then put at the line's end.
+    /// The swing's own body, taken with no feeling for room and hers at once, as the cartridge sets the swinging pose
+    /// and its size outright as the line takes hold: she is then put at the line's end.
     /// </summary>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), Unfitted: true, AtOnce: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.Swinging, Unfitted: true, AtOnce: true);
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

@@ -49,8 +49,6 @@ public partial class FallingSpark : Projectile, IHasValues
     [Export, DataValue("trail_effect")]
     public string TrailEffect { get; set; } = "";
 
-    private bool _skipped;
-
     /// <inheritdoc/>
     public void ReadValues(DataNode data)
     {
@@ -67,10 +65,12 @@ public partial class FallingSpark : Projectile, IHasValues
     {
         if (!Velocity.Y.IsNegative)
         {
-            // Its settings let it through terrain, so that meeting the floor is its own to act on.
-            if (!_skipped && room.Terrain.IsSolidIn(Area.MovedBy(0, Math.Max(1, Velocity.Y.Whole)), SlopeTreatment.Wall))
+            // Its settings let it through terrain, so that meeting the floor is its own to act on. It feels for the
+            // floor as the cartridge's does, by a move of its own before it falls: down by a 256th of a pixel for each
+            // whole pixel of its speed, tried as an enemy's shot is, so its bottom edge already in a block is met,
+            // and the creep stays where nothing is. Its fall by its own speed then meets nothing.
+            if (MoveAgainstTerrain(room, Pixels.FromNumber(Velocity.Y.Whole / 256.0), across: false))
             {
-                _skipped = true;
                 Velocity = new PixelVelocity(Velocity.X * SkitterTimes, -Pixels.FromNumber(SkipSpeed));
                 Position -= PixelOffset.FromWhole(0, SkipLift);
                 if (SkitterTimeline.Length > 0)
@@ -78,9 +78,9 @@ public partial class FallingSpark : Projectile, IHasValues
                 return;
             }
 
+            // At its fastest its whole speed stands and its part of a pixel still takes gravity's share.
             Pixels faster = Velocity.Y + Pixels.FromNumber(Gravity);
-            if (faster.Whole < FallSpeedLimit)
-                Velocity = Velocity.WithY(faster);
+            Velocity = Velocity.WithY(faster.Whole < FallSpeedLimit ? faster : faster.WithWhole(Velocity.Y.Whole));
         }
 
         // Its trail is timed by the short count, which a door's scroll starts over, as the old game's sparks are, and

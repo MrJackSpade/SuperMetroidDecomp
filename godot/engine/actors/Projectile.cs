@@ -685,6 +685,19 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (!stop.Stopped)
             return false;
 
+        RestAgainst(stop, across, way, from);
+        _settings.TerrainShake?.Start(room);
+        OnMetTerrain(room);
+        End(room);
+        return true;
+    }
+
+    /// <summary>
+    /// Puts the projectile where a tile that stopped its leading side leaves it: against that tile on whole pixels,
+    /// its part of a pixel that way dropped, and no further back than where its move began.
+    /// </summary>
+    private void RestAgainst(EdgeStop stop, bool across, int way, PixelPosition from)
+    {
         int whole = across ? Position.X.Whole : Position.Y.Whole, began = across ? from.X.Whole : from.Y.Whole;
         int rested = stop.Back is { } back ? whole - way * back : whole;
         if (way > 0 ? rested < began : rested > began)
@@ -692,9 +705,26 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         Position = across
             ? new PixelPosition(Pixels.FromWhole(rested), Position.Y)
             : new PixelPosition(Position.X, Pixels.FromWhole(rested));
-        _settings.TerrainShake?.Start(room);
-        OnMetTerrain(room);
-        End(room);
+    }
+
+    /// <summary>
+    /// Moves the projectile by <paramref name="distance"/>, across or down, and tries the side it then leads with
+    /// against the terrain as one that meets terrain by its leading side is tried
+    /// (<see cref="ProjectileSettings.TerrainBy.LeadingSide"/>): a move of no distance tries the side where it lies.
+    /// Stopped, it rests against the tile on whole pixels, no further back than where it began; it does not end, its
+    /// hit lands on nothing and nothing is told. For a projectile whose own class moves it so and says what meeting
+    /// terrain then does. Returns whether terrain stopped it.
+    /// </summary>
+    protected bool MoveAgainstTerrain(Room room, Pixels distance, bool across)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        PixelPosition from = Position;
+        Position = across ? new PixelPosition(Position.X + distance, Position.Y) : new PixelPosition(Position.X, Position.Y + distance);
+        int way = distance.IsNegative ? -1 : 1;
+        EdgeStop stop = room.Terrain.StopsEdge(LeadingStrip(across, distance.IsNegative), across ? way : 0, across ? 0 : way, SlopeTreatment.Wall);
+        if (!stop.Stopped)
+            return false;
+        RestAgainst(stop, across, way, from);
         return true;
     }
 

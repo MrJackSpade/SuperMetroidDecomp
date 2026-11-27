@@ -17,7 +17,9 @@ namespace Game;
 /// cartridge's colour maths outside a window. The grey is added to every colour of the room and of what is in it,
 /// or taken from them in a room whose own liquid or overlay darkens what it lies over, and lies under the room's
 /// liquid and overlays (<see cref="RoomDepth.OverRoom"/>). A room that shows none of its blocks to the scope
-/// (<see cref="Room.ShowsBlocksToSight"/>) is not washed, and neither is one that has a Fireflea room's dark.
+/// (<see cref="Room.ShowsBlocksToSight"/>) is not washed. In a Fireflea room the room's own dark, never less than the
+/// scope's grey, is what is taken from everything outside the cone, and the dark is lifted from the room meanwhile,
+/// so that nothing is dark inside the cone.
 /// </remarks>
 public partial class SamusXray : Node2D
 {
@@ -48,8 +50,14 @@ public partial class SamusXray : Node2D
     /// <summary>Whether the scope is being looked through.</summary>
     public bool IsOpen { get; private set; }
 
-    /// <summary>The scope's grey, as a part of each colour: seven of the cartridge's thirty-one levels.</summary>
-    private const float Wash = 7f / 31f;
+    /// <summary>The scope's grey, out of the cartridge's thirty-one levels.</summary>
+    private const int Grey = 7;
+
+    /// <summary>What the room outside the cone is washed with, as a part of each colour.</summary>
+    private float _wash = Grey / 31f;
+
+    /// <summary>The dark of the Fireflea room it was opened in, which is lifted while it is open; null in any other room.</summary>
+    private FirefleaDarkness? _darkness;
 
     /// <summary>Whether the room it was opened in is washed outside its cone.</summary>
     private bool _washes;
@@ -62,11 +70,16 @@ public partial class SamusXray : Node2D
     {
         ArgumentNullException.ThrowIfNull(samus);
         Room room = samus.Room;
-        _washes = room.ShowsBlocksToSight && !room.GetChildren().OfType<FirefleaDarkness>().Any();
+        // A Fireflea room's dark goes before all else: the scope takes it, never less than its own grey, from
+        // everything outside its cone, and the room's own darkening is lifted while it does.
+        _darkness = room.GetChildren().OfType<FirefleaDarkness>().FirstOrDefault(darkness => darkness.IsActive);
+        _darkness?.BeLifted(true);
+        _washes = _darkness is not null || room.ShowsBlocksToSight;
+        _wash = Math.Max(Grey, _darkness?.Dark ?? 0) / 31f;
 
         // The grey is taken from the room where the room's own liquid or overlay darkens what it lies over, whether
         // or not any of it is in view, and added to it everywhere else.
-        bool darkens = room.Liquid?.Type.Blend == CanvasItemMaterial.BlendModeEnum.Sub
+        bool darkens = _darkness is not null || room.Liquid?.Type.Blend == CanvasItemMaterial.BlendModeEnum.Sub
             || room.GetChildren().OfType<OverlayEffect>().Any(overlay => overlay.Material is CanvasItemMaterial { BlendMode: CanvasItemMaterial.BlendModeEnum.Sub });
         Material = new CanvasItemMaterial { BlendMode = darkens ? CanvasItemMaterial.BlendModeEnum.Sub : CanvasItemMaterial.BlendModeEnum.Add };
         ZAsRelative = false;
@@ -90,6 +103,8 @@ public partial class SamusXray : Node2D
     {
         _room?.BeLookedThrough(false);
         _room = null;
+        _darkness?.BeLifted(false);
+        _darkness = null;
         IsOpen = false;
         QueueRedraw();
     }
@@ -209,6 +224,6 @@ public partial class SamusXray : Node2D
             outside.Add(Around(angle));
         if (_halfWidth > 0)
             outside.Add(Around(to));
-        DrawColoredPolygon([.. outside], new Color(Wash, Wash, Wash));
+        DrawColoredPolygon([.. outside], new Color(_wash, _wash, _wash));
     }
 }

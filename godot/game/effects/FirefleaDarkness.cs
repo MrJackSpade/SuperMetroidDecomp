@@ -69,10 +69,27 @@ public partial class FirefleaDarkness : RoomEffect
         Darken(room);
     }
 
-    /// <summary>Takes the dark as it now stands from the backdrops' colours; none while it is not at work.</summary>
+    /// <summary>How dark the room is now, out of thirty-one.</summary>
+    public int Dark => Math.Min(31, DarknessLevels[_killed] + Pulse[_pulse]);
+
+    /// <summary>Whether something else shows the room's dark in its stead for now, as Samus's scope does while it is looked through.</summary>
+    private bool _lifted;
+
+    /// <summary>
+    /// Has the dark lifted from what lies behind the room, or laid on it again: while Samus's scope is looked through
+    /// the scope shows the dark itself, outside its cone and on everything, and none of it inside.
+    /// </summary>
+    public void BeLifted(bool lifted)
+    {
+        _lifted = lifted;
+        if (_in is { } room)
+            Darken(room);
+    }
+
+    /// <summary>Takes the dark as it now stands from the backdrops' colours; none while it is not at work, or is lifted.</summary>
     private void Darken(Room room)
     {
-        float dark = Math.Min(31, DarknessLevels[_killed] + Pulse[_pulse]) / 31f;
-        room.ShiftBackdrops(Source, IsActive ? ColourShift.Taking(new Color(dark, dark, dark)) : ColourShift.None);
+        float dark = Dark / 31f;
+        room.ShiftBackdrops(Source, IsActive && !_lifted ? ColourShift.Taking(new Color(dark, dark, dark)) : ColourShift.None);
     }
 }

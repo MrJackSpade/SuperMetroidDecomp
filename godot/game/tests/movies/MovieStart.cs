@@ -15,16 +15,15 @@ namespace Game.Tests.Movies;
 /// <para>
 /// The owner's rule for it (2026-11-27): "You should be able to set up the full state from the snapshots. If you
 /// cant, then something is wrong. Every state is either required, and therefor an omission, or not required and
-/// therefor not needed". What this cannot yet say through the game is listed by <see cref="NotCarried"/> and printed
-/// as the movie begins; each is either carried here once the way is found, or an omission of the game's to fix.
+/// therefor not needed". What this cannot yet say through the game is returned and printed as the movie begins;
+/// each is either carried here once the way is found, or an omission of the game's to fix.
 /// </para>
 /// </remarks>
 public static class MovieStart
 {
-    /// <summary>What of the snapshot the start does not carry into the game yet.</summary>
-    public static IReadOnlyList<string> NotCarried { get; } =
+    /// <summary>What of a snapshot the start does not carry into the game yet, beside what a saved game of it cannot hold.</summary>
+    private static readonly string[] NotCarried =
     [
-        "progress: the events, the bosses beaten, the items collected, the doors opened and the map explored (the cartridge's bits at $D820-$D913 are not yet turned into the game's facts)",
         "the room's enemies as they stood: each one's place, health and what it was doing (the room is entered afresh)",
         "Samus's pose, her speeds, and her shots in flight (she arrives standing, at rest)",
         "the room's own state: blocks broken, gates, liquids, a boss's fight under way",
@@ -33,40 +32,20 @@ public static class MovieStart
 
     /// <summary>
     /// Brings <paramref name="session"/>, just begun, to where <paramref name="memory"/> has the cartridge:
-    /// <paramref name="step"/> plays one update of the game with the input it is given.
+    /// <paramref name="step"/> plays one update of the game with the input it is given. Returns what of the snapshot
+    /// was not carried.
     /// </summary>
-    public static void FromSnapshot(GameSession session, byte[] memory, Action<GameInput> step)
+    public static IReadOnlyList<string> FromSnapshot(GameSession session, byte[] memory, Action<GameInput> step)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(memory);
         ArgumentNullException.ThrowIfNull(step);
         int Word(int address) => memory[address] | (memory[address + 1] << 8);
 
-        // What she carries, as a saved game the game loads as a player's.
-        var save = new SaveData
-        {
-            Room = session.Definition.FirstRoom,
-            EntryPoint = session.Definition.FirstEntryPoint,
-            Toggles = new Dictionary<string, bool>(session.Options.Toggles),
-            Language = session.Options.Language,
-            Controls = new Dictionary<string, string>(session.Options.Controls),
-        };
-        foreach ((string name, bool owned, bool on) in MovieCheck.EquipmentOf(
-            Word(Cartridge.EquipmentOn), Word(Cartridge.EquipmentOwned), Word(Cartridge.BeamsOn), Word(Cartridge.BeamsOwned)))
-        {
-            if (owned)
-                save.Owned.Add(name);
-            if (on)
-                save.SwitchedOn.Add(name);
-        }
-
-        foreach ((int amount, int capacity, string name) in MovieCheck.AmountsKept)
-        {
-            save.Amounts[name] = Word(amount);
-            save.Capacities[name] = Word(capacity);
-        }
-
-        session.Saves.Write(session.Slot, save);
+        // What she carries, her progress, her maps, her controls and settings: the saved game the cartridge would
+        // make of its memory as it stands, which the game loads as a player's.
+        CartridgeSave save = CartridgeSave.OfMemory(memory);
+        session.Saves.Write(session.Slot, save.Data);
 
         // Through the title and the choice of saved game, as a player gets to play: confirming until play has control.
         var confirm = new GameInput([GameAction.Confirm], [GameAction.Confirm]);
@@ -96,5 +75,6 @@ public static class MovieStart
 
         // Last, so that nothing of the way here has drawn from it.
         session.Random.Restart((uint)Word(Cartridge.Random));
+        return [.. save.NotCarried, .. NotCarried];
     }
 }

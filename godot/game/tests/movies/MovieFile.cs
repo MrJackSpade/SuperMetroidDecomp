@@ -22,15 +22,18 @@ public sealed class MovieFile
         ["ridley"] = "csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv",
     };
 
+    /// <summary>How much memory the cartridge keeps while switched off.</summary>
+    private const int KeptBytes = 0x2000;
+
     private readonly int[] _frames;
 
-    private MovieFile(int[] frames, bool holdsNoSavedGame) => (_frames, StartsWithNoSavedGame) = (frames, holdsNoSavedGame);
+    private MovieFile(int[] frames, byte[] keptMemory) => (_frames, KeptMemory) = (frames, keptMemory);
 
     /// <summary>
-    /// Whether the cartridge the movie begins on, switched on, holds no saved game. One that begins from a snapshot
-    /// says nothing of it here: its start is the snapshot's.
+    /// The cartridge's kept memory as the movie is switched on with it: its saved games, if it holds any
+    /// (<see cref="CartridgeSave"/>). Empty for a movie that begins from a snapshot: its start is the snapshot's.
     /// </summary>
-    public bool StartsWithNoSavedGame { get; }
+    public byte[] KeptMemory { get; }
 
     /// <summary>The cartridge's buttons held on <paramref name="frame"/> of the movie, as its controller word has them.</summary>
     public int ButtonsOn(int frame) => _frames[frame];
@@ -58,7 +61,6 @@ public sealed class MovieFile
     {
         const int FrameCountField = 0x10, ControllerCountField = 0x14, OptionsField = 0x15, StateOffsetField = 0x18, ControllerOffsetField = 0x1c;
         const byte StartsFromReset = 0x01;
-        const int SavedBytes = 0x2000;
         if (movie[ControllerCountField] != 1)
             throw new InvalidDataException("Only movies of one controller are read.");
         int count = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(FrameCountField));
@@ -67,10 +69,9 @@ public sealed class MovieFile
         for (int frame = 0; frame <= count; frame++)
             frames[frame] = BinaryPrimitives.ReadUInt16LittleEndian(movie.AsSpan(offset + 2 * frame));
         if ((movie[OptionsField] & StartsFromReset) == 0)
-            return new MovieFile(frames, holdsNoSavedGame: false);
+            return new MovieFile(frames, []);
 
-        // The kept memory the cartridge is switched on with, which Snes9x may have packed. A cartridge whose kept
-        // memory is one byte throughout was never saved to.
+        // The kept memory the cartridge is switched on with, which Snes9x may have packed.
         int start = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(StateOffsetField));
         byte[] saved = movie.AsSpan(start, offset - start).ToArray();
         if (saved.Length >= 2 && saved[0] == 0x1f && saved[1] == 0x8b)
@@ -81,9 +82,9 @@ public sealed class MovieFile
             saved = whole.ToArray();
         }
 
-        if (saved.Length < SavedBytes)
+        if (saved.Length < KeptBytes)
             throw new InvalidDataException("The movie's kept memory is shorter than the cartridge's.");
-        return new MovieFile(frames, saved.AsSpan(0, SavedBytes).IndexOfAnyExcept(saved[0]) < 0);
+        return new MovieFile(frames, saved[..KeptBytes]);
     }
 
     /// <summary>An lsnes movie recorded from switching on with one controller: a line of text a frame.</summary>
@@ -117,6 +118,9 @@ public sealed class MovieFile
             frames.Add(word);
         }
 
-        return new MovieFile([.. frames], holdsNoSavedGame: true);
+        // With no kept memory of its own, lsnes switches the cartridge on with every byte of it set.
+        var kept = new byte[KeptBytes];
+        Array.Fill(kept, (byte)0xff);
+        return new MovieFile([.. frames], kept);
     }
 }

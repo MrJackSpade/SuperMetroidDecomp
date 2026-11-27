@@ -79,17 +79,30 @@ public partial class MovieRunner : Node
         Directory.CreateDirectory(saves);
         try
         {
-            Begin(definition, saves);
             if (trace.StartsFromReset)
             {
-                if (!file.StartsWithNoSavedGame)
-                    throw new NotSupportedException($"The movie {trace.Name} is switched on with a saved game on the cartridge, which is not carried into the game's saves yet.");
+                // The cartridge's saved games, and the slot its choice of saved game begins on, as the game keeps them.
+                var kept = new SaveFile(saves, definition.SaveSlots);
+                for (int slot = 0; slot < definition.SaveSlots; slot++)
+                {
+                    if (!CartridgeSave.Holds(file.KeptMemory, slot))
+                        continue;
+                    CartridgeSave save = CartridgeSave.OfSlot(file.KeptMemory, slot, Engine.Content.ContentLibrary.ForProject());
+                    kept.Write(slot + 1, save.Data);
+                    Console.WriteLine($"SAVED GAME in slot {slot + 1} of the cartridge: {save.Data.Room} at {save.Data.EntryPoint}, {save.Data.Facts.Count} facts, {save.Data.Explored.Count} cells explored.");
+                    foreach (string missing in save.NotCarried)
+                        Console.WriteLine("  not carried: " + missing);
+                }
+
+                kept.ChosenSlot = CartridgeSave.ChosenSlot(file.KeptMemory) + 1;
+                Begin(definition, saves);
             }
             else
             {
-                MovieStart.FromSnapshot(Session, trace.InitialMemory(), Step);
+                Begin(definition, saves);
+                IReadOnlyList<string> missed = MovieStart.FromSnapshot(Session, trace.InitialMemory(), Step);
                 Console.WriteLine("BEGUN from the snapshot. Not carried from it yet:");
-                foreach (string missing in MovieStart.NotCarried)
+                foreach (string missing in missed)
                     Console.WriteLine("  " + missing);
             }
 

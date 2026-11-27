@@ -11,14 +11,16 @@ namespace Game.Tests.Movies;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Compared on every update: the random number. Compared on every update the cartridge is in play: that the game is
-/// in play too, the room, Samus's place to the part of a pixel, her energy, reserves and ammunition with their
-/// capacities, her equipment and beams owned and switched on, the view's place, and the places of the enemies whose
-/// kinds are decided (<see cref="CartridgeEnemies"/>).
+/// Compared on every update: the random number, and which screen the game is on where the cartridge's game state
+/// names one the game plays in a mode of its own (<see cref="ModeOfState"/>). Compared on every update the cartridge
+/// is in play: that the game is in play too, the room, Samus's place to the part of a pixel, her energy, reserves and
+/// ammunition with their capacities, her equipment and beams owned and switched on, the view's place, and the places
+/// of the enemies whose kinds are decided (<see cref="CartridgeEnemies"/>).
 /// </para>
 /// <para>
 /// Not compared yet, to be added as the movies need them: the escape's time, what enemies have launched, enemies'
-/// health, and anything outside play beyond the random number (a door's scroll, the pause, the menus).
+/// health, and the game states not yet in <see cref="ModeOfState"/> (a door's scroll, the pause, the loading of a
+/// game, the cinematics after the intro), which are added as a movie is seen to pass through each.
 /// </para>
 /// </remarks>
 public sealed class MovieCheck
@@ -47,6 +49,18 @@ public sealed class MovieCheck
         (Cartridge.SuperMissiles, Cartridge.SuperMissileCapacity, Amounts.SuperMissiles),
         (Cartridge.PowerBombs, Cartridge.PowerBombCapacity, Amounts.PowerBombs),
     ];
+
+    /// <summary>
+    /// The cartridge's game states that are a screen the game plays in a mode of its own, with that mode: the mode in
+    /// control must be of that type as an update of the state ends.
+    /// </summary>
+    private static readonly Dictionary<int, Type> ModeOfState = new()
+    {
+        [0x01] = typeof(Menus.TitleMode),
+        [0x02] = typeof(Menus.OptionsMode),
+        [0x04] = typeof(Menus.FileSelectMode),
+        [0x1e] = typeof(Cinematics.Intro),
+    };
 
     private readonly MovieTrace _trace;
     private readonly SortedSet<int> _undecided = [];
@@ -91,7 +105,10 @@ public sealed class MovieCheck
         int random = _trace.Word(Cartridge.Random);
         if (random != RandomOf(session))
             differences.Add($"the random number: the cartridge has {random:X4}, the game {RandomOf(session):X4}");
-        if (_trace.Word(Cartridge.GameState) != Cartridge.InPlay)
+        int state = _trace.Word(Cartridge.GameState);
+        if (ModeOfState.TryGetValue(state, out Type? mode) && session.Mode.GetType() != mode)
+            differences.Add($"the screen: the cartridge's game state is {state:X2}, which the game plays in {mode.Name}; the game is in {ModeNames(session.Mode)}");
+        if (state != Cartridge.InPlay)
             return differences;
 
         if (PlayOf(session) is not { } playing)

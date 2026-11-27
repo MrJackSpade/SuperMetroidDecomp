@@ -14,8 +14,8 @@ namespace Game.Cinematics;
 /// colours the gunship's floor is shown with as it flies out ("gunship_colours": "flying_out", then "clear" once it has flown clear), the blast's ("planet_explosion",
 /// "burst_glow", "finale_explosion", "finale_glow"), and the timelines "right_side_cloud", "left_side_cloud",
 /// "top_cloud_pattern", "top_cloud_edge", "bottom_cloud_edge", "bottom_cloud_pattern", "exploding_planet" (which gives
-/// the cues "fade_colours" and "silhouette"; its pictures are shown in the colours "exploding_planet_colours" gives
-/// them, and from its cue "fade_colours" on in the steps of colours "exploding_planet_fade"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
+/// the cues "fade_colours" and "silhouette"; its pictures are shown as their sheet has them, which is in the explosion's colours,
+/// and from its cue "fade_colours" on in the steps of colours "exploding_planet_fade"), "explosion_lava", "explosion_glow", "stars", "explosion_silhouette" (cue "burst"),
 /// "explosion_stars" (cues "finale" and "end"), "explosion_afterglow", "animal_escape", and "digit_0" to "digit_9"
 /// and "colon". The result's lines are its "result_texts": each by the name of its words ("ending_operation_was",
 /// "ending_completed_successfully", "ending_clear_time"), with the font it is typed in and where its first
@@ -287,9 +287,8 @@ public partial class Ending
     private void SetUpExplosion()
     {
         ClearActors();
-        // The planet's pictures show the colours the explosion has for them.
-        Spawn("exploding_planet", "exploding_planet", 128, 128, Motion.Still).Sprite
-            .Recolour(PlanetColours, ColourChange.ReadSwaps(Data().Get("exploding_planet_colours")));
+        // The planet's pictures are in the colours the explosion has for them as their sheet has them.
+        Spawn("exploding_planet", "exploding_planet", 128, 128, Motion.Still);
         Spawn("explosion_lava", "explosion_lava", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_glow", "explosion_glow", 128, 128, Motion.ExplosionLayer);
         Spawn("explosion_stars", "stars", 128, 128, Motion.ExplosionLayer, behind: true);

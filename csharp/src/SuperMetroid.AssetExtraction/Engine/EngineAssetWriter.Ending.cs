@@ -64,10 +64,10 @@ public sealed partial class EngineAssetWriter
         PictureShade planetDrawn = EndingShades.Drawn(planetColouring);
         string planetOwn = EndingShade(planetColouring, EndingColourLoad.Explosion).Key;
         string planetGlow = EndingShades.Under(planetDrawn, EndingShades.Flashed(EndingFlash.PlanetGlow)).Key;
-        JsonObject planetOwnByPlace = ShadeChange(planetOwn, EngineSheets.SpriteFamily, planetPlaces);
-        JsonNode planetColours = planetOwnByPlace[planetPictures]
-            ?? throw new InvalidDataException("The explosion's colours change nothing of the exploding planet's pictures, which the Godot ending shows them on.");
-        planetOwnByPlace.Remove(planetPictures);
+        // The explosion's own colours for the planet are the colours its sheet has it in: there is no change to show
+        // until the fade begins, and the fade's steps are laid over them all the same, as the old game lays them.
+        if (ShadeChange(planetOwn, EngineSheets.SpriteFamily, planetPlaces).Count != 0)
+            throw new InvalidDataException("The explosion's colours change the exploding planet's pictures, which the Godot ending shows as their sheet has them until the fade.");
         JsonObject planetFade = ColourSteps(
             EndingColourEffectDefinitions.FadePlanet, shade => ShadeChange($"{planetOwn}+{planetGlow}+{planetDrawn.Effect}.{shade}", EngineSheets.SpriteFamily, planetPlaces));
         Explosion("explosion_lava", EndingActorDefinitions.ExplosionLava);
@@ -238,7 +238,6 @@ public sealed partial class EngineAssetWriter
             ["burst_glow"] = Blast(EndingExplosionDisplayDefinitions.BurstGlow, "burst_glow"),
             ["finale_explosion"] = Blast(EndingExplosionDisplayDefinitions.FinaleExplosion, "finale_explosion"),
             ["finale_glow"] = Blast(EndingExplosionDisplayDefinitions.FinaleGlow, "finale_glow"),
-            ["exploding_planet_colours"] = planetColours,
             ["exploding_planet_fade"] = planetFade,
             ["credits_roll"] = credits,
             ["credits_scroll"] = CreditsRollLines.FinishingScroll,

@@ -134,6 +134,7 @@ script = ExtResource("14")
 CapsulePictures = Array[String](["backdrops/{graphics}/ceres_baby_vertical.png", "backdrops/{graphics}/ceres_baby_round.png", "backdrops/{graphics}/ceres_baby_horizontal.png", "backdrops/{graphics}/ceres_baby_round.png"])
 WingPictures = Array[String](["backdrops/{graphics}/ceres_wings_raised.png", "backdrops/{graphics}/ceres_wings_lowered.png"])
 WingLeftoversFile = "objects/ceres_getaway_wings.json"
+SizeColoursFile = "objects/ceres_getaway_floor_colours.json"
 HeadingPicture = "text/emergency.png"
 Message = "ceres_self_destruct_warning"
 Subtitle = "ceres_self_destruct_subtitle"

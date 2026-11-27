@@ -105,10 +105,12 @@ public sealed partial class EngineAssetWriter
                 "Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin, TitleSequenceDefinitions.Sprites.CopyrightColouring,
                 TitleSequenceDefinitions.Fades.Copyright, "copyright"),
             ["copyright_hold"] = TitleSequenceDefinitions.Timing.CopyrightHoldFrames,
-            // The screen's brightness has sixteen levels: skipping the opening takes them some at a time, leaving the
-            // title one every so many updates.
-            ["skip_fade_updates"] = 16 / TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep,
-            ["leave_fade_updates"] = 16 * TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep,
+            // The screen's brightness goes from full to black in fifteen steps: skipping the opening takes them some at
+            // a time, an update each, the last step short; leaving the title takes them one every so many updates.
+            ["skip_fade_updates"] = (SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull + TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep - 1)
+                / TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep,
+            ["leave_fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
+            ["leave_fade_updates"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull * TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep,
         };
 
         static JsonObject Scene(TitleFloorSceneDefinition scene, JsonObject more)

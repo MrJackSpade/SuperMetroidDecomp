@@ -33,7 +33,8 @@ namespace Game.Menus;
 /// the floor is its own size); the "logo" and the "copyright" as they fade in (each a place, a "picture" and a "fade", steps of colours whose
 /// first look shows on the update each first shows) and
 /// how long each is given ("logo_hold", "copyright_hold"); and how long the fades take when the opening is cut
-/// short ("skip_fade_updates") and when the title is left ("leave_fade_updates").
+/// short ("skip_fade_updates") and when the title is left ("leave_fade_updates"), and the levels of brightness the
+/// latter goes through ("leave_fade_levels").
 /// </remarks>
 public partial class TitleMode : GameMode
 {
@@ -251,6 +252,9 @@ public partial class TitleMode : GameMode
                     _doing = Doing.ToSavedGames;
                 else
                     return this;
+
+                // Leaving, the screen darkens a level every so many updates, the first on the last of them.
+                fade.Levels = opening.Int("leave_fade_levels");
                 fade.FadeOut(opening.Int("leave_fade_updates"));
                 return this;
             case Doing.ToSavedGames:

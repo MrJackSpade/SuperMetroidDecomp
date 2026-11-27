@@ -10,7 +10,9 @@ namespace Game;
 /// angles its data names leaves her against the wall, in the wall's own pose. She stays while the attack is held
 /// and the line holds. Let go, the pose and the line stay for a window of updates more, in each of which a fresh
 /// press of the jump with a wall within the probe's reach on the side she faces is a wall jump, away from it. The
-/// update that finds the window run out drops her, and feels for no wall.
+/// update that finds the window run out drops her, and feels for no wall. A wall jump or a drop is made on the update
+/// after it is decided, as the line ends; she does not move meanwhile. Dropped, she is crouched aiming diagonally
+/// down, as the wall's pose is.
 /// </summary>
 public sealed class GrappleWallGrabState : PlayerState, ISamusLook
 {
@@ -49,6 +51,26 @@ public sealed class GrappleWallGrabState : PlayerState, ISamusLook
     {
         var samus = (Samus)owner;
         SamusGrapple? grapple = samus.Grapple;
+
+        // What the update before decided is done on this one, as the cartridge's teardown is, and she does not move
+        // meanwhile.
+        switch (_ending)
+        {
+            case Ending.Drop:
+                // Dropped from the wall's pose, which is compact and aims diagonally down, she is crouched so aiming,
+                // her speeds cleared.
+                owner.Velocity = PixelVelocity.Zero;
+                owner.Aim = Aim.DiagonalDown;
+                return new CrouchingState();
+            case Ending.WallJump:
+                // She jumps away from the wall she faced: facing right, to the left, and any other way to the right.
+                // The jump lets go of a charge she held.
+                owner.Facing = owner.Facing == Facing.Right ? Facing.Left : Facing.Right;
+                owner.ComeToRest();
+                samus.ForgetCharge();
+                return new WallJumpingState();
+        }
+
         if (_window < 0)
         {
             if (grapple is { IsLatched: true } && owner.Input.IsHeld(GameAction.Attack) && samus.Selected == Equipment.GrappleBeam)
@@ -61,23 +83,36 @@ public sealed class GrappleWallGrabState : PlayerState, ISamusLook
 
         if (_window == 0)
         {
-            // The window has run out: she is dropped, the line ending on the update after, her speeds cleared.
+            // The window has run out: she is dropped on the update after, when the line ends.
             grapple?.EndOnNextUpdate();
-            owner.Velocity = PixelVelocity.Zero;
-            return owner.StateAtRest();
+            _ending = Ending.Drop;
+            return null;
         }
 
         _window--;
         int probe = grapple?.Swing.WallJumpProbe ?? 0;
         if (owner.IsWithinReachOfWall(owner.Facing, probe) && owner.JumpPressed)
         {
-            // She jumps away from the wall she faced: facing right, to the left, and any other way to the right.
+            // A wall jump, made on the update after, when the line ends.
             grapple?.EndOnNextUpdate();
-            owner.Facing = owner.Facing == Facing.Right ? Facing.Left : Facing.Right;
-            owner.ComeToRest();
-            return new WallJumpingState();
+            _ending = Ending.WallJump;
         }
 
         return null;
     }
+
+    /// <summary>What the hold on the wall ends in on the update after it is decided.</summary>
+    private enum Ending
+    {
+        /// <summary>Nothing is decided yet.</summary>
+        None,
+
+        /// <summary>The window ran out: she is dropped.</summary>
+        Drop,
+
+        /// <summary>She jumps off the wall.</summary>
+        WallJump,
+    }
+
+    private Ending _ending;
 }

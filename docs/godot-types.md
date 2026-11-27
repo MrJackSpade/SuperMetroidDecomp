@@ -1236,7 +1236,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   of the grapple's values). A line that takes hold swings her when she was moving up or down or it was fired
   upward, and otherwise holds her in place as she stands or crouches (`GrappleLockedState`); let go of a swing she
   flies by a movement of its own (`GrappleReleasedState`), begun on the update she lets go. The line itself
-  (`SamusGrapple`) reaches out in tested substeps and ends on the update after it is given up or let go.
+  (`SamusGrapple`) reaches out in tested substeps and ends on the update after it is given up or let go. What ends
+  a hold by the line is done on that later update too, as the cartridge's teardown is, and she does not move
+  meanwhile: a drop from a swing hanging still, which stands her, in the air too; the end of being held in place,
+  which stands or crouches her as she was; and, against a wall, the drop as its window runs out, which crouches her
+  aiming diagonally down, and the wall jump, which lets go of a charge she held. Only the flight out of a swing
+  begins at once.
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
@@ -1274,7 +1279,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
   form as it begins with no feeling for room (`FormAsked.Unfitted`), and with its body at once, rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three
-  pictures, then standing, set down a pixel an update while she is off the height she rose to. What a hurt
+  pictures, then standing, set down a pixel an update while she is off the height she rose to; she is let go standing
+  (`StandingState`), in the air too, and falls from standing on her next update if nothing is under her. What a hurt
   left her is ended as it begins, as the rise ends, on every update of the taking and as it lets her go, so
   whatever touches her while her ammunition is taken hurts her every update; nothing knocks her back.
 - **Some changes of her form take their body at once** (`FormAsked.AtOnce`, or `atOnce` given to `TrySetForm`), as
@@ -1327,7 +1333,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.
 - **A special attack** is let loose while the attack is still held, once it has been held `special_attack_updates`.
 - **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
-  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update.
+  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update. Its windup ends a knockback she
+  carries as it begins (a throw, and what she carries of one she let a damage boost go with,
+  `Samus.EndCarriedKnockback`), and each update of it that launches nothing lets her run's momentum go, as the
+  cartridge's does: her boost ends then if she had momentum as the windup began, and her speed echoes are sent
+  closing on her (`ShinesparkState.SendsEchoesOff`).
 - **Hurts.** A hit from the room itself (a spike) has its own invincibility and knockback lengths. The low-energy
   warning is started once as her energy falls low and stopped once as it recovers. Her states that the cartridge
   refuses a knockback in hold it off, and it begins once she is out of them if its time has not run out: the turns,

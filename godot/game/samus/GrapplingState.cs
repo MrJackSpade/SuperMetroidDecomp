@@ -28,7 +28,8 @@ namespace Game;
 /// <item>Under a liquid without the gravity suit the swing takes a share of gravity, of the push and of the kick,
 /// and turns through a share of its speed. Whether she is under one is looked at after each update, for the next.</item>
 /// </list>
-/// Letting go of the attack, or losing what the line held, lets go: hanging still and straight down she drops, and
+/// Letting go of the attack, or losing what the line held, lets go: hanging still and straight down she drops, standing,
+/// on the update after, and
 /// otherwise she flies off at twice the swing's speed along the line's own direction, facing the way it turned.
 /// </summary>
 public sealed class GrapplingState : PlayerState, ISamusLook
@@ -77,6 +78,9 @@ public sealed class GrapplingState : PlayerState, ISamusLook
 
     /// <summary>What holds the line, put within its block where the line leaves it.</summary>
     private PixelPosition _anchor;
+
+    /// <summary>Whether she let go hanging still and straight down, to be dropped on the next update.</summary>
+    private bool _dropping;
 
     /// <inheritdoc/>
     public override SlowFollowing? ViewFollowsSlowly(Player owner) =>
@@ -134,6 +138,15 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         var samus = (Samus)owner;
         SamusGrapple? grapple = samus.Grapple;
         GrappleSwingRules rules = _rules ?? throw new InvalidOperationException("Samus swings before her swing was begun.");
+
+        // Dropped on the update before, she is let go on this one: her speeds cleared and standing, whatever she aims
+        // and in the air too, as the cartridge drops a swing into its standing pose. Nothing of her moves meanwhile.
+        if (_dropping)
+        {
+            owner.Velocity = PixelVelocity.Zero;
+            return new StandingState();
+        }
+
         if (grapple is null || !grapple.IsLatched || !owner.Input.IsHeld(GameAction.Attack) || samus.Selected != Equipment.GrappleBeam)
             return LetGo(owner, grapple, rules);
 
@@ -389,20 +402,22 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     public PixelPosition? RopeStart { get; private set; }
 
     /// <summary>
-    /// Lets go of the line. Hanging still and exactly straight down she drops, her speeds cleared. Otherwise she
+    /// Lets go of the line. Hanging still and exactly straight down she drops on the next update, standing and her
+    /// speeds cleared, and stays where she is on this one. Otherwise she
     /// flies off at twice the swing's speed: down by the sine of the line's angle, and across by the sine of the
     /// angle a quarter turn back, less a few steps for each whole step of the swing's speed, facing left when the
     /// swing turned on and right when it turned back.
     /// The flight that follows is its own movement (<see cref="GrappleReleasedState"/>) and moves her on this update.
     /// </summary>
-    private PlayerState LetGo(Player owner, SamusGrapple? grapple, GrappleSwingRules rules)
+    private PlayerState? LetGo(Player owner, SamusGrapple? grapple, GrappleSwingRules rules)
     {
         // The line itself ends on the update after this one, as the cartridge's teardown does.
         grapple?.EndOnNextUpdate();
         if (_turning == 0 && _angle == HalfTurn)
         {
-            owner.Velocity = PixelVelocity.Zero;
-            return owner.StateAtRest();
+            // The drop, too, is done on the update after: on this one she stays where the swing last put her.
+            _dropping = true;
+            return null;
         }
 
         int twice = _turning * 2;

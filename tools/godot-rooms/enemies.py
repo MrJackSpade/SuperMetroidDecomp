@@ -378,7 +378,10 @@ def pipe_bug(p, index, listed):
 @rule('Geruta', 'Holtz')
 def swooper(p, index, listed):
     if legacy.last_name(p.settings['Role']) != 'Leader':
-        return None
+        # Its flames, listed right after it: a thing of the room in their own right, which takes its turn among the
+        # enemies after it and only within their window, by where the flames themselves stand. Their pictures are
+        # their swooper's.
+        return Placed(E + 'swooper/swooper_flames.tscn', p.enemy + 'Flames', only_in_view(p), enemy=False, refers={'Leader': index - 1})
     return Placed(E + 'swooper/swooper.tscn', p.enemy, {'DataFile': quoted(f'enemies/{snake(p.enemy)}.json')})
 
 

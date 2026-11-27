@@ -1958,7 +1958,10 @@ engine types named. The old code's grouping is shown only so each thing can be f
 One `Enemy` scene each unless noted. Names on one line are one scene with different data files.
 
 - Crawlers (surface crawl): Zoomer, Orange Zoomer, Armored Zoomer, Zeela, Sova; Sciser; Zero; Yard; Owtch.
-- Flyers: Waver; Skree; Metaree; Rio; Geruta; Holtz; Squeept; Mellow, Mella, Maridia Fly; Multiviola; Viola;
+- Flyers: Waver; Skree; Metaree; Rio; Geruta; Holtz (the flames of these two's tails are a room object of their
+  own, `SwooperFlames`, placed right after their swooper: they take their turn among the enemies only within the
+  window, by where the flames themselves last stood, draw a random number each turn, and are frozen with their
+  swooper for the time it has left, `Enemy.StatusLeft`); Squeept; Mellow, Mella, Maridia Fly; Multiviola; Viola;
   Ripper, Jet Ripper, Grapple Ripper (the last can be latched onto); Fireflea; Choot; Kago; Atomic; Spark; Coven.
 - Hoppers and the rest: Sidehopper, Large Sidehopper, Tourian Sidehopper; Dessgeega, Large Dessgeega; Boyon; Puyo;
   Beetom; Powamp; Cacatac; Zoa; Skultera; Bull; Alcoon; Polyp; Fune; Namihe; Magdollite; Nuclear Waffle; Hibashi;

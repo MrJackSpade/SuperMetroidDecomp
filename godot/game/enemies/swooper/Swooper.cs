@@ -10,13 +10,15 @@ namespace Game.Enemies;
 /// <summary>
 /// A swooper with a tail of flame: it perches until Samus comes within reach across and chance lets it go, then
 /// swoops down at her in an arc, and climbs back up until it meets the ceiling. The Geruta and the Holtz are both
-/// this scene with their own data files. Its flames are a part of it, shown beneath it while it flies.
+/// this scene with their own data files. Its flames are a thing of the room in their own right, placed after it
+/// (<see cref="SwooperFlames"/>): it only says which flames it shows and how far below it they lie.
 /// </summary>
 /// <remarks>
 /// Its timelines are "idle", "takeoff", "dive", "climb_start", "climb" and, where its landing takes a moment,
 /// "land". The cue "finished" marks the end of a timeline that leads on to the next thing; "flames_down" and
 /// "flames_up" show the flames under a diving or climbing body and "flames_off" hides them, each cue's number after a
-/// colon saying how far below the body they are. Its flames' timelines are "flames_down" and "flames_up".
+/// colon saying how far below the body they are. Its flames' timelines are "flames_down" and "flames_up", which
+/// its flames play from its data file.
 /// </remarks>
 public partial class Swooper : Enemy
 {
@@ -80,18 +82,19 @@ public partial class Swooper : Enemy
 
     private Doing _doing;
     private bool _finished;
-    private TimelinePlayer? _flames;
-    private int _flamesBelow;
+    private string? _flames;
+
+    /// <summary>The timeline of the flames it shows now, by name; null while it shows none, as while it idles.</summary>
+    public string? FlamesShown => Playing != "idle" ? _flames : null;
+
+    /// <summary>How far below it its flames lie, in pixels.</summary>
+    public int FlamesBelow { get; private set; }
+
+    /// <summary>The offset its pictures are drawn at, which its flames' are drawn at too.</summary>
+    public Vector2I PictureOffset => Visual?.PictureOffset ?? Vector2I.Zero;
 
     /// <inheritdoc/>
-    protected override void OnEnterRoom()
-    {
-        Play("idle");
-        Flames?.SetShown(false);
-    }
-
-    /// <summary>The visual of its flames, when its scene gives it one.</summary>
-    private ActorVisual? Flames => GetNodeOrNull<ActorVisual>("Flames");
+    protected override void OnEnterRoom() => Play("idle");
 
     /// <inheritdoc/>
     protected override void OnCue(string cue)
@@ -103,9 +106,8 @@ public partial class Swooper : Enemy
                 _finished = true;
                 break;
             case "flames_down" or "flames_up":
-                _flamesBelow = parts.Length > 1 ? int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture) : _flamesBelow;
-                if (_flames is null || _flames.Timeline != Timelines.Get(parts[0]))
-                    _flames = new TimelinePlayer(Timelines.Get(parts[0]));
+                FlamesBelow = parts.Length > 1 ? int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture) : FlamesBelow;
+                _flames = parts[0];
                 break;
             case "flames_off":
                 _flames = null;
@@ -116,10 +118,8 @@ public partial class Swooper : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        // The body draws a number every update, and so did its flames, which were an enemy of their own in the
-        // original: two draws an update, of which only the body's first is ever used.
+        // It draws a number every update, whatever it is doing.
         RandomDraw drawn = Random.Draw();
-        Random.Next();
         switch (_doing)
         {
             case Doing.Perched:
@@ -202,26 +202,6 @@ public partial class Swooper : Enemy
             default:
                 throw new InvalidOperationException($"Undefined swooper stage {_doing}.");
         }
-
-        ShowFlames();
-    }
-
-    /// <summary>
-    /// While its body holds still hurt, its flames, an enemy of their own on the cartridge, go on: they draw their
-    /// number and play on.
-    /// </summary>
-    protected override void WhileHurt()
-    {
-        Random.Next();
-        ShowFlames();
-    }
-
-    /// <inheritdoc/>
-    protected override void OnStatusBegan(string status)
-    {
-        // Its flames are not shown while it is frozen.
-        if (IsFrozen)
-            Flames?.SetShown(false);
     }
 
     /// <summary>Starts the climb back to the perch.</summary>
@@ -231,20 +211,5 @@ public partial class Swooper : Enemy
         Play("climb_start");
         _doing = Doing.Climbing;
         Sound(ReturnSound);
-    }
-
-    /// <summary>Shows the flames beneath the body while it flies, and hides them while it rests.</summary>
-    private void ShowFlames()
-    {
-        ActorVisual? flames = Flames;
-        if (flames is null)
-            return;
-        bool shown = _flames is not null && Playing != "idle" && !IsFrozen;
-        flames.SetShown(shown);
-        if (!shown || _flames is null)
-            return;
-        _flames.Step();
-        flames.Position = new Vector2(0, _flamesBelow);
-        flames.Show(_flames.Shown);
     }
 }

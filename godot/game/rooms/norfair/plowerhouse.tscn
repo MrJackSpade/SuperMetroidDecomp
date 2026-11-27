@@ -1,16 +1,17 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper_flames.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -58,54 +59,90 @@ SamusStep = 0.78125
 position = Vector2(600, 88)
 DataFile = "enemies/holtz.json"
 
+[node name="HoltzFlames" parent="." instance=ExtResource("6")]
+position = Vector2(600, 88)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz")
+
 [node name="Holtz2" parent="." instance=ExtResource("5")]
 position = Vector2(648, 88)
 DataFile = "enemies/holtz.json"
+
+[node name="HoltzFlames2" parent="." instance=ExtResource("6")]
+position = Vector2(648, 88)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz2")
 
 [node name="Holtz3" parent="." instance=ExtResource("5")]
 position = Vector2(280, 88)
 DataFile = "enemies/holtz.json"
 
+[node name="HoltzFlames3" parent="." instance=ExtResource("6")]
+position = Vector2(280, 88)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz3")
+
 [node name="Holtz4" parent="." instance=ExtResource("5")]
 position = Vector2(456, 88)
 DataFile = "enemies/holtz.json"
+
+[node name="HoltzFlames4" parent="." instance=ExtResource("6")]
+position = Vector2(456, 88)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz4")
 
 [node name="Holtz5" parent="." instance=ExtResource("5")]
 position = Vector2(104, 88)
 DataFile = "enemies/holtz.json"
 
+[node name="HoltzFlames5" parent="." instance=ExtResource("6")]
+position = Vector2(104, 88)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz5")
+
 [node name="Holtz6" parent="." instance=ExtResource("5")]
 position = Vector2(152, 88)
 DataFile = "enemies/holtz.json"
 
-[node name="Zebbo" parent="." instance=ExtResource("6")]
+[node name="HoltzFlames6" parent="." instance=ExtResource("6")]
+position = Vector2(152, 88)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz6")
+
+[node name="Zebbo" parent="." instance=ExtResource("7")]
 position = Vector2(192, 184)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo2" parent="." instance=ExtResource("6")]
+[node name="Zebbo2" parent="." instance=ExtResource("7")]
 position = Vector2(384, 184)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo3" parent="." instance=ExtResource("6")]
+[node name="Zebbo3" parent="." instance=ExtResource("7")]
 position = Vector2(576, 184)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="BlueCap" parent="." instance=ExtResource("7")]
+[node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="BlueCap2" parent="." instance=ExtResource("7")]
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/acid.json"
 LowSurface = 205
@@ -115,37 +152,37 @@ TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_room_statues.png"
 ScrollShare = Vector2(0.75, 0.75)

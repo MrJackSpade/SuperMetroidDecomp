@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,14 +8,15 @@
 [ext_resource type="PackedScene" path="res://game/enemies/chozo_statue/chozo_statue.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/magdollite/magdollite.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="12"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="14"]
-[ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="15"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="16"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper_flames.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="15"]
+[ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="16"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="17"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -114,64 +115,83 @@ Range = 240
 ListedAt = 2
 AlwaysActive = true
 ListedAfter = NodePath("../Holtz")
+ListedSecondAfter = NodePath("../HoltzFlames")
 
 [node name="Holtz" parent="." instance=ExtResource("8")]
 position = Vector2(512, 616)
 DataFile = "enemies/holtz.json"
 
+[node name="HoltzFlames" parent="." instance=ExtResource("9")]
+position = Vector2(512, 616)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz")
+
 [node name="Holtz2" parent="." instance=ExtResource("8")]
 position = Vector2(432, 592)
 DataFile = "enemies/holtz.json"
+
+[node name="HoltzFlames2" parent="." instance=ExtResource("9")]
+position = Vector2(432, 592)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz2")
 
 [node name="Holtz3" parent="." instance=ExtResource("8")]
 position = Vector2(596, 589)
 DataFile = "enemies/holtz.json"
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
+[node name="HoltzFlames3" parent="." instance=ExtResource("9")]
+position = Vector2(596, 589)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Holtz3")
+
+[node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(480, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="BlueCap2" parent="." instance=ExtResource("9")]
+[node name="BlueCap2" parent="." instance=ExtResource("10")]
 position = Vector2(736, 608)
 DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Screen2x0" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(512, 0)
 OpensTo = 1
 
 [node name="Screen0x1" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 256)
 OpensTo = 2
 
 [node name="Screen1x1" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(256, 256)
 OpensTo = 2
 
 [node name="Screen2x1" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(512, 256)
 OpensTo = 1
 
 [node name="Screen0x2" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 512)
 OpensTo = 1
 
 [node name="Screen1x2" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(256, 512)
 OpensTo = 1
 
 [node name="Screen2x2" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(512, 512)
 OpensTo = 2
 
 [node name="Scroll" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 480)
 Size = Vector2i(16, 16)
 What = "open_fully"
@@ -179,7 +199,7 @@ WhileTouched = true
 Target = NodePath("../Screen0x1")
 
 [node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 480)
 Size = Vector2i(16, 16)
 What = "open_fully"
@@ -187,7 +207,7 @@ WhileTouched = true
 Target = NodePath("../Screen1x1")
 
 [node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 480)
 Size = Vector2i(16, 16)
 What = "open_fully"
@@ -195,7 +215,7 @@ WhileTouched = true
 Target = NodePath("../Screen0x2")
 
 [node name="Scroll4" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 480)
 Size = Vector2i(16, 16)
 What = "open_fully"
@@ -203,7 +223,7 @@ WhileTouched = true
 Target = NodePath("../Screen1x2")
 
 [node name="Scroll5" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "close"
@@ -211,7 +231,7 @@ WhileTouched = true
 Target = NodePath("../Screen1x1")
 
 [node name="Scroll6" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "open_to_top"
@@ -219,7 +239,7 @@ WhileTouched = true
 Target = NodePath("../Screen0x2")
 
 [node name="Scroll7" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "open_to_top"
@@ -227,7 +247,7 @@ WhileTouched = true
 Target = NodePath("../Screen1x2")
 
 [node name="Scroll8" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "open_to_top"
@@ -235,42 +255,42 @@ WhileTouched = true
 Target = NodePath("../Screen2x2")
 
 [node name="Arriving" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "close"
 Target = NodePath("../Screen0x1")
 
 [node name="Arriving2" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "close"
 Target = NodePath("../Screen1x1")
 
 [node name="Arriving3" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "open_to_top"
 Target = NodePath("../Screen0x2")
 
 [node name="Arriving4" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "open_to_top"
 Target = NodePath("../Screen1x2")
 
 [node name="Arriving5" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "open_to_top"
 Target = NodePath("../Screen2x2")
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 TypeFile = "liquids/acid.json"
 LowSurface = 722
@@ -281,42 +301,42 @@ TideTurnBelow = 1.125
 PresentWhen = SubResource("r3")
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 PresentWhen = SubResource("r3")
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 PresentWhen = SubResource("r3")
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 PresentWhen = SubResource("r3")
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 PresentWhen = SubResource("r3")
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 PresentWhen = SubResource("r3")
 
 [node name="Liquid2" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 TypeFile = "liquids/acid.json"
 LowSurface = 722
@@ -327,7 +347,7 @@ MoveDelay = 32
 PresentWhen = SubResource("r9")
 
 [node name="Liquid3" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 TypeFile = "liquids/acid.json"
 LowSurface = 722
@@ -335,47 +355,47 @@ HighSurface = 722
 PresentWhen = SubResource("r7")
 
 [node name="Heat2" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 PresentWhen = SubResource("r4")
 
 [node name="NorfairForegroundAndHeatPhase2" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 PresentWhen = SubResource("r4")
 
 [node name="NorfairGreenForegroundHeatGlow2" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 PresentWhen = SubResource("r4")
 
 [node name="NorfairPurpleForegroundHeatGlow2" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 PresentWhen = SubResource("r4")
 
 [node name="NorfairDarkForegroundHeatGlow2" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 PresentWhen = SubResource("r4")
 
 [node name="LiquidQuake" type="Node" parent="."]
-script = ExtResource("15")
+script = ExtResource("16")
 StartsWhen = SubResource("r5")
 Sound = "enemy_lavaquake"
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("16")
+script = ExtResource("17")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_cavern_room_pillars.png"
 ScrollShare = Vector2(0.75, 0.75)

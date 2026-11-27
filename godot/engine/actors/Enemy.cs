@@ -126,6 +126,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Whether it is frozen.</summary>
     public bool IsFrozen => Status == Frozen;
 
+    /// <summary>
+    /// How much of its status's time is left, as its last turn left it: for something of the room that shares its
+    /// status and counts the same time down by itself.
+    /// </summary>
+    public Countdown StatusLeft => _statusLeft;
+
     /// <summary>How many more updates the enemy's status lasts; none when it is in no status.</summary>
     public int StatusUpdatesLeft => Status.Length > 0 ? _statusLeft.Remaining : 0;
 

@@ -11,9 +11,6 @@ DataFile = "enemies/geruta.json"
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Flames" type="Node2D" parent="."]
-script = ExtResource("3")
-
 [node name="Body" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 0

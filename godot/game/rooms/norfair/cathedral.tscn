@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -6,14 +6,15 @@
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/LavaBubbling.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper_flames.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/LavaBubbling.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -66,15 +67,33 @@ SamusStep = 0.78125
 position = Vector2(161, 83)
 DataFile = "enemies/geruta.json"
 
+[node name="GerutaFlames" parent="." instance=ExtResource("7")]
+position = Vector2(161, 83)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Geruta")
+
 [node name="Geruta2" parent="." instance=ExtResource("6")]
 position = Vector2(478, 321)
 DataFile = "enemies/geruta.json"
+
+[node name="GerutaFlames2" parent="." instance=ExtResource("7")]
+position = Vector2(478, 321)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Geruta2")
 
 [node name="Geruta3" parent="." instance=ExtResource("6")]
 position = Vector2(548, 125)
 DataFile = "enemies/geruta.json"
 
-[node name="Sova" parent="." instance=ExtResource("7")]
+[node name="GerutaFlames3" parent="." instance=ExtResource("7")]
+position = Vector2(548, 125)
+TurnsOnlyInView = true
+TurnsWithEnemies = true
+Leader = NodePath("../Geruta3")
+
+[node name="Sova" parent="." instance=ExtResource("8")]
 position = Vector2(320, 229)
 DataFile = "enemies/sova.json"
 StartsOn = 0
@@ -82,7 +101,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Sova2" parent="." instance=ExtResource("7")]
+[node name="Sova2" parent="." instance=ExtResource("8")]
 position = Vector2(110, 278)
 DataFile = "enemies/sova.json"
 StartsOn = 0
@@ -90,7 +109,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Sova3" parent="." instance=ExtResource("7")]
+[node name="Sova3" parent="." instance=ExtResource("8")]
 position = Vector2(216, 184)
 DataFile = "enemies/sova.json"
 StartsOn = 3
@@ -98,7 +117,7 @@ PressesLeft = false
 PressesUp = true
 CrawlSpeed = 0.75
 
-[node name="Sova4" parent="." instance=ExtResource("7")]
+[node name="Sova4" parent="." instance=ExtResource("8")]
 position = Vector2(668, 244)
 DataFile = "enemies/sova.json"
 StartsOn = 0
@@ -106,66 +125,66 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="MissileTank" parent="." instance=ExtResource("8")]
+[node name="MissileTank" parent="." instance=ExtResource("9")]
 position = Vector2(552, 456)
 TypeFile = "items/missile_tank.json"
 RememberedAs = "cathedral_shot_block_missile_tank"
 
-[node name="GreenCap" parent="." instance=ExtResource("9")]
+[node name="GreenCap" parent="." instance=ExtResource("10")]
 position = Vector2(736, 352)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "cathedral_green_door_facing_left"
 Remembered = 1
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
+[node name="BlueCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 TypeFile = "liquids/lava.json"
 LowSurface = 433
 HighSurface = 433
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
 [node name="LavaBubbling" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 StartsWhen = SubResource("r2")
 Interval = 112
 Sounds = Array[String](["enemy_lava_bubbling_burst", "enemy_lava_bubbling_falling", "enemy_lava_bubbling_rising"])
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_cathedral.png"
 ScrollShare = Vector2(1, 1)

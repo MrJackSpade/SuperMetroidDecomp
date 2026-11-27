@@ -25,18 +25,18 @@ public sealed partial class EngineAssetWriter
         var timelines = new JsonObject();
 
         // A sprite of the ending's scenes: the clouds, the planet and what lies over it, the result's figures, Samus waiting.
-        void Scene(string name, EndingSceneAnimation animation, SpriteSheetId sheet, CinematicSpriteFamily family, PictureShade? shade) =>
+        void Scene(string name, EndingSceneAnimation animation, SpriteSheetId sheet, CinematicSpriteFamily family, PictureShade shade) =>
             timelines[name] = SpriteTimeline(
                 EndingSceneAnimations.Pictures.Segments, EndingSceneAnimations.Pictures.StartingWith(animation), sheet, family, $"{folder}/{name}", shade,
                 static (EndingSceneCue cue) => cue switch
                 {
-                    EndingSceneCue.FadeExplosionColours => "fade_colours",
                     EndingSceneCue.SpawnExplosionSilhouette => "silhouette",
                     EndingSceneCue.StartZebesExplosion => "burst",
                     EndingSceneCue.ExplosionFinale => "finale",
                     EndingSceneCue.EndZebesExplosion => "end",
-                    // The Godot ending sets the stars waiting as the blast ends.
-                    EndingSceneCue.WaitForFlyaway => null,
+                    // The Godot ending fades the planet's colours in from the start of its scene, and sets the
+                    // stars waiting as the blast ends.
+                    EndingSceneCue.FadeExplosionColours or EndingSceneCue.WaitForFlyaway => null,
                     _ => throw new InvalidDataException($"A sprite of the ending raises {cue}, which this does not know."),
                 });
 
@@ -51,25 +51,7 @@ public sealed partial class EngineAssetWriter
         Cloud("top_cloud_edge", EndingActorDefinitions.TopCloudEdge);
         Cloud("bottom_cloud_edge", EndingActorDefinitions.BottomCloudEdge);
         Cloud("bottom_cloud_pattern", EndingActorDefinitions.BottomCloudPattern);
-        // The exploding planet is cut as its sheet has it, and shown in the explosion's colours for it as a change of
-        // colours. After its five rumbles its cue starts the old fade of its colours, with its glow under the fade: each
-        // step is the fade's look laid over the glow, laid over the planet's own colours.
-        string planetPictures = $"{folder}/exploding_planet";
-        EndingSpriteColouring planetColouring = EndingActorDefinitions.ExplodingZebes.Colouring;
-        Scene("exploding_planet", EndingActorDefinitions.ExplodingZebes.Animation, EndingSpriteSheets.Explosion, CinematicSpriteFamily.EndingExplosion, null);
-        var planetPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
-        {
-            [planetPictures] = [EngineSheets.SheetOf(EndingSpriteSheets.Explosion)],
-        };
-        PictureShade planetDrawn = EndingShades.Drawn(planetColouring);
-        string planetOwn = EndingShade(planetColouring, EndingColourLoad.Explosion).Key;
-        string planetGlow = EndingShades.Under(planetDrawn, EndingShades.Flashed(EndingFlash.PlanetGlow)).Key;
-        JsonObject planetOwnByPlace = ShadeChange(planetOwn, EngineSheets.SpriteFamily, planetPlaces);
-        JsonNode planetColours = planetOwnByPlace[planetPictures]
-            ?? throw new InvalidDataException("The explosion's colours change nothing of the exploding planet's pictures, which the Godot ending shows them on.");
-        planetOwnByPlace.Remove(planetPictures);
-        JsonObject planetFade = ColourSteps(
-            EndingColourEffectDefinitions.FadePlanet, shade => ShadeChange($"{planetOwn}+{planetGlow}+{planetDrawn.Effect}.{shade}", EngineSheets.SpriteFamily, planetPlaces));
+        Explosion("exploding_planet", EndingActorDefinitions.ExplodingZebes);
         Explosion("explosion_lava", EndingActorDefinitions.ExplosionLava);
         Explosion("explosion_glow", EndingActorDefinitions.ExplosionGlow);
         Explosion("stars", EndingActorDefinitions.ExplosionStars);
@@ -238,8 +220,6 @@ public sealed partial class EngineAssetWriter
             ["burst_glow"] = Blast(EndingExplosionDisplayDefinitions.BurstGlow, "burst_glow"),
             ["finale_explosion"] = Blast(EndingExplosionDisplayDefinitions.FinaleExplosion, "finale_explosion"),
             ["finale_glow"] = Blast(EndingExplosionDisplayDefinitions.FinaleGlow, "finale_glow"),
-            ["exploding_planet_colours"] = planetColours,
-            ["exploding_planet_fade"] = planetFade,
             ["credits_roll"] = credits,
             ["credits_scroll"] = CreditsRollLines.FinishingScroll,
             ["waiting_backdrop"] = After(EndingPictureNames.WaitingBackdrop, "waiting_backdrop"),

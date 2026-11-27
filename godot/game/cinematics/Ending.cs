@@ -114,9 +114,6 @@ public partial class Ending : Cinematic
     /// <summary>The name the floor's colours are changed under for the stage of the ending it is shown in.</summary>
     private const string FloorColours = "Stage";
 
-    /// <summary>The name the exploding planet's colours are changed under: its own, and then its fade's.</summary>
-    private const string PlanetColours = "Planet";
-
     /// <summary>The points of the floor that stay put as it turns: among the clouds and over the planet, and behind the gunship.</summary>
     private static readonly Vector2 AtmosphereCentre = new(128, 128), GunshipCentre = new(56, 24);
 
@@ -148,9 +145,6 @@ public partial class Ending : Cinematic
     private int _floorAngle;
     private Vector2 _floorCentre = AtmosphereCentre;
     private int _crossfade;
-
-    /// <summary>The fade of the exploding planet's colours, from its cue until the planet goes; none before or after.</summary>
-    private ColourSteps? _planetFade;
     private int _shake;
     private bool _slowShake;
     private double _planetSpeed;

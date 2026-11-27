@@ -1948,9 +1948,11 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>
     /// A distance across after the slopes ahead have taken their share of it. A player with no speed up or down, about
     /// to carry the leading edge of their body into sloped ground, moves only the share of the distance each such
-    /// slope lets through, counted as the slopes count it: in 256ths of a pixel, the finer part dropped.
+    /// slope lets through, counted as the slopes count it: in 256ths of a pixel, the finer part dropped. Every move
+    /// of the player's own across takes it (<see cref="MoveAcrossBy"/>), and so does one a game's player makes
+    /// besides, by the body they have as it is made.
     /// </summary>
-    private Pixels OverSlopes(Pixels distance)
+    protected Pixels OverSlopes(Pixels distance)
     {
         if (distance.IsZero || !Velocity.Y.IsZero)
             return distance;

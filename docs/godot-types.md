@@ -553,8 +553,9 @@ A scene. One per room of the game.
   everything in the room, in the order it stands there; what stands just behind the player; the player, whom the
   room gives a depth of their own as it takes them in (`Player`), so nothing is in front of them or behind them by
   when it came into the room; what the player passes behind (`InFrontOfThings`, as a Ceres door's shutter); what is
-  frontmost; what is launched and left in play (`Launched`: shots, what a shot or a death leaves, what is dropped),
-  in front of all of those; and, for something launched that is told to lie behind, behind all of those that stand
+  frontmost; what is launched and left in play (`Launched`: shots, and what a shot or a death leaves),
+  in front of all of those; a pickup, which lies in front of every tile of the room so that nothing of the room
+  hides it (`InFrontOfRoom`, #3480); and, for something launched that is told to lie behind, behind all of those that stand
   behind (`BehindAllThings`);
   the part of
   the backdrop's picture that lies in front of what stands in the room (`BackdropInFront`: a backdrop's picture may

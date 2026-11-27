@@ -40,7 +40,10 @@ public partial class Pickup : Node2D, IRoomEntity
     public void EnterRoom(Room room)
     {
         _room = room;
-        ZIndex = RoomDepth.Launched;
+
+        // A pickup lies in front of every tile of the room, the ones in front of the room's things too: nothing of
+        // the room hides what is there to be taken.
+        ZIndex = RoomDepth.InFrontOfRoom;
         _left = Countdown.Of(Type.LastsUpdates);
         string picture = Type.Picture;
         if (Type.Timeline.Length > 0)

@@ -3,13 +3,15 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
 
 /// <summary>
 /// A Kago: a hive that sits where it is. Every shot or bomb that lands on it shakes the room and brings out a bug;
-/// after enough of them the hive is gone. The bugs are enemies of their own. It is solid to Samus, who is stopped
+/// after enough of them the hive is gone. A power bomb's blast only hurts it, and enough of them destroy it. The
+/// bugs are enemies of their own. It is solid to Samus, who is stopped
 /// by it and can stand on it, and its touch does not hurt.
 /// </summary>
 /// <remarks>Its timelines are "slow" and, once it has been hit, "fast".</remarks>
@@ -46,13 +48,39 @@ public partial class Kago : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnHurt(Hit hit, Collider part) => Struck();
+    protected override void OnHurt(Hit hit, Collider part)
+    {
+        if (Answers(hit))
+            Struck(dying: false);
+    }
 
     /// <inheritdoc/>
-    protected override void OnAbsorbed(Hit hit, Collider part) => Struck();
+    protected override void OnAbsorbed(Hit hit, Collider part)
+    {
+        if (Answers(hit))
+            Struck(dying: false);
+    }
 
-    /// <summary>Answers a hit: the room shakes, a bug comes out, and the hive goes once it has taken enough.</summary>
-    private void Struck()
+    /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        // A shot that empties its health still shakes the room and lets out a bug, as the cartridge's does.
+        if (Answers(hit))
+            Struck(dying: true);
+        return true;
+    }
+
+    /// <summary>
+    /// Whether the hive answers <paramref name="hit"/> by shaking the room and letting out a bug. Shots and bombs it
+    /// answers; a power bomb's blast only hurts it, as it hurts any enemy, and is not counted among its hits.
+    /// </summary>
+    private static bool Answers(Hit hit) => !hit.Carries(new HitKind(HitKinds.PowerBomb));
+
+    /// <summary>
+    /// Answers a hit: the room shakes, a bug comes out, and the hive goes once it has taken enough, counted among the
+    /// room's killed. One the hit is killing already dies of it instead.
+    /// </summary>
+    private void Struck(bool dying)
     {
         Room.Shake(ShakeStrength, ShakeUpdates, ShakeWayName switch
         {
@@ -64,9 +92,10 @@ public partial class Kago : Enemy
         if (_hits == 0)
             Play("fast");
         _hits++;
-        if (_hits > HitCount)
+        if (_hits > HitCount && !dying)
         {
             Room.MarkGone(Name);
+            CountAsKilled();
             Vanish();
         }
 

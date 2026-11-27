@@ -72,10 +72,6 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("turn_pictures")]
     public int[] TurnPictures { get; set; } = [];
 
-    /// <summary>The effect left at the player's feet on landing, by the data file of its timeline; empty for none.</summary>
-    [Export(PropertyHint.File), DataValue("land_effect")]
-    public string LandEffect { get; set; } = "";
-
     /// <summary>The most pixels climbed for each pixel moved across a slope.</summary>
     [Export, DataValue("climb_per_pixel")]
     public int ClimbPerPixel { get; set; } = 2;
@@ -882,14 +878,9 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     private bool _wasOnGround = true;
     private bool? _feetWereInLiquid;
 
-    /// <summary>
-    /// Called as the player comes down onto the ground. The engine's player leaves its landing effect at its feet, if
-    /// its scene names one.
-    /// </summary>
+    /// <summary>Called as the player comes down onto the ground: what the game makes of a landing is its own.</summary>
     protected virtual void OnLanded()
     {
-        if (LandEffect.Length > 0)
-            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(LandEffect)), Feet));
     }
 
     /// <summary>Leaves the liquid's splash, and asks for its sound, as the player's feet cross its surface either way.</summary>

@@ -123,6 +123,13 @@ public partial class Station : RoomObject
     [Export]
     public Vector2I WorkingEffectAt { get; set; }
 
+    /// <summary>
+    /// Whether that effect holds one of the room's places for what its enemies launch and leave, and so is not left
+    /// when none is free (<see cref="Room.Spawn"/>). It does not, unless the station says.
+    /// </summary>
+    [Export]
+    public bool WorkingEffectHoldsPlace { get; set; }
+
     /// <summary>The sound of it starting to work, by name; empty for none.</summary>
     [Export]
     public string StartSound { get; set; } = "";
@@ -308,7 +315,8 @@ public partial class Station : RoomObject
             Show(WorkingTimeline);
         Sound(StartSound);
         if (effect.Length > 0)
-            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), Position + PixelOffset.FromWhole(WorkingEffectAt.X, WorkingEffectAt.Y)));
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(effect)), Position + PixelOffset.FromWhole(WorkingEffectAt.X, WorkingEffectAt.Y),
+                holdsPlace: WorkingEffectHoldsPlace));
     }
 
 

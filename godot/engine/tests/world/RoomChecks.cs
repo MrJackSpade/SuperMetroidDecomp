@@ -11,6 +11,12 @@ namespace Engine.Tests.World;
 /// <summary>Checks of the room and its parts: exits, triggers, zones, conditions, versions, liquid, room effects and sequences.</summary>
 public sealed class RoomChecks
 {
+    /// <summary>An open room two screens wide: a zone of the view placed past the first screen lies on its second.</summary>
+    private static readonly string[] TwoScreens =
+    [
+        new('.', 32), new('.', 32), new('.', 32), new('.', 32), new('.', 32), new('#', 32),
+    ];
+
     private static readonly string[] OpenRoom =
     [
         "................", "................", "................", "................", "................", "################",
@@ -39,7 +45,7 @@ public sealed class RoomChecks
     [Check]
     public void ATriggerTellsItsTargetOnceWhenThePlayerEnters()
     {
-        using var world = new StandInWorld(OpenRoom).StartAt(40, 80);
+        using var world = new StandInWorld(TwoScreens).StartAt(40, 80);
         var zone = world.Place(new CameraZone { Name = "Zone" }, 300, 0);
         world.Place(new Trigger { Name = "Trigger", Size = new Vector2I(16, 80), Target = new NodePath("../Zone"), What = "open" }, 100, 0);
         world.Setup();
@@ -57,7 +63,7 @@ public sealed class RoomChecks
     [Check]
     public void ATriggerWithAConditionWaitsForIt()
     {
-        using var world = new StandInWorld(OpenRoom).StartAt(40, 80);
+        using var world = new StandInWorld(TwoScreens).StartAt(40, 80);
         var zone = world.Place(new CameraZone { Name = "Zone" }, 300, 0);
         world.Place(new Trigger
         {

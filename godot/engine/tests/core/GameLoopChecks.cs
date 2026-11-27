@@ -41,7 +41,7 @@ public sealed class GameLoopChecks
         Expect.Equal(1, second.TimesEntered);
         Expect.Equal(0, second.UpdatesRun);
         Expect.Equal(1, loop.GetChildren().OfType<GameMode>().Count());
-        Expect.True(ReferenceEquals(second, loop.GetChild(0)));
+        Expect.True(ReferenceEquals(second, loop.GetChildren().OfType<GameMode>().Single()));
 
         loop.Step();
         Expect.Equal(1, second.UpdatesRun);

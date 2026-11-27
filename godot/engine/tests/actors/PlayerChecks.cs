@@ -161,6 +161,9 @@ public sealed class PlayerChecks
         world.Press(GameAction.Down);
         world.Press(GameAction.Down);
         world.Press(GameAction.Jump);
+
+        // The low form's body is hers from the update after she took it.
+        world.Step(1);
         Expect.Equal(80, world.Player.BodyRect.Bottom);
 
         world.Player.CanJumpWhileCrawling = true;

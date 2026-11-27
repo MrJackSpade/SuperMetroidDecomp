@@ -1060,7 +1060,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   its time is up they fall from rest, and whatever the input asked that update is dropped. A knockback that arrives
   while a throw is under way does not begin again (`Player.Admit`, `Throw.Renew`): the throw takes the new one's way
   and its time from the start and goes on as it was, with no new rise, the player in the state they are in.
-  - *An upright player* is put in `KnockedBackState` for it, out of their control: each update they are made
+  - *An upright player* is put in `KnockedBackState` for it, out of their control. The state is entered in the
+    upright form, fitted as any taller form is: where that does not fit they are not knocked back, are put in
+    whatever form the fitting answers with, and the knockback goes on waiting for as long as it would have lasted,
+    beginning the shorter for its wait on the first update the form fits. Each update they are made
     steered again and their momentum ends; the throw is low if they were holding the way they face as it began;
     and after it they are set down for one update (pressed down once more) and stand if that met ground or fall
     from rest. Leaving that state ends the throw.

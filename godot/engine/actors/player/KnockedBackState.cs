@@ -34,29 +34,46 @@ public sealed class KnockedBackState : PlayerState
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <summary>For how many updates it has waited to begin.</summary>
+    private int _waited;
+
+    /// <summary>How long the knockback lasts from here: its own length, less as long as it has waited.</summary>
+    private int Length(Player owner) => (_updates ?? owner.KnockbackUpdates) - _waited;
+
     /// <summary>A knockback that had to wait is shorter by as long as it waited, and one that waited out its whole length does not happen.</summary>
     public override bool StillInterrupts(Player owner, int waited)
     {
-        _updates = (_updates ?? owner.KnockbackUpdates) - waited;
-        return _updates > 0;
+        _waited = waited;
+        return Length(owner) > 0;
     }
+
+    /// <summary>
+    /// An upright player is knocked back in the upright form, fitted as any taller form is: where it does not fit
+    /// they are not knocked back, and are put in whatever form the fitting answers with.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing);
+
+    /// <summary>
+    /// A knockback whose form did not fit goes on waiting for as long as it would have lasted, and begins, the
+    /// shorter for its wait, on the first update the form fits.
+    /// </summary>
+    public override bool WaitsWhenItDoesNotFit => true;
 
     /// <summary>
     /// The throw this knockback gives a player in the low form, who is thrown as they are: by the low form's own move
     /// values, on the ground or in the air as they are when it begins, and always upward.
     /// </summary>
     internal Throw ThrowOfLowForm(Player owner) =>
-        new(_toward, _updates ?? owner.KnockbackUpdates, low: false, owner.IsOnGround ? CrawlingMoves : CrawlingInAirMoves);
+        new(_toward, Length(owner), low: false, owner.IsOnGround ? CrawlingMoves : CrawlingInAirMoves);
 
     /// <summary>Renews <paramref name="under"/>, the throw already carrying the player, with this knockback's way and time.</summary>
-    internal void Renew(Player owner, Throw under) => under.Renew(_toward, _updates ?? owner.KnockbackUpdates);
+    internal void Renew(Player owner, Throw under) => under.Renew(_toward, Length(owner));
 
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(Player.Standing);
         bool low = owner.Input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left);
-        owner.BeThrown(new Throw(_toward, _updates ?? owner.KnockbackUpdates, low, KnockedBackMoves));
+        owner.BeThrown(new Throw(_toward, Length(owner), low, KnockedBackMoves));
     }
 
     /// <summary>Left for another state, as a game's way out of a knockback leaves it, the throw is over.</summary>

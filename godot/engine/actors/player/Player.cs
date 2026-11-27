@@ -771,6 +771,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _medium = null;
         _reached.Clear();
         _met.Clear();
+        _enteringAsAsked = false;
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
 
@@ -796,6 +797,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         BeforeMoving();
         MovedAs = State;
         States.Step();
+        _enteringAsAsked = false;
         DeliverBodyPowers();
         AfterState();
         CountJumpHeld();
@@ -945,7 +947,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     protected abstract PlayerState Entering(PlayerState from, PlayerState to, bool unasked);
 
     /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
-    internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
+    internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked)
+    {
+        _enteringAsAsked = !unasked;
+        return Entering(from, to, unasked);
+    }
+
+    /// <summary>
+    /// Whether the state being entered as this update's movement ends is the one the input asked for. A change of
+    /// form made for such a state stands for one made before the update's movement, and tells the view so
+    /// (<see cref="TakeFit"/>). False from the update's beginning until then, and again once the state is entered.
+    /// </summary>
+    private bool _enteringAsAsked;
 
     /// <summary>
     /// Called as a jump from the ground has gathered itself and is about to rise in the stance it began in. A game
@@ -1284,10 +1297,21 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Puts the player where a fitting leaves them, in the form it gives, and returns that form: null when they stay in the form they have.</summary>
     private string? TakeFit(FormFit fit)
     {
-        // A change of form that moves the middle of the body is not a move of the player's: the view takes them to
-        // have stood where the change leaves them, and follows nothing of this update's way down.
-        if (fit.StoodThere)
+        // A change of form that moves the middle of the body is not a move of the player's. One made for the state
+        // the input asked for stands for a change made before this update's movement: where the view takes them to
+        // have stood is shifted by the change's own lift, and the update's way is followed. Any other comes after
+        // the movement: the view takes them to have stood where the change leaves them, and follows nothing of this
+        // update's way down.
+        int lift = fit.Place.Y.Whole - Position.Y.Whole;
+        if (_enteringAsAsked)
+        {
+            if (lift != 0)
+                Room.Session.Camera.ShiftWherePlayerStoodDown(lift);
+        }
+        else if (fit.StoodThere)
+        {
             Room.Session.Camera.TakePlayerToHaveStoodAtY(fit.Place.Y.Whole);
+        }
         Position = fit.Place;
         if (fit.Form is { } taken)
             ApplyForm(taken);

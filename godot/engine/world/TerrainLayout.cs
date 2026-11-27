@@ -143,8 +143,8 @@ public sealed class TerrainLayout
                 int[] solid = tile.List("solid").Select(column => column.AsInt()).ToArray();
                 if (solid.Length != tileSize)
                     throw tile.Get("solid").Problem($"must list {tileSize} columns, one per pixel of a tile's width");
-                if (solid.Any(pixels => pixels < 0 || pixels > tileSize))
-                    throw tile.Get("solid").Problem($"must hold 0 through {tileSize} in each column");
+                if (solid.Any(pixels => pixels < -tileSize || pixels > tileSize))
+                    throw tile.Get("solid").Problem($"must hold up to {tileSize} in each column, or as far as {-tileSize} for a surface beyond the tile");
                 bool fromTop = tile.Has("from") && tile.Get("from").AsEnum<SlopeAnchor>() == SlopeAnchor.Top;
                 int share = tile.Has("share") ? tile.Int("share") : SlopeShape.WholeShare;
                 if (share is < 1 or > SlopeShape.WholeShare)

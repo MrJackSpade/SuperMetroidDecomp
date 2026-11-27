@@ -610,9 +610,11 @@ internal sealed partial class EngineLayouts
                 for (int column = 0; column < SlopeShape.Columns; column++)
                 {
                     // The old height of a column is how far its surface lies from the block's far edge, so the rest of
-                    // the column is what is solid.
+                    // the column is what is solid. A height past the block's own is a surface beyond the block, and
+                    // is written as fewer than no solid pixels: nothing comes to rest in such a column, where a
+                    // column of none still holds what would end exactly on the block's edge.
                     int across = behavior.Slope.FlipsHorizontally ? SlopeShape.Columns - 1 - column : column;
-                    solid.Add(Block - Math.Clamp(behavior.Slope.Shape.HeightAt(across), 0, Block));
+                    solid.Add(Block - Math.Max(behavior.Slope.Shape.HeightAt(across), 0));
                 }
 
                 tile["solid"] = solid;

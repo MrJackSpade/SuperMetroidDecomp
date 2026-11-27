@@ -2,7 +2,10 @@ namespace Engine.World;
 
 /// <summary>
 /// The shape of a sloped tile: for each pixel column, how many pixels of it are solid, measured up from the tile's
-/// bottom for a floor or down from its top for a ceiling.
+/// bottom for a floor or down from its top for a ceiling. A column that holds none has its surface on the tile's far
+/// edge: nothing of it is solid, and a move that would end resting exactly on that edge rests there. A column may
+/// hold fewer than none: its surface lies that many pixels beyond the tile, and nothing ever comes to rest in the
+/// column.
 /// </summary>
 public sealed class SlopeShape
 {
@@ -12,7 +15,7 @@ public sealed class SlopeShape
     /// <summary>A slope with the given solid pixels per column.</summary>
     /// <param name="solid">The solid pixels in each column, left to right; one entry per pixel of a tile's width.</param>
     /// <param name="fromTop">Whether the solid part hangs from the tile's top, as a ceiling does.</param>
-    /// <exception cref="ArgumentException">A column holds fewer than zero or more than a tile's height of pixels.</exception>
+    /// <exception cref="ArgumentException">A column holds more than a tile's height of pixels, or lies more than a tile beyond it.</exception>
     /// <param name="share">How much of a move along it the slope lets through, in 256ths; 256 is all of it.</param>
     /// <param name="holdsMiddle">Whether the slope holds things up by their middle, for movers that ask for slopes to be treated so.</param>
     /// <exception cref="ArgumentOutOfRangeException">The share is not 1 through 256.</exception>
@@ -23,8 +26,8 @@ public sealed class SlopeShape
             throw new ArgumentOutOfRangeException(nameof(step), step, $"A shape's step is 1 through {solid.Count} pixels.");
         Step = step;
         HoldsMiddle = holdsMiddle;
-        if (solid.Any(pixels => pixels < 0 || pixels > solid.Count))
-            throw new ArgumentException($"Each column of a slope holds 0 through {solid.Count} solid pixels.", nameof(solid));
+        if (solid.Any(pixels => pixels < -solid.Count || pixels > solid.Count))
+            throw new ArgumentException($"Each column of a slope holds up to {solid.Count} solid pixels, or lies up to {solid.Count} beyond the tile.", nameof(solid));
         if (share is < 1 or > WholeShare)
             throw new ArgumentOutOfRangeException(nameof(share), share, $"A slope's share is 1 through {WholeShare}.");
         _solid = [.. solid];
@@ -60,7 +63,10 @@ public sealed class SlopeShape
     /// <summary>How many columns the shape has: a tile's width in pixels.</summary>
     public int Columns => _solid.Length;
 
-    /// <summary>How many pixels of a column are solid, the columns counted from the tile's left.</summary>
+    /// <summary>
+    /// How many pixels of a column are solid, the columns counted from the tile's left; fewer than none for a column
+    /// whose surface lies that far beyond the tile.
+    /// </summary>
     public int SolidAt(int column) => _solid[column];
 
     /// <summary>
@@ -72,7 +78,7 @@ public sealed class SlopeShape
         for (int column = firstColumn; column < endColumn; column++)
         {
             int solid = _solid[column];
-            if (solid == 0)
+            if (solid <= 0)
                 continue;
             if (FromTop ? firstRow < solid : endRow > _solid.Length - solid)
                 return true;

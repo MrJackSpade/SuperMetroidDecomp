@@ -929,7 +929,7 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   down coming out aiming straight down. A landing ends standing whatever is held.
 - **Postures.** Crouching down, standing up, taking the low form and leaving it each last as long as the pictures the game
   gives them (`crouch_pictures`, `stand_pictures`, `crawl_enter_pictures`, `crawl_leave_pictures`; none is at once). For
-  that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is
+  that long the player is in `ChangingPostureState`: they have the new form from the first update (a smaller form's body at once, a taller one's from their next update, as the cartridge sets a crouch's and a morph's size at once and a stand's a frame later; the drop into the low form is tried with the low body), the input is
   not asked, and they move across only as far as a dash carries them, their own speed kept. Through a change between
   crouching and standing they can attack, aiming as they did when it began (this game's Samus fires from heights of
   the change's own, `changing_to_crouch` and `changing_to_stand` in her shot heights); through one into or out of the

@@ -1136,7 +1136,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// it. For a change in the midst of a state; the form a state is entered in is the state's to name
     /// (<see cref="PlayerState.EntersIn"/>).
     /// </summary>
-    public bool TrySetForm(string form, bool aroundMiddle = false)
+    public bool TrySetForm(string form, bool aroundMiddle = false, bool atOnce = false)
     {
         if (form == Form)
             return true;
@@ -1146,7 +1146,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         FormFit fit = FitForm(form, aroundMiddle);
         if (fit.Form is not null && fit.Form != form)
             return false;
-        return TakeFit(fit) == form;
+        if (TakeFit(fit) != form)
+            return false;
+
+        // A form asked for at once has its body from this moment, for whatever of the update is left to meet.
+        if (atOnce)
+            PublishForm();
+        return true;
     }
 
     /// <summary>Whether the body could take <paramref name="form"/> where it is, as <see cref="TrySetForm"/> would place it.</summary>

@@ -389,14 +389,19 @@ public partial class Ridley : Enemy
         switch (Revealing)
         {
             case Reveal.Delay:
+                // Its wait begins once Samus has come through the door: while the room still fades in round her its
+                // behaviour runs, as every enemy's does, and it holds.
+                if (Room.Session.Mode is DoorTransitionMode)
+                    break;
                 if (--_wait <= 0)
                     (Revealing, _fade) = (Reveal.FadeInEyes, 0);
                 break;
 
             case Reveal.FadeInEyes:
-                // Its eyes fade in a step at a time, and then glow alone a while.
+                // Its eyes fade in a step at a time, and then glow alone a while; the fade is over on the update
+                // after the last of those.
                 _fadeColours = _eyeColours[Math.Min(FadeSteps - 1, _fade / EyeFadeStepUpdates)];
-                if (++_fade < FadeSteps * EyeFadeStepUpdates + EyeHoldUpdates)
+                if (++_fade <= FadeSteps * EyeFadeStepUpdates + EyeHoldUpdates)
                     break;
                 (Revealing, _fade) = (Reveal.FadeInBody, 0);
                 IsInMotion = true;

@@ -8,6 +8,9 @@ namespace Game;
 /// <summary>
 /// Being refilled from the reserve tanks after her energy ran out: energy comes back a little each update until she
 /// is full, which empties the tanks of what is left, or the tanks are empty. She neither moves nor can be hit meanwhile, and everything else in the room waits.
+/// The energy is given as each update begins: on the update that leaves the tanks empty she is her own again before
+/// anything of it is decided, and that whole update is played, she and the enemies moving, as the cartridge's refill
+/// lets time run again before its last update's play.
 /// </summary>
 public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISamusLook
 {
@@ -35,8 +38,11 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
     public override void Enter(Player owner) =>
         _look = owner.Form == Player.Crawling ? "morph_ball" : owner.IsOnGround ? "standing" : "falling";
 
+    /// <summary>She does not move while she is refilled.</summary>
+    public override PlayerState? Move(Player owner) => null;
+
     /// <inheritdoc/>
-    public override PlayerState? Move(Player owner)
+    public override PlayerState? AsUpdateBegins(Player owner)
     {
         var samus = (Samus)owner;
         Inventory inventory = owner.Inventory;
@@ -53,7 +59,7 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
             owner.Room.Session.Sounds.Request(Sounds.EnergyRefill, channel: "samus", priority: SoundPriority.Low);
 
         // The refill is over on the update that leaves the tanks empty: she is her own again, and the room goes on,
-        // from the next.
+        // on this same update.
         return inventory.Amount(Amounts.ReserveEnergy) == 0 ? owner.StateAtRest() : null;
     }
 }

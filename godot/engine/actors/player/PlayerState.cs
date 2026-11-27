@@ -110,6 +110,14 @@ public abstract class PlayerState : State<Player>
     public virtual World.Stopped Stops => World.Stopped.Nothing;
 
     /// <summary>
+    /// What the state does as an update of play begins, before anything of the update is decided: whether a pause
+    /// that was asked for comes, what the update holds still. It returns the state the player is in for the update:
+    /// null to stay in this one, or another, in which the whole update is then played. For a state that holds the
+    /// room still for a count of its own and gives way on the update its count ends, which is then played whole.
+    /// </summary>
+    public virtual PlayerState? AsUpdateBegins(Player owner) => null;
+
+    /// <summary>
     /// Whether an interruption has to wait while the player is in this state: it stays waiting, growing older, until
     /// a state that does not hold it off has moved.
     /// </summary>

@@ -970,6 +970,17 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>What the player's input asks of <paramref name="state"/>: the game's own answer, and failing that the state's.</summary>
     internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
 
+    /// <summary>
+    /// Lets the state the player is in play its part as an update of play begins
+    /// (<see cref="PlayerState.AsUpdateBegins"/>), and puts the player in the state it gives way to, if it does.
+    /// Play calls this before it decides anything of the update.
+    /// </summary>
+    internal void BeginUpdate()
+    {
+        if (State.AsUpdateBegins(this) is { } next && !ReferenceEquals(next, State))
+            ChangeState(next);
+    }
+
     /// <summary>The state waiting to interrupt the player, if any, and how many updates it has waited.</summary>
     private PlayerState? _interruption;
     private int _interruptionWaited;

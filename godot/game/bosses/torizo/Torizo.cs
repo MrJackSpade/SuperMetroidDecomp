@@ -4,6 +4,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Game.Compatibility;
 using Game.Data;
@@ -26,8 +27,8 @@ namespace Game.Enemies;
 /// timeline; "turn:" with the timeline for when it faces right and the one for left; "land_in:" and the timeline it
 /// lands with; "landed:" with the timelines for a faceless one and for a golden one, either of which may be empty;
 /// "attack:" with the timelines for spewing and for sonic booms; "branch:" and "jump_back", "sit" or "leap";
-/// "interrupt:" with "swipe", "stagger", "eye_beam" or "eggs" and a timeline; "look:" and a look; "fade:" and a
-/// tint's name; "swipe:" with the hand's place when it faces left; "explosions:" and "gut" or "face"; "box:" with
+/// "interrupt:" with "swipe", "stagger", "eye_beam" or "eggs" and a timeline; "look:" and a look; "fade:" and the
+/// name of a colouring; "swipe:" with the hand's place when it faces left; "explosions:" and "gut" or "face"; "box:" with
 /// the left, top, width and height of the part of it that can be shot, from its place (her touch meets the same
 /// part a pixel down and right of that, as the cartridge meets the two), and 1 if that
 /// part is one of its sitting and standing-up poses or 0 if not, or "box:off" for none at all; and by themselves
@@ -36,9 +37,11 @@ namespace Game.Enemies;
 /// "turning_around", "rising", "dropping", "start_fight", "orbs", "sonic_boom", "egg", "chest_held_open",
 /// "super_missile", "clear_caught", "eye_beam", "eye_beam_flames:on", "eye_beam_flames:off" and "unstun".</para>
 /// <para>The names of its pictures may hold "{look}", which stands for the look its body has; a step with no
-/// picture leaves it as it was shown. Its data lists its "tints" by name, each as how much of the red, green and
-/// blue of its pictures shows ("r", "g", "b"), and for a golden one "health_tints", each with the least "health" it
-/// is for, highest first. "scattered_drops" is the table of what it scatters when it is gone, and "drop_scatter"
+/// picture leaves it as it was shown. Its colours are changes of the colours of its pictures
+/// (<see cref="ColourChange"/>): its data lists its "colourings" by name, for a golden one "health_colourings", each
+/// with the least "health" it is for and its "colours", highest first; "glowing_bellies", the colours its belly's glow
+/// changes as each colouring a fade runs toward shows them, by that colouring's name; and "belly_glow", the "steps" of
+/// its belly's glow, each with its "updates" and "colours", and the step it "loops_to". "scattered_drops" is the table of what it scatters when it is gone, and "drop_scatter"
 /// where: a corner of the room ("x", "y") and, across and down, how many binary digits of a number drawn are added
 /// and from which digit up. "fight_body", where given, is the body it has from the start of the fight. Its shots are
 /// "orb", "sonic_boom", "initial_drool", "drool_0" to "drool_2", "swipe", "low_health_explosion", "death_explosion",
@@ -74,19 +77,25 @@ public partial class Torizo : Enemy
     [Export, DataValue("start_look")]
     public string StartLook { get; set; } = "";
 
-    /// <summary>The tint it starts with, by name.</summary>
-    [Export, DataValue("start_tint")]
-    public string StartTint { get; set; } = "";
-
-    /// <summary>How many times it must be told to move its fade on for one to be done.</summary>
-    [Export, DataValue("fade_steps")]
-    public int FadeSteps { get; set; } = 16;
+    /// <summary>The colouring it starts with, by name.</summary>
+    [Export, DataValue("start_colouring")]
+    public string StartColouring { get; set; } = "";
 
     /// <summary>
     /// The last value of the fades' shared count at which a step of his body's fade counts as one: the step after
-    /// completes a fade by that count, whatever his own steps show.
+    /// completes a fade by that count, whatever his own steps show. His fade's colours move in as many parts, one
+    /// for each of its own steps after its first.
     /// </summary>
     private const int SharedFadeLastStep = 13;
+
+    /// <summary>The name its own colours are shown under.</summary>
+    private const string OwnColours = nameof(Torizo);
+
+    /// <summary>The colouring of its hurt flash, which hides its belly's glow while it shows.</summary>
+    private const string WhiteColouring = "white";
+
+    /// <summary>The colouring Bomb Torizo shows between the white of its hurt flash.</summary>
+    private const string NormalColouring = "normal";
 
     /// <summary>Below this health it drools, and Bomb Torizo's gut blows up.</summary>
     [Export, DataValue("gut_health")]
@@ -187,6 +196,22 @@ public partial class Torizo : Enemy
         GutAndFaceBlownUp,
     }
 
+    /// <summary>Where its belly's glow stands.</summary>
+    private enum BellyGlow
+    {
+        /// <summary>Its fight has not lit it.</summary>
+        Unlit,
+
+        /// <summary>Its fight lit it this update: its first step shows from the next.</summary>
+        Lit,
+
+        /// <summary>It steps on, round and round.</summary>
+        Glowing,
+
+        /// <summary>It ended as the Torizo's health ran out: the step it was on stays shown.</summary>
+        Out,
+    }
+
     /// <summary>
     /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
     /// things up by their middle met under its middle alone.
@@ -201,8 +226,11 @@ public partial class Torizo : Enemy
     private static readonly Pixels StatueGravity = Pixels.FromNumber(0.15625);
     private static readonly Pixels LeapGravity = Pixels.FromNumber(0.15625);
 
-    private readonly Dictionary<string, Color> _tints = new(StringComparer.Ordinal);
-    private readonly List<(int Health, Color Tint)> _healthTints = [];
+    private readonly Dictionary<string, ColourChange> _colourings = new(StringComparer.Ordinal);
+    private readonly List<(int Health, ColourChange Colours)> _healthColourings = [];
+    private readonly Dictionary<string, ColourChange> _glowingBellies = new(StringComparer.Ordinal);
+    private readonly List<(int Updates, ColourChange Colours)> _bellyGlowSteps = [];
+    private int _bellyGlowLoopsTo;
     private readonly List<Projectile> _eggs = [];
     private Stage _stage = Stage.Falling;
     private Motion _motion;
@@ -214,7 +242,6 @@ public partial class Torizo : Enemy
     private bool _caught;
     private bool _stunned;
     private bool _dying;
-    private bool _fighting;
     private bool _restingFall;
     private int _decisions;
     /// <summary>
@@ -229,10 +256,36 @@ public partial class Torizo : Enemy
     private string _look = "";
     private TimelineMark _interruptedWalk;
     private TimelineMark _interrupted;
-    private Color _tint = Colors.White;
-    private Color _fadeFrom = Colors.White;
-    private Color _fadeTo = Colors.White;
-    private int _fadeStep;
+
+    /// <summary>The colouring last shown whole: the one it starts in, one its hurt shows, or one a fade reached.</summary>
+    private ColourChange _settled = ColourChange.None;
+
+    /// <summary>
+    /// The colouring its fade runs toward, by name: the one it starts in until a timeline names another, so a fade
+    /// before then runs toward the colours shown.
+    /// </summary>
+    private string _fadeGoal = "";
+
+    /// <summary>How many parts of the way its fade has moved from <see cref="_settled"/>; null while none runs.</summary>
+    private int? _fadeMoved;
+
+    private BellyGlow _bellyGlow;
+
+    /// <summary>The step of its belly's glow that shows, once it has shown one.</summary>
+    private int _glowStep;
+
+    /// <summary>The updates the step of its belly's glow has left to show.</summary>
+    private int _glowStepLeft;
+
+    /// <summary>
+    /// The parts its fade had moved when it first stepped over the step of the glow showing, or null for none: the glow
+    /// going on to its next step starts the fade's part over it afresh.
+    /// </summary>
+    private int? _glowFadeFrom;
+
+    /// <summary>Whether its colours have changed since they were last shown.</summary>
+    private bool _coloursToShow;
+
     private string _shown = "";
     private DropTable _scatteredDrops = DropTable.Nothing;
     private Vector2I _dropCorner;
@@ -252,15 +305,20 @@ public partial class Torizo : Enemy
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        static Color Tint(DataNode tint) => new(
-            (float)tint.Distance("r").ToNumber(), (float)tint.Distance("g").ToNumber(), (float)tint.Distance("b").ToNumber());
         static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
-        _tints.Clear();
-        foreach ((string name, DataNode tint) in data.Get("tints").Entries())
-            _tints[name] = Tint(tint);
-        _healthTints.Clear();
-        if (data.Has("health_tints"))
-            _healthTints.AddRange(data.List("health_tints").Select(band => (band.Int("health"), Tint(band.Get("tint")))));
+        _colourings.Clear();
+        foreach ((string name, DataNode colours) in data.Get("colourings").Entries())
+            _colourings[name] = ColourChange.Read(colours);
+        _healthColourings.Clear();
+        if (data.Has("health_colourings"))
+            _healthColourings.AddRange(data.List("health_colourings").Select(band => (band.Int("health"), ColourChange.Read(band.Get("colours")))));
+        _glowingBellies.Clear();
+        foreach ((string name, DataNode colours) in data.Get("glowing_bellies").Entries())
+            _glowingBellies[name] = ColourChange.Read(colours);
+        DataNode glow = data.Get("belly_glow");
+        _bellyGlowSteps.Clear();
+        _bellyGlowSteps.AddRange(glow.List("steps").Select(step => (step.Int("updates"), ColourChange.Read(step.Get("colours")))));
+        _bellyGlowLoopsTo = glow.Int("loops_to");
         _scatteredDrops = DropTable.Read(data.Get("scattered_drops"));
         DataNode scatter = data.Get("drop_scatter");
         _dropCorner = new Vector2I(scatter.Int("x"), scatter.Int("y"));
@@ -277,23 +335,8 @@ public partial class Torizo : Enemy
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => !_dying && base.IsHitBy(side);
 
-    /// <inheritdoc/>
-    protected override Color RestingTint
-    {
-        get
-        {
-            if (!_fighting || _dying || _healthTints.Count == 0)
-                return _tint;
-            // The golden one darkens as its health runs down.
-            foreach ((int health, Color tint) in _healthTints)
-            {
-                if (Health.Current >= health)
-                    return tint;
-            }
-
-            return _healthTints[^1].Tint;
-        }
-    }
+    /// <summary>It shows no flash of every enemy's: its own white colouring is its flash (<see cref="WhileHurt"/>).</summary>
+    protected override bool ShowsHurtFlash => false;
 
     /// <inheritdoc/>
     protected override string PictureOf(TimelineStep step)
@@ -312,13 +355,17 @@ public partial class Torizo : Enemy
         _look = StartLook;
         _shown = "";
         SetBox(null, sitting: false);
-        _tint = Tint(StartTint);
+        _bellyGlow = BellyGlow.Unlit;
+        _fadeGoal = StartColouring;
+        ShowColouring(Colouring(StartColouring));
         _motion = Motion.Still;
         Velocity = PixelVelocity.Zero;
         FallAtRest();
         if (Solid is { } solid)
             solid.Enabled = false;
         Play(StartTimeline, restart: true);
+        // Its colours are seen from its first picture.
+        ShowColours();
         if (Golden)
             GrantSecretCode();
     }
@@ -401,6 +448,8 @@ public partial class Torizo : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
+        StepBellyGlow();
+        ShowColours();
         Player samus = Room.Player;
         // Only a spin that shows itself the space jump's counts: the screw attack's, with the space jump on too, does not.
         if (Golden)
@@ -662,14 +711,11 @@ public partial class Torizo : Enemy
                 break;
 
             case "fade":
-                (_fadeFrom, _fadeTo, _fadeStep) = (_tint, Tint(parts[1]), 0);
+                FadeToward(parts[1]);
                 break;
 
             case "advance_fade":
-                // Each step is also one of the count every gradual fade shares, which his waking leaves at one.
-                Room.Session.Service<SharedFadeCount>().TakeStep(SharedFadeLastStep);
-                if (_fadeStep < FadeSteps)
-                    _tint = _fadeFrom.Lerp(_fadeTo, (float)++_fadeStep / FadeSteps);
+                StepFade();
                 break;
 
             case "show":
@@ -773,7 +819,9 @@ public partial class Torizo : Enemy
                 break;
 
             case "start_fight":
-                _fighting = true;
+                // The fight lights its belly's glow, whose first step shows on the next update.
+                if (_bellyGlow == BellyGlow.Unlit)
+                    _bellyGlow = BellyGlow.Lit;
                 if (_fightBody is { } fightBody && Body is { } body)
                     body.Rect = fightBody;
                 if (FightMusic.Length > 0)
@@ -976,10 +1024,158 @@ public partial class Torizo : Enemy
     }
 
     /// <summary>
-    /// Hurt, it does nothing of its own but drool as it does at low health, by the same chance: its behaviour waits
-    /// and its colours are the flash's.
+    /// Hurt, it does nothing of its own but drool as it does at low health, by the same chance, and show its own
+    /// flash: white on each update its flash has an odd number of updates left, and on the others Bomb Torizo its
+    /// normal colouring and the golden one the colouring of its health.
     /// </summary>
-    protected override void WhileHurt() => MaybeDrool();
+    protected override void WhileHurt()
+    {
+        StepBellyGlow();
+        MaybeDrool();
+        ShowColouring(HurtFlashLeft % 2 == 1 ? Colouring(WhiteColouring) : Golden ? HealthColouring() : Colouring(NormalColouring));
+    }
+
+    /// <summary>
+    /// Shows <paramref name="colouring"/> at once: a fade running goes on from it on its next step, and its belly's
+    /// glow shows over it unless it is the white of its flash.
+    /// </summary>
+    private void ShowColouring(ColourChange colouring)
+    {
+        _settled = colouring;
+        _fadeMoved = null;
+        _glowFadeFrom = null;
+        _coloursToShow = true;
+        ShowColours();
+    }
+
+    /// <summary>Names the colouring its fade runs toward; unless one has moved already, the fade starts from the colours shown.</summary>
+    private void FadeToward(string colouring)
+    {
+        if (_fadeMoved is not > 0)
+        {
+            _fadeMoved = null;
+            _glowFadeFrom = null;
+        }
+
+        _fadeGoal = colouring;
+        _coloursToShow = true;
+        ShowColours();
+    }
+
+    /// <summary>
+    /// Takes a step of its fade by the count every gradual fade shares, which his waking leaves at one. The step the
+    /// count completes a fade on leaves it in the colouring faded toward, or in a colouring its hurt showed since its
+    /// last step; on any other, its first step shows the colours it starts from and each one after moves a part more.
+    /// </summary>
+    private void StepFade()
+    {
+        if (Room.Session.Service<SharedFadeCount>().TakeStep(SharedFadeLastStep))
+        {
+            if (_fadeMoved is not null)
+                _settled = Colouring(_fadeGoal);
+            _fadeMoved = null;
+            _glowFadeFrom = null;
+        }
+        else
+        {
+            int movedBefore = _fadeMoved ?? 0;
+            _fadeMoved = _fadeMoved is { } moved ? Math.Min(moved + 1, SharedFadeLastStep) : 0;
+            if (_bellyGlow is BellyGlow.Glowing or BellyGlow.Out)
+                _glowFadeFrom ??= movedBefore;
+        }
+
+        _coloursToShow = true;
+        ShowColours();
+    }
+
+    /// <summary>
+    /// Moves its belly's glow on, as the update begins and before anything of its own: once lit, its first step shows,
+    /// and each step after when the one before has had its updates, round and round; on the first update it has no
+    /// health it ends, and the step it was on stays shown.
+    /// </summary>
+    private void StepBellyGlow()
+    {
+        switch (_bellyGlow)
+        {
+            case BellyGlow.Lit:
+                _bellyGlow = BellyGlow.Glowing;
+                ShowGlowStep(0);
+                break;
+
+            // Its health as the update began is gone when it has none and no hit of this turn hurt it: its death is
+            // its last hurt, and nothing hits it after.
+            case BellyGlow.Glowing when Health.Current == 0 && !WasJustHurt:
+                _bellyGlow = BellyGlow.Out;
+                break;
+
+            case BellyGlow.Glowing:
+                if (--_glowStepLeft == 0)
+                    ShowGlowStep(_glowStep + 1 < _bellyGlowSteps.Count ? _glowStep + 1 : _bellyGlowLoopsTo);
+                break;
+
+            case BellyGlow.Unlit or BellyGlow.Out:
+                break;
+
+            default:
+                throw new InvalidOperationException($"A Torizo's belly glow has no stage {_bellyGlow}.");
+        }
+    }
+
+    /// <summary>Shows step <paramref name="step"/> of its belly's glow for that step's updates; a fade running goes on over it afresh.</summary>
+    private void ShowGlowStep(int step)
+    {
+        _glowStep = step;
+        _glowStepLeft = _bellyGlowSteps[step].Updates;
+        _glowFadeFrom = null;
+        _coloursToShow = true;
+    }
+
+    /// <summary>Shows its colours on its visual, once they have changed and it shows a picture to change them on.</summary>
+    private void ShowColours()
+    {
+        if (!_coloursToShow || Visual is not { } visual || visual.Picture.Length == 0)
+            return;
+        visual.Recolour(OwnColours, ColoursOn(visual));
+        _coloursToShow = false;
+    }
+
+    /// <summary>
+    /// The colours it shows on <paramref name="visual"/> now: its colouring, or its fade's part of the way from it to the
+    /// colouring faded toward; and over that, but for the white of its flash, its belly's glow, which a moving fade
+    /// takes toward the glowing colours of the colouring faded toward, from the step of the glow showing, by the parts
+    /// the fade has moved since it first stepped over that step.
+    /// </summary>
+    private IReadOnlyList<ColourSwap> ColoursOn(IRecoloured visual)
+    {
+        ColourChange? goal = _fadeMoved is > 0 ? Colouring(_fadeGoal) : null;
+        IReadOnlyList<ColourSwap> shown = goal is null
+            ? _settled.On(visual)
+            : CartridgeColours.PartWay(_settled.On(visual), goal.On(visual), _fadeMoved!.Value, SharedFadeLastStep);
+        if (_bellyGlow is not (BellyGlow.Glowing or BellyGlow.Out) || ReferenceEquals(_settled, Colouring(WhiteColouring)))
+            return shown;
+        IReadOnlyList<ColourSwap> glowing = CartridgeColours.LaidOver(shown, _bellyGlowSteps[_glowStep].Colours.On(visual));
+        if (goal is null)
+            return glowing;
+        ColourChange glowingGoal = _glowingBellies.TryGetValue(_fadeGoal, out ColourChange? belly)
+            ? belly
+            : throw new InvalidOperationException($"The Torizo \"{Name}\" has no glowing belly for the colouring \"{_fadeGoal}\".");
+        (int moved, int parts) = _glowFadeFrom is not { } overGlowFrom ? (0, SharedFadeLastStep)
+            : SharedFadeLastStep == overGlowFrom ? (1, 1)
+            : (_fadeMoved!.Value - overGlowFrom, SharedFadeLastStep - overGlowFrom);
+        return CartridgeColours.PartWay(glowing, CartridgeColours.LaidOver(shown, glowingGoal.On(visual)), moved, parts);
+    }
+
+    /// <summary>The colouring of the golden one's health: the first, highest first, whose least health it has.</summary>
+    private ColourChange HealthColouring()
+    {
+        foreach ((int health, ColourChange colours) in _healthColourings)
+        {
+            if (Health.Current >= health)
+                return colours;
+        }
+
+        throw new InvalidOperationException($"The Torizo \"{Name}\" has no colouring for its health of {Health.Current}.");
+    }
 
     /// <summary>Now and then, when its health is low, a drop falls from it.</summary>
     private void MaybeDrool()
@@ -1062,10 +1258,10 @@ public partial class Torizo : Enemy
         _ => throw new InvalidOperationException($"A Torizo's cue names the side \"{side}\", which is neither left nor right."),
     };
 
-    /// <summary>The tint of a name from its data.</summary>
-    private Color Tint(string name) => _tints.TryGetValue(name, out Color tint)
-        ? tint
-        : throw new InvalidOperationException($"The Torizo \"{Name}\" has no tint named \"{name}\".");
+    /// <summary>The colouring of a name from its data.</summary>
+    private ColourChange Colouring(string name) => _colourings.TryGetValue(name, out ColourChange? colouring)
+        ? colouring
+        : throw new InvalidOperationException($"The Torizo \"{Name}\" has no colouring named \"{name}\".");
 
     /// <summary>
     /// Holding jump, run, fire and item cancel and nothing else as the golden one's room begins fills Samus's energy and

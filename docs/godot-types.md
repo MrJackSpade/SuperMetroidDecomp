@@ -184,6 +184,13 @@ something that leaves the room.
   on a circle, and the grapple beam's own angle, counted clockwise from up. The engine's
   `Turns` are the engine's (rounded, in 65536ths) and give other numbers; an enemy takes the member its cartridge
   code takes (the engine hands out the sine's share of any peak, `Turns.HalfWave`, for such a table).
+  `CartridgeColours` is the cartridge's arithmetic on a picture's colours, for a boss whose colours depend on what
+  it is doing: such a boss works out the colours it shows from changes of colours written as data, each settled
+  colouring once, and shows them on its visuals under its own name (`IRecoloured.Recolour`), not by steps that play
+  by themselves (`ColourSteps`). One change laid over another takes the later's word on every colour it names; a fade
+  part of the way from one to another moves each of a colour's red, green and blue by the cartridge's own thirty-two
+  steps of brightness, the difference times the fade's step over its steps, cut off toward nothing, as the
+  extractor's fades written ahead of time do. The Torizos' colourings, fades and belly's glow are worked out so.
   `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll
   layout loads all fifty (its own screens and what the layout's load writes after them, from
   `rooms/scroll_layouts.json`), a room with none writes only its own, and the camera reads the cells past a room's
@@ -1711,7 +1718,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   (`EyeDoorEye`, with the growth around its door as two visuals and its spit a `Projectile` of its own): an enemy
   each. An eye door's cap is a `Barrier` held shut by "the eye placed here is gone", and the eye is placed only
   while its destroyed fact is not recorded.
-- Mini-bosses and bosses, each one scene: Bomb Torizo, Golden Torizo (one scene, two data files); Spore Spawn
+- Mini-bosses and bosses, each one scene: Bomb Torizo, Golden Torizo (one scene, two data files; its colourings,
+  the golden one's by its health, the white of its own hurt flash, which stands in for every enemy's, and its belly's
+  glow are changes of the colours of its pictures, and it works out each update its fade from one colouring to
+  another and the glow's steps laid over them and fading with them, by `CartridgeColours`); Spore Spawn
   (the pieces of its shell and its core are hurtboxes that its timelines' "pose" cues move to where each frame has
   them, a shot meeting the first of them in the scene's order; how hurt it is and each step of its hardening are
   sets of its pictures, its stalk's with them; the places its spores come from are visuals whose own timeline lets

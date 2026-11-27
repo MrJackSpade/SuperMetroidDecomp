@@ -138,6 +138,19 @@ def strings(values: list[str]) -> str:
     return 'Array[String]([' + ', '.join(quoted(value) for value in values) + '])'
 
 
+# Each effect selection a room state can name, for what its effect says of the room's background.
+ROOM_FX = legacy.room_fx()
+
+
+def darkens_room(state: legacy.State) -> dict[str, str]:
+    """
+    What a room's background is given where the room's effect lays the background behind the room: it is not shown
+    itself but taken from the room's colours, as in the cartridge's waterfall rooms.
+    """
+    effect = ROOM_FX[state.fx]['default']
+    return {'DarkensRoom': 'true'} if effect is not None and effect['background_behind'] else {}
+
+
 class Sequences:
     """The sequences and backdrops of one version of a room."""
 
@@ -167,14 +180,16 @@ class Sequences:
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 # A background is coloured by the room's set of graphics, so its picture is kept once for each set.
                 'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
-                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False))
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT,
+                **darkens_room(state)}, at=(0, 0), enemy=False))
 
         elif state.background == 'null':
             # What the level draws behind itself, which is kept as one picture for each set of graphics it is drawn in.
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 'Picture': quoted(f'backdrops/{{graphics}}/level_{snake(state.level)}.png'),
-                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False))
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT,
+                **darkens_room(state)}, at=(0, 0), enemy=False))
 
         if room.area == 'Brinstar':
             # The plants that seize Samus are blocks of the layout: one watcher finds and plays whichever the room has.

@@ -16,13 +16,27 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     private Ui.Recolouring? _recolouring;
 
     /// <inheritdoc/>
-    public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
+    public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => Colours.Recolour(source, swaps);
+
+    /// <summary>
+    /// Whether the picture is not shown behind the room but taken from the colours of the room it lies behind: its
+    /// tiles, what stands in it and the colour behind everything are darkened by it, and where it has nothing they
+    /// are as they are. The cartridge shows a background so where a room's effect lays the background behind the
+    /// room with the effect's own picture, as its two waterfall rooms do. The room draws such a layer over itself.
+    /// </summary>
+    [Export]
+    public bool DarkensRoom { get; set; }
+
+    /// <summary>What changes its colours and waves its rows, made the first time it is wanted: with the blend that takes its picture from what is under it, for a layer that darkens its room.</summary>
+    private Ui.Recolouring Colours => _recolouring ??= DarkensRoom
+        ? new Ui.Recolouring(this, CanvasItemMaterial.BlendModeEnum.Sub)
+        : new Ui.Recolouring(this);
 
     /// <summary>
     /// Adds a colour to, or takes one from, every colour of its picture, in place of what <paramref name="source"/>
     /// last asked; <see cref="Shared.ColourShift.None"/> takes it back.
     /// </summary>
-    public void Shift(string source, Shared.ColourShift shift) => (_recolouring ??= new Ui.Recolouring(this)).Shift(source, shift);
+    public void Shift(string source, Shared.ColourShift shift) => Colours.Shift(source, shift);
 
     /// <summary>The picture it shows as its room's content names it, with the room's set of graphics put in; empty before it is set up or with no picture.</summary>
     private string _pictureNamed = "";
@@ -72,8 +86,13 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     internal virtual void Setup(ContentLibrary content, Vector2I roomSize)
     {
         _roomSize = roomSize;
+
+        // One that darkens its room is drawn by taking its picture from what is under it, from the first.
+        if (DarkensRoom)
+            Colours.Begin();
         _texture = Picture.Length > 0 ? content.LoadTexture(Picture) : null;
-        _textureInFront = Picture.Length > 0 ? content.LoadFrontOf(Picture) : null;
+        // One that darkens its room lies whole over the room: no part of it is drawn again in front of the room's things.
+        _textureInFront = Picture.Length > 0 && !DarkensRoom ? content.LoadFrontOf(Picture) : null;
         _pictureNamed = Picture.Length > 0 ? content.Named(Picture) : "";
         if (_textureInFront is not null && _front is null)
         {
@@ -136,7 +155,7 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     {
         if (!FollowsAsItsShareSays || (wave is null && _recolouring is null))
             return;
-        (_recolouring ??= new Ui.Recolouring(this)).Wave(wave);
+        Colours.Wave(wave);
     }
 
     /// <summary>Places the layer for a view whose top-left corner is at <paramref name="viewTopLeft"/> in the room.</summary>

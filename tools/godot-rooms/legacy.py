@@ -456,6 +456,9 @@ def _room_effect(expression: str) -> dict | None:
         'speed': a[2], 'delay': int(a[3]), 'type': last_name(a[4]), 'tide': tide.group(1) if tide else 'None',
         'colours': re.findall(r'ColourEffectId\.(\w+)', a[8]), 'tint': last_name(a[10]),
         'drifts': 'SurfaceDrift: true' in a[7],
+        # Whether the effect's blend lays the room's background behind the room with the effect's own picture: the
+        # background is then seen only as what it takes from the room's colours.
+        'background_behind': last_name(a[6]) == 'WaterfallDarkensBehind',
         # Whether what lies behind the room wavers with its liquid: water's background wave, or the heat's sway.
         'waves_backdrops': 'BackgroundWave: true' in a[7] or 'HeatHazeDirection.Vertical' in a[7],
         # Water Samus's movement ignores until something of the room lets it at her: the water behind the glass tube.

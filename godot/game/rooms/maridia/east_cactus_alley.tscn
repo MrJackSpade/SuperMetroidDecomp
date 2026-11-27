@@ -140,3 +140,4 @@ position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_east_cactus_alley.png"
 ScrollShare = Vector2(1, 1)
 LiesAt = Vector2i(0, -1)
+DarkensRoom = true

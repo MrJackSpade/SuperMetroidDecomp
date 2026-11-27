@@ -257,6 +257,12 @@ public sealed class Recolouring
     /// <summary>How the thing is drawn onto what is under it.</summary>
     private readonly CanvasItemMaterial.BlendModeEnum _blend = CanvasItemMaterial.BlendModeEnum.Mix;
 
+    /// <summary>
+    /// Has the thing drawn through the shader from now, though nothing has been asked of it yet: for a thing made
+    /// with a blend, which is drawn with that blend from the first.
+    /// </summary>
+    public void Begin() => Show();
+
     /// <summary>The shader's text for the thing's blend: as it is for one that covers what is under it, and with the blend said after its first line otherwise.</summary>
     /// <exception cref="InvalidOperationException">The blend is one the shader is not written for, or the shader no longer begins as it did.</exception>
     private string Blended(string code)

@@ -277,10 +277,11 @@ public partial class Draygon : Enemy
     }
 
     /// <summary>
-    /// Whether a hit can reach it: dying, it is hit still until its cry makes it intangible, and every such hit begins
-    /// its death again (<see cref="BeginDeath"/>).
+    /// Whether a hit can reach it: not from the moment it chases Samus until it lets her go or has flown off without
+    /// her, a death begun meanwhile included, when her shots pass through it as her touch does; dying, it is hit still
+    /// until its cry makes it intangible, and every such hit begins its death again (<see cref="BeginDeath"/>).
     /// </summary>
-    public override bool IsHitBy(HitSide side) => !_intangible && base.IsHitBy(side);
+    public override bool IsHitBy(HitSide side) => !_intangible && !_passesThroughSamus && base.IsHitBy(side);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()

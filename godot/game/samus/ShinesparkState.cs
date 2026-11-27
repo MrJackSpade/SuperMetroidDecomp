@@ -108,7 +108,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             owner.Position += PixelOffset.FromWhole(0, -samus.ShinesparkLift);
             owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);
         }
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
+
+        // The windup's body is hers at once, as the cartridge sets the windup pose's size as it is taken up.
+        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true, atOnce: true);
         samus.BoostFully();
         samus.BeginSparkColouring();
         samus.EndHurt();

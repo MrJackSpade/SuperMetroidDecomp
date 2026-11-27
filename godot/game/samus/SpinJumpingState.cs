@@ -97,8 +97,12 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         _ => Sounds.SpinJump,
     };
 
-    /// <inheritdoc/>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Samus.Spinning), AroundMiddle: true);
+    /// <summary>
+    /// The spin's smaller body, about her middle. A spin a moonwalk's turn runs out into is hers with that body at
+    /// once, as the cartridge sets the spin pose's size as the turn's end takes it up.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) =>
+        new FormAsked(owner.FormOr(Samus.Spinning), AroundMiddle: true, AtOnce: _start == Start.Adrift);
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

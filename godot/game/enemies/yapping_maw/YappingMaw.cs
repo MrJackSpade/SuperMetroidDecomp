@@ -171,9 +171,10 @@ public partial class YappingMaw : Enemy
         // as it lets her go. Out of a spin or a wall jump it stands her up first, body and all.
         if (samus.State is SpinJumpingState or WallJumpingState)
         {
-            // Held as one standing: that is how she is shown, and letting go leaves her at rest.
+            // Held as one standing: that is how she is shown, and letting go leaves her at rest. The standing body is
+            // hers at once, as the cartridge's Maw sets the standing pose's size as it stands her up.
             samus.ChangeState(new HeldState(new StandingState()));
-            samus.TrySetForm(Engine.Actors.Player.Standing);
+            samus.TrySetForm(Engine.Actors.Player.Standing, atOnce: true);
         }
         else
         {

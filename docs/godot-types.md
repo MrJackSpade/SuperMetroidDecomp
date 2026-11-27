@@ -1235,11 +1235,19 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   blast that ends beneath a message offers the flash at once, by what was held on the last update she played, and
   asks for nothing again.
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
-  form as it begins with no feeling for room (`FormAsked.Unfitted`), rises two pixels an update for ten through
+  form as it begins with no feeling for room (`FormAsked.Unfitted`), and with its body at once, rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three
   pictures, then standing, set down a pixel an update while she is off the height she rose to. What a hurt
   left her is ended as it begins, as the rise ends, on every update of the taking and as it lets her go, so
   whatever touches her while her ammunition is taken hurts her every update; nothing knocks her back.
+- **Some changes of her form take their body at once** (`FormAsked.AtOnce`, or `atOnce` given to `TrySetForm`), as
+  the cartridge sets the size of those poses as it puts her in them, so that what meets her for the rest of the
+  update meets the new body: a shinespark's windup, Draygon's grab, a Yapping Maw standing her up out of a spin or
+  a wall jump, a crystal flash's start, the spin a moonwalk's turn runs out into with no jump begun, and the jump's
+  pose an upright bomb jump throws her in; with crouching and curling up, which the engine's change of posture
+  takes so. A landing, standing up, leaving the ball on the ground, a jump from the ground or from a crouch, a wall
+  jump, an aim taken up in the air, a turn in the air and a knockback take their body from her next update, as the
+  cartridge's do.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
   tells the game's as its feet have crossed a liquid's surface (`Player.OnSplashed`).
 - **Her colours** (`SamusColours`) hold the colouring her suit shows and the colouring her beams show. Every colouring,

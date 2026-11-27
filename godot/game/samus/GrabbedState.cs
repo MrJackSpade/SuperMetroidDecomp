@@ -68,7 +68,9 @@ public sealed class GrabbedState : PlayerState, ISamusLook
     {
         owner.Velocity = PixelVelocity.Zero;
         owner.LoseMomentum();
-        owner.TrySetForm(Player.Standing);
+
+        // The grab's body is hers at once, as the cartridge sets the grabbed pose's size as it seizes her.
+        owner.TrySetForm(Player.Standing, atOnce: true);
     }
 
     /// <inheritdoc/>

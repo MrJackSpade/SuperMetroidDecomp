@@ -67,8 +67,11 @@ public sealed class CrystalFlashState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool InControl => false;
 
-    /// <summary>She is upright from the flash's start, her middle where it was: the cartridge feels for no room.</summary>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing, Unfitted: true);
+    /// <summary>
+    /// She is upright from the flash's start, her middle where it was, with the upright body at once: the cartridge
+    /// feels for no room, and sets the flash pose's size as it takes it up.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing, Unfitted: true, AtOnce: true);
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

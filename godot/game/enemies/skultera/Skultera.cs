@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Shared;
 using Engine.World;
 using Game.Compatibility;
@@ -61,14 +62,14 @@ public partial class Skultera : Enemy
             return;
         }
 
-        if (MoveAcrossBy(Facing.Toward(Pixels.FromNumber(Speed))))
+        if (GoAcross(Facing.Toward(Pixels.FromNumber(Speed))))
         {
             BeginTurn();
             return;
         }
 
         int bob = Bob();
-        if (MoveDownBy(Pixels.FromWhole(bob - _lastBob)))
+        if (GoDown(Pixels.FromWhole(bob - _lastBob)))
             BeginTurn();
         else
             // Its wave steps on while it swims the way it set off, and back while it swims the other way.
@@ -97,4 +98,23 @@ public partial class Skultera : Enemy
         Facing = Facing.Opposite();
         Play(Facing == Facing.Left ? "turning_left" : "turning_right", restart: true);
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool GoAcross(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool GoDown(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Skultera \"{Name}\" has no body collider.");
 }

@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Godot;
@@ -101,7 +102,7 @@ public partial class FakeKraid : Enemy
                 }
                 else
                 {
-                    reverse = MoveAcrossBy(_walking.Toward(Pixels.FromWhole(StepPixels)));
+                    reverse = Room.Mover.MoveAcross(MovingBody(), _walking.Toward(Pixels.FromWhole(StepPixels)), StridesAcross).Blocked;
                 }
 
                 if (reverse)
@@ -139,4 +140,14 @@ public partial class FakeKraid : Enemy
 
     /// <summary>The side of it Samus is on; level with it counts as left.</summary>
     private Facing SideOfSamus() => Position.X.Whole < Room.Player.Position.X.Whole ? Facing.Right : Facing.Left;
+
+    /// <summary>
+    /// How a step across is tried, as the cartridge moves an enemy across: only where it would end, and sloped ground
+    /// that holds things up by their middle no part of it.
+    /// </summary>
+    private static readonly MoveOptions StridesAcross =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The small Kraid \"{Name}\" has no body collider.");
 }

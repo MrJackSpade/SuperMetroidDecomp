@@ -630,7 +630,7 @@ public partial class Crocomire : Enemy, ILatchable
                     _ => throw new InvalidOperationException($"Crocomire takes a step \"{parts[2]}\", which it does not know."),
                 };
                 if (moves)
-                    MoveAcrossBy(Pixels.FromWhole(int.Parse(parts[1], CultureInfo.InvariantCulture)));
+                    Stride(int.Parse(parts[1], CultureInfo.InvariantCulture));
                 break;
             case "dust":
                 RaiseDust(int.Parse(parts[1], CultureInfo.InvariantCulture));
@@ -654,7 +654,7 @@ public partial class Crocomire : Enemy, ILatchable
                 Sound(ShakeSound);
                 break;
             case "toward_spike_wall":
-                if (MoveAcrossBy(Pixels.FromWhole(-4)))
+                if (Stride(-4))
                 {
                     _phase = Phase.BackingOffSpikeWall;
                     Play("back_off_from_spike_wall", restart: true);
@@ -1238,4 +1238,16 @@ public partial class Crocomire : Enemy, ILatchable
         if (++_rumble < _rumbles.Count)
             _rumbleRepeats = _rumbles[_rumble].Repeats;
     }
+
+    /// <summary>
+    /// How a step across is tried, as the cartridge moves an enemy across: only where it would end, and sloped ground
+    /// that holds things up by their middle no part of it.
+    /// </summary>
+    private static readonly MoveOptions StridesAcross =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Steps him <paramref name="pixels"/> whole pixels across, rightward when more than nothing; returns whether a wall stopped him.</summary>
+    private bool Stride(int pixels) =>
+        Room.Mover.MoveAcross(
+            Body ?? throw new InvalidOperationException("Crocomire has no body collider."), Pixels.FromWhole(pixels), StridesAcross).Blocked;
 }

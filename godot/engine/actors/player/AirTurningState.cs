@@ -20,7 +20,10 @@ public sealed class AirTurningState : PlayerState
     /// <summary>Whether the turn came from a jump, and gives way to one; otherwise from a fall.</summary>
     public bool FromJump { get; }
 
-    /// <summary>Whether the input asks a player in the air to turn: it steers against the way they face.</summary>
+    /// <summary>
+    /// Whether the input asks a player in the air to turn: it steers against the way they face. A state asks it before
+    /// it reads the aim from what is held, so the turn is made with the aim the player had.
+    /// </summary>
     public static bool IsAskedFor(Player owner) => owner.Intent != 0 && (owner.Intent > 0) != (owner.Facing == Facing.Right);
 
     /// <inheritdoc/>

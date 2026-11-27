@@ -41,9 +41,11 @@ public sealed class FallingState : PlayerState
         // The stance held as the update begins decides how its input is read.
         bool armOutOrAimingDown = owner.Aim == Shared.Aim.Down || (owner.Aim == Shared.Aim.Forward && Arm == AirArm.Out);
         _aimsBeforeTurning = armOutOrAimingDown && (owner.Input.IsHeld(GameAction.Up) || owner.Input.IsHeld(GameAction.Down));
-        owner.AimFromInput();
+
+        // A turn is made aiming as the player aimed before it: what is held with the way behind aims nothing.
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: false);
+        owner.AimFromInput();
         AirStance asked = AirStance.Of(owner, forwardCounts: false);
         _stanceAsked = _stance is { } held ? held.Kept(asked) : asked;
         return AirStance.AsksNothing(owner, jumpCounts: false) ? null : this;

@@ -128,10 +128,11 @@ public sealed class JumpingState : PlayerState
             _gathered = true;
         }
 
-        owner.AimFromInput();
-        _stanceAsked = Stance.Kept(AirStance.Of(owner, forwardCounts: true));
+        // A turn is made aiming as the player aimed before it: what is held with the way behind aims nothing.
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: true);
+        owner.AimFromInput();
+        _stanceAsked = Stance.Kept(AirStance.Of(owner, forwardCounts: true));
         return AirStance.AsksNothing(owner, jumpCounts: true) ? null : this;
     }
 

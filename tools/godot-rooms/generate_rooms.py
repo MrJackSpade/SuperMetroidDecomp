@@ -87,6 +87,15 @@ BOSS_MOVED_LIQUIDS = {'Ridley', 'MotherBrain'}
 
 # The speed the lavaquake gives its hall's lava as it begins (SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity).
 LAVAQUAKE_START = 0.5
+
+# Lava's bubbling: the liquid's moves between one bubbling and the next, and the sounds the number's lowest three
+# digits take in turn (LavaAcidWaveDefinitions: AmbientSoundPeriod, AmbientSound).
+_BUBBLING = legacy.read('Fx', 'LavaAcidWaveDefinitions.cs')
+LAVA_BUBBLING = {
+    'interval': int(re.search(r'AmbientSoundPeriod = (\d+);', _BUBBLING).group(1)),
+    'sounds': ['enemy_' + enemies.snake(name) for name in re.findall(
+        r'EnemySound\.(\w+)', re.search(r'AmbientSound = .*?InTurn\((.*?)\);', _BUBBLING, re.S).group(1))],
+}
 CHOZO_ACID_FALL = 0.25
 CHOZO_ACID_DELAY = 32
 CHOZO_ACID_LOWERED = 'lower_norfair_acid_lowered'
@@ -643,6 +652,12 @@ class Generator:
                 shown.append(sequences.sequence('RisingLiquidQuake.cs', 'LiquidQuake', {
                     'StartsWhen': ctx.always(), 'Sound': quoted('enemy_lavaquake'),
                     **({'Silent': 'true'} if key in SILENT_QUAKES else {})}))
+            # Lava bubbles while its surface is in the room; acid does not (the old RoomFxTypeDefinitions: only
+            # lava's BubblesAmbiently).
+            if any(thing.name == 'Liquid' and thing.properties.get('TypeFile') == quoted('liquids/lava.json') for thing in shown):
+                shown.append(sequences.sequence('LavaBubbling.cs', 'LavaBubbling', {
+                    'StartsWhen': ctx.always(), 'Interval': str(LAVA_BUBBLING['interval']),
+                    'Sounds': sequences.strings(LAVA_BUBBLING['sounds'])}))
             if lowers_acid:
                 # The statue gives the acid its wait as it gives it its speed (ChozoStatueFxData.LoweringDelay).
                 for thing in shown:

@@ -1993,7 +1993,10 @@ the room's tiles with it, at `RoomDepth.BehindRoom`; each effect a guardian lets
 light of that guardian's eyes), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
-(`SpeedBoosterLavaquake`). Kraid's room, once he is beaten, shows the colours his death's last fade ends on from the
+(`SpeedBoosterLavaquake`). Every room with lava has its bubbling (`LavaBubbling`, in `game/rooms/`): an opening step
+(`IOpeningStep`) that counts the liquid's moves, the first only starting the count, and every 112th move while the
+surface lies within the room asks for one of the three bubbling sounds, chosen by the number as it stood before lava
+stirred it on that move, read and not drawn. Acid does not bubble. Kraid's room, once he is beaten, shows the colours his death's last fade ends on from the
 moment it is set up (`KraidRoomColours`, in `game/rooms/brinstar/`: the last step of the "sunk" fade of his data, on
 the room's pictures). The escape:
 explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinstar that seize Samus (`SamusEaters`, in `game/rooms/brinstar/`): one in each Brinstar room finds the blocks of the terrain that are plants, by their block type, and plays each: it holds her, shows its chewing as patches of the terrain named for where the plant is, hurts her at each bite, lets her go and stays shut a while.

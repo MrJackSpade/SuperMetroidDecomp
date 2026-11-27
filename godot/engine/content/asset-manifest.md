@@ -58,7 +58,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/torizo_super_missile.json` | `TorizoSuperMissile` | gravity, throw_speed |
 | `cinematics/intro_egg.json` | `IntroEgg` | cry_sound, hatch_sound, slime, slime_splash |
 | `cinematics/intro_mother_brain.json` | `IntroMotherBrain` | big_explosion, contact_damage, health, ring, small_explosion |
-| `enemies/alcoon.json` | `Alcoon` | contact_damage, emerge_across_distance, emerge_down_distance, emerge_jump_speed, emerge_sound, gravity, health, hide_distance, hide_jump_speed, muzzle_across, muzzle_up, stride |
+| `enemies/alcoon.json` | `Alcoon` | contact_damage, emerge_across_distance, emerge_down_distance, emerge_jump_speed, emerge_sound, fire_sound, gravity, health, hide_distance, hide_jump_speed, muzzle_across, muzzle_up, stride |
 | `enemies/alcoon_fireball.json` | `AlcoonFireball` | slowing, steady_speed |
 | `enemies/armored_zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/atomic.json` | `Atomic` | contact_damage, health |
@@ -82,7 +82,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/dead_torizo.json` | `DeadTorizo` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows, sand_line_updates, sand_lines, sand_rows |
 | `enemies/dessgeega.json` | `Hopper` | across_speed, big_hop_height, big_hop_step, contact_damage, fastest_mark, health, small_hop_height, small_hop_step, speed_curve |
 | `enemies/dessgeega_large.json` | `Hopper` | across_speed, big_hop_height, big_hop_step, contact_damage, fastest_mark, health, small_hop_height, small_hop_step, speed_curve |
-| `enemies/dragon.json` | `Dragon` | contact_damage, fireball_rise, health, muzzle_across, muzzle_up, rise_updates, shots_per_attack, wait_before_rising, wait_before_sinking |
+| `enemies/dragon.json` | `Dragon` | contact_damage, fireball_rise, health, muzzle_across, muzzle_up, rise_updates, shots_per_attack, spit_sound, wait_before_rising, wait_before_sinking |
 | `enemies/evir.json` | `Evir` | arms_across, arms_down, contact_damage, grip_across, grip_down, health |
 | `enemies/evir_spit.json` | `EvirSpit` | contact_damage, health, regrow_distance, regrow_margin, speed, throw_distance |
 | `enemies/eye_door_eye.json` | `EyeDoorEye` | contact_damage, dud_sound, health, hit_sound, hits_to_destroy, puff_effect, smoke_effect, spit_sound |
@@ -104,9 +104,9 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, first_sound_after, gravity, health, homing_distance, jump_speed, shortest_wait, sound |
 | `enemies/kamer.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/ki_hunter_acid.json` | `KiHunterAcid` | fastest_fall, gravity, launch_shift, splash |
-| `enemies/ki_hunter_green.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
-| `enemies/ki_hunter_red.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
-| `enemies/ki_hunter_yellow.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
+| `enemies/ki_hunter_green.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_sound, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
+| `enemies/ki_hunter_red.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_sound, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
+| `enemies/ki_hunter_yellow.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_sound, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
 | `enemies/kzan.json` | `Kzan` | contact_damage, fall_quickening, fastest_fall, health, landing_sound, rise_speed, rise_wait |
 | `enemies/magdollite.json` | `Magdollite` | attack_cooldown, attack_poll_updates, contact_damage, glow_updates, health, hidden_depth, lava_drop, maximum_rise, most_lengths, pillar_length, reach_past_hand, smallest_reach, sunk_depth, surfaced_depth, throw_sound |
 | `enemies/mama_turtle.json` | `MamaTurtle` | awake_half_height, contact_damage, fall_quickening, fastest_fall, fastest_hover, health, hover_quickening, peak_pause, ridden_climb_speed, ridden_peak, rise_updates, wall_shake_strength, wall_shake_updates, wall_sound |
@@ -114,7 +114,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/mella.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
 | `enemies/mellow.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
 | `enemies/metaree.json` | `Diver` | burrow_sound, burrow_updates, contact_damage, debris_at, distance_per_speed, dive_sound, dive_speed, drift, health, reach |
-| `enemies/metroid.json` | `Metroid` | aim_above, contact_damage, drain_hundredths, drop_count, fastest_chase, feeding_sound, feeding_sound_every, feeding_sound_least_energy, frozen_updates, health, latch_distance, recoil_sound |
+| `enemies/metroid.json` | `Metroid` | aim_above, contact_damage, drain_hundredths, drop_count, fastest_chase, feeding_sound, feeding_sound_every, feeding_sound_least_energy, frozen_updates, health, ice_flash_updates, latch_distance, recoil_sound |
 | `enemies/mochtroid.json` | `Mochtroid` | attached_speed, bite_every, contact_damage, fastest_flight, feeding_sound, feeding_sound_every, feeding_sound_least_energy, health |
 | `enemies/multiviola.json` | `Multiviola` | contact_damage, health |
 | `enemies/namihe.json` | `Fune` | contact_damage, health, mouth_drop |
@@ -122,7 +122,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/ninja_pirate_silver.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, reflect_sound, reflect_unhittable_updates, return_step, scattered_drops, spin_climb_step, spin_speed_change |
 | `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_damage, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
 | `enemies/orange_zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
-| `enemies/oum.json` | `Oum` | attack_cooldown, attack_reach, bounce_step, contact_damage, fastest_fall_mark, health, impact_loss_marks, pushing_reach_across, pushing_reach_down, roll_speed, settling_bounces, shove_distance, speed_curve |
+| `enemies/oum.json` | `Oum` | attack_cooldown, attack_reach, bounce_step, contact_damage, fastest_fall_mark, health, impact_loss_marks, push_reach, pushing_reach_across, pushing_reach_down, roll_speed, settling_bounces, shove_distance, speed_curve |
 | `enemies/owtch.json` | `Owtch` | burial_depth, contact_damage, health, sink_chance |
 | `enemies/pirate_claw.json` | `PirateClaw` | sink, speed_change |
 | `enemies/polyp.json` | `Polyp` | contact_damage, first_launch_mark, health, reach |

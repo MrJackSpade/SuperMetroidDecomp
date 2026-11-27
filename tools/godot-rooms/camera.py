@@ -99,7 +99,7 @@ class Camera:
                 self.links.append((trigger, zone))
         for (left, top, across, down), change in regions:
             tell(change, lambda what: Placed(TRIGGER, 'Scroll', {
-                'Size': f'Vector2i({across * BLOCK}, {down * BLOCK})', 'What': quoted(what), 'Once': 'false'},
+                'Size': f'Vector2i({across * BLOCK}, {down * BLOCK})', 'What': quoted(what), 'WhileTouched': 'true'},
                 at=(left * BLOCK, top * BLOCK), enemy=False))
         for point, change in arrivals:
             tell(change, lambda what: Placed(TRIGGER, 'Arriving', {'AtEntry': quoted(point), 'What': quoted(what)}, at=(0, 0), enemy=False))

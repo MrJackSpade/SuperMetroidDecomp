@@ -61,7 +61,7 @@ public sealed class RoomChecks
         var zone = world.Place(new CameraZone { Name = "Zone" }, 300, 0);
         world.Place(new Trigger
         {
-            Name = "Trigger", Size = new Vector2I(16, 80), Target = new NodePath("../Zone"), What = "open", Once = false,
+            Name = "Trigger", Size = new Vector2I(16, 80), Target = new NodePath("../Zone"), What = "open",
             OnlyWhen = Condition.Of(ConditionKind.FactRecorded, "power on"),
         }, 100, 0);
         world.Setup();

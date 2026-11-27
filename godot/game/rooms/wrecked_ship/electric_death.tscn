@@ -109,7 +109,7 @@ script = ExtResource("8")
 position = Vector2(112, 256)
 Size = Vector2i(32, 16)
 What = "open_fully"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen0x0")
 
 [node name="Arriving" type="Node2D" parent="."]

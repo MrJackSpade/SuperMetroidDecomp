@@ -552,7 +552,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// update was tried into it, though something beside it stopped them short of it. What is taken by being touched
     /// is touched so: a thing standing on a block is touched by a player who runs against that block.
     /// </summary>
-    public bool Reaches(PixelRect area) => BodyRect.Overlaps(area) || _reached.Exists(reached => reached.Overlaps(area));
+    public bool Reaches(PixelRect area) => BodyRect.Overlaps(area) || MovesReached(area);
+
+    /// <summary>
+    /// Whether a move of the player's body on this update, made or only tried, was tried into <paramref name="area"/>:
+    /// whether the body's leading edge, where the move was tried, lay in it before anything stopped the move. A body
+    /// that only lies in the area, having moved no edge into it on this update, has not.
+    /// </summary>
+    public bool MovesReached(PixelRect area) => _reached.Exists(reached => reached.Overlaps(area));
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();

@@ -388,7 +388,7 @@ script = ExtResource("9")
 position = Vector2(464, 80)
 Size = Vector2i(16, 16)
 What = "close"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen2x0")
 
 [node name="Scroll2" type="Node2D" parent="."]
@@ -396,7 +396,7 @@ script = ExtResource("9")
 position = Vector2(512, 80)
 Size = Vector2i(16, 16)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen2x0")
 
 [node name="Scroll3" type="Node2D" parent="."]
@@ -404,7 +404,7 @@ script = ExtResource("9")
 position = Vector2(464, 1888)
 Size = Vector2i(16, 16)
 What = "close"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen2x7")
 
 [node name="Scroll4" type="Node2D" parent="."]
@@ -412,7 +412,7 @@ script = ExtResource("9")
 position = Vector2(512, 1888)
 Size = Vector2i(16, 16)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen2x7")
 
 [node name="Scroll5" type="Node2D" parent="."]
@@ -420,7 +420,7 @@ script = ExtResource("9")
 position = Vector2(320, 2128)
 Size = Vector2i(16, 80)
 What = "close"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen0x8")
 
 [node name="Scroll6" type="Node2D" parent="."]
@@ -428,7 +428,7 @@ script = ExtResource("9")
 position = Vector2(288, 2128)
 Size = Vector2i(32, 16)
 What = "close"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen0x8")
 
 [node name="Scroll7" type="Node2D" parent="."]
@@ -436,7 +436,7 @@ script = ExtResource("9")
 position = Vector2(240, 2144)
 Size = Vector2i(16, 64)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen0x8")
 
 [node name="Scroll8" type="Node2D" parent="."]
@@ -444,7 +444,7 @@ script = ExtResource("9")
 position = Vector2(208, 2144)
 Size = Vector2i(16, 64)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen1x8")
 
 [node name="Scroll9" type="Node2D" parent="."]
@@ -452,7 +452,7 @@ script = ExtResource("9")
 position = Vector2(128, 2144)
 Size = Vector2i(16, 64)
 What = "close"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen1x8")
 
 [node name="Arriving" type="Node2D" parent="."]

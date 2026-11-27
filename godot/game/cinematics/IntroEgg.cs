@@ -155,7 +155,7 @@ public partial class IntroEgg : RoomObject
         StepThrown();
     }
 
-    /// <summary>Takes the egg and the larva out of the room, once the page has turned.</summary>
+    /// <summary>Takes the egg and the larva out of the room, as the crossfade back to the page nears its end.</summary>
     public void Leave()
     {
         foreach ((Effect thing, _, _, _, _) in _thrown)

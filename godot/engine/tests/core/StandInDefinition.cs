@@ -18,7 +18,7 @@ public partial class StandInDefinition : GameDefinition
     public uint RandomSeed { get; set; } = 1;
 
     /// <inheritdoc/>
-    public override GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
+    public override GameMode CreatePauseMode(PlayingMode playing, PauseAsker askedBy) => new PausedMode(playing);
 
     /// <inheritdoc/>
     public override Engine.World.IScrollCells CreateScrollCells(GameSession session) => new RoomScrollCells();

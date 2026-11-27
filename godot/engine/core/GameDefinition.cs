@@ -111,8 +111,11 @@ public abstract partial class GameDefinition : Resource
     [Export]
     public string MusicFolder { get; set; } = "music";
 
-    /// <summary>Makes the mode laid over play when the player pauses.</summary>
-    public abstract GameMode CreatePauseMode(PlayingMode playing);
+    /// <summary>
+    /// Makes the mode laid over play for a pause: one the player asked for by their input, or one something of the
+    /// room asked for (<see cref="GameSession.RequestPause"/>), as <paramref name="askedBy"/> says.
+    /// </summary>
+    public abstract GameMode CreatePauseMode(PlayingMode playing, PauseAsker askedBy);
 
     /// <summary>
     /// Whether the pause may be asked for on this update of play in <paramref name="room"/>, over and above what play

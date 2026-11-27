@@ -146,7 +146,7 @@ public sealed class GameSession
         // The screen is fully lit again, its fade at no pace, whatever the game before left it.
         Darkness.Restart(0, 0);
         _messages.Clear();
-        (_pauseRequested, _whenPauseOver) = (false, null);
+        (_pauseAskedBy, _whenPauseOver) = (null, null);
         SaveRequested = null;
         foreach (ISessionService service in Services)
             service.BeginAgain();
@@ -236,19 +236,21 @@ public sealed class GameSession
     /// <summary>Takes the next message waiting to be shown, with its fanfare and how long it is held, or null when none is.</summary>
     public (string Message, string Fanfare, int HoldUpdates)? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
 
-    private bool _pauseRequested;
+    /// <summary>Who asked for the pause that waits to be taken; null when none was asked for.</summary>
+    private PauseAsker? _pauseAskedBy;
 
     /// <summary>What whoever asked for the pause left to be done as it ends; null for nothing.</summary>
     private Action? _whenPauseOver;
 
     /// <summary>
-    /// Asks for the game to be paused, on its pause screen, as soon as no message is waiting to be shown.
-    /// <paramref name="whenOver"/> is done as that pause ends, before play shows again: a station that holds the
-    /// player through the pause it asks for lets them go so.
+    /// Asks for the game to be paused, on its pause screen, as soon as no message is waiting to be shown, and says
+    /// who asks (<paramref name="by"/>), which the game's pause is told. <paramref name="whenOver"/> is done as that
+    /// pause ends, before play shows again: a station that holds the player through the pause it asks for lets them
+    /// go so.
     /// </summary>
-    public void RequestPause(Action? whenOver = null)
+    public void RequestPause(PauseAsker by, Action? whenOver = null)
     {
-        _pauseRequested = true;
+        _pauseAskedBy = by;
         _whenPauseOver = whenOver;
     }
 
@@ -263,12 +265,12 @@ public sealed class GameSession
         whenOver?.Invoke();
     }
 
-    /// <summary>Whether a pause was asked for; asking takes the request.</summary>
-    public bool TakePauseRequest()
+    /// <summary>Who asked for a pause, or null when none was asked for; asking takes the request.</summary>
+    public PauseAsker? TakePauseRequest()
     {
-        bool requested = _pauseRequested;
-        _pauseRequested = false;
-        return requested;
+        PauseAsker? by = _pauseAskedBy;
+        _pauseAskedBy = null;
+        return by;
     }
 
     /// <summary>The question asked and not yet shown, with who is to be given its answer.</summary>

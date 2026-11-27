@@ -64,7 +64,7 @@ public static class MovieStart
         // A movie that begins paused: the pause is asked for as a player asks, and played until its screen has control.
         if (Word(Cartridge.GameState) == Cartridge.Paused)
         {
-            session.RequestPause();
+            session.RequestPause(PauseAsker.Player);
             while (session.Mode is PlayingMode)
                 step(GameInput.None);
         }

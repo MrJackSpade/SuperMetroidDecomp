@@ -17,7 +17,7 @@ public partial class TwoRoomDefinition : StandInDefinition
     public override GameMode CreateFirstMode() => First();
 
     /// <inheritdoc/>
-    public override GameMode CreatePauseMode(PlayingMode playing) => new StandInPause(playing, this);
+    public override GameMode CreatePauseMode(PlayingMode playing, PauseAsker askedBy) => new StandInPause(playing, this);
 
     /// <inheritdoc/>
     public override Room CreateRoom(string scenePath)

@@ -500,8 +500,10 @@ select, options, game over, time up, and one per cinematic.
 - **Asking, not reaching.** A room object does not start a mode. It asks the session: `RequestMessage` for a
   message, `RequestQuestion` for one answered yes or no (the answer comes back to whoever asked, after the sound, wait and
   second message the asker may name to follow a yes), `RequestSave`
-  for a save, `RequestPause` for the pause screen once the messages asked for with it have been shown. The mode in
-  control takes the request and acts on it.
+  for a save, `RequestPause` for the pause screen once the messages asked for with it have been shown. A pause says
+  who asked for it (`PauseAsker`: the player by their input, or something of the room, as a station), and the game's
+  pause is told (`GameDefinition.CreatePauseMode`): this game's map station's pause darkens at the pace the screen's
+  last fade left, where the player's sets its own. The mode in control takes the request and acts on it.
 - **Energy gone.** A hit that takes the last of the player's energy is a hit like any other: they are knocked back,
   play the update on, can be hit again and can be given energy back. What follows from having none is settled
   once in each update, by the room, when its sequences have played (`Player.SettleEmptyEnergy`), on what whoever

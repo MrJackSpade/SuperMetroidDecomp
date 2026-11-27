@@ -228,7 +228,7 @@ public partial class Station : RoomObject
                 Room.Session.RequestMessage(DoneMessage, holdUpdates: MessageHoldUpdates);
             // A station that pauses the game keeps hold of the player through the pause, and lets them go as it ends.
             if (PausesAfter)
-                Room.Session.RequestPause(whenOver: player.Release);
+                Room.Session.RequestPause(Engine.Core.PauseAsker.Room, whenOver: player.Release);
             else
                 player.Release();
             return;

@@ -137,11 +137,14 @@ public partial class PauseScreen : GameMode
     private readonly Dictionary<string, List<(string Equipment, bool Had)>> _columns = new(StringComparer.Ordinal);
     private bool _beamsClosed;
 
-    /// <summary>The pause screen, laid over <paramref name="playing"/>.</summary>
-    public PauseScreen(PlayingMode playing)
+    /// <summary>Who asked for this pause: the player, or something of the room, a map station.</summary>
+    private readonly PauseAsker _askedBy;
+
+    /// <summary>The pause screen, laid over <paramref name="playing"/>, for a pause <paramref name="askedBy"/> asked for.</summary>
+    public PauseScreen(PlayingMode playing, PauseAsker askedBy)
     {
         ArgumentNullException.ThrowIfNull(playing);
-        _playing = playing;
+        (_playing, _askedBy) = (playing, askedBy);
     }
 
     /// <inheritdoc/>
@@ -158,10 +161,10 @@ public partial class PauseScreen : GameMode
         _levels = _data.Get("fade").Int("levels");
         _fade.Cover(0, _levels);
 
-        // The darkening goes on from however dark the screen was left. A pause the player asks for, in control, sets
-        // the pause's own pace from here; one a station asks for, while it holds her, goes at the pace the screen's
-        // last fade left, as the cartridge's map station's does.
-        if (Samus.State.InControl)
+        // The darkening goes on from however dark the screen was left. A pause the player asks for sets the pause's
+        // own pace from here; one a station asks for goes at the pace the screen's last fade left, as the
+        // cartridge's map station's does.
+        if (_askedBy == PauseAsker.Player)
         {
             int wait = _data.Get("fade").Int("wait");
             Session.Darkness.SetPace(wait, wait);

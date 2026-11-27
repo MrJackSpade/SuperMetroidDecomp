@@ -155,8 +155,8 @@ public partial class PlayingMode : GameMode, IRoomPlay
         Room.Player.BeginUpdate();
 
         // A pause that play asked for comes once the messages asked for with it have been shown, before play goes on.
-        if (terms.MayPause && Session.TakePauseRequest())
-            return Session.Definition.CreatePauseMode(this);
+        if (terms.MayPause && Session.TakePauseRequest() is { } askedBy)
+            return Session.Definition.CreatePauseMode(this, askedBy);
         Room.Step(input, WhatIsStopped(), this);
 
         // A message asked for by the time the room's objects have played is shown at once: the rest of the update,
@@ -241,7 +241,7 @@ public partial class PlayingMode : GameMode, IRoomPlay
         if (Room.ExitEntered is { } exit)
             return Session.Definition.CreateRoomTransition(this, exit);
         if (!saved && PauseIsAsked())
-            return Session.Definition.CreatePauseMode(this);
+            return Session.Definition.CreatePauseMode(this, PauseAsker.Player);
         return this;
     }
 

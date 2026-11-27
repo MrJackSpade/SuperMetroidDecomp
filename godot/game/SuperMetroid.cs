@@ -31,7 +31,7 @@ public partial class SuperMetroid : GameDefinition
     public override GameMode CreateFirstMode() => new Menus.TitleMode();
 
     /// <summary>Pausing brings up the map and equipment screens.</summary>
-    public override GameMode CreatePauseMode(PlayingMode playing) => new PauseScreen(playing);
+    public override GameMode CreatePauseMode(PlayingMode playing, PauseAsker askedBy) => new PauseScreen(playing, askedBy);
 
     /// <summary>The pause is not asked for on Ceres, nor while a power bomb's blast is under way, as on the cartridge.</summary>
     public override bool PauseMayBeAsked(GameSession session, Engine.World.Room room) =>

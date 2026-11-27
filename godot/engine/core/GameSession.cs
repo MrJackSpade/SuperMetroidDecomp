@@ -87,8 +87,15 @@ public sealed class GameSession
     /// <summary>The player's settings.</summary>
     public Options Options { get; }
 
-    /// <summary>The save slot this session's game is saved to, numbered from 1.</summary>
-    public int Slot { get; set; } = 1;
+    /// <summary>
+    /// The save slot this session's game is saved to, numbered from 1: the slot last chosen, which the saves keep
+    /// (<see cref="SaveFile.ChosenSlot"/>), so a game started again begins on the slot it was last played in.
+    /// </summary>
+    public int Slot
+    {
+        get => Saves.ChosenSlot;
+        set => Saves.ChosenSlot = value;
+    }
 
     /// <summary>The game's words in the language they were last asked for in.</summary>
     private GameText? _text;

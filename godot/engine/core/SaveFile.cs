@@ -76,11 +76,40 @@ public sealed class SaveFile
     /// <summary>Drops the record that the game has been completed. Dropping one that is not kept changes nothing.</summary>
     public void ForgetCompletion() => File.Delete(CompletedFile);
 
+    /// <summary>
+    /// The slot last chosen to be played, numbered from 1: a record kept beside the slots, so that the choice of saved
+    /// game begins on it the next time the game is started. The first slot, until one has been chosen.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The record names no slot.</exception>
+    public int ChosenSlot
+    {
+        get
+        {
+            if (!File.Exists(ChosenFile))
+                return 1;
+            string kept = File.ReadAllText(ChosenFile);
+            return int.TryParse(kept, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int slot) && slot >= 1 && slot <= Slots
+                ? slot
+                : throw new InvalidDataException($"The record of the slot last chosen, {ChosenFile}, holds \"{kept}\", which is none of the {Slots} slots.");
+        }
+
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, Slots);
+            Directory.CreateDirectory(_folder);
+            File.WriteAllText(ChosenFile, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+
     /// <summary>Whether any slot holds a saved game.</summary>
     public bool HoldsAny => Enumerable.Range(1, Slots).Any(Has);
 
     /// <summary>The file that is the record of the game's completion.</summary>
     private string CompletedFile => Path.Combine(_folder, "completed");
+
+    /// <summary>The file that is the record of the slot last chosen.</summary>
+    private string ChosenFile => Path.Combine(_folder, "chosen");
 
     /// <summary>The file a slot is kept in.</summary>
     private string FileOf(int slot)

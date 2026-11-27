@@ -114,7 +114,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/mella.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
 | `enemies/mellow.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
 | `enemies/metaree.json` | `Diver` | burrow_sound, burrow_updates, contact_damage, debris_at, distance_per_speed, dive_sound, dive_speed, drift, health, reach |
-| `enemies/metroid.json` | `Metroid` | aim_above, contact_damage, drain_hundredths, drop_count, escape_flash_updates, fastest_chase, feeding_sound, feeding_sound_every, feeding_sound_least_energy, frozen_updates, health, ice_flash_updates, latch_distance, recoil_sound |
+| `enemies/metroid.json` | `Metroid` | aim_above, contact_damage, drain_hundredths, drop_count, fastest_chase, feeding_sound, feeding_sound_every, feeding_sound_least_energy, frozen_updates, health, ice_flash_updates, latch_distance, recoil_sound |
 | `enemies/mochtroid.json` | `Mochtroid` | attached_speed, bite_every, contact_damage, fastest_flight, feeding_sound, feeding_sound_every, feeding_sound_least_energy, health |
 | `enemies/multiviola.json` | `Multiviola` | contact_damage, health |
 | `enemies/namihe.json` | `Fune` | contact_damage, health, mouth_drop |
@@ -752,7 +752,6 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `objects/ceres_arrival_pad.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/ceres_arrival_platform.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/ceres_doors_escaping.json` | `game/rooms/ceres/ceres_elevator.tscn`, `game/rooms/ceres/ceres_ridley.tscn`, `game/rooms/ceres/ceres_ridley_hallway.tscn` and 3 more |
-| `objects/ceres_getaway_floor_colours.json` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `objects/ceres_getaway_wings.json` | `game/rooms/ceres/ceres_ridley.tscn` |
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |

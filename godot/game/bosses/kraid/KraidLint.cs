@@ -161,6 +161,11 @@ public partial class KraidLint : Enemy
                 ?? throw new InvalidOperationException($"The spike \"{Name}\" is in a room with no Kraid.");
             if (FiresWhenArmTouched)
                 _kraid.ArmTouched += () => _phase = Phase.Fire;
+
+            // Until Kraid has grown, his budding spikes lie behind every tile of the room, and so behind his body, which
+            // lies just behind the tiles: at the depth of a room's backdrop, of which his room has none.
+            if (!_kraid.HasGrown)
+                (ZAsRelative, ZIndex) = (false, RoomDepth.Backdrop);
         }
 
         Kraid kraid = _kraid;
@@ -186,6 +191,9 @@ public partial class KraidLint : Enemy
         if (kraid.HasGrown && !_begun)
         {
             _begun = true;
+
+            // Grown, they stand among the room's things, behind his grown body, and come out from behind his belly.
+            RoomDepth.Stand(this, Standing.Behind);
             Play("grown");
             (_phase, _wait, _travel) = (Phase.Align, InitialDelay, 0);
         }

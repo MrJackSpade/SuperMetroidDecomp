@@ -218,12 +218,12 @@ public partial class MamaTurtle : Enemy
                 // Every other update of the short count, which a door's scroll starts over.
                 if (Room.Session.Clock.ShortUpdates % 2 != 0)
                     return;
-                // She shudders up out of the ground a pixel at a time. Her shudder to the side takes no rider with it:
-                // the cartridge moves one standing on her only a pixel to the left.
+                // She shudders up out of the ground a pixel at a time, taking no rider with her: the cartridge moves one
+                // standing on her only a pixel to the left, and leaves them a pixel inside her shell, which their own
+                // moves then pass through.
                 bool ridden = IsRiddenByPlayer;
                 int shudder = Position.Y.Whole % 2 == 0 ? -1 : 1;
-                MoveCarrying(PixelOffset.FromWhole(0, -1));
-                Position += PixelOffset.FromWhole(shudder, 0);
+                Position += PixelOffset.FromWhole(shudder, -1);
                 if (ridden)
                     ShiftPlayer(PixelOffset.FromWhole(-1, 0));
                 SetShellHeight(AwakeHalfHeight);
@@ -314,9 +314,10 @@ public partial class MamaTurtle : Enemy
             case Doing.Falling:
                 if (Velocity.Y < Pixels.FromWhole(FastestFall))
                     Velocity = Velocity.WithY(Velocity.Y + Pixels.FromNumber(FallQuickening));
-                // She falls by the whole pixels of her speed alone.
+                // She falls by the whole pixels of her speed alone, and moves nobody with her: one standing on her is
+                // left to fall by their own weight, and one she falls onto is not pushed.
                 bool landed = Room.Mover.TryDown(Shell(), Pixels.FromWhole(Velocity.Y.Whole), MovesDown, out PixelPosition fall).Blocked;
-                MoveTo(fall, carriesRider: true);
+                Position = fall;
                 if (!landed)
                     return;
 

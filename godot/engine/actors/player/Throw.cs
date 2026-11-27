@@ -10,7 +10,8 @@ namespace Engine.Actors;
 /// <see cref="KnockedBackState"/> for it, out of their control; the low form is thrown as it is, in its own state.
 /// The throw takes up whatever speed across the player had and gains by its own move values, a dash still carrying
 /// them on top. It rises by the medium's knockback speed under gravity, unless it is kept low: pressed down to the
-/// ground instead. A floor or a ceiling stops the speed across and the rise but not the throw. When its time is up
+/// ground instead. A floor or a ceiling stops the speed across and the rise but not the throw, and leaves the
+/// player adrift (<see cref="Player.IsAdrift"/>) for what is left of it: drawn down with no fastest fall. When its time is up
 /// the player falls from rest, and whatever their input asked on that update is dropped.
 /// </summary>
 public sealed class Throw
@@ -62,8 +63,10 @@ public sealed class Throw
         MoveResult down = _low ? PressDown(owner) : owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
         if (down.Blocked)
         {
+            // Stopped up or down, the player is left with no way up or down at all, not falling: adrift, for as long
+            // as the throw goes on.
             owner.ComeToRest();
-            owner.FallFromRest();
+            owner.Drift();
         }
 
         state.WhileThrown(owner);

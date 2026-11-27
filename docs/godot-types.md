@@ -1055,7 +1055,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   rest: whatever speed across they had goes on changing by the usual ground rule with the throw's own move values
   and carries them the way they are thrown, a dash still on top. It rises by the medium's knockback speed under
   gravity with no turn at its top, unless it is kept low: they are pressed down by as far as they move across and
-  a pixel more each update instead. A floor or ceiling stops the speed across and the rise, not the throw. When
+  a pixel more each update instead. A floor or ceiling stops the speed across and the rise, not the throw, and
+  leaves the player adrift for what is left of it (`Player.Drift`), drawn down with no fastest fall. When
   its time is up they fall from rest, and whatever the input asked that update is dropped. A knockback that arrives
   while a throw is under way does not begin again (`Player.Admit`, `Throw.Renew`): the throw takes the new one's way
   and its time from the start and goes on as it was, with no new rise, the player in the state they are in.

@@ -374,6 +374,9 @@ public partial class Crocomire : Enemy, ILatchable
     private Dying _dying;
     private int _steps;
     private bool _hitPending;
+
+    /// <summary>Whether the hit being taken met a part that takes a shot as its own, so that nothing of the shot is left.</summary>
+    private bool _shotTaken;
     private int _shotsSpat;
     private int _approachStages;
     private int _acidStep;
@@ -506,6 +509,16 @@ public partial class Crocomire : Enemy, ILatchable
     protected override Reaction ReactionTo(Hit hit, Collider part) =>
         base.ReactionTo(hit, part) with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
 
+    /// <inheritdoc/>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        _shotTaken = false;
+        HitResult result = base.TakeHit(hit, part);
+
+        // A shot one of its own parts takes is gone with nothing of its own left: only what the part leaves shows.
+        return result == HitResult.Absorbed && _shotTaken ? HitResult.Dud : result;
+    }
+
     /// <summary>What the piece of it a shot or Samus has met does, in the pose it is in.</summary>
     private PiecePart PartMet(Collider part)
     {
@@ -536,7 +549,9 @@ public partial class Crocomire : Enemy, ILatchable
         }
 
         PixelPosition at = hit.At ?? Position;
-        switch (PartMet(part).Shot)
+        string shot = PartMet(part).Shot;
+        _shotTaken = hit.At is not null && shot != "plain";
+        switch (shot)
         {
             case "absorbed" or "plain":
                 return;

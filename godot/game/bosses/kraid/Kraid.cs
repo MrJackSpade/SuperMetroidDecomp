@@ -307,6 +307,9 @@ public partial class Kraid : Enemy
     private int _nextCeilingRock;
     private int _mouthReopens;
     private bool _mouthReopenMarked;
+
+    /// <summary>Whether the hit being taken did it no harm and left its own sign of that where the shot was.</summary>
+    private bool _leftDud;
     private bool _walkEnd;
     private bool _headOver;
     private int _initialHealth;
@@ -433,17 +436,20 @@ public partial class Kraid : Enemy
         // A power bomb is not met by its arm or its foot.
         if ((IsArmShield(part) || IsFootShield(part)) && hit.Carries(new HitKind(HitKinds.PowerBomb)))
             return HitResult.Ignored;
-        // Its foot stops every other shot, and leaves nothing.
+        // Its foot stops every other shot, and the shot is gone with nothing left of it or of the foot.
         if (IsFootShield(part))
-            return HitResult.Absorbed;
+            return HitResult.Dud;
         // A beam that is not charged goes through its open mouth as if the mouth were not there.
         if (part.Name == "Mouth" && !hit.Carries(new HitKind(HitKinds.Charged)) &&
             hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Ice), new HitKind(HitKinds.Wave), new HitKind(HitKinds.Spazer), new HitKind(HitKinds.Plasma)]))
             return HitResult.Ignored;
+        _leftDud = false;
         HitResult result = base.TakeHit(hit, part);
         if (part.Name == "Mouth" && result is HitResult.Hurt or HitResult.Destroyed)
             MarkMouthHit();
-        return result;
+
+        // A shot that does it no harm leaves only what it shows for that: nothing of the shot's own.
+        return result == HitResult.Absorbed && _leftDud ? HitResult.Dud : result;
     }
 
     /// <summary>A hit in the mouth, harmful or not, sets its colours flashing and marks an opening yet to come.</summary>
@@ -464,6 +470,7 @@ public partial class Kraid : Enemy
     /// <inheritdoc/>
     protected override void OnAbsorbed(Hit hit, Collider part)
     {
+        _leftDud = hit.At is not null;
         if (part.Name == "Mouth")
         {
             // A shot in its mouth that does no harm leaves the dud's own effect, not its body's explosion.

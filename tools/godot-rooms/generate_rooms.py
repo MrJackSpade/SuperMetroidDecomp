@@ -854,12 +854,7 @@ class Generator:
             # The scope shows no blocks in a room the old game marks so, nor while one of those bosses is in it.
             hides = room.properties.get('XrayRevealsNoBlocks') == 'true' or any(
                 placement.enemy in SIGHT_HIDING_ENEMIES for placement in self.populations[state.enemies])
-            sight = {'HidesBlocksFromSight': 'true'} if hides else {}
-            # A room the old game marks so draws nothing behind it while the scope is open, which the cartridge does
-            # only in a room that shows the scope none of its blocks.
-            if hides and room.properties.get('XrayHidesBackground') == 'true':
-                sight['HidesBackdropsFromSight'] = 'true'
-            return sight
+            return {'HidesBlocksFromSight': 'true'} if hides else {}
 
         def boss_of(state: legacy.State) -> dict[str, str]:
             # A room is a boss's, beaten or not, when its enemies as the old game lists them include a boss's kind.

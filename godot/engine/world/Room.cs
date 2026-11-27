@@ -114,19 +114,6 @@ public partial class Room : Node2D
     /// </summary>
     public bool ShowsBlocksToSight => Version is not { HidesBlocksFromSight: true };
 
-    /// <summary>
-    /// Told by an ability that reveals by sight that it is being looked through, or no longer is. A version of the
-    /// room that hides its backdrops from sight (<see cref="RoomVersion.HidesBackdropsFromSight"/>) draws none of
-    /// them for as long; any other room is as it was.
-    /// </summary>
-    public void BeLookedThrough(bool looking)
-    {
-        if (Version is not { HidesBackdropsFromSight: true })
-            return;
-        foreach (Backdrop backdrop in _backdrops)
-            backdrop.Visible = !looking;
-    }
-
     /// <summary>Whether the room is a boss's, as the version of it in place says (<see cref="RoomVersion.HasBoss"/>).</summary>
     public bool HasBoss => Version is { HasBoss: true };
 

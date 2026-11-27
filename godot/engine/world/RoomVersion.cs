@@ -64,13 +64,6 @@ public partial class RoomVersion : Resource
     public bool HidesBlocksFromSight { get; set; }
 
     /// <summary>
-    /// Whether this version of the room draws none of its backdrops, the pictures behind it, for as long as an
-    /// ability that reveals by sight is being looked through (<see cref="Room.BeLookedThrough"/>).
-    /// </summary>
-    [Export]
-    public bool HidesBackdropsFromSight { get; set; }
-
-    /// <summary>
     /// Whether one of the things this version of the room places is a boss, beaten or not: the room counts as a boss's
     /// for as long as the player is in it.
     /// </summary>

@@ -89,11 +89,16 @@ public partial class Spark : Enemy, IShocksGrapple
             return;
         if (Does == Kind.Dripping)
         {
-            // The spark falls with one of eight speeds across, picked by three digits of the number drawn.
+            // The spark falls with one of eight speeds across, picked by three digits of the number drawn. With no place
+            // free in the room no spark falls, and no number is drawn for it.
             if (_drifts.Count != 8)
                 throw new InvalidOperationException($"The spark \"{Name}\" needs eight speeds across for its falling sparks, not {_drifts.Count}.");
-            Pixels drift = _drifts[Random.Draw().Part(2, 3)];
-            Fire("falling_spark", Position + PixelOffset.FromWhole(0, DripBelow), new PixelVelocity(drift, Pixels.Zero));
+            if (Room.HasFreePlace)
+            {
+                Pixels drift = _drifts[Random.Draw().Part(2, 3)];
+                Fire("falling_spark", Position + PixelOffset.FromWhole(0, DripBelow), new PixelVelocity(drift, Pixels.Zero));
+            }
+
             _spell = Countdown.Of(SpellUpdates);
             return;
         }

@@ -468,9 +468,14 @@ public partial class MotherBrain
         }
     }
 
-    /// <summary>Gathers the beam at her hand and aims it at Samus.</summary>
+    /// <summary>
+    /// Gathers the beam at her hand and aims it at Samus. With no place free in the room for its glow there is no beam,
+    /// and what a beam still laying itself down goes by is left as it was.
+    /// </summary>
     private void BeginHandBeam()
     {
+        if (!Room.HasFreePlace)
+            return;
         _handBeamAt = Position + PixelOffset.FromWhole(64, -48);
         PixelPosition samus = Room.Player.Position;
         // The angle is kept from straight down toward the right: the cartridge's aim, from whole pixels to whole
@@ -497,10 +502,13 @@ public partial class MotherBrain
 
     /// <summary>
     /// Lays down the next piece of the beam from her hand: a step further along its line and knocked a little off it
-    /// by chance. One that lands outside the fighting floor blows up instead.
+    /// by chance. One that lands outside the fighting floor blows up instead. With no place free in the room for it
+    /// nothing is laid down, nothing blows up and no number is drawn, and the beam goes on from where it was.
     /// </summary>
     internal void LayHandBeamPiece()
     {
+        if (!Room.HasFreePlace)
+            return;
         _handBeamAt += _handBeamSpeed.OverOneUpdate;
         int turn = Turns.Wrap(_handBeamAngle + Random.Draw().Part(0, 8));
         int knock = Random.Draw().Part(8, 3);
@@ -559,12 +567,16 @@ public partial class MotherBrain
 
             case "laser":
                 _neckMoves = false;
-                Fire("laser", _head + PixelOffset.FromWhole(16, 4), new PixelVelocity(Shot("laser").Speed, Pixels.Zero));
-                Sound(LaserSound);
+                // A laser with no place free in the room is not fired, and not heard.
+                if (Fire("laser", _head + PixelOffset.FromWhole(16, 4), new PixelVelocity(Shot("laser").Speed, Pixels.Zero)).GetParent() == Room)
+                    Sound(LaserSound);
                 break;
 
             case "bomb":
+                // A bomb with no place free in the room is not thrown, and is not counted among hers.
                 var bomb = (MotherBrainBomb)Fire("bomb", PixelPosition.FromWhole(_head.X.Whole + 12, _head.Y.Whole + 16), new PixelVelocity(Pixels.FromNumber(0.875), Pixels.FromWhole(1)));
+                if (bomb.GetParent() != Room)
+                    break;
                 bomb.Flames = Number(parts[1]);
                 _bombs.Add(bomb);
                 break;

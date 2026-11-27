@@ -1112,7 +1112,10 @@ public partial class Phantoon : Enemy
                             ResumeFade();
                         break;
                     case "flame":
-                        ((PhantoonFlame)Fire("flame", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole + 32), PixelVelocity.Zero)).Fall();
+                        // A flame with no place free in the room is not made, and does not fall; it is heard all the same.
+                        var falling = (PhantoonFlame)Fire("flame", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole + 32), PixelVelocity.Zero);
+                        if (falling.GetParent() == Room)
+                            falling.Fall();
                         Sound(FlameSound);
                         break;
                     case "appear_sound":

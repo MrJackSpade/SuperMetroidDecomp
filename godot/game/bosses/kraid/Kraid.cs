@@ -725,9 +725,13 @@ public partial class Kraid : Enemy
                 }
 
                 // While its mouth is wide open a rock comes out every so many updates, from the update it opens. How
-                // fast it flies across is read from the second through fourth digits of the number last drawn.
+                // fast it flies across is read from the second through fourth digits of the number last drawn. It is heard
+                // even when no place is free in the room for the rock, as the cartridge's is.
                 if (_mouth == "open" && _openLeft > 0 && _openLeft-- % SpitCadenceUpdates == 0)
+                {
                     Fire("spit_rock", Position + _spitFrom, new PixelVelocity(_spitSpeeds[Random.Last.Part(1, 3)], _spitRise));
+                    Sound(RockSound);
+                }
 
                 break;
 
@@ -1212,8 +1216,11 @@ public partial class Kraid : Enemy
         if (draw.Part(0, 1) == 0)
             across = -(across + 1);
         Pixels side = Pixels.FromNumber(draw.Part(4, 6) / 16.0);
-        Fire(draw.Part(4, 1) == 1 ? "rising_rock_small" : "rising_rock", PixelPosition.FromWhole(Position.X.Whole + across, 432), new PixelVelocity(side, Pixels.FromWhole(-5)));
-        Sound(RockSound);
+        Projectile rock = Fire(draw.Part(4, 1) == 1 ? "rising_rock_small" : "rising_rock", PixelPosition.FromWhole(Position.X.Whole + across, 432), new PixelVelocity(side, Pixels.FromWhole(-5)));
+
+        // A rock with no place free in the room is not thrown, and not heard.
+        if (rock.GetParent() == Room)
+            Sound(RockSound);
     }
 
     /// <summary>Lets a rock fall from the ceiling.</summary>

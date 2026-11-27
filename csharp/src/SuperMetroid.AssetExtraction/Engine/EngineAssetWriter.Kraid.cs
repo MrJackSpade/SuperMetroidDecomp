@@ -243,8 +243,8 @@ public sealed partial class EngineAssetWriter
 
         kraid.Shot("spit_rock", RoomEnemyProjectileKind.KraidSpitRock, (_, shot, projectile) =>
             {
+                // Its sound is Kraid's to ask for ("rock_sound"), heard whether or not the rock is made.
                 Rock(shot, projectile, rockScene, largeRock);
-                shot["sound"] = EngineNames.Sound(KraidSoundDefinitions.RockSpit);
                 projectile["shot_timeline"] = rockBurst;
             })
             .Shot("rising_rock", RoomEnemyProjectileKind.KraidRisingRock, (_, shot, projectile) => Rock(shot, projectile, rockScene, largeRock))

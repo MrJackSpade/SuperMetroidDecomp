@@ -149,6 +149,9 @@ public partial class MotherBrainGlass : Enemy
         Sound(ShatterSound);
         foreach (int across in places)
         {
+            // A shard with no place free in the room is lost, and no number is drawn for it.
+            if (!Room.HasFreePlace)
+                continue;
             int angle = Random.Draw().Part(0, 8);
             // A pixel an update across by the angle's coarse sine, and four down by its sine a quarter turn back, in
             // 256ths of a pixel.

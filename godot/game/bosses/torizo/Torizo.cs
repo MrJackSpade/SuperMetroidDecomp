@@ -835,12 +835,18 @@ public partial class Torizo : Enemy
                 break;
 
             case "sonic_boom":
+                // With no place free in the room there is no boom, and no number is drawn for its height.
+                if (!Room.HasFreePlace)
+                    break;
                 PixelOffset from = Random.Draw().Part(0, 1) == 1 ? PixelOffset.FromWhole(32, -12) : PixelOffset.FromWhole(32, 20);
                 Fire("sonic_boom", Position + Ahead(from), new PixelVelocity(Facing.Toward(Shot("sonic_boom").Speed), Pixels.Zero));
                 break;
 
             case "egg":
-                var egg = (TorizoEgg)SpewOrb("egg", PixelOffset.FromWhole(16, -1), Pixels.FromNumber(0.5), Pixels.FromNumber(1.5));
+                // An egg with no place free in the room is not laid, and is not waited for.
+                if (SpewOrb("egg", PixelOffset.FromWhole(16, -1), Pixels.FromNumber(0.5), Pixels.FromNumber(1.5)) is not { } spewed)
+                    break;
+                var egg = (TorizoEgg)spewed;
                 egg.Laid(Facing);
                 _eggs.Add(egg);
                 break;
@@ -852,7 +858,10 @@ public partial class Torizo : Enemy
                 break;
 
             case "super_missile":
-                ((TorizoSuperMissile)Fire("super_missile", Position + Ahead(PixelOffset.FromWhole(30, -52)), PixelVelocity.Zero)).HeldBy(this);
+                // A missile with no place free in the room is not made, and is not held.
+                var missile = (TorizoSuperMissile)Fire("super_missile", Position + Ahead(PixelOffset.FromWhole(30, -52)), PixelVelocity.Zero);
+                if (missile.GetParent() == Room)
+                    missile.HeldBy(this);
                 break;
 
             case "clear_caught":
@@ -860,7 +869,10 @@ public partial class Torizo : Enemy
                 break;
 
             case "eye_beam":
-                // Two draws go by unused before the one that spreads the beam.
+                // Two draws go by unused before the one that spreads the beam. With no place free in the room there is
+                // no beam, and none of the three is drawn.
+                if (!Room.HasFreePlace)
+                    break;
                 Random.Draw();
                 Random.Draw();
                 int heading = (FacesRight ? 96 : 160) + Random.Draw().Part(1, 4) - 8;
@@ -1188,9 +1200,11 @@ public partial class Torizo : Enemy
             Drool();
     }
 
-    /// <summary>Lets a drop fall from about its middle.</summary>
+    /// <summary>Lets a drop fall from about its middle; with no place free in the room none falls, and no number is drawn for it.</summary>
     private void Drool()
     {
+        if (!Room.HasFreePlace)
+            return;
         RandomDraw draw = Random.Draw();
         int y = Position.Y.Whole + draw.Part(0, 2) - 5;
         Pixels fall = Pixels.FromNumber((49 + draw.Part(0, 5)) / 256.0);
@@ -1200,9 +1214,11 @@ public partial class Torizo : Enemy
         Fire("initial_drool", PixelPosition.FromWhole(x, y), new PixelVelocity(Pixels.Zero, fall));
     }
 
-    /// <summary>Throws a gob out of its broken gut.</summary>
+    /// <summary>Throws a gob out of its broken gut; with no place free in the room none is thrown, and no number is drawn for it.</summary>
     private void SpewDrool()
     {
+        if (!Room.HasFreePlace)
+            return;
         int form = Random.Draw().Part(2, 3) % 3;
         RandomDraw draw = Random.Draw();
         int heading = _turning ? draw.Part(1, 8) : (FacesRight ? 32 : 224) + draw.Part(0, 4) - 8;
@@ -1224,9 +1240,14 @@ public partial class Torizo : Enemy
     /// <summary>A distance counted in 256ths of a pixel.</summary>
     private static Pixels From256ths(int twoFiftySixths) => Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
 
-    /// <summary>Spews something ahead of it, up and forward, with chance nudging its speed each way.</summary>
-    private Projectile SpewOrb(string shot, PixelOffset from, Pixels across, Pixels up)
+    /// <summary>
+    /// Spews something ahead of it, up and forward, with chance nudging its speed each way, and returns it. With no place
+    /// free in the room nothing is spewed and no number is drawn for it, and this returns null.
+    /// </summary>
+    private Projectile? SpewOrb(string shot, PixelOffset from, Pixels across, Pixels up)
     {
+        if (!Room.HasFreePlace)
+            return null;
         Pixels nudgeAcross = Pixels.FromNumber((Random.Draw().Part(0, 8) - 128) / 256.0);
         Pixels nudgeDown = Pixels.FromNumber((Random.Draw().Part(0, 8) - 128) / 256.0);
         return Fire(shot, Position + Ahead(from), new PixelVelocity(Facing.Toward(across) + nudgeAcross, -up + nudgeDown));

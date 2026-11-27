@@ -615,7 +615,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveValues Moves(string state) => Medium.MovesFor(state);
 
     /// <summary>Which way a shot leaves: one step across and one step down, each -1, 0 or 1.</summary>
-    public (int Across, int Down) AimDirection
+    public virtual (int Across, int Down) AimDirection
     {
         get
         {
@@ -779,7 +779,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         PublishForm();
         TakeJumpBuffer();
         BeforeState();
-        if (State.CanAttack)
+        if (AttacksNow)
             Attack(input);
         else
             WaitToAttack();
@@ -787,6 +787,12 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _asked = AskedOf(state);
         _askedOf = state;
     }
+
+    /// <summary>
+    /// Whether this update's attack is played: whether the state the player is in can attack, unless the game's
+    /// player says otherwise, as one does that still owes a shot from the state it has just left.
+    /// </summary>
+    protected virtual bool AttacksNow => State.CanAttack;
 
     /// <summary>
     /// Plays the rest of an update, which comes after the room's enemies have acted: the player moves as the state

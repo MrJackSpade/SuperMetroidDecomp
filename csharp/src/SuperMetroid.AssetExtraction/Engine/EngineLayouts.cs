@@ -242,7 +242,8 @@ internal sealed partial class EngineLayouts
 
     /// <summary>
     /// The tiles the things placed in one state of a room put over its level's own, by the cell each lies on: the
-    /// block an item is hidden in, and an elevator's platform.
+    /// block an item is hidden in, the blank air where an item lies in the open or in an orb, and an elevator's
+    /// platform.
     /// </summary>
     private Dictionary<int, JsonObject> PlacedTiles(RoomStateSettings state, InstalledRoomLevel level, string tileset, string path)
     {
@@ -284,6 +285,18 @@ internal sealed partial class EngineLayouts
                     tiles[cell] = tile;
                     break;
                 }
+
+                case CollectibleSetup { Item.Presentation: CollectiblePresentation.Exposed or CollectiblePresentation.ChozoOrb }:
+                    // An item that lies in the open or in an orb has its own block where the level's was from the
+                    // room's loading on, and leaves blank air there once it is opened or taken, or when the room is
+                    // come to with it already taken: whatever the level has at that block is never seen nor met.
+                    // Where the level has blank air there already nothing is put, so that a state of the room that
+                    // places no item keeps the same layout.
+                    RoomTerrainBlock own = level.Foreground[cell];
+                    bool shows = own.Appearance.Shows == RoomBlockShown.Block && Picture(tileset, own.Appearance.Block, own.Appearance.Mirroring) is not null;
+                    if (shows || own.Collision != RoomCollisionType.Air)
+                        tiles[cell] = new JsonObject { ["kind"] = "empty" };
+                    break;
 
                 case ElevatorPlatformSetup:
                 {

@@ -607,7 +607,7 @@ A scene. One per room of the game.
   hides it (`InFrontOfRoom`, #3480); what changes how the whole room is seen, over the room and everything in it and under its
   liquid and overlays (`OverRoom`: the wash of this game's X-ray scope outside its cone, drawn by adding the
   scope's grey to what is under it, or taking it away in a room whose liquid or overlay darkens, as the
-  cartridge's colour maths does outside a window); what changes how the room and its liquid together are seen, over the liquid and under the overlays (`OverLiquid`: the same scope halves the room with its liquid there, outside its cone); and, for something launched that is told to lie behind, behind all of those that stand
+  cartridge's colour maths does outside a window); and, for something launched that is told to lie behind, behind all of those that stand
   behind (`BehindAllThings`);
   the part of
   the backdrop's picture that lies in front of what stands in the room (`BackdropInFront`: a backdrop's picture may

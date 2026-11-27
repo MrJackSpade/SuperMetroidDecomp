@@ -9,8 +9,8 @@ namespace Game;
 /// Held in place by the grapple beam, as the cartridge holds her when the line takes hold fired level or downward
 /// from a body that is not moving up or down: she does not swing. She is put where the line's end is, less where a
 /// line fired so leaves a standing body, and stays there, standing or crouched as she was, for as long as the
-/// attack is held and the line holds. Then the line ends on the update after, and she stands or crouches again with
-/// her speeds cleared.
+/// attack is held and the line holds. Then, on the update after, the line ends and she stands or crouches again with
+/// her speeds cleared; she does not move meanwhile.
 /// </summary>
 public sealed class GrappleLockedState : PlayerState, ISamusLook
 {
@@ -66,14 +66,26 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
+        // Let go on the update before, she is as she was before the line held her, her speeds cleared, as the
+        // cartridge's teardown puts her on the update after it is decided.
+        if (_lettingGo)
+        {
+            owner.Velocity = PixelVelocity.Zero;
+            return _crouched ? new CrouchingState() : new StandingState();
+        }
+
         var samus = (Samus)owner;
         SamusGrapple? grapple = samus.Grapple;
         if (grapple is { IsLatched: true } && owner.Input.IsHeld(GameAction.Attack) && samus.Selected == Equipment.GrappleBeam)
             return null;
 
-        // Let go, or the line lost: the line ends on the update after, and she is as she was before it held her.
+        // Let go, or the line lost: the line ends on the update after, and so does her hold, which keeps her where
+        // she is until then.
         grapple?.EndOnNextUpdate();
-        owner.Velocity = PixelVelocity.Zero;
-        return _crouched ? new CrouchingState() : new StandingState();
+        _lettingGo = true;
+        return null;
     }
+
+    /// <summary>Whether she has let go, to be let go of on the next update.</summary>
+    private bool _lettingGo;
 }

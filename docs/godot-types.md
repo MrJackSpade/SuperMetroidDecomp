@@ -1236,7 +1236,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   of the grapple's values). A line that takes hold swings her when she was moving up or down or it was fired
   upward, and otherwise holds her in place as she stands or crouches (`GrappleLockedState`); let go of a swing she
   flies by a movement of its own (`GrappleReleasedState`), begun on the update she lets go. The line itself
-  (`SamusGrapple`) reaches out in tested substeps and ends on the update after it is given up or let go.
+  (`SamusGrapple`) reaches out in tested substeps and ends on the update after it is given up or let go. What ends
+  a hold by the line is done on that later update too, as the cartridge's teardown is, and she does not move
+  meanwhile: a drop from a swing hanging still, which stands her, in the air too; the end of being held in place,
+  which stands or crouches her as she was; and, against a wall, the drop as its window runs out, which crouches her
+  aiming diagonally down, and the wall jump, which lets go of a charge she held. Only the flight out of a swing
+  begins at once.
 - **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
   back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
   look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a

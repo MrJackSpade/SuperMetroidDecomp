@@ -94,8 +94,11 @@ public partial class Trigger : Node2D, IPlaced
         bool middleInside = Area.Contains(player.Position.X.Whole, player.Position.Y.Whole);
         if (WhileTouched)
         {
-            // A state that gives the triggers a reach of its own, not the body, touches by that reach.
-            bool touched = middleInside || player.MovesReached(Area) || (playerBody != player.BodyRect && Area.Overlaps(playerBody));
+            // A state that gives the triggers a reach of its own, not the body, touches by that reach alone; in any
+            // other the player touches by their own place and by the moves of their body.
+            bool touched = playerBody != player.BodyRect
+                ? Area.Overlaps(playerBody)
+                : middleInside || player.MovesReached(Area);
             if (touched && (OnlyWhen is null || OnlyWhen.IsTrue(room)))
                 Fire();
             return;

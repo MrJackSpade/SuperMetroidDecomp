@@ -37,6 +37,10 @@ public partial class Kago : Enemy
     [Export, DataValue("shake_way")]
     public string ShakeWayName { get; set; } = "across";
 
+    /// <summary>What of the room each hit shakes: "tiles", "tiles_and_backdrops", "everything" or "backdrops_and_things".</summary>
+    [Export, DataValue("shake_reach")]
+    public string ShakeReachName { get; set; } = "tiles";
+
     private int _hits;
 
     /// <inheritdoc/>
@@ -88,6 +92,13 @@ public partial class Kago : Enemy
             "down" => ShakeWay.Down,
             "both" => ShakeWay.Both,
             _ => throw new InvalidOperationException($"The Kago \"{Name}\" shakes the room \"{ShakeWayName}\", which is no way a room shakes."),
+        }, ShakeReachName switch
+        {
+            "tiles" => ShakeReach.Tiles,
+            "tiles_and_backdrops" => ShakeReach.TilesAndBackdrops,
+            "everything" => ShakeReach.Everything,
+            "backdrops_and_things" => ShakeReach.BackdropsAndThings,
+            _ => throw new InvalidOperationException($"The Kago \"{Name}\" shakes \"{ShakeReachName}\" of the room, which is no reach a shake has."),
         });
         if (_hits == 0)
             Play("fast");

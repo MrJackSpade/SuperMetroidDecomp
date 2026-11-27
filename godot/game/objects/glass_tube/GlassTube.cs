@@ -240,7 +240,7 @@ public partial class GlassTube : RoomObject, IHittable
                 foreach (PixelOffset bubble in Bubbles)
                     LetOut(false, BubbleTimeline, bubble, BubbleSpeed);
 
-                Room.Shake(1, 64);
+                Room.Shake(1, 64, ShakeWay.Both, ShakeReach.TilesAndBackdrops);
                 Room.Terrain.ApplyPatch(OpenPatch);
                 (_phase, _timer) = (Phase.Shattered, ShatteredUpdates);
                 break;

@@ -393,7 +393,7 @@ public partial class MotherBrain : ITriggerTarget
                     return false;
                 }
 
-                Room.Shake(1, 20);
+                Room.Shake(1, 20, ShakeWay.Both, ShakeReach.Tiles);
                 _head = new PixelPosition(_head.X, Pixels.FromWhole(196));
                 (_death, _timer) = (Death.BrainSettles, 6);
                 return false;
@@ -455,7 +455,7 @@ public partial class MotherBrain : ITriggerTarget
                     return false;
                 if (EscapeMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(EscapeMusic);
-                Room.Shake(2, 600);
+                Room.Shake(2, 600, ShakeWay.Both, ShakeReach.Tiles);
                 _escapeTextDone = false;
                 foreach (NodePath path in ToldWhenEscapeBegins)
                 {
@@ -514,7 +514,7 @@ public partial class MotherBrain : ITriggerTarget
     private void KeepShaking()
     {
         if (Room.ShakeStrength == 0)
-            Room.Shake(2, 600);
+            Room.Shake(2, 600, ShakeWay.Both, ShakeReach.Tiles);
     }
 
     /// <summary>

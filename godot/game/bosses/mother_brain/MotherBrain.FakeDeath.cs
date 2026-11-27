@@ -378,7 +378,7 @@ public partial class MotherBrain
         _flashing = false;
         Room.Recolour(RoomFlash, _roomGrey);
         _tint = GreyTint(GreySteps);
-        Room.Shake(3, 32);
+        Room.Shake(3, 32, ShakeWay.Down, ShakeReach.Everything);
         _head = new PixelPosition(_head.X, Pixels.FromWhole(196));
         Position = PixelPosition.FromWhole(StandingPlace.X, StandingPlace.Y);
         (_lowerNeck, _upperNeck, _neckTurn) = (72 * 256, 80 * 256, NeckSteady);
@@ -446,7 +446,7 @@ public partial class MotherBrain
                 Position = PixelPosition.FromWhole(StandingPlace.X, StandingPlace.Y);
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
-                Room.Shake(1, 256);
+                Room.Shake(1, 256, ShakeWay.Both, ShakeReach.Tiles);
                 (_neckTurn, _neckMoves, _lowerMove, _upperMove) = (NeckRising, true, NeckMove.Raise, NeckMove.Lower);
                 _ascent = Ascent.Rise;
                 break;
@@ -465,7 +465,7 @@ public partial class MotherBrain
                 if (Position.Y.Whole > RisenY)
                     break;
                 Position = new PixelPosition(Position.X, Pixels.FromWhole(RisenY));
-                Room.Shake(0, 0);
+                Room.Shake(0, 0, ShakeWay.Both, ShakeReach.Tiles);
                 Play("stand_after_crouch_slow", restart: true);
                 _ascent = Ascent.WaitUntilStanding;
                 break;

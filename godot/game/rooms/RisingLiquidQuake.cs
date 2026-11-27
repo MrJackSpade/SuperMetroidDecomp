@@ -43,7 +43,7 @@ public partial class RisingLiquidQuake : RoomSequence
         if (!Silent && Sound.Length > 0)
             _rumble.Step(room, Sound);
 
-        room.SustainShake(ShakeStrength, ShakeAtLeast);
+        room.SustainShake(ShakeStrength, ShakeAtLeast, ShakeWay.Across, ShakeReach.Everything);
         return false;
     }
 }

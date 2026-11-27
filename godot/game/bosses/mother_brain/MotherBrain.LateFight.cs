@@ -352,13 +352,13 @@ public partial class MotherBrain
                 ThrowSamusTowardWall(samus);
                 if (--_timer > 0)
                     return false;
-                Room.Shake(3, 8);
+                Room.Shake(3, 8, ShakeWay.Both, ShakeReach.Tiles);
                 _rainbow = Rainbow.StartDrainingSamus;
                 return false;
 
             case Rainbow.StartDrainingSamus:
                 (_rainbow, _timer) = (Rainbow.DrainingSamus, 300);
-                Room.Shake(3, 299);
+                Room.Shake(3, 299, ShakeWay.Both, ShakeReach.Tiles);
                 return true;
 
             case Rainbow.DrainingSamus:
@@ -380,7 +380,7 @@ public partial class MotherBrain
                 _samusFall = new PixelVelocity(Pixels.FromWhole(-1), Pixels.Zero);
                 StopBeamSound();
                 _tint = Colors.White;
-                Room.Shake(0, 0);
+                Room.Shake(0, 0, ShakeWay.Both, ShakeReach.Tiles);
                 samus.Weapons.WaitAtLeast(8);
                 _rainbow = Rainbow.LetSamusFall;
                 return false;

@@ -144,6 +144,7 @@ public sealed partial class EngineAssetWriter
             .Value("shake_strength", ShakeStrength(KagoDefinitions.ShotQuake))
             .Value("shake_updates", KagoDefinitions.ShotQuakeDuration)
             .Value("shake_way", ShakeWayName(KagoDefinitions.ShotQuake))
+            .Value("shake_reach", ShakeReachName(KagoDefinitions.ShotQuake))
             .Looks(KagoAnimations.Segments, KagoAnimations.StartingWith, ("slow", KagoSegment.Slow), ("fast", KagoSegment.Fast))
             .Write();
         Enemy("enemies/mochtroid.json", "Mochtroid", EnemyDefinitionId.Mochtroid).BodyColliders(Ordinary)

@@ -175,7 +175,7 @@ public partial class Ridley
         // Flying hard into the left wall shakes the room.
         Pixels fastest = Velocity.X.Abs() > Velocity.Y.Abs() ? Velocity.X.Abs() : Velocity.Y.Abs();
         if (proposed.X.Whole < FlightBounds.Position.X && fastest >= Pixels.FromNumber(2.5))
-            Room.Shake(3, 12);
+            Room.Shake(3, 12, ShakeWay.Across, ShakeReach.BackdropsAndThings);
     }
 
     /// <summary>One update of it aboard Ceres.</summary>

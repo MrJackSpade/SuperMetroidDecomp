@@ -658,10 +658,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         bool stopped = !passes && TerrainStops(room);
         if (hitsTerrain && (passes || stopped))
             room.Terrain.TakeHit(Hit, TerrainArea);
-
-        // Its hit lands on whatever standing thing lies in the square its middle is in, as on the tile there.
-        if (passes || stopped)
-            HitStandingThings(room, SquaresOf(room, TerrainArea));
         if (!stopped)
             return false;
         _settings.TerrainShake?.Start(room);
@@ -796,17 +792,16 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         PixelRect middle = TerrainArea;
         if (middle.Left < 0 || middle.Top < 0 || middle.Right > room.Terrain.WidthInPixels || middle.Bottom > room.Terrain.HeightInPixels)
             return false;
-        return room.Terrain.IsSolidIn(middle, SlopeTreatment.Wall) || room.HasExitOver(middle)
-            || room.HasStandingSolidOver(SquaresOf(room, middle), _launcher);
+        return room.Terrain.IsSolidIn(middle, SlopeTreatment.Wall) || room.HasExitOver(middle);
     }
 
     /// <summary>
     /// Whether it meets the things that stand as part of the room, a door's cap or a gate, as it meets terrain: where
-    /// each move ends, by the squares its edge or its middle reached, and not at the first pixel its body touches
-    /// them. One that leads with its side still meets them as it moves.
+    /// each move ends, by the squares its edge reached, and not at the first pixel its body touches them. Only one
+    /// that leads with its edge does. One tried by its middle gathers speed until a single move can step over such a
+    /// thing's whole square, so it still meets them as it moves, as does one that leads with its side.
     /// </summary>
-    private bool MeetsStandingThingsAtEnd =>
-        _settings.MeetsTerrainBy is ProjectileSettings.TerrainBy.FrontEdge or ProjectileSettings.TerrainBy.Middle;
+    private bool MeetsStandingThingsAtEnd => _settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.FrontEdge;
 
     /// <summary>Whether <paramref name="target"/> is a thing that stands as part of the room: one with a solid that stands as terrain.</summary>
     private static bool StandsAsPartOfRoom(IHittable target) => World.Room.IsStandingThing(target);

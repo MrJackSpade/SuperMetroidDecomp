@@ -110,6 +110,7 @@ public partial class Powamp : Enemy, ILatchable
     private string _pose = "halfway";
     private bool _balloonSinking = true;
     private bool _latched;
+    private bool _burstsAsItDies;
 
     /// <inheritdoc/>
     public bool CanBeLatched => !IsDead && !IsDying && !Untouchable;
@@ -156,16 +157,26 @@ public partial class Powamp : Enemy, ILatchable
     /// <inheritdoc/>
     protected override bool DiesAtOnce(Hit hit)
     {
-        // Killed by Samus's own body, it bursts there and then; anything else swells its balloon first. Her shots
-        // name her as their source as her body does, so it is the hit's kinds that tell the two apart.
+        // Killed by Samus's own body, it dies there and then and bursts as it goes; anything else swells its balloon
+        // first. Her shots name her as their source as her body does, so it is the hit's kinds that tell the two apart.
         if (hit.CarriesAny(Game.Data.HitKinds.OfHerBody))
         {
-            Burst();
+            _burstsAsItDies = true;
             return true;
         }
 
         _doing = Doing.FatallyHit;
         return false;
+    }
+
+    /// <summary>
+    /// Killed by Samus's body, it bursts once its remains are made, so that its explosion takes its place among the
+    /// room's places before its spikes do, as the cartridge's touch kills it before the spikes are thrown.
+    /// </summary>
+    protected override void OnDied()
+    {
+        if (_burstsAsItDies)
+            Burst();
     }
 
     /// <inheritdoc/>

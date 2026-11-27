@@ -116,9 +116,10 @@ public partial class WallPirate : SpacePirate
                 break;
             case "fire":
                 PixelPosition muzzle = PixelPosition.FromWhole(Position.X.Whole + (side == Facing.Left ? -MuzzleAhead : MuzzleAhead), Position.Y.Whole - MuzzleAbove);
-                // A laser that is made asks for its sound a second time, as the cartridge's wall pirate does; one with no
-                // place free in the room is not made, and is not heard.
-                if (Fire("laser", muzzle, new PixelVelocity(side.Toward(Pixels.FromWhole(LaserSpeed)), Pixels.Zero)).GetParent() == Room)
+                // A laser that takes a place asks for its sound a second time, as the cartridge's wall pirate does; one
+                // with no place free in the room is not made, and is not heard.
+                Projectile laser = Fire("laser", muzzle, new PixelVelocity(side.Toward(Pixels.FromWhole(LaserSpeed)), Pixels.Zero));
+                if (Room.PlaceOf(laser) is not null)
                     Sound(Shot("laser").Sound);
                 break;
             case "prepare_jump":

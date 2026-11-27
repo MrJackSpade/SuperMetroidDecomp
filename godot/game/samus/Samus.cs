@@ -1537,8 +1537,9 @@ public partial class Samus : Player
                     return new MoonwalkingState();
                 }
 
-                // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
-                if (current is StandingState { LandingEndsNow: false } && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                // Standing with both angle actions held she aims straight up, and a direction the way she faces does not
+                // start a run; a press of down still crouches her first.
+                if (current is StandingState { LandingEndsNow: false } && !crouchAsked && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
                     Intent != 0 && Intent > 0 == (Facing == Facing.Right))
                 {
                     AimFromInput();

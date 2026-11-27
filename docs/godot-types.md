@@ -1198,7 +1198,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   a landing she came down aiming up or diagonally in, she keeps that aim while nothing is held that the landing
   answers (no direction, no aim, no fresh jump or press of down; the attack alone is nothing to it), and stands
   aiming so as the settling ends: the standing state is then not asked at all (`Samus.KeepsLandingAim`), as asking
-  it would lower her aim. A press of down crouches her before the moonwalk is tried.
+  it would lower her aim. A press of down crouches her before the moonwalk or the aim of both angle actions is tried.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged

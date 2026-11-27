@@ -229,6 +229,13 @@ public partial class ScrollingMap : Node2D
         }
     }
 
+    /// <summary>Has the map show so much beyond what has been explored and revealed: its cells, and the labels and markers that show with them.</summary>
+    public void Reveal(MapReveal reveals)
+    {
+        foreach (MapView view in new[] { Cells(), Labels(), Markers() })
+            view.Reveals = reveals;
+    }
+
     private MapView Cells() => _cells ?? throw NotMade();
 
     private MapView Labels() => _labels ?? throw NotMade();

@@ -19,6 +19,21 @@ public partial class MapView : Node2D
     [Export]
     public Vector2I Centre { get; set; }
 
+    /// <summary>What the map shows beyond what the player has explored and their progress reveals; nothing more, unless it is told.</summary>
+    public MapReveal Reveals
+    {
+        get => _reveals;
+        set
+        {
+            if (_reveals == value)
+                return;
+            _reveals = value;
+            QueueRedraw();
+        }
+    }
+
+    private MapReveal _reveals;
+
     /// <summary>The tint of a cell that is revealed but not explored, for an area with no pictures of its own for such cells.</summary>
     [Export]
     public Color RevealedTint { get; set; } = new(0.5f, 0.5f, 0.5f);
@@ -78,11 +93,16 @@ public partial class MapView : Node2D
     /// <summary>Whether the player has been in a cell.</summary>
     public bool IsExplored(AreaCell cell) => Shown().Progress.IsExplored(Shown().Area.Name, cell.Place.X, cell.Place.Y);
 
-    /// <summary>Whether a cell shows: it has been explored, or the map has been revealed and the cell is not secret.</summary>
+    /// <summary>
+    /// Whether a cell shows: it has been explored, or the map has been revealed and the cell is not secret, or the
+    /// view is told to show it regardless (<see cref="Reveals"/>).
+    /// </summary>
     public bool Shows(AreaCell cell)
     {
         (Area area, Progress progress) = Shown();
-        return IsExplored(cell) || (!cell.Secret && area.RevealedBy.Length > 0 && progress.Has(area.RevealedBy));
+        if (IsExplored(cell) || Reveals == MapReveal.Everything)
+            return true;
+        return !cell.Secret && (Reveals == MapReveal.Charted || (area.RevealedBy.Length > 0 && progress.Has(area.RevealedBy)));
     }
 
     /// <summary>The cells drawn at the moment, in the map's order.</summary>

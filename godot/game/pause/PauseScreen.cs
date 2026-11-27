@@ -221,6 +221,10 @@ public partial class PauseScreen : GameMode
             case Phase.InUse:
                 Session.Player.NoteHeld(input);
                 Session.OpenUpdate();
+
+                // The Godot game's own: item select opens the tester's menu, laid over the screen as it stands.
+                if (_turn == PageTurn.None && input.WasPressed(Actions.ItemSelect))
+                    return new Assists.DebugMenuMode(this);
                 if (StepInUse(input))
                 {
                     BeginFade(dark: 0);
@@ -266,6 +270,20 @@ public partial class PauseScreen : GameMode
         }
     }
 
+    /// <summary>
+    /// Back from the tester's menu, the map shows what it is now set to show, and the equipment page what she now
+    /// has, the selector where it lies as the page is come to.
+    /// </summary>
+    protected internal override void Resume()
+    {
+        _map?.Reveal(Assists.TesterAssists.Of(Session).Now(Session).MapReveal);
+        if (_phase == Phase.InUse && !_showsMap)
+        {
+            ChooseFirst();
+            ShowEquipment();
+        }
+    }
+
     /// <summary>Sets the screen so dark, with the wait before the first step of the fade from there.</summary>
     private void BeginFade(int dark) => Session.Darkness.Restart(dark, Data().Get("fade").Int("wait"));
 
@@ -301,6 +319,7 @@ public partial class PauseScreen : GameMode
                 room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
                 room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y) * map.Int("cell");
             _map = ScrollingMap.Of(map, area, Session.Progress, Session.Content, plane, plane, _here);
+            _map.Reveal(Assists.TesterAssists.Of(Session).Now(Session).MapReveal);
             _layer.AddChild(_map);
         }
 

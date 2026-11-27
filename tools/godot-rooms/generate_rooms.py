@@ -903,6 +903,27 @@ class Generator:
         if self.unplaced:
             print('not placed yet: ' + ', '.join(f'{kind} x{count}' for kind, count in sorted(self.unplaced.items())))
         self.write_definition(sorted(paths))
+        self.write_item_locations()
+
+    def write_item_locations(self) -> None:
+        """Lists every place an item lies, by the name it is remembered taken under, for the game's tester's assists."""
+        path = os.path.join(GODOT, 'game', 'data', 'ItemLocations.cs')
+        lines = [
+            '// Written by tools/godot-rooms/generate_rooms.py from the items placed in the rooms. Do not edit.',
+            'namespace Game.Data;',
+            '',
+            '/// <summary>Every place an item lies in this game\'s rooms, by the name its room remembers it taken under.</summary>',
+            'public static class ItemLocations',
+            '{',
+            '    /// <summary>Every one of them.</summary>',
+            '    public static IReadOnlyList<string> All { get; } =',
+            '    [',
+            *[f'        "{name}",' for name in sorted(objects.ITEM_LOCATIONS)],
+            '    ];',
+            '}',
+        ]
+        with open(path, 'w', encoding='utf-8', newline='\n') as output:
+            output.write('\n'.join(lines) + '\n')
 
     def write_definition(self, paths: list[str]) -> None:
         """Lists the rooms in the game's definition, and names where a new game begins."""

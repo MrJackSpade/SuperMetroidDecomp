@@ -28,6 +28,9 @@ public partial class GameLoad : GameMode
         if (session.LoadSlot() is not { } save)
             return session.Definition.CreateModeForNewGame();
 
+        // The tester's assists act on the game just loaded before any room is made from it.
+        Assists.TesterAssists.Of(session).AfterLoad(session);
+
         // Nothing of Ceres is set up for the game saved as Ceres was left.
         if (SavedLeavingCeres(session))
             return new Cinematics.CeresDestruction { LandingRoom = save.Room, LandingEntry = save.EntryPoint };
@@ -52,6 +55,7 @@ public partial class GameLoad : GameMode
     public static GameLoad OfNewGame() => new(session =>
     {
         session.BeginAgain();
+        Assists.TesterAssists.Of(session).AfterNewGame(session);
         return new Arrival(new PlayingMode(), Arrival.OrdinaryWaits, savesFirstArrival: true);
     });
 

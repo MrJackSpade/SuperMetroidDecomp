@@ -1317,6 +1317,8 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        // The tester's assists keep her ammunition from being found at none within her update.
+        Assists.TesterAssists.Of(Room.Session).LendAmmo(Room.Session);
         _springBallWasOn = Inventory.IsOn(Equipment.SpringBall);
         _bombsHeldOff = _bombsHeldOff.Stepped();
         // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
@@ -2043,6 +2045,7 @@ public partial class Samus : Player
         Grapple?.Step(this);
         Flare?.Step(this);
         ShowSelection();
+        Assists.TesterAssists.Of(Room.Session).TakeAmmoBack(Room.Session);
         if (_knockbackCarried.IsRunning)
         {
             _knockbackCarried = _knockbackCarried.Stepped();

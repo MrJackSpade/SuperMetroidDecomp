@@ -241,9 +241,12 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // A diagonal spark slides up a wall it meets, and ends only when it can rise no further.
         bool stopped = _down != 0 ? stoppedDown : stoppedAcross;
 
+        // The tester's invincibility takes away only the spark's end for want of energy: it goes on costing her,
+        // down to one.
+        bool cannotDie = Assists.TesterAssists.Of(samus.Room.Session).Now(samus.Room.Session).Invincible;
         int energy = samus.Inventory.Amount(Amounts.Energy);
-        bool spent = energy < samus.ShinesparkLeastEnergy;
-        if (!spent)
+        bool spent = !cannotDie && energy < samus.ShinesparkLeastEnergy;
+        if (cannotDie ? energy > 1 : !spent)
             samus.Inventory.Lose(Amounts.Energy, 1);
         if (!stopped && !spent)
             return;

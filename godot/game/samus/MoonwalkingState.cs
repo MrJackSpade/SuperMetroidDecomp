@@ -61,7 +61,10 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
     /// way she then faces, makes a real jump of while it lasts, and that otherwise runs out into a spin with no jump
     /// begun, as the cartridge's does. She is then adrift in the spin's smaller body, drawn down with no fastest fall.
     /// </summary>
-    private static TurningState TurnWithJump() => new(new SpinJumpingState(SpinJumpingState.Start.Adrift));
+    private TurningState TurnWithJump() => JumpTurn = new(new SpinJumpingState(SpinJumpingState.Start.Adrift));
+
+    /// <summary>The turn with the jump this moonwalk asked for, if it asked for one: a turn whose shots leave from heights of its own.</summary>
+    public TurningState? JumpTurn { get; private set; }
 
     /// <summary>With everything let go, she stands.</summary>
     public override PlayerState? Unasked(Player owner) => new StandingState();

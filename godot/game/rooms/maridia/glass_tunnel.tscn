@@ -27,6 +27,7 @@ ScrollLayout = "GlassTunnel"
 Music = "red_brinstar"
 MusicSet = "red_brinstar"
 HidesBlocksFromSight = true
+HidesBackdropsFromSight = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -36,6 +37,7 @@ ScrollLayout = "GlassTunnel"
 Music = "red_brinstar"
 MusicSet = "red_brinstar"
 HidesBlocksFromSight = true
+HidesBackdropsFromSight = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")

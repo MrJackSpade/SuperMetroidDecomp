@@ -54,6 +54,9 @@ public partial class SamusXray : Node2D
     /// <summary>Whether the room it was opened in is washed outside its cone.</summary>
     private bool _washes;
 
+    /// <summary>The room it was opened in, which is told when it closes; null while it is closed.</summary>
+    private Room? _room;
+
     /// <summary>Opens the scope, level, with its cone closed.</summary>
     public void Open(Samus samus)
     {
@@ -68,6 +71,10 @@ public partial class SamusXray : Node2D
         Material = new CanvasItemMaterial { BlendMode = darkens ? CanvasItemMaterial.BlendModeEnum.Sub : CanvasItemMaterial.BlendModeEnum.Add };
         ZAsRelative = false;
         ZIndex = RoomDepth.OverRoom;
+
+        // A room that hides what lies behind it from the scope, the glass tunnel, does so from here until it closes.
+        _room = room;
+        room.BeLookedThrough(true);
         IsOpen = true;
         _widening = Pixels.Zero;
         _opened = Pixels.Zero;
@@ -81,6 +88,8 @@ public partial class SamusXray : Node2D
     /// <summary>Closes the scope.</summary>
     public void Close()
     {
+        _room?.BeLookedThrough(false);
+        _room = null;
         IsOpen = false;
         QueueRedraw();
     }

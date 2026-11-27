@@ -182,36 +182,6 @@ public sealed class Recolouring
         _item = item;
     }
 
-    /// <summary>
-    /// The changed colours of <paramref name="item"/>, which is drawn by adding its colours to what is under it, or
-    /// taking them from it, as <paramref name="blend"/> says: a thing that is drawn with a blend and waved or
-    /// recoloured as well has both of the one shader, and keeps the shader whatever is asked of it.
-    /// </summary>
-    public Recolouring(CanvasItem item, CanvasItemMaterial.BlendModeEnum blend)
-        : this(item) => _blend = blend;
-
-    /// <summary>How the thing is drawn onto what is under it.</summary>
-    private readonly CanvasItemMaterial.BlendModeEnum _blend = CanvasItemMaterial.BlendModeEnum.Mix;
-
-    /// <summary>The shader's text for the thing's blend: as it is for one that covers what is under it, and with the blend said after its first line otherwise.</summary>
-    /// <exception cref="InvalidOperationException">The blend is one the shader is not written for, or the shader no longer begins as it did.</exception>
-    private string Blended(string code)
-    {
-        string mode = _blend switch
-        {
-            CanvasItemMaterial.BlendModeEnum.Mix => "",
-            CanvasItemMaterial.BlendModeEnum.Add => "render_mode blend_add;",
-            CanvasItemMaterial.BlendModeEnum.Sub => "render_mode blend_sub;",
-            _ => throw new InvalidOperationException($"\"{_item.Name}\" is drawn with the blend {_blend}, which the shader that changes colours is not written for."),
-        };
-        if (mode.Length == 0)
-            return code;
-        const string head = "shader_type canvas_item;";
-        if (!code.StartsWith(head, StringComparison.Ordinal))
-            throw new InvalidOperationException("The shader that changes colours no longer begins with its kind, after which a blend is said.");
-        return head + "\n" + mode + code[head.Length..];
-    }
-
     /// <summary>Whether the picture at <paramref name="picture"/> is <paramref name="place"/> or lies in the folder that names.</summary>
     public static bool LiesIn(string picture, string place) =>
         picture == place || picture.StartsWith(place + "/", StringComparison.Ordinal);
@@ -259,7 +229,7 @@ public sealed class Recolouring
     /// <summary>Hands the shader every colour changed and what is added to them all, or takes the shader away when nothing is asked.</summary>
     private void Show()
     {
-        if (_asked.Count == 0 && _shifted.Count == 0 && _wave is null && _blend == CanvasItemMaterial.BlendModeEnum.Mix)
+        if (_asked.Count == 0 && _shifted.Count == 0 && _wave is null)
         {
             if (ReferenceEquals(_item.Material, _material))
                 _item.Material = null;
@@ -288,7 +258,7 @@ public sealed class Recolouring
         // A thing whose rows are waved is drawn with the shader that waves them, and any other with the one without.
         _material ??= new ShaderMaterial();
         _showsWaved = _wave is not null;
-        _material.Shader = _showsWaved ? _waved ??= new Shader { Code = Blended(WavedCode()) } : _plain ??= new Shader { Code = Blended(Code) };
+        _material.Shader = _showsWaved ? _waved ??= new Shader { Code = WavedCode() } : _plain ??= new Shader { Code = Code };
         _waveTableShown = null;
         if (_wave is { } wave)
             ShowWave(_material, wave);

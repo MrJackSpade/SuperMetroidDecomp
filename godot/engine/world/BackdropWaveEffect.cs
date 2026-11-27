@@ -7,7 +7,7 @@ namespace Engine.World;
 /// A room effect that waves the rows of what lies behind the room: its backdrops read their pictures a pixel or so
 /// further on from one row to the next, by a table gone round a row at a time, as what lies behind water wavers
 /// below its surface and what lies behind lava and acid sways with the heat. It plays the steps of its data file
-/// (<see cref="RowWaveSteps"/>): each step shows for its updates and the next draws the table a row further up,
+/// (<see cref="BackdropWaveSteps"/>): each step shows for its updates and the next draws the table a row further up,
 /// or further down. Like every room effect it is stepped before the player and the enemies act, and it affects play
 /// in no way.
 /// </summary>
@@ -17,24 +17,33 @@ public partial class BackdropWaveEffect : RoomEffect
     [Export(PropertyHint.File)]
     public string WaveFile { get; set; } = "";
 
-    private RowWaveSteps? _steps;
+    private BackdropWaveSteps? _steps;
 
     /// <summary>The step that shows, and how many updates it has shown for.</summary>
     private int _phase, _shown;
 
-    private RowWaveSteps Steps => _steps ?? throw new InvalidOperationException($"The backdrops' wave \"{Name}\" has not been set up.");
+    private BackdropWaveSteps Steps => _steps ?? throw new InvalidOperationException($"The backdrops' wave \"{Name}\" has not been set up.");
 
     /// <inheritdoc/>
     protected override void OnSetup(Room room)
     {
         if (WaveFile.Length == 0)
             throw new InvalidOperationException($"The backdrops' wave \"{Name}\" names no file of its wave.");
-        _steps = RowWaveSteps.Read(room.Content.ReadData(WaveFile));
+        _steps = BackdropWaveSteps.Read(room.Content.ReadData(WaveFile));
         (_phase, _shown) = (0, _steps.ShownAtStart);
     }
 
     /// <inheritdoc/>
-    protected override void OnStep(Room room) => (_phase, _shown) = Steps.Next(_phase, _shown);
+    protected override void OnStep(Room room)
+    {
+        BackdropWaveSteps steps = Steps;
+
+        // Each step shows for its updates and then the next does, round and round.
+        if (_shown < steps.Updates)
+            _shown++;
+        else
+            (_phase, _shown) = ((_phase + 1) % steps.Offsets.Count, 1);
+    }
 
     /// <summary>
     /// The wave of a backdrop whose first row lies <paramref name="backdropTop"/> down the room, seen by a view whose
@@ -45,7 +54,7 @@ public partial class BackdropWaveEffect : RoomEffect
     /// </summary>
     internal RowWave? WaveOver(Room room, int viewTop, int backdropTop)
     {
-        RowWaveSteps steps = Steps;
+        BackdropWaveSteps steps = Steps;
         if (steps.BelowSurface && room.Liquid is null)
             return null;
         int from = steps.BelowSurface ? room.Liquid!.Surface.Whole + 1 : viewTop;

@@ -155,20 +155,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _surface = _type.Surface is { } surface ? new TimelinePlayer(surface) : null;
         _body = _type.Body is { } body ? new TimelinePlayer(body) : null;
         _drifted = Pixels.Zero;
-
-        // One that ripples is drawn through the shader that waves its rows, with its blend; one that lies still with
-        // its blend alone.
-        if (_type.Ripple is { } ripple)
-        {
-            (_ripplePhase, _rippleShown) = (0, ripple.ShownAtStart);
-            _rippling = new Ui.Recolouring(this, _type.Blend);
-            ShowRipple();
-        }
-        else
-        {
-            _rippling = null;
-            Material = new CanvasItemMaterial { BlendMode = _type.Blend };
-        }
+        Material = new CanvasItemMaterial { BlendMode = _type.Blend };
         ZIndex = RoomDepth.Liquid;
     }
 
@@ -212,27 +199,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     internal void Follow(PixelRect view)
     {
         _view = view;
-        ShowRipple();
         QueueRedraw();
-    }
-
-    /// <summary>What draws a liquid that ripples: the shader that waves its rows, with its blend. Null for one that lies still.</summary>
-    private Ui.Recolouring? _rippling;
-
-    /// <summary>The step of its ripple that shows, and how many updates it has shown for.</summary>
-    private int _ripplePhase, _rippleShown;
-
-    /// <summary>
-    /// Waves its rows from the row below its surface down, as its type's ripple says: the table is gone round a row
-    /// at a time from that row, each step drawing it a row further down, or further up.
-    /// </summary>
-    private void ShowRipple()
-    {
-        if (_rippling is null || _type?.Ripple is not { } ripple)
-            return;
-        int first = Surface.Whole + 1 - Mathf.FloorToInt(Position.Y);
-        int phase = (ripple.MovesDown ? -_ripplePhase : _ripplePhase) - first;
-        _rippling.Wave(new Ui.RowWave(ripple.Offsets, ripple.Down, Mathf.PosMod(phase, ripple.Offsets.Count), first));
     }
 
     /// <summary>Plays its pictures on one update.</summary>
@@ -242,8 +209,6 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _body?.Step();
         if (Drifts)
             _drifted += Type.Drift;
-        if (Type.Ripple is { } ripple)
-            (_ripplePhase, _rippleShown) = ripple.Next(_ripplePhase, _rippleShown);
         QueueRedraw();
     }
 
@@ -339,23 +304,17 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         // Each is tiled from the room's left edge, moved by its drift, starting with the tile that reaches into the
         // view. They are laid in the room's own pixels, which are the liquid's but for where it is put in the room:
         // the room itself is moved against the screen.
-        // Each picture is laid over and over as one piece, so that a row of it moved across by its ripple reads on
-        // round the picture.
         int stripWidth = strip.GetWidth(), stripHeight = strip.GetHeight();
-        int stripLeft = FirstTile(_view.Left, stripWidth);
-        DrawTextureRect(strip, new Rect2(new Vector2(stripLeft, top) - Position, new Vector2(Across(stripLeft, stripWidth), stripHeight)), tile: true);
+        for (int x = FirstTile(_view.Left, stripWidth); x < right; x += stripWidth)
+            DrawTexture(strip, new Vector2(x, top) - Position);
         int bodyWidth = body.GetWidth(), bodyHeight = body.GetHeight();
         int under = top + stripHeight;
         int firstRow = under >= _view.Top ? under : under + (_view.Top - under) / bodyHeight * bodyHeight;
-        if (firstRow < bottom)
+        for (int y = firstRow; y < bottom; y += bodyHeight)
         {
-            int bodyLeft = FirstTile(_view.Left, bodyWidth);
-            int down = (bottom - firstRow + bodyHeight - 1) / bodyHeight * bodyHeight;
-            DrawTextureRect(body, new Rect2(new Vector2(bodyLeft, firstRow) - Position, new Vector2(Across(bodyLeft, bodyWidth), down)), tile: true);
+            for (int x = FirstTile(_view.Left, bodyWidth); x < right; x += bodyWidth)
+                DrawTexture(body, new Vector2(x, y) - Position);
         }
-
-        // How far across whole pictures of a width reach from where the first is laid to the view's right edge.
-        int Across(int left, int width) => (right - left + width - 1) / width * width;
 
         int FirstTile(int left, int width)
         {

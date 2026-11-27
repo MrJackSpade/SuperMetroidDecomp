@@ -78,6 +78,18 @@ public sealed class CrawlingState : PlayerState
     /// <summary>Thrown, it has bounced no times: it comes down from the throw as from any fall.</summary>
     public override void OnThrown(Player owner) => _bounces = 0;
 
+    /// <summary>
+    /// Left while it is bouncing, as a change of posture leaves it, the bounce is over: the player is left with no
+    /// speed up or down, whatever the bounce had given them.
+    /// </summary>
+    public override void Exit(Player owner)
+    {
+        if (_bounces == 0)
+            return;
+        _bounces = 0;
+        owner.FallFromRest();
+    }
+
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {

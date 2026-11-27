@@ -360,6 +360,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (UnhittableTimeRuns)
             _unhittable = _unhittable.Stepped();
+        WhileHeldStill();
+    }
+
+    /// <summary>
+    /// Called on an update the enemies are held still through, when the enemy's turn would have come: for what of it,
+    /// besides the time it cannot be hit for, does not stand still then, as a time of that kind one of its parts
+    /// keeps for itself.
+    /// </summary>
+    protected virtual void WhileHeldStill()
+    {
     }
 
     /// <summary>

@@ -928,7 +928,8 @@ public partial class Room : Node2D
     /// <summary>
     /// Lands a hit on everything that can be hit within <paramref name="area"/>: each owner of a hurtbox there that
     /// takes hits from the hit's side, once, in the order the hurtboxes were registered. Each decides what the hit
-    /// does to it.
+    /// does to it. An owner whose part takes no notice of the hit (<see cref="HitResult.Ignored"/>) is tried again by
+    /// its next part there: the hit has not landed on it yet.
     /// </summary>
     /// <param name="hit">The hit.</param>
     /// <param name="area">Where it lands, in room pixels.</param>
@@ -943,7 +944,7 @@ public partial class Room : Node2D
         foreach (Collider hurtbox in Collision.Overlapping(area, ColliderRole.Hurtbox, except: from))
         {
             ICollisionOwner owner = hurtbox.CollisionOwner;
-            if (owner is not IHittable target || !target.IsHitBy(hit.Side) || !seen.Add(owner))
+            if (owner is not IHittable target || !target.IsHitBy(hit.Side) || seen.Contains(owner))
                 continue;
             if (skipping is not null && skipping.Contains(target))
                 continue;
@@ -951,7 +952,10 @@ public partial class Room : Node2D
                 continue;
             if (owner is IRoomEntity entity && _leaving.Contains(entity))
                 continue;
-            results.Add((target, target.TakeHit(hit, hurtbox)));
+            HitResult result = target.TakeHit(hit, hurtbox);
+            if (result != HitResult.Ignored)
+                seen.Add(owner);
+            results.Add((target, result));
         }
 
         return results;

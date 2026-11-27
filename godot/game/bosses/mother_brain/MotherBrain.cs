@@ -172,6 +172,16 @@ public partial class MotherBrain : Enemy, IClosingStep
 
     /// <summary>For how many more updates her head is safe from hits, counted down as each ends, the one it was hit on among them.</summary>
     private int _headSafeUpdates;
+
+    /// <summary>
+    /// Held still with the other enemies, her head's time of being safe counts on all the same, as the cartridge's
+    /// head, an enemy of its own there, counts its time while time stands still.
+    /// </summary>
+    protected override void WhileHeldStill()
+    {
+        if (_headSafeUpdates > 0)
+            _headSafeUpdates--;
+    }
     private int _lowerNeck;
     private int _upperNeck;
     private int _neckTurn = NeckSteady;

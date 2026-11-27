@@ -78,6 +78,9 @@ public partial class IntroMotherBrain : Enemy
 
     /// <summary>How many updates the room's picture has been shaken.</summary>
     private int _shaken;
+
+    /// <summary>How far the room's picture is shown from where it is while nothing shakes it, as the room has it.</summary>
+    private Godot.Vector2I _rest;
     private int _wave;
     private int _waveWait;
     private int _left;
@@ -95,6 +98,7 @@ public partial class IntroMotherBrain : Enemy
         _rings.Clear();
         _blastsToCome.Clear();
         _blasts.Clear();
+        _rest = Room.Terrain.ShownShift;
         Play("pulsing");
     }
 
@@ -130,9 +134,9 @@ public partial class IntroMotherBrain : Enemy
         }
         else if (_phase != Phase.TakingHits)
         {
-            // For as long as she is blowing up the room's picture, and nothing else, jumps up on every other update
-            // and is back on the one between: she, her blasts and Samus stay where they are.
-            Room.Terrain.ShownShift = new Godot.Vector2I(0, _shaken++ % 2 == 0 ? -ShakePixels : 0);
+            // For as long as she is blowing up the room's picture, and nothing else, jumps up from where the room shows
+            // it on every other update and is back on the one between: she, her blasts and Samus stay where they are.
+            Room.Terrain.ShownShift = _rest + new Godot.Vector2I(0, _shaken++ % 2 == 0 ? -ShakePixels : 0);
             StepBlasts();
             if (_phase == Phase.Exploding && --_left <= 0)
             {
@@ -156,7 +160,7 @@ public partial class IntroMotherBrain : Enemy
         _blasts.Clear();
         _rings.Clear();
         _blastsToCome.Clear();
-        Room.Terrain.ShownShift = Godot.Vector2I.Zero;
+        Room.Terrain.ShownShift = _rest;
         Vanish();
     }
 

@@ -272,10 +272,7 @@ public sealed partial class EngineAssetWriter
         _tree.WriteData(file, data);
     }
 
-    /// <summary>A tint, as the Godot Torizo's data writes one.</summary>
-    private static JsonObject TorizoTint((double Red, double Green, double Blue) tint) => new() { ["r"] = tint.Red, ["g"] = tint.Green, ["b"] = tint.Blue };
-
-    /// <summary>Writes one Torizo: its values, its tints, every animation of its body as a timeline, and its shots.</summary>
+    /// <summary>Writes one Torizo: its values, its colours, every animation of its body as a timeline, and its shots.</summary>
     private void WriteTorizo(string file, EnemyDefinitionId id, TorizoVariant variant, bool golden)
     {
         const string family = GameInstallationLayout.EnemySheetDirectoryName;
@@ -363,21 +360,33 @@ public sealed partial class EngineAssetWriter
             torizo.Timeline(TorizoTimeline(animation), timeline);
         }
 
-        // Its colours. The Godot Torizo lays a tint over its pictures; each of the old looks of its colours is the
-        // tint nearest it.
-        JsonObject Tint(TorizoLook look) => TorizoTint(_sheets.ShadeTint(family, sheet, TorizoShades.Body(look).Key));
-        var tints = new JsonObject();
-        foreach (TorizoLookKind kind in new[] { variant.StatueColouring.Kind, TorizoLookKind.Normal, TorizoLookKind.Golden, TorizoLookKind.Black })
-            tints[TorizoLookKindKeys.Installed.Of(kind)] = Tint(new TorizoLook(kind));
-        torizo.Group("tints", tints);
+        // Its colours, as changes of the colours of its own pictures: each settled colouring of its body and belly laid
+        // over the colours both Torizos share, as the old game shows them; the golden one's by its health; the glowing
+        // colours of its belly as each colouring a fade runs toward shows them; and the steps of its belly's glow. The
+        // Godot Torizo works out its fades between them itself.
+        var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [torizo.Folder] = [sheet] };
+        JsonObject Colouring(TorizoLook look) => ShadeChange($"{TorizoShades.Shared.Key}+{TorizoShades.Body(look).Key}", family, places);
+        var colourings = new JsonObject();
+        foreach (TorizoLookKind kind in new[] { variant.StatueColouring.Kind, TorizoLookKind.Normal, TorizoLookKind.Golden, TorizoLookKind.White, TorizoLookKind.Black })
+            colourings[TorizoLookKindKeys.Installed.Of(kind)] = Colouring(new TorizoLook(kind));
+        torizo.Group("colourings", colourings);
         if (golden)
         {
-            torizo.Group("health_tints", EngineNames.List(GoldenTorizoHealthBandDefinitions.HighestFirst.Select(band => (JsonNode)new JsonObject
+            torizo.Group("health_colourings", EngineNames.List(GoldenTorizoHealthBandDefinitions.HighestFirst.Select(band => (JsonNode)new JsonObject
             {
                 ["health"] = band.MinimumHealth,
-                ["tint"] = Tint(TorizoLook.GoldenHealth(band)),
+                ["colours"] = Colouring(TorizoLook.GoldenHealth(band)),
             })));
         }
+
+        // Only the colourings his awakenings and his death fade toward have glowing colours of their own.
+        var glowingBellies = new JsonObject();
+        foreach (TorizoLookKind kind in new[] { TorizoLookKind.Normal, TorizoLookKind.Golden, TorizoLookKind.Black })
+            glowingBellies[TorizoLookKindKeys.Installed.Of(kind)] = ShadeChange(TorizoShades.GlowingBelly(new TorizoLook(kind)).Key, family, places);
+        torizo.Group("glowing_bellies", glowingBellies);
+        torizo.Group("belly_glow", ColourSteps(
+            golden ? SuperMetroid.Core.Fx.ColourEffects.ColourEffectId.GoldenTorizoBelly : SuperMetroid.Core.Fx.ColourEffects.ColourEffectId.BombTorizoBelly,
+            shade => ShadeChange(shade, family, places)));
 
         // The look it starts with: the one its first animation shows, or the one its pictures are loaded in.
         string startLook = TorizoAnimations.Segments.Beats(TorizoAnimations.StartingWith(variant.Start.Animation).Phases[0].Segment)
@@ -396,9 +405,7 @@ public sealed partial class EngineAssetWriter
             .Value("start_timeline", TorizoTimeline(variant.Start.Animation))
             .Value("awakening_timeline", TorizoTimeline(golden ? TorizoAnimation.GoldenTorizoAwakening : TorizoAnimation.BombTorizoAwakening))
             .Value("start_look", TorizoLookName(startLook))
-            .Value("start_tint", TorizoLookKindKeys.Installed.Of(variant.StatueColouring.Kind))
-            // The fade is done on the step after the old game's last.
-            .Value("fade_steps", TorizoShadeDefinitions.FadeLastStep + 1)
+            .Value("start_colouring", TorizoLookKindKeys.Installed.Of(variant.StatueColouring.Kind))
             .Value("gut_health", TorizoDecisionDefinitions.GutBlowUpHealth)
             .Value("face_health", TorizoDecisionDefinitions.FaceBlowUpHealth)
             .Value("first_attack_missiles", variant.FirstAttackMissiles)

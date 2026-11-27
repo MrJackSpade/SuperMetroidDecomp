@@ -36,6 +36,18 @@ public sealed class Weapons
             Shots.Any(shot => GodotObject.IsInstanceValid(shot) && !shot.HasEnded) || Left.Any(GodotObject.IsInstanceValid);
     }
 
+    /// <summary>
+    /// Has what <paramref name="projectile"/> leaves as it ends go on holding its places until it is gone too, but
+    /// for what it leaves when an enemy's answer ended it (<see cref="Projectile.EndedOnEnemy"/>): its places are
+    /// free as it goes.
+    /// </summary>
+    private static void KeepWhatIsLeft(Held held, Projectile projectile) =>
+        projectile.LeftOnEnding += left =>
+        {
+            if (!projectile.EndedOnEnemy)
+                held.Left.Add(left);
+        };
+
     /// <summary>How many places of <paramref name="pool"/> are held.</summary>
     public int PlacesHeld(string pool) => _held.Where(held => held.Pool == pool && held.StillHolds).Sum(held => held.Places);
 
@@ -94,7 +106,7 @@ public sealed class Weapons
         ArgumentNullException.ThrowIfNull(projectile);
         var alone = new Held(pool, 1, FreePlaces(pool, 1));
         alone.Shots.Add(projectile);
-        projectile.LeftOnEnding += alone.Left.Add;
+        KeepWhatIsLeft(alone, projectile);
         _held.Add(alone);
     }
 
@@ -111,7 +123,7 @@ public sealed class Weapons
         ClearPlace(pool, place, room);
         var taken = new Held(pool, 1, [place]);
         taken.Shots.Add(projectile);
-        projectile.LeftOnEnding += taken.Left.Add;
+        KeepWhatIsLeft(taken, projectile);
         _held.Add(taken);
     }
 
@@ -150,7 +162,7 @@ public sealed class Weapons
             foreach (Projectile projectile in projectiles)
             {
                 together.Shots.Add(projectile);
-                projectile.LeftOnEnding += together.Left.Add;
+                KeepWhatIsLeft(together, projectile);
             }
 
             _held.Add(together);
@@ -161,7 +173,7 @@ public sealed class Weapons
         {
             var alone = new Held(weapon.Pool, 1, FreePlaces(weapon.Pool, 1));
             alone.Shots.Add(projectile);
-            projectile.LeftOnEnding += alone.Left.Add;
+            KeepWhatIsLeft(alone, projectile);
             _held.Add(alone);
         }
     }
@@ -442,7 +454,7 @@ public sealed class Weapons
         foreach (Held held in _held.Where(held => held.Shots.Contains(from)))
         {
             held.Shots[held.Shots.IndexOf(from)] = projectile;
-            projectile.LeftOnEnding += held.Left.Add;
+            KeepWhatIsLeft(held, projectile);
         }
 
         return projectile;

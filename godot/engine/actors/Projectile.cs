@@ -381,6 +381,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// </summary>
     private Spent _spent;
 
+    /// <summary>
+    /// Whether an enemy's answer ended it. What it leaves then is not its own to be counted with it: whoever counts a
+    /// projectile as out until what it left is gone too (<see cref="LeftOnEnding"/>) counts this one as gone at once.
+    /// </summary>
+    public bool EndedOnEnemy { get; private set; }
+
     /// <summary>Takes a spent shot away as the answer that spent it has it go.</summary>
     private void SettleSpent(Room room)
     {
@@ -393,6 +399,15 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             return;
         }
 
+        // Only an enemy's answer, in that enemy's turn, spends a shot.
+        EndedOnEnemy = true;
+        End(room);
+    }
+
+    /// <summary>Ends the projectile on the answer of <paramref name="target"/>, which its hit landed on as it moved.</summary>
+    private void EndOn(Room room, IHittable target)
+    {
+        EndedOnEnemy = target is Enemy;
         End(room);
     }
 
@@ -1017,7 +1032,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                         return false;
                     }
 
-                    End(room);
+                    EndOn(room, target);
                     return false;
                 case HitResult.Dud:
                     // One that outlasts a dud plays on: its target has shown the dud and is not met by it again.
@@ -1047,7 +1062,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                             return false;
                         }
 
-                        End(room);
+                        EndOn(room, target);
                         return false;
                     }
 

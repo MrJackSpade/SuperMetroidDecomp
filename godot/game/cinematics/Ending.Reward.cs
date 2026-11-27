@@ -17,7 +17,8 @@ namespace Game.Cinematics;
 /// ones that lead give the cue "jump"; "suitless_jump", "suited_jump", "helmet_jump", "head_jump", "falling" and
 /// "landing", with the cues "ready_head", "launch_head", "launch", "fly", "head_fly" and "shoot"), the picture of her
 /// shot ("shot_floor") and its sound ("shot_sound"), the emblem's timelines ("logo_upper_s", "logo_lower_s", "logo_upper_circle", which gives the
-/// cue "grey_out", and "logo_lower_circle") and picture ("logo"), and her "last_words": by the name of each
+/// cue "grey_out", and "logo_lower_circle"), the colours its pieces are first shown in ("emblem_colours") and the steps
+/// of the glare that plays on them as its upper half lands ("emblem_glare"), its picture ("logo"), and her "last_words": by the name of each
 /// ("ending_item_percentage", "ending_final_message") the font it is typed in and how far down the screen its first
 /// line is, each line lying in the middle of the screen; under "percentage" the font and place of the figures
 /// of the share of items found, which end in a per cent sign three cells along; and under "japanese_subtitle" the
@@ -60,6 +61,15 @@ public partial class Ending
     private int _whiteLeft;
     private readonly List<(CinematicSprite Half, int LandX, int LandY, int Way, int Speed, bool Settled)> _logoHalves = [];
     private readonly List<CinematicSprite> _logoCircles = [];
+
+    /// <summary>The emblem's pieces not yet shown in its colours, which each is once it shows its first picture.</summary>
+    private readonly List<CinematicSprite> _logoUncoloured = [];
+
+    /// <summary>The name the emblem's pieces' colours are changed under: their own, and then their glare's.</summary>
+    private const string EmblemColours = "Emblem";
+
+    /// <summary>The glare that plays on the emblem from the update its upper half lands; none before.</summary>
+    private ColourSteps? _logoGlare;
     private Sprite2D? _logoPicture;
     private int _logoFade = -1;
     private PixelText? _lastWords;
@@ -377,6 +387,9 @@ public partial class Ending
         _logoHalves.Add((LogoPart(sprites, "logo_lower_s", -10, 263), 126, 127, 1, 8, false));
         _logoCircles.Add(LogoPart(sprites, "logo_upper_circle", 129, 110));
         _logoCircles.Add(LogoPart(sprites, "logo_lower_circle", 135, 128));
+        _logoUncoloured.Clear();
+        _logoUncoloured.AddRange(LogoPieces());
+        _logoGlare = null;
         _logoPicture = new Sprite2D
         {
             Name = "Logo", Centered = false, Modulate = new Color(1, 1, 1, 0), ZIndex = -1, Texture = Session.Content.LoadTexture(Data().Text("logo")),
@@ -410,10 +423,14 @@ public partial class Ending
                 piece.Tint(new Color(1, 1, 1, 1 - shown));
             if (_logoFade >= 16)
             {
-                foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
+                // Its glare goes with its pieces, in the colours it had reached.
+                _colourSteps.Remove(_logoGlare ?? throw new InvalidOperationException("The emblem was finished before its upper half landed."));
+                _logoGlare = null;
+                foreach (CinematicSprite piece in LogoPieces())
                     piece.QueueFree();
                 _logoHalves.Clear();
                 _logoCircles.Clear();
+                _logoUncoloured.Clear();
                 return true;
             }
         }
@@ -428,6 +445,10 @@ public partial class Ending
                 if (reached)
                     half.Place = PixelPosition.FromWhole(landX, landY);
                 _logoHalves[index] = (half, landX, landY, way, reached ? speed : speed + 2, reached);
+
+                // The upper half's landing sets the emblem's glare going, its first look shown at once.
+                if (reached && index == 0)
+                    _logoGlare = BeginColourSteps("emblem_glare", EmblemColours, [.. LogoPieces()]);
             }
 
             half.Step();
@@ -443,8 +464,27 @@ public partial class Ending
             }
         }
 
+        // A piece is shown in the emblem's colours once it shows a picture: its first colours before the glare, and the
+        // look the glare ends on after it has begun, the glare being over long before the circles first show.
+        if (_logoUncoloured.Count == 0)
+            return false;
+        ColourChange colours = ColourChange.Read(_logoGlare is null
+            ? Data().Get("emblem_colours")
+            : Data().Get("emblem_glare").List("steps")[^1].Get("colours"));
+        for (int index = _logoUncoloured.Count - 1; index >= 0; index--)
+        {
+            CinematicSprite piece = _logoUncoloured[index];
+            if (colours.On(piece).Count == 0)
+                continue;
+            colours.ShowOn(piece, EmblemColours);
+            _logoUncoloured.RemoveAt(index);
+        }
+
         return false;
     }
+
+    /// <summary>The emblem's pieces: its two halves, then its two circles.</summary>
+    private IEnumerable<CinematicSprite> LogoPieces() => _logoHalves.Select(half => half.Half).Concat(_logoCircles);
 
     /// <summary>
     /// Starts typing one of her last pieces of text. The share of items found, once typed and moved down, stays shown

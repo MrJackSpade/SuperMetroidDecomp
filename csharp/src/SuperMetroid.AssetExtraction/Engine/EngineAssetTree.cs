@@ -87,6 +87,32 @@ internal sealed partial class EngineAssetTree
         WritePicture(RegionMapPath(picture), width, height, pixels);
     }
 
+    /// <summary>The path of the map of what takes part in a room's blends that lies beside the picture at <paramref name="picture"/>.</summary>
+    internal static string BlendsMapPath(string picture) => picture.EndsWith(".png", StringComparison.Ordinal)
+        ? picture[..^4] + ".blends.png"
+        : throw new ArgumentException($"A map of what takes part in blends lies beside a picture, which {picture} is not.", nameof(picture));
+
+    /// <summary>
+    /// Writes, beside the picture at <paramref name="picture"/>, the map of its pixels that take part in a room's
+    /// blends: a picture of the same size, white where a pixel does and black where it does not. The cartridge
+    /// combines what a room's effect lays behind the room with the sprites drawn in some of its colours and not with
+    /// the rest; what lays such a picture on a drawn thing reads this to know which of the thing's pixels take it. A
+    /// picture none of whose pixels takes part has no map.
+    /// </summary>
+    internal void WriteBlendsMap(string picture, int width, int height, ReadOnlySpan<bool> takesPart)
+    {
+        if (takesPart.Length != width * height)
+            throw new ArgumentException($"The picture {picture} is {width} by {height} but says of {takesPart.Length} pixels whether they take part.", nameof(takesPart));
+        var pixels = new RgbaPixel[takesPart.Length];
+        for (int pixel = 0; pixel < takesPart.Length; pixel++)
+        {
+            byte shade = takesPart[pixel] ? (byte)255 : (byte)0;
+            pixels[pixel] = new RgbaPixel(shade, shade, shade, 255);
+        }
+
+        WritePicture(BlendsMapPath(picture), width, height, pixels);
+    }
+
     /// <summary>Writes a data file.</summary>
     /// <exception cref="InvalidOperationException">Different data was already written at the path.</exception>
     internal void WriteData(string path, JsonObject data)

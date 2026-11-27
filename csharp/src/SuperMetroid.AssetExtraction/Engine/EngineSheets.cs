@@ -290,9 +290,40 @@ internal sealed partial class EngineSheets
                 if (told)
                     tree.WriteRegionMap(path, width, height, canvasRegions);
             }
+
+            WriteBlendsMap(tree, path, width, height, image, document, placed, across, down);
         }
 
         return new EngineSheetPictures(left, top, width, height, paths) { PictureDepths = depths };
+    }
+
+    /// <summary>
+    /// Writes, beside a picture cut from a sheet, the map of its pixels that take part in a room's blends, where any
+    /// does: every pixel it shows of a frame that blends whole, or the pixels the sheet's own map marks of a sheet
+    /// whose pictures blend in part.
+    /// </summary>
+    private static void WriteBlendsMap(
+        EngineAssetTree tree, string path, int width, int height, SpriteImagePixels image, InstalledSheetDocument document,
+        InstalledSheetFrameDocument frame, int across, int down)
+    {
+        if (!frame.Blends && image.Blending is null)
+            return;
+        var takesPart = new bool[width * height];
+        bool any = false;
+        for (int y = 0; y < frame.Size.Y; y++)
+        {
+            int from = (frame.Corner.Y + y) * document.Size.X + frame.Corner.X, to = (down + y) * width + across;
+            for (int x = 0; x < frame.Size.X; x++)
+            {
+                if (image.Pixels[from + x].A == 0 || !(image.Blending is { } marked ? marked[from + x] : frame.Blends))
+                    continue;
+                takesPart[to + x] = true;
+                any = true;
+            }
+        }
+
+        if (any)
+            tree.WriteBlendsMap(path, width, height, takesPart);
     }
 
     /// <summary>
@@ -446,6 +477,8 @@ internal sealed partial class EngineSheets
                     if (told)
                         tree.WriteRegionMap(path, width, height, canvasRegions);
                 }
+
+                WriteBlendsMap(tree, path, width, height, image, document, frame, across, down);
             }
 
             foreach (string blank in document.Blank ?? [])

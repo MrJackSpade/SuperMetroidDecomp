@@ -618,6 +618,8 @@ public sealed partial class EngineAssetWriter
                 ["standing"] = "topmost",
                 ["meeting_terrain"] = "passes_through",
                 ["meeting_target"] = "passes_through",
+                // What it does no harm shows the dud where the bomb lies, and the blast plays on.
+                ["outlasts_dud"] = true,
                 ["view_margin"] = -1,
                 ["timeline"] = burstTimeline,
             },

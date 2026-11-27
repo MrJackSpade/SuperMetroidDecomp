@@ -1520,7 +1520,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   and cues, her breath, and what shows it; her neck and where her head is are her turn's.
 - **A shot that does it no harm** leaves what the enemy's data gives for that (`"dud"`: an effect where the shot
   is and a sound) and is spent: the enemy answers `HitResult.Dud`, and the shot is gone with nothing of its own
-  left, where a hit merely absorbed ends the shot with its own ending. A hit that comes of nothing with a place
+  left, where a hit merely absorbed ends the shot with its own ending. A projectile whose data says it outlasts a
+  dud (`"outlasts_dud"`, as her bomb's blast does) plays on and meets that enemy no more. A hit that comes of nothing with a place
   (the player's body, a blast) leaves none. An enemy whose class leaves its own, part by part, has no `"dud"`.
 - **Colour and strength variants** are one scene with different data files.
 - **An enemy's look by the room.** One the cartridge draws in colours of the room's own, a look for some rooms and

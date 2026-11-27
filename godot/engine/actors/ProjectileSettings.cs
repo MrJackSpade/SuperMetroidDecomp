@@ -181,6 +181,13 @@ public sealed record ProjectileSettings
     /// </summary>
     public bool HitsEachUpdate { get; init; }
 
+    /// <summary>
+    /// Whether it plays on after a hit of its that does a target no harm and leaves the target's dud: the dud is
+    /// shown, that target is not met by it again, and it goes on to whatever else it covers, as a bomb's blast does.
+    /// One that does not is gone with the dud.
+    /// </summary>
+    public bool OutlastsDud { get; init; }
+
     /// <summary>How many updates it lasts; zero for no limit.</summary>
     public int LastsUpdates { get; init; }
 
@@ -286,6 +293,7 @@ public sealed record ProjectileSettings
             TargetShake = data.Has("target_shake") ? RoomShake.Read(data.Get("target_shake")) : null,
             DeliversHit = !data.Has("delivers_hit") || data.Flag("delivers_hit"),
             HitsEachUpdate = data.Has("hits_each_update") && data.Flag("hits_each_update"),
+            OutlastsDud = data.Has("outlasts_dud") && data.Flag("outlasts_dud"),
             LastsUpdates = data.Has("lasts_updates") ? data.Int("lasts_updates") : 0,
             ViewMargin = data.Has("view_margin") ? data.Int("view_margin") : plain.ViewMargin,
             LaunchDelayUpdates = data.Has("launch_delay_updates") ? data.Int("launch_delay_updates") : 0,

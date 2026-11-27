@@ -961,6 +961,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                     End(room);
                     return false;
                 case HitResult.Dud:
+                    // One that outlasts a dud plays on: its target has shown the dud and is not met by it again.
+                    if (_settings.OutlastsDud)
+                    {
+                        _alreadyHurt.Add(target);
+                        break;
+                    }
+
                     if (spends)
                     {
                         Spend(target, Spent.AsDud);

@@ -654,7 +654,10 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   wall to its move across, `WallMiddleHeld`, as this game's Oum does) only the middle column of the body meets it, so
   the body's edges pass into it and the mover stands where its surface is under their middle, and such a mover
   climbs only slopes of that kind; a slope that does not say so is a step or a wall and meets the whole body. To
-  everything else a slope is solid along its surface, whichever kind it is.
+  everything else a slope is solid along its surface, whichever kind it is; but what is asked about by where it
+  lies may take a slope that does not hold by the middle for solid all through its tile
+  (`SlopeTreatment.WholeUnlessMiddleHeld`), as this game's thrown bombs do, which meet the room by their middle
+  point alone.
 - A **block** is a reactive piece of terrain, as many tiles wide and high as its layout says (the cartridge's
   own are one or two each way, and the wall the animals leave by in the escape is three high), placed as one unit
   with a `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.

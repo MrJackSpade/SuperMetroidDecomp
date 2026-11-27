@@ -28,4 +28,11 @@ public enum SlopeTreatment
     /// its shape. To anything else it is as for <see cref="Wall"/>, and so is any other slope.
     /// </summary>
     WallMiddleHeld,
+
+    /// <summary>
+    /// A slope that holds things up by their middle is solid along its surface; any other slope is solid all through
+    /// its tile, whatever its shape. For what is asked about by where it lies (<see cref="ITerrainShape.IsSolidIn"/>):
+    /// a move tried where it ends takes it as <see cref="Wall"/>.
+    /// </summary>
+    WholeUnlessMiddleHeld,
 }

@@ -9,8 +9,10 @@ namespace Game;
 /// One of Samus's bombs: it lies where it was laid until its time runs out, and then bursts. Its settings do all of
 /// that. What is its own is the bomb jump, which throws the morph ball lying against it a little before it bursts;
 /// what its burst does to the room's blocks, which is to strike the block it lies in and the four beside that one;
-/// and being thrown, as the five of a spread are: a thrown bomb falls, bounces off the floor as high as it was
-/// thrown, turns back from walls and stops rising at a ceiling.
+/// and being thrown, as the five of a spread are: a thrown bomb falls by the gravity Samus has as it flies, bounces
+/// off the floor as high as it was thrown, turns back from walls and stops rising at a ceiling. It meets the room by
+/// its middle point alone, as the cartridge's does: the room's edge, a solid tile or block, sloped ground that holds
+/// by the middle at or under its surface, and any other slope's whole tile.
 /// </summary>
 public partial class Bomb : Projectile
 {
@@ -23,10 +25,13 @@ public partial class Bomb : Projectile
     private bool _thrown;
     private PixelVelocity _flight;
     private Pixels _throwDown;
-    private Pixels _gravity;
 
-    /// <summary>Throws the bomb at a speed, to fall at <paramref name="gravity"/> faster each update.</summary>
-    public void Throw(PixelVelocity speed, Pixels gravity) => (_thrown, _flight, _throwDown, _gravity) = (true, speed, speed.Y, gravity);
+    /// <summary>Throws the bomb at a speed, to fall faster each update by the gravity of whoever threw it.</summary>
+    public void Throw(PixelVelocity speed) => (_thrown, _flight, _throwDown) = (true, speed, speed.Y);
+
+    /// <summary>Whether the room stops a thrown bomb where it lies: what its middle point is in.</summary>
+    private bool IsStopped(Room room) =>
+        room.Terrain.IsSolidIn(new PixelRect(Position.X.Whole, Position.Y.Whole, 1, 1), SlopeTreatment.WholeUnlessMiddleHeld);
 
     /// <summary>
     /// Throws the morph ball of the Samus who laid <paramref name="bomb"/> if this is the update for it: the bomb has
@@ -49,21 +54,24 @@ public partial class Bomb : Projectile
             return;
         }
 
+        // It falls by the gravity Samus has now, wherever she has got to since she threw it.
+        Samus samus = Launcher as Samus ?? throw new InvalidOperationException("A thrown bomb is no bomb of Samus's.");
         Velocity = PixelVelocity.Zero;
-        _flight = _flight.WithY(_flight.Y + _gravity);
+        _flight = _flight.WithY(_flight.Y + Pixels.FromNumber(samus.Medium.Gravity));
         PixelPosition before = Position;
         Position = new PixelPosition(Position.X, Position.Y + _flight.Y);
-        if (room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall))
+        if (IsStopped(room))
         {
-            // The floor throws it back up as hard as it was first thrown; a ceiling only stops its rise.
+            // The floor throws it back up as hard as it was first thrown. A ceiling stops its rise, and what its
+            // speed held of a part of a pixel is left it as a slow fall. Either way it goes no further this update.
             Position = before;
-            _flight = _flight.WithY(_flight.Y.IsNegative ? Pixels.Zero : _throwDown);
+            _flight = _flight.WithY(_flight.Y.IsNegative ? Pixels.FromParts(0, _flight.Y.Fraction) : _throwDown);
             return;
         }
 
         before = Position;
         Position = new PixelPosition(Position.X + _flight.X, Position.Y);
-        if (!room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall))
+        if (!IsStopped(room))
             return;
         Position = before;
         _flight = _flight.WithX(-_flight.X);

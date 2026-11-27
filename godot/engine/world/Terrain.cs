@@ -694,11 +694,14 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             case SlopeTreatment.ClimbUnderMiddle when holdsMiddle:
                 // Only the body's middle column meets the slope.
                 return SlopeIsSolidIn(tile, column, row, new PixelRect(rect.Left + rect.Width / 2, rect.Top, 1, rect.Height));
+            case SlopeTreatment.WholeUnlessMiddleHeld when !holdsMiddle:
+                return true;
             case SlopeTreatment.Climb:
             case SlopeTreatment.Wall:
             case SlopeTreatment.ClimbUnderMiddle:
             case SlopeTreatment.IgnoreMiddleHeld:
             case SlopeTreatment.WallMiddleHeld:
+            case SlopeTreatment.WholeUnlessMiddleHeld:
                 return SlopeIsSolidIn(tile, column, row, rect);
             default:
                 throw new InvalidOperationException($"Undefined way {slopes} of treating slopes.");

@@ -1914,7 +1914,7 @@ public partial class Samus : Player
             var thrown = Weapons.Launch(this, bomb, Position, PixelVelocity.Zero, settings with { LastsUpdates = BombSpreadFuses[each] }) as Bomb
                 ?? throw new InvalidOperationException("Samus's bomb is not a bomb.");
             Vector2 throws = BombSpreadThrows[each];
-            thrown.Throw(new PixelVelocity(Pixels.FromNumber(throws.X), Pixels.FromNumber(throws.Y - higher)), Pixels.FromNumber(Medium.Gravity));
+            thrown.Throw(new PixelVelocity(Pixels.FromNumber(throws.X), Pixels.FromNumber(throws.Y - higher)));
         }
 
         Weapons.WaitAtLeast(bomb.CooldownFor(Inventory, charged: false));

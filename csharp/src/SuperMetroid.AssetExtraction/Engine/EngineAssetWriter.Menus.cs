@@ -81,8 +81,6 @@ public sealed partial class EngineAssetWriter
             return path;
         }
 
-        string headingFrame = CeresEscapeWarningPictures.Emergency.Picture + front;
-        string heading = Whole(headingFrame, "text/emergency.png");
         foreach ((EscapeTypewriterMessageId id, string name) in new[]
             { (EscapeTypewriterMessageId.Ceres, "ceres_self_destruct_warning"), (EscapeTypewriterMessageId.Zebes, "zebes_time_bomb_warning") })
         {
@@ -161,77 +159,24 @@ public sealed partial class EngineAssetWriter
 
             if (id == EscapeTypewriterMessageId.Ceres)
             {
-                // Everything written on the station's warning flashes in the alarm's colours: its heading, its typed
-                // letters and its second wording, each as its sheet has it.
-                var flashing = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
-                {
-                    [heading] = [SheetWith(headingFrame)],
-                    [font + ".png"] = [fontSheet],
-                };
                 var lines = new JsonArray();
                 foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
                 {
                     JsonObject at = At(line.Corner.X, line.Corner.Y);
-                    string picture = Whole(line.Picture + front, $"{folder}/{name}_{line.Name}.png");
-                    at["picture"] = picture;
+                    at["picture"] = Whole(line.Picture + front, $"{folder}/{name}_{line.Name}.png");
                     lines.Add(at);
-                    flashing[picture] = [SheetWith(line.Picture + front)];
                 }
 
                 layout["second_wordings"] = new JsonObject
                 {
                     ["ceres_self_destruct_subtitle"] = new JsonObject { ["languages"] = new JsonArray(Languages[1]), ["pictures"] = lines },
                 };
-                layout["alarm"] = CeresWarningAlarm(family, flashing);
             }
 
             _tree.WriteData($"{folder}/{Words(name, words)}.json", layout);
         }
-    }
 
-    /// <summary>
-    /// The alarm of the station's warning as steps of colours on <paramref name="places"/>, one step for each step of the
-    /// old alarm: the first shows its second colouring, and from then on it goes through all of them for good, its first
-    /// after its last. Its owner steps it at the alarm's own pace.
-    /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// A sheet the places are cut from tells its pixels apart by region, which the warning's pictures are written without,
-    /// or the alarm plays a beat that is not a colouring.
-    /// </exception>
-    private JsonObject CeresWarningAlarm(string family, IReadOnlyDictionary<string, IReadOnlyList<string>> places)
-    {
-        foreach (string sheet in places.Values.SelectMany(sheets => sheets).Distinct(StringComparer.Ordinal))
-        {
-            if (_sheets.HasRegions(family, sheet))
-                throw new InvalidDataException($"The sheet {sheet} tells its pixels apart by region, and the station's warning is written without maps of regions.");
-        }
-
-        Animation<SuperMetroid.Core.Bosses.Ridley.RidleyFadeSegment> animation = SuperMetroid.Core.Bosses.Ridley.RidleyFadeAnimations.Alarm;
-        var steps = new JsonArray();
-        var firstStepOfPhase = new List<int>();
-        foreach (AnimationPhase<SuperMetroid.Core.Bosses.Ridley.RidleyFadeSegment> phase in animation.Phases)
-        {
-            firstStepOfPhase.Add(steps.Count);
-            var beats = SuperMetroid.Core.Bosses.Ridley.RidleyFadeAnimations.Segments.Beats(phase.Segment);
-            for (int play = 0; play < phase.Plays; play++)
-            {
-                for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)
-                {
-                    if (beats[beat] is not AnimationBeat<SuperMetroid.Core.Bosses.Ridley.RidleyFadeImage, NoAnimationCue>.Frame shown)
-                        throw new InvalidDataException($"The station's warning's alarm plays a beat that is not a colouring: {beats[beat]}.");
-                    steps.Add(new JsonObject
-                    {
-                        ["updates"] = shown.Duration,
-                        ["colours"] = ShadeChange(SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyShades.Fade(shown.Shown).Key, family, places),
-                    });
-                }
-            }
-        }
-
-        var data = new JsonObject { ["steps"] = steps };
-        if (animation.End is AnimationEnd.Loop loop)
-            data["loops_to"] = firstStepOfPhase[loop.Phase];
-        return data;
+        Whole(CeresEscapeWarningPictures.Emergency.Picture + front, "text/emergency.png");
     }
 
     /// <summary>Writes the title screen as it rests, and the demos it shows when left alone.</summary>

@@ -2084,9 +2084,7 @@ last letter has passed; the words stay written. Mother Brain's room uses it. How
 warning is laid out and typed (its font, where its words begin, how long a letter takes, how many letters at the
 start are followed at once, how many letters go to a sound, the sound of a letter, and the pictures of a second
 wording, with the languages it is shown in and, for `TypedWarning`, how many updates of typing pass before it shows)
-is a data file named for it under `text/typed/`. The station's also has its alarm: steps of colours (`ColourSteps`)
-that `CeresGetaway` shows on everything written on the warning, its heading, its words and its second wording, and
-steps on the updates the clock's count is a multiple of four.
+is a data file named for it under `text/typed/`.
 
 Ceres: the colours its doors take once Ridley has gone (`CeresDoorColours`: given to a room's doors as the room is
 set up, as a change of colours written by the extractor, so a door there while he left keeps its own until the room
@@ -2094,7 +2092,7 @@ is entered again); the elevator arrival (`CeresArrival`: the pad that sets Samus
 (`CeresGetaway`: he flies off over the turning floor and throws Samus aside, the room shown on every update of his
 flight in the colours of the floor's whole size, which it keeps once he is gone, as changes of colours on the room
 from `objects/ceres_getaway_floor_colours.json`; then the self-destruct's warning comes up, is typed out and stays
-up flashing in its alarm's colours, and the countdown begins); the station shaking once the self-destruct has
+up flashing, and the countdown begins); the station shaking once the self-destruct has
 begun (`CeresShaking`); the falling debris (`CeresDebris`); the elevator shaft tilting and the elevator taking Samus
 (`CeresShaft`, which tells the `Escape` service she has left). Crateria: the gunship landing. Brinstar and
 Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is open to the view, the zone beside

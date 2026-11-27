@@ -303,6 +303,23 @@ internal sealed partial class EngineEnemy
             Data["timelines"] = _timelines;
         if (_shots.Count > 0)
             Data["shots"] = _shots;
+
+        // One shown in looks has no pictures cut in its own folder, so nothing of its data may name one there.
+        if (_pictureSets is not null && Texts(Data).FirstOrDefault(NamesOwnPicture) is { } named)
+            throw new InvalidDataException($"The data file {_file} names the picture {named}, which is not cut: its pictures are shown only from its looks' folders.");
         _tree.WriteData(_file, Data);
     }
+
+    /// <summary>Whether a text of its data names a picture cut directly in its own folder.</summary>
+    private bool NamesOwnPicture(string text) =>
+        text.StartsWith(Folder + "/", StringComparison.Ordinal) && text.EndsWith(".png", StringComparison.Ordinal) && !text[(Folder.Length + 1)..].Contains('/');
+
+    /// <summary>Every text a part of a data file holds, however deep.</summary>
+    private static IEnumerable<string> Texts(JsonNode? node) => node switch
+    {
+        JsonObject entries => entries.SelectMany(entry => Texts(entry.Value)),
+        JsonArray items => items.SelectMany(Texts),
+        JsonValue value when value.TryGetValue(out string? text) => new[] { text },
+        _ => Enumerable.Empty<string>(),
+    };
 }

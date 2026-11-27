@@ -273,10 +273,9 @@ public sealed partial class EngineAssetWriter
         });
         robot.Write();
 
-        // The robot without power stands where it is placed, under the same gravity, and does nothing else.
+        // The robot without power stands in its pose where it is placed and does nothing else: it never falls.
         EngineEnemy unpowered = Enemy("enemies/work_robot_unpowered.json", "WorkRobot", EnemyDefinitionId.UnpoweredWorkRobot)
-            .BodyColliders("Body", "Solid", "Hurtbox")
-            .Value("gravity", EngineNames.Number(WorkRobotMotionDefinitions.Gravity));
+            .BodyColliders("Body", "Solid", "Hurtbox");
         foreach (WorkRobotSegment pose in unpoweredPoses)
             unpowered.Timeline(RobotLook(pose), WorkRobotAnimations.Segments, WorkRobotAnimations.StartingWith(pose), RobotCue);
         unpowered.Write();

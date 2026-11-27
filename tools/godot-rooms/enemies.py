@@ -601,9 +601,11 @@ def waver(p, index, listed):
 @rule('WorkRobot', 'UnpoweredWorkRobot')
 def work_robot(p, index, listed):
     powered = p.enemy == 'WorkRobot'
-    properties = {'Powered': truth(powered), 'Pose': quoted(snake(legacy.last_name(p.settings['Pose'])))}
-    # The robot without power is an enemy of its own, with a data file of its own.
+    properties = {'Powered': truth(powered)}
+    # The robot without power is an enemy of its own, with a data file of its own, and stands in the pose it is
+    # placed in; a powered one has no use for a pose.
     if not powered:
+        properties['Pose'] = quoted(snake(legacy.last_name(p.settings['Pose'])))
         properties['DataFile'] = quoted('enemies/work_robot_unpowered.json')
     return Placed(E + 'work_robot/work_robot.tscn', p.enemy, properties)
 

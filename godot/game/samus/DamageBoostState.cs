@@ -26,6 +26,9 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     /// <summary>The updates of the knockback still to come.</summary>
     private Countdown _knockbackLeft;
 
+    /// <summary>Whether the knockback she left for the boost still has time to run.</summary>
+    public bool KnockbackRuns => _knockbackLeft.IsRunning;
+
     /// <summary>A damage boost carrying her <paramref name="toward"/>, out of a knockback with <paramref name="knockbackLeft"/> updates still to come.</summary>
     public DamageBoostState(Facing toward, int knockbackLeft)
     {

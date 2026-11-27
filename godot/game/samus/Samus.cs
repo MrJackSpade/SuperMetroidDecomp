@@ -920,9 +920,13 @@ public partial class Samus : Player
     /// <summary>The pool her beams, missiles and super missiles share their places in.</summary>
     private string ShotsPool => Weapons.All.First(weapon => weapon.Name == Arsenal.Beam).Pool;
 
-    /// <summary>The view also leads the other way while she moonwalks, and through a damage boost, which the knockback still carries.</summary>
+    /// <summary>
+    /// The view also leads the other way while she moonwalks, and for as long as a knockback she has left still has
+    /// time to run: through the first of a damage boost, and through whatever she left the boost for. Once that time
+    /// is up it leads the way she faces, which in a boost is the way it carries her.
+    /// </summary>
     public override Facing ViewFacing =>
-        State is MoonwalkingState or DamageBoostState ? Facing.Opposite() : base.ViewFacing;
+        State is MoonwalkingState or DamageBoostState { KnockbackRuns: true } || _knockbackCarried.IsRunning ? Facing.Opposite() : base.ViewFacing;
 
     /// <summary>Where her grapple beam starts: as a shot does, at the places her data gives the line.</summary>
     public PixelPosition GrapplePoint => Origin(_grappleOrigins);

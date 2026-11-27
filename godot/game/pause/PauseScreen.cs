@@ -13,7 +13,8 @@ namespace Game;
 /// <summary>
 /// The pause screen, laid over play. Play goes on while the screen darkens for it and again while the screen
 /// brightens after it: through both this steps play itself, without the pause button, and gives way at once to
-/// whatever play hands over to. Between them every sound stops, the screen is black for an update, the pause
+/// whatever play hands over to, but for a door or the time up begun on the last update of either, which go on as the
+/// cartridge's do. Between them every sound stops, the screen is black for an update, the pause
 /// screen brightens, is used, and darkens, and the screen is black for an update more. The strip across the top of
 /// play stays over it throughout.
 /// It has two pages. The map page shows the map of the area Samus is in, through the opening of the page's frame;
@@ -157,9 +158,15 @@ public partial class PauseScreen : GameMode
         _levels = _data.Get("fade").Int("levels");
         _fade.Cover(0, _levels);
 
-        // The darkening goes on from however dark the screen was left, at the pause's own pace from here.
-        int wait = _data.Get("fade").Int("wait");
-        Session.Darkness.SetPace(wait, wait);
+        // The darkening goes on from however dark the screen was left. A pause the player asks for, in control, sets
+        // the pause's own pace from here; one a station asks for, while it holds her, goes at the pace the screen's
+        // last fade left, as the cartridge's map station's does.
+        if (Samus.State.InControl)
+        {
+            int wait = _data.Get("fade").Int("wait");
+            Session.Darkness.SetPace(wait, wait);
+        }
+
         _phase = Phase.Darkening;
     }
 
@@ -192,7 +199,7 @@ public partial class PauseScreen : GameMode
                 if (black)
                     Session.Darkness.SetPace(0, 0);
                 if (next is not null)
-                    return next;
+                    return black ? AfterDarkening(next) : next;
                 if (black)
                     _phase = Phase.Preparing;
                 return this;
@@ -259,10 +266,14 @@ public partial class PauseScreen : GameMode
                 GameMode? next = _playing.PlayBeneath(input, BeneathThePause);
                 bool lit = StepFade(darker: false);
                 if (lit)
+                {
                     Session.Darkness.SetPace(0, 0);
+                    return AfterBrightening(next);
+                }
+
                 if (next is not null)
                     return next;
-                return lit || SavedBeneath ? _playing : this;
+                return SavedBeneath ? _playing : this;
             }
 
             default:
@@ -282,6 +293,37 @@ public partial class PauseScreen : GameMode
             ChooseFirst();
             ShowEquipment();
         }
+    }
+
+    /// <summary>
+    /// What play began on the update the darkening went black goes on from the black screen, as on the cartridge: a
+    /// time up at its fade to black, with no white-out, and a door at the step after its first, so an elevator's door
+    /// has no wait. Anything else is handed over as it is.
+    /// </summary>
+    private GameMode AfterDarkening(GameMode next)
+    {
+        if (next is TimeUpMode timeUp)
+            timeUp.BeginAtBlackOut();
+        else if (next is DoorTransitionMode)
+            ElevatorJourney.Of(Session).Disarm();
+        return next;
+    }
+
+    /// <summary>
+    /// On the update the brightening is done play is its own again over whatever that update began, as on the
+    /// cartridge: a door entered stays entered and is gone through at the end of the next update, and a time up is
+    /// asked for again on the next update only on Zebes, as the escape does there. Anything else is handed over.
+    /// </summary>
+    private GameMode AfterBrightening(GameMode? next)
+    {
+        if (next is DoorTransitionMode or TimeUpMode)
+        {
+            // The mode play made has not taken control, and play names what it stood for again.
+            next.Free();
+            return _playing;
+        }
+
+        return next ?? _playing;
     }
 
     /// <summary>Sets the screen so dark, with the wait before the first step of the fade from there.</summary>

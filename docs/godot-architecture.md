@@ -151,7 +151,8 @@ Where play is to go on beneath such a mode for a while (this game's pause screen
 that is still running, and brightens it again the same way), the mode laid over steps the playing mode itself for
 those updates (`PlayingMode.PlayBeneath`), on terms that say what it holds off meanwhile (`PlayTerms`: the
 player's death, a save from it, the pause, a session service's taking over, the count of the play time), and hands over at once to whatever
-play names instead.
+play names instead; on its own last update it may take that as its game has it (this game's pause, on the last
+update of each of its fades, as the cartridge's does).
 A state that stops only some things while play goes on is the playing mode's answer to "what is stopped this
 update", which the room is given with the update's input.
 

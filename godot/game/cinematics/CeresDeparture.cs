@@ -1,6 +1,5 @@
 using Engine.Core;
 using Engine.Input;
-using Engine.Ui;
 
 namespace Game.Cinematics;
 
@@ -9,10 +8,14 @@ namespace Game.Cinematics;
 /// on the elevator for a while, then the screen goes dark over the shaft, and once it is black her leaving is saved
 /// and the station is seen blowing up behind her.
 /// </summary>
+/// <remarks>
+/// The dark is the screen's own darkness, which the departure shows at its own fade's level on each of its updates:
+/// from fully lit, whatever it stood at before, to black, which it is left at.
+/// </remarks>
 public partial class CeresDeparture : GameMode
 {
-    /// <summary>How many updates she stands on the elevator before the screen begins to darken, and how many levels it darkens in, one each update.</summary>
-    private const int HoldUpdates = 60, DarkLevels = 15;
+    /// <summary>How many updates she stands on the elevator before the screen begins to darken, a level each update.</summary>
+    private const int HoldUpdates = 60;
 
     /// <summary>
     /// The terms play goes on beneath the departure on, as the cartridge has it: Samus with no energy left neither
@@ -21,7 +24,6 @@ public partial class CeresDeparture : GameMode
     private static readonly PlayTerms BeneathTheDeparture = new() { PlayerMayDie = false, PlayerMayBeSaved = false, MayPause = false, ServicesMayTakeOver = false };
 
     private readonly PlayingMode _playing;
-    private ScreenFade? _dark;
     private int _elapsed;
 
     /// <summary>Samus leaving from <paramref name="playing"/>.</summary>
@@ -41,18 +43,10 @@ public partial class CeresDeparture : GameMode
     public override GameMode? Keeps => _playing;
 
     /// <inheritdoc/>
-    protected override void Enter()
-    {
-        _dark = new ScreenFade { Name = "Dark", Layer = 10 };
-        AddChild(_dark);
-        _dark.Cover(0, DarkLevels);
-    }
-
-    /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        ScreenFade dark = _dark ?? throw new InvalidOperationException("The departure from Ceres has not begun.");
-        bool last = _elapsed == HoldUpdates + DarkLevels - 1;
+        int levels = Session.Darkness.Levels;
+        bool last = _elapsed == HoldUpdates + levels - 1;
 
         // That she is away is saved by the update that reaches black, once it has played.
         if (last)
@@ -62,7 +56,7 @@ public partial class CeresDeparture : GameMode
         _elapsed++;
         if (_elapsed <= HoldUpdates)
             return this;
-        dark.Cover(_elapsed - HoldUpdates, DarkLevels);
+        Session.Darkness.Show(_elapsed - HoldUpdates);
         if (!last)
             return this;
 

@@ -30,8 +30,11 @@ public partial class CeresArrival : RoomSequence
     /// <summary>How far below her the pad is, how far down the room the platform is, and where she is set down.</summary>
     private const int PadBelow = 28, PlatformY = 97, LandingY = 72;
 
-    /// <summary>She faces forward on the pad from the moment the room is set up, before any update of hers is played.</summary>
-    protected override void OnStarted() => ((Room)GetParent()).Player.ChangeState(new FacingForwardState());
+    /// <summary>
+    /// She faces forward on the pad from the moment the room is set up, before any update of hers is played: put in
+    /// the front view where she is, at the room's top, as the cartridge puts her, and not moved down clear of its edge.
+    /// </summary>
+    protected override void OnStarted() => ((Room)GetParent()).Player.ChangeState(new FacingForwardState { PutWhereSheIs = true });
 
     /// <summary>She is lowered before the view follows her, so it follows each pixel on the update it is made.</summary>
     public override bool PlaysBeforeView => true;

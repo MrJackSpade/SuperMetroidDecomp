@@ -21,6 +21,15 @@ public sealed class FacingForwardState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool InAnothersHands => true;
 
+    /// <summary>
+    /// Whether she is put in the front view's height where she is, with no room felt for around her, as the cartridge
+    /// sets her up on Ceres's pad at the top of its room; otherwise she is fitted to it where she stands.
+    /// </summary>
+    public bool PutWhereSheIs { get; init; }
+
+    /// <inheritdoc/>
+    public override FormAsked? EntersIn(Player owner) => PutWhereSheIs ? new FormAsked(RidingElevatorState.Form, Unfitted: true) : null;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
@@ -29,7 +38,8 @@ public sealed class FacingForwardState : PlayerState, ISamusLook
         owner.LoseMomentum();
 
         // The front view's own height: taller than standing, so on the ground she is lifted by the difference.
-        owner.TrySetForm(RidingElevatorState.Form);
+        if (!PutWhereSheIs)
+            owner.TrySetForm(RidingElevatorState.Form);
     }
 
     /// <inheritdoc/>

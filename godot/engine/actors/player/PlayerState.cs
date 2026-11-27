@@ -70,6 +70,12 @@ public abstract class PlayerState : State<Player>
     /// </summary>
     public virtual int ReadsBothAcross(Player owner) => 0;
 
+    /// <summary>
+    /// Whether this state passes over the way behind the player held by itself (<see cref="Player.Intent"/>): the
+    /// player then steers neither way. No state does unless it says so.
+    /// </summary>
+    public virtual bool PassesOverBehind(Player owner) => false;
+
     /// <summary>The way the player faces, as a way across: 1 rightward, -1 leftward.</summary>
     protected static int Forward(Player owner) => owner.Facing == Engine.Shared.Facing.Right ? 1 : -1;
 

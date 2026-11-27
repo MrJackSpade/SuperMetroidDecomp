@@ -12,6 +12,9 @@ public sealed class FallingState : PlayerState
     private AirStance? _stance;
     private AirStance _stanceAsked;
 
+    /// <summary>Whether this update's input is read with up and down before the way behind (<see cref="PassesOverBehind"/>).</summary>
+    private bool _aimsBeforeTurning;
+
     /// <summary>How the arm is held in the stance the fall is in: at rest before it has one.</summary>
     public AirArm Arm => _stance?.Arm ?? AirArm.AtRest;
 
@@ -35,6 +38,9 @@ public sealed class FallingState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
+        // The stance held as the update begins decides how its input is read.
+        bool armOutOrAimingDown = owner.Aim == Shared.Aim.Down || (owner.Aim == Shared.Aim.Forward && Arm == AirArm.Out);
+        _aimsBeforeTurning = armOutOrAimingDown && (owner.Input.IsHeld(GameAction.Up) || owner.Input.IsHeld(GameAction.Down));
         owner.AimFromInput();
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: false);
@@ -80,4 +86,11 @@ public sealed class FallingState : PlayerState
     /// </summary>
     public override int ReadsBothAcross(Player owner) =>
         owner.Form == Player.Crawling || owner.Input.IsHeld(GameAction.Up) || owner.Input.IsHeld(GameAction.Down) ? Forward(owner) : -Forward(owner);
+
+    /// <summary>
+    /// A fall with the arm held out level, or aiming straight down, reads up and down before the way behind: with
+    /// either held, the way behind held with it steers nobody, so the player aims straight up or down the way they
+    /// face and does not turn. In any other stance of a fall the way behind turns them whatever is held with it.
+    /// </summary>
+    public override bool PassesOverBehind(Player owner) => _aimsBeforeTurning;
 }

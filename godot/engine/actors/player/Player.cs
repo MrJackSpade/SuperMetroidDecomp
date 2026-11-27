@@ -440,14 +440,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>
     /// Which way the player is steering: -1 left, 1 right, 0 neither. Left and right held together are no direction of
     /// their own: they are read as the state the player is in reads them (<see cref="PlayerState.ReadsBothAcross"/>),
-    /// one way, the other, or neither.
+    /// one way, the other, or neither. The way behind the player held by itself steers them that way unless the state
+    /// they are in passes over it (<see cref="PlayerState.PassesOverBehind"/>).
     /// </summary>
     public int Intent
     {
         get
         {
             bool right = _input.IsHeld(GameAction.Right), left = _input.IsHeld(GameAction.Left);
-            return right && left ? State.ReadsBothAcross(this) : (right ? 1 : 0) - (left ? 1 : 0);
+            if (right == left)
+                return right ? State.ReadsBothAcross(this) : 0;
+            bool behind = right != (Facing == Facing.Right);
+            return behind && State.PassesOverBehind(this) ? 0 : right ? 1 : -1;
         }
     }
 

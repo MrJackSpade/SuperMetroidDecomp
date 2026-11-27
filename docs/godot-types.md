@@ -210,8 +210,11 @@ something that leaves the room.
   area stores the live map as the copy of the area left and loads it from the copy of the area entered, with the
   next room loaded and before it plays, unless the door says it does not (`Door.ExchangesExploredMaps`, written by
   the room generator: only the escape's door from the Climb down into Tourian). Saving stores it as the copy of the
-  area saved in; choosing a saved game sets the Zebes areas' copies from it, clears Ceres's and loads the live map
-  from the copy of the area it is kept in (`GameLoad.SavedArea`), and loading a game sets the copies so again; the
+  area saved in; choosing a saved game sets the Zebes areas' copies from what the cartridge's save would have kept
+  of it (an area's exploration in runs of eight cells of a row, from every eighth column, only the runs with a cell
+  that can be discovered, which is a cell the area's map charts, `Area.Cells`; the game's own save keeps all that
+  was explored), clears Ceres's and loads the live map from the copy of the area it is kept in
+  (`GameLoad.SavedArea`), and loading a game sets the copies so again; the
   landing on Zebes after Ceres loads the live map from the landing's area. A new file clears the copies; a cleared
   file and the title's start clear them and the live map; a demo clears the Zebes areas' copies. A death or a load
   begins nothing of it again, so the live map carries what one game or demo explored into the next.

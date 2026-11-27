@@ -8,11 +8,11 @@ namespace Game.Compatibility;
 /// The explored maps the cartridge keeps for play to read, apart from what the game shows as explored: one live map,
 /// marked where Samus goes whatever area she is in, and a copy for each area. A door between areas stores the live
 /// map as the copy of the area left and loads it from the copy of the area entered; a save stores it as the copy of
-/// the area saved in. A file chosen sets the Zebes areas' copies from what it saved, clears Ceres's and loads the
-/// live map from its own area's; loading a game sets the copies so again, and the landing on Zebes after Ceres
-/// loads the live map from its area's. A new file clears the copies, a cleared file and the game started again
-/// clear them and the live map, and a demo clears the Zebes areas' copies. Nothing else changes them, so the live
-/// map carries what one game or demo explored into the next.
+/// the area saved in. A file chosen sets the Zebes areas' copies from what the cartridge's save keeps of it, clears
+/// Ceres's and loads the live map from its own area's; loading a game sets the copies so again, and the landing on
+/// Zebes after Ceres loads the live map from its area's. A new file clears the copies, a cleared file and the game
+/// started again clear them and the live map, and a demo clears the Zebes areas' copies. Nothing else changes them,
+/// so the live map carries what one game or demo explored into the next.
 /// </summary>
 /// <remarks>
 /// The cartridge reads the copies only where a scroll check runs past a room's fifty scroll cells
@@ -20,8 +20,11 @@ namespace Game.Compatibility;
 /// </remarks>
 public sealed class KeptExploredMaps : ISessionService
 {
-    /// <summary>The folder of the areas' maps, which say which cells explore the cell above with them.</summary>
+    /// <summary>The folder of the areas' maps, which say which cells can be discovered and which explore the cell above with them.</summary>
     private const string AreaFolder = "areas";
+
+    /// <summary>The cells of a row a save keeps or loses together, from every eighth column.</summary>
+    private const int RunCells = 8;
 
     /// <summary>The live map's explored cells.</summary>
     private readonly HashSet<(int Column, int Row)> _live = [];
@@ -75,8 +78,15 @@ public sealed class KeptExploredMaps : ISessionService
 
     /// <summary>
     /// Sets the copies from the file <paramref name="save"/>, as loading it does: each Zebes area's holds what the
-    /// file explored there, and Ceres's is cleared. The live map is not changed.
+    /// cartridge's file would give back of what was explored there, and Ceres's is cleared. The live map is not
+    /// changed.
     /// </summary>
+    /// <remarks>
+    /// The cartridge's save keeps an area's exploration in runs of eight cells of a row, from every eighth column, and
+    /// only the runs in which the area's map has a cell that can be discovered: every cell of a run kept, explored or
+    /// not, and none of a run lost. It keeps nothing of Ceres. The cells that can be discovered are those the area's
+    /// map charts (<see cref="Area.Cells"/>). The game's own save keeps all that was explored, which is what it shows.
+    /// </remarks>
     public void LoadFile(GameSession session, SaveData save)
     {
         ArgumentNullException.ThrowIfNull(session);
@@ -87,8 +97,12 @@ public sealed class KeptExploredMaps : ISessionService
             copy.Clear();
             if (area == Data.Areas.Ceres)
                 continue;
+            Area map = MapOf(session, area);
             foreach ((_, int column, int row) in saved.Explored.Where(cell => cell.Area == area))
-                copy.Add((column, row));
+            {
+                if (RunCanBeDiscovered(map, column, row))
+                    copy.Add((column, row));
+            }
         }
     }
 
@@ -162,6 +176,22 @@ public sealed class KeptExploredMaps : ISessionService
         MarkLive(column, row);
         if (row > 0 && MapOf(session, room.Area).CellAt(column, row) is { ExploresAbove: true })
             MarkLive(column, row - 1);
+    }
+
+    /// <summary>
+    /// Whether the run of eight cells that the cell at <paramref name="column"/>, <paramref name="row"/> lies in has a
+    /// cell that can be discovered: one <paramref name="map"/> charts.
+    /// </summary>
+    private static bool RunCanBeDiscovered(Area map, int column, int row)
+    {
+        int first = column / RunCells * RunCells;
+        for (int across = first; across < first + RunCells; across++)
+        {
+            if (map.CellAt(across, row) is not null)
+                return true;
+        }
+
+        return false;
     }
 
     private Area MapOf(GameSession session, string area)

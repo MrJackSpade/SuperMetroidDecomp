@@ -1571,7 +1571,7 @@ what held it is taken out of play. The pickup remains leave takes the place they
 and waits an update for its first turn; the game may say that remains in some place leave no drop though they
 roll for it (`GameDefinition.RemainsLeaveDrop`). A spent drop goes on holding its place: when a pickup is taken or
 runs out, when remains leave nothing, and when a drop made outright rolls nothing, something that shows nothing
-holds the place for `GameDefinition.SpentDropUpdates` more updates (`Room.HoldPlaceOf`, `Effect.HoldingPlace`). A part of an enemy or a fitting of the room that the game counts among those places holds one the same way, by something that shows nothing until its owner takes it out (`Effect.HoldingPlace(at)`), and goes without where none is free: this game's Yapping Maw holds four for the links of its neck, a Nuclear Waffle four for its burning links and Botwoon thirteen for the segments of its body, each as it is set up, a segment handing its place to its explosion as it lands; Spore Spawn one for each link of its stalk, for good, and one for each place in the ceiling its spores come from, until it dies; the Tourian statue's hall one for each of its base and its two guardians that stand in the room, as it is set up, and one for each puff of its sinking dust while the dust is raised, its lights, sparks, tails, splashes and spirits being effects that hold their own; each turret of Mother Brain's room one from as it is set up until it is put out, one the room has no place for not being there; and each bug a Kago lets out, an enemy here, holds one for as long as it lives, and is not let out without one. And
+holds the place for `GameDefinition.SpentDropUpdates` more updates (`Room.HoldPlaceOf`, `Effect.HoldingPlace`). A part of an enemy or a fitting of the room that the game counts among those places holds one the same way, by something that shows nothing until its owner takes it out (`Effect.HoldingPlace(at)`), and goes without where none is free: this game's Yapping Maw holds four for the links of its neck, a Nuclear Waffle four for its burning links and Botwoon thirteen for the segments of its body, each as it is set up, a segment handing its place to its explosion as it lands; Spore Spawn one for each link of its stalk, for good, and one for each place in the ceiling its spores come from, until it dies; the Tourian statue's hall one for each of its base and its two guardians that stand in the room, as it is set up, and one for each puff of its sinking dust while the dust is raised, its lights, sparks, tails, splashes and spirits being effects that hold their own; each turret of Mother Brain's room one from as it is set up until it is put out, one the room has no place for not being there; and each bug a Kago lets out, an enemy here, holds one for as long as it lives, and is not let out without one; the downward gate (`Gate`) one while its column stands, and the save station one for its electricity while it saves (`Station.WorkingEffectHoldsPlace`). The eye door's eye leaves its smoke and the puffs of its destruction as effects that hold their own, and draws its number for one only when it was made. And
 what takes a destroyed enemy's place arrives as that pause ends. This game keeps eighteen places, and its remains in the first
 leave none, as the cartridge's death explosion in its first place never becomes a pickup.
 
@@ -1873,7 +1873,11 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors (they open by
   themselves while Samus is near, and the one to Ridley's room shows itself shutting as she comes in and is held
   shut until he has gone); the downward
-  gate, opened by its switch; the old Tourian escape wall; the wall
+  gate, opened by its switch, which is the game's `Gate` (`game/objects/gate/`), a barrier that holds one of the
+  room's places for what its enemies launch while its column stands, as the cartridge's column is one of its
+  enemies' shots: shut as the room is set up it takes one, opening it gives it back once its column has risen out of
+  sight, and shutting it takes one as its column starts down, holding none where none is free; the old Tourian
+  escape wall; the wall
   the animals break; Botwoon's wall; the shell around a statue-held item. Mother Brain's glass turned out to be an
   enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
@@ -1993,7 +1997,10 @@ the room's tiles with it, at `RoomDepth.BehindRoom`; each effect a guardian lets
 light of that guardian's eyes), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
-(`SpeedBoosterLavaquake`). Kraid's room, once he is beaten, shows the colours his death's last fade ends on from the
+(`SpeedBoosterLavaquake`). Every room with lava has its bubbling (`LavaBubbling`, in `game/rooms/`): an opening step
+(`IOpeningStep`) that counts the liquid's moves, the first only starting the count, and every 112th move while the
+surface lies within the room asks for one of the three bubbling sounds, chosen by the number as it stood before lava
+stirred it on that move, read and not drawn. Acid does not bubble. Kraid's room, once he is beaten, shows the colours his death's last fade ends on from the
 moment it is set up (`KraidRoomColours`, in `game/rooms/brinstar/`: the last step of the "sunk" fade of his data, on
 the room's pictures). The escape:
 explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinstar that seize Samus (`SamusEaters`, in `game/rooms/brinstar/`): one in each Brinstar room finds the blocks of the terrain that are plants, by their block type, and plays each: it holds her, shows its chewing as patches of the terrain named for where the plant is, hurts her at each bite, lets her go and stays shut a while.

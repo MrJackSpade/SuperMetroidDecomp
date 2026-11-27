@@ -16,8 +16,10 @@ VISUAL = 'res://engine/actors/components/ActorVisual.cs'
 OVERLAY = 'res://engine/world/OverlayEffect.cs'
 BACKDROP = 'res://engine/world/Backdrop.cs'
 BANDED_BACKDROP = 'res://engine/world/BandedBackdrop.cs'
-# The setup of a room state whose background is the scrolling sky with its bands drifting, and the bands' file.
-SKY_BANDS_SETUP = 'SpawnScrollingSkyBands'
+# The setups of the room states whose background is the scrolling sky with its bands drifting, and the bands' file:
+# the sky's own, and the Landing Site's in the escape, which spawns the same bands (RoomSetupBehavior,
+# LandingSiteEscapeSetup).
+SKY_BANDS_SETUPS = {'SpawnScrollingSkyBands', 'LandSkyWithLandingSiteQuake'}
 SKY_BANDS_FILE = 'backdrops/scrolling_sky_bands.json'
 TURNING_FLOOR = 'res://engine/world/TurningFloor.cs'
 TRIGGER = 'res://engine/world/Trigger.cs'
@@ -144,7 +146,7 @@ class Sequences:
         whole = f'Vector2i({room.screens[0] * SCREEN}, {room.screens[1] * SCREEN})'
 
         # The background, where the room has a picture of its own for one; a room's layout draws the others.
-        if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties and state.setup == SKY_BANDS_SETUP:
+        if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties and state.setup in SKY_BANDS_SETUPS:
             # The scrolling sky: its rows are the room's rows, so it moves down the screen with the room, and it does
             # not follow the view across; each band of it drifts by itself. The scroll the state gives its background
             # is not what its lines are shown by.

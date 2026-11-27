@@ -117,8 +117,10 @@ public partial class Ridley
     /// <summary>What a hit does to it aboard Ceres.</summary>
     private HitResult CeresTakeHit(Hit hit, Collider part)
     {
-        if (part.Name == "TailTip" || part.Name == "TailJoint")
-            return base.TakeHit(hit, part);
+        // Aboard Ceres his tail stops nothing: the cartridge resolves the tail's armour against her shots only in
+        // Norfair, so here a shot passes the tail and may go on to strike him.
+        if (IsTailArmour(part))
+            return HitResult.Ignored;
         // Nothing harms it here; each hit only counts toward driving it off.
         FlashFor(HitFlashUpdates);
         _hits++;

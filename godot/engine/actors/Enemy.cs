@@ -593,6 +593,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Ends its hurt and its flash at once: its behaviour is held off no longer, from the turn this is called on.</summary>
     protected void EndHurt() => (_flash, _hurt) = (Countdown.Over, false);
 
+    /// <summary>
+    /// Has the player's shots tried against the enemy again, each where it stands and the enemy where it now is: for
+    /// an enemy a part of which meets shots at a moment of its own turn, and not with the rest of it before it acts.
+    /// Its own answer to a hit (<see cref="TakeHit"/>) says which of its parts answer at which of the two moments.
+    /// </summary>
+    protected void TryPlayerShotsNow() => Room.TryPlayerShotsAgainst(this);
+
     /// <inheritdoc/>
     public virtual HitResult TakeHit(Hit hit, Collider part)
     {

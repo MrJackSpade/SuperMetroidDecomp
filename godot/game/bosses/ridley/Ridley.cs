@@ -268,8 +268,36 @@ public partial class Ridley : Enemy
         }
     }
 
-    /// <inheritdoc/>
-    public override HitResult TakeHit(Hit hit, Collider part) => OnCeres ? CeresTakeHit(hit, part) : base.TakeHit(hit, part);
+    /// <summary>
+    /// The armour of his tail and the rest of him answer her shots at different moments of his turn: the rest before
+    /// he acts, as any enemy does, and the armour once his tail has moved (<see cref="MeetShotsWithTailArmour"/>),
+    /// where it stops one shot a turn.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        if (OnCeres)
+            return CeresTakeHit(hit, part);
+        if (IsTailArmour(part) != _armourMeetsShots || _armourStopped)
+            return HitResult.Ignored;
+        HitResult result = base.TakeHit(hit, part);
+        _armourStopped = _armourMeetsShots && result != HitResult.Ignored;
+        return result;
+    }
+
+    /// <summary>Whether it is the armour of his tail that her shots are being tried against, and whether it has stopped one on this turn.</summary>
+    private bool _armourMeetsShots, _armourStopped;
+
+    /// <summary>
+    /// Tries her shots against the armour of his tail where the tail now lies, as the cartridge does once his tail has
+    /// moved, late in his own turn: the tip and the joint behind it stop the first shot that reaches them, unless he
+    /// passes through her shots altogether just then.
+    /// </summary>
+    private void MeetShotsWithTailArmour()
+    {
+        (_armourMeetsShots, _armourStopped) = (true, false);
+        TryPlayerShotsNow();
+        (_armourMeetsShots, _armourStopped) = (false, false);
+    }
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => !IsIntangible && base.IsHitBy(side);
@@ -683,6 +711,8 @@ public partial class Ridley : Enemy
         Position = new PixelPosition(x, y);
         BeatWings();
         StepTail();
+        if (!OnCeres)
+            MeetShotsWithTailArmour();
     }
 
     /// <summary>Called as it is about to move to a place, before the edges of where it may fly have stopped it.</summary>

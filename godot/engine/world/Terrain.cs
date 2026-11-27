@@ -269,6 +269,11 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             if (solid)
                 return new EdgeStop(true, across > 0 ? x - tileLeft + 1 : tileLeft + size - x, false) { Tile = new PixelRect(tileLeft, row * size, size, size) };
 
+            // To a mover that takes it for a whole wall, sloped ground that holds things up by their middle stops the
+            // edge as a solid tile does.
+            if (slope is { HoldsMiddle: true } && slopes == SlopeTreatment.WallMiddleHeld)
+                return new EdgeStop(true, across > 0 ? x - tileLeft + 1 : tileLeft + size - x, false) { Tile = new PixelRect(tileLeft, row * size, size, size) };
+
             // Sloped ground that holds things up by their middle stops no move across it.
             if (slope is null || slopes == SlopeTreatment.Ignore ||
                 (slope.HoldsMiddle && slopes is SlopeTreatment.IgnoreMiddleHeld or SlopeTreatment.ClimbUnderMiddle))
@@ -693,6 +698,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             case SlopeTreatment.Wall:
             case SlopeTreatment.ClimbUnderMiddle:
             case SlopeTreatment.IgnoreMiddleHeld:
+            case SlopeTreatment.WallMiddleHeld:
                 return SlopeIsSolidIn(tile, column, row, rect);
             default:
                 throw new InvalidOperationException($"Undefined way {slopes} of treating slopes.");

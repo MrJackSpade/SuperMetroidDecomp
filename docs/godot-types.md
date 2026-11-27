@@ -645,7 +645,8 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   move along it through (`share`, in 256ths): the player's movement takes it off a move across a floor's slope, and
   the surface crawl goes along a floor's or a ceiling's by that share of its speed. A slope may say
   that it holds things up by their middle (`"holds": "middle"`): to a mover that treats slopes so
-  (`SlopeTreatment.ClimbUnderMiddle`, which the player's body does) only the middle column of the body meets it, so
+  (`SlopeTreatment.ClimbUnderMiddle`, which the player's body does; a mover may instead take such a slope for a whole
+  wall to its move across, `WallMiddleHeld`, as this game's Oum does) only the middle column of the body meets it, so
   the body's edges pass into it and the mover stands where its surface is under their middle, and such a mover
   climbs only slopes of that kind; a slope that does not say so is a step or a wall and meets the whole body. To
   everything else a slope is solid along its surface, whichever kind it is.

@@ -341,7 +341,7 @@ public partial class Oum : Enemy
     private bool Roll(Facing? pushSide)
     {
         Pixels reach = Pixels.FromWhole(_heading == pushSide ? PushReach : 0);
-        bool blocked = MoveAcrossBy(_heading.Toward(Pixels.FromWhole(RollSpeed) + reach));
+        bool blocked = Room.Mover.MoveAcross(MovingBody(), _heading.Toward(Pixels.FromWhole(RollSpeed) + reach), MovesAcross).Blocked;
         Position -= new PixelOffset(_heading.Toward(reach), Pixels.Zero);
         return blocked;
     }
@@ -375,12 +375,28 @@ public partial class Oum : Enemy
         MoveDownWithRider(-curve.SpeedAt(_place));
     }
 
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>
+    /// How its roll is tried: as its other moves, but such sloped ground in the column it rolls into is a whole wall
+    /// to it, whatever the slope's shape, as the cartridge's Oum alone takes slopes for walls.
+    /// </summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.WallMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Oum \"{Name}\" has no body collider.");
+
     /// <summary>Moves it down, or up, as far as terrain lets it, takes whoever stands on it along, and returns whether something stopped it.</summary>
     private bool MoveDownWithRider(Pixels distance)
     {
         bool ridden = IsRiddenByPlayer(Riding.FeetAbove);
         int before = Position.Y.Whole;
-        bool stopped = MoveDownBy(distance);
+        bool stopped = Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
         if (ridden)
             ShiftPlayer(PixelOffset.FromWhole(0, Position.Y.Whole - before));
         return stopped;

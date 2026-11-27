@@ -871,14 +871,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     protected MoveResult MoveDown(MoveOptions options) =>
         Room.Mover.MoveDown(RequireBody(), Velocity.Y, options with { StoppedBySolids = false });
 
-    /// <summary>Moves the enemy across by <paramref name="distance"/>, treating slopes as walls, and returns whether something stopped it.</summary>
-    protected bool MoveAcrossBy(Pixels distance) =>
-        Room.Mover.MoveAcross(RequireBody(), distance, MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall }).Blocked;
-
-    /// <summary>Moves the enemy down by <paramref name="distance"/>, upward when negative, and returns whether something stopped it.</summary>
-    protected bool MoveDownBy(Pixels distance) =>
-        Room.Mover.MoveDown(RequireBody(), distance, MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall }).Blocked;
-
     /// <summary>
     /// Moves the enemy by <paramref name="offset"/> through everything, carrying along whoever stands on its solid
     /// collider and pushing ahead whoever is in its way. An enemy with no solid collider on just moves.

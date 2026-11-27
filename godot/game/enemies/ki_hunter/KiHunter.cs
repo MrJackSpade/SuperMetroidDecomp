@@ -327,7 +327,9 @@ public partial class KiHunter : Enemy
     /// </remarks>
     protected override void WhileFrozen()
     {
-        if (_wings is WingState.Circling or WingState.Sinking)
+        // Loose wings go on through the freeze. Wings still on it stand frozen with it, and take a step on the turn
+        // the freeze ends, as the thawed body's pictures move on that turn on the cartridge.
+        if (_wings is WingState.Circling or WingState.Sinking || !IsFrozen)
             StepWings();
     }
 

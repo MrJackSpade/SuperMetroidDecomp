@@ -1341,6 +1341,11 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   asks so, as this game's Rio's dive is heard and its pipe bugs wait to be seen.
   On an update the enemies are held still, each that would have taken a turn still counts on the time it cannot
   be hit for, and does nothing else: the cartridge's pass goes through its enemies in frozen time and counts that alone.
+- **Through a freeze.** A frozen enemy's behaviour is not played. What of it goes on all the same it says itself
+  (`Enemy.WhileFrozen`, called in the behaviour's place on each turn that begins with it frozen and no hurt holding
+  it, the turn that ends the freeze among them), as this game's Ki-Hunter's loose wings flutter on, its Squeept's
+  flame takes its random number and its Metroid counts its escape; and it may end its own freeze at once
+  (`Enemy.EndFreeze`), as a Rinka frozen outside its flight's window does.
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
   and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then

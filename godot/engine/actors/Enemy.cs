@@ -199,8 +199,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// </summary>
     protected bool IsWithinTurnReach => Room.IsWithinTurnReach(this);
 
-    /// <summary>The side of it the player is on.</summary>
-    protected Facing TowardPlayer => Room.Player.Position.X < Position.X ? Facing.Left : Facing.Right;
+    /// <summary>
+    /// The side of it the player is on, by whole pixels: left when the player's whole pixel across is less than its
+    /// own, right otherwise, so right when the two are in the same pixel.
+    /// </summary>
+    protected Facing TowardPlayer => Room.Player.Position.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
 
     /// <summary>The gameplay random generator.</summary>
     protected GameRandom Random => Room.Session.Random;
@@ -394,6 +397,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             WhileHurt();
         else if (behaves)
             Behave();
+        else
+            WhileFrozen();
 
         // Its own count moves on once the turn has been acted, whatever held it, and before its timeline does. The
         // timeline moves on through a hurt, whose hold is on the behaviour alone; only being frozen stops it.
@@ -1043,6 +1048,24 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         RemoveChild(_frozenSolid);
         _frozenSolid.QueueFree();
         _frozenSolid = null;
+    }
+
+    /// <summary>
+    /// Called in its behaviour's place on each turn that begins with it frozen and no hurt holding it, as
+    /// <see cref="WhileHurt"/> is on a turn a hurt holds it: what of the enemy goes on while its body stands frozen.
+    /// The turn that finds the freeze's time run out is one of them: the freeze has ended by the time this is called
+    /// on it (<see cref="IsFrozen"/> is false), and its behaviour comes back on the turn after. Nothing, unless the
+    /// enemy says otherwise.
+    /// </summary>
+    protected virtual void WhileFrozen()
+    {
+    }
+
+    /// <summary>Ends its being frozen at once, as the freeze's time running out does. Nothing for an enemy that is not frozen.</summary>
+    protected void EndFreeze()
+    {
+        if (IsFrozen)
+            EndStatus();
     }
 
     /// <summary>Ends the enemy's status.</summary>

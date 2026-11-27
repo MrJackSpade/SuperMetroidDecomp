@@ -255,8 +255,9 @@ public sealed record ProjectileSettings
 
     /// <summary>
     /// The data file of the timeline it plays itself when a shot destroys it, where it is; empty for one that is
-    /// gone at once. While it plays the projectile holds still, stops shots no longer, harms what it touches and ends
-    /// on it; what it drops is left as the timeline ends, in the place it held.
+    /// gone on its next update, leaving what it drops then. Shot down, the projectile holds still, stops shots no
+    /// longer, harms what it touches and ends on it; what one with a timeline drops is left as the timeline ends, in
+    /// the place it held.
     /// </summary>
     public string ShotTimeline { get; init; } = "";
 

@@ -522,13 +522,8 @@ public partial class Room : Node2D
             var shots = _projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList();
             foreach (Projectile enemyShot in EnemyShotsInTurn())
             {
-                if (_leaving.Contains(enemyShot))
-                    continue;
-                foreach (Projectile shot in shots)
-                {
-                    if (!_leaving.Contains(shot))
-                        shot.MeetShot(enemyShot);
-                }
+                if (!_leaving.Contains(enemyShot))
+                    enemyShot.MeetShots(shots.Where(shot => !_leaving.Contains(shot)));
             }
         }
 

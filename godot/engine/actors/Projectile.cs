@@ -227,6 +227,17 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             return;
         }
 
+        // One shot down with no end of its own to play goes now, on its own next update: until here it was still
+        // shown, where it was shot, and still held its place among what the room's enemies launch and leave.
+        if (_shotDown && _settings.ShotTimeline.Length == 0)
+        {
+            // One that leaves something when shot down rolls for it as an enemy would.
+            if (_settings.Drops is { } drops)
+                Pickup.Dropped(room, drops, Position);
+            End(room);
+            return;
+        }
+
         Age++;
 
         // Its trail is counted on each update it is stepped, before its pictures move on and before it moves or
@@ -377,7 +388,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
     /// <inheritdoc/>
     public virtual bool IsHitBy(HitSide side) =>
-        _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded && !_shotDown && _spent == Spent.No;
+        _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded && (!_shotDown || _meetingShots)
+        && _spent == Spent.No;
 
     /// <summary>How a shot an enemy's answer has spent goes on its next update.</summary>
     private enum Spent
@@ -429,8 +441,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// </summary>
     protected virtual bool DeliversHitNow => _settings.DeliversHit;
 
-    /// <summary>Whether it was shot down and is playing its end out where it is.</summary>
+    /// <summary>Whether it was shot down and is playing its end out where it is, or waits to go on its next update.</summary>
     private bool _shotDown;
+
+    /// <summary>
+    /// Whether it is in its turn of the room's pass of the player's shots against the enemies', having stopped shots
+    /// as its turn began: shot down by one of them, it is met by the rest of them all the same.
+    /// </summary>
+    private bool _meetingShots;
 
     /// <summary>Whether it harms what it meets now: shot down, it does, whatever its settings said of it.</summary>
     private bool HarmsNow => _shotDown || DeliversHitNow;
@@ -455,22 +473,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         switch (_settings.MetByShot)
         {
             case ProjectileSettings.MetBy.Destroyed:
-                // One with an end of its own to play when shot down stays where it is and plays it: it holds still,
-                // stops shots no longer, harms what it touches and ends on it, and leaves what it drops as that end
-                // is over, in the place it held.
+                // Shot down, it stays where it is: it holds still, stops shots no longer, harms what it touches and
+                // ends on it. One with an end of its own plays it, from the start again for each shot that strikes
+                // it, and leaves what it drops as that end is over, in the place it held; one with none goes on its
+                // next update (Step).
+                _shotDown = true;
+                Velocity = PixelVelocity.Zero;
                 if (_settings.ShotTimeline.Length > 0)
-                {
-                    _shotDown = true;
-                    Velocity = PixelVelocity.Zero;
                     PlayTimeline(_settings.ShotTimeline);
-                    return HitResult.Destroyed;
-                }
-
-                // One that leaves something when shot down rolls for it as an enemy would.
-                if (_settings.Drops is { } drops)
-                    Pickup.Dropped(room, drops, Position);
-
-                End(room);
                 return HitResult.Destroyed;
             default:
                 return HitResult.Ignored;
@@ -781,12 +791,28 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     }
 
     /// <summary>
+    /// Tries each of the player's shots against this one of the enemies' shots, in its turn of the room's pass.
+    /// Whether it stops shots at all is asked once, as its turn begins: the first of the player's shots to strike it
+    /// shoots it down, and the rest that stand in its square on the same update are spent on it all the same, each
+    /// starting its end over.
+    /// </summary>
+    internal void MeetShots(IEnumerable<Projectile> shots)
+    {
+        if (!IsHitBy(HitSide.Player))
+            return;
+        _meetingShots = true;
+        foreach (Projectile shot in shots)
+            shot.MeetShot(this);
+        _meetingShots = false;
+    }
+
+    /// <summary>
     /// Tries the player's shot against one of the enemies' shots, where each stands. The room does this for every
     /// pair once all have moved and the enemies' shots have been tried against the player. The two meet when they
     /// stand in the same square of the room (<see cref="Engine.Core.GameDefinition.ShotMeetingSquare"/>), whatever their sizes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The game's definition gives the squares no size.</exception>
-    internal void MeetShot(Projectile enemyShot)
+    private void MeetShot(Projectile enemyShot)
     {
         // One an enemy's answer has spent meets no shot of theirs.
         if (HasEnded || enemyShot.HasEnded || !HarmsNow || !MeetsShots || Side != HitSide.Player || _spent != Spent.No)

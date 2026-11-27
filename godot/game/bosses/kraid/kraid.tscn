@@ -20,10 +20,6 @@ script = ExtResource("3")
 [node name="Arm" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Solid" type="Node2D" parent="."]
-script = ExtResource("2")
-Role = 3
-
 [node name="Mouth" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1

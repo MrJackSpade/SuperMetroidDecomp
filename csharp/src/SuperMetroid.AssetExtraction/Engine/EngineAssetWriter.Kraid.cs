@@ -71,8 +71,9 @@ public sealed partial class EngineAssetWriter
         // Its body and each of its parts take their own depths in its class as the fight goes; it says nothing of lying
         // in front of the room's tiles as a whole.
         kraid.Data.Remove("in_front_of_tiles");
-        // As it starts to sink its body is made solid to Samus, by its definition's size.
-        kraid.BodyColliders("Solid");
+        // Its body is never solid to Samus where she can reach it. The old game marks it solid as it starts to sink,
+        // but it takes no part in what her moves are tried against until it has sunk, and it lies under the floor
+        // by then: it is given no solid.
         List<(RoomDefinition Room, RoomStateSettings State)> states = StatesHolding(EnemyDefinitionId.Kraid);
 
         // What it does to its room: the ceiling's blocks it breaks as it grows, each with the rock that falls from

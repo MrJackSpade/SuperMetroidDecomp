@@ -555,8 +555,6 @@ public partial class Kraid : Enemy
         // Its fight keeps Samus where a boss's does in the view, from its setup until it has sunk.
         Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
         _initialHealth = Health.Current;
-        // Its body is no solid until it starts to sink.
-        SolidBody.Enabled = false;
         Position = PixelPosition.FromWhole(RiseStart.X, RiseStart.Y);
         _stage = Stage.Rising;
         _rise = Rise.Wait;
@@ -885,8 +883,6 @@ public partial class Kraid : Enemy
                 StepHead();
                 _death = Death.Sink;
                 _sinkSound = 43;
-                // As it starts to sink its body stands solid to Samus, until it is gone.
-                SolidBody.Enabled = true;
                 Room.Shake(1, 256, ShakeWay.Down, ShakeReach.Tiles);
                 PlayPart("Arm", "arm_rising_or_sinking", restart: true);
                 PlayPart("Foot", "foot_initial", restart: true);
@@ -1233,9 +1229,6 @@ public partial class Kraid : Enemy
         Pixels fall = Pixels.FromNumber(0.25 + Random.Last.Part(0, 6) / 256.0);
         Fire("ceiling_rock", PixelPosition.FromWhole(x, 312), new PixelVelocity(Pixels.Zero, fall));
     }
-
-    /// <summary>The solid of its body, its definition's size.</summary>
-    private Collider SolidBody => Solid ?? throw new InvalidOperationException("Kraid has no solid collider.");
 
     /// <summary>Its arm's poses.</summary>
     private ColliderPoses ArmPoses => _armPoses ?? throw new InvalidOperationException("Kraid's data has not been read.");

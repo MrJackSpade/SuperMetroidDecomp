@@ -565,13 +565,13 @@ public partial class Room : Node2D
 
         // Play's own part of the update that comes here: whatever lasts beyond the room plays its update.
         _play?.AfterView(this);
-        if (!stopped.HasFlag(Stopped.Room))
+        foreach (RoomSequence sequence in _sequences)
         {
-            foreach (RoomSequence sequence in _sequences)
-            {
-                if (!sequence.PlaysBeforeView)
-                    sequence.Step(this);
-            }
+            // Held still, the room's sequences do not move on; each plays only what it keeps going through that.
+            if (stopped.HasFlag(Stopped.Room))
+                sequence.StepHeld(this);
+            else if (!sequence.PlaysBeforeView)
+                sequence.Step(this);
         }
 
         // Only now is a player with no energy left asked what follows: they die, unless the update has also taken

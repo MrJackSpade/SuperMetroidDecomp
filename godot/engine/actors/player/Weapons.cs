@@ -403,6 +403,43 @@ public sealed class Weapons
     }
 
     /// <summary>
+    /// Has a projectile of the player's that is no weapon's shot become one of <paramref name="weapon"/>'s where it
+    /// is, flying the way <paramref name="across"/> and <paramref name="down"/> say at the speed the weapon gives a
+    /// shot fired that way: the one projectile, the middle one of a shot of several, that the weapon launches with
+    /// the equipment <paramref name="on"/> switched on, charged or not, whatever the player has on now. The shot is
+    /// a live one of the weapon and holds what places <paramref name="from"/> held among the player's shots, with no
+    /// change to how many are held. What becomes of <paramref name="from"/> is its own class's to say. For a
+    /// projectile of its own class that what it hit turned another way (<see cref="ITurnsShots"/>) and that goes on
+    /// as a plain shot. Returns the shot.
+    /// </summary>
+    public Projectile Become(Player player, Projectile from, WeaponStats weapon, IReadOnlyCollection<string> on, bool charged, int across, int down)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        ArgumentNullException.ThrowIfNull(from);
+        ArgumentNullException.ThrowIfNull(weapon);
+        ArgumentNullException.ThrowIfNull(on);
+        if (!_live.TryGetValue(weapon.Name, out List<Projectile>? live))
+            _live[weapon.Name] = live = [];
+        PixelVelocity velocity = VelocityOf(player, weapon, across, down);
+        Hit hit = weapon.HitFor(on.Contains, charged) with { Direction = velocity.OverOneUpdate, Source = player };
+        IReadOnlyList<WeaponShot> shots = weapon.ShotsFor(on.Contains, charged);
+        WeaponShot shot = shots.FirstOrDefault(one => one.Side == 0) ?? shots[0];
+        Projectile projectile = Make(weapon);
+        projectile.Launch(hit, from.Position, velocity, shot.Projectile, player);
+        player.Room.Spawn(projectile);
+        live.Add(projectile);
+
+        // It takes over what places the other held, in the other's stead.
+        foreach (Held held in _held.Where(held => held.Shots.Contains(from)))
+        {
+            held.Shots[held.Shots.IndexOf(from)] = projectile;
+            projectile.LeftOnEnding += held.Left.Add;
+        }
+
+        return projectile;
+    }
+
+    /// <summary>
     /// Launches one projectile of a weapon by hand, with its own place, speed and settings, counted among that
     /// weapon's live ones. For a player whose weapon can be let loose some way firing does not cover.
     /// </summary>

@@ -185,12 +185,19 @@ public sealed class WeaponStats
     }
 
     /// <summary>The variant that applies for a player carrying <paramref name="inventory"/>, or null when the weapon's own shot does.</summary>
-    public WeaponVariant? VariantFor(Inventory inventory)
+    public WeaponVariant? VariantFor(Inventory inventory) => VariantFor(inventory.IsOn);
+
+    /// <summary>
+    /// The variant that applies with the equipment <paramref name="isOn"/> answers for switched on, or null when the
+    /// weapon's own shot does: for a shot of the weapon that goes by equipment other than what the player has on now.
+    /// </summary>
+    public WeaponVariant? VariantFor(Func<string, bool> isOn)
     {
+        ArgumentNullException.ThrowIfNull(isOn);
         WeaponVariant? best = null;
         foreach (WeaponVariant variant in Variants)
         {
-            if (!variant.When.All(inventory.IsOn))
+            if (!variant.When.All(isOn))
                 continue;
             if (best is null || variant.When.Count > best.When.Count)
                 best = variant;
@@ -202,16 +209,19 @@ public sealed class WeaponStats
     /// <summary>The hit one shot delivers for a player carrying <paramref name="inventory"/>.</summary>
     /// <param name="inventory">The player's inventory, which says which equipment is switched on.</param>
     /// <param name="charged">Whether the shot is charged.</param>
-    public Hit HitFor(Inventory inventory, bool charged)
+    public Hit HitFor(Inventory inventory, bool charged) => HitFor(inventory.IsOn, charged);
+
+    /// <summary>The hit one shot delivers with the equipment <paramref name="isOn"/> answers for switched on.</summary>
+    public Hit HitFor(Func<string, bool> isOn, bool charged)
     {
-        WeaponVariant? variant = VariantFor(inventory);
+        WeaponVariant? variant = VariantFor(isOn);
         int damage = variant?.Damage ?? Damage;
         var kinds = new List<HitKind>(variant?.Kinds ?? Kinds);
         if (variant is null)
         {
             foreach (WeaponProperty property in Properties)
             {
-                if (!inventory.IsOn(property.Equipment))
+                if (!isOn(property.Equipment))
                     continue;
                 damage += property.Damage;
                 kinds.AddRange(property.Kinds);
@@ -229,9 +239,12 @@ public sealed class WeaponStats
     }
 
     /// <summary>The projectiles one shot launches for a player carrying <paramref name="inventory"/>.</summary>
-    public IReadOnlyList<WeaponShot> ShotsFor(Inventory inventory, bool charged)
+    public IReadOnlyList<WeaponShot> ShotsFor(Inventory inventory, bool charged) => ShotsFor(inventory.IsOn, charged);
+
+    /// <summary>The projectiles one shot launches with the equipment <paramref name="isOn"/> answers for switched on.</summary>
+    public IReadOnlyList<WeaponShot> ShotsFor(Func<string, bool> isOn, bool charged)
     {
-        WeaponVariant? variant = VariantFor(inventory);
+        WeaponVariant? variant = VariantFor(isOn);
         if (variant is null)
             return [new WeaponShot(0, Projectile)];
         return charged ? variant.ChargedShots : variant.Shots;

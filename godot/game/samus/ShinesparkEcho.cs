@@ -49,11 +49,16 @@ public partial class ShinesparkEcho : Projectile
     }
 
     /// <summary>
-    /// What turns it away leaves it as it was: it is no shot of a weapon to be launched anew. The cartridge makes it
-    /// an ordinary beam shot flying the turned way, which is not carried (#3375).
+    /// Turned away, it becomes an ordinary shot of her beam flying the turned way, as the cartridge sets up afresh
+    /// any shot of the beam's family that is turned: the shot of the beams an echo carries, the wave and the plasma,
+    /// uncharged, whatever she has on. It holds the echo's place among her shots, and the echo is gone.
     /// </summary>
     protected override void OnTurned(Player player, int across, int down)
     {
+        ArgumentNullException.ThrowIfNull(player);
+        player.Weapons.Become(
+            player, this, player.Weapons.Named(Data.Arsenal.Beam), [Data.Equipment.WaveBeam, Data.Equipment.PlasmaBeam], charged: false, across, down);
+        Leave(player.Room);
     }
 
     /// <inheritdoc/>

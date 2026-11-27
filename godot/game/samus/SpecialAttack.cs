@@ -101,11 +101,27 @@ public partial class SpecialAttack : Projectile
     }
 
     /// <summary>
-    /// What turns it away leaves it as it was: it is no shot of a weapon to be launched anew. The cartridge makes it
-    /// an ordinary beam shot flying the turned way, which is not carried (#3375).
+    /// Turned away, it becomes an ordinary shot of her beam flying the turned way, as the cartridge sets up afresh
+    /// any shot of the beam's family that is turned: the shot of the one beam its attack is of, charged as the
+    /// attack was, but for a spazer light of the trailing pair, and a leading one that has begun to fall, which
+    /// carry the spazer uncharged. It holds the light's place among her shots, and the light is gone as one that
+    /// has ended: its partner, spent later, empties that place whatever holds it, as on the cartridge.
     /// </summary>
     protected override void OnTurned(Player player, int across, int down)
     {
+        ArgumentNullException.ThrowIfNull(player);
+        string beam = Kind switch
+        {
+            Kinds.Wave => Data.Equipment.WaveBeam,
+            Kinds.Ice => Data.Equipment.IceBeam,
+            Kinds.Spazer => Data.Equipment.Spazer,
+            Kinds.Plasma => Data.Equipment.PlasmaBeam,
+            _ => throw new InvalidOperationException($"There is no special attack of kind {Kind}."),
+        };
+        bool charged = Kind != Kinds.Spazer || (_part < 2 && _stage != Stage.Last);
+        player.Weapons.Become(
+            player, this, player.Weapons.Named(Data.Arsenal.Beam), charged ? [beam, Data.Equipment.ChargeBeam] : [beam], charged, across, down);
+        Leave(player.Room);
     }
 
     /// <inheritdoc/>

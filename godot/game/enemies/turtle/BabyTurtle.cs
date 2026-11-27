@@ -118,7 +118,7 @@ public partial class BabyTurtle : Enemy
         int x = Position.X.Whole >= Room.Player.Position.X.Whole ? samus.Right + halfWidth : samus.Left - halfWidth;
         Position = new PixelPosition(Position.X.WithWhole(x), Position.Y);
         _doing = Doing.Crawling;
-        MoveAcrossBy(Facing.Toward(Pixels.FromWhole(_speed)));
+        Stride(Facing.Toward(Pixels.FromWhole(_speed)));
         if (!Mother.IsEmpty && GetNodeOrNull<MamaTurtle>(Mother) is { } mother)
             mother.Rouse();
     }
@@ -200,13 +200,13 @@ public partial class BabyTurtle : Enemy
     /// <summary>Spins one update across the room, turning at walls and sinking as it goes.</summary>
     private void Spin()
     {
-        if (MoveAcrossBy(Facing.Toward(Pixels.FromWhole(_speed))))
+        if (Stride(Facing.Toward(Pixels.FromWhole(_speed))))
         {
             Facing = Facing.Opposite();
             return;
         }
 
-        MoveDownBy(Pixels.FromWhole(SpinFallSpeed));
+        Drop(Pixels.FromWhole(SpinFallSpeed));
     }
 
     /// <summary>
@@ -221,11 +221,30 @@ public partial class BabyTurtle : Enemy
             ShiftPlayer(new PixelOffset(step, Pixels.Zero));
         int beforeY = Position.Y.Whole;
         Position = new PixelPosition(Position.X, Position.Y.WithWhole(_placedTop.Y.Whole));
-        MoveAcrossBy(step);
+        Stride(step);
         if (Mother.IsEmpty || GetNodeOrNull<MamaTurtle>(Mother) is not { LiesInShell: true } mother)
             return;
-        MoveDownBy(Pixels.FromWhole(mother.ShellSurface(Position.X.Whole - mother.Position.X.Whole) ?? 1));
+        Drop(Pixels.FromWhole(mother.ShellSurface(Position.X.Whole - mother.Position.X.Whole) ?? 1));
         if (ridden)
             ShiftPlayer(PixelOffset.FromWhole(0, Position.Y.Whole - beforeY));
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it across by <paramref name="distance"/>; returns whether something stopped it.</summary>
+    private bool Stride(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Baby Turtle \"{Name}\" has no body collider.");
 }

@@ -76,6 +76,13 @@ public partial class Powamp : Enemy, ILatchable
         Dying,
     }
 
+    /// <summary>
+    /// How its moves up and down are tried, as the cartridge moves an enemy: only where each would end, and sloped
+    /// ground that holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
     private readonly Dictionary<string, int> _balloonHeights = new(StringComparer.Ordinal);
     private readonly List<int> _wiggle = [];
     private Doing _doing;
@@ -220,7 +227,7 @@ public partial class Powamp : Enemy, ILatchable
                 break;
 
             case Doing.Sinking:
-                MoveDownBy(_downSpeed);
+                Drop(_downSpeed);
                 if (Position.Y.Whole >= _rest.Y.Whole)
                 {
                     Position = new PixelPosition(Position.X, Position.Y.WithWhole(_rest.Y.Whole));
@@ -274,7 +281,7 @@ public partial class Powamp : Enemy, ILatchable
     private void Rise(bool held)
     {
         Wiggle(stopWhenCentred: false);
-        bool stopped = MoveDownBy(_downSpeed);
+        bool stopped = Drop(_downSpeed);
         bool highEnough = _rest.Y.Whole - (held ? GrappleTravelDistance : RiseDistance) >= Position.Y.Whole;
         if (!stopped && !highEnough)
             return;
@@ -290,7 +297,7 @@ public partial class Powamp : Enemy, ILatchable
     private void FinishWiggle(bool held)
     {
         if (!Wiggle(stopWhenCentred: true))
-            MoveDownBy(_downSpeed);
+            Drop(_downSpeed);
         else if (held)
             _doing = Doing.HeldResting;
         else
@@ -350,6 +357,12 @@ public partial class Powamp : Enemy, ILatchable
         if (GetNodeOrNull<Collider>("BalloonHurtbox") is { } hurtbox)
             hurtbox.Rect = new PixelRect(-hurtbox.Size.X / 2, height - hurtbox.Size.Y / 2, hurtbox.Size.X, hurtbox.Size.Y);
     }
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Powamp \"{Name}\" has no body collider.");
 
     /// <summary>Throws its eight spikes out, one each way.</summary>
     private void Burst()

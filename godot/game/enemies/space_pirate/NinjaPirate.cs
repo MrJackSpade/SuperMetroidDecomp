@@ -193,6 +193,13 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
         WalkToPost,
     }
 
+    /// <summary>
+    /// How its fall through a dive is tried, as the cartridge moves an enemy down: only where it would end, and sloped
+    /// ground that holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Falls =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
     private Doing _doing;
     private Facing _heading;
     private int _leftPost;
@@ -347,7 +354,7 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
             case Doing.Dive:
                 Position += PixelOffset.FromWhole(right ? DiveStep : -DiveStep, 0);
                 // The cartridge falls by the speed's whole pixels and counts its 256ths of a pixel only as 65536ths.
-                bool landed = MoveDownBy(Pixels.FromParts(_diveSpeed.Whole, _diveSpeed.Fraction / 256));
+                bool landed = Room.Mover.MoveDown(MovingBody(), Pixels.FromParts(_diveSpeed.Whole, _diveSpeed.Fraction / 256), Falls).Blocked;
                 if (!landed)
                 {
                     _diveSpeed -= diveChange;
@@ -375,6 +382,9 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
                 throw new InvalidOperationException($"Undefined ninja pirate stage {_doing}.");
         }
     }
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The ninja pirate \"{Name}\" has no body collider.");
 
     /// <summary>The name of one of its timelines for a side.</summary>
     private static string Sided(string timeline, Facing side) => side == Facing.Left ? $"{timeline}_left" : $"{timeline}_right";

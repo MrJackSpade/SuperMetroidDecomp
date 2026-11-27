@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Actors.Movement;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Godot;
@@ -42,6 +43,16 @@ public partial class Puyo : Enemy
         Rising,
         Falling,
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
 
     private readonly Dictionary<string, HopValues> _hops = new(StringComparer.Ordinal);
     private SpeedCurve? _curve;
@@ -142,7 +153,7 @@ public partial class Puyo : Enemy
     {
         if (_dropping)
         {
-            if (!MoveDownBy(_hops[_hop].DropSpeed))
+            if (!Drop(_hops[_hop].DropSpeed))
                 return;
             // Landed from its drop, chance picks the size of the bounce that follows.
             _next = ((Random.Draw().Part(0, 1) + Updates) & 1) == 1 ? DroppedBig : DroppedSmall;
@@ -189,7 +200,7 @@ public partial class Puyo : Enemy
         HopValues hop = _hops[_hop];
         SpeedCurve curve = Curve;
         Pixels speed = curve.SpeedAt(Math.Min(_place, 64 * SpeedCurve.PartsPerMark));
-        if (MoveDownBy(rising ? -speed : speed))
+        if (Drop(rising ? -speed : speed))
         {
             if (rising)
             {
@@ -223,7 +234,7 @@ public partial class Puyo : Enemy
                 _place = 0;
         }
 
-        if (!MoveAcrossBy(Facing.Toward(Pixels.FromWhole(hop.Across))))
+        if (!Room.Mover.MoveAcross(MovingBody(), Facing.Toward(Pixels.FromWhole(hop.Across)), MovesAcross).Blocked)
             return false;
         _turnBack = Facing.Opposite();
         BeginDrop();
@@ -242,6 +253,12 @@ public partial class Puyo : Enemy
             : _place >= half ? (leansRight ? "tilted_right" : "tilted_left")
             : "upright");
     }
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Puyo \"{Name}\" has no body collider.");
 
     /// <summary>The speed curve, once the Puyo is in its room.</summary>
     private SpeedCurve Curve => _curve ?? throw new InvalidOperationException($"The Puyo \"{Name}\" is not in a room.");

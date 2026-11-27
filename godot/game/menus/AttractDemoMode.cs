@@ -81,6 +81,9 @@ public partial class AttractDemoMode : PlayingMode
 
         base.Enter();
 
+        // A demo's load clears the Zebes areas' copies of the explored map the cartridge keeps, and leaves the live map.
+        KeptExploredMaps.Of(Session).ClearZebesCopies();
+
         // While a demonstration plays every sound asked for is turned away.
         CartridgeSounds.Of(Session).DemoPlaying = true;
 

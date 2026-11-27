@@ -68,8 +68,15 @@ public partial class Arrival : GameMode
         _begun = true;
 
         // Play, made beneath this, has its room and its player set up by now: the game is saved as it stands.
+        // Saving stores the live explored map the cartridge keeps as the area's, with whatever the game before left in
+        // it and the cell Samus starts in, which the cartridge marks as it sets her up.
         if (_savesFirstArrival)
+        {
+            Compatibility.KeptExploredMaps maps = Compatibility.KeptExploredMaps.Of(Session);
+            maps.MarkWhereSamusIs(Session);
+            maps.Store(_playing.Room.Area);
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, Session.Definition.FirstRoom, Session.Definition.FirstEntryPoint));
+        }
 
         // Her appearance begins before play's first update, which is its first: the black's waits are none of it.
         if (_samusAppears)

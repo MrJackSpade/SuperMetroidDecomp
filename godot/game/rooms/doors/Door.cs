@@ -44,4 +44,12 @@ public partial class Door : RoomExit
     /// </summary>
     [Export]
     public bool ShowsTilesThrough { get; set; } = true;
+
+    /// <summary>
+    /// Whether passing it into another area exchanges the explored maps the cartridge keeps
+    /// (<see cref="Compatibility.KeptExploredMaps"/>): so for every door between areas but the escape's from the
+    /// Climb down into Tourian, which leaves the live map as it is.
+    /// </summary>
+    [Export]
+    public bool ExchangesExploredMaps { get; set; } = true;
 }

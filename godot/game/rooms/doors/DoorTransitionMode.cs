@@ -111,8 +111,11 @@ public partial class DoorTransitionMode : GameMode
         // The door is gone with its room before the passage is over: what it says is taken now.
         (_toRoom, _toExit, _way, _toScreen) = (door.LeadsToRoom, door.LeadsToExit, door.Travel, door.ToScreen);
         _showsTilesThrough = door.ShowsTilesThrough;
+        _exchangesExploredMaps = door.ExchangesExploredMaps;
         _samusStep = Pixels.FromNumber(door.SamusStep);
     }
+
+    private readonly bool _exchangesExploredMaps;
 
     /// <inheritdoc/>
     public override GameMode? Keeps => _playing;
@@ -543,10 +546,16 @@ public partial class DoorTransitionMode : GameMode
         var entry = new RoomEntry(_toExit, samus.Velocity, samus.Facing) { At = rebased, KeepsView = true };
 
         // The screen of the room left stays in sight where it was, as the scroll begins.
+        string left = _playing.Room.Area;
         if (_showsTilesThrough)
             KeepScreenOf(_playing.Room);
         _scrollBeganAt = setup + KeptScreenOffset;
         _playing.ChangeRoom(_toRoom, entry);
+
+        // A door into another area that exchanges the explored maps does so with the next room loaded, before it plays.
+        string entered = _playing.Room.Area;
+        if (_exchangesExploredMaps && entered != left)
+            KeptExploredMaps.Of(Session).PassDoor(left, entered);
         ShowLitTilesOf(_playing.Room);
         PixelPosition? onElevator = journey.TakeSetDownPlace();
         samus.Position = rebased;

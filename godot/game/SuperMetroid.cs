@@ -49,7 +49,8 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>
     /// This game adds the escape countdown, the random number the cartridge drew every frame, which of the title's
     /// demos is due, the elevator's journey, what was held on the pause screen from one pause to the next, the
-    /// count of steps the cartridge's gradual fades share, the count Ceres's falling ceiling goes by, and the tester's
+    /// count of steps the cartridge's gradual fades share, the count Ceres's falling ceiling goes by, the pace of a
+    /// stride the cartridge never wrote, the explored maps the cartridge keeps for its scroll checks, and the tester's
     /// assists.
     /// </summary>
     public override IReadOnlyList<ISessionService> CreateServices() =>
@@ -62,6 +63,7 @@ public partial class SuperMetroid : GameDefinition
         new Compatibility.SharedFadeCount(),
         new Rooms.Ceres.CeresDebrisCount(),
         new Compatibility.LeftoverStridePace(),
+        new Compatibility.KeptExploredMaps(),
         _assists = new Assists.TesterAssists(),
     ];
 

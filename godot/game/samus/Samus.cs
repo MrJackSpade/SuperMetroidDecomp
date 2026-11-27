@@ -1089,9 +1089,9 @@ public partial class Samus : Player
         else if (up && State is not CrouchingState)
             // Crouched, up alone stands her up with her arm level; she aims up once she has stood.
             Aim = steering ? Aim.DiagonalUp : Aim.Up;
-        else if (down && !grounded)
-            Aim = steering ? Aim.DiagonalDown : Aim.Down;
         else if (down && steering)
+            // Standing, running and crouching never aim straight down, on the ground or for the update one of them
+            // is in the air: only a jump or a fall does, and those have settled their aim above.
             Aim = Aim.DiagonalDown;
         else
             Aim = Aim.Forward;

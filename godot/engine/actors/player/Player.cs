@@ -722,7 +722,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             _hurtbox = EntityNode.ColliderOf(this, ColliderRole.Hurtbox) ?? AddCollider("Hurtbox", ColliderRole.Hurtbox);
             ApplyForm(Standing);
             PublishForm();
-            _states = new StateMachine<Player>(this, new StandingState(), Admit);
+            _states = new StateMachine<Player>(this, new StandingState(), AdmitAndTell);
             OnReady();
         }
 
@@ -1054,6 +1054,26 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
     /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
     internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
+
+    /// <summary>
+    /// Called as the player leaves <paramref name="from"/> for <paramref name="to"/>, whatever takes them there: what
+    /// their input asked for, what their movement met, or something that interrupts them. The state has been
+    /// admitted, and neither has <paramref name="from"/> been left nor <paramref name="to"/> entered. A game does
+    /// here what passing between two of its states does to its player however it comes about; what only an asked
+    /// change does, and whatever names another state, is <see cref="Entering"/>'s.
+    /// </summary>
+    protected virtual void Leaving(PlayerState from, PlayerState to)
+    {
+    }
+
+    /// <summary>Admits a state asked for (<see cref="Admit"/>) and tells the game's player of the change it makes.</summary>
+    private State<Player> AdmitAndTell(State<Player> asked)
+    {
+        State<Player> admitted = Admit(asked);
+        if (!ReferenceEquals(admitted, States.Current))
+            Leaving(State, (PlayerState)admitted);
+        return admitted;
+    }
 
     /// <summary>
     /// Called as a jump from the ground has gathered itself and is about to rise in the stance it began in. A game

@@ -921,14 +921,15 @@ public partial class Samus : Player
     private string ShotsPool => Weapons.All.First(weapon => weapon.Name == Arsenal.Beam).Pool;
 
     /// <summary>
-    /// The view also leads the other way while she moonwalks, and for as long as a knockback she has left still has
-    /// time to run: through the first of a damage boost, and through whatever she left the boost for. Once that time
-    /// is up it leads the way she faces, which in a boost is the way it carries her. Facing out of the screen she
-    /// faces neither way, and the view leads as it does for anyone not facing left: to the right.
+    /// The view also leads the other way for as long as a knockback she has left still has time to run: through the
+    /// first of a damage boost, and through whatever she left the boost for. Once that time is up it leads the way
+    /// she faces, which in a boost is the way it carries her. Walking backwards it leads the way she faces, not the
+    /// way she goes. Facing out of the screen she faces neither way, and the view leads as it does for anyone not
+    /// facing left: to the right.
     /// </summary>
     public override Facing ViewFacing =>
         SamusLooks.FacesOut(this) ? Facing.Right
-        : State is MoonwalkingState or DamageBoostState { KnockbackRuns: true } || _knockbackCarried.IsRunning ? Facing.Opposite()
+        : State is DamageBoostState { KnockbackRuns: true } || _knockbackCarried.IsRunning ? Facing.Opposite()
         : base.ViewFacing;
 
     /// <summary>Where her grapple beam starts: as a shot does, at the places her data gives the line.</summary>
@@ -1137,6 +1138,15 @@ public partial class Samus : Player
         Aim.DiagonalDown => RunPose.AimedDown,
         _ => alreadyRunning && (_runPose == RunPose.Firing || Input.IsHeld(GameAction.Attack)) ? RunPose.Firing : RunPose.Plain,
     };
+
+    /// <inheritdoc/>
+    protected override void Leaving(PlayerState from, PlayerState to)
+    {
+        // Knocked back out of a moonwalk she is turned to face the way she walked: the cartridge's moonwalk pose
+        // faces that way, and its knockback takes the pose's side. The knockback itself goes the way the hit sent it.
+        if (from is MoonwalkingState && to is KnockedBackState)
+            Facing = Facing.Opposite();
+    }
 
     /// <summary>
     /// As the cartridge does, a run about to be taken up in a pose she is not already running in first moves her one

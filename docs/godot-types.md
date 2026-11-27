@@ -950,7 +950,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   last update. Letting the new direction go during a turn makes the
   player steered for the rest of it. With no turn time set the player turns at once and runs on, reversing.
 - As a change the input asked for (or the state's unasked carrying on) is about to take effect, the game's player
-  is told (`Entering`) and may do something of its own or name another state. A state the input asked to carry on
+  is told (`Entering`) and may do something of its own or name another state. Of every change of state, however it
+  comes about (asked for, met by the movement, or an interruption), the game's player is told as the state is
+  admitted, before the one is left and the other entered (`Leaving`). A state the input asked to carry on
   is told so (`CarriedOn`), which is where a change within a state takes effect.
 - **Up and down.** A rise is a rise until something ends it (`Player.IsRising`): gravity slowing it to rest, or past
   rest, does not. The state the player is in turns it into a fall from rest on the update after it has passed rest
@@ -1244,7 +1246,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   faces are held; with the attack let go she turns, with the jump if it is held; steering the way she faces she
   runs; walking off a floor she falls facing the way she was going. A turn made with the jump that runs out leads
   to a spin with no jump begun (`SpinJumpingState.Start.Adrift`): she is adrift in the spin's smaller body, cannot
-  space jump, and is drawn down with no fastest fall until she lands, which is the cartridge's moonfall.
+  space jump, and is drawn down with no fastest fall until she lands, which is the cartridge's moonfall. A hurt
+  that knocks her back out of a moonwalk turns her to face the way she walked (`Samus.Leaving`), and the view,
+  which in the moonwalk leads the way she faces, leads through the knockback as it does behind anyone knocked back.
   Every turn out of a moonwalk hands a shot to the next update's firing, whatever is pressed: on that update the
   turn, which cannot otherwise attack, plays the attack (`Player.AttacksNow`) for the beam alone (not for the hyper
   beam, which takes no handed shot), and the shot leaves the way the moonwalk aimed and from that way's muzzle

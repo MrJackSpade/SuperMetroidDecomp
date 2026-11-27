@@ -110,6 +110,14 @@ public abstract class PlayerState : State<Player>
     public virtual World.Stopped Stops => World.Stopped.Nothing;
 
     /// <summary>
+    /// What of the room waits from the moment the input asks for this state, on the update that asks and before the
+    /// state is entered: nothing, unless the state says otherwise. What was played before the player was asked on
+    /// that update has been played; what comes after, the player's shots and the enemies first, waits. For a state
+    /// whose hold on time begins as it is asked for and not an update later.
+    /// </summary>
+    public virtual World.Stopped StopsAsItIsAsked => World.Stopped.Nothing;
+
+    /// <summary>
     /// What the state does as an update of play begins, before anything of the update is decided: whether a pause
     /// that was asked for comes, what the update holds still. It returns the state the player is in for the update:
     /// null to stay in this one, or another, in which the whole update is then played. For a state that holds the

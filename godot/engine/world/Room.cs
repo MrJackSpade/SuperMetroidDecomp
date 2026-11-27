@@ -364,7 +364,13 @@ public partial class Room : Node2D
         }
 
         if (!stopped.HasFlag(Stopped.Player))
+        {
             Player.BeginUpdate(input);
+
+            // A state that holds things still from the moment it is asked for holds them through the rest of this
+            // update: what was played before the player was asked has been played.
+            stopped |= Player.StopsAsAsked;
+        }
 
         // The player's shots move, and hit, before the enemies act; a shot fired this update among them.
         if (!stopped.HasFlag(Stopped.PlayerShots))

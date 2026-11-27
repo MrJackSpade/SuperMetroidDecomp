@@ -36,6 +36,18 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
     /// <summary>Time stands still for everything but her: the enemies, every shot and pickup, and the room itself wait.</summary>
     public override Stopped Stops => Stopped.Enemies | Stopped.Projectiles | Stopped.Room;
 
+    /// <summary>
+    /// Time stands still from the update the scope is taken up on: the cartridge freezes it in her input, as the
+    /// scope is set up, so the enemies' pass of that same update already waits.
+    /// </summary>
+    public override Stopped StopsAsItIsAsked => Stops;
+
+    /// <summary>
+    /// The update after the last of its closing lets go as it begins, so she is in her own hands and time runs for
+    /// the whole of it: the cartridge's scope ends at the start of her input on that update.
+    /// </summary>
+    public override PlayerState? AsUpdateBegins(Player owner) => _closing == 0 ? AtRest(owner) : null;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

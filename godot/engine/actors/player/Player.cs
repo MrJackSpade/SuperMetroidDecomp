@@ -1005,6 +1005,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
 
     /// <summary>
+    /// What the state this update's input asked for holds still from the asking
+    /// (<see cref="PlayerState.StopsAsItIsAsked"/>): nothing when nothing was asked. The room reads it once the
+    /// update's first part has been played.
+    /// </summary>
+    internal World.Stopped StopsAsAsked => _asked?.StopsAsItIsAsked ?? World.Stopped.Nothing;
+
+    /// <summary>
     /// Lets the state the player is in play its part as an update of play begins
     /// (<see cref="PlayerState.AsUpdateBegins"/>), and puts the player in the state it gives way to, if it does.
     /// Play calls this before it decides anything of the update, and so before the update's first part

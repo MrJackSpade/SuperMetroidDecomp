@@ -126,7 +126,7 @@ public sealed class SavingChecks
         Expect.Equal(JoyButton.Y, ((InputEventJoypadButton)events[1]).ButtonIndex);
 
         options.Bindings["check jump"] = ["key:A"];
-        options.ApplyBindings([]);
+        options.ApplyBindings([new GameAction("check jump")]);
         Expect.Equal(1, InputMap.ActionGetEvents("check jump").Count);
         InputMap.EraseAction("check jump");
         InputMap.EraseAction("check unbound");
@@ -135,8 +135,8 @@ public sealed class SavingChecks
     [Check]
     public void ABindingThatCannotBeReadSaysSo()
     {
-        Expect.Throws<InvalidDataException>(() => new Options { Bindings = { ["check bad"] = ["key:NoSuchKeyAtAll"] } }.ApplyBindings([]));
-        Expect.Throws<InvalidDataException>(() => new Options { Bindings = { ["check bad"] = ["mouse:1"] } }.ApplyBindings([]));
+        Expect.Throws<InvalidDataException>(() => new Options { Bindings = { ["check bad"] = ["key:NoSuchKeyAtAll"] } }.ApplyBindings([new GameAction("check bad")]));
+        Expect.Throws<InvalidDataException>(() => new Options { Bindings = { ["check bad"] = ["mouse:1"] } }.ApplyBindings([new GameAction("check bad")]));
         InputMap.EraseAction("check bad");
     }
 

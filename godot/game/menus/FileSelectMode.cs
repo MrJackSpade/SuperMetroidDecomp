@@ -547,7 +547,8 @@ public partial class FileSelectMode : GameMode
     /// choosing are that file's: a saved game's two toggles and its language as they were saved, and a new game's
     /// both off and in the language a new file is in. The options screen that follows changes them from there, and
     /// the game is played and next saved with what they then are. A save made before these were kept leaves them as
-    /// they stand.
+    /// they stand. Which control each action of play is on goes the same way: a saved game's as it was saved, and
+    /// a new game's the cartridge's own layout.
     /// </summary>
     private void TakeSlotSettings()
     {
@@ -555,12 +556,19 @@ public partial class FileSelectMode : GameMode
         if (!Session.Saves.Has(Session.Slot))
         {
             (options.Toggles, options.Language) = ([], NewGameLanguage);
+            options.Controls = new Dictionary<string, string>(Session.Definition.StandardControls);
+            options.ApplyBindings(Session.Definition.AllActions);
             return;
         }
 
         SaveData save = Session.Saves.Read(Session.Slot);
         if (save.Language.Length > 0)
             (options.Toggles, options.Language) = (new Dictionary<string, bool>(save.Toggles), save.Language);
+        if (save.Controls.Count > 0)
+        {
+            options.Controls = new Dictionary<string, string>(save.Controls);
+            options.ApplyBindings(Session.Definition.AllActions);
+        }
     }
 
     /// <summary>Lays over the page what the saved game numbered <paramref name="slot"/> holds: its energy, its tanks and its play time, or that it holds nothing.</summary>

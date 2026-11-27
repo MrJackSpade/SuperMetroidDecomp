@@ -58,6 +58,7 @@ internal static partial class EngineDefaults
         ["DeadTorizo"] = "Enemy",
         ["DeathBlackOut"] = "GameMode",
         ["DeathMode"] = "GameMode",
+        ["DebugMenuMode"] = "GameMode",
         ["Diver"] = "Enemy",
         ["Door"] = "RoomExit",
         ["DoorTransitionMode"] = "GameMode",

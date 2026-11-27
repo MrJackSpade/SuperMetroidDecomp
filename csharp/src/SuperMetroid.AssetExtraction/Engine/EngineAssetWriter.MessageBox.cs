@@ -19,24 +19,24 @@ public sealed partial class EngineAssetWriter
     /// <summary>The file of how a message is shown.</summary>
     private const string MessageBoxFile = "messages/box.json";
 
-    /// <summary>The ending of the name of the picture of a message whose action is bound to no button a picture names.</summary>
-    private const string UnboundButtonPicture = "unbound";
-
     /// <summary>
-    /// The buttons a message's picture can name, in the old game's order of looking for them, each with the Godot
-    /// game's binding it is shown for. Godot numbers a controller's buttons as SDL does: 0 to 3 are A, B, X and Y,
-    /// 4 is the one beside start, 9 and 10 are the left and right shoulders. A binding to a key, or to any other
-    /// button, has no picture, and its message shows the old picture of nothing bound.
+    /// The name the Godot game keeps one of the old controller's buttons under: the control an action of play is on,
+    /// which a message's picture names.
     /// </summary>
-    private static (ControllerButton Old, string Binding)[] MessageButtonBindings =>
-    [
-        (ControllerButton.A, "pad:0"), (ControllerButton.B, "pad:1"), (ControllerButton.X, "pad:2"), (ControllerButton.Y, "pad:3"),
-        (ControllerButton.Select, "pad:4"), (ControllerButton.L, "pad:9"), (ControllerButton.R, "pad:10"),
-    ];
+    private static string ControlName(ControllerButton button) => button switch
+    {
+        ControllerButton.A => "a",
+        ControllerButton.B => "b",
+        ControllerButton.X => "x",
+        ControllerButton.Y => "y",
+        ControllerButton.Select => "select",
+        ControllerButton.L => "l",
+        ControllerButton.R => "r",
+        _ => throw new InvalidDataException($"The Godot game keeps no control for the old button {button}."),
+    };
 
     /// <summary>The ending of the name of a message's picture that names <paramref name="button"/>.</summary>
-    private static string ButtonPictureName(ControllerButton button) =>
-        button == ControllerButton.None ? UnboundButtonPicture : EngineSheets.FileName(ControllerButtonKeys.Installed.Of(button));
+    private static string ButtonPictureName(ControllerButton button) => EngineSheets.FileName(ControllerButtonKeys.Installed.Of(button));
 
     /// <summary>The Godot game's action whose button a message's picture names for <paramref name="binding"/>.</summary>
     private static string ActionOf(GameplayMessagePanelButtonBinding binding) => binding switch
@@ -162,18 +162,15 @@ public sealed partial class EngineAssetWriter
                     Write(new ShownMessage(id, null, null), MessageName(id));
                 else
                 {
-                    foreach (ControllerButton button in GameplayMessageBoxDefinitions.Buttons.GlyphOrder.Append(ControllerButton.None))
+                    foreach (ControllerButton button in GameplayMessageBoxDefinitions.Buttons.GlyphOrder)
                         Write(new ShownMessage(id, button, null), $"{MessageName(id)}_{ButtonPictureName(button)}");
                 }
             }
         }
 
-        var buttons = new JsonArray();
+        var controls = new JsonArray();
         foreach (ControllerButton button in GameplayMessageBoxDefinitions.Buttons.GlyphOrder)
-        {
-            (ControllerButton old, string godot) = MessageButtonBindings.Single(bound => bound.Old == button);
-            buttons.Add(new JsonObject { ["button"] = godot, ["picture"] = ButtonPictureName(old) });
-        }
+            controls.Add(new JsonObject { ["control"] = ControlName(button), ["picture"] = ButtonPictureName(button) });
 
         (int firstRead, int betweenReads) = QuestionReads();
         _tree.WriteData(MessageBoxFile, new JsonObject
@@ -196,8 +193,7 @@ public sealed partial class EngineAssetWriter
             ["move_actions"] = new JsonArray("left", "right", "item_select"),
             ["move_sound"] = EngineNames.Sound(SamusSound.MenuCursor),
             ["names_action"] = namesAction,
-            ["buttons"] = buttons,
-            ["unbound"] = UnboundButtonPicture,
+            ["controls"] = controls,
         });
     }
 }

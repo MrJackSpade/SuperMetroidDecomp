@@ -19,6 +19,9 @@ public partial class SuperMetroid : GameDefinition
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => Data.Actions.StandardBindings;
 
+    /// <summary>The seven actions of play are on the cartridge's own controller's buttons, as a new file has them.</summary>
+    public override IReadOnlyDictionary<string, string> StandardControls => Data.Actions.StandardControls;
+
 #if GODOT_ANDROID
     /// <summary>On a handheld the game makes its own assets, from the ROM the player chooses.</summary>
     public override Engine.Content.AssetsMaker? AssetsMaker => new RomAssets();

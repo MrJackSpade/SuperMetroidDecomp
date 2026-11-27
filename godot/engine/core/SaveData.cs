@@ -44,6 +44,12 @@ public sealed class SaveData
     /// <summary>The language the game was being played in when it was saved; empty in a save made before this was kept.</summary>
     public string Language { get; set; } = "";
 
+    /// <summary>
+    /// The control each action was on when the game was saved, by the action's name, for the actions the game puts on
+    /// a control other than their own; empty in a save made before this was kept.
+    /// </summary>
+    public Dictionary<string, string> Controls { get; set; } = [];
+
     /// <summary>The saved form of <paramref name="session"/>'s game, to resume in <paramref name="room"/> at <paramref name="entryPoint"/>.</summary>
     public static SaveData Capture(GameSession session, string room, string entryPoint)
     {
@@ -61,6 +67,7 @@ public sealed class SaveData
             EntryPoint = entryPoint,
             Toggles = new Dictionary<string, bool>(session.Options.Toggles),
             Language = session.Options.Language,
+            Controls = new Dictionary<string, string>(session.Options.Controls),
         };
     }
 

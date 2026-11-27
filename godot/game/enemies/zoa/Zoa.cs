@@ -1,13 +1,15 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
 
 /// <summary>
 /// A Zoa: it lies hidden until Samus comes near across, rises until it is level with her, and then shoots across the
-/// room the way she was, faster and faster. Once it has left the view it is back where it started, hidden again.
+/// room the way she was, faster and faster. Once its middle has left the enemies' view it is back where it started,
+/// hidden again.
 /// Nothing in the room stops it.
 /// </summary>
 /// <remarks>
@@ -78,7 +80,7 @@ public partial class Zoa : Enemy
 
             case Doing.Shooting:
                 Position += new PixelOffset(Facing.Toward(_speed), Pixels.Zero);
-                if (Room.Session.Camera.View.Contains(Position.X.Whole, Position.Y.Whole))
+                if (EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
                     return;
                 // Back home it keeps where it lay within a pixel, the speed its timeline last gave it, and that timeline
                 // if it shot left: it plays on unseen.

@@ -95,6 +95,22 @@ public partial class Ridley
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
 
+    /// <summary>How far left of the view's corner the window in which it meets Samus begins, in pixels.</summary>
+    [Export, DataValue("touch_margin_across")]
+    public int TouchMarginAcross { get; set; } = 32;
+
+    /// <summary>How far above the view's corner that window begins, in pixels.</summary>
+    [Export, DataValue("touch_margin_down")]
+    public int TouchMarginDown { get; set; } = 32;
+
+    /// <summary>How wide that window is, in pixels.</summary>
+    [Export, DataValue("touch_window_width")]
+    public int TouchWindowWidth { get; set; } = 320;
+
+    /// <summary>How tall that window is, in pixels.</summary>
+    [Export, DataValue("touch_window_height")]
+    public int TouchWindowHeight { get; set; } = 288;
+
     private enum Phase
     {
         EnterArena,
@@ -291,13 +307,25 @@ public partial class Ridley
     private Projectile? PowerBomb() => Room.Projectiles.FirstOrDefault(shot =>
         shot.Side == HitSide.Player && !shot.HasEnded && shot.Hit.Carries(new HitKind(HitKinds.PowerBomb)));
 
-    /// <summary>Out of the view it cannot touch or be touched.</summary>
+    /// <summary>Out of the window in which it meets Samus it cannot touch or be touched.</summary>
     private void UpdateIntangibility()
     {
         if (_mode == Mode.Dying)
             return;
         if (_mode != Mode.NotFighting)
-            IsIntangible = !IsInView(64);
+            IsIntangible = !IsInTouchWindow();
+    }
+
+    /// <summary>
+    /// Whether it lies in the window in which it meets Samus: from its margins left of and above the view's corner, as
+    /// wide and as tall as the window, the far edges outside, and nothing above or left of the room.
+    /// </summary>
+    private bool IsInTouchWindow()
+    {
+        Camera camera = Room.Session.Camera;
+        int x = Position.X.Whole, y = Position.Y.Whole;
+        int across = x + TouchMarginAcross - camera.Left, down = y + TouchMarginDown - camera.Top;
+        return x >= 0 && y >= 0 && across >= 0 && down >= 0 && across < TouchWindowWidth && down < TouchWindowHeight;
     }
 
     /// <summary>One update of its fight.</summary>

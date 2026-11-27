@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -141,8 +142,9 @@ public partial class Gamet : Enemy
                 throw new InvalidOperationException($"Undefined Gamet stage {_doing}.");
         }
 
-        // Out of view, it is back in the pipe, keeping its parts of a pixel and how near it had come to flying off.
-        if (IsInView(0))
+        // Out of the enemies' view, it is back in the pipe, keeping its parts of a pixel and how near it had come to
+        // flying off.
+        if (EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
             return;
         Visual?.SetShown(false);
         _doing = Doing.InPipe;

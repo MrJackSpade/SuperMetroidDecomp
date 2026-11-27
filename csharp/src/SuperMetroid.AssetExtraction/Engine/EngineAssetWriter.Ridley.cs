@@ -500,6 +500,11 @@ public sealed partial class EngineAssetWriter
             // The blasts about him as he dies join only a queue holding at most two.
             .Value("explosion_sound", EngineNames.Sound(RidleySoundDefinitions.DeathExplosion, SoundRequestPriority.Low))
             .Value("death_drops", NorfairRidleyArenaDefinitions.DeathDrops)
+            // The window in which he meets Samus, from its margins left of and above the camera's corner.
+            .Value("touch_margin_across", RidleyCollisionDefinitions.InteractionWindowMargin.X)
+            .Value("touch_margin_down", RidleyCollisionDefinitions.InteractionWindowMargin.Y)
+            .Value("touch_window_width", RidleyCollisionDefinitions.InteractionWindowSize.X)
+            .Value("touch_window_height", RidleyCollisionDefinitions.InteractionWindowSize.Y)
             .Group("health_bands", bands)
             .Group("death_explosions", EngineNames.List(DeathExplosionScatterDefinitions.Offsets.Select(at => (JsonNode)new JsonObject { ["x"] = (int)at.X, ["y"] = (int)at.Y })))
             .Group("breakup", breakup)

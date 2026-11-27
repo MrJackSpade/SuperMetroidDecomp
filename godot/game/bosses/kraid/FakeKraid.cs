@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -80,8 +81,10 @@ public partial class FakeKraid : Enemy
         if (_spikeWaits[row] > 0 && --_spikeWaits[row] > 0)
             return;
         _spikeWaits[row] = Random.Last.Part(0, 6) + 17;
-        Fire("spike", Position + PixelOffset.FromWhole(0, SpikeHeights[row]), new PixelVelocity(Facing.Toward(Shot("spike").Speed), Pixels.Zero));
-        if (IsInView(0))
+        Projectile spike = Fire("spike", Position + PixelOffset.FromWhole(0, SpikeHeights[row]), new PixelVelocity(Facing.Toward(Shot("spike").Speed), Pixels.Zero));
+
+        // A spike with no place free in the room is not fired, and not heard.
+        if (spike.GetParent() == Room && EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
             Sound(SpikeSound);
     }
 
@@ -129,7 +132,7 @@ public partial class FakeKraid : Enemy
                 break;
 
             case "cry":
-                if (IsInView(0))
+                if (EnemyView.Contains(Room, Position.X.Whole, Position.Y.Whole))
                     Sound(CrySound);
                 break;
 

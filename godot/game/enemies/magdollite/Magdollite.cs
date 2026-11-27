@@ -6,6 +6,7 @@ using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game.Enemies;
@@ -384,11 +385,8 @@ public partial class Magdollite : Enemy
         switch (parts[0])
         {
             case "throw_sound":
-                // Heard by the old game's enemies' view: a square as wide as the screen from its corner, far edges
-                // included, so reaching further below the screen than the camera's view does.
-                PixelRect view = Room.Session.Camera.View;
-                int across = _handAt.X - view.Left, down = _handAt.Y - view.Top;
-                if (across >= 0 && across <= view.Width && down >= 0 && down <= view.Width)
+                // Heard while the hand is in the enemies' view, which reaches further below the screen than the screen.
+                if (EnemyView.Contains(Room, _handAt.X, _handAt.Y))
                     Sound(ThrowSound);
                 break;
             case "cooldown":

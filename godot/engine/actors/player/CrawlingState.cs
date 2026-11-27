@@ -146,25 +146,30 @@ public sealed class CrawlingState : PlayerState
         return null;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Moves the low form. Rolled off a floor, or come down onto something, it is as its movement left it: that
+    /// outranks whatever the input asked of it on this update, a way out of the form and a turn or a roll within it
+    /// alike, and the state says so by naming itself as what the movement met.
+    /// </summary>
     public override PlayerState? Move(Player owner)
     {
+        bool settled;
         if (!_airborne)
         {
-            MoveOnGround(owner);
+            settled = MoveOnGround(owner);
         }
         else if (_asOnGround)
         {
             // Taken to be on the ground in the air: across by the ground's rule, and on up or down as it was.
             RollAcross(owner);
-            RiseOrFall(owner);
+            settled = RiseOrFall(owner);
         }
         else
         {
-            MoveInAir(owner);
+            settled = MoveInAir(owner);
         }
 
-        return null;
+        return settled ? this : null;
     }
 
     /// <summary>Moves across as on the ground: rolling, or sitting still but for a dash. Returns whether it sits still.</summary>
@@ -185,8 +190,8 @@ public sealed class CrawlingState : PlayerState
         return still;
     }
 
-    /// <summary>Rolls along the ground, or sits still.</summary>
-    private void MoveOnGround(Player owner)
+    /// <summary>Rolls along the ground, or sits still. Returns whether it rolled off a floor.</summary>
+    private bool MoveOnGround(Player owner)
     {
         bool still = RollAcross(owner);
         if (!owner.PressToGround())
@@ -194,15 +199,16 @@ public sealed class CrawlingState : PlayerState
             // Rolled off a floor: it falls from rest.
             owner.FallFromRest();
             (_airborne, _jumping, _bounces) = (true, false, 0);
+            return true;
         }
-        else if (still)
-        {
+
+        if (still)
             owner.StopAcross();
-        }
+        return false;
     }
 
-    /// <summary>Moves through the air: in a jump of its own, falling, or bouncing.</summary>
-    private void MoveInAir(Player owner)
+    /// <summary>Moves through the air: in a jump of its own, falling, or bouncing. Returns whether it came down onto something.</summary>
+    private bool MoveInAir(Player owner)
     {
         bool directionHeld = owner.Input.IsHeld(GameAction.Left) || owner.Input.IsHeld(GameAction.Right);
         if (_jumping && _bounces == 0)
@@ -222,21 +228,25 @@ public sealed class CrawlingState : PlayerState
             owner.MoveAcross();
         }
 
-        RiseOrFall(owner);
+        return RiseOrFall(owner);
     }
 
-    /// <summary>Goes on up or down under gravity, landing where it comes down on something and falling from rest where it rises into something.</summary>
-    private void RiseOrFall(Player owner)
+    /// <summary>
+    /// Goes on up or down under gravity, landing where it comes down on something and falling from rest where it
+    /// rises into something. Returns whether it came down onto something.
+    /// </summary>
+    private bool RiseOrFall(Player owner)
     {
         owner.TurnAtTop();
         bool falling = !owner.Velocity.Y.IsNegative;
         MoveResult down = owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
         if (!down.Blocked)
-            return;
+            return false;
         if (falling)
             Land(owner);
         else
             owner.FallFromRest();
+        return falling;
     }
 
     /// <summary>

@@ -117,21 +117,18 @@ PresentWhen = SubResource("r1")
 [node name="WorkRobot" parent="." instance=ExtResource("9")]
 position = Vector2(592, 128)
 Powered = true
-Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
 [node name="WorkRobot2" parent="." instance=ExtResource("9")]
 position = Vector2(272, 128)
 Powered = true
-Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
 [node name="WorkRobot3" parent="." instance=ExtResource("9")]
 position = Vector2(432, 128)
 Powered = true
-Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 

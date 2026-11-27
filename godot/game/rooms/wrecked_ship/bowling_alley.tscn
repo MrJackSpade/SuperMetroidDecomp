@@ -590,14 +590,12 @@ LiesAt = Vector2i(0, -1)
 [node name="WorkRobot" parent="." instance=ExtResource("12")]
 position = Vector2(752, 624)
 Powered = true
-Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
 [node name="WorkRobot2" parent="." instance=ExtResource("12")]
 position = Vector2(880, 624)
 Powered = true
-Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 

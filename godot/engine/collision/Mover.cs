@@ -232,9 +232,10 @@ public sealed class Mover
         }
 
         // Otherwise it rests against what stopped it, never further back than where it began: at the far end of its
-        // pixel going right or down, at the pixel's start going left or up.
+        // pixel going right or down, unless the move says it rests at the pixel's start, and at the pixel's start going
+        // left or up.
         int moved = stop.Back is not { } back ? 0 : step > 0 ? Math.Max(0, shift - back) : Math.Min(0, shift + back);
-        return Pixels.FromParts(start.Whole + moved, step > 0 ? Pixels.FractionsPerPixel - 1 : 0);
+        return Pixels.FromParts(start.Whole + moved, step > 0 && !options.RestsAtPixelStart ? Pixels.FractionsPerPixel - 1 : 0);
     }
 
     /// <summary>

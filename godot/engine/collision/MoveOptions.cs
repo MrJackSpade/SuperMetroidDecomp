@@ -45,6 +45,12 @@ public sealed record MoveOptions
     /// </summary>
     public bool RestsUnderSlopes { get; init; }
 
+    /// <summary>
+    /// For a move tried only where it ends: whether, stopped by terrain going right or down, the body rests at the
+    /// start of its pixel, its part of a pixel dropped as it is going left or up, and not at the pixel's far end.
+    /// </summary>
+    public bool RestsAtPixelStart { get; init; }
+
     /// <summary>Whether solid colliders stop the move, other than those that stand as part of the room.</summary>
     public bool StoppedBySolids { get; init; } = true;
 

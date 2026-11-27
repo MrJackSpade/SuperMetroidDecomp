@@ -1780,7 +1780,9 @@ and the room asks it of each of its exits. The rest of the way:
   odd updates, as the cartridge's scans alternate), and the first that stops the move decides and is reported
   (`MoveResult.StoppedByTile`), so a player stopped by one tile of the ground stands on that tile alone. Stopped,
   the body rests against that tile, never further back than where it began: at the far end of its pixel when it
-  was going right or down, at the pixel's start going left or up. A move so stopped went whole pixels.
+  was going right or down, at the pixel's start going left or up. A move so stopped went whole pixels. A move may
+  say it rests at the pixel's start whichever way it went (`MoveOptions.RestsAtPixelStart`), as the cartridge's enemy
+  shots rest, their part of a pixel dropped: this game's Kago bug, an enemy that is one of those shots there, moves so.
 - A solid that stands as part of the room, as a wall does (`Collider.StandsAsTerrain`), is met as terrain is and
   not as a thing in the way: by the leading edge alone, the body resting against it at the end of its pixel. This
   game's door caps, gates, gate switches, item shells and stations stand so, having been blocks of the cartridge's

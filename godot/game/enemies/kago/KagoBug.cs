@@ -82,6 +82,22 @@ public partial class KagoBug : Enemy
     /// </summary>
     public Effect? Place { get; set; }
 
+    /// <summary>
+    /// How it is moved: on the cartridge the bug is one of the enemies' shots, whose move against blocks is tried
+    /// only where it ends, by the edge it leads with, and stopped rests on whole pixels against the block, its part
+    /// of a pixel dropped. Slopes are walls to it and no solid thing stops it.
+    /// </summary>
+    private static readonly MoveOptions ShotMoves =
+        MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall, Tries = WayTried.WhereItEnds, RestsAtPixelStart = true };
+
+    private Collider OwnBody => Body ?? throw new InvalidOperationException($"The Kago's bug \"{Name}\" has no body collider to move with.");
+
+    /// <summary>Moves it across as an enemy's shot is moved, and returns whether a block stopped it.</summary>
+    private bool MoveAcrossAsShot(Pixels distance) => Room.Mover.MoveAcross(OwnBody, distance, ShotMoves).Blocked;
+
+    /// <summary>Moves it down, or up, as an enemy's shot is moved, and returns whether a block stopped it.</summary>
+    private bool MoveDownAsShot(Pixels distance) => Room.Mover.MoveDown(OwnBody, distance, ShotMoves).Blocked;
+
     /// <summary>Gives its place back to the room, as it goes.</summary>
     private void GiveBackPlace()
     {
@@ -179,14 +195,14 @@ public partial class KagoBug : Enemy
             case Doing.Jumping:
                 StepSound();
                 CheckClear();
-                if (MoveAcrossBy(Velocity.X))
+                if (MoveAcrossAsShot(Velocity.X))
                 {
                     Velocity = new PixelVelocity(Pixels.Zero, Pixels.FromNumber(FallStartSpeed));
                     BeginFall();
                     return;
                 }
 
-                if (MoveDownBy(Velocity.Y))
+                if (MoveDownAsShot(Velocity.Y))
                 {
                     Velocity = Velocity.WithY(Pixels.FromNumber(FallStartSpeed));
                     BeginFall();
@@ -201,13 +217,13 @@ public partial class KagoBug : Enemy
             case Doing.Falling:
                 StepSound();
                 CheckClear();
-                if (MoveAcrossBy(Velocity.X))
+                if (MoveAcrossAsShot(Velocity.X))
                 {
                     Velocity = Velocity.WithX(Pixels.Zero);
                     return;
                 }
 
-                if (MoveDownBy(Velocity.Y))
+                if (MoveDownAsShot(Velocity.Y))
                 {
                     // It keeps the speed it landed with, which is what its place is left with if it goes now; its
                     // next jump gives it another.

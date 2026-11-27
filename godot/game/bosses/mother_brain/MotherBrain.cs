@@ -694,5 +694,13 @@ public partial class MotherBrain : Enemy, IClosingStep
         return Room.Spawn(made) ? made : null;
     }
 
+    /// <summary>
+    /// The speed a blast that follows something leaves in the place it holds among the room's: how far from that
+    /// thing it lies, each pixel of it a 256th of a pixel an update. The blast never moves by it; whatever next takes
+    /// the place and sets no speed of its own starts with it, as on the cartridge.
+    /// </summary>
+    private static PixelVelocity SpeedLeftByFollowing(PixelOffset from) =>
+        new(Pixels.FromNumber(from.X.Whole / 256.0), Pixels.FromNumber(from.Y.Whole / 256.0));
+
     private static int Number(string text) => int.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
 }

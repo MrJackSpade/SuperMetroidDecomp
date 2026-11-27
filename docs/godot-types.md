@@ -1672,7 +1672,15 @@ says so): a shot is not fired, a death leaves no remains, and a drop made outrig
 They take their turns from the highest place down, each place asked as its turn comes, so what takes a lower
 place during the turns has its turn among them and what takes a higher one waits an update; the enemies' shots
 are tried against the player, and the player's shots against them, in the same order. A place is free the moment
-what held it is taken out of play. The pickup remains leave takes the place they held (`Room.SpawnInPlaceOf`)
+what held it is taken out of play. Where the places are counted, each keeps what its last holder left there
+(`PlaceLeftover`): where it was, in whole pixels, and the speed it had. A projectile leaves its own; an effect
+leaves where it is with the speed it found, unless its leaver gave it a speed to leave (`Effect.SpeedLeftInPlace`,
+as Mother Brain's blasts that follow her or Samus leave how far from them they lie) or it holds the place for an
+enemy (`Effect.HoldingPlaceFor`), whose place and speed it then leaves; anything else that holds a place says what it
+leaves by `ILeavesInPlace`, or leaves where it is with the speed it found. What takes a place is told what it finds
+(`Room.FoundInPlace`), and a thing that sets no speed of its own as it is made starts from it, as this game's Kago
+bug does. The session carries the leftovers from the room left to the room entered (`GameSession.PlaceLeftovers`),
+and a game begun again has none. The pickup remains leave takes the place they held (`Room.SpawnInPlaceOf`)
 and waits an update for its first turn; the game may say that remains in some place leave no drop though they
 roll for it (`GameDefinition.RemainsLeaveDrop`). A spent drop goes on holding its place: when a pickup is taken or
 runs out, when remains leave nothing, and when a drop made outright rolls nothing, something that shows nothing

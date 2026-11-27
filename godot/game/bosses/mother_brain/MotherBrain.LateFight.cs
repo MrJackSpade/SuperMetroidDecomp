@@ -475,7 +475,10 @@ public partial class MotherBrain
         PixelOffset from = _rainbowExplosions[_nextBeamExplosion];
         _nextBeamExplosion = (_nextBeamExplosion + 1) % _rainbowExplosions.Count;
         if (ExplosionEffect.Length > 0 && LeaveHoldingPlace(ExplosionEffect, samus.Position + from) is { } blast)
+        {
+            blast.SpeedLeftInPlace = SpeedLeftByFollowing(from);
             _followingBlasts.Add((blast, from));
+        }
         Sound(ExplosionSound);
     }
 

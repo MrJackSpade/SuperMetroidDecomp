@@ -12,8 +12,11 @@ namespace Engine.Actors;
 /// itself. It never decides what its target does about the hit, and never knows what its target is. How it behaves is
 /// its <see cref="ProjectileSettings"/>; a projectile with behaviour no setting gives is a class on this one.
 /// </summary>
-public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
+public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured, ILeavesInPlace
 {
+    /// <summary>A projectile leaves, in the place it held among the room's, where it was and the speed it had.</summary>
+    public PlaceLeftover? LeftInPlace => new PlaceLeftover(Position, Velocity);
+
     /// <inheritdoc/>
     public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => _visual?.Recolour(source, swaps);
 

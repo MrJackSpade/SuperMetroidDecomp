@@ -58,7 +58,7 @@ public partial class Room : Node2D
     private readonly List<Remains> _remains = [];
 
     /// <summary>The places of what the enemies launch and leave behind, which decide whether each is made and when it takes its turn.</summary>
-    private Places _places = new(0);
+    private Places _places = new(0, []);
 
     /// <summary>Things waiting to be added to the room: each once what it waits for has gone, and then after its count of updates.</summary>
     private readonly List<(Node2D Node, List<Node> After, int Updates)> _arriving = [];
@@ -176,7 +176,7 @@ public partial class Room : Node2D
         _session = session;
         _player = player;
         _gone.Clear();
-        _places = new Places(session.Definition.EnemyPlaces);
+        _places = new Places(session.Definition.EnemyPlaces, session.PlaceLeftovers);
         EnemiesKilled = 0;
         Entry = entry;
         ShownTurn = null;
@@ -780,6 +780,14 @@ public partial class Room : Node2D
     /// <summary>The place something the enemies launched or left holds in the room, counted from none; null when it holds none.</summary>
     public int? PlaceOf(IRoomEntity entity) => _places.PlaceOf(entity);
 
+    /// <summary>
+    /// What something that holds one of the room's places found there as it took it: where the place's last holder
+    /// was and the speed it had, in this room or the one before (<see cref="PlaceLeftover"/>). A thing that sets no
+    /// place or speed of its own as it is made starts from them.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The thing holds no place.</exception>
+    public PlaceLeftover FoundInPlace(IRoomEntity holder) => _places.FoundBy(holder);
+
     /// <summary>The enemies' projectiles in the order they are tried: that of their places.</summary>
     private List<Projectile> EnemyShotsInTurn() =>
         [.. _places.Held().OfType<Projectile>().Where(projectile => projectile.Side == HitSide.Enemies)];
@@ -1128,6 +1136,8 @@ public partial class Room : Node2D
     /// </summary>
     public void Teardown()
     {
+        // What each place holds as the room is left is there for the next room's first holder of that place.
+        Session.PlaceLeftovers = _places.Leftovers();
         if (_player is not null && _player.GetParent() == this)
         {
             foreach (Collider collider in EntityNode.CollidersOf(_player))

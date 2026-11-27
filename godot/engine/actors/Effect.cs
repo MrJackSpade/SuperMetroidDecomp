@@ -11,8 +11,28 @@ namespace Engine.Actors;
 /// projectile or an enemy. A cue of its timeline that is "sound:" and a sound's name asks for that sound; one that
 /// is "drift:" and two numbers, pixels across and down an update, makes that its velocity from then on.
 /// </summary>
-public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
+public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured, ILeavesInPlace
 {
+    /// <summary>
+    /// What it leaves in the place it holds among the room's: one that holds the place for an enemy
+    /// (<see cref="HoldingPlaceFor"/>) leaves where the enemy is and the speed it has; one whose leaver gave it a
+    /// speed to leave (<see cref="SpeedLeftInPlace"/>) leaves that where it is; any other, null, leaves where it is
+    /// with the speed it found there.
+    /// </summary>
+    public PlaceLeftover? LeftInPlace =>
+        _standsFor is { } enemy ? new PlaceLeftover(enemy.Position, enemy.Velocity)
+        : SpeedLeftInPlace is { } speed ? new PlaceLeftover(Position, speed)
+        : null;
+
+    /// <summary>
+    /// The speed it leaves in the place it holds, where whoever leaves it says: it never moves by it. Null for one
+    /// that leaves the speed it found.
+    /// </summary>
+    public PixelVelocity? SpeedLeftInPlace { get; set; }
+
+    /// <summary>The enemy it holds a place for, if it holds one for an enemy.</summary>
+    private Enemy? _standsFor;
+
     /// <inheritdoc/>
     public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => _visual?.Recolour(source, swaps);
 
@@ -69,6 +89,19 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
     /// </summary>
     public static Effect HoldingPlace(PixelPosition at) =>
         Of(new FrameTimeline([new TimelineStep("", 1, [])], 0), at, holdsPlace: true);
+
+    /// <summary>
+    /// Something that shows nothing and holds one of the room's places for <paramref name="enemy"/>, an enemy the
+    /// game counts among what its enemies launch, until whoever made it takes it out of the room. What it leaves in
+    /// the place as it goes, or as the room is left, is where the enemy is and the speed it has.
+    /// </summary>
+    public static Effect HoldingPlaceFor(Enemy enemy)
+    {
+        ArgumentNullException.ThrowIfNull(enemy);
+        Effect holder = HoldingPlace(enemy.Position);
+        holder._standsFor = enemy;
+        return holder;
+    }
 
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }

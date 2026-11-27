@@ -120,13 +120,22 @@ public partial class Kago : Enemy
     private void LetOutBug()
     {
         PackedScene scene = BugScene ?? throw new InvalidOperationException($"The Kago \"{Name}\" names no scene for its bugs.");
-        Effect place = Effect.HoldingPlace(Position);
-        if (!Room.Spawn(place))
-            return;
         var bug = scene.Instantiate<KagoBug>();
         bug.Position = Position;
+        Effect place = Effect.HoldingPlaceFor(bug);
+        if (!Room.Spawn(place))
+        {
+            bug.Free();
+            return;
+        }
+
         bug.Hive = this;
         bug.Place = place;
+
+        // A bug sets no speed of its own as it comes out: it has the speed its place's last holder left there, in
+        // this room or the one before, until its first jump gives it one. It does not move by it; it is what the
+        // bug leaves in its turn if it goes before it jumps.
+        bug.Velocity = Room.FoundInPlace(place).Speed;
         Room.Spawn(bug);
     }
 }

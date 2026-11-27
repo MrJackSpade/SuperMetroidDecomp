@@ -20,14 +20,62 @@ internal sealed class Places
     /// <summary>How many places there are, or zero for no limit.</summary>
     private readonly int _limit;
 
-    /// <summary>The places of a room, <paramref name="limit"/> of them, or without limit when it is zero.</summary>
-    public Places(int limit)
+    /// <summary>
+    /// What the last holder of each place left there (<see cref="PlaceLeftover"/>): kept only where the places are
+    /// numbered, by a limit. A place nothing has held is at rest at the room's corner.
+    /// </summary>
+    private readonly PlaceLeftover[] _left;
+
+    /// <summary>What each thing that holds a place found there as it took it.</summary>
+    private readonly Dictionary<IRoomEntity, PlaceLeftover> _found = [];
+
+    /// <summary>
+    /// The places of a room, <paramref name="limit"/> of them, or without limit when it is zero; each place begins
+    /// with what <paramref name="left"/> has for it, which the room before left there, where it has any.
+    /// </summary>
+    public Places(int limit, IReadOnlyList<PlaceLeftover> left)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(limit);
+        ArgumentNullException.ThrowIfNull(left);
         _limit = limit;
+        _left = new PlaceLeftover[limit];
         for (int place = 0; place < limit; place++)
+        {
             _held.Add(null);
+            if (place < left.Count)
+                _left[place] = left[place];
+        }
     }
+
+    /// <summary>
+    /// What <paramref name="thing"/> found in the place it holds as it took it: what the place's last holder left.
+    /// With no limit to the places nothing is kept, and it found a place at rest at the room's corner.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The thing holds no place.</exception>
+    public PlaceLeftover FoundBy(IRoomEntity thing) =>
+        _found.TryGetValue(thing, out PlaceLeftover found) ? found
+        : _held.Contains(thing) ? default
+        : throw new InvalidOperationException("Something that holds none of the room's places was asked what it found in its place.");
+
+    /// <summary>
+    /// What every place holds for the room that follows this one: what its holder would leave now, or what its last
+    /// holder left.
+    /// </summary>
+    public IReadOnlyList<PlaceLeftover> Leftovers()
+    {
+        var left = new PlaceLeftover[_limit];
+        for (int place = 0; place < _limit; place++)
+            left[place] = _held[place] is { } holder ? LeftBy(holder, place) : _left[place];
+        return left;
+    }
+
+    /// <summary>
+    /// What <paramref name="thing"/> leaves in <paramref name="place"/>: what it says it leaves, or else where it is,
+    /// with the speed it found there, which a thing with no speed of its own never changed.
+    /// </summary>
+    private PlaceLeftover LeftBy(IRoomEntity thing, int place) =>
+        thing is ILeavesInPlace { LeftInPlace: { } said } ? said.AtWholePixels()
+        : new PlaceLeftover(thing.Position, _found.TryGetValue(thing, out PlaceLeftover found) ? found.Speed : _left[place].Speed).AtWholePixels();
 
     /// <summary>Whether a thing asking for a place now would be given one.</summary>
     public bool HasFree => _limit == 0 || _held.Contains(null);
@@ -46,6 +94,7 @@ internal sealed class Places
         if (free < 0)
             return false;
         _held[free] = thing;
+        _found[thing] = _left[free];
         return true;
     }
 
@@ -64,6 +113,13 @@ internal sealed class Places
         int place = _held.IndexOf(leaving);
         if (place < 0)
             throw new InvalidOperationException("A place was handed over by something that holds none.");
+        if (_limit > 0)
+        {
+            _left[place] = LeftBy(leaving, place);
+            _found[taking] = _left[place];
+        }
+
+        _found.Remove(leaving);
         _held[place] = taking;
     }
 
@@ -74,9 +130,16 @@ internal sealed class Places
         if (place < 0)
             return;
         if (_limit == 0)
+        {
             _held.RemoveAt(place);
+        }
         else
+        {
+            _left[place] = LeftBy(thing, place);
             _held[place] = null;
+        }
+
+        _found.Remove(thing);
     }
 
     /// <summary>Every thing that holds a place, in the order of their turns, as it stands now.</summary>

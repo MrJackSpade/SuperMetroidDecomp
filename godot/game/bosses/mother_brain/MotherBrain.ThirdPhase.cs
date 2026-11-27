@@ -543,7 +543,10 @@ public partial class MotherBrain : ITriggerTarget
 
             // The blasts of her death lie behind everything that stands in the room, as the cartridge draws them.
             if (effect.Length > 0 && LeaveHoldingPlace(effect, Position + group[place], Standing.Hindmost) is { } blast)
+            {
+                blast.SpeedLeftInPlace = SpeedLeftByFollowing(group[place]);
                 _bodyBlasts.Add((blast, group[place]));
+            }
             Sound(ExplosionSound, SoundPriority.Low);
         }
     }

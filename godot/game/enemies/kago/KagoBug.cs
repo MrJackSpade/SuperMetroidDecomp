@@ -126,7 +126,6 @@ public partial class KagoBug : Enemy
         // Shot down, it bursts where it is, as the cartridge's bug plays its shot animation: it moves no more, shows
         // no hurt, and still hurts what touches it.
         EndHurt();
-        Velocity = PixelVelocity.Zero;
         _doing = Doing.Bursting;
         Play("burst", restart: true);
         return false;
@@ -170,7 +169,6 @@ public partial class KagoBug : Enemy
                 _wait = _wait.Stepped();
                 if (_wait.IsRunning)
                     return;
-                Velocity = PixelVelocity.Zero;
                 Play("jump_start", restart: true);
                 _doing = Doing.Poised;
                 return;
@@ -211,7 +209,8 @@ public partial class KagoBug : Enemy
 
                 if (MoveDownBy(Velocity.Y))
                 {
-                    Velocity = PixelVelocity.Zero;
+                    // It keeps the speed it landed with, which is what its place is left with if it goes now; its
+                    // next jump gives it another.
                     Play("landed", restart: true);
                     _doing = Doing.Landed;
                     return;

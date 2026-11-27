@@ -135,6 +135,7 @@ public sealed class GameSession
     {
         Progress = new Progress();
         EnemyPasses = 0;
+        PlaceLeftovers = [];
         // A player left in a room went with the room; one that is in no room is done with here.
         if (_player is not null && GodotObject.IsInstanceValid(_player) && _player.GetParent() is null)
             _player.Free();
@@ -329,6 +330,13 @@ public sealed class GameSession
     /// room, and read by what is timed by the enemies' passes and not by the clock.
     /// </summary>
     public long EnemyPasses { get; private set; }
+
+    /// <summary>
+    /// What the room last left had in each of its places for what the enemies launch and leave, for the next room's
+    /// first holder of each place to start from (<see cref="World.PlaceLeftover"/>): nothing, as a game begins. The
+    /// room being left gives it and the room entered takes it.
+    /// </summary>
+    internal IReadOnlyList<World.PlaceLeftover> PlaceLeftovers { get; set; } = [];
 
     /// <summary>Counts an enemies' pass that has just ended. The room does this.</summary>
     internal void CountEnemyPass() => EnemyPasses++;

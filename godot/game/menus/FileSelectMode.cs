@@ -551,9 +551,15 @@ public partial class FileSelectMode : GameMode
     private const string NewGameLanguage = "english";
 
     /// <summary>
+    /// A new game's toggles, as the cartridge's new file has its special settings: the moonwalk off, and icon cancel
+    /// off, so that an item chosen stays chosen through a door, which is this game's manual item cancel on.
+    /// </summary>
+    private static Dictionary<string, bool> NewGameToggles() => new() { [Game.Data.Toggles.ManualItemCancel] = true };
+
+    /// <summary>
     /// Makes the game's own settings those of the slot just chosen, as the cartridge's options after a file's
     /// choosing are that file's: a saved game's two toggles and its language as they were saved, and a new game's
-    /// both off and in the language a new file is in. The options screen that follows changes them from there, and
+    /// as the cartridge's new file has them and in the language a new file is in. The options screen that follows changes them from there, and
     /// the game is played and next saved with what they then are. A save made before these were kept leaves them as
     /// they stand. Which control each action of play is on goes the same way: a saved game's as it was saved, and
     /// a new game's the cartridge's own layout.
@@ -563,7 +569,7 @@ public partial class FileSelectMode : GameMode
         Options options = Session.Options;
         if (!Session.Saves.Has(Session.Slot))
         {
-            (options.Toggles, options.Language) = ([], NewGameLanguage);
+            (options.Toggles, options.Language) = (NewGameToggles(), NewGameLanguage);
             options.Controls = new Dictionary<string, string>(Session.Definition.StandardControls);
             options.ApplyBindings(Session.Definition.AllActions);
             return;

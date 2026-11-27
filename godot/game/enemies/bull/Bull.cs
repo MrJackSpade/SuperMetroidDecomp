@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Game.Compatibility;
 using Godot;
 
@@ -72,6 +73,9 @@ public partial class Bull : Enemy
     /// once it has stopped. A knock leaves it as it stands, so one knocked while waiting slows by its whole loss each time.
     /// </summary>
     private Pixels _gainStep;
+
+    /// <summary>Whether the hit being taken has frozen it.</summary>
+    private bool _frozenByHit;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -147,7 +151,29 @@ public partial class Bull : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnAbsorbed(Hit hit, Collider part)
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        // A shot that freezes it knocks it as one that cannot hurt it does, whatever else the shot did.
+        _frozenByHit = false;
+        HitResult result = base.TakeHit(hit, part);
+        if (_frozenByHit && !IsDead)
+            Knock(hit);
+        _frozenByHit = false;
+        return result;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnStatusBegan(string status)
+    {
+        if (status == Frozen)
+            _frozenByHit = true;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAbsorbed(Hit hit, Collider part) => Knock(hit);
+
+    /// <summary>Knocks it away along <paramref name="hit"/>, unless a knock not long before still guards it.</summary>
+    private void Knock(Hit hit)
     {
         if (_guard.IsRunning)
             return;

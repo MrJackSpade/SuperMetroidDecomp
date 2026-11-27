@@ -32,7 +32,7 @@ internal sealed partial class EngineEnemy
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
         if (rests)
             Resting(timeline);
-        _tree.WriteData(file, timeline);
+        _tree.WriteData(file, pictures.Lay(timeline, file));
         return file;
     }
 

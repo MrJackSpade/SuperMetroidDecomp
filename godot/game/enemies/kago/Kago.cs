@@ -12,7 +12,8 @@ namespace Game.Enemies;
 /// A Kago: a hive that sits where it is. Every shot or bomb that lands on it shakes the room and brings out a bug;
 /// after enough of them the hive is gone. A power bomb's blast only hurts it, and enough of them destroy it. The
 /// bugs are enemies of their own. It is solid to Samus, who is stopped
-/// by it and can stand on it, and its touch does not hurt.
+/// by it and can stand on it. Its touch takes no energy and is a touch all the same: a Samus who has sunk into it,
+/// as by curling up just above it, is left safe for a while and knocked back if her state lets her be.
 /// </summary>
 /// <remarks>Its timelines are "slow" and, once it has been hit, "fast".</remarks>
 public partial class Kago : Enemy
@@ -42,6 +43,9 @@ public partial class Kago : Enemy
     public string ShakeReachName { get; set; } = "tiles";
 
     private int _hits;
+
+    /// <summary>The cartridge's hive touches as any enemy does, with a damage of nothing.</summary>
+    protected override bool TouchesWithoutDamage => true;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom() => Play("slow");

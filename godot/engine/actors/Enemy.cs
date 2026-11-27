@@ -1246,12 +1246,19 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
+    /// Whether the enemy's touch is a hit on the player though it does no damage: it takes no energy, and leaves them
+    /// safe for a while and knocked back as any hit does. An enemy with no contact damage otherwise does nothing by
+    /// touching.
+    /// </summary>
+    protected virtual bool TouchesWithoutDamage => false;
+
+    /// <summary>
     /// Called each update that a part of the enemy touches the player. The engine's enemy hurts the player with its
     /// contact damage; an enemy that does something else to whoever it touches says so here.
     /// </summary>
     protected virtual void Touch(Collider part)
     {
-        if (ContactDamage <= 0)
+        if (ContactDamage <= 0 && !TouchesWithoutDamage)
             return;
         // The player is knocked away from the enemy by where the two stand in whole pixels, to the right when level.
         var direction = new PixelOffset(Pixels.FromWhole(Room.Player.Position.X.Whole >= Position.X.Whole ? 1 : -1), Pixels.Zero);

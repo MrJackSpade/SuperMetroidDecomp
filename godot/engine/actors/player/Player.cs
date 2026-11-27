@@ -2103,7 +2103,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             Pixels speed = block.Type.ContactSpeed;
             if (block.Type.Contact == BlockContact.Carries)
             {
-                if (block.Type.CarriesOnlyLevel && Velocity.Y.Whole != 0)
+                // Level means slower than a pixel an update up or down, whichever way: a slow rise is still carried.
+                if (block.Type.CarriesOnlyLevel && Velocity.Y.Abs().Whole != 0)
                     continue;
                 if ((speed.IsNegative ? -speed : speed) > (across.IsNegative ? -across : across))
                     across = speed;

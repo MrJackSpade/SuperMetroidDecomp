@@ -31,7 +31,7 @@ public partial class Puyo : Enemy
     [Export, DataValue("speed_curve")]
     public string SpeedCurveFile { get; set; } = "";
 
-    private const string Small = "small", Big = "big", Long = "long", Giant = "giant", Dropping = "dropping",
+    private const string Small = "small", Big = "big", Long = "long", Giant = "giant",
         DroppedSmall = "dropped_small", DroppedBig = "dropped_big";
 
     private sealed record HopValues(int Height, int Across, int SearchStep, int CurveStep, Pixels DropSpeed);
@@ -52,6 +52,9 @@ public partial class Puyo : Enemy
     private int _place;
     private int _launchPlace;
     private Facing? _turnBack;
+
+    /// <summary>Whether a wall or a ceiling has cut its hop short, so that it drops at that hop's drop speed.</summary>
+    private bool _dropping;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -118,10 +121,8 @@ public partial class Puyo : Enemy
         }
 
         _hop = _next;
+        _dropping = false;
         HopValues hop = _hops[_hop];
-        if (_hop == Dropping)
-            return;
-
         SpeedCurve curve = Curve;
         Pixels height = Pixels.FromWhole(hop.Height), risen = Pixels.Zero;
         int place = 0;
@@ -139,9 +140,9 @@ public partial class Puyo : Enemy
     /// <summary>Moves one update of a hop: up or down along the curve, and across.</summary>
     private void Fly(bool rising)
     {
-        if (_hop == Dropping)
+        if (_dropping)
         {
-            if (!MoveDownBy(_hops[Dropping].DropSpeed))
+            if (!MoveDownBy(_hops[_hop].DropSpeed))
                 return;
             // Landed from its drop, chance picks the size of the bounce that follows.
             _next = ((Random.Draw().Part(0, 1) + Updates) & 1) == 1 ? DroppedBig : DroppedSmall;
@@ -149,6 +150,8 @@ public partial class Puyo : Enemy
             return;
         }
 
+        // Its picture on the hop's end is the hop's own, whether it landed or a wall or a ceiling has just started its
+        // drop; only the drop then goes on.
         if (!Move(rising))
             return;
         switch (_hop)
@@ -228,11 +231,7 @@ public partial class Puyo : Enemy
     }
 
     /// <summary>Turns the hop into a straight drop.</summary>
-    private void BeginDrop()
-    {
-        _next = Dropping;
-        _hop = Dropping;
-    }
+    private void BeginDrop() => _dropping = true;
 
     /// <summary>Shows it leaning into the hop: far over while it is fastest, less so as it slows, upright at the top.</summary>
     private void ShowTilt(bool rising)

@@ -12,8 +12,8 @@ namespace Game.Enemies;
 
 /// <summary>
 /// An Oum: a great snail in a boulder of a shell. Dropped into the room it bounces to rest, and when Samus comes close
-/// it rolls, back and forth between walls. She can stand on it and be carried, lean on it to stop it, or be pushed
-/// along ahead of it. Now and then, when she is near, it turns to her and lunges out of its shell on a jet, which is
+/// it rolls, back and forth between walls. She can stand on it and ride its bounces, lean on it to stop it, or be
+/// pushed along ahead of it. Now and then, when she is near, it turns to her and lunges out of its shell on a jet, which is
 /// the only time its touch hurts.
 /// </summary>
 /// <remarks>
@@ -64,6 +64,10 @@ public partial class Oum : Enemy
     /// <summary>How far it rolls each update, in pixels.</summary>
     [Export, DataValue("roll_speed")]
     public int RollSpeed { get; set; } = 1;
+
+    /// <summary>How much further ahead, in pixels, it feels for a wall while it rolls toward Samus near it.</summary>
+    [Export, DataValue("push_reach")]
+    public int PushReach { get; set; } = 16;
 
     /// <summary>How far its touch shoves Samus aside, in pixels.</summary>
     [Export, DataValue("shove_distance")]
@@ -277,16 +281,11 @@ public partial class Oum : Enemy
                     break;
                 }
 
-                var roll = PixelOffset.FromWhole(_heading == Facing.Left ? -RollSpeed : RollSpeed, 0);
-                if (Blocked(roll))
+                if (Roll(near ? samusSide : default(Facing?)))
                 {
                     _heading = _heading.Opposite();
                     _rollsBackward = !_rollsBackward;
                     Start(RollTimeline);
-                }
-                else
-                {
-                    MoveCarrying(roll);
                 }
 
                 break;
@@ -304,8 +303,15 @@ public partial class Oum : Enemy
 
         if (!near)
             return;
-        // Samus leaning against the way it rolls stops it for the next update, and puts it back where it was.
+
+        // Samus near it on the side it moved toward is pushed along as far as it moved; one standing on it is too
+        // high to be pushed so, and is not carried across.
         int moved = Position.X.Whole - beforeX;
+        if (moved != 0 && (moved < 0) == (samusSide == Facing.Left))
+            ShiftPlayer(PixelOffset.FromWhole(moved, 0));
+
+        // Samus leaning against the way it rolls stops it for the next update, and puts it back where it was, though
+        // she stays where it pushed her.
         GameInput input = Room.Player.Input;
         bool leans = moved == 0
             ? samusSide == _heading && input.IsHeld(_heading == Facing.Left ? GameAction.Right : GameAction.Left)
@@ -313,8 +319,7 @@ public partial class Oum : Enemy
         if (!leans)
             return;
         _stopped = true;
-        if (moved != 0)
-            MoveCarrying(PixelOffset.FromWhole(-moved, 0));
+        Position -= PixelOffset.FromWhole(moved, 0);
     }
 
     /// <summary>The name of its rolling timeline for the way it faces and rolls.</summary>
@@ -328,9 +333,18 @@ public partial class Oum : Enemy
         _doing = Doing.Rolling;
     }
 
-    /// <summary>Whether terrain stops its shell moving by <paramref name="offset"/>.</summary>
-    private bool Blocked(PixelOffset offset) =>
-        Solid is { } shell && Room.Terrain.IsSolidIn(shell.RoomRect.MovedBy(offset.X.Whole, offset.Y.Whole), SlopeTreatment.Wall);
+    /// <summary>
+    /// Rolls one update the way it heads, carrying no one, and returns whether a wall stopped it, which leaves it
+    /// against the wall. Rolling toward Samus near it, it feels for a wall as much further ahead as its push reach and
+    /// draws back by as much after, as the cartridge does: a wall that near turns it, and it ends that far short of it.
+    /// </summary>
+    private bool Roll(Facing? pushSide)
+    {
+        Pixels reach = Pixels.FromWhole(_heading == pushSide ? PushReach : 0);
+        bool blocked = MoveAcrossBy(_heading.Toward(Pixels.FromWhole(RollSpeed) + reach));
+        Position -= new PixelOffset(_heading.Toward(reach), Pixels.Zero);
+        return blocked;
+    }
 
     /// <summary>Moves one update of a bounce: falling until it lands, each landing weaker, and rising between.</summary>
     private void Bounce()

@@ -24,10 +24,17 @@ public partial class Polyp : Enemy
     [Export, DataValue("first_launch_mark")]
     public int FirstLaunchMark { get; set; } = 28;
 
+    private enum Doing
+    {
+        WaitingForSamus,
+        AboutToLob,
+        Cooling,
+    }
+
     private readonly List<Pixels> _drifts = [];
     private readonly List<int> _cooldowns = [];
     private Countdown _cooldown;
-    private bool _cooling;
+    private Doing _doing;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -51,24 +58,34 @@ public partial class Polyp : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (_cooling)
+        switch (_doing)
         {
-            if (_cooldown.IsOver)
+            case Doing.WaitingForSamus:
+                // Samus near sets it to lob on its next update, wherever she is then.
+                if (Math.Abs(Target.X.Whole - Position.X.Whole) < Reach && Math.Abs(Target.Y.Whole - Position.Y.Whole) < Reach)
+                    _doing = Doing.AboutToLob;
                 return;
-            _cooldown = _cooldown.Stepped();
-            if (_cooldown.IsOver)
-                _cooling = false;
-            return;
-        }
 
-        if (Math.Abs(Target.X.Whole - Position.X.Whole) >= Reach || Math.Abs(Target.Y.Whole - Position.Y.Whole) >= Reach)
-            return;
-        // Three fresh numbers: the drift, the height, and the wait before the next rock.
-        Pixels drift = _drifts[Random.Draw().Part(1, 4)];
-        int launchMark = FirstLaunchMark + Random.Draw().Part(1, 4);
-        var rock = (PolypRock)Fire("rock", Position, new PixelVelocity(drift, Pixels.Zero));
-        rock.StartAt(launchMark);
-        _cooldown = Countdown.Of(_cooldowns[Random.Draw().Part(1, 3)]);
-        _cooling = true;
+            case Doing.AboutToLob:
+                // Three fresh numbers: the drift, the height, and the wait before the next rock.
+                Pixels drift = _drifts[Random.Draw().Part(1, 4)];
+                int launchMark = FirstLaunchMark + Random.Draw().Part(1, 4);
+                var rock = (PolypRock)Fire("rock", Position, new PixelVelocity(drift, Pixels.Zero));
+                rock.StartAt(launchMark);
+                _cooldown = Countdown.Of(_cooldowns[Random.Draw().Part(1, 3)]);
+                _doing = Doing.Cooling;
+                return;
+
+            case Doing.Cooling:
+                if (_cooldown.IsOver)
+                    return;
+                _cooldown = _cooldown.Stepped();
+                if (_cooldown.IsOver)
+                    _doing = Doing.WaitingForSamus;
+                return;
+
+            default:
+                throw new InvalidOperationException($"Undefined Polyp stage {_doing}.");
+        }
     }
 }

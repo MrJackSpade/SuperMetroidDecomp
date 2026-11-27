@@ -62,16 +62,28 @@ public partial class Ripper : Enemy, ILatchable
         ShowHeading();
     }
 
+    /// <summary>Where its flight was when a frozen picture took its place; none while it shows its flight.</summary>
+    private TimelineMark? _beforeFrozen;
+
     /// <inheritdoc/>
     protected override void OnStatusBegan(string status)
     {
         string frozen = Facing == Facing.Left ? "frozen_left" : "frozen_right";
-        if (status == Frozen && Timelines.Has(frozen))
-            Play(frozen);
+        if (status != Frozen || !Timelines.Has(frozen) || Playing == frozen)
+            return;
+        _beforeFrozen = MarkTimeline();
+        Play(frozen);
     }
 
     /// <inheritdoc/>
-    protected override void OnStatusEnded(string status) => ShowHeading();
+    protected override void OnStatusEnded(string status)
+    {
+        // Thawed, its flight goes on from where it was; one with no frozen picture never left it.
+        if (_beforeFrozen is not { } mark)
+            return;
+        _beforeFrozen = null;
+        ResumeTimeline(mark);
+    }
 
     /// <summary>Shows the timeline of the way it is flying.</summary>
     private void ShowHeading() => Play(Facing == Facing.Left ? "left" : "right", restart: true);

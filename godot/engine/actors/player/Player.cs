@@ -64,6 +64,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("knockback_updates")]
     public int KnockbackUpdates { get; set; } = 12;
 
+    /// <summary>
+    /// The most whole pixels one move of the player's own across goes, either way: its own speed with whatever is
+    /// given it from outside, a carry or a push, counted together. Only the whole pixels are held to it; the move's
+    /// part of a pixel is kept.
+    /// </summary>
+    [Export, DataValue("most_whole_across")]
+    public int MostWholeAcross { get; set; } = 15;
+
     /// <summary>How many updates after being hurt the player cannot be hurt again.</summary>
     [Export, DataValue("invincible_updates")]
     public int InvincibleUpdates { get; set; } = 60;
@@ -1766,6 +1774,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         Pixels carried = _blockMove.X;
         _blockMove = _blockMove with { X = Pixels.Zero };
         Pixels distance = OverSlopes(reach) + carried;
+        distance = distance.WithWhole(Math.Clamp(distance.Whole, -MostWholeAcross, MostWholeAcross));
         ClearWay(distance, Pixels.Zero);
 
         // The slopes take their share of how far the player goes, not of how far ahead the move is tried.

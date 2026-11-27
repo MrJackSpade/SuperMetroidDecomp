@@ -196,6 +196,7 @@ public sealed partial class EngineAssetWriter
         var file = new EngineObjectFile(_tree, "samus/samus.json", "Samus");
         file.Value("half_width", SamusPoseCollisionDefinitions.HorizontalRadius)
             .Value("knockback_updates", EnemyCollisionDefinitions.SamusTouchKnockbackUpdates)
+            .Value("most_whole_across", SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedDefinitions.LargestWholeDisplacement)
             .Value("invincible_updates", EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates)
             .Value("hazard_knockback_updates", SpikeHazardDefinitions.KnockbackFrames)
             .Value("hazard_invincible_updates", SpikeHazardDefinitions.InvincibilityFrames)

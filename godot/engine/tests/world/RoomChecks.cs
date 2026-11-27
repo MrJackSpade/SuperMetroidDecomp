@@ -176,14 +176,18 @@ public sealed class RoomChecks
     {
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80);
         world.Assets.With("water.json", """{ "name": "water" }""");
-        var water = world.Place(new Liquid { Name = "Water", TypeFile = "water.json", LowSurface = 90, HighSurface = 30, MoveSpeed = 2 }, 0, 0);
+        // A wait of one is the shortest there is: a wait of nought is the cartridge's longest, 65,536 updates.
+        var water = world.Place(
+            new Liquid { Name = "Water", TypeFile = "water.json", LowSurface = 90, HighSurface = 30, MoveSpeed = 2, MoveDelay = 1 }, 0, 0);
         world.Setup();
-        Expect.False(water.IsSubmerged(world.Player.Position));
+        Expect.False(water.IsSubmerged(world.Player.Feet));
 
+        // Told to rise, it begins to wait on the first update, its wait runs out on the second, and it moves two
+        // pixels on each of the eight after.
         water.Triggered("rise");
         world.Step(10);
-        Expect.Equal(Pixels.FromWhole(70), water.Surface);
-        Expect.True(water.IsSubmerged(world.Player.Position));
+        Expect.Equal(Pixels.FromWhole(74), water.Surface);
+        Expect.True(water.IsSubmerged(world.Player.Feet));
         world.Step(40);
         Expect.Equal(Pixels.FromWhole(30), water.Surface);
     }

@@ -162,11 +162,14 @@ public sealed class PlayerChecks
         world.Press(GameAction.Down);
         world.Press(GameAction.Jump);
 
-        // The low form's body is hers from the update after she took it.
+        // With no leave to jump in the low form, the jump stands her up to a crouch, on the ground still.
         world.Step(1);
+        Expect.True(world.Player.State is CrouchingState);
         Expect.Equal(80, world.Player.BodyRect.Bottom);
 
         world.Player.CanJumpWhileCrawling = true;
+        world.Press(GameAction.Down);
+        Expect.True(world.Player.State is CrawlingState);
         world.Press(GameAction.Jump);
         world.Step(2);
         Expect.True(world.Player.BodyRect.Bottom < 80);

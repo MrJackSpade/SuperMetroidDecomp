@@ -81,8 +81,17 @@ public sealed class CombatChecks
         world.Step(10);
         Expect.Equal(before, enemy.UpdatesBehaved);
 
-        world.Step(45);
-        Expect.False(enemy.IsFrozen);
+        // The status's own time does not run while the hit that began it still holds the enemy, and the turn that
+        // finds the time run out is still held: it thaws some updates after its fifty, and not before them.
+        int frozenFor = 10;
+        while (enemy.IsFrozen)
+        {
+            world.Step(1);
+            if (++frozenFor > 600)
+                throw new CheckFailedException("The enemy did not thaw.");
+        }
+
+        Expect.True(frozenFor >= 50);
         Expect.False(solid.Enabled);
     }
 

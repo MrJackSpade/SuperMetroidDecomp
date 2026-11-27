@@ -64,6 +64,9 @@ public partial class Intro : Cinematic
     /// <summary>How long a crossfade lasts, how many steps it goes in, and how many updates each step lasts.</summary>
     private const int CrossfadeUpdates = 128, CrossfadeLevels = 32, CrossfadeStepUpdates = 4;
 
+    /// <summary>The brightest of the cartridge's steps of a colour's red, green or blue.</summary>
+    private const int BrightestColourStep = 31;
+
     /// <summary>How many updates pass between one letter and the next, and how long the last page is held.</summary>
     private const int LetterUpdates = 5, FinalPageUpdates = 128;
 
@@ -540,13 +543,19 @@ public partial class Intro : Cinematic
     private bool StepCrossfade(bool toScene)
     {
         _crossfade++;
-        float scene = (float)(_crossfade / CrossfadeStepUpdates) / CrossfadeLevels;
+        int scene = _crossfade / CrossfadeStepUpdates;
         if (!toScene)
-            scene = 1 - scene;
-        (_sceneRoot ?? throw NotEntered()).Modulate = new Color(1, 1, 1, scene);
-        (_narration ?? throw NotEntered()).Modulate = new Color(1, 1, 1, 1 - scene);
+            scene = CrossfadeLevels - scene;
+        (_sceneRoot ?? throw NotEntered()).Modulate = new Color(1, 1, 1, CrossfadeShown(scene));
+        (_narration ?? throw NotEntered()).Modulate = new Color(1, 1, 1, CrossfadeShown(CrossfadeLevels - scene));
         return _crossfade >= CrossfadeUpdates;
     }
+
+    /// <summary>
+    /// How much of a side of a crossfade shows at a level of it. The cartridge scales each of a colour's 31 steps by
+    /// the level and rounds down, so a level at which even the brightest rounds to nothing shows only black.
+    /// </summary>
+    private static float CrossfadeShown(int level) => level * BrightestColourStep / CrossfadeLevels == 0 ? 0 : (float)level / CrossfadeLevels;
 
     private void ClearWords()
     {

@@ -27,6 +27,9 @@ public partial class Intro
     private Room? _room;
     private RecordedInputSource? _recording;
     private bool _looking;
+
+    /// <summary>Whether Samus has stopped for the rest of the scene, and takes no part in its room's updates.</summary>
+    private bool _samusStopped;
     private Sprite2D? _laboratory;
     private CinematicSprite? _larva;
     private bool _larvaWantsNextPage;
@@ -35,14 +38,16 @@ public partial class Intro
     private void BeginScene(string scene)
     {
         _scene = scene;
+        _samusStopped = false;
         switch (scene)
         {
             case "mother_brain":
-                BeginFlashback(Data().Text("mother_brain_demo"));
+                BeginFlashback(Data().Text("mother_brain_demo"), keepsFraction: false);
                 break;
 
             case "discovery":
-                BeginFlashback(Data().Text("discovery_run_demo"));
+                // She comes to the discovery with the parts of a pixel the fight left her.
+                BeginFlashback(Data().Text("discovery_run_demo"), keepsFraction: true);
                 _looking = false;
                 break;
 
@@ -137,6 +142,9 @@ public partial class Intro
                 foreach (IntroEgg egg in RoomNow().Objects.OfType<IntroEgg>())
                     egg.Leave();
                 Session.Player.Visible = false;
+
+                // The discovery's end stops her moving and animating from this update, where the fight lets her play it.
+                _samusStopped = true;
                 break;
 
             case "delivery":
@@ -168,15 +176,25 @@ public partial class Intro
         (_room, _recording, _laboratory, _larva, _scene) = (null, null, null, null, "");
     }
 
-    /// <summary>Sets up the room a recording is played in, with Samus carrying what the recording says.</summary>
-    private void BeginFlashback(string file)
+    /// <summary>
+    /// Sets up the room a recording is played in, with Samus carrying what the recording says. Where she keeps the
+    /// parts of a pixel she had, only the whole pixels of her place are those of the recording's way in, a marker.
+    /// </summary>
+    private void BeginFlashback(string file, bool keepsFraction)
     {
         DataNode data = Session.Content.ReadData(file);
         DemoRecording recording = DemoRecording.Read(data);
         Room room = Session.Definition.CreateRoom(recording.Room);
         (_sceneRoot ?? throw NotEntered()).Stage.AddChild(room);
         Player samus = Session.Player;
-        room.Setup(Session, samus, new RoomEntry(recording.EntryPoint, PixelVelocity.Zero, Facing.Left));
+        var entry = new RoomEntry(recording.EntryPoint, PixelVelocity.Zero, Facing.Left);
+        if (keepsFraction)
+        {
+            PixelPosition start = EntityNode.PlaceOf(room.GetNode<Marker2D>(recording.EntryPoint));
+            entry = entry with { At = new PixelPosition(samus.Position.X.WithWhole(start.X.Whole), samus.Position.Y.WithWhole(start.Y.Whole)) };
+        }
+
+        room.Setup(Session, samus, entry);
         _room = room;
         if (data.Has("equipment"))
         {
@@ -212,7 +230,7 @@ public partial class Intro
     {
         RecordedInputSource recording = _recording ?? throw NotEntered();
         GameInput input = recording.IsOver ? GameInput.None : recording.Next();
-        RoomNow().Step(input);
+        RoomNow().Step(input, _samusStopped ? Stopped.Player : Stopped.Nothing);
         _roomOpenedUpdate = true;
     }
 

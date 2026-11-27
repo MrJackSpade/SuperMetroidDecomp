@@ -19,6 +19,21 @@ public partial class MapView : Node2D
     [Export]
     public Vector2I Centre { get; set; }
 
+    /// <summary>What the map shows beyond what the player has explored and their progress reveals; nothing more, unless it is told.</summary>
+    public MapReveal Reveals
+    {
+        get => _reveals;
+        set
+        {
+            if (_reveals == value)
+                return;
+            _reveals = value;
+            QueueRedraw();
+        }
+    }
+
+    private MapReveal _reveals;
+
     /// <summary>The tint of a cell that is revealed but not explored, for an area with no pictures of its own for such cells.</summary>
     [Export]
     public Color RevealedTint { get; set; } = new(0.5f, 0.5f, 0.5f);
@@ -30,9 +45,13 @@ public partial class MapView : Node2D
     [Export]
     public bool DrawsCells { get; set; } = true;
 
-    /// <summary>Whether the map's markers and labels are drawn.</summary>
+    /// <summary>Whether the map's labels are drawn: its pictures laid at places of their own, over its cells and under its markers.</summary>
     [Export]
-    public bool DrawsSigns { get; set; } = true;
+    public bool DrawsLabels { get; set; } = true;
+
+    /// <summary>Whether the map's markers are drawn, which lie over everything else of it.</summary>
+    [Export]
+    public bool DrawsMarkers { get; set; } = true;
 
     private Area? _area;
     private Progress? _progress;
@@ -74,11 +93,16 @@ public partial class MapView : Node2D
     /// <summary>Whether the player has been in a cell.</summary>
     public bool IsExplored(AreaCell cell) => Shown().Progress.IsExplored(Shown().Area.Name, cell.Place.X, cell.Place.Y);
 
-    /// <summary>Whether a cell shows: it has been explored, or the map has been revealed and the cell is not secret.</summary>
+    /// <summary>
+    /// Whether a cell shows: it has been explored, or the map has been revealed and the cell is not secret, or the
+    /// view is told to show it regardless (<see cref="Reveals"/>).
+    /// </summary>
     public bool Shows(AreaCell cell)
     {
         (Area area, Progress progress) = Shown();
-        return IsExplored(cell) || (!cell.Secret && area.RevealedBy.Length > 0 && progress.Has(area.RevealedBy));
+        if (IsExplored(cell) || Reveals == MapReveal.Everything)
+            return true;
+        return !cell.Secret && (Reveals == MapReveal.Charted || (area.RevealedBy.Length > 0 && progress.Has(area.RevealedBy)));
     }
 
     /// <summary>The cells drawn at the moment, in the map's order.</summary>
@@ -130,9 +154,16 @@ public partial class MapView : Node2D
             }
         }
 
-        if (!DrawsSigns)
-            return;
+        // By kind: the labels lie over the cells, and the markers over the labels.
         Vector2I first = Window.X <= 0 || Window.Y <= 0 ? Vector2I.Zero : Centre - Window / 2;
+        if (DrawsLabels)
+        {
+            foreach (AreaLabel label in LabelsDrawn())
+                DrawTexture(_labels[label], label.Place - first * _area.TileSize);
+        }
+
+        if (!DrawsMarkers)
+            return;
         foreach (AreaMarker marker in MarkersDrawn())
         {
             if (marker.Picture.Length > 0)
@@ -140,9 +171,6 @@ public partial class MapView : Node2D
             else
                 DrawSmallPicture(marker.Place, marker.Shows, _sheet, Colors.White);
         }
-
-        foreach (AreaLabel label in LabelsDrawn())
-            DrawTexture(_labels[label], label.Place - first * _area.TileSize);
     }
 
     /// <summary>Draws one of the map's small pictures, from one of the area's sheets, over a cell's place in the window.</summary>

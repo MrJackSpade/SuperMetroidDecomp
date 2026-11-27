@@ -28,17 +28,16 @@ namespace Engine.Ui;
 /// window being open and the first look at what the player presses, and between one look and the next.</item>
 /// <item><c>move_actions</c>: the actions that move a question's choice to the other answer.</item>
 /// <item><c>move_sound</c>: the sound of the choice moving, heard the update after it moves.</item>
-/// <item><c>names_action</c>: a group giving, for each message that names a button, the action whose button it
-/// names. Such a message has a picture for each button of <c>buttons</c>, named with <c>_</c> and that button's
-/// <c>picture</c> after the message's name, and one for no such button, with <c>_</c> and <c>unbound</c>.</item>
-/// <item><c>buttons</c>: the buttons a message can name, each a group of <c>button</c> (written as a binding is,
-/// such as <c>pad:0</c>) and <c>picture</c>. The first of them the action is bound to is the one shown.</item>
-/// <item><c>unbound</c>: the name's ending for the picture shown when the action is bound to none of them.</item>
+/// <item><c>names_action</c>: a group giving, for each message that names a button, the action whose control it
+/// names. Such a message has a picture for each control of <c>controls</c>, named with <c>_</c> and that control's
+/// <c>picture</c> after the message's name.</item>
+/// <item><c>controls</c>: the controls a message can name, each a group of <c>control</c>, its name, and
+/// <c>picture</c>. The one the action is on is the one shown.</item>
 /// </list>
 /// </remarks>
 public sealed class MessageBoxStyle
 {
-    private readonly List<(string Button, string Picture)> _buttons = [];
+    private readonly List<(string Control, string Picture)> _controls = [];
     private readonly Dictionary<string, string> _namesAction = [];
 
     private MessageBoxStyle()
@@ -78,9 +77,6 @@ public sealed class MessageBoxStyle
     /// <summary>The sound of a question's choice moving.</summary>
     public string MoveSound { get; private init; } = "";
 
-    /// <summary>The name's ending for the picture of a message whose action is bound to no button a picture names.</summary>
-    public string UnboundPicture { get; private init; } = "";
-
     /// <summary>Reads a style from its data file.</summary>
     /// <exception cref="ContentException">A value is missing or cannot be what it must be.</exception>
     public static MessageBoxStyle Read(DataNode data)
@@ -99,14 +95,13 @@ public sealed class MessageBoxStyle
             UpdatesBetweenReads = data.Int("updates_between_reads"),
             MoveActions = [.. data.List("move_actions").Select(action => new GameAction(action.AsText()))],
             MoveSound = data.Text("move_sound"),
-            UnboundPicture = data.Text("unbound"),
         };
         if (style.FullRadius <= 0 || style.RadiusStep <= 0 || style.FullRadius % style.RadiusStep != 0)
             throw data.Problem("has a window that does not open to its full height in whole steps");
         if (style.AfterClosing.Count == 0)
             throw data.Problem("has no update after its window has closed for play to go on after");
-        foreach (DataNode button in data.List("buttons"))
-            style._buttons.Add((button.Text("button"), button.Text("picture")));
+        foreach (DataNode control in data.List("controls"))
+            style._controls.Add((control.Text("control"), control.Text("picture")));
         foreach ((string message, DataNode action) in data.Get("names_action").Entries())
             style._namesAction.Add(message, action.AsText());
         return style;
@@ -118,18 +113,19 @@ public sealed class MessageBoxStyle
     /// </summary>
     /// <param name="message">The message, by name.</param>
     /// <param name="answer">For a question, the answer that shows chosen; null for a message that asks nothing.</param>
-    /// <param name="bindings">The buttons bound to each action, by the action's name.</param>
-    /// <exception cref="InvalidOperationException">The message names an action that has no bindings.</exception>
-    public string PicturePath(string message, bool? answer, IReadOnlyDictionary<string, List<string>> bindings)
+    /// <param name="controlOf">The control an action is on, by the action's name.</param>
+    /// <exception cref="InvalidOperationException">The message names an action that is on a control it has no picture for.</exception>
+    public string PicturePath(string message, bool? answer, Func<string, string> controlOf)
     {
-        ArgumentNullException.ThrowIfNull(bindings);
+        ArgumentNullException.ThrowIfNull(controlOf);
         string name = message;
         if (_namesAction.TryGetValue(message, out string? action))
         {
-            if (!bindings.TryGetValue(action, out List<string>? bound))
-                throw new InvalidOperationException($"The message \"{message}\" names the button of the action \"{action}\", which the player's bindings do not hold.");
-            int shown = _buttons.FindIndex(button => bound.Contains(button.Button));
-            name += "_" + (shown < 0 ? UnboundPicture : _buttons[shown].Picture);
+            string control = controlOf(action);
+            int shown = _controls.FindIndex(pictured => pictured.Control == control);
+            if (shown < 0)
+                throw new InvalidOperationException($"The message \"{message}\" names the button of the action \"{action}\", which is on the control \"{control}\": the message has no picture for it.");
+            name += "_" + _controls[shown].Picture;
         }
 
         if (answer is { } yes)

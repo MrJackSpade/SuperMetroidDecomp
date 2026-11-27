@@ -1,3 +1,6 @@
+using Engine.Core;
+using Engine.World;
+
 namespace Game.Compatibility;
 
 /// <summary>
@@ -7,9 +10,10 @@ namespace Game.Compatibility;
 /// each picture of the stride, or nought before it ever has.
 /// </summary>
 /// <remarks>
-/// The cartridge reads it from where the getaway lays out its wings' pictures, which nothing but power-on clears.
+/// The cartridge reads it from where the getaway lays out its wings' pictures, which nothing but power-on clears:
+/// it is the session's, and a game begun again, by a death or a load, leaves it as it stands.
 /// </remarks>
-public sealed class LeftoverStridePace
+public sealed class LeftoverStridePace : ISessionService
 {
     private int[]? _updates;
 
@@ -18,4 +22,20 @@ public sealed class LeftoverStridePace
 
     /// <summary>How many updates the stride's picture <paramref name="picture"/> lasts at this pace: nought while no wings have been drawn.</summary>
     public int Updates(int picture) => _updates is null ? 0 : _updates[picture];
+
+    /// <summary>Nothing of it starts over: the cartridge keeps it from power-on.</summary>
+    public void BeginAgain()
+    {
+    }
+
+    /// <inheritdoc/>
+    public void Step(GameSession session)
+    {
+    }
+
+    /// <inheritdoc/>
+    public bool WantsToTakeOver => false;
+
+    /// <inheritdoc/>
+    public GameMode? TakesOver(PlayingMode playing) => null;
 }

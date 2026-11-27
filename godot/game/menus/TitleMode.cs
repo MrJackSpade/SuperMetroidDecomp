@@ -20,7 +20,7 @@ namespace Game.Menus;
 /// Its data names its "music" at rest, asked for when the opening is cut short; its "backdrop" colour; its "floor",
 /// the picture behind the title, with how much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
 /// ("floor_centre") and how far it is moved at rest ("floor_scroll"); the "baby" on the floor (where, and its
-/// "timeline"); its "pictures" at rest, each with where its corner goes; how many updates it is left alone before it
+/// "timeline"); how many updates it is left alone before it
 /// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos, and the
 /// "completed_demo_sets" that follow them once the game has been completed; and its "opening":
 /// its "music"; how long each letter of a card but the last shows before the next is typed ("letter_updates") and
@@ -30,7 +30,7 @@ namespace Game.Menus;
 /// floor there is to a pixel, "floor_per_pixel"; where it starts, "x" and "y"; how far it moves each update,
 /// "move_x" and "move_y"; and when it "ends": "x_below" or "y_at_least" the number "at") or a "zoom" (the same
 /// start, and how much more of the floor there is to a pixel, "grows_by", on every so many updates, "every", until
-/// the floor is its own size); the "logo" and the "copyright" as they fade in (each a place and a "timeline", whose
+/// the floor is its own size); the "logo" and the "copyright" as they fade in (each a place, a "picture" and a "fade", steps of colours whose
 /// first look shows on the update each first shows) and
 /// how long each is given ("logo_hold", "copyright_hold"); and how long the fades take when the opening is cut
 /// short ("skip_fade_updates") and when the title is left ("leave_fade_updates").
@@ -101,7 +101,10 @@ public partial class TitleMode : GameMode
     private Node2D? _card;
     private CinematicSprite? _logo;
     private CinematicSprite? _copyright;
-    private Node2D? _resting;
+
+    /// <summary>The steps of colours the title and the copyright come up by, each shown on its one picture.</summary>
+    private ColourSteps? _logoFade;
+    private ColourSteps? _copyrightFade;
     private ScreenFade? _fade;
     private Doing _doing;
     private bool _skipping;
@@ -133,21 +136,10 @@ public partial class TitleMode : GameMode
         _card = new Node2D { Name = "Card" };
         layer.AddChild(_card);
         DataNode opening = _data.Get("opening");
-        _logo = Fading("Logo", opening.Get("logo"));
+        (_logo, _logoFade) = Fading("Logo", opening.Get("logo"));
         layer.AddChild(_logo);
-        _copyright = Fading("Copyright", opening.Get("copyright"));
+        (_copyright, _copyrightFade) = Fading("Copyright", opening.Get("copyright"));
         layer.AddChild(_copyright);
-        _resting = new Node2D { Name = "Resting", Visible = false };
-        layer.AddChild(_resting);
-        foreach (DataNode picture in _data.List("pictures"))
-        {
-            _resting.AddChild(new Sprite2D
-            {
-                Texture = Session.Content.LoadTexture(picture.Text("picture")), Centered = false, Position = Place(picture),
-                TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
-            });
-        }
-
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
         if (_beginning == Beginning.AtRest)
@@ -206,21 +198,20 @@ public partial class TitleMode : GameMode
                 StepZoom(opening);
                 break;
             case Doing.Logo:
-                (_logo ?? throw NotShown()).Step();
+                (_logoFade ?? throw NotShown()).Step();
                 if (--_hold <= 0)
                 {
                     // The copyright shows its first look on the update its hold begins.
                     _doing = Doing.Copyright;
                     _hold = opening.Int("copyright_hold");
-                    CinematicSprite copyright = _copyright ?? throw NotShown();
-                    copyright.Visible = true;
-                    copyright.Step();
+                    (_copyright ?? throw NotShown()).Visible = true;
+                    (_copyrightFade ?? throw NotShown()).Step();
                 }
 
                 break;
             case Doing.Copyright:
-                (_logo ?? throw NotShown()).Step();
-                (_copyright ?? throw NotShown()).Step();
+                (_logoFade ?? throw NotShown()).Step();
+                (_copyrightFade ?? throw NotShown()).Step();
                 if (--_hold <= 0)
                     Rest(rebuilt: false);
                 break;
@@ -303,9 +294,8 @@ public partial class TitleMode : GameMode
             // The title shows its first look on the update the drawing back ends.
             _doing = Doing.Logo;
             _hold = opening.Int("logo_hold");
-            CinematicSprite logo = _logo ?? throw NotShown();
-            logo.Visible = true;
-            logo.Step();
+            (_logo ?? throw NotShown()).Visible = true;
+            (_logoFade ?? throw NotShown()).Step();
             return;
         }
 
@@ -419,16 +409,14 @@ public partial class TitleMode : GameMode
         TurningFloor floor = _floor ?? throw NotShown();
         floor.Visible = true;
         floor.Turn(0, data.Get("floor_per_pixel").AsPixels().ToDisplay(), Place(data.Get("floor_centre")), Place(data.Get("floor_scroll")));
-        (_logo ?? throw NotShown()).Visible = false;
-        (_resting ?? throw NotShown()).Visible = true;
+        // The title rests in the colours its fade ends on.
+        CinematicSprite logo = _logo ?? throw NotShown();
+        logo.Visible = true;
+        ShowFaded(logo, _logoFade, "logo");
         CinematicSprite copyright = _copyright ?? throw NotShown();
         copyright.Visible = true;
         if (rebuilt)
-        {
-            FrameTimeline fade = FrameTimeline.Read(data.Get("opening").Get("copyright").Get("timeline"));
-            copyright.Play(new FrameTimeline([fade.Steps[^1]], 0));
-            copyright.Step();
-        }
+            ShowFaded(copyright, _copyrightFade, "copyright");
     }
 
     /// <summary>Takes the letters of a card away.</summary>
@@ -442,14 +430,33 @@ public partial class TitleMode : GameMode
         }
     }
 
-    /// <summary>A picture that fades in where the data puts it, unseen until its turn.</summary>
-    private CinematicSprite Fading(string name, DataNode placed)
+    /// <summary>
+    /// Shows one of the two in the colours its fade ends on, at once: the fade is stopped and its last step's colours
+    /// are shown under the fade's own name, so that they stand in its place.
+    /// </summary>
+    private void ShowFaded(CinematicSprite sprite, ColourSteps? fade, string named)
     {
-        CinematicSprite sprite = CinematicSprite.Of(
-            Session.Content, FrameTimeline.Read(placed.Get("timeline")), PixelPosition.FromWhole(placed.Int("x"), placed.Int("y")));
+        (fade ?? throw NotShown()).Stop();
+        ColourChange.Read(Data().Get("opening").Get(named).Get("fade").List("steps")[^1].Get("colours")).ShowOn(sprite, FadeName(sprite));
+    }
+
+    /// <summary>The name a sprite's colours are changed under, by its fade and by the rest.</summary>
+    private static string FadeName(CinematicSprite sprite) => sprite.Name + "Fade";
+
+    /// <summary>
+    /// A picture that fades in where the data puts it, unseen until its turn, with the steps of colours it comes up
+    /// by: one picture, whose colours the steps change.
+    /// </summary>
+    private (CinematicSprite Sprite, ColourSteps Fade) Fading(string name, DataNode placed)
+    {
+        var shown = new FrameTimeline([new TimelineStep(placed.Text("picture"), 1, [])], 0);
+        CinematicSprite sprite = CinematicSprite.Of(Session.Content, shown, PixelPosition.FromWhole(placed.Int("x"), placed.Int("y")));
         sprite.Name = name;
         sprite.Visible = false;
-        return sprite;
+        sprite.Step();
+        var fade = new ColourSteps(placed.Get("fade"), FadeName(sprite));
+        fade.ShowOn(sprite);
+        return (sprite, fade);
     }
 
     private static Vector2 Place(DataNode at) => new(at.Int("x"), at.Int("y"));

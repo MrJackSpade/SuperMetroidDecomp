@@ -19,6 +19,9 @@ public partial class SuperMetroid : GameDefinition
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => Data.Actions.StandardBindings;
 
+    /// <summary>The seven actions of play are on the cartridge's own controller's buttons, as a new file has them.</summary>
+    public override IReadOnlyDictionary<string, string> StandardControls => Data.Actions.StandardControls;
+
 #if GODOT_ANDROID
     /// <summary>On a handheld the game makes its own assets, from the ROM the player chooses.</summary>
     public override Engine.Content.AssetsMaker? AssetsMaker => new RomAssets();
@@ -34,8 +37,11 @@ public partial class SuperMetroid : GameDefinition
     public override bool PauseMayBeAsked(GameSession session, Engine.World.Room room) =>
         room.Area != Data.Areas.Ceres && !Compatibility.CartridgeSounds.Of(session).PowerBombExploding;
 
-    /// <summary>A new game begins with the opening.</summary>
-    public override GameMode CreateModeForNewGame() => new Intro();
+    /// <summary>A new game begins with the opening, or on Ceres at once when the tester has asked for the opening left out.</summary>
+    public override GameMode CreateModeForNewGame() =>
+        (_assists ?? throw new InvalidOperationException("A new game was asked for before the session's services were made.")).Settings.SkipOpening
+            ? Menus.GameLoad.OfNewGame()
+            : new Intro();
 
     /// <summary>Samus's death is played by its own mode, and the game over screen comes after it.</summary>
     public override GameMode CreateDeathMode(PlayingMode playing) => new DeathMode(playing);
@@ -43,7 +49,8 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>
     /// This game adds the escape countdown, the random number the cartridge drew every frame, which of the title's
     /// demos is due, the elevator's journey, what was held on the pause screen from one pause to the next, the
-    /// count of steps the cartridge's gradual fades share, and the count Ceres's falling ceiling goes by.
+    /// count of steps the cartridge's gradual fades share, the count Ceres's falling ceiling goes by, and the tester's
+    /// assists.
     /// </summary>
     public override IReadOnlyList<ISessionService> CreateServices() =>
     [
@@ -54,7 +61,12 @@ public partial class SuperMetroid : GameDefinition
         new PauseHeldButtons(),
         new Compatibility.SharedFadeCount(),
         new Rooms.Ceres.CeresDebrisCount(),
+        new Compatibility.LeftoverStridePace(),
+        _assists = new Assists.TesterAssists(),
     ];
+
+    /// <summary>The tester's assists made for the session, which say whether a new game leaves the opening out.</summary>
+    private Assists.TesterAssists? _assists;
 
     /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>
     private Compatibility.CartridgeRandom? _random;

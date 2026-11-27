@@ -306,7 +306,7 @@ public sealed partial class EngineAssetWriter
             _tree.WriteData(burst, ShotTimeline(pictures, Segment.BeamExplosion, sized: false));
             projectile["ending_effect"] = burst;
             // The cartridge draws the explosions of her shots and her bombs before all else, over everything.
-            projectile["ending_effect_standing"] = "foremost";
+            projectile["ending_effect_standing"] = "topmost";
             projectile["ending_sound"] = EngineNames.Sound(EnemySound.BeamImpact);
         }
 
@@ -460,7 +460,7 @@ public sealed partial class EngineAssetWriter
         string burst = $"samus/shots/{name}_burst.json";
         _tree.WriteData(burst, ShotTimeline(pictures, super ? Segment.SuperMissileExplosion : Segment.MissileExplosion, sized: false));
         projectile["ending_effect"] = burst;
-        projectile["ending_effect_standing"] = "foremost";
+        projectile["ending_effect_standing"] = "topmost";
         projectile["ending_sound"] = EngineNames.Sound(EnemySound.WeaponExplosion);
         if (super)
         {
@@ -569,7 +569,7 @@ public sealed partial class EngineAssetWriter
                 ["width"] = burstWidth,
                 ["height"] = burstHeight,
                 ["motion"] = "still",
-                ["standing"] = "foremost",
+                ["standing"] = "topmost",
                 ["meeting_terrain"] = "passes_through",
                 ["meeting_target"] = "passes_through",
                 ["view_margin"] = -1,
@@ -592,7 +592,7 @@ public sealed partial class EngineAssetWriter
                 ["width"] = width,
                 ["height"] = height,
                 ["motion"] = "still",
-                ["standing"] = "foremost",
+                ["standing"] = "topmost",
                 ["delivers_hit"] = false,
                 ["meeting_terrain"] = "passes_through",
                 ["lasts_updates"] = MorphBallBombDefinitions.InitialBombTimer,
@@ -623,7 +623,7 @@ public sealed partial class EngineAssetWriter
                 ["width"] = powerWidth,
                 ["height"] = powerHeight,
                 ["motion"] = "still",
-                ["standing"] = "foremost",
+                ["standing"] = "topmost",
                 ["delivers_hit"] = false,
                 ["meeting_terrain"] = "passes_through",
                 ["view_margin"] = -1,

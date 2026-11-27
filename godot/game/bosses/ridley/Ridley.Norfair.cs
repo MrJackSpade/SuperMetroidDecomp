@@ -770,7 +770,7 @@ public partial class Ridley
 
     /// <summary>
     /// Whether Samus is doing anything it can take hold of her in: not spinning, on the grapple beam (swinging, held
-    /// in place by it or against a wall by it), damage boosting, or already held.
+    /// in place by it or against a wall by it), damage boosting, or seized by Draygon.
     /// </summary>
     private static bool CanSeize(Player samus) =>
         samus.State is not (SpinJumpingState or GrapplingState or GrappleLockedState or GrappleWallGrabState or DamageBoostState or GrabbedState);
@@ -789,8 +789,8 @@ public partial class Ridley
         PixelOffset fromClaw = samus.Position - ClawPosition;
         _grabOffset = PixelOffset.FromWhole(fromClaw.X.Whole, fromClaw.Y.Whole);
         _holdsSamus = true;
-        // She cannot move in its claws, but she can still aim and fire.
-        samus.ChangeState(new GrabbedState(0));
+        // In its claws she is held as she is: her pose and speed kept, neither moving, animating nor acting.
+        samus.HoldAsTheyAre();
         if (Health.IsEmpty)
         {
             BeginDying();
@@ -833,7 +833,7 @@ public partial class Ridley
         _holdsSamus = false;
         Tail.WhipOrdered = true;
         Tail.Action = RidleyTail.Doing.Neutral;
-        if (samus.State is GrabbedState)
+        if (samus.State is HeldState)
             samus.Release();
     }
 

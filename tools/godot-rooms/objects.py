@@ -15,6 +15,9 @@ import legacy
 from enemies import LEFT, RIGHT, Placed, quoted, snake, truth
 
 BLOCK = 16
+# Every place an item lies, by the name it is remembered taken under: the generator lists them for the game.
+ITEM_LOCATIONS: set[str] = set()
+
 O = 'res://game/objects/'
 B = 'res://game/bosses/'
 E = 'res://game/enemies/'
@@ -138,6 +141,7 @@ class Objects:
         ctx = self.ctx
         kind = named(setup, 'InWorldCollectibleKind')
         name = snake(named(setup, 'ItemLocationDefinitions'))
+        ITEM_LOCATIONS.add(name)
         item = Placed(O + 'item/item.tscn', kind, {
             'TypeFile': quoted(f'items/{snake(kind)}.json'), 'RememberedAs': quoted(name)},
             at=(block[0] * BLOCK + BLOCK // 2, block[1] * BLOCK + BLOCK // 2), enemy=False)

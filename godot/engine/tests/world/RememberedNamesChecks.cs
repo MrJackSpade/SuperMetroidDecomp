@@ -19,7 +19,6 @@ public sealed class RememberedNamesChecks
         names.Add("first", first);
         names.Add("second", second);
 
-        Expect.Equal(0, names.Mistakes.Count);
         names.Require();
         first.Free();
         second.Free();
@@ -34,10 +33,9 @@ public sealed class RememberedNamesChecks
         names.Add("first", first);
         names.Add("second", second);
 
-        Expect.Equal(1, names.Mistakes.Count);
-        Expect.True(names.Mistakes[0].Contains("\"Gate\" in the room \"second\""));
-        Expect.True(names.Mistakes[0].Contains("\"Tank\" in the room \"first\""));
-        Expect.Throws<InvalidOperationException>(names.Require);
+        string refusal = Refusal(names);
+        Expect.True(refusal.Contains("\"Gate\" in the room \"second\""));
+        Expect.True(refusal.Contains("\"Tank\" in the room \"first\""));
         first.Free();
         second.Free();
     }
@@ -49,9 +47,9 @@ public sealed class RememberedNamesChecks
         var names = new RememberedNames();
         names.Add("room", room);
 
-        Expect.Equal(2, names.Mistakes.Count);
-        Expect.True(names.Mistakes[0].Contains("\"Tank\""));
-        Expect.True(names.Mistakes[1].Contains("\"Fight\""));
+        string refusal = Refusal(names);
+        Expect.True(refusal.Contains("\"Tank\""));
+        Expect.True(refusal.Contains("\"Fight\""));
         room.Free();
     }
 
@@ -65,8 +63,23 @@ public sealed class RememberedNamesChecks
         var names = new RememberedNames();
         names.Add("room", room);
 
-        Expect.Equal(1, names.Mistakes.Count);
+        Expect.Throws<InvalidOperationException>(names.Require);
         room.Free();
+    }
+
+    /// <summary>What the audit says as it refuses the names it was given; empty when it accepts them.</summary>
+    private static string Refusal(RememberedNames names)
+    {
+        try
+        {
+            names.Require();
+        }
+        catch (InvalidOperationException refused)
+        {
+            return refused.Message;
+        }
+
+        return "";
     }
 
     [Check]

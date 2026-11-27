@@ -14,7 +14,8 @@ namespace Engine.Actors;
 /// <remarks>
 /// Its data lists under "timelines" the timelines it changes to, by the names its class uses. The cues it knows are
 /// "harmless", "harmful", "shots_pass" and "shots_meet" (from then on the other side's shots pass it by, or meet it
-/// again as its settings say), "stop", "end", "front", "behind", "origin" (back to where it began, or last came to rest),
+/// again as its settings say), "stays" (from then on it stays through every touch of its target, shot down or
+/// not), "stop", "end", "front", "behind", "origin" (back to where it began, or last came to rest),
 /// "shift:" with pixels across and down, "scatter:" with the width and height of the spread and how far into it the
 /// middle lies each way, "sometimes:" with a timeline it turns to one time in four, and "sound:" with a sound's
 /// name.
@@ -102,6 +103,9 @@ public partial class CuedProjectile : Projectile, IHasValues
                 break;
             case "shots_meet":
                 _shotsPass = false;
+                break;
+            case "stays":
+                OutlastsTouch = true;
                 break;
             case "stop":
                 Moving = false;

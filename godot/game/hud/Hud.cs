@@ -254,6 +254,7 @@ public partial class Hud : GameHud, IHasValues
         minimap.Visible = room.MapShown && room.Area.Length > 0;
         if (!minimap.Visible)
             return;
+        minimap.Reveals = Assists.TesterAssists.Of(session).Now(session).MapReveal;
         if (!_areas.TryGetValue(room.Area, out Area? area))
             _areas[room.Area] = area = Area.Read(session.Content.ReadData($"{AreaFolder}/{room.Area}.json"));
         Player samus = room.Player;

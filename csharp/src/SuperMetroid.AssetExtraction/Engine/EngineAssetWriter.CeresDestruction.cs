@@ -60,6 +60,24 @@ public sealed partial class EngineAssetWriter
             places[name] = At(artwork.CeresDestruction.RevealActors[role].X, artwork.CeresDestruction.RevealActors[role].Y);
         }
 
+        // The great blast that takes the station is a power bomb's: what is seen of it on each update from the one
+        // after it goes off, the oval it shows and the colour it adds inside it, until its glow has faded. On the
+        // update it goes off it shows nothing.
+        var blast = new SuperMetroid.Core.Samus.Projectiles.PowerBombBlastTimeline();
+        var glowColours = _installation.LoadMaps().PowerBombGlowColors;
+        var blastOvals = new JsonArray();
+        var blastGlows = new JsonArray();
+        blast.Start();
+        blast.StepFrame(glowColours);
+        while (blast.IsRunning)
+        {
+            blastOvals.Add(blast.ShownRadius);
+            blastGlows.Add((blast.GlowColor.Red << 16) | (blast.GlowColor.Green << 8) | blast.GlowColor.Blue);
+            if (blastOvals.Count > 4096)
+                throw new InvalidDataException("The old station blast does not end.");
+            blast.StepFrame(glowColours);
+        }
+
         string Whole(SpriteSheetId sheet, string frame, string name) => _sheets.WriteSprite(_tree, sheet, frame, $"{folder}/{name}.png");
 
         // A floor's colours are changed where it is drawn, so its map of regions is written with it.
@@ -86,6 +104,10 @@ public sealed partial class EngineAssetWriter
                 })),
             ["zebes"] = Whole(SpriteSheetId.CeresCinematicPictures, CeresCinematicPictures.ZebesPlanet, "zebes"),
             ["blast_sound"] = EngineNames.Sound(SamusSound.PowerBombExplosion),
+            ["blast_ovals"] = blastOvals,
+            ["blast_glows"] = blastGlows,
+            ["blast_height_parts"] = SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.OvalHeightParts,
+            ["blast_width_parts"] = SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.OvalWidthParts,
             ["second_title_languages"] = new JsonArray(Languages[1]),
             ["places"] = places,
             ["timelines"] = timelines,

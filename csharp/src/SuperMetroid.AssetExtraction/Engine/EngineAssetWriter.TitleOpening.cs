@@ -73,27 +73,21 @@ public sealed partial class EngineAssetWriter
             });
         }
 
-        // A picture that fades in: its colours come up a step at a time, and then it stays.
-        JsonObject Fading(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, ColourEffectId effect, ColourEffectColours colours, string name)
+        // A picture that fades in: one picture, as its sheet has it, whose colours come up a step at a time and then
+        // stay. Each step is the old fade's shade laid over the colouring the title draws it in; the last is what it
+        // rests in.
+        JsonObject Fading(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, ColourEffectId effect, string name)
         {
-            var looks = new JsonArray();
-            foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectAnimations.Segments.Beats(ColourEffectSegment.TextFade))
-            {
-                if (beat is not AnimationBeat<int, ColourEffectCue>.Frame shown)
-                    continue;
-                looks.Add(new JsonObject
-                {
-                    ["picture"] = _sheets.WriteSprite(
-                        _tree, SpriteSheetId.Title, frame, $"{folder}/{name}_fading_{shown.Shown}.png", TitleShades.Drawn(colouring).Key,
-                        ColourEffectShades.Of(colours, new ColourEffectFrame(effect, shown.Shown)).Key),
-                    ["updates"] = shown.Duration,
-                });
-            }
-
-            if (looks.Count == 0)
-                throw new InvalidDataException("The fade of the title's words has no looks.");
+            string picture = _sheets.WriteSpriteWithRegions(_tree, SpriteSheetId.Title, frame, $"{folder}/{name}.png");
+            var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [picture] = [EngineSheets.SheetOf(SpriteSheetId.Title)] };
             (int x, int y) = Corner(frame, origin);
-            return new JsonObject { ["x"] = x, ["y"] = y, ["timeline"] = new JsonObject { ["steps"] = looks, ["loops_to"] = looks.Count - 1 } };
+            return new JsonObject
+            {
+                ["x"] = x,
+                ["y"] = y,
+                ["picture"] = picture,
+                ["fade"] = ColourSteps(effect, shade => ShadeChange($"{TitleShades.Drawn(colouring).Key}+{shade}", EngineSheets.SpriteFamily, places)),
+            };
         }
 
         return new JsonObject
@@ -105,11 +99,11 @@ public sealed partial class EngineAssetWriter
             ["steps"] = steps,
             ["logo"] = Fading(
                 "Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring,
-                TitleSequenceDefinitions.Fades.Logo, ColourEffectColours.TitleLogo, "logo"),
+                TitleSequenceDefinitions.Fades.Logo, "logo"),
             ["logo_hold"] = TitleSequenceDefinitions.Timing.LogoHoldFrames,
             ["copyright"] = Fading(
                 "Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin, TitleSequenceDefinitions.Sprites.CopyrightColouring,
-                TitleSequenceDefinitions.Fades.Copyright, ColourEffectColours.NintendoCopyright, "copyright"),
+                TitleSequenceDefinitions.Fades.Copyright, "copyright"),
             ["copyright_hold"] = TitleSequenceDefinitions.Timing.CopyrightHoldFrames,
             // The screen's brightness has sixteen levels: skipping the opening takes them some at a time, leaving the
             // title one every so many updates.

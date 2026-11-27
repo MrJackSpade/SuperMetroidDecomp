@@ -28,7 +28,7 @@ public sealed class RunningState : PlayerState
             return owner.Aim == Shared.Aim.Forward ? null : new StandingState();
         if ((owner.Intent > 0) == (owner.Facing == Shared.Facing.Right))
             return this;
-        if (owner.TurnUpdates > 0)
+        if (owner.TurnPictures.Length > 0)
             return new TurningState();
         owner.TurnAround();
         return this;

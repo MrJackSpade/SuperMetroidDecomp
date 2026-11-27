@@ -50,22 +50,8 @@ public sealed partial class EngineAssetWriter
         ("down", SamusProjectileDirection.DownFacingRight, SamusProjectileDirection.DownFacingLeft),
     ];
 
-    /// <summary>How long one segment of a pose's animation lasts.</summary>
-    private static int SamusSegmentUpdates(P pose, Seg segment) => SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Sum();
-
-    /// <summary>How long one segment of a pose's animation lasts where each of its pictures is held <paramref name="longer"/> updates more, as in a liquid.</summary>
-    private static int SamusSegmentUpdates(P pose, Seg segment, int longer) =>
-        SamusSegmentUpdates(pose, segment) + SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Count * longer;
-
-    /// <summary>The timed changes of hers that an animation times, by the name of the value that gives each one's length, with the old pose and segment.</summary>
-    private static readonly (string Value, P Pose, Seg Segment)[] SamusTimedChanges =
-    [
-        ("turn_updates", P.TurningRightToLeftPose, Seg.Main), ("crouch_updates", P.CrouchingTransitionRightPose, Seg.Main),
-        ("stand_updates", P.StandingTransitionRightPose, Seg.Main), ("crawl_enter_updates", P.MorphingTransitionRightPose, Seg.Main),
-        ("crawl_leave_updates", P.UnmorphingTransitionRightPose, Seg.Main), ("jump_start_updates", P.NeutralJumpTransitionRightPose, Seg.Main),
-        ("wall_jump_ready_updates", P.SpinJumpRightPose, Seg.WallJumpReady), ("landing_updates", P.NormalLandingRightPose, Seg.Main),
-        ("spin_landing_updates", P.SpinLandingRightPose, Seg.Main),
-    ];
+    /// <summary>How many updates each picture of one segment of a pose's animation is held, in order: what a timed change of hers is counted by.</summary>
+    private static JsonArray SamusPictureUpdates(P pose, Seg segment) => EngineNames.List(SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays);
 
     /// <summary>
     /// The most pixels the surface of any of the old game's sloped shapes (not its square ones, which are steps and
@@ -148,15 +134,9 @@ public sealed partial class EngineAssetWriter
             bool liquid = medium != SamusLiquidMedium.Air;
 
             // In a liquid every picture of her animations is held longer, so the changes they time last longer.
-            var updates = new JsonObject();
-            if (liquid)
-            {
-                int longer = medium == SamusLiquidMedium.Water
-                    ? SamusAnimationDelayDefinitions.WaterAnimationDelay
-                    : SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
-                foreach ((string value, P pose, Seg segment) in SamusTimedChanges)
-                    updates[value] = SamusSegmentUpdates(pose, segment, longer);
-            }
+            int pictureHold = !liquid ? 0
+                : medium == SamusLiquidMedium.Water ? SamusAnimationDelayDefinitions.WaterAnimationDelay
+                : SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
             mediums[name] = new JsonObject
             {
                 ["gravity"] = Number(SamusVerticalMotionDefinitions.Gravities[medium]),
@@ -167,7 +147,7 @@ public sealed partial class EngineAssetWriter
                 ["boosted_wall_jump_speed"] = Number(SamusVerticalMotionDefinitions.HighJumpLaunchSpeeds[medium][SamusLaunchKind.WallJump]),
                 ["knockback_up_speed"] = Number(SamusVerticalMotionDefinitions.KnockbackSpeeds[medium]),
                 ["moves"] = moves,
-                ["updates"] = updates,
+                ["picture_hold"] = pictureHold,
                 ["speeds"] = new JsonObject
                 {
                     ["bomb_jump"] = Number(SamusVerticalMotionDefinitions.BombJumpSpeeds[medium]),
@@ -218,7 +198,7 @@ public sealed partial class EngineAssetWriter
             .Value("room_damage_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Value("room_damage_sound_every", SamusCadenceDefinitions.LiquidDamageSound.Period)
             .Value("room_damage_sound_least_energy", SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
-            .Value("turn_updates", SamusSegmentUpdates(P.TurningRightToLeftPose, Seg.Main))
+            .Value("turn_pictures", SamusPictureUpdates(P.TurningRightToLeftPose, Seg.Main))
             .Value("fast_fall_look_speed", SamusMovementDefinitions.FastFallAnimationSpeed)
             .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))
 
@@ -251,7 +231,7 @@ public sealed partial class EngineAssetWriter
             // values for as long as the jump is held. The spin is ready to jump off a wall it has found for as long as
             // its ready picture is shown.
             .Value("wall_jump_reach", SamusMovementDefinitions.WallJumpReachPixels)
-            .Value("wall_jump_ready_updates", SamusSegmentUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
+            .Value("wall_jump_ready_pictures", SamusPictureUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
 
             // A wall jump kicks up the dust a landing raises, behind her as she leaves the wall.
             .Value("wall_jump_effect", SamusParticleFile(SamusWallJumpDustDefinitions.Particle.Kind))
@@ -259,18 +239,18 @@ public sealed partial class EngineAssetWriter
 
             // Crouching, standing up, curling up and uncurling each last as long as the pose between is shown, and a
             // jump from a plain crouch starts lifted.
-            .Value("crouch_updates", SamusSegmentUpdates(P.CrouchingTransitionRightPose, Seg.Main))
-            .Value("stand_updates", SamusSegmentUpdates(P.StandingTransitionRightPose, Seg.Main))
-            .Value("crawl_enter_updates", SamusSegmentUpdates(P.MorphingTransitionRightPose, Seg.Main))
-            .Value("crawl_leave_updates", SamusSegmentUpdates(P.UnmorphingTransitionRightPose, Seg.Main))
+            .Value("crouch_pictures", SamusPictureUpdates(P.CrouchingTransitionRightPose, Seg.Main))
+            .Value("stand_pictures", SamusPictureUpdates(P.StandingTransitionRightPose, Seg.Main))
+            .Value("crawl_enter_pictures", SamusPictureUpdates(P.MorphingTransitionRightPose, Seg.Main))
+            .Value("crawl_leave_pictures", SamusPictureUpdates(P.UnmorphingTransitionRightPose, Seg.Main))
             .Value("crouch_jump_lift", SamusPoseCollisionDefinitions.CrouchJumpLift)
 
             // A jump from standing is gathered for as long as its first pose is shown. A jump held for fewer updates
             // than the old limit as she lands or finishes a turn counts as pressed afresh.
-            .Value("jump_start_updates", SamusSegmentUpdates(P.NeutralJumpTransitionRightPose, Seg.Main))
+            .Value("jump_start_pictures", SamusPictureUpdates(P.NeutralJumpTransitionRightPose, Seg.Main))
             .Value("jump_buffer_updates", SamusAutoJumpDefinitions.TimerComparisonLimit)
-            .Value("landing_updates", SamusSegmentUpdates(P.NormalLandingRightPose, Seg.Main))
-            .Value("spin_landing_updates", SamusSegmentUpdates(P.SpinLandingRightPose, Seg.Main))
+            .Value("landing_pictures", SamusPictureUpdates(P.NormalLandingRightPose, Seg.Main))
+            .Value("spin_landing_pictures", SamusPictureUpdates(P.SpinLandingRightPose, Seg.Main))
 
             // Letting go of the jump while she rises stops her rise at once.
             .Value("jump_cut_speed", Number(SamusVerticalVelocity.FallFromRest.Speed))
@@ -349,11 +329,6 @@ public sealed partial class EngineAssetWriter
             ["spinning"] = SamusPoseTraits.Of(P.SpinJumpRightPose).VerticalRadius,
             ["facing_forward"] = SamusPoseTraits.Of(P.ForwardFacingPowerSuitPose).VerticalRadius,
         });
-        // How many pictures each of her timed changes shows: a slowdown holds each of them longer out of any liquid.
-        var changePictures = new JsonObject();
-        foreach ((string value, P pose, Seg segment) in SamusTimedChanges)
-            changePictures[value] = SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Count;
-        file.Group("change_pictures", changePictures);
         file.Group("mediums", SamusMediumsWritten());
 
         // How each bomb of a spread is thrown, left to right, in pixels an update, upward and leftward below nought.

@@ -188,14 +188,6 @@ public sealed partial class EngineAssetWriter
         if (TitleSequenceDefinitions.Scenes.Rotation != RotationAngle.Zero)
             throw new InvalidDataException("The title's backdrop is turned, which the Godot title does not turn it.");
 
-        JsonObject Sprite(string frame, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring, string name)
-        {
-            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.Title, frame);
-            JsonObject at = At(origin.X - originX, origin.Y - originY);
-            at["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.Title, frame, $"{folder}/{name}.png", [TitleShades.Drawn(colouring).Key]);
-            return at;
-        }
-
         // The sets the title goes through, and those that follow them once the game has been completed: the old
         // playlist of a completed game is the ordinary one with more sets after it.
         IReadOnlyList<AttractDemoSet> ordinary = StockAttractDemoScenes.Playlist(completionSetUnlocked: false);
@@ -227,10 +219,8 @@ public sealed partial class EngineAssetWriter
             ["floor_per_pixel"] = 1,
             ["floor_centre"] = At(TitleSequenceDefinitions.Scenes.FloorCentre.X, TitleSequenceDefinitions.Scenes.FloorCentre.Y),
             ["floor_scroll"] = At(resting.Position.X, resting.Position.Y),
-            // The copyright is not among them: at rest it shows its fade's last look, which is how the old game restores
-            // its colours once a skip has rebuilt the title.
-            ["pictures"] = new JsonArray(
-                Sprite("Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring, "logo")),
+            // At rest the title and the copyright show the colours their fades end on (the opening's "logo" and
+            // "copyright"), which is how the old game restores them once a skip has rebuilt the title.
             ["opening"] = TitleOpening(folder),
             ["baby"] = TitleBaby(folder),
             ["demo_after_updates"] = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,

@@ -11,13 +11,14 @@ namespace Engine.World;
 /// </summary>
 public partial class Earthquake : RoomEffect
 {
-    /// <summary>How far the view is offset, in pixels.</summary>
-    [Export]
-    public int Strength { get; set; } = 1;
+    /// <summary>A shake is stepped once all that may start it has run: the room is thrown on the update it is asked to shake.</summary>
+    protected internal override bool StepsAsUpdateEnds => true;
 
-    /// <summary>How many updates a shake lasts.</summary>
-    [Export]
-    public int Updates { get; set; } = 60;
+    /// <summary>How far the view is offset, in pixels, by the shake last asked for.</summary>
+    public int Strength { get; private set; }
+
+    /// <summary>How many updates the shake last started was to last; nought for one only kept going.</summary>
+    public int Updates { get; private set; }
 
     /// <summary>The updates left in the shake.</summary>
     private Countdown _left = Countdown.Over;
@@ -34,9 +35,8 @@ public partial class Earthquake : RoomEffect
     /// <summary>Whether a shake has been started and has yet to take its first update: it has its whole length left.</summary>
     public bool HasJustBegun => IsActive && _left.Remaining == Updates;
 
-    /// <summary>The way the view is thrown about.</summary>
-    [Export]
-    public ShakeWay Way { get; set; } = ShakeWay.Across;
+    /// <summary>The way the view is thrown about by the shake last asked for.</summary>
+    public ShakeWay Way { get; private set; }
 
     /// <summary>Starts a shake of the given strength, length and way.</summary>
     public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
@@ -66,8 +66,8 @@ public partial class Earthquake : RoomEffect
         SetActive(true);
     }
 
-    /// <inheritdoc/>
-    protected override void OnSetup(Room room) => _left = Countdown.Of(StartsActive ? Updates : 0);
+    /// <summary>A room is set up still: a shake begins when it is asked for.</summary>
+    protected override void OnSetup(Room room) => _left = Countdown.Over;
 
     /// <inheritdoc/>
     protected override void OnStep(Room room)
@@ -84,14 +84,5 @@ public partial class Earthquake : RoomEffect
         int by = _left.Remaining % sides >= sides / 2 ? Strength : -Strength;
         ViewOffset = new Vector2I(Way == ShakeWay.Down ? 0 : by, Way == ShakeWay.Across ? 0 : by);
         _left = _left.Stepped();
-    }
-
-    /// <inheritdoc/>
-    public override void Triggered(string what)
-    {
-        if (what == "start")
-            Shake(Strength, Updates, Way);
-        else
-            base.Triggered(what);
     }
 }

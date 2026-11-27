@@ -6,7 +6,10 @@ namespace Game.Effects;
 
 /// <summary>
 /// The dark of a Fireflea room. The room's light comes from its Firefleas: it pulses gently, and each Fireflea
-/// that dies leaves the room darker, until with five gone it is as dark as it gets. It is told to "darken".
+/// that dies leaves the room darker, until with five gone it is as dark as it gets. It is told to "darken". The
+/// dark is taken from the colours of what lies behind the room, its backdrops, as the cartridge subtracts it: so
+/// many of a colour's thirty-one levels from each of its three parts. The room's tiles, Samus and everything that
+/// stands in the room keep their colours.
 /// </summary>
 public partial class FirefleaDarkness : RoomEffect
 {
@@ -23,16 +26,18 @@ public partial class FirefleaDarkness : RoomEffect
     private int _pulse;
     private int _wait = PulseStepUpdates;
 
-    /// <summary>The room's size, in pixels: the dark lies over all of it, so it is in step with the room wherever the view is.</summary>
-    private Vector2 _room;
+    /// <summary>The name its dark is taken from the backdrops' colours under.</summary>
+    private const string Source = "FirefleaDarkness";
+
+    /// <summary>The room it darkens, from its setting up on.</summary>
+    private Room? _in;
 
     /// <inheritdoc/>
     protected override void OnSetup(Room room)
     {
         (_killed, _pulse, _wait) = (0, 0, PulseStepUpdates);
-        _room = new Vector2(room.Terrain.WidthInPixels, room.Terrain.HeightInPixels);
-        ZAsRelative = false;
-        ZIndex = RoomDepth.Overlay;
+        _in = room;
+        Darken(room);
     }
 
     /// <inheritdoc/>
@@ -40,7 +45,10 @@ public partial class FirefleaDarkness : RoomEffect
     {
         if (what != "darken")
         {
+            // Started or stopped, its dark is given or taken back at once.
             base.Triggered(what);
+            if (_in is { } room)
+                Darken(room);
             return;
         }
 
@@ -58,17 +66,13 @@ public partial class FirefleaDarkness : RoomEffect
             _pulse = _killed >= DarknessLevels.Length - 1 ? Array.IndexOf(Pulse, 6) : (_pulse + 1) % Pulse.Length;
         }
 
-        QueueRedraw();
+        Darken(room);
     }
 
-    /// <inheritdoc/>
-    public override void _Draw()
+    /// <summary>Takes the dark as it now stands from the backdrops' colours; none while it is not at work.</summary>
+    private void Darken(Room room)
     {
-        if (!IsActive)
-            return;
         float dark = Math.Min(31, DarknessLevels[_killed] + Pulse[_pulse]) / 31f;
-
-        // The room's own pixels are this effect's but for where it is put in the room.
-        DrawRect(new Rect2(-Position, _room), new Color(0f, 0f, 0f, dark));
+        room.ShiftBackdrops(Source, IsActive ? ColourShift.Taking(new Color(dark, dark, dark)) : ColourShift.None);
     }
 }

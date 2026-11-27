@@ -36,12 +36,13 @@ public sealed class GameDefinitionChecks
 
         var options = new Options { Bindings = Options.StandardBindings };
         options.AddMissingBindings(definition.StandardBindings);
+        options.AddMissingControls(definition.StandardControls);
         foreach (string action in definition.Actions)
-            Expect.True(options.Bindings[action].Count > 0);
+            Expect.True(options.ButtonsOf(action).Count > 0);
         options.ApplyBindings(Actions.All);
         Expect.Equal(2, InputMap.ActionGetEvents(Actions.Run.Name).Count);
-        foreach (string action in options.Bindings.Keys)
-            InputMap.EraseAction(action);
+        foreach (GameAction action in Actions.All)
+            InputMap.EraseAction(action.Name);
     }
 
     [Check]

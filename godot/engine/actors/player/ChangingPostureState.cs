@@ -16,19 +16,19 @@ public sealed class ChangingPostureState : PlayerState
     private readonly string _form;
     private readonly bool _fallsInAir;
     private readonly bool _attacks;
-    private Countdown _left;
+    private PictureCount _left;
 
     /// <summary>A change of posture.</summary>
     /// <param name="form">The form the body takes as the change begins.</param>
     /// <param name="then">The state the change leads to.</param>
-    /// <param name="updates">How many updates the change lasts.</param>
+    /// <param name="count">The count of the change's pictures, begun: the change lasts as long as it runs.</param>
     /// <param name="fallsInAir">Whether a change made in the air goes on rising and falling; otherwise the player hangs for its length.</param>
     /// <param name="attacks">Whether the player can attack for as long as the change lasts.</param>
-    public ChangingPostureState(string form, PlayerState then, int updates, bool fallsInAir, bool attacks)
+    public ChangingPostureState(string form, PlayerState then, PictureCount count, bool fallsInAir, bool attacks)
     {
         ArgumentNullException.ThrowIfNull(then);
         (_form, Then, _fallsInAir, _attacks) = (form, then, fallsInAir, attacks);
-        _left = Countdown.Of(updates);
+        _left = count;
     }
 
     /// <summary>The state the change leads to.</summary>
@@ -74,12 +74,12 @@ public sealed class ChangingPostureState : PlayerState
             owner.PressToGround();
         }
 
-        _left = _left.Stepped();
+        _left = _left.Stepped(owner);
         return null;
     }
 
     /// <summary>A change of posture begun by a player being thrown goes on while the throw moves them.</summary>
-    public override void WhileThrown(Player owner) => _left = _left.Stepped();
+    public override void WhileThrown(Player owner) => _left = _left.Stepped(owner);
 
     /// <inheritdoc/>
     public override PlayerState? Ended(Player owner) => _left.IsRunning ? null : Then;

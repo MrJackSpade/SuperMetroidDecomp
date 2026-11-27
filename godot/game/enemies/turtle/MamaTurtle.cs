@@ -85,10 +85,17 @@ public partial class MamaTurtle : Enemy
     }
 
     /// <summary>
-    /// How the push out of her shell is tried, as the cartridge moves an enemy across: only where it would end, and
-    /// sloped ground that holds things up by their middle no part of it.
+    /// How her moves up and down are tried, as the cartridge moves an enemy: only where each would end, and sloped
+    /// ground that holds things up by their middle met under her middle alone.
     /// </summary>
-    private static readonly MoveOptions PushesAcross =
+    private static readonly MoveOptions MovesDown =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>
+    /// How her push out of her shell and her drift are tried, as the cartridge moves an enemy across: only where each
+    /// would end, and sloped ground that holds things up by their middle no part of it.
+    /// </summary>
+    private static readonly MoveOptions MovesAcross =
         MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.IgnoreMiddleHeld };
 
     private readonly List<int> _shellLeft = [];
@@ -220,7 +227,7 @@ public partial class MamaTurtle : Enemy
                 if (ridden)
                     ShiftPlayer(PixelOffset.FromWhole(-1, 0));
                 SetShellHeight(AwakeHalfHeight);
-                if (Room.Mover.MoveAcross(Shell(), Pixels.FromWhole(1), PushesAcross).Blocked)
+                if (Room.Mover.MoveAcross(Shell(), Pixels.FromWhole(1), MovesAcross).Blocked)
                     return;
                 Play("leave_shell_left", restart: true);
                 _doing = Doing.Posed;
@@ -232,9 +239,11 @@ public partial class MamaTurtle : Enemy
                 return;
 
             case Doing.RisingToHover:
-                if (Blocked(PixelOffset.FromWhole(0, -1)))
+                // Stopped, she is put against what stopped her, and one standing on her is left where they are.
+                bool risen = !Room.Mover.TryDown(Shell(), Pixels.FromWhole(-1), MovesDown, out PixelPosition rise).Blocked;
+                MoveTo(rise, carriesRider: risen);
+                if (!risen)
                     return;
-                MoveCarrying(PixelOffset.FromWhole(0, -1));
                 if (_wait.IsOver)
                     return;
                 _wait = _wait.Stepped();
@@ -246,8 +255,10 @@ public partial class MamaTurtle : Enemy
                 return;
 
             case Doing.Hovering:
-                var drift = new PixelOffset(Velocity.X, Pixels.Zero);
-                if (StoppedFlush((Position.X + Velocity.X).Whole - Position.X.Whole, across: true))
+                // Her drift takes no rider with it, whether a wall stops it or not.
+                bool walled = Room.Mover.TryAcross(Shell(), Velocity.X, MovesAcross, out PixelPosition drift).Blocked;
+                MoveTo(drift, carriesRider: false);
+                if (walled)
                 {
                     // Off a wall she comes back the other way, by the cartridge's own lopsided arithmetic.
                     Pixels before = Velocity.X;
@@ -260,12 +271,8 @@ public partial class MamaTurtle : Enemy
                     return;
                 }
 
-                // Her drift takes no rider with it. Samus landed on her is moved back by the speed she drifted at, as
-                // the cartridge moves her, and then rides her up.
-                if (IsRiddenByPlayer)
-                    Position += drift;
-                else
-                    MoveCarrying(drift);
+                // Samus landed on her is moved back by the speed she drifted at, as the cartridge moves her, and then
+                // rides her up.
                 if (IsRiddenByPlayer)
                 {
                     _doing = Doing.RisingToPeak;
@@ -308,11 +315,10 @@ public partial class MamaTurtle : Enemy
                 if (Velocity.Y < Pixels.FromWhole(FastestFall))
                     Velocity = Velocity.WithY(Velocity.Y + Pixels.FromNumber(FallQuickening));
                 // She falls by the whole pixels of her speed alone.
-                if (!StoppedFlush(Velocity.Y.Whole, across: false))
-                {
-                    MoveCarrying(PixelOffset.FromWhole(0, Velocity.Y.Whole));
+                bool landed = Room.Mover.TryDown(Shell(), Pixels.FromWhole(Velocity.Y.Whole), MovesDown, out PixelPosition fall).Blocked;
+                MoveTo(fall, carriesRider: true);
+                if (!landed)
                     return;
-                }
 
                 Play(Velocity.X.IsNegative ? "leave_shell_left" : "leave_shell_right", restart: true);
                 _doing = Doing.Posed;
@@ -335,32 +341,16 @@ public partial class MamaTurtle : Enemy
     /// <summary>Her shell, which she meets the room's blocks with: she has no other body.</summary>
     private Collider Shell() => Solid ?? throw new InvalidOperationException($"The Mama Turtle \"{Name}\" has no shell collider.");
 
-    /// <summary>Whether terrain stops her shell moving by <paramref name="offset"/>.</summary>
-    private bool Blocked(PixelOffset offset)
-    {
-        if (Solid is not { } shell)
-            return false;
-        PixelRect moved = shell.RoomRect.MovedBy(offset.X.Whole, offset.Y.Whole);
-        return Room.Terrain.IsSolidIn(moved, SlopeTreatment.Wall);
-    }
-
     /// <summary>
-    /// Whether terrain stops her shell moving <paramref name="pixels"/> whole pixels across, or down. Stopped, she is
-    /// put against what stopped her as the cartridge puts her: as far as she can go, at the far edge of her last pixel
-    /// moving right or down and at its near edge moving left or up.
+    /// Puts her at <paramref name="rest"/>, where a move tried for her shell would leave her, pushing ahead whoever she
+    /// moves into; one standing on her goes with her only when <paramref name="carriesRider"/>.
     /// </summary>
-    private bool StoppedFlush(int pixels, bool across)
+    private void MoveTo(PixelPosition rest, bool carriesRider)
     {
-        PixelOffset By(int distance) => across ? PixelOffset.FromWhole(distance, 0) : PixelOffset.FromWhole(0, distance);
-        if (pixels == 0 || !Blocked(By(pixels)))
-            return false;
-        int way = Math.Sign(pixels), free = 0;
-        while (free + way != pixels && !Blocked(By(free + way)))
-            free += way;
-        Pixels from = across ? Position.X : Position.Y;
-        Pixels to = Pixels.FromParts(from.Whole + free, way > 0 ? Pixels.FractionsPerPixel - 1 : 0);
-        MoveCarrying(across ? new PixelOffset(to - from, Pixels.Zero) : new PixelOffset(Pixels.Zero, to - from));
-        return true;
+        if (!carriesRider && IsRiddenByPlayer)
+            Position = rest;
+        else
+            MoveCarrying(rest - Position);
     }
 
     /// <summary>A speed turned round as the cartridge turns it: its whole pixels complemented and its fine part negated.</summary>

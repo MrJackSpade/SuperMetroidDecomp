@@ -158,9 +158,15 @@ public partial class PauseScreen : GameMode
         _levels = _data.Get("fade").Int("levels");
         _fade.Cover(0, _levels);
 
-        // The darkening goes on from however dark the screen was left, at the pause's own pace from here.
-        int wait = _data.Get("fade").Int("wait");
-        Session.Darkness.SetPace(wait, wait);
+        // The darkening goes on from however dark the screen was left. A pause the player asks for, in control, sets
+        // the pause's own pace from here; one a station asks for, while it holds her, goes at the pace the screen's
+        // last fade left, as the cartridge's map station's does.
+        if (Samus.State.InControl)
+        {
+            int wait = _data.Get("fade").Int("wait");
+            Session.Darkness.SetPace(wait, wait);
+        }
+
         _phase = Phase.Darkening;
     }
 

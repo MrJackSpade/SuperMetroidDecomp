@@ -254,6 +254,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     private int _addedOngoing;
     private bool _valuesLoaded;
     private ISpeedReadings? _readings;
+    private IBodyReadings? _bodyReadings;
 
     /// <summary>How the game reads the player's speed, once they have entered a room.</summary>
     private ISpeedReadings Readings => _readings ?? throw new InvalidOperationException("The player is not in a room.");
@@ -533,20 +534,19 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
-    /// The blocks the player is in, for what a block does to whoever is in it: those at their feet, their middle and
-    /// their head, down the middle column of their body, each of the three where it lies in a row of tiles the ones
-    /// before it did not. A block beside that column, or one the body only lies against, is not one they are in.
+    /// The blocks the player is in, for what a block does to whoever is in it: those down the middle column of their
+    /// body at their feet, their middle and their head, whichever of the three the game counts for a body lying as
+    /// theirs does (<see cref="IBodyReadings"/>). A block beside that column, or one the body only lies against, is
+    /// not one they are in.
     /// </summary>
     private List<Block> BlocksStoodIn()
     {
+        IBodyReadings readings = _bodyReadings ?? throw new InvalidOperationException("The player is not in a room.");
         PixelRect body = BodyRect;
-        int x = Position.X.Whole, size = Room.Terrain.TileSize;
-        var rows = new HashSet<int>();
+        int x = Position.X.Whole;
         var blocks = new List<Block>();
-        foreach (int y in (int[])[body.Bottom - 1, Position.Y.Whole, body.Top])
+        foreach (int y in readings.HeightsStoodAt(body.Bottom - 1, Position.Y.Whole, body.Top, Room.Terrain.TileSize))
         {
-            if (!rows.Add((int)Math.Floor((double)y / size)))
-                continue;
             foreach (Block block in Room.Terrain.BlocksIn(new PixelRect(x, y, 1, 1)))
             {
                 if (!blocks.Contains(block))
@@ -715,6 +715,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         {
             _valuesLoaded = true;
             _readings = room.Session.Definition.CreateSpeedReadings();
+            _bodyReadings = room.Session.Definition.CreateBodyReadings();
             DataValues.Fill(this, room.Content);
             if (Mediums.Count == 0)
                 Mediums.Add(PlayerMedium.Plain());

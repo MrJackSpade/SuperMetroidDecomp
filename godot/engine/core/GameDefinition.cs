@@ -314,6 +314,11 @@ public abstract partial class GameDefinition : Resource
     public abstract ISpeedReadings CreateSpeedReadings();
 
     /// <summary>
+    /// Makes the way the player's body is read for the blocks it is in.
+    /// </summary>
+    public abstract IBodyReadings CreateBodyReadings();
+
+    /// <summary>
     /// How the player's body is moved through a room on this update of <paramref name="session"/>, given
     /// <paramref name="plain"/>, the engine's plain moves: those, or the same with the game's own way of trying or
     /// stopping its player's moves.

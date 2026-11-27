@@ -33,6 +33,9 @@ public partial class StandInDefinition : GameDefinition
     public override Engine.Actors.ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
 
     /// <inheritdoc/>
+    public override Engine.Actors.IBodyReadings CreateBodyReadings() => new PlainBodyReadings();
+
+    /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => [];
 
     /// <inheritdoc/>

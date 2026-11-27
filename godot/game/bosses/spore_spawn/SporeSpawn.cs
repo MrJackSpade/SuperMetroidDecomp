@@ -228,6 +228,14 @@ public partial class SporeSpawn : Enemy
         for (int link = StalkLinks - 1; link >= 0; link--)
             _stalkHolds[link] = HoldPlace();
 
+        // Its stalk and the places its spores come from are things it launched and keeps by it, which the cartridge
+        // draws behind Samus; the pod itself stands in front of her.
+        foreach (string launched in new[] { "Stalk1", "Stalk2", "Stalk3", "Stalk4", "Emitter1", "Emitter2", "Emitter3", "Emitter4" })
+        {
+            if (GetNodeOrNull<ActorVisual>(launched) is { } visual)
+                RoomDepth.Stand(visual, Standing.Hindmost);
+        }
+
         if (Husk)
         {
             Play("husk");

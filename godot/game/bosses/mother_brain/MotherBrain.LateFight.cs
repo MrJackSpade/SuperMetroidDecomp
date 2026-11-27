@@ -581,10 +581,10 @@ public partial class MotherBrain
             return;
         PixelOffset mouth = _head + PixelOffset.FromWhole(14, 5) - Position;
         int half = _beamWidth / 2 / 2;
-        Pixels reach = Pixels.FromWhole(512);
-        Vector2 Edge(int angle) => new(
-            mouth.X.Whole + Turns.Sine(Turns.Wrap(angle), reach).Whole,
-            mouth.Y.Whole + Turns.Cosine(Turns.Wrap(angle), reach).Whole);
+        // Each edge leaves the mouth the way the cartridge's fine sine points it, 512 pixels out.
+        const float reach = 512f / 32767f;
+        Vector2 Edge(int angle) => new Vector2(mouth.X.Whole, mouth.Y.Whole)
+            + new Vector2(CartridgeAngles.FineSignedSine(angle), CartridgeAngles.FineSignedSine(angle + Turns.PerTurn / 4)) * reach;
         beam.Polygon = [new Vector2(mouth.X.Whole, mouth.Y.Whole), Edge(_beamAngle - half), Edge(_beamAngle + half)];
         beam.Color = Color.FromHsv(_rainbowColour % 12 / 12f, 0.5f, 1f);
     }

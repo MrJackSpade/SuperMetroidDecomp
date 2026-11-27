@@ -178,7 +178,8 @@ something that leaves the room.
   getaway from Ceres left there as it last drew his wings (`CeresGetaway`, from `objects/ceres_getaway_wings.json`,
   telling it), or nought before it has. It is one of the session's services, and a game begun again leaves it as it stands: the cartridge keeps it from power-on.
   `CartridgeAngles` is the cartridge's own sines, its aim at a point and the products it makes with them, for
-  every enemy, boss and shot that reckons with an angle: the half wave in 65535ths and in 256ths with what is finer
+  everything of this game that reckons with an angle (every enemy, boss and shot, Samus's grapple beam, the cone
+  of her X-ray scope and the edges of the beams drawn as wedges, the sparks of the statue hall): the half wave in 65535ths and in 256ths with what is finer
   dropped, the fine sine that peaks at 32767, the aim read from a slope counted round, a speed along an angle in
   256ths, a whole speed's share along an axis, a length's reach rounded down, the short product that places a thing
   on a circle, and the grapple beam's own angle, counted clockwise from up. The engine's

@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Godot;
 
 namespace Game;
@@ -124,23 +125,28 @@ public partial class SamusXray : Node2D
         QueueRedraw();
     }
 
-    /// <summary>Whether a point lies inside the cone, given how far ahead of and below the eye it is.</summary>
+    /// <summary>
+    /// Whether a point lies inside the cone, given how far ahead of and below the eye it is: no more than half a pixel
+    /// outside either edge and not behind the eye, so a cone with no width is a ray a pixel wide.
+    /// </summary>
     private bool IsInCone(long ahead, long below)
     {
-        if (ahead <= 0)
-            return false;
-        // The cone lies between its upper and lower edges; a point is inside when it is below the upper and above the lower.
         (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
         (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
-        return upperAhead * below - upperBelow * ahead >= 0 && lowerAhead * below - lowerBelow * ahead <= 0;
+        return upperAhead * below - upperBelow * ahead >= -HalfPixel
+            && ahead * lowerBelow - below * lowerAhead >= -HalfPixel
+            && ahead * (upperAhead + lowerAhead) + below * (upperBelow + lowerBelow) >= 0;
     }
 
-    /// <summary>A direction at <paramref name="angle"/> below level, as distances ahead and below, scaled by 4096.</summary>
-    private static (long Ahead, long Below) Direction(int angle)
-    {
-        Pixels size = Pixels.FromWhole(4096);
-        return (Turns.Cosine(angle, size).Whole, Turns.Sine(angle, size).Whole);
-    }
+    /// <summary>The length of a direction in its own numbers: the peak of the cartridge's fine sine.</summary>
+    private const int DirectionLength = 32767;
+
+    /// <summary>Half a pixel in a direction's own numbers, against which a point is measured beside an edge.</summary>
+    private const int HalfPixel = (DirectionLength + 1) / 2;
+
+    /// <summary>A direction at <paramref name="angle"/> below level, as distances ahead and below by the cartridge's fine sine.</summary>
+    private static (long Ahead, long Below) Direction(int angle) =>
+        (CartridgeAngles.FineSignedSine(angle + Turns.PerTurn / 4), CartridgeAngles.FineSignedSine(angle));
 
     /// <inheritdoc/>
     public override void _Draw()
@@ -151,7 +157,7 @@ public partial class SamusXray : Node2D
         float forward = _facingLeft ? -1 : 1;
         (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
         (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
-        const float length = 400f / 4096f;
+        const float length = 400f / DirectionLength;
         var colour = new Color(1, 1, 1, 0.35f);
         Vector2 upperEnd = _eye + new Vector2(upperAhead * forward, upperBelow) * length;
         // A cone with no width is a ray one pixel wide.

@@ -119,24 +119,28 @@ RestsOn = Rect2i(1392, 704, 32, 16)
 position = Vector2(1352, 576)
 TriggerDistance = 64
 StartsFacing = 1
+Look = "climb_default"
 PresentWhen = SubResource("r6")
 
 [node name="FaceBlock2" parent="." instance=ExtResource("8")]
 position = Vector2(1464, 576)
 TriggerDistance = 64
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r6")
 
 [node name="FaceBlock3" parent="." instance=ExtResource("8")]
 position = Vector2(1160, 696)
 TriggerDistance = 64
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r6")
 
 [node name="FaceBlock4" parent="." instance=ExtResource("8")]
 position = Vector2(1064, 696)
 TriggerDistance = 64
 StartsFacing = 1
+Look = "climb_default"
 PresentWhen = SubResource("r6")
 
 [node name="MorphBall" parent="." instance=ExtResource("9")]
@@ -307,24 +311,28 @@ PresentWhen = SubResource("r1")
 position = Vector2(1352, 576)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r1")
 
 [node name="FaceBlock6" parent="." instance=ExtResource("8")]
 position = Vector2(1464, 576)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r1")
 
 [node name="FaceBlock7" parent="." instance=ExtResource("8")]
 position = Vector2(1160, 696)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r1")
 
 [node name="FaceBlock8" parent="." instance=ExtResource("8")]
 position = Vector2(1064, 696)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r1")
 
 [node name="PowerBombTank" parent="." instance=ExtResource("9")]

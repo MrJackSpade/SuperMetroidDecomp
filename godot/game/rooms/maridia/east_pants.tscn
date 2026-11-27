@@ -58,26 +58,31 @@ SamusStep = 0.78125
 position = Vector2(128, 556)
 HopCooldown = 48
 BigHopDistance = 22
+Look = "pants"
 
 [node name="Puyo2" parent="." instance=ExtResource("5")]
 position = Vector2(192, 476)
 HopCooldown = 32
 BigHopDistance = 22
+Look = "pants"
 
 [node name="Puyo3" parent="." instance=ExtResource("5")]
 position = Vector2(112, 412)
 HopCooldown = 128
 BigHopDistance = 22
+Look = "pants"
 
 [node name="Puyo4" parent="." instance=ExtResource("5")]
 position = Vector2(80, 752)
 HopCooldown = 16
 BigHopDistance = 8
+Look = "pants"
 
 [node name="Puyo5" parent="." instance=ExtResource("5")]
 position = Vector2(176, 752)
 HopCooldown = 8
 BigHopDistance = 8
+Look = "pants"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 608)

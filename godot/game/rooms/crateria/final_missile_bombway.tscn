@@ -68,31 +68,37 @@ SamusStep = 0.78125
 position = Vector2(256, 72)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "final_missile_bombway_default"
 
 [node name="FaceBlock2" parent="." instance=ExtResource("6")]
 position = Vector2(128, 72)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "final_missile_bombway_default"
 
 [node name="FaceBlock3" parent="." instance=ExtResource("6")]
 position = Vector2(384, 72)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "final_missile_bombway_default"
 
 [node name="FaceBlock4" parent="." instance=ExtResource("6")]
 position = Vector2(128, 184)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "final_missile_bombway_default"
 
 [node name="FaceBlock5" parent="." instance=ExtResource("6")]
 position = Vector2(256, 184)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "final_missile_bombway_default"
 
 [node name="FaceBlock6" parent="." instance=ExtResource("6")]
 position = Vector2(384, 184)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "final_missile_bombway_default"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(480, 96)

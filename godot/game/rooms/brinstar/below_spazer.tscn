@@ -90,6 +90,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0.125
+Look = "noob_bridge"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 352)

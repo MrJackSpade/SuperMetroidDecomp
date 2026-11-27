@@ -96,6 +96,7 @@ Speed = 3
 Heading = 138
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug2" parent="." instance=ExtResource("6")]
@@ -104,6 +105,7 @@ Speed = 3
 Heading = 200
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug3" parent="." instance=ExtResource("6")]
@@ -112,6 +114,7 @@ Speed = 2
 Heading = 248
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug4" parent="." instance=ExtResource("6")]
@@ -120,6 +123,7 @@ Speed = 2
 Heading = 236
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug5" parent="." instance=ExtResource("6")]
@@ -128,6 +132,7 @@ Speed = 3
 Heading = 244
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug6" parent="." instance=ExtResource("6")]
@@ -136,6 +141,7 @@ Speed = 2
 Heading = 196
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug7" parent="." instance=ExtResource("6")]
@@ -144,6 +150,7 @@ Speed = 3
 Heading = 208
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug8" parent="." instance=ExtResource("6")]
@@ -152,6 +159,7 @@ Speed = 3
 Heading = 220
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug9" parent="." instance=ExtResource("6")]
@@ -160,6 +168,7 @@ Speed = 2
 Heading = 187
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="Sbug10" parent="." instance=ExtResource("6")]
@@ -168,33 +177,39 @@ Speed = 3
 Heading = 3
 ActivationDistance = 128
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="FaceBlock" parent="." instance=ExtResource("7")]
 position = Vector2(72, 136)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock2" parent="." instance=ExtResource("7")]
 position = Vector2(184, 136)
 TriggerDistance = 0
 StartsFacing = 1
+Look = "climb_default"
 PresentWhen = SubResource("r5")
 
 [node name="FaceBlock3" parent="." instance=ExtResource("7")]
 position = Vector2(232, 278)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock4" parent="." instance=ExtResource("7")]
 position = Vector2(232, 358)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock5" parent="." instance=ExtResource("7")]
 position = Vector2(24, 278)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
@@ -283,4 +298,5 @@ PresentWhen = SubResource("r1")
 position = Vector2(184, 136)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 PresentWhen = SubResource("r1")

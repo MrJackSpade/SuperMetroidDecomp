@@ -118,15 +118,19 @@ CrawlSpeed = 0.5
 
 [node name="Dragon" parent="." instance=ExtResource("8")]
 position = Vector2(568, 240)
+Look = "crocomire_escape"
 
 [node name="Dragon2" parent="." instance=ExtResource("8")]
 position = Vector2(824, 240)
+Look = "crocomire_escape"
 
 [node name="Dragon3" parent="." instance=ExtResource("8")]
 position = Vector2(1128, 240)
+Look = "crocomire_escape"
 
 [node name="Dragon4" parent="." instance=ExtResource("8")]
 position = Vector2(952, 240)
+Look = "crocomire_escape"
 
 [node name="Squeept2" parent="." instance=ExtResource("6")]
 position = Vector2(360, 240)

@@ -57,6 +57,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "crab_maze"
 
 [node name="Sciser2" parent="." instance=ExtResource("5")]
 position = Vector2(21, 152)
@@ -65,6 +66,7 @@ StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "crab_maze"
 
 [node name="Sciser3" parent="." instance=ExtResource("5")]
 position = Vector2(209, 200)
@@ -73,6 +75,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "crab_maze"
 
 [node name="Sciser4" parent="." instance=ExtResource("5")]
 position = Vector2(514, 104)
@@ -81,6 +84,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "crab_maze"
 
 [node name="Sciser5" parent="." instance=ExtResource("5")]
 position = Vector2(286, 472)
@@ -90,6 +94,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 1
 AlwaysActive = true
+Look = "crab_maze"
 
 [node name="Sciser6" parent="." instance=ExtResource("5")]
 position = Vector2(280, 344)
@@ -98,6 +103,7 @@ StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "crab_maze"
 
 [node name="Sciser7" parent="." instance=ExtResource("5")]
 position = Vector2(178, 440)
@@ -106,6 +112,7 @@ StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "crab_maze"
 
 [node name="Sciser8" parent="." instance=ExtResource("5")]
 position = Vector2(680, 452)
@@ -115,6 +122,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1
 AlwaysActive = true
+Look = "crab_maze"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(864, 32)

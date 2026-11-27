@@ -74,21 +74,25 @@ JumpDelay = 16
 position = Vector2(216, 700)
 HopCooldown = 64
 BigHopDistance = 8
+Look = "thread_the_needle"
 
 [node name="Puyo2" parent="." instance=ExtResource("6")]
 position = Vector2(56, 460)
 HopCooldown = 64
 BigHopDistance = 8
+Look = "thread_the_needle"
 
 [node name="Puyo3" parent="." instance=ExtResource("6")]
 position = Vector2(212, 892)
 HopCooldown = 64
 BigHopDistance = 8
+Look = "thread_the_needle"
 
 [node name="Puyo4" parent="." instance=ExtResource("6")]
 position = Vector2(168, 940)
 HopCooldown = 64
 BigHopDistance = 8
+Look = "thread_the_needle"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(224, 96)

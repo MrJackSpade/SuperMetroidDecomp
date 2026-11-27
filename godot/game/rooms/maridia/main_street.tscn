@@ -95,6 +95,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera2" parent="." instance=ExtResource("5")]
 position = Vector2(240, 984)
@@ -103,6 +104,7 @@ StartsFacing = 1
 Radius = 16
 AngleStep = 2
 AlwaysActive = true
+Look = "west_ocean"
 
 [node name="Skultera3" parent="." instance=ExtResource("5")]
 position = Vector2(288, 1264)
@@ -110,6 +112,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera4" parent="." instance=ExtResource("5")]
 position = Vector2(208, 1440)
@@ -117,6 +120,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera5" parent="." instance=ExtResource("5")]
 position = Vector2(256, 1828)
@@ -124,6 +128,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Sciser" parent="." instance=ExtResource("6")]
 position = Vector2(144, 280)
@@ -132,6 +137,7 @@ StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "main_street"
 
 [node name="Sciser2" parent="." instance=ExtResource("6")]
 position = Vector2(240, 664)
@@ -140,6 +146,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1
+Look = "main_street"
 
 [node name="Sciser3" parent="." instance=ExtResource("6")]
 position = Vector2(248, 1159)
@@ -148,6 +155,7 @@ StartsOn = 2
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Sciser4" parent="." instance=ExtResource("6")]
 position = Vector2(264, 1624)
@@ -156,6 +164,7 @@ StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Sciser5" parent="." instance=ExtResource("6")]
 position = Vector2(360, 599)
@@ -164,6 +173,7 @@ StartsOn = 2
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Sciser6" parent="." instance=ExtResource("6")]
 position = Vector2(352, 71)
@@ -172,6 +182,7 @@ StartsOn = 2
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "main_street"
 
 [node name="Sciser7" parent="." instance=ExtResource("6")]
 position = Vector2(151, 1952)
@@ -181,6 +192,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
 AlwaysActive = true
+Look = "main_street"
 
 [node name="MissileTank" parent="." instance=ExtResource("7")]
 position = Vector2(232, 856)

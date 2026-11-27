@@ -44,14 +44,17 @@ SamusStep = 0.78125
 [node name="Alcoon" parent="." instance=ExtResource("5")]
 position = Vector2(136, 216)
 AlwaysActive = true
+Look = "crateria_power_bombs"
 
 [node name="Alcoon2" parent="." instance=ExtResource("5")]
 position = Vector2(264, 216)
 AlwaysActive = true
+Look = "crateria_power_bombs"
 
 [node name="Alcoon3" parent="." instance=ExtResource("5")]
 position = Vector2(376, 216)
 AlwaysActive = true
+Look = "crateria_power_bombs"
 
 [node name="PowerBombTank" parent="." instance=ExtResource("6")]
 position = Vector2(472, 120)

@@ -113,6 +113,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera2" parent="." instance=ExtResource("6")]
 position = Vector2(971, 1402)
@@ -120,6 +121,7 @@ Speed = 1
 StartsFacing = 0
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Zeb" parent="." instance=ExtResource("7")]
 position = Vector2(632, 704)

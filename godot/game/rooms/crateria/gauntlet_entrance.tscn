@@ -83,15 +83,18 @@ StrikesDown = true
 [node name="Waver" parent="." instance=ExtResource("7")]
 position = Vector2(881, 101)
 StartsFacing = 0
+Look = "gauntlet_entrance"
 
 [node name="Waver2" parent="." instance=ExtResource("7")]
 position = Vector2(570, 125)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver3" parent="." instance=ExtResource("7")]
 position = Vector2(358, 119)
 StartsFacing = 0
+Look = "gauntlet_entrance"
 
 [node name="YappingMaw4" parent="." instance=ExtResource("6")]
 position = Vector2(264, 200)

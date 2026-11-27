@@ -71,6 +71,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 PresentWhen = SubResource("r1")
 
 [node name="Skultera2" parent="." instance=ExtResource("8")]
@@ -79,6 +80,7 @@ Speed = 1
 StartsFacing = 0
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 PresentWhen = SubResource("r1")
 
 [node name="SuspensorPlatform" parent="." instance=ExtResource("9")]

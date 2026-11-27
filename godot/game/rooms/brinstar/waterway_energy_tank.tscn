@@ -59,21 +59,25 @@ StartsFacing = 1
 Radius = 1
 AngleStep = 16
 AlwaysActive = true
+Look = "west_ocean"
 
 [node name="Puyo" parent="." instance=ExtResource("7")]
 position = Vector2(361, 179)
 HopCooldown = 2
 BigHopDistance = 1
+Look = "crab_maze"
 
 [node name="Puyo2" parent="." instance=ExtResource("7")]
 position = Vector2(503, 179)
 HopCooldown = 2
 BigHopDistance = 1
+Look = "crab_maze"
 
 [node name="Puyo3" parent="." instance=ExtResource("7")]
 position = Vector2(548, 181)
 HopCooldown = 2
 BigHopDistance = 1
+Look = "crab_maze"
 
 [node name="Skultera2" parent="." instance=ExtResource("6")]
 position = Vector2(587, 174)
@@ -81,6 +85,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 1
 AngleStep = 16
+Look = "west_ocean"
 
 [node name="Zero" parent="." instance=ExtResource("8")]
 position = Vector2(1072, 184)

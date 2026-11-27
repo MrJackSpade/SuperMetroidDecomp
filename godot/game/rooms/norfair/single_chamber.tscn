@@ -110,18 +110,22 @@ AlwaysActive = true
 [node name="Alcoon" parent="." instance=ExtResource("6")]
 position = Vector2(128, 824)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon2" parent="." instance=ExtResource("6")]
 position = Vector2(128, 568)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon3" parent="." instance=ExtResource("6")]
 position = Vector2(216, 312)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon4" parent="." instance=ExtResource("6")]
 position = Vector2(136, 312)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)

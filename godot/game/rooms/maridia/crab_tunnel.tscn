@@ -61,6 +61,7 @@ StartsOn = 2
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Sciser2" parent="." instance=ExtResource("5")]
 position = Vector2(304, 135)
@@ -69,6 +70,7 @@ StartsOn = 2
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "main_street"
 
 [node name="Sciser3" parent="." instance=ExtResource("5")]
 position = Vector2(448, 200)
@@ -78,6 +80,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1
 AlwaysActive = true
+Look = "main_street"
 
 [node name="Sciser4" parent="." instance=ExtResource("5")]
 position = Vector2(512, 71)
@@ -87,6 +90,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
 AlwaysActive = true
+Look = "main_street"
 
 [node name="Sciser5" parent="." instance=ExtResource("5")]
 position = Vector2(688, 200)
@@ -95,6 +99,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
+Look = "main_street"
 
 [node name="Sciser6" parent="." instance=ExtResource("5")]
 position = Vector2(880, 71)
@@ -103,6 +108,7 @@ StartsOn = 2
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Gate" parent="." instance=ExtResource("6")]
 position = Vector2(224, 112)

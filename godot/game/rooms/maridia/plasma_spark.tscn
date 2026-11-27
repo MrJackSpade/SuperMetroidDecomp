@@ -148,6 +148,7 @@ StartsFacing = 1
 Radius = 16
 AngleStep = 2
 AlwaysActive = true
+Look = "west_ocean"
 
 [node name="Skultera2" parent="." instance=ExtResource("8")]
 position = Vector2(624, 1160)
@@ -156,6 +157,7 @@ StartsFacing = 0
 Radius = 16
 AngleStep = 2
 AlwaysActive = true
+Look = "west_ocean"
 
 [node name="GreyCap" parent="." instance=ExtResource("9")]
 position = Vector2(736, 352)

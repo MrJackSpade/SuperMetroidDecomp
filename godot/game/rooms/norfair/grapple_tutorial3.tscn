@@ -103,26 +103,31 @@ Leader = NodePath("../Gamet")
 position = Vector2(461, 332)
 HopCooldown = 0
 BigHopDistance = 0
+Look = "crab_maze"
 
 [node name="Puyo2" parent="." instance=ExtResource("6")]
 position = Vector2(442, 276)
 HopCooldown = 0
 BigHopDistance = 0
+Look = "crab_maze"
 
 [node name="Puyo3" parent="." instance=ExtResource("6")]
 position = Vector2(520, 418)
 HopCooldown = 0
 BigHopDistance = 0
+Look = "crab_maze"
 
 [node name="Puyo4" parent="." instance=ExtResource("6")]
 position = Vector2(572, 423)
 HopCooldown = 0
 BigHopDistance = 0
+Look = "crab_maze"
 
 [node name="Puyo5" parent="." instance=ExtResource("6")]
 position = Vector2(624, 417)
 HopCooldown = 0
 BigHopDistance = 0
+Look = "crab_maze"
 
 [node name="Gate" parent="." instance=ExtResource("7")]
 position = Vector2(672, 80)

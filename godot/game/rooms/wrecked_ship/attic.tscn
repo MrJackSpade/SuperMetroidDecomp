@@ -110,6 +110,7 @@ Speed = 2
 Heading = 170
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug2" parent="." instance=ExtResource("7")]
@@ -118,6 +119,7 @@ Speed = 3
 Heading = 212
 ActivationDistance = 80
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug3" parent="." instance=ExtResource("7")]
@@ -126,6 +128,7 @@ Speed = 2
 Heading = 208
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug4" parent="." instance=ExtResource("7")]
@@ -134,6 +137,7 @@ Speed = 2
 Heading = 240
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug5" parent="." instance=ExtResource("7")]
@@ -142,6 +146,7 @@ Speed = 3
 Heading = 116
 ActivationDistance = 160
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug6" parent="." instance=ExtResource("7")]
@@ -150,6 +155,7 @@ Speed = 3
 Heading = 136
 ActivationDistance = 160
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug7" parent="." instance=ExtResource("7")]
@@ -158,6 +164,7 @@ Speed = 2
 Heading = 160
 ActivationDistance = 160
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug8" parent="." instance=ExtResource("7")]
@@ -166,6 +173,7 @@ Speed = 3
 Heading = 120
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug9" parent="." instance=ExtResource("7")]
@@ -174,6 +182,7 @@ Speed = 2
 Heading = 80
 ActivationDistance = 80
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug10" parent="." instance=ExtResource("7")]
@@ -182,6 +191,7 @@ Speed = 3
 Heading = 130
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug11" parent="." instance=ExtResource("7")]
@@ -190,6 +200,7 @@ Speed = 2
 Heading = 132
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug12" parent="." instance=ExtResource("7")]
@@ -198,6 +209,7 @@ Speed = 3
 Heading = 130
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug13" parent="." instance=ExtResource("7")]
@@ -206,6 +218,7 @@ Speed = 3
 Heading = 152
 ActivationDistance = 128
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug14" parent="." instance=ExtResource("7")]
@@ -214,6 +227,7 @@ Speed = 2
 Heading = 184
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug15" parent="." instance=ExtResource("7")]
@@ -222,6 +236,7 @@ Speed = 4
 Heading = 186
 ActivationDistance = 128
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug16" parent="." instance=ExtResource("7")]
@@ -230,6 +245,7 @@ Speed = 1
 Heading = 196
 ActivationDistance = 64
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug17" parent="." instance=ExtResource("7")]
@@ -238,6 +254,7 @@ Speed = 2
 Heading = 184
 ActivationDistance = 64
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug18" parent="." instance=ExtResource("7")]
@@ -246,6 +263,7 @@ Speed = 3
 Heading = 64
 ActivationDistance = 64
 Runs = 2
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Sbug19" parent="." instance=ExtResource("7")]
@@ -254,60 +272,70 @@ Speed = 2
 Heading = 224
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic" parent="." instance=ExtResource("8")]
 position = Vector2(224, 78)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic2" parent="." instance=ExtResource("8")]
 position = Vector2(752, 94)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic3" parent="." instance=ExtResource("8")]
 position = Vector2(1584, 110)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic4" parent="." instance=ExtResource("8")]
 position = Vector2(1488, 190)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic5" parent="." instance=ExtResource("8")]
 position = Vector2(656, 190)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic6" parent="." instance=ExtResource("8")]
 position = Vector2(304, 190)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic7" parent="." instance=ExtResource("8")]
 position = Vector2(880, 222)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic8" parent="." instance=ExtResource("8")]
 position = Vector2(1232, 126)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="Atomic9" parent="." instance=ExtResource("8")]
 position = Vector2(1072, 126)
 Spin = "up_right_turning"
 Speed = 0
+Look = "attic_default"
 PresentWhen = SubResource("r6")
 
 [node name="GreyCap" parent="." instance=ExtResource("9")]
@@ -365,24 +393,28 @@ PresentWhen = SubResource("r1")
 position = Vector2(1423, 90)
 Spin = "up_left_turning"
 Speed = 0.5
+Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
 [node name="Atomic11" parent="." instance=ExtResource("8")]
 position = Vector2(850, 97)
 Spin = "up_left_turning"
 Speed = 0.5
+Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
 [node name="Atomic12" parent="." instance=ExtResource("8")]
 position = Vector2(556, 96)
 Spin = "up_left_turning"
 Speed = 0.5
+Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
 [node name="Atomic13" parent="." instance=ExtResource("8")]
 position = Vector2(147, 124)
 Spin = "up_right_turning"
 Speed = 0.5
+Look = "attic_when_area_boss_dead"
 PresentWhen = SubResource("r1")
 
 [node name="KihunterYellow4" parent="." instance=ExtResource("11")]

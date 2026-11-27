@@ -191,6 +191,7 @@ Speed = 2
 Heading = 170
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug2" parent="." instance=ExtResource("6")]
@@ -199,6 +200,7 @@ Speed = 2
 Heading = 181
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug3" parent="." instance=ExtResource("6")]
@@ -207,6 +209,7 @@ Speed = 3
 Heading = 208
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug4" parent="." instance=ExtResource("6")]
@@ -215,6 +218,7 @@ Speed = 4
 Heading = 72
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug5" parent="." instance=ExtResource("6")]
@@ -223,6 +227,7 @@ Speed = 3
 Heading = 96
 ActivationDistance = 160
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug6" parent="." instance=ExtResource("6")]
@@ -231,6 +236,7 @@ Speed = 3
 Heading = 108
 ActivationDistance = 160
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug7" parent="." instance=ExtResource("6")]
@@ -239,6 +245,7 @@ Speed = 2
 Heading = 120
 ActivationDistance = 160
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug8" parent="." instance=ExtResource("6")]
@@ -247,6 +254,7 @@ Speed = 3
 Heading = 202
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug9" parent="." instance=ExtResource("6")]
@@ -255,6 +263,7 @@ Speed = 3
 Heading = 200
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug10" parent="." instance=ExtResource("6")]
@@ -263,6 +272,7 @@ Speed = 2
 Heading = 226
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug11" parent="." instance=ExtResource("6")]
@@ -271,6 +281,7 @@ Speed = 2
 Heading = 160
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug12" parent="." instance=ExtResource("6")]
@@ -279,6 +290,7 @@ Speed = 2
 Heading = 171
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug13" parent="." instance=ExtResource("6")]
@@ -287,6 +299,7 @@ Speed = 3
 Heading = 124
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug14" parent="." instance=ExtResource("6")]
@@ -295,6 +308,7 @@ Speed = 3
 Heading = 148
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug15" parent="." instance=ExtResource("6")]
@@ -303,6 +317,7 @@ Speed = 2
 Heading = 132
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug16" parent="." instance=ExtResource("6")]
@@ -311,6 +326,7 @@ Speed = 2
 Heading = 161
 ActivationDistance = 64
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug17" parent="." instance=ExtResource("6")]
@@ -319,6 +335,7 @@ Speed = 3
 Heading = 145
 ActivationDistance = 64
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug18" parent="." instance=ExtResource("6")]
@@ -327,6 +344,7 @@ Speed = 2
 Heading = 140
 ActivationDistance = 64
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug19" parent="." instance=ExtResource("6")]
@@ -335,6 +353,7 @@ Speed = 3
 Heading = 172
 ActivationDistance = 128
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="Sbug20" parent="." instance=ExtResource("6")]
@@ -343,6 +362,7 @@ Speed = 4
 Heading = 232
 ActivationDistance = 32
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]

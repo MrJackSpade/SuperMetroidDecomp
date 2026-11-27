@@ -73,6 +73,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 1
 AlwaysActive = true
+Look = "main_street"
 
 [node name="Sciser2" parent="." instance=ExtResource("5")]
 position = Vector2(48, 952)
@@ -81,6 +82,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Sciser3" parent="." instance=ExtResource("5")]
 position = Vector2(224, 871)
@@ -89,6 +91,7 @@ StartsOn = 2
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "main_street"
 
 [node name="Sciser4" parent="." instance=ExtResource("5")]
 position = Vector2(128, 184)
@@ -98,6 +101,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1.25
 AlwaysActive = true
+Look = "main_street"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 608)

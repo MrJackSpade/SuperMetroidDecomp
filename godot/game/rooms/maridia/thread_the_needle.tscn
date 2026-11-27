@@ -56,36 +56,43 @@ SamusStep = 0.78125
 position = Vector2(280, 140)
 HopCooldown = 32
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Puyo2" parent="." instance=ExtResource("5")]
 position = Vector2(324, 172)
 HopCooldown = 32
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Puyo3" parent="." instance=ExtResource("5")]
 position = Vector2(708, 140)
 HopCooldown = 64
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Puyo4" parent="." instance=ExtResource("5")]
 position = Vector2(1528, 108)
 HopCooldown = 48
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Puyo5" parent="." instance=ExtResource("5")]
 position = Vector2(1040, 108)
 HopCooldown = 32
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Puyo6" parent="." instance=ExtResource("5")]
 position = Vector2(1136, 140)
 HopCooldown = 64
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Puyo7" parent="." instance=ExtResource("5")]
 position = Vector2(1088, 92)
 HopCooldown = 16
 BigHopDistance = 22
+Look = "thread_the_needle"
 
 [node name="Choot" parent="." instance=ExtResource("6")]
 position = Vector2(216, 140)

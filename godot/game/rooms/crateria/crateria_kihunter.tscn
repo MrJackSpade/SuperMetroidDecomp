@@ -87,6 +87,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
 AlwaysActive = true
+Look = "crateria_kihunter"
 
 [node name="Sciser2" parent="." instance=ExtResource("6")]
 position = Vector2(357, 538)
@@ -95,6 +96,7 @@ StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
+Look = "crateria_kihunter"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)

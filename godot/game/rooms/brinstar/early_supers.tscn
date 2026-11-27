@@ -101,20 +101,24 @@ AlwaysActive = true
 [node name="Waver" parent="." instance=ExtResource("8")]
 position = Vector2(171, 75)
 StartsFacing = 0
+Look = "gauntlet_entrance"
 
 [node name="Waver2" parent="." instance=ExtResource("8")]
 position = Vector2(264, 107)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver3" parent="." instance=ExtResource("8")]
 position = Vector2(529, 101)
 StartsFacing = 1
+Look = "gauntlet_entrance"
 
 [node name="Waver4" parent="." instance=ExtResource("8")]
 position = Vector2(321, 86)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Zeb" parent="." instance=ExtResource("9")]
 position = Vector2(144, 440)

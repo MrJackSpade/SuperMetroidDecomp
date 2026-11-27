@@ -54,31 +54,37 @@ SamusStep = 0.78125
 position = Vector2(87, 156)
 HopCooldown = 3840
 BigHopDistance = 0
+Look = "plasma_tutorial"
 
 [node name="Puyo2" parent="." instance=ExtResource("5")]
 position = Vector2(98, 156)
 HopCooldown = 3840
 BigHopDistance = 0
+Look = "plasma_tutorial"
 
 [node name="Puyo3" parent="." instance=ExtResource("5")]
 position = Vector2(105, 156)
 HopCooldown = 3840
 BigHopDistance = 0
+Look = "plasma_tutorial"
 
 [node name="Puyo4" parent="." instance=ExtResource("5")]
 position = Vector2(91, 152)
 HopCooldown = 3584
 BigHopDistance = 0
+Look = "plasma_tutorial"
 
 [node name="Puyo5" parent="." instance=ExtResource("5")]
 position = Vector2(101, 152)
 HopCooldown = 3584
 BigHopDistance = 0
+Look = "plasma_tutorial"
 
 [node name="Puyo6" parent="." instance=ExtResource("5")]
 position = Vector2(97, 148)
 HopCooldown = 3328
 BigHopDistance = 0
+Look = "plasma_tutorial"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(224, 96)

@@ -55,16 +55,19 @@ SamusStep = 0.78125
 position = Vector2(790, 348)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver2" parent="." instance=ExtResource("5")]
 position = Vector2(531, 480)
 StartsFacing = 0
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver3" parent="." instance=ExtResource("5")]
 position = Vector2(258, 610)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Zoomer" parent="." instance=ExtResource("6")]
 position = Vector2(888, 304)

@@ -148,6 +148,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0.1875
+Look = "noob_bridge"
 
 [node name="Cacatac2" parent="." instance=ExtResource("8")]
 position = Vector2(192, 1283)
@@ -156,6 +157,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0.1875
+Look = "noob_bridge"
 
 [node name="Gate" parent="." instance=ExtResource("9")]
 position = Vector2(608, 848)

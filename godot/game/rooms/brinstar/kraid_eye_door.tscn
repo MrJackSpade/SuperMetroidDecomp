@@ -95,6 +95,7 @@ Speed = 3
 Heading = 200
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug2" parent="." instance=ExtResource("7")]
 position = Vector2(311, 420)
@@ -102,6 +103,7 @@ Speed = 3
 Heading = 186
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug3" parent="." instance=ExtResource("7")]
 position = Vector2(317, 427)
@@ -109,6 +111,7 @@ Speed = 2
 Heading = 168
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug4" parent="." instance=ExtResource("7")]
 position = Vector2(307, 428)
@@ -116,6 +119,7 @@ Speed = 3
 Heading = 180
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug5" parent="." instance=ExtResource("7")]
 position = Vector2(315, 414)
@@ -123,6 +127,7 @@ Speed = 2
 Heading = 202
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug6" parent="." instance=ExtResource("7")]
 position = Vector2(322, 420)
@@ -130,6 +135,7 @@ Speed = 3
 Heading = 201
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug7" parent="." instance=ExtResource("7")]
 position = Vector2(325, 423)
@@ -137,6 +143,7 @@ Speed = 2
 Heading = 190
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug8" parent="." instance=ExtResource("7")]
 position = Vector2(323, 431)
@@ -144,6 +151,7 @@ Speed = 3
 Heading = 194
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug9" parent="." instance=ExtResource("7")]
 position = Vector2(311, 432)
@@ -151,6 +159,7 @@ Speed = 3
 Heading = 144
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 
 [node name="Sbug10" parent="." instance=ExtResource("7")]
 position = Vector2(334, 428)
@@ -158,6 +167,7 @@ Speed = 2
 Heading = 200
 ActivationDistance = 32
 Runs = 0
+Look = "parlor_default"
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 352)

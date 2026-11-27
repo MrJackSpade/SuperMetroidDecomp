@@ -73,16 +73,19 @@ JumpDelay = 0
 position = Vector2(170, 93)
 StartsFacing = 0
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver2" parent="." instance=ExtResource("6")]
 position = Vector2(233, 117)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver3" parent="." instance=ExtResource("6")]
 position = Vector2(310, 99)
 StartsFacing = 0
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)

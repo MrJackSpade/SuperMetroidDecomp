@@ -102,16 +102,19 @@ TurnPerUpdate = 2
 position = Vector2(1861, 80)
 StartsFacing = 0
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver2" parent="." instance=ExtResource("7")]
 position = Vector2(1680, 96)
 StartsFacing = 0
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="Waver3" parent="." instance=ExtResource("7")]
 position = Vector2(1536, 96)
 StartsFacing = 1
 AlwaysActive = true
+Look = "gauntlet_entrance"
 
 [node name="YappingMaw" parent="." instance=ExtResource("8")]
 position = Vector2(408, 200)

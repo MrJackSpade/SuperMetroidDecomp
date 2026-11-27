@@ -71,22 +71,27 @@ SamusStep = 0.78125
 [node name="Alcoon" parent="." instance=ExtResource("5")]
 position = Vector2(256, 512)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon2" parent="." instance=ExtResource("5")]
 position = Vector2(337, 512)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon3" parent="." instance=ExtResource("5")]
 position = Vector2(96, 512)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon4" parent="." instance=ExtResource("5")]
 position = Vector2(408, 216)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="Alcoon5" parent="." instance=ExtResource("5")]
 position = Vector2(1019, 1225)
 AlwaysActive = true
+Look = "single_chamber"
 
 [node name="MissileTank" parent="." instance=ExtResource("6")]
 position = Vector2(696, 120)

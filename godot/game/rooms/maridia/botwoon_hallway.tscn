@@ -72,11 +72,13 @@ position = Vector2(752, 1920)
 position = Vector2(608, 88)
 HopCooldown = 32
 BigHopDistance = 8
+Look = "toilet"
 
 [node name="Puyo2" parent="." instance=ExtResource("6")]
 position = Vector2(864, 88)
 HopCooldown = 32
 BigHopDistance = 8
+Look = "toilet"
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(96, 208)

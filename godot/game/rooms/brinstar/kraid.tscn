@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://game/bosses/kraid/kraid_nail.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
 [ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/KraidRoomColours.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -189,3 +190,9 @@ Remembered = 1
 script = ExtResource("12")
 StartsWhen = SubResource("r5")
 DataFile = "objects/samus_eater.json"
+
+[node name="KraidColours" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r5")
+DataFile = "bosses/kraid.json"
+PresentWhen = SubResource("r1")

@@ -59,6 +59,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0
+Look = "west_cactus_alley"
 
 [node name="Cacatac2" parent="." instance=ExtResource("5")]
 position = Vector2(656, 164)
@@ -67,6 +68,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0
+Look = "west_cactus_alley"
 
 [node name="Cacatac3" parent="." instance=ExtResource("5")]
 position = Vector2(912, 260)
@@ -75,6 +77,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0
+Look = "west_cactus_alley"
 
 [node name="Cacatac4" parent="." instance=ExtResource("5")]
 position = Vector2(720, 436)
@@ -83,6 +86,7 @@ StartsStopped = false
 OnCeiling = false
 TravelDistance = 16
 Speed = 0
+Look = "west_cactus_alley"
 
 [node name="Cacatac5" parent="." instance=ExtResource("5")]
 position = Vector2(240, 346)
@@ -91,6 +95,7 @@ StartsStopped = false
 OnCeiling = true
 TravelDistance = 16
 Speed = 0
+Look = "west_cactus_alley"
 
 [node name="Cacatac6" parent="." instance=ExtResource("5")]
 position = Vector2(720, 362)
@@ -99,6 +104,7 @@ StartsStopped = false
 OnCeiling = true
 TravelDistance = 64
 Speed = 0.125
+Look = "west_cactus_alley"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(1248, 352)

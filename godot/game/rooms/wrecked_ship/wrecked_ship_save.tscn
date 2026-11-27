@@ -74,6 +74,7 @@ Speed = 2
 Heading = 176
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug2" parent="." instance=ExtResource("7")]
@@ -82,6 +83,7 @@ Speed = 2
 Heading = 202
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug3" parent="." instance=ExtResource("7")]
@@ -90,6 +92,7 @@ Speed = 2
 Heading = 250
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug4" parent="." instance=ExtResource("7")]
@@ -98,6 +101,7 @@ Speed = 2
 Heading = 131
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug5" parent="." instance=ExtResource("7")]
@@ -106,6 +110,7 @@ Speed = 2
 Heading = 123
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug6" parent="." instance=ExtResource("7")]
@@ -114,6 +119,7 @@ Speed = 2
 Heading = 224
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug7" parent="." instance=ExtResource("7")]
@@ -122,6 +128,7 @@ Speed = 2
 Heading = 248
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug8" parent="." instance=ExtResource("7")]
@@ -130,6 +137,7 @@ Speed = 2
 Heading = 24
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug9" parent="." instance=ExtResource("7")]
@@ -138,6 +146,7 @@ Speed = 2
 Heading = 253
 ActivationDistance = 80
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug10" parent="." instance=ExtResource("7")]
@@ -146,6 +155,7 @@ Speed = 2
 Heading = 136
 ActivationDistance = 48
 Runs = 1
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="Sbug11" parent="." instance=ExtResource("7")]
@@ -154,6 +164,7 @@ Speed = 2
 Heading = 144
 ActivationDistance = 48
 Runs = 0
+Look = "parlor_default"
 PresentWhen = SubResource("r4")
 
 [node name="BlueCap" parent="." instance=ExtResource("8")]

@@ -93,26 +93,31 @@ PresentWhen = SubResource("r5")
 position = Vector2(56, 552)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock2" parent="." instance=ExtResource("7")]
 position = Vector2(56, 680)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock3" parent="." instance=ExtResource("7")]
 position = Vector2(744, 696)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock4" parent="." instance=ExtResource("7")]
 position = Vector2(616, 136)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="FaceBlock5" parent="." instance=ExtResource("7")]
 position = Vector2(648, 136)
 TriggerDistance = 0
 StartsFacing = 0
+Look = "climb_default"
 
 [node name="MissileTank" parent="." instance=ExtResource("8")]
 position = Vector2(744, 664)

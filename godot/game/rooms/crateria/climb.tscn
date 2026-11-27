@@ -178,6 +178,7 @@ Speed = 3
 Heading = 80
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug2" parent="." instance=ExtResource("6")]
@@ -186,6 +187,7 @@ Speed = 2
 Heading = 144
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug3" parent="." instance=ExtResource("6")]
@@ -194,6 +196,7 @@ Speed = 3
 Heading = 172
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug4" parent="." instance=ExtResource("6")]
@@ -202,6 +205,7 @@ Speed = 4
 Heading = 200
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug5" parent="." instance=ExtResource("6")]
@@ -210,6 +214,7 @@ Speed = 3
 Heading = 195
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug6" parent="." instance=ExtResource("6")]
@@ -218,6 +223,7 @@ Speed = 3
 Heading = 146
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug7" parent="." instance=ExtResource("6")]
@@ -226,6 +232,7 @@ Speed = 3
 Heading = 96
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug8" parent="." instance=ExtResource("6")]
@@ -234,6 +241,7 @@ Speed = 2
 Heading = 156
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug9" parent="." instance=ExtResource("6")]
@@ -242,6 +250,7 @@ Speed = 4
 Heading = 240
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="Sbug10" parent="." instance=ExtResource("6")]
@@ -250,6 +259,7 @@ Speed = 2
 Heading = 188
 ActivationDistance = 80
 Runs = 0
+Look = "climb_default"
 PresentWhen = SubResource("r10")
 
 [node name="BlueCap" parent="." instance=ExtResource("7")]

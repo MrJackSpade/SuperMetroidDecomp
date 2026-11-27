@@ -58,6 +58,7 @@ StartsOn = 2
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1.25
+Look = "main_street"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)

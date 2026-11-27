@@ -91,6 +91,7 @@ Speed = 1
 StartsFacing = 0
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera2" parent="." instance=ExtResource("6")]
 position = Vector2(469, 1393)
@@ -98,6 +99,7 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera3" parent="." instance=ExtResource("6")]
 position = Vector2(788, 1415)
@@ -105,6 +107,7 @@ Speed = 1
 StartsFacing = 0
 Radius = 16
 AngleStep = 2
+Look = "west_ocean"
 
 [node name="Skultera4" parent="." instance=ExtResource("6")]
 position = Vector2(964, 1387)
@@ -113,6 +116,7 @@ StartsFacing = 1
 Radius = 16
 AngleStep = 2
 AlwaysActive = true
+Look = "west_ocean"
 
 [node name="Skultera5" parent="." instance=ExtResource("6")]
 position = Vector2(1237, 1399)
@@ -121,6 +125,7 @@ StartsFacing = 1
 Radius = 16
 AngleStep = 2
 AlwaysActive = true
+Look = "west_ocean"
 
 [node name="SuspensorPlatform" parent="." instance=ExtResource("7")]
 position = Vector2(1216, 1264)

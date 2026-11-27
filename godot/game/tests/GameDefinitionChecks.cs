@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Engine.Core;
 using Engine.Input;
 using Engine.Tests;
+using Engine.Tests.Content;
 using Game.Data;
 using Godot;
 
@@ -34,9 +35,13 @@ public sealed class GameDefinitionChecks
         Expect.True(definition.Actions.SequenceEqual(["run", "item_select", "item_cancel", "angle_up", "angle_down"]));
         Expect.False(definition.Actions.Intersect(GameAction.Standard.Select(action => action.Name)).Any());
 
-        var options = new Options { Bindings = Options.StandardBindings };
-        options.AddMissingBindings(definition.StandardBindings);
+        using var assets = new TempAssets();
+        Options options = Options.Load(Path.Combine(assets.Folder, "options.json"), definition.StandardBindings);
         options.AddMissingControls(definition.StandardControls);
+
+        // The menus confirm with the cartridge's A and cancel with its B, which lie where play's A and B lie.
+        Expect.True(options.ButtonsOf(GameAction.Confirm.Name).Contains(options.ButtonsOf(GameAction.Jump.Name).Single(button => button.StartsWith("pad:", StringComparison.Ordinal))));
+        Expect.True(options.ButtonsOf(GameAction.Cancel.Name).Contains(options.ButtonsOf("run").Single(button => button.StartsWith("pad:", StringComparison.Ordinal))));
         foreach (string action in definition.Actions)
             Expect.True(options.ButtonsOf(action).Count > 0);
         options.ApplyBindings(Actions.All);

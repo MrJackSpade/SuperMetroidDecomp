@@ -43,7 +43,10 @@ public sealed class Options
     /// </summary>
     public Dictionary<string, List<string>> Bindings { get; set; } = [];
 
-    /// <summary>The engine's bindings for the controls of its own actions, which a game or a player may replace.</summary>
+    /// <summary>
+    /// The engine's bindings for the controls of its own actions, which a game or a player may replace: a game by
+    /// naming other standard buttons for a control (<see cref="Load"/>), a player by choosing.
+    /// </summary>
     public static Dictionary<string, List<string>> StandardBindings => new()
     {
         [GameAction.Left.Name] = ["key:Left", "pad:13"],
@@ -66,16 +69,24 @@ public sealed class Options
     /// <summary>The buttons that give an action now: those bound to the control it is on.</summary>
     public IReadOnlyList<string> ButtonsOf(string action) => Bindings.GetValueOrDefault(ControlOf(action)) ?? [];
 
-    /// <summary>Reads the options kept in <paramref name="file"/>, or the standard ones when there is no such file yet.</summary>
+    /// <summary>
+    /// Reads the options kept in <paramref name="file"/>, or new ones when there is no such file yet. A control with no
+    /// binding yet is bound to its standard buttons: those <paramref name="gameStandard"/> gives it, the game's own
+    /// controls and any of the engine's the game puts elsewhere, or else the engine's (<see cref="StandardBindings"/>).
+    /// A control the file binds keeps its binding.
+    /// </summary>
     /// <exception cref="InvalidDataException">The file cannot be read as options.</exception>
-    public static Options Load(string file)
+    public static Options Load(string file, IReadOnlyDictionary<string, List<string>> gameStandard)
     {
-        if (!File.Exists(file))
-            return new Options { Bindings = StandardBindings, _file = file };
+        ArgumentNullException.ThrowIfNull(gameStandard);
         try
         {
-            Options options = JsonSerializer.Deserialize<Options>(File.ReadAllText(file))
-                ?? throw new InvalidDataException($"The options file {file} holds nothing that can be read.");
+            Options options = File.Exists(file)
+                ? JsonSerializer.Deserialize<Options>(File.ReadAllText(file))
+                    ?? throw new InvalidDataException($"The options file {file} holds nothing that can be read.")
+                : new Options();
+            foreach ((string control, List<string> buttons) in gameStandard)
+                options.Bindings.TryAdd(control, [.. buttons]);
             foreach ((string control, List<string> buttons) in StandardBindings)
                 options.Bindings.TryAdd(control, buttons);
             options._file = file;
@@ -85,14 +96,6 @@ public sealed class Options
         {
             throw new InvalidDataException($"The options file {file} cannot be read: {exception.Message}", exception);
         }
-    }
-
-    /// <summary>Binds each control in <paramref name="bindings"/> that has no binding yet, as a game does for its own controls.</summary>
-    public void AddMissingBindings(IReadOnlyDictionary<string, List<string>> bindings)
-    {
-        ArgumentNullException.ThrowIfNull(bindings);
-        foreach ((string control, List<string> buttons) in bindings)
-            Bindings.TryAdd(control, buttons);
     }
 
     /// <summary>Puts each action in <paramref name="controls"/> that is on no control of the game's yet on the one given for it.</summary>

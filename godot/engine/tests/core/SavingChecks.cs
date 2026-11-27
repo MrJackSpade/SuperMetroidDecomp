@@ -95,9 +95,12 @@ public sealed class SavingChecks
     {
         using var assets = new TempAssets();
         string file = Path.Combine(assets.Folder, "options.json");
-        Options fresh = Options.Load(file);
+        // A game's standard buttons come before the engine's for a control with no binding yet.
+        var gameStandard = new Dictionary<string, List<string>> { [GameAction.Cancel.Name] = ["key:Q"] };
+        Options fresh = Options.Load(file, gameStandard);
         Expect.Equal("english", fresh.Language);
         Expect.True(fresh.Bindings[GameAction.Jump.Name].SequenceEqual(["key:X", "pad:0"]));
+        Expect.True(fresh.Bindings[GameAction.Cancel.Name].SequenceEqual(["key:Q"]));
         Expect.False(fresh.IsOn("anything"));
 
         fresh.Language = "japanese";
@@ -105,7 +108,7 @@ public sealed class SavingChecks
         fresh.Bindings[GameAction.Jump.Name] = ["key:Space"];
         fresh.Bindings.Remove(GameAction.Attack.Name);
         fresh.Save(file);
-        Options read = Options.Load(file);
+        Options read = Options.Load(file, gameStandard);
 
         Expect.Equal("japanese", read.Language);
         Expect.True(read.IsOn("icon cancel"));

@@ -42,10 +42,14 @@ public static class Actions
     /// <summary>
     /// The buttons each of the cartridge's controls is bound to until the player chooses otherwise: a key, and the
     /// button of a controller that lies where the control lies on the cartridge's own (its A to the right, its B at
-    /// the bottom, its X at the top, its Y to the left).
+    /// the bottom, its X at the top, its Y to the left). The menus' confirming and cancelling are the engine's actions,
+    /// and are put where the cartridge reads them: confirming on its A, cancelling on its B. (Start, the engine's pause,
+    /// confirms too, as the menus themselves say.)
     /// </summary>
     public static Dictionary<string, List<string>> StandardBindings => new()
     {
+        [GameAction.Confirm.Name] = ["key:X", "pad:1"],
+        [GameAction.Cancel.Name] = ["key:Z", "pad:0"],
         [Controls.A] = ["key:X", "pad:1"],
         [Controls.B] = ["key:C", "pad:0"],
         [Controls.X] = ["key:Z", "pad:3"],

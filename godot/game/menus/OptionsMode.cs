@@ -211,8 +211,8 @@ public partial class OptionsMode : GameMode
                 return map;
 
             // A game saved where the map marks nothing (at Ceres) is loaded with no map shown; with no game saved a
-            // new one begins.
-            return Session.Saves.Has(Session.Slot) ? GameLoad.OfSlot(appears: false) : new LoadingMode();
+            // new one begins, its first update the next, as the cartridge's opening plays from the update after.
+            return Session.Saves.Has(Session.Slot) ? GameLoad.OfSlot(appears: false) : Session.Definition.CreateModeForNewGame();
         }
 
         if (_afterFade is { } then)

@@ -685,9 +685,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>
     /// Leaves what the enemy's data gives for a shot that does it no harm ("dud"), where the shot is, and asks for
     /// the dud's sound. Only a hit that comes of something with a place leaves it, and only an enemy whose data gives
-    /// one: the answer is then that the hit was a dud, and otherwise that it was absorbed.
+    /// one: the answer is then that the hit was a dud, and otherwise that it was absorbed. An enemy that answers a
+    /// hit itself answers a harmless one with this.
     /// </summary>
-    private HitResult LeaveDud(Hit hit)
+    protected HitResult LeaveDud(Hit hit)
     {
         if (hit.At is not { } at || (_dudEffect.Length == 0 && _dudSound.Length == 0))
             return HitResult.Absorbed;

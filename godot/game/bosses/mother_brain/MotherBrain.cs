@@ -258,8 +258,8 @@ public partial class MotherBrain : Enemy, IClosingStep
     {
         if (part.Name != "Brain")
         {
-            // Her body shrugs everything off.
-            return HitResult.Absorbed;
+            // Her body shrugs everything off, with the flash and the sound of a shot that does no harm.
+            return LeaveDud(hit);
         }
 
         // While her head is safe from hits nothing is tried against it: a shot goes on as if it were not there.
@@ -271,20 +271,20 @@ public partial class MotherBrain : Enemy, IClosingStep
         {
             // In the tank only missiles tell, and each one that reaches her counts against the glass too.
             if (!missile)
-                return HitResult.Absorbed;
+                return LeaveDud(hit);
             Room.Enemies.OfType<MotherBrainGlass>().FirstOrDefault(glass => !glass.IsDead)?.CountHeadShot();
         }
         else
         {
             OnLaterHeadHit(hit, missile);
             if (_form == Form.FakeDeath)
-                return HitResult.Absorbed;
+                return LeaveDud(hit);
         }
 
         Reaction reaction = ReactionTo(hit, part);
         int damage = reaction.DamageFrom(hit.Damage);
         if (damage == 0)
-            return HitResult.Absorbed;
+            return LeaveDud(hit);
         Sound(HurtSound);
         FlashFor(13);
         _headHealth = Math.Max(0, _headHealth - damage);

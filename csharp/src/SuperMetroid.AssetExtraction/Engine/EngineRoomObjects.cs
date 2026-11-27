@@ -23,6 +23,17 @@ internal sealed partial class EngineRoomObjects
     private readonly string _content;
     private readonly IReadOnlyList<string> _graphicsSets;
     private readonly Dictionary<string, Dictionary<string, JsonArray>> _frames = new(StringComparer.Ordinal);
+    private readonly SortedSet<string> _folders = new(StringComparer.Ordinal);
+    private readonly SortedSet<string> _withSprites = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The folders pictures have been written under so far, each holding a folder for every set of graphics: what is
+    /// drawn with a room's own blocks, and so shows a change of the room's colours as the set's blocks show it. A
+    /// folder that holds a picture with one of the cartridge's sprites drawn into it is left out, as a gate's is for
+    /// its column: a sprite's colours are not the room's, and a change written for the blocks' colours would reach
+    /// any of the sprite's pixels that happen to be of the same colour.
+    /// </summary>
+    internal IReadOnlyCollection<string> Folders => [.. _folders.Except(_withSprites)];
 
     /// <summary>The room objects' pictures of the installation at <paramref name="content"/>, for the sets of graphics <paramref name="graphicsSets"/>.</summary>
     internal EngineRoomObjects(EngineAssetTree tree, EngineSheets sheets, string content, IReadOnlyList<string> graphicsSets)
@@ -151,6 +162,7 @@ internal sealed partial class EngineRoomObjects
     {
         const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
         name = EngineSheets.FileName(name);
+        _folders.Add(folder);
         bool written = false;
         foreach (string graphicsSet in _graphicsSets)
         {
@@ -163,7 +175,14 @@ internal sealed partial class EngineRoomObjects
                 pixels[index] = front is not null && front[index].A != 0 ? front[index] : behind is not null ? behind[index] : default;
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
             if (!_tree.Holds(path))
+            {
                 _tree.WritePicture(path, Block, Block, pixels);
+
+                // Its map of regions lies beside it, as a tile's does, where the set's sheet tells regions apart.
+                if (NamedBlockRegions(_sheets, graphicsSet, picture, mirroredAcross: false, mirroredDown: false) is { } regions)
+                    _tree.WriteRegionMap(path, Block, Block, regions);
+            }
+
             written = true;
         }
 
@@ -237,12 +256,20 @@ internal sealed partial class EngineRoomObjects
         int overTop = (over?.Top ?? 0) + EngineSheets.LayersRowAbove;
         int height = Math.Max(rows * Block, over is null ? 0 : overTop + over.Value.Height);
         name = EngineSheets.FileName(name ?? frame);
+        (over is null ? _folders : _withSprites).Add(folder);
         foreach (string graphicsSet in _graphicsSets)
         {
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
             if (_tree.Holds(path))
                 continue;
             var canvas = new RgbaPixel[columns * Block * height];
+
+            // The region of each pixel, for the map written beside the picture and beside its front part, where the
+            // set's sheet tells regions apart: a change of the room's colours in one region then reaches the same
+            // pixels of the picture as of the set's blocks.
+            var canvasRegions = new int[canvas.Length];
+            var frontRegions = new int[canvas.Length];
+            bool hasRegions = false;
 
             // The part of its blocks that the cartridge draws in front of what stands in the room is written beside
             // the picture, as a tile's is, for the Godot game to draw there.
@@ -263,11 +290,23 @@ internal sealed partial class EngineRoomObjects
                 int left = (cell["x"]!.GetValue<int>() - firstColumn) * Block, top = (cell["y"]!.GetValue<int>() - firstRow) * Block;
                 for (int y = 0; y < Block; y++)
                     pixels.AsSpan(y * Block, Block).CopyTo(canvas.AsSpan((top + y) * columns * Block + left, Block));
+                if (NamedBlockRegions(_sheets, graphicsSet, BlockFrame(block), across, down) is { } regions)
+                {
+                    for (int y = 0; y < Block; y++)
+                        regions.AsSpan(y * Block, Block).CopyTo(canvasRegions.AsSpan((top + y) * columns * Block + left, Block));
+                    hasRegions = true;
+                }
+
                 if (NamedBlockFrontPixels(_sheets, graphicsSet, BlockFrame(block), across, down) is { } inFront)
                 {
                     for (int y = 0; y < Block; y++)
                         inFront.AsSpan(y * Block, Block).CopyTo(front.AsSpan((top + y) * columns * Block + left, Block));
                     hasFront = true;
+                    if (NamedBlockFrontRegions(_sheets, graphicsSet, BlockFrame(block), across, down) is { } inFrontRegions)
+                    {
+                        for (int y = 0; y < Block; y++)
+                            inFrontRegions.AsSpan(y * Block, Block).CopyTo(frontRegions.AsSpan((top + y) * columns * Block + left, Block));
+                    }
                 }
             }
 
@@ -285,13 +324,22 @@ internal sealed partial class EngineRoomObjects
                         // It lies over the blocks and under their front part, which is written beside the picture
                         // as it is: where the cartridge draws one of its sprites of the ordinary standing.
                         canvas[(overTop + y) * columns * Block + drawn.Left + x] = pixel;
+
+                        // A sprite's pixel is of none of the blocks' regions; it is written as the first.
+                        canvasRegions[(overTop + y) * columns * Block + drawn.Left + x] = 0;
                     }
                 }
             }
 
             _tree.WritePicture(path, columns * Block, height, canvas);
+            if (hasRegions)
+                _tree.WriteRegionMap(path, columns * Block, height, canvasRegions);
             if (hasFront && front.Any(pixel => pixel.A != 0))
+            {
                 _tree.WritePicture(EngineAssetTree.FrontPath(path), columns * Block, height, front);
+                if (hasRegions)
+                    _tree.WriteRegionMap(EngineAssetTree.FrontPath(path), columns * Block, height, frontRegions);
+            }
         }
 
         return $"{folder}/{GraphicsPlaceholder}/{name}.png";

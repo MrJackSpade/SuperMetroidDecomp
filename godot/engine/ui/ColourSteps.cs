@@ -1,4 +1,5 @@
 using Engine.Content;
+using Godot;
 
 namespace Engine.Ui;
 
@@ -52,13 +53,23 @@ public sealed class ColourSteps
     /// <summary>Whether its first step has been shown since it was made or last stopped.</summary>
     public bool HasBegun => _at >= 0;
 
-    /// <summary>Shows the steps on <paramref name="target"/> as well, from the next step begun on.</summary>
+    /// <summary>
+    /// Shows the steps on <paramref name="target"/> as well: the step that shows now at once, where one does, and
+    /// each step begun from then on. A target it is already shown on is left as it is. One that is gone, freed with
+    /// whatever it was part of, is forgotten as the next step begins.
+    /// </summary>
     public void ShowOn(IRecoloured target)
     {
         ArgumentNullException.ThrowIfNull(target);
-        if (!_shownOn.Contains(target))
-            _shownOn.Add(target);
+        if (_shownOn.Contains(target))
+            return;
+        _shownOn.Add(target);
+        if (_at >= 0)
+            _steps[_at].Colours.ShowOn(target, _source);
     }
+
+    /// <summary>Forgets what it was shown on that is gone.</summary>
+    private void ForgetGone() => _shownOn.RemoveAll(static target => target is GodotObject node && !GodotObject.IsInstanceValid(node));
 
     /// <summary>
     /// Plays one update: the first shows the first step, and each later one counts the step shown down and begins
@@ -92,6 +103,7 @@ public sealed class ColourSteps
     /// <summary>Takes its colours back from everything it is shown on; played again, it begins at its first step.</summary>
     public void Stop()
     {
+        ForgetGone();
         foreach (IRecoloured target in _shownOn)
             target.Recolour(_source, []);
         _at = -1;
@@ -102,6 +114,7 @@ public sealed class ColourSteps
     {
         _at = step;
         _left = _steps[step].Updates;
+        ForgetGone();
         foreach (IRecoloured target in _shownOn)
             _steps[step].Colours.ShowOn(target, _source);
         return _steps[step].Sound;

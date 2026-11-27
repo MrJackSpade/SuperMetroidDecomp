@@ -1,3 +1,4 @@
+using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
 using Engine.Ui;
@@ -8,7 +9,8 @@ namespace Engine.World;
 /// <summary>
 /// A room-wide change of colours over time: rock that glows, lights that flicker, lightning. It plays the steps of
 /// its data file, each showing some colours of the pictures it is shown on as other colours for a number of updates,
-/// on the room's terrain, its backdrops and whatever placed things it names. The colours are changed by a shader
+/// on the room's terrain, its backdrops and the room's objects, whichever of them are there as it plays, as the
+/// cartridge's change of the room's palette reaches everything drawn in it. The colours are changed by a shader
 /// where the pictures are drawn; no picture is kept twice. Like every room effect it is stepped before the player
 /// and the enemies act, shows its first step on its first update, and affects play in no way of its own.
 /// </summary>
@@ -33,9 +35,14 @@ public partial class ColourEffect : RoomEffect
     [Export]
     public bool OnBackdrops { get; set; } = true;
 
-    /// <summary>The things placed in the room, by the names of their nodes, whose visuals it is shown on as well.</summary>
+    /// <summary>
+    /// Whether it is shown on the room's objects: on the visuals each has, whichever objects are in the room as it
+    /// plays. One that joins the room while a step shows is shown that step from the effect's next turn. An object
+    /// shows the colours written for the places its pictures are from, so one whose pictures are no part of the
+    /// effect's places is left as it is.
+    /// </summary>
     [Export]
-    public string[] OnThings { get; set; } = [];
+    public bool OnObjects { get; set; } = true;
 
     /// <summary>
     /// When it ends by itself: asked as each of its updates begins, from the update after it shows its first step.
@@ -72,16 +79,18 @@ public partial class ColourEffect : RoomEffect
             foreach (Backdrop backdrop in room.GetChildren().OfType<Backdrop>())
                 _colours.ShowOn(backdrop);
         }
+    }
 
-        foreach (string thing in OnThings)
+    /// <summary>
+    /// Shows the effect on the visuals of every object that is in the room now and is not shown it yet. The room's
+    /// objects come and go while the effect plays: a door's cap closes again, an item's shell is uncovered.
+    /// </summary>
+    private void ShowOnObjects(Room room, ColourSteps colours)
+    {
+        foreach (RoomObject thing in room.Objects)
         {
-            Node node = room.GetNodeOrNull(thing)
-                ?? throw new InvalidOperationException($"The colour effect \"{Name}\" is shown on \"{thing}\", which is not in the room \"{room.Name}\".");
-            IRecoloured[] visuals = [.. node.FindChildren("*", owned: false).Prepend(node).OfType<IRecoloured>()];
-            if (visuals.Length == 0)
-                throw new InvalidOperationException($"The colour effect \"{Name}\" is shown on \"{thing}\", which has nothing that can be recoloured.");
-            foreach (IRecoloured visual in visuals)
-                _colours.ShowOn(visual);
+            foreach (ActorVisual visual in thing.GetChildren().OfType<ActorVisual>())
+                colours.ShowOn(visual);
         }
     }
 
@@ -89,6 +98,8 @@ public partial class ColourEffect : RoomEffect
     protected override void OnStep(Room room)
     {
         ColourSteps colours = Colours;
+        if (OnObjects)
+            ShowOnObjects(room, colours);
 
         // Its first update shows its first step.
         if (!colours.HasBegun)

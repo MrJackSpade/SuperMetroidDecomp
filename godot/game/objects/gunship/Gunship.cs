@@ -177,7 +177,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
         ShowPad(PadClosed);
 
         // Its lights glow from the room's first update on, among the room's changes of colours.
-        var glow = new ColourEffect { Name = "GunshipGlow", StepsFile = GlowFile, OnTerrain = false, OnBackdrops = false };
+        var glow = new ColourEffect { Name = "GunshipGlow", StepsFile = GlowFile, OnTerrain = false, OnBackdrops = false, OnObjects = false };
         Room.AddEffect(glow);
         foreach (ActorVisual piece in GetChildren().OfType<ActorVisual>())
             glow.ShowOn(piece);

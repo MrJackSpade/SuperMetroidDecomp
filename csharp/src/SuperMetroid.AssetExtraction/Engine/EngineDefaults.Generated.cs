@@ -258,7 +258,7 @@ internal static partial class EngineDefaults
         ["Hazard"] = [("hit_damage", "0"), ("hits_without_damage", "false")],
         ["Hibashi"] = [("first_wait", "1"), ("half_width", "8")],
         ["Hopper"] = [("speed_curve", "\"\""), ("across_speed", "3"), ("small_hop_height", "16"), ("small_hop_step", "768"), ("big_hop_height", "48"), ("big_hop_step", "1024"), ("fastest_mark", "64")],
-        ["Hud"] = [("select_sound", "\"\""), ("area_folder", "\"areas\"")],
+        ["Hud"] = [("area_folder", "\"areas\"")],
         ["IntroEgg"] = [("hatch_sound", "\"\""), ("cry_sound", "\"\""), ("slime", "\"\""), ("slime_splash", "\"\"")],
         ["IntroMotherBrain"] = [("ring", "\"\""), ("small_explosion", "\"\""), ("big_explosion", "\"\"")],
         ["Kago"] = [("shake_strength", "1"), ("shake_updates", "16"), ("shake_way", "\"across\""), ("shake_reach", "\"tiles\"")],

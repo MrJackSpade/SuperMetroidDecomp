@@ -32,10 +32,6 @@ public partial class Hud : GameHud, IHasValues
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "";
 
-    /// <summary>The sound of the selection changing, by name.</summary>
-    [Export, DataValue("select_sound")]
-    public string SelectSound { get; set; } = "";
-
     /// <summary>The folder, within the assets tree, of the files of the areas' maps: one a file, named for its area.</summary>
     [Export, DataValue("area_folder")]
     public string AreaFolder { get; set; } = "areas";
@@ -75,7 +71,6 @@ public partial class Hud : GameHud, IHasValues
     private string _timerLabel = "";
     private Vector2I _timerLabelAt, _minutesAt, _secondsAt, _hundredthsAt;
     private int _timerSpacing = DigitWidth;
-    private string _lastSelected = "";
     private ContentLibrary? _content;
 
     /// <inheritdoc/>
@@ -125,7 +120,6 @@ public partial class Hud : GameHud, IHasValues
         ArgumentNullException.ThrowIfNull(session);
         _content = session.Content;
         DataValues.Fill(this, session.Content);
-        _lastSelected = "";
         if (GetNodeOrNull<MapView>("Minimap") is { } minimap)
         {
             minimap.Window = MinimapCells;
@@ -156,17 +150,6 @@ public partial class Hud : GameHud, IHasValues
                 Draw(icon.Selects == selected ? icon.SelectedPicture : icon.Picture, icon.At);
         }
 
-        if (selected != _lastSelected)
-        {
-            // The change sounds, except while she spins, clings to her beam or leaps from a wall.
-            if (_lastSelected.Length + selected.Length > 0 && SelectSound.Length > 0
-                && samus.State is not (SpinJumpingState or GrapplingState or WallJumpingState))
-            {
-                session.Sounds.Request(SelectSound, channel: "hud");
-            }
-
-            _lastSelected = selected;
-        }
 
         // Her energy: a tank for each hundred she can hold beyond the first, and what is left over as two digits.
         int energy = inventory.Amount(Inventory.Energy);

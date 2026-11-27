@@ -101,7 +101,6 @@ public sealed partial class EngineAssetWriter
 
         JsonObject data = [];
         EngineDefaults.Fill(data, "Hud");
-        data["select_sound"] = EngineNames.Sound(SamusSound.HudWeaponSelect);
         data["area_folder"] = folder + "/areas";
         data["template"] = folder + "/template.png";
         data["digits"] = digits;

@@ -80,11 +80,11 @@ public sealed partial class EngineAssetWriter
 
         foreach ((ChozoStatueSite site, ChozoStatueSiteDefinition definition) in ChozoStatueSiteDefinitions.Sites)
         {
-            // Where the old game stands the statue, and the rooms it stands in.
+            // Where the old game stands the statue, the rooms it stands in, and the enemy populations that place it there.
             var stands = EngineLayouts.States()
                 .SelectMany(placed => placed.State.EnemyPopulation.Placements.ToArray()
                     .Where(placement => placement.DefinitionId == EnemyDefinitionId.Chozo && placement.SpawnSettings is ChozoStatueSpawnSettings settings && settings.Site == site)
-                    .Select(placement => (placed.Room, Placing: placement.Placing)))
+                    .Select(placement => (placed.Room, Placing: placement.Placing, Population: placed.State.EnemyPopulation.Name)))
                 .ToList();
             Position16<RoomPixels> at = stands.Select(stood => stood.Placing is EnemyPlacedAt placedAt
                     ? placedAt.Position
@@ -99,8 +99,9 @@ public sealed partial class EngineAssetWriter
 
             string file = $"enemies/chozo_statue_{EngineSheets.FileName(site.ToString())}.json";
             // Its hurtbox is there for Samus's shots to be spent on, as the cartridge's are on its size: its reactions
-            // harm it by none.
-            EngineEnemy statue = Enemy(file, "ChozoStatue", EnemyDefinitionId.Chozo).BodyColliders("Body", "Solid", "Hurtbox")
+            // harm it by none. Each statue is drawn from the sheet its own rooms draw it from, which is not the other's.
+            EngineEnemy statue = EnemyPlacedIn(file, "ChozoStatue", EnemyDefinitionId.Chozo, stands.Select(stood => stood.Population))
+                .BodyColliders("Body", "Solid", "Hurtbox")
                 .Collider("Hand", hand.X - at.X, hand.Y - at.Y, EngineRoomObjects.Block, EngineRoomObjects.Block)
                 .Value("footstep_depth", ChozoStatueRoomDefinitions.FootstepDepth)
                 .Value("lowering_delay", ChozoStatueFxData.LoweringDelay)

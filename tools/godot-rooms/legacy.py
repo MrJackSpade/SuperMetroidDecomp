@@ -292,6 +292,17 @@ def enemy_populations() -> dict[str, list[Placement]]:
     return result
 
 
+def population_names() -> dict[str, str]:
+    """Each enemy population's own name, the one the installation lists the looks of its enemies under, by the name a room state gives it."""
+    result = {}
+    for area in AREAS:
+        text = without_comments(read('World', 'RoomStates', area + 'RoomEnemyPopulationDefinitions.cs'))
+        pattern = r'internal static (?:Empty|Placed)RoomEnemyPopulationDefinition (\w+) \{ get; \} ='
+        for name, expression in properties_of(text, pattern):
+            result[name] = call_arguments(expression)[0].strip('"')
+    return result
+
+
 def death_quotas() -> dict[str, int]:
     """For each enemy population, how many kills clear its room; none for a population that places nothing."""
     result = {}

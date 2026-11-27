@@ -83,6 +83,8 @@ public sealed partial class EngineAssetWriter
         ("the rooms' scrolling", writer => writer.WriteScrollLayouts()),
         ("the music sets", writer => writer.WriteMusicSets()),
         ("the words", writer => writer.WriteWords()),
+        // The looks of the rooms' enemies after everything that writes an enemy.
+        ("the looks of the rooms' enemies", writer => writer.WriteRoomLooks()),
         // The layouts after everything that gives them their patches.
         ("the rooms", writer => writer.Layouts.WriteAll()),
         // The rooms' colour effects read the rooms' pictures as they were cut, and give nothing to anything else.
@@ -132,20 +134,103 @@ public sealed partial class EngineAssetWriter
     /// The installed sheets its pictures are on, where they are not the one sheet named as the old enemy is: the
     /// sheets of each of its parts.
     /// </param>
+    /// <remarks>
+    /// One drawn from the sheet of its own name that the old game draws in colours of the room's own, a look for some
+    /// rooms and another for others, has a set of its pictures for each look, in a folder named as its own with an
+    /// underscore and the look's word after it, which its timelines name by <see cref="LookPlaceholder"/>; the room
+    /// places it with the look it is drawn in there, as <see cref="WriteRoomLooks"/> writes for the room generator.
+    /// </remarks>
+    /// <exception cref="InvalidDataException">Two of its looks differ in more than their colours.</exception>
     internal EngineEnemy Enemy(string file, string type, EnemyDefinitionId id, params ReadOnlySpan<string> sheets)
+    {
+        string folder = file[..file.LastIndexOf('.')];
+        if (sheets.Length > 0)
+        {
+            var named = new List<string>();
+            foreach (string sheet in sheets)
+                named.Add(_sheets.EnemySheet(sheet));
+            return Enemy(file, type, id, named, new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = named });
+        }
+
+        string enemy = EnemyDefinitionIdKeys.Installed.Of(id);
+        IReadOnlyList<EngineEnemyLook> looks = _sheets.EnemyLooks(enemy);
+        if (looks.Count == 1)
+            return Enemy(file, type, id, [looks[0].Sheet], new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = [looks[0].Sheet] });
+
+        var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (EngineEnemyLook look in looks)
+            places[$"{folder}_{look.Word}"] = [look.Sheet];
+        EngineEnemy drawn = Enemy(file, type, id, [looks[0].Sheet], places);
+        foreach (EngineEnemyLook look in looks)
+        {
+            EngineSheetPictures set = _sheets.Cut(_tree, GameInstallationLayout.EnemySheetDirectoryName, $"{folder}_{look.Word}", look.Sheet);
+            if (!set.LaidOutAs(drawn.Pictures))
+                throw new InvalidDataException($"The look {look.Word} of {enemy} ({look.Sheet}) differs from its look {looks[0].Word} ({looks[0].Sheet}) in more than its colours.");
+            foreach (string population in look.Populations)
+            {
+                if (!_roomLooks.TryGetValue(population, out SortedDictionary<string, string>? drawnThere))
+                    _roomLooks[population] = drawnThere = new SortedDictionary<string, string>(StringComparer.Ordinal);
+                if (drawnThere.TryGetValue(enemy, out string? had) && had != look.Word)
+                    throw new InvalidDataException($"The rooms of {population} draw {enemy} in the looks {had} and {look.Word}.");
+                drawnThere[enemy] = look.Word;
+            }
+        }
+
+        return drawn.PictureSets(LookPlaceholder);
+    }
+
+    /// <summary>
+    /// Starts the data file of an enemy that only the rooms whose enemy populations are <paramref name="populations"/>
+    /// place: its pictures are cut from the sheet those rooms draw it from, whatever other rooms draw it in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The rooms do not all draw it, or draw it in more than one look.</exception>
+    internal EngineEnemy EnemyPlacedIn(string file, string type, EnemyDefinitionId id, IEnumerable<string> populations)
+    {
+        string sheet = _sheets.EnemySheetIn(EnemyDefinitionIdKeys.Installed.Of(id), populations);
+        return Enemy(file, type, id, [sheet], new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [file[..file.LastIndexOf('.')]] = [sheet] });
+    }
+
+    /// <summary>What a picture's name holds where the word of the look it is shown in goes, after the enemy's folder and an underscore.</summary>
+    private const string LookPlaceholder = "_{look}";
+
+    /// <summary>The data file the room generator reads the looks of the rooms' enemies from.</summary>
+    private const string RoomLooksFile = "enemies/looks_by_room.json";
+
+    /// <summary>For each room's enemy population, the word of the look each enemy drawn in a look of the room's own is drawn in there.</summary>
+    private readonly SortedDictionary<string, SortedDictionary<string, string>> _roomLooks = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Writes, for the room generator, which look each room's enemy population draws each enemy in that is drawn in a
+    /// look of the room's own: by the population's name, each such enemy by its name in the old game's list of
+    /// enemies, with the word of its look.
+    /// </summary>
+    private void WriteRoomLooks()
+    {
+        var written = new System.Text.Json.Nodes.JsonObject();
+        foreach ((string population, SortedDictionary<string, string> drawn) in _roomLooks)
+        {
+            var enemies = new System.Text.Json.Nodes.JsonObject();
+            foreach ((string enemy, string word) in drawn)
+                enemies[enemy] = word;
+            written[population] = enemies;
+        }
+
+        _tree.WriteData(RoomLooksFile, written);
+    }
+
+    /// <summary>
+    /// Starts an enemy's data file whose pictures are cut from the sheets <paramref name="named"/> into a folder beside
+    /// the file named as the file is, with the colours of its hurt flash and of its being frozen for the places
+    /// <paramref name="places"/> its pictures are shown from.
+    /// </summary>
+    private EngineEnemy Enemy(string file, string type, EnemyDefinitionId id, IReadOnlyList<string> named, IReadOnlyDictionary<string, IReadOnlyList<string>> places)
     {
         const string family = GameInstallationLayout.EnemySheetDirectoryName;
         string folder = file[..file.LastIndexOf('.')];
-        var named = new List<string>();
-        foreach (string sheet in sheets)
-            named.Add(_sheets.EnemySheet(sheet));
-        if (named.Count == 0)
-            named.Add(_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(id)));
-        var enemy = new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
+        var enemy = new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]), places);
 
         // The colours it is shown in on the updates its hurt flash shows: the cartridge's one flash shade over its
         // own pictures, each of their colours as a pale grey or white.
-        var places = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [folder] = named };
         System.Text.Json.Nodes.JsonObject flash = ShadeChange(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key, family, places);
 
         // One whose sheets give the flash no colours of its own (a statue, a Torizo, which show a hurt their own way)
@@ -157,7 +242,7 @@ public sealed partial class EngineAssetWriter
         // One whose sheets have no such shade, or give it no colours of its own, says nothing, and is tinted by the
         // engine if it is ever frozen.
         string frozenShade = SuperMetroid.Core.Enemies.Drawing.EnemyShades.Frozen.Key;
-        if (named.All(sheet => _sheets.HasShade(family, sheet, frozenShade)))
+        if (places.Values.SelectMany(sheets => sheets).All(sheet => _sheets.HasShade(family, sheet, frozenShade)))
         {
             System.Text.Json.Nodes.JsonObject frozen = ShadeChange(frozenShade, family, places);
             if (frozen.Any(place => place.Value is System.Text.Json.Nodes.JsonObject { Count: > 0 }))

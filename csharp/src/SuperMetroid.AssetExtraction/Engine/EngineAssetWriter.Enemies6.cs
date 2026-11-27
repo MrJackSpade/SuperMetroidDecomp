@@ -115,8 +115,9 @@ public sealed partial class EngineAssetWriter
             .Write();
 
         // The face block: its glow recolours the whole face, a change of its pictures' colours for each level in the
-        // order the glow goes through them. It is the block's own: the Morph Ball eye, which shares the block's
-        // colours on the cartridge and so changes with them there, is not given it.
+        // order the glow goes through them, written for each look of the room's own it is drawn in. It is the
+        // block's own: the Morph Ball eye, which shares the block's colours on the cartridge and so changes with them
+        // there, is not given it.
         // The old game places every face block solid to Samus, by the size its definition gives it; what of hers meets
         // it is answered by the block's own reaction, which only her grapple's line is stopped by.
         EngineEnemy face = Enemy("enemies/face_block.json", "FaceBlock", EnemyDefinitionId.FaceBlock)
@@ -127,13 +128,9 @@ public sealed partial class EngineAssetWriter
                 ("looking_ahead", BlueBrinstarFaceBlockSegment.LookingAhead), ("samus_left", BlueBrinstarFaceBlockSegment.SamusLeft),
                 ("samus_right", BlueBrinstarFaceBlockSegment.SamusRight));
         const string glowFamily = Installation.GameInstallationLayout.EnemySheetDirectoryName;
-        string faceSheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.FaceBlock));
         var glow = new JsonArray();
         foreach (FaceBlockGlowLevel level in FaceBlockGlowAnimations.Cycle)
-        {
-            string shade = $"face-block-glow-{level}/0";
-            glow.Add(ShadeChange(shade, glowFamily, new Dictionary<string, IReadOnlyList<string>> { [face.Folder] = [faceSheet] }));
-        }
+            glow.Add(ShadeChange($"face-block-glow-{level}/0", glowFamily, face.Places));
 
         face.Data["glow"] = glow;
         face.Write();

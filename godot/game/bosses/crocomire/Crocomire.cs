@@ -977,8 +977,10 @@ public partial class Crocomire : Enemy, ILatchable
                     Room.Terrain.ApplyPatch(BreakThroughPatch);
                 Sound(CrumbleSound);
                 Play("skeleton_falls_apart", restart: true);
-                foreach (Projectile shot in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
-                    Room.Remove(shot);
+                // Everything that holds one of the room's places goes first, the enemies' shots and what is dropped or
+                // left alike, as the cartridge clears all its enemy projectiles: so every piece of the wall is made.
+                foreach (IRoomEntity held in Room.PlaceHolders.ToList())
+                    Room.Remove(held);
                 // The spike wall flies apart, its lowest piece first.
                 foreach (SpikePiece piece in _spikePieces.AsEnumerable().Reverse())
                 {

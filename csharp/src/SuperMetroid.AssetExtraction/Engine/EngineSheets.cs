@@ -531,12 +531,11 @@ internal sealed partial record EngineSheetPictures(int OffsetX, int OffsetY, int
     /// the room's tiles ("lies"): in front of every tile, or behind the room. One whose pictures lie behind the
     /// tiles' front part, as most things do, says nothing and lies where what plays it stands.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The timeline shows a picture not cut here or with no depth, or pictures that lie at different depths.
-    /// </exception>
+    /// <exception cref="InvalidDataException">The timeline shows a picture not cut here or with no depth.</exception>
     internal JsonObject Lay(JsonObject timeline, string file)
     {
         var lies = new Dictionary<string, ActorDepth>(StringComparer.Ordinal);
+        var stepsLaid = new List<(JsonObject Step, string Word)>();
         foreach (JsonNode? step in timeline["steps"]!.AsArray())
         {
             string picture = step!["picture"]!.GetValue<string>();
@@ -545,19 +544,32 @@ internal sealed partial record EngineSheetPictures(int OffsetX, int OffsetY, int
             ActorDepth depth = PictureDepths.TryGetValue(picture, out ActorDepth? known)
                 ? known ?? throw new InvalidDataException($"The timeline {file} shows {picture}, whose frame the installed sheets give no depth.")
                 : throw new InvalidDataException($"The timeline {file} shows {picture}, which was not cut with its depth.");
-            lies.TryAdd(depth switch
+            string laid = depth switch
             {
                 ActorDepth.InFront => "in_front_of_tiles",
                 ActorDepth.BehindRoom or ActorDepth.BehindRoomInFrontOfFloor => "behind_room",
                 ActorDepth.BehindFrontParts => "",
                 _ => throw new InvalidDataException($"The timeline {file} shows {picture} at {depth}, which has no name here."),
-            }, depth);
+            };
+            lies.TryAdd(laid, depth);
+            stepsLaid.Add((step.AsObject(), laid));
         }
 
+        // Pictures that all lie alike are said once, on the timeline. Where they differ, each step says its own, and
+        // a step that lies behind the tiles' front part says nothing, as a whole timeline that does says nothing.
         if (lies.Count > 1)
-            throw new InvalidDataException($"The timeline {file} shows pictures that lie at different depths against the room's tiles ({string.Join(", ", lies.Values)}), which a timeline cannot say.");
-        if (lies.Keys.SingleOrDefault() is { Length: > 0 } word)
+        {
+            foreach ((JsonObject step, string laid) in stepsLaid)
+            {
+                if (laid.Length > 0)
+                    step["lies"] = laid;
+            }
+        }
+        else if (lies.Keys.SingleOrDefault() is { Length: > 0 } word)
+        {
             timeline["lies"] = word;
+        }
+
         return timeline;
     }
 

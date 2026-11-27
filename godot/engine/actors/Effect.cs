@@ -73,6 +73,9 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 
+    /// <summary>Where the step it shows lies against the room's tiles, when the step or its timeline says.</summary>
+    private readonly LaidDepth _laid = new();
+
     /// <inheritdoc/>
     public void EnterRoom(Room room)
     {
@@ -87,6 +90,7 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
         // Being left is the first update of its first picture: what comes with that picture comes now.
         Play(room, _player);
         _visual.Show(_player.Shown);
+        _laid.Show(this, _player.Shown.Lies);
     }
 
     /// <summary>
@@ -106,6 +110,7 @@ public partial class Effect : Node2D, IRoomEntity, Ui.IRecoloured
 
         Play(room, player);
         _visual?.Show(player.Shown);
+        _laid.Show(this, player.Shown.Lies);
     }
 
     /// <summary>Moves its timeline on an update and acts on the cues reached.</summary>

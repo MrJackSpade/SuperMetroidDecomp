@@ -740,9 +740,12 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 
 - **An elevator** of this game is not built from these: it is the game's own `Elevator` (`game/objects/elevator/`),
   because the cartridge's ride is its own thing, update for update. Samus arms it by standing on the blocks it
-  rests on, as she moved upright and settled; the elevator hears of that on its next turn, and a fresh press of its
-  way on that turn starts the ride (without one the door is disarmed again). She then rides in a state of her own
-  (`RidingElevatorState`): facing forward, held a set height above the elevator each time it takes its turn, and
+  rests on, as she moved upright and settled, or as she stood up from a crouch there (the cartridge's change of pose
+  tests the ground under her as the standing pose, an update before her first move upright); the elevator hears of
+  that on its next turn, and a fresh press of its way on that turn starts the ride (without one the door is disarmed
+  again). The ride's start takes every shot and bomb of hers away, her charge and the wait her shots and bombs share,
+  and ends her run's speed but not her boost, which outlasts the ride as the cartridge's count of it does. She then
+  rides in a state of her own (`RidingElevatorState`): facing forward, held a set height above the elevator each time it takes its turn, and
   moved by her own step down of one pixel, which only the terrain under her feet stops. While the ride is leaving
   that step is what meets the door of the shaft, so the door is entered when her feet reach it and not when her
   body first overlaps it; she meets no exit by overlapping it while she rides. The ride itself is the session's
@@ -1190,7 +1193,14 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   (`Samus.FlarePoint`), raised as a shot's start is; its sparks are the set of the way she faces, and moonwalking
   the other way's, as the cartridge's moonwalk poses face away from their aim. While her grapple beam is out it shows the glow alone, on a
   count of its own taken up where the glow loops, where the line leaves her (`Samus.GrappleFlarePoint`), which is
-  also where the line is laid from; the charge's flare neither shows nor moves on meanwhile.
+  also where the line is laid from; the charge's flare neither shows nor moves on meanwhile. With the hyper beam on
+  it counts every part back instead, through its timeline's steps as written and no further than the first, the
+  fast ring in front: from each part's last step after a hyper shot, and otherwise from where each part stands, as a
+  charge kept through the gift of the hyper beam is. Its fast ring stepping back onto its first picture ends the
+  count (`Samus.FlareCountedBack`). From a hyper shot until then her charge reads as past every count to every rule
+  of hers that asks of it (`Samus.ChargeReaches`): the charged spin, the morph ball's cancelling of a charge and its
+  spread of bombs, the charge's sound asked for again, the shinespark windup's cancel and the door's passage; and a
+  charge kept through the gift is gone as the count ends.
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
   takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`); the first update after

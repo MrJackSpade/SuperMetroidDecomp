@@ -230,7 +230,7 @@ public partial class Samus
     /// </summary>
     private string? ChargePulseShade()
     {
-        if (Grapple is { IsOut: true } || Weapons.ChargedFor < ChargedSpinUpdates)
+        if (Grapple is { IsOut: true } || !ChargeReaches(ChargedSpinUpdates))
         {
             _chargePulsePlace = 0;
             return null;

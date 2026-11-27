@@ -103,7 +103,8 @@ public sealed class DrainedState : PlayerState, ISamusLook
 
     /// <summary>
     /// Gives her the hyper beam: her beam becomes it, with the charge, wave and plasma beams on and the others off. Her
-    /// charge is kept, as the cartridge keeps it.
+    /// charge is kept as it stands, as the cartridge keeps it, until her flare, which the hyper beam counts back from
+    /// where it stands, has counted its fast ring of sparks back onto its first picture (<see cref="SamusFlare"/>).
     /// </summary>
     public static void GiveHyperBeam(Player samus)
     {

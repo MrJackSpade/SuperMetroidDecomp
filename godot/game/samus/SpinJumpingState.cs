@@ -239,7 +239,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             TrySpaceJump(owner);
             if (owner.Inventory.IsOn(Equipment.ScrewAttack) && samus.Power(HitKinds.ScrewAttack) is { } screw)
                 screw.IsActive = true;
-            else if (owner.Weapons.ChargedFor >= samus.ChargedSpinUpdates && samus.Power(HitKinds.ChargedSpin) is { } charged)
+            else if (samus.ChargeReaches(samus.ChargedSpinUpdates) && samus.Power(HitKinds.ChargedSpin) is { } charged)
                 charged.IsActive = true;
         }
 

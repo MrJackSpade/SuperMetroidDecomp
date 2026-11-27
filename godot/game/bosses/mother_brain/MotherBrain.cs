@@ -169,6 +169,9 @@ public partial class MotherBrain : Enemy, IClosingStep
     private bool _neckTouches;
     private int _timer;
     private int _brainShake;
+
+    /// <summary>For how many more updates her head is safe from hits, counted down as each ends, the one it was hit on among them.</summary>
+    private int _headSafeUpdates;
     private int _lowerNeck;
     private int _upperNeck;
     private int _neckTurn = NeckSteady;
@@ -249,7 +252,11 @@ public partial class MotherBrain : Enemy, IClosingStep
             return HitResult.Absorbed;
         }
 
-        bool missile = hit.CarriesAny([new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]);
+        // While her head is safe from hits nothing is tried against it: a shot goes on as if it were not there.
+        if (_headSafeUpdates > 0)
+            return HitResult.Ignored;
+
+        bool missile =hit.CarriesAny([new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]);
         if (_form == Form.Glass)
         {
             // In the tank only missiles tell, and each one that reaches her counts against the glass too.
@@ -264,12 +271,18 @@ public partial class MotherBrain : Enemy, IClosingStep
                 return HitResult.Absorbed;
         }
 
-        int damage = ReactionTo(hit, part).DamageFrom(hit.Damage);
+        Reaction reaction = ReactionTo(hit, part);
+        int damage = reaction.DamageFrom(hit.Damage);
         if (damage == 0)
             return HitResult.Absorbed;
         Sound(HurtSound);
         FlashFor(13);
         _headHealth = Math.Max(0, _headHealth - damage);
+
+        // A hit whose reaction says so (the plasma beam's) leaves her head alone safe from hits for that many of her
+        // turns after this one, as the cartridge's head, an enemy of its own there, is; her body still meets shots.
+        if (reaction.UnhittableUpdates > 0)
+            _headSafeUpdates = reaction.UnhittableUpdates + 1;
         return HitResult.Hurt;
     }
 
@@ -427,6 +440,8 @@ public partial class MotherBrain : Enemy, IClosingStep
         if (IsDead)
             return;
         Player samus = room.Player;
+        if (_headSafeUpdates > 0)
+            _headSafeUpdates--;
 
         // She breathes out a little, as often as not, whenever her last breath has gone; a breath the room has no
         // place for is not breathed, and she tries again.

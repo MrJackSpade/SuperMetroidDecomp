@@ -99,7 +99,32 @@ public sealed class MovieCheck
         if (PlayOf(session) is not { } playing)
             return line;
         Player samus = session.Player;
-        return $"{line}; {playing.Room.SceneFilePath}; Samus {Place(samus.Position.X)},{Place(samus.Position.Y)}; view {session.Camera.Left},{session.Camera.Top}";
+        return $"{line}; {playing.Room.SceneFilePath}; Samus {Place(samus.Position.X)},{Place(samus.Position.Y)}" +
+            $" {samus.State.GetType().Name} {samus.Form} facing {samus.Facing} aim {samus.Aim}" +
+            $" speed {Speed(samus.Velocity.X)},{Speed(samus.Velocity.Y)} dash {Speed(samus.DashSpeed)} {samus.Steering}" +
+            $"; view {session.Camera.Left},{session.Camera.Top}";
+    }
+
+    /// <summary>
+    /// What stands in the room the game is playing, each thing in a line, for a report: its enemies, and what has been
+    /// launched in it. Nothing when the game is not in play.
+    /// </summary>
+    public static IEnumerable<string> DescribeRoom(GameSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        if (PlayOf(session) is not { } playing)
+            yield break;
+        foreach (Enemy enemy in playing.Room.Enemies)
+        {
+            yield return $"  {enemy.Name} ({enemy.GetType().Name}) at {Place(enemy.Position.X)},{Place(enemy.Position.Y)}" +
+                (enemy.IsDead ? ", dead" : "") + (enemy.IsFrozen ? ", frozen" : "");
+        }
+
+        foreach (Projectile projectile in playing.Room.Projectiles)
+        {
+            yield return $"  {projectile.Name} ({projectile.GetType().Name}, {projectile.Side}) at {Place(projectile.Position.X)},{Place(projectile.Position.Y)}" +
+                $" speed {Speed(projectile.Velocity.X)},{Speed(projectile.Velocity.Y)}";
+        }
     }
 
     /// <summary>
@@ -197,6 +222,13 @@ public sealed class MovieCheck
 
     /// <summary>A place as the cartridge writes one: whole pixels, a point, and the part of a pixel in four hexadecimal digits.</summary>
     private static string Place(Engine.Shared.Pixels place) => $"{place.Whole & 0xffff}.{place.Fraction:X4}";
+
+    /// <summary>A speed as its size in pixels and parts of a pixel, with its sign before it.</summary>
+    private static string Speed(Engine.Shared.Pixels speed)
+    {
+        Engine.Shared.Pixels size = speed.Abs();
+        return $"{(speed.IsNegative ? "-" : "")}{size.Whole}.{size.Fraction:X4}";
+    }
 
     /// <summary>The random number as the game has it: the sixteen bits the cartridge keeps.</summary>
     private static int RandomOf(GameSession session) => (int)(session.Random.Last.Number & 0xffff);

@@ -202,6 +202,9 @@ public partial class MovieRunner : Node
                 Console.WriteLine("The latest updates, as the game played them:");
                 foreach (string line in latest)
                     Console.WriteLine(line);
+                Console.WriteLine("The room, as the game has it:");
+                foreach (string line in MovieCheck.DescribeRoom(Session))
+                    Console.WriteLine(line);
                 ReportUndecided(check);
                 return 1;
             }

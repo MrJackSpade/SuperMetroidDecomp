@@ -1603,6 +1603,9 @@ turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, e
   not while the enemies are held still; one left later in an update first takes a turn on the next. An effect that
   holds a place takes its turn in the order of the places, with the enemies' shots, the remains and the pickups
   that hold the others, and stands still when they do: the cartridge steps it as one of them.
+- An enemy dies in the death its data gives for what destroyed it (`Enemy.Die()`), or in one it names itself as it
+  dies (`Enemy.Die(death)`), as this game's Powamp names its by the place its burst's last spike took among the
+  room's places.
 - `Remains` are what a destroyed enemy leaves where it died, when its data names a death to play: the timeline of
   that death, which may differ by the kind of hit that destroyed it. The enemy itself is gone at once. The remains
   play the death, asking for the sounds its cues name and scattering the effects they name, placed by `GameRandom`;

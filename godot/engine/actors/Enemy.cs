@@ -673,10 +673,19 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>
     /// Destroys the enemy: it is recorded as gone and taken out of its room, and it leaves its <see cref="Remains"/>,
-    /// which play its death and then leave its drop. One with no death to play leaves its drop at once.
+    /// which play its death and then leave its drop. One with no death to play leaves its drop at once. The death is
+    /// the one its data gives for what destroyed it.
     /// </summary>
-    public void Die()
+    public void Die() => Die(DeathEffectFor(_destroyedBy));
+
+    /// <summary>
+    /// Destroys the enemy as <see cref="Die()"/> does, in the death it names itself: <paramref name="death"/>, the
+    /// data file of the timeline its remains play, in place of the one its data gives for what destroyed it; empty
+    /// for no death to play. For an enemy whose death is settled by something of its own as it dies.
+    /// </summary>
+    protected void Die(string death)
     {
+        ArgumentNullException.ThrowIfNull(death);
         if (IsDead)
             return;
         IsDead = true;
@@ -686,7 +695,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Sound(_deathSound);
         Enemy? replacement = _replacement;
         _replacement = null;
-        string death = DeathEffectFor(_destroyedBy);
         if (death.Length > 0)
         {
             var remains = Remains.Of(FrameTimeline.Read(Room.Content.ReadData(death)), Position, _drops);

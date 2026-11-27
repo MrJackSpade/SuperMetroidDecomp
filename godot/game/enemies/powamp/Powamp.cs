@@ -61,6 +61,21 @@ public partial class Powamp : Enemy, ILatchable
     [Export, DataValue("spike_quickening")]
     public double SpikeQuickening { get; set; } = 0.125;
 
+    /// <summary>
+    /// The death it dies in once it has burst, by the data file of its timeline: the one named when its burst's last
+    /// spike took the first of the room's places for what the enemies launch, or any place after the third, or none.
+    /// </summary>
+    [Export(PropertyHint.File), DataValue("burst_death")]
+    public string BurstDeath { get; set; } = "";
+
+    /// <summary>The death it dies in when its burst's last spike took the second of the room's places.</summary>
+    [Export(PropertyHint.File), DataValue("burst_death_second_place")]
+    public string BurstDeathSecondPlace { get; set; } = "";
+
+    /// <summary>The death it dies in when its burst's last spike took the third of the room's places.</summary>
+    [Export(PropertyHint.File), DataValue("burst_death_third_place")]
+    public string BurstDeathThirdPlace { get; set; } = "";
+
     private enum Doing
     {
         Resting,
@@ -255,8 +270,15 @@ public partial class Powamp : Enemy, ILatchable
             case Doing.Dying:
                 if (Tick())
                 {
-                    Burst();
-                    Die();
+                    // It dies in the explosion the place its burst's last spike took names, as the cartridge reads
+                    // the number that spike's making left behind: the second and third places name two of their own,
+                    // and every other place, or a last spike the room had no place for, the first.
+                    Die(Burst() switch
+                    {
+                        1 => BurstDeathSecondPlace,
+                        2 => BurstDeathThirdPlace,
+                        _ => BurstDeath,
+                    });
                     return;
                 }
 
@@ -368,14 +390,19 @@ public partial class Powamp : Enemy, ILatchable
     /// <summary>The collider it moves by.</summary>
     private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Powamp \"{Name}\" has no body collider.");
 
-    /// <summary>Throws its eight spikes out, one each way.</summary>
-    private void Burst()
+    /// <summary>
+    /// Throws its eight spikes out, one each way, and returns the place the last of them took among the room's places
+    /// for what the enemies launch, counted from none; null when the room had no place for it.
+    /// </summary>
+    private int? Burst()
     {
         GetNodeOrNull<ActorVisual>("Balloon")?.SetShown(false);
         Pixels push = Pixels.FromNumber(SpikeQuickening);
         (int Across, int Down)[] ways = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)];
         PixelPosition from = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
+        int? last = null;
         foreach ((int across, int down) in ways)
-            Fire("spike", from, new PixelVelocity(push * across, push * down));
+            last = Room.PlaceOf(Fire("spike", from, new PixelVelocity(push * across, push * down)));
+        return last;
     }
 }

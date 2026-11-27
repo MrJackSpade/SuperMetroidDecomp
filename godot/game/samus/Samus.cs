@@ -2309,7 +2309,10 @@ public partial class Samus : Player
             Breathe();
         _bubbleWait = _bubbleWait.Stepped();
         _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
-        if (_ranFromStart && State is RunningState)
+        // The stride of the run she was in as the update began moves on, on the update she leaves the run too: the
+        // cartridge plays the pose she is in before it takes up the next, so a stride that ends as she jumps is
+        // counted, and the boost's stage with it.
+        if (_ranFromStart)
         {
             StepStride();
             StepFootsteps();

@@ -1514,6 +1514,10 @@ as it thaws, so that no class going through its own colliders ever meets it: the
 has to say so. There is no special case for standing on enemies. A solid actor is solid to the player: an
 enemy's or a creature's own move is stopped by terrain and by the solids that stand as part of the room (a door's
 cap, a gate, an item's shell) and by no other (`MoveOptions.AmongBlocks`), as the cartridge's enemies meet blocks only.
+A way out of the room is a wall to such a move as well (`MoveOptions.StoppedByWaysOut`, `CollisionWorld.WaysOut`, which
+the room gives from its exits): on the cartridge a doorway's blocks are solid to every enemy and only the player passes
+into them, so behind a door's opened cap an enemy finds a wall where the way out begins. Nothing else is stopped by a
+way out unless its move says so.
 An enemy that does something when the player stands on it asks `Enemy.IsRiddenByPlayer(feetAbove)`: the two overlap
 across, the player's feet are no more than so many pixels over its top, and the player's middle, reckoned as many
 pixels lower, lies above its own, so that a rider sunk into its top rides still and one that close over it rides

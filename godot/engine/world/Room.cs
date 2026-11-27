@@ -308,6 +308,9 @@ public partial class Room : Node2D
             }
         }
 
+        // Where the room's ways out lie is a wall to the enemies' and creatures' own moves, as a doorway's blocks are.
+        _world.WaysOut = [.. _exits.Select(exit => exit.Area)];
+
         // What the way in changes of the room, it changes now that everything of the room is in it, and the first
         // view is settled again by what it left: a screen it closed or held to its top is so from the first picture.
         bool arrivalChanged = false;

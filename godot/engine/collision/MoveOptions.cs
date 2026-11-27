@@ -10,11 +10,12 @@ public sealed record MoveOptions
     public static MoveOptions Plain { get; } = new();
 
     /// <summary>
-    /// The plain move of anything that is not the player, an enemy or a creature: stopped by terrain and by the solids
-    /// that stand as part of the room, and by no other solid. On the cartridge a solid enemy is solid to the player
-    /// alone; an enemy meets the room's blocks and nothing else.
+    /// The plain move of anything that is not the player, an enemy or a creature: stopped by terrain, by the solids
+    /// that stand as part of the room and by the room's ways out, and by no other solid. On the cartridge a solid
+    /// enemy is solid to the player alone; an enemy meets the room's blocks and nothing else, a doorway's blocks
+    /// among them, which only the player passes into.
     /// </summary>
-    public static MoveOptions AmongBlocks { get; } = new() { StoppedBySolids = false };
+    public static MoveOptions AmongBlocks { get; } = new() { StoppedBySolids = false, StoppedByWaysOut = true };
 
     /// <summary>How sloped ground is treated.</summary>
     public SlopeTreatment Slopes { get; init; } = SlopeTreatment.Climb;
@@ -49,4 +50,10 @@ public sealed record MoveOptions
 
     /// <summary>Whether terrain stops the move, and with it the solid colliders that stand as part of the room (<see cref="Collider.StandsAsTerrain"/>).</summary>
     public bool StoppedByTerrain { get; init; } = true;
+
+    /// <summary>
+    /// Whether the room's ways out (<see cref="CollisionWorld.WaysOut"/>) stop the move as terrain does, for a move
+    /// terrain stops. They do not, unless the move says so: a way out is open to whoever leaves by it.
+    /// </summary>
+    public bool StoppedByWaysOut { get; init; }
 }

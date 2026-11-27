@@ -207,6 +207,16 @@ public sealed class Mover
             }
         }
 
+        // A way out of the room stops the edge as a tile of terrain would, for a move that says it does.
+        if (!stop.Stopped && options.StoppedByWaysOut && _world.WayOutOver(edge) is { } wayOut)
+        {
+            int into = across
+                ? (step > 0 ? edge.Left - wayOut.Left + 1 : wayOut.Right - edge.Left)
+                : (step > 0 ? edge.Top - wayOut.Top + 1 : wayOut.Bottom - edge.Top);
+            stop = new EdgeStop(true, into, false);
+            reached = Before(edge, wayOut, across, options.TriesFromRight);
+        }
+
         if (!stop.Stopped)
             return null;
 
@@ -398,6 +408,10 @@ public sealed class Mover
     private Obstacle FindObstacle(PixelRect rect, ICollisionOwner owner, MoveOptions options)
     {
         if (options.StoppedByTerrain && _world.Terrain.IsSolidIn(rect, options.Slopes))
+            return new Obstacle(true, null);
+
+        // A way out of the room is a wall, as terrain is, to a move that says so.
+        if (options.StoppedByTerrain && options.StoppedByWaysOut && _world.WayOutOver(rect) is not null)
             return new Obstacle(true, null);
         if (!options.StoppedByTerrain && !options.StoppedBySolids)
             return new Obstacle(false, null);

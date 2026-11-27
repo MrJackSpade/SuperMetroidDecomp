@@ -883,7 +883,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Moves the player by <paramref name="offset"/>, as far as terrain lets them go: for an enemy that takes its rider with it.</summary>
     protected void ShiftPlayer(PixelOffset offset)
     {
-        MoveOptions carried = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall };
+        // The player is carried as far as terrain lets them go, and into a way out of the room as by their own move.
+        MoveOptions carried = MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall, StoppedByWaysOut = false };
         if (!offset.X.IsZero)
             Room.Player.MoveBodyAcross(offset.X, carried);
         if (!offset.Y.IsZero)

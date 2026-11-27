@@ -22,6 +22,24 @@ public sealed class CollisionWorld
     /// <summary>The room's terrain.</summary>
     public ITerrainShape Terrain { get; }
 
+    /// <summary>
+    /// The regions where the room's ways out lie, which the room gives as it is set up. A way out is open to whoever
+    /// leaves by it, and a wall, as terrain is, to a move that says so (<see cref="MoveOptions.StoppedByWaysOut"/>).
+    /// </summary>
+    public IReadOnlyList<PixelRect> WaysOut { get; set; } = [];
+
+    /// <summary>The first of the room's ways out that lies over any of <paramref name="area"/>; null when none does.</summary>
+    public PixelRect? WayOutOver(PixelRect area)
+    {
+        foreach (PixelRect wayOut in WaysOut)
+        {
+            if (wayOut.Overlaps(area))
+                return wayOut;
+        }
+
+        return null;
+    }
+
     /// <summary>Adds a collider. Registering one already registered changes nothing.</summary>
     public void Register(Collider collider)
     {

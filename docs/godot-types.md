@@ -1517,7 +1517,9 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
   and where it stood before moving: the player's shots are tried against it, each where the shot stands (not on the first turn it ever takes, which has shown nothing yet to be hit or to touch with), and then
-  its touch against the player (not while frozen). An enemy a part of which meets shots at a moment of its own
+  its touch against the player (not while frozen, and not while the player is still safe from a hurt: the touch is
+  not looked for then, so nothing an enemy does on touching them happens, as this game's Kraid's arm does not
+  knock Samus back). An enemy a part of which meets shots at a moment of its own
   turn has them tried against it again then (`Enemy.TryPlayerShotsNow`) and says in its own answer which parts answer
   when, as the armour of this game's Ridley's tail does once his tail has moved. Then it behaves, unless a status or its hurt stops it, and
   its timeline moves on, unless it is frozen: a hurt holds the behaviour and not the timeline. A hurt holds it

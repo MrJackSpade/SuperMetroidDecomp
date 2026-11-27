@@ -1179,12 +1179,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>
     /// Lets the enemy touch the player if a part of it overlaps the player's body. A player whose body is itself an
     /// attack is kept safe from no enemy by an earlier hurt: as an enemy that shows a picture takes its turn to
-    /// touch, whatever safety a hurt left the player ends, whether or not the two then meet.
+    /// touch, whatever safety a hurt left the player ends, whether or not the two then meet. A player still safe
+    /// from a hurt is not touched at all: the touch is not looked for, and nothing the enemy does on touching
+    /// them happens.
     /// </summary>
     private void TouchPlayer()
     {
         if (_animation is { Shown.Picture.Length: > 0 } && Room.Player.BodyPowers.Any(power => power.IsActive))
             Room.Player.BeInvincibleFor(0);
+        if (Room.Player.IsInvincible)
+            return;
         if (PartTouchingPlayer() is { } part)
             Touch(part);
     }

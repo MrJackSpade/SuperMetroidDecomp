@@ -91,6 +91,9 @@ public static class RoomDepth
     /// <summary>The room's liquid: over the room and what is in it, under the overlays.</summary>
     public const int Liquid = 90;
 
+    /// <summary>Over the room's liquid and under what is laid over the whole room: where something lies that changes how the room and its liquid together are seen.</summary>
+    public const int OverLiquid = 95;
+
     /// <summary>What is laid over the whole room.</summary>
     public const int Overlay = 100;
 

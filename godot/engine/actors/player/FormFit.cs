@@ -9,7 +9,11 @@ namespace Engine.Actors;
 /// Whether the form is taken where the player is, with no feeling for room: the body changes about its middle, into
 /// whatever is there, and the state is entered.
 /// </param>
-public readonly record struct FormAsked(string Form, bool AroundMiddle = false, bool Unfitted = false);
+/// <param name="AtOnce">
+/// Whether the body is the form's from the moment the state is entered, for whatever of the update is left to meet,
+/// and not from the player's next update as a form entered otherwise is.
+/// </param>
+public readonly record struct FormAsked(string Form, bool AroundMiddle = false, bool Unfitted = false, bool AtOnce = false);
 
 /// <summary>
 /// What fitting a form to the player's body came to (<see cref="Player.FitForm"/>): the form they take, where that

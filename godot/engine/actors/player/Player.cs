@@ -1346,12 +1346,20 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         if (wants.Unfitted)
         {
             ApplyForm(wants.Form);
+            if (wants.AtOnce)
+                PublishForm();
             return asked;
         }
 
         string? taken = TakeFit(FitForm(wants.Form, wants.AroundMiddle));
         if (taken == wants.Form)
+        {
+            // A form asked for at once has its body from this moment, as one set at once within a state has.
+            if (wants.AtOnce)
+                PublishForm();
             return asked;
+        }
+
         if (taken is null)
             return States.Current;
         PlayerState instead = StateFor(taken);

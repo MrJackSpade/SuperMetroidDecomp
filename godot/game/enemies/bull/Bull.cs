@@ -177,9 +177,22 @@ public partial class Bull : Enemy
     {
         if (_guard.IsRunning)
             return;
-        // A shot knocks it the way the shot was going; anything with no direction, such as a bomb, knocks it upward.
+        // A shot knocks it the way the shot was going, as the cartridge takes it: one of the eight ways, straight or
+        // diagonal, by which ways across and down the shot was going. Anything with no direction, such as a bomb, knocks
+        // it upward.
         PixelOffset way = hit.Direction;
-        _angle = way.X.IsZero && way.Y.IsZero ? Turns.PerTurn * 3 / 4 : Turns.AngleOf(way.X.Whole * 256 + way.X.Fraction / 256, way.Y.Whole * 256 + way.Y.Fraction / 256);
+        int across = way.X.IsZero ? 0 : way.X.IsNegative ? -1 : 1, down = way.Y.IsZero ? 0 : way.Y.IsNegative ? -1 : 1;
+        _angle = (across, down) switch
+        {
+            (1, 0) => 0,
+            (1, 1) => Turns.PerTurn / 8,
+            (0, 1) => Turns.PerTurn / 4,
+            (-1, 1) => Turns.PerTurn * 3 / 8,
+            (-1, 0) => Turns.PerTurn / 2,
+            (-1, -1) => Turns.PerTurn * 5 / 8,
+            (1, -1) => Turns.PerTurn * 7 / 8,
+            _ => Turns.PerTurn * 3 / 4,
+        };
         // The count between changes of speed runs on from where it stood.
         _gain = Pixels.FromNumber(KickAcceleration);
         _speed = Pixels.FromNumber(KickSpeed);

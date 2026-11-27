@@ -209,7 +209,7 @@ public partial class SamusGrapple : Node2D
         // of a line only takes the pattern up. Its angle is that of her place from where it is headed.
         if (_line is { } line)
             (_ropePicture, _ropeLeft, _endPicture, _endLeft) = (0, line.FirstPictureUpdates, 0, line.EndUpdates);
-        ShowLineAs(GrapplingState.AngleOf(-_across, -_down), 0);
+        ShowLineAs(CartridgeAngles.AngleClockwiseFromUp(-_across, -_down), 0);
         samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons", priority: SoundPriority.WhenIdle);
 
         // Its firing, like a beam shot's, takes back the asking again of a charge's sound.
@@ -460,7 +460,7 @@ public partial class SamusGrapple : Node2D
             // reaching out, the place her data gives the flare at her arm.
             PixelPosition from = samus.GrappleFlarePoint;
             PixelPosition end = IsLatched ? Anchor : _tip;
-            int toward = GrapplingState.AngleOf(end.X.Whole - from.X.Whole, end.Y.Whole - from.Y.Whole);
+            int toward = CartridgeAngles.AngleClockwiseFromUp(end.X.Whole - from.X.Whole, end.Y.Whole - from.Y.Whole);
             long across = (long)CartridgeAngles.SignedSine(toward) * line.Spacing * 256;
             long down = (long)CartridgeAngles.SignedSine(toward - Turns.PerTurn / 4) * line.Spacing * 256;
             long x = (long)from.X.Whole * Pixels.FractionsPerPixel, y = (long)from.Y.Whole * Pixels.FractionsPerPixel;

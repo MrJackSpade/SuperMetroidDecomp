@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 using Game.Data;
 using Godot;
 
@@ -408,8 +409,10 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
                 // A spark the room has no place for is not made, and draws no number for its way.
                 if (Leave(room, of, "particle", at) is not { } made)
                     continue;
+                // Across a pixel and up four at the peak, each by the cartridge's sine in 256ths with nothing dropped.
                 int angle = room.Session.Random.Draw().Part(0, 6) - 32;
-                var speed = new PixelVelocity(Turns.Sine(angle, Pixels.FromWhole(1)), -Turns.Cosine(angle, Pixels.FromWhole(4)));
+                var speed = new PixelVelocity(TwoFiftySixths(CartridgeAngles.SignedSine(angle)),
+                    TwoFiftySixths(4 * CartridgeAngles.SignedSine(angle - Turns.PerTurn / 4)));
                 _sparks.Add((made, speed, 0, of));
             }
         }
@@ -582,6 +585,9 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
 
     /// <summary>A place from the statue, as its data gives one.</summary>
     private static Vector2I Offset(DataNode offset) => new(offset.Int("x"), offset.Int("y"));
+
+    /// <summary>So many 256ths of a pixel.</summary>
+    private static Pixels TwoFiftySixths(int count) => Pixels.FromParts(count >> 8, (count & 255) * 256);
 
     private Effect? Leave(Room room, Guardian guardian, string name, PixelPosition at)
     {

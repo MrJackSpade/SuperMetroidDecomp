@@ -117,7 +117,7 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         // the line begins to draw itself in. Her speeds are cleared.
         _anchor = grapple.Anchor;
         PixelOffset hanging = owner.Position - _anchor;
-        _angle = AngleOf(hanging.X.Whole, hanging.Y.Whole) * Parts;
+        _angle = CartridgeAngles.AngleClockwiseFromUp(hanging.X.Whole, hanging.Y.Whole) * Parts;
         _length = grapple.Length;
         if (_length >= rules.LongLine)
             _length -= rules.LongLineShortening;
@@ -449,30 +449,6 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     private int Way(int ways) => (WholeStep * ways + Turns.PerTurn / 2) / Turns.PerTurn % ways;
 
     private static int Wrapped(int angle) => ((angle % WholeTurn) + WholeTurn) % WholeTurn;
-
-    /// <summary>
-    /// The angle step, clockwise from straight up, of a point <paramref name="across"/> and <paramref name="down"/>
-    /// from what holds the line, as the cartridge reckons it an eighth of a turn at a time: from the nearer straight
-    /// direction, turned by the shorter side over the longer read evenly across the eighth, what is over dropped.
-    /// </summary>
-    internal static int AngleOf(int across, int down)
-    {
-        int wide = Math.Abs(across), tall = Math.Abs(down);
-        if (wide == 0 && tall == 0)
-            return 0;
-        const int eighth = Turns.PerTurn / 8;
-        bool leanSameWay = (across < 0) == (down < 0);
-        if (tall < wide)
-        {
-            int steps = tall * eighth / wide;
-            int level = across < 0 ? 3 * Turns.PerTurn / 4 : Turns.PerTurn / 4;
-            return Turns.Wrap(level + (leanSameWay ? steps : -steps));
-        }
-
-        int turned = wide * eighth / tall;
-        int upright = down < 0 ? 0 : Turns.PerTurn / 2;
-        return Turns.Wrap(upright + (leanSameWay ? -turned : turned));
-    }
 
     /// <summary>A distance from a count of 65536ths of a pixel.</summary>
     private static Pixels FromFractions(long fractions)

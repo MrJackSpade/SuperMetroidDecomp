@@ -282,8 +282,9 @@ public partial class MorphBallEye : RoomObject
         beam.Position = new Vector2(0, -1);
         beam.Material ??= new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add };
         int half = _halfWidth >> 8;
-        Pixels reach = Pixels.FromWhole(512);
-        Vector2 Edge(int angle) => new(Turns.Cosine(Turns.Wrap(angle), reach).Whole, Turns.Sine(Turns.Wrap(angle), reach).Whole);
+        // Each edge leaves the eye the way the cartridge's fine sine points it, 512 pixels out.
+        const float reach = 512f / 32767f;
+        Vector2 Edge(int angle) => new Vector2(CartridgeAngles.FineSignedSine(angle + Turns.PerTurn / 4), CartridgeAngles.FineSignedSine(angle)) * reach;
         beam.Polygon = [Vector2.Zero, Edge(_angle - half), Edge(_angle + half)];
         beam.Color = new Color(_light * FullLight, _light * FullLight, 0f);
     }

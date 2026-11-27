@@ -280,6 +280,14 @@ public sealed class Weapons
             _cooldown = Countdown.Of(updates);
     }
 
+    /// <summary>Has the player wait at most <paramref name="updates"/> before the next shot: a longer wait is cut to it, a shorter one left.</summary>
+    public void WaitAtMost(int updates)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        if (_cooldown.Remaining > updates)
+            _cooldown = Countdown.Of(updates);
+    }
+
     /// <summary>
     /// Sets the wait before the next shot to exactly <paramref name="updates"/>, shorter or longer than it stood, as
     /// something that takes the weapons over for a while does.

@@ -1720,6 +1720,15 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
+    /// Called as one of the player's own shots ends where it is, leaving what its ending leaves: stopped by terrain,
+    /// spent on what it struck, or run out. One that only leaves the room, or is spent as a dud, is not told. A game
+    /// in which that changes something of the player says so here.
+    /// </summary>
+    protected internal virtual void OnShotEnded(Projectile shot)
+    {
+    }
+
+    /// <summary>
     /// Called as a shot of <paramref name="weapon"/> has been launched from the player's weapons. A game in which
     /// firing changes something of the player says so here.
     /// </summary>

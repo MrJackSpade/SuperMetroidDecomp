@@ -775,6 +775,19 @@ public partial class Samus : Player
     /// <summary>What is left of the hold a shot of hers put on her own bombs.</summary>
     private Countdown _bombsHeldOff = Countdown.Over;
 
+    /// <summary>The longest wait between her shots a missile's explosion leaves.</summary>
+    private const int MissileImpactWait = 20;
+
+    /// <summary>
+    /// A missile or a super missile of hers that explodes, on a wall or on an enemy, cuts a longer wait between her
+    /// shots to twenty updates, and leaves a shorter one, as the cartridge's missile does as it becomes its explosion.
+    /// </summary>
+    protected internal override void OnShotEnded(Projectile shot)
+    {
+        if (shot.Hit.CarriesAny([new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]))
+            Weapons.WaitAtMost(MissileImpactWait);
+    }
+
     /// <summary>A beam or a missile fired holds her own bombs off her for its count.</summary>
     protected internal override void OnFired(WeaponStats weapon)
     {

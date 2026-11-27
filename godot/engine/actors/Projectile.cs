@@ -1068,6 +1068,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (HasEnded)
             return;
 
+        // The player who launched it is told that their shot ends here.
+        (_launcher as Player)?.OnShotEnded(this);
+
         // What it leaves lies at its middle, or at its front: half its size on along each way it was launched.
         PixelPosition at = _settings.EndsAtFront
             ? Position + PixelOffset.FromWhole(_launchedAcross * (_width / 2), _launchedDown * (_height / 2))

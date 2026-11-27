@@ -1108,6 +1108,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   the body changes about its middle where it is, into whatever is there, as this game's crystal flash stands
   her up out of the ball.
 - The effect left at the player's feet on landing may come from their data.
+- The game's player is told as a shot of theirs ends where it is (`Player.OnShotEnded`: stopped by terrain, spent on
+  what it struck, or run out): this game's Samus has a missile's or a super missile's explosion cut a longer wait
+  between her shots to twenty updates (`Weapons.WaitAtMost`), as the cartridge's missile does.
 - The game's player is told as a shot of theirs is launched (`Player.OnFired`): this game's Samus holds her own
   bombs off her for a count from each beam or missile fired, as the cartridge does.
 - Facing and aim are separate values, never part of a state's name.

@@ -98,10 +98,11 @@ public partial class KraidLint : Enemy
     private bool _flashing;
 
     /// <summary>
-    /// A shot lands on it while it is out and has not yet struck Samus, and is a dud there: it is harmed by none, and
-    /// stands between her shots and Kraid. Harmless again, or hidden, it is met by nothing.
+    /// A shot lands on it until it has struck Samus or flown past where it can hurt, and is a dud there: it is harmed
+    /// by none, and stands between her shots and Kraid. Out of sight as Kraid grows it is still met, as the
+    /// cartridge's hidden spike still heeds Samus; harmless, it is met by nothing until it comes out again.
     /// </summary>
-    public override bool IsHitBy(HitSide side) => !_harmless && _shown && base.IsHitBy(side);
+    public override bool IsHitBy(HitSide side) => !_harmless && base.IsHitBy(side);
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)

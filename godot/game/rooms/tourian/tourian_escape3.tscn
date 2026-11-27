@@ -39,6 +39,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/tourian/tourian_escape3_in_tourian.json"
 
 [node name="ToTourianEscape2" type="Node2D" parent="."]
@@ -151,6 +152,7 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/tourian_pipe_room.png"
 ScrollShare = Vector2(0.75, 0.75)
+LiesAt = Vector2i(0, -1)
 
 [node name="Escape" type="Node" parent="."]
 script = ExtResource("10")

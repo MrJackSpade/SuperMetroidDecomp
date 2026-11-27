@@ -25,6 +25,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/west_tunnel_in_sandless_maridia.json"
 
 [node name="ToBelowSpazer" type="Node2D" parent="."]
@@ -62,3 +63,4 @@ script = ExtResource("6")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_west_tunnel.png"
 ScrollShare = Vector2(1, 1)
+LiesAt = Vector2i(0, -1)

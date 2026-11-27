@@ -129,6 +129,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 
 [node name="ToCrateriaPowerBombs" type="Node2D" parent="."]
@@ -276,6 +277,7 @@ position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/scrolling_sky_landing_site.png"
 ScrollShare = Vector2(0, 1)
 BandsFile = "backdrops/scrolling_sky_bands.json"
+LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r16")
 
 [node name="Landing" type="Node" parent="."]
@@ -456,6 +458,7 @@ script = ExtResource("16")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/scrolling_sky_landing_site.png"
 ScrollShare = Vector2(0.5, 0)
+LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r1")
 
 [node name="Escape" type="Node" parent="."]

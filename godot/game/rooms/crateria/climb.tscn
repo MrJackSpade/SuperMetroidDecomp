@@ -115,6 +115,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/climb_in_old_tourian.json"
 
 [node name="ToCrateriaSuperLower" type="Node2D" parent="."]
@@ -496,6 +497,7 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/crateria_mechanical.png"
 ScrollShare = Vector2(0.75, 0.75)
+LiesAt = Vector2i(0, -1)
 
 [node name="PirateGreyWall" parent="." instance=ExtResource("12")]
 position = Vector2(304, 216)

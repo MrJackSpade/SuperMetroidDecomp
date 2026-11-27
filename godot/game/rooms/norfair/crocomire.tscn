@@ -62,6 +62,7 @@ StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
 
 [node name="ToCrocomireSpeedway" type="Node2D" parent="."]

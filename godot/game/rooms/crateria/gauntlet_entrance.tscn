@@ -41,6 +41,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/gauntlet_entrance_in_upper_crateria.json"
 
 [node name="ToGauntletEnergyTank" type="Node2D" parent="."]
@@ -124,3 +125,4 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/crateria_horizontal_pattern_rocks.png"
 ScrollShare = Vector2(0.75, 0.75)
+LiesAt = Vector2i(0, -1)

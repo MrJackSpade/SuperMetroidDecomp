@@ -26,6 +26,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/pre_bowling_in_upper_crateria.json"
 
 [node name="ToBowlingAlley" type="Node2D" parent="."]
@@ -72,3 +73,4 @@ position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/scrolling_sky_pre_bowling.png"
 ScrollShare = Vector2(0, 1)
 BandsFile = "backdrops/scrolling_sky_bands.json"
+LiesAt = Vector2i(0, -1)

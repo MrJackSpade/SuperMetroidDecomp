@@ -42,6 +42,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/caterpillar_in_red_brinstar_kraid.json"
 
 [node name="ToAlphaPowerBomb" type="Node2D" parent="."]
@@ -389,6 +390,7 @@ script = ExtResource("15")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_caterpillar.png"
 ScrollShare = Vector2(1, 1)
+LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("16")

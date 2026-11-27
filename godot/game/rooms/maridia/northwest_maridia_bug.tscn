@@ -30,6 +30,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/northwest_maridia_bug_in_sandless_maridia.json"
 
 [node name="ToPseudoPlasmaSpark" type="Node2D" parent="."]
@@ -183,3 +184,4 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_northwest_maridia_bug.png"
 ScrollShare = Vector2(0.75, 1)
+LiesAt = Vector2i(0, -1)

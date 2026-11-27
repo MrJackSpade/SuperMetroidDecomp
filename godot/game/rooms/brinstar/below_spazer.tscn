@@ -38,6 +38,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/below_spazer_in_red_brinstar_kraid.json"
 
 [node name="ToSkreeBoost" type="Node2D" parent="."]
@@ -297,6 +298,7 @@ script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_vertical_brick.png"
 ScrollShare = Vector2(0.75, 0.75)
+LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("13")

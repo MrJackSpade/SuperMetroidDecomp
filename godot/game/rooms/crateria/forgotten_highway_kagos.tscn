@@ -25,6 +25,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/forgotten_highway_kagos_in_upper_crateria.json"
 
 [node name="ToCrabMaze" type="Node2D" parent="."]
@@ -70,3 +71,4 @@ script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/crateria_vertical_pattern_rocks.png"
 ScrollShare = Vector2(0.75, 0.75)
+LiesAt = Vector2i(0, -1)

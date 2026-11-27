@@ -31,6 +31,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/botwoon_energy_tank_in_sandy_maridia.json"
 
 [node name="ToBotwoon" type="Node2D" parent="."]
@@ -162,3 +163,4 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_botwoon_energy_tank.png"
 ScrollShare = Vector2(0.75, 1)
+LiesAt = Vector2i(0, -1)

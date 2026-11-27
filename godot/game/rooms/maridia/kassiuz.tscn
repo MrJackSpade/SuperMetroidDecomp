@@ -28,6 +28,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/kassiuz_in_sandless_maridia.json"
 
 [node name="ToPlasmaSpark" type="Node2D" parent="."]
@@ -107,3 +108,4 @@ script = ExtResource("8")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_kassiuz.png"
 ScrollShare = Vector2(1, 0.75)
+LiesAt = Vector2i(0, -1)

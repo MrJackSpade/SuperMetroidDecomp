@@ -32,6 +32,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/east_tunnel_in_sandless_maridia.json"
 
 [node name="ToCrabHole" type="Node2D" parent="."]
@@ -276,3 +277,4 @@ script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_east_tunnel.png"
 ScrollShare = Vector2(1, 1)
+LiesAt = Vector2i(0, -1)

@@ -61,6 +61,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/kraid_in_kraid.json"
 
 [node name="ToKraidEyeDoor" type="Node2D" parent="."]

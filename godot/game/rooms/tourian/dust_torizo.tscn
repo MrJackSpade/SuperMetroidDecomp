@@ -59,6 +59,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/tourian/dust_torizo_in_tourian.json"
 
 [node name="ToBigBoy" type="Node2D" parent="."]
@@ -116,3 +117,4 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/tourian_vertical_structures.png"
 ScrollShare = Vector2(0.75, 0.75)
+LiesAt = Vector2i(0, -1)

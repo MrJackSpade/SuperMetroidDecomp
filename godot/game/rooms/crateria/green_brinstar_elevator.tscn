@@ -30,6 +30,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/green_brinstar_elevator_in_lower_crateria.json"
 
 [node name="ToGreenBrinstarMainShaft" type="Node2D" parent="."]
@@ -95,6 +96,7 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_green_brinstar_elevator.png"
 ScrollShare = Vector2(1, 1)
+LiesAt = Vector2i(0, -1)
 
 [node name="AtGreenBrinstarElevator" type="Marker2D" parent="."]
 script = ExtResource("10")

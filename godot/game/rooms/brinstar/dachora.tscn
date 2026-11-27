@@ -40,6 +40,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
+position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/dachora_in_green_blue_brinstar.json"
 
 [node name="ToBigPink" type="Node2D" parent="."]
@@ -405,6 +406,7 @@ script = ExtResource("14")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_dachora.png"
 ScrollShare = Vector2(0.75, 1)
+LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("15")

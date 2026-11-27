@@ -53,6 +53,7 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
+position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/shaktool_default_in_sandy_maridia.json"
 
 [node name="ToEastPants" type="Node2D" parent="."]
@@ -116,6 +117,7 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_shaktool_default.png"
 ScrollShare = Vector2(0.75, 1)
+LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r5")
 
 [node name="ShaktoolPath" type="Node" parent="."]
@@ -130,4 +132,5 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_shaktool_when_shaktool_cleared_path.png"
 ScrollShare = Vector2(0.75, 1)
+LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r1")

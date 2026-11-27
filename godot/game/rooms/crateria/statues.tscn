@@ -81,6 +81,8 @@ RestsOn = Rect2i(112, 432, 32, 16)
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r2")
+RememberedAs = "statues_grey_door_facing_right"
+Remembered = 1
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("8")

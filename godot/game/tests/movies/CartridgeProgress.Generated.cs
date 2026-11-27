@@ -161,7 +161,7 @@ public static class CartridgeProgress
     /// The doors the game keeps no fact for: grey doors it holds shut by what is true of the room each time it is
     /// entered, where the cartridge also keeps a bit once one has opened. Such a bit cannot be carried into the game.
     /// </summary>
-    public static IReadOnlySet<int> DoorsNotKept { get; } = new HashSet<int> { 2, 3, 4, 6, 7, 8, 9, 10, 11, 17, 18, 20, 21, 22, 23, 24, 36, 72, 135, 164, 166, 170, 171, 172 };
+    public static IReadOnlySet<int> DoorsNotKept { get; } = new HashSet<int> { 2, 3, 4, 6, 7, 8, 9, 10, 11, 17, 18, 20, 21, 22, 23, 24, 36, 135, 164, 166, 170, 171, 172 };
 
     /// <summary>The fact of each item collected, by the number room data gives the place it lies.</summary>
     public static IReadOnlyDictionary<int, string> Items { get; } = new Dictionary<int, string>

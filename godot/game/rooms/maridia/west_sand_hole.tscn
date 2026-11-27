@@ -40,7 +40,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/west_sand_hole_in_sandy_maridia.json"
 
 [node name="ToWestSandHall" type="Node2D" parent="."]
@@ -123,7 +122,6 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_west_sand_hole.png"
 ScrollShare = Vector2(1, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="FromWestAqueductQuicksandToWestSandHole" type="Marker2D" parent="."]
 position = Vector2(384, 128)

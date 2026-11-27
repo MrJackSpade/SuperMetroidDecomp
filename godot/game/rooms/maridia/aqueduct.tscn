@@ -30,7 +30,6 @@ ViewAboveOtherwise = 144
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/aqueduct_in_sandy_maridia.json"
 
 [node name="ToAqueductSave" type="Node2D" parent="."]
@@ -183,4 +182,3 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_aqueduct.png"
 ScrollShare = Vector2(0.75, 1)
-LiesAt = Vector2i(0, -1)

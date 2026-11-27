@@ -62,7 +62,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/ceres/ceres_elevator_in_blue_ceres_elevator.json"
 
 [node name="ToFallingTile" type="Node2D" parent="."]

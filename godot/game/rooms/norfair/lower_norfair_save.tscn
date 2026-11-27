@@ -28,7 +28,6 @@ StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/norfair/save_room_door_on_left_in_save_station.json"
 
 [node name="ToRedKihunterShaft" type="Node2D" parent="."]
@@ -55,7 +54,6 @@ script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_save_room_door_on_left.png"
 ScrollShare = Vector2(1, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="AtLowerNorfairSave" type="Marker2D" parent="."]
 script = ExtResource("8")

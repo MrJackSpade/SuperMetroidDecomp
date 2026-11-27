@@ -29,7 +29,6 @@ ViewAboveOtherwise = 144
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/mt_everest_in_sandless_maridia.json"
 
 [node name="ToCrabShaft" type="Node2D" parent="."]
@@ -237,4 +236,3 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_mt_everest.png"
 ScrollShare = Vector2(0.75, 0.75)
-LiesAt = Vector2i(0, -1)

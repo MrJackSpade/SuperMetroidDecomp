@@ -61,7 +61,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/ceres/ceres_ridley_in_blue_ceres_ridley.json"
 
 [node name="CeresRidley" type="Node2D" parent="."]
@@ -96,7 +95,6 @@ script = ExtResource("8")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_ceres_ridley.png"
 ScrollShare = Vector2(1, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="Shaking" type="Node" parent="."]
 script = ExtResource("9")

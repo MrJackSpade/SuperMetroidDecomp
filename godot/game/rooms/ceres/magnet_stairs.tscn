@@ -56,7 +56,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/ceres/magnet_stairs_in_blue_ceres.json"
 
 [node name="ToDeadScientist" type="Node2D" parent="."]
@@ -96,7 +95,6 @@ script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.25)
-LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r6")
 
 [node name="Shaking" type="Node" parent="."]
@@ -157,7 +155,6 @@ script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.75)
-LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r1")
 
 [node name="Haze2" type="Node2D" parent="."]

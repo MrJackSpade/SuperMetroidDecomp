@@ -55,7 +55,6 @@ ViewAboveOtherwise = 144
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/the_precious_in_sandy_maridia.json"
 
 [node name="ToColosseum" type="Node2D" parent="."]
@@ -168,4 +167,3 @@ script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_the_precious.png"
 ScrollShare = Vector2(1, 0.75)
-LiesAt = Vector2i(0, -1)

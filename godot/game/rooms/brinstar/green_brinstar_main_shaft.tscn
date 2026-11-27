@@ -58,7 +58,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/green_brinstar_main_shaft_in_green_blue_brinstar.json"
 
 [node name="ToBrinstarPreMap" type="Node2D" parent="."]
@@ -623,7 +622,6 @@ script = ExtResource("16")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_vertical_glow_patches.png"
 ScrollShare = Vector2(1, 0.75)
-LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("17")

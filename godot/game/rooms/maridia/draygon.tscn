@@ -55,7 +55,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/draygon_in_draygon.json"
 
 [node name="ToSpaceJump" type="Node2D" parent="."]

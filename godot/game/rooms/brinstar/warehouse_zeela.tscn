@@ -42,7 +42,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/warehouse_zeela_in_red_brinstar_kraid.json"
 
 [node name="ToWarehouseEnergyTank" type="Node2D" parent="."]
@@ -215,7 +214,6 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_warehouse_zeela.png"
 ScrollShare = Vector2(0.75, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("12")

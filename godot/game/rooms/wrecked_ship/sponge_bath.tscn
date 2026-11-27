@@ -43,7 +43,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/wrecked_ship/sponge_bath_in_wrecked_ship_power_off.json"
 
 [node name="ToSpikyDeath" type="Node2D" parent="."]
@@ -93,7 +92,6 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/wrecked_ship_panels_vents.png"
 ScrollShare = Vector2(0.75, 0.75)
-LiesAt = Vector2i(0, -1)
 
 [node name="Bull" parent="." instance=ExtResource("10")]
 position = Vector2(240, 136)

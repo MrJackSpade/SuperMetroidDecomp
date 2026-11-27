@@ -29,7 +29,6 @@ StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/norfair/ridley_energy_tank_in_heated_norfair.json"
 
 [node name="ToRidley" type="Node2D" parent="."]
@@ -97,4 +96,3 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_cavern_room_pillars.png"
 ScrollShare = Vector2(0, 0)
-LiesAt = Vector2i(0, -1)

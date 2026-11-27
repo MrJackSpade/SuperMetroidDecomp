@@ -27,7 +27,6 @@ ViewAboveOtherwise = 160
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/crateria/terminator_in_lower_crateria.json"
 
 [node name="ToGreenPiratesShaft" type="Node2D" parent="."]
@@ -138,4 +137,3 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/crateria_purple_rocks.png"
 ScrollShare = Vector2(0.75, 0.75)
-LiesAt = Vector2i(0, -1)

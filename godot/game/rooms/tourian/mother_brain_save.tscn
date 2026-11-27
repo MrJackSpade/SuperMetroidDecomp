@@ -28,7 +28,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/tourian/save_room_door_on_right_in_save_station.json"
 
 [node name="ToRinkaShaft" type="Node2D" parent="."]
@@ -55,7 +54,6 @@ script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_save_room_door_on_right.png"
 ScrollShare = Vector2(1, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="AtMotherBrainSave" type="Marker2D" parent="."]
 script = ExtResource("8")

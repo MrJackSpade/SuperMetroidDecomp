@@ -31,7 +31,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/watering_hole_in_sandless_maridia.json"
 
 [node name="ToNorthwestMaridiaBug" type="Node2D" parent="."]
@@ -116,4 +115,3 @@ script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_watering_hole.png"
 ScrollShare = Vector2(0.75, 1)
-LiesAt = Vector2i(0, -1)

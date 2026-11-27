@@ -45,7 +45,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, -1)
 LayoutFile = "rooms/wrecked_ship/map_station_room_door_on_right_in_wrecked_ship_map_power_off.json"
 
 [node name="ToBasement" type="Node2D" parent="."]
@@ -146,7 +145,6 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_map_station_room_door_on_right.png"
 ScrollShare = Vector2(1, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="MapStation" parent="." instance=ExtResource("10")]
 position = Vector2(48, 160)

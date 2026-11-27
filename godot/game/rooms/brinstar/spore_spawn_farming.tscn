@@ -36,7 +36,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/brinstar/spore_spawn_farming_in_green_blue_brinstar.json"
 
 [node name="ToBigPink" type="Node2D" parent="."]
@@ -116,7 +115,6 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_spore_spawn_farming.png"
 ScrollShare = Vector2(0.75, 1)
-LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
 script = ExtResource("11")

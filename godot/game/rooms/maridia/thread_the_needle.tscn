@@ -28,7 +28,6 @@ ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-position = Vector2(0, -1)
 LayoutFile = "rooms/maridia/thread_the_needle_in_sandless_maridia.json"
 
 [node name="ToBugSandHole" type="Node2D" parent="."]
@@ -167,4 +166,3 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_thread_the_needle.png"
 ScrollShare = Vector2(0.75, 1)
-LiesAt = Vector2i(0, -1)

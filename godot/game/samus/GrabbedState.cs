@@ -57,6 +57,17 @@ public sealed class GrabbedState : PlayerState, ISamusLook
         return left || right || up || down ? "moving" : "forward";
     }
 
+    /// <summary>The way each of her holds aims, as the cartridge's grabbed poses do: diagonally where she aims so, else level.</summary>
+    private static Aim AimOf(string hold) => hold switch
+    {
+        "diagonal_up" => Aim.DiagonalUp,
+        "diagonal_down" => Aim.DiagonalDown,
+        _ => Aim.Forward,
+    };
+
+    /// <summary>She cannot fire while she struggles, as the cartridge's moving pose in the grab does not shoot.</summary>
+    public override bool CanAttack => Hold != "moving";
+
     /// <inheritdoc/>
     public override bool InControl => false;
 
@@ -81,8 +92,8 @@ public sealed class GrabbedState : PlayerState, ISamusLook
     {
         var samus = (Samus)owner;
         GameInput input = owner.Input;
-        owner.AimFromInput();
         Hold = HoldOf(owner);
+        owner.Aim = AimOf(Hold);
 
         // Her grapple beam still works: it holds while the button is held, though she does not swing from it.
         if (samus.Grapple is { } grapple)

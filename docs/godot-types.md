@@ -1304,7 +1304,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   form of its own, `swinging`, shorter than the jump's, as the cartridge's swinging pose is) and its holding her in
   place and against a wall (whose bodies are hers wherever the line puts her; against a wall the crouch's, as compact
   as the cartridge's wall pose), the flight out of a swing (the jump's body, as the
-  cartridge sets its release pose once the flight's first move is made in the swing's), Draygon's grab, collecting a suit (the
+  cartridge sets its release pose once the flight's first move is made in the swing's), Draygon's grab, Ridley's shove
+  (the upright body, her feet kept where they were), collecting a suit (the
   front view's body, before she is put at her place of the screen), and the front view (`FacingForwardState`,
   `StandingForwardState`, `RidingElevatorState`, `AppearingState`). The front view is taken about her middle where
   something puts her in it (Ceres's start, the landing on Zebes, a saved game taken up); where she turns to it
@@ -1380,11 +1381,21 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   line, and against a wall), a boss's grip, the shinespark and being drained; and, where the cartridge looks at no
   knockback at all until it lets her go, her appearance where a saved game is taken up (to its last update, on
   which the knockback is taken in place of her standing), the front view she is put in at Ceres's start and the
-  landing on Zebes; and Ridley's shove, whose knockback pose refuses one.
+  landing on Zebes. Ridley's shove holds one off too, as its knockback pose refuses it.
 - **A jump with the speed booster on** adds half the dash's whole pixels and all of its fraction to the jump's
   speed, each on its own with no carry, as the cartridge does.
 - **Grabbed** is being seized and carried by something that still lets her aim and fire (Draygon, Ridley). The
-  holder says how many fresh presses of a direction free her, or none.
+  holder says how many fresh presses of a direction free her, or none. How she holds herself is chosen by what is
+  held, in the cartridge's order, and aims as its grabbed poses do: diagonally up or down, or level; struggling
+  (a direction held without the attack) she cannot fire.
+- **Shoved** (`ShovedState`) is Ridley throwing her aside as he leaves Ceres, and takes only her movement: she is in
+  control, cannot attack (the knockback's look she is in does not shoot), and a knockback waits. As it begins she
+  takes the upright form unfitted, her feet kept where they were; its first update chooses the side by where she is
+  on the screen; from the next she is carried that way as a knockback's throw carries her (her speed across gained
+  by the knockback's move values, a dash on top), falling five pixels an update, and each update after the first
+  is steered again with her momentum ended. A wall ends it: met on the first update that carries her, it lifts her
+  once more by what the first lifted her, as the cartridge lines her feet up with her pose before the shove; she is
+  then set down as a knockback that has run out sets her down.
 - **Drained** is what Mother Brain's beam and the giant Metroid leave her in. Whatever drains her puts her in a
   pose: pinned in the beam, on her knees, standing, or frozen while she takes in the hyper beam. On her knees, Up
   gets her to her feet and back in control if she has the strength, and otherwise she sinks back. She can glow

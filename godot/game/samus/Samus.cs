@@ -711,8 +711,9 @@ public partial class Samus : Player
     /// </summary>
     protected override void OnLanded()
     {
-        // Come down aiming straight down she is in the plain landing, which aims level from this update on.
-        if (Aim == Aim.Down && State is JumpingState or FallingState)
+        // Come down aiming straight down she is in the plain landing, which aims level from this update on. So she
+        // is come down out of a damage boost, in which she cannot shoot, whatever she aimed at before she was hurt.
+        if (State is DamageBoostState || (Aim == Aim.Down && State is JumpingState or FallingState))
             Aim = Aim.Forward;
 
         bool hard = LandedAtLeast(HardLandingSpeed);

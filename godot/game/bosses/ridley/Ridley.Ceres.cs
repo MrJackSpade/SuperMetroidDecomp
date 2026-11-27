@@ -86,6 +86,7 @@ public partial class Ridley
         RetrieveBaby,
         Retreat,
         RetreatDelay,
+        HandingOver,
         Gone,
     }
 
@@ -370,6 +371,11 @@ public partial class Ridley
                     break;
                 Velocity = PixelVelocity.Zero;
                 Tail.Action = RidleyTail.Doing.None;
+                _ceresPhase = CeresPhase.HandingOver;
+                break;
+
+            case CeresPhase.HandingOver:
+                // The update after its delay ends it is gone, and says so: what it tells begins on this update.
                 _ceresPhase = CeresPhase.Gone;
                 foreach (NodePath path in ToldWhenGone)
                     (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Ridley is to tell \"{path}\" that it has gone, but that is nothing that can be told.")).Triggered(GoneMessage);

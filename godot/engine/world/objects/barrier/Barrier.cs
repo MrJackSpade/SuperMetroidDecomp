@@ -309,6 +309,15 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <inheritdoc/>
     protected override void OnStep()
     {
+        // One that opens around the player wakes before its look moves on, while it rests shut: the first picture of
+        // its opening is then this update's, and the second the next's, as the cartridge's gate wakes and runs its
+        // sequence on the one update. One still closing is not at rest, and wakes on a later update.
+        if (OpensAroundPlayer && !IsOpen && _showingName == "closed" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } around
+            && around.RoomRect.Contains(Room.Player.Position.X.Whole, Room.Player.Position.Y.Whole))
+        {
+            Open();
+        }
+
         StepLook();
 
         // One held open closes on the update its condition stops holding it.
@@ -316,12 +325,6 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         {
             _heldOpen = false;
             Close();
-        }
-
-        if (OpensAroundPlayer && !IsOpen && _showingName == "closed" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } around
-            && around.RoomRect.Contains(Room.Player.Position.X.Whole, Room.Player.Position.Y.Whole))
-        {
-            Open();
         }
 
         if (OpensWhenNear > 0)

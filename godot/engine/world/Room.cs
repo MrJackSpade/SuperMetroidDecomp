@@ -153,6 +153,14 @@ public partial class Room : Node2D
     /// </summary>
     public bool HasExitOver(PixelRect area) => _exits.Any(exit => exit.Area.Overlaps(area));
 
+    /// <summary>
+    /// Whether a solid that stands as part of the room, as a door's cap or a gate does, lies over any of
+    /// <paramref name="area"/>: other than <paramref name="except"/>'s own. To a shot that meets terrain by its middle
+    /// or by the edge it leads with, the square of the room such a thing lies in is a wall.
+    /// </summary>
+    public bool HasStandingSolidOver(PixelRect area, ICollisionOwner? except = null) =>
+        Collision.Overlapping(area, ColliderRole.Solid, except: except).Any(solid => solid.StandsAsTerrain);
+
     /// <summary>How many enemies have been killed in the room since it was set up, counting each time one that comes back is killed.</summary>
     public int EnemiesKilled { get; private set; }
 

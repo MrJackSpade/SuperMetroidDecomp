@@ -658,6 +658,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         bool stopped = !passes && TerrainStops(room);
         if (hitsTerrain && (passes || stopped))
             room.Terrain.TakeHit(Hit, TerrainArea);
+
+        // Its hit lands on whatever standing thing lies in the square its middle is in, as on the tile there.
+        if (passes || stopped)
+            HitStandingThings(room, SquaresOf(room, TerrainArea));
         if (!stopped)
             return false;
         _settings.TerrainShake?.Start(room);
@@ -757,12 +761,19 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     private bool MeetTerrainWithEdge(Room room, bool across, bool backward)
     {
         PixelRect edge = LeadingStrip(across, backward);
-        ShotEdgeMeeting met = room.Terrain.MeetShotEdge(edge, across, Position.X.Whole, Position.Y.Whole, room.HasExitOver);
+        // A square of the room a way out lies over stops the edge, and so does one that something standing as part
+        // of the room lies in, a door's cap or a gate: such a thing is blocks to the shot, like any others.
+        ShotEdgeMeeting met = room.Terrain.MeetShotEdge(
+            edge, across, Position.X.Whole, Position.Y.Whole, square => room.HasExitOver(square) || room.HasStandingSolidOver(square, _launcher));
         bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
         bool hitsTerrain = HarmsNow &&
             _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
         if (hitsTerrain && !met.Reached.IsEmpty)
             room.Terrain.TakeHit(Hit, met.Reached);
+
+        // Its hit lands on whatever standing thing lies in the squares the edge reached, as on the tiles there.
+        if (!met.Reached.IsEmpty)
+            HitStandingThings(room, SquaresOf(room, met.Reached));
         if (passes || !met.Stops)
             return false;
 
@@ -785,7 +796,55 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         PixelRect middle = TerrainArea;
         if (middle.Left < 0 || middle.Top < 0 || middle.Right > room.Terrain.WidthInPixels || middle.Bottom > room.Terrain.HeightInPixels)
             return false;
-        return room.Terrain.IsSolidIn(middle, SlopeTreatment.Wall) || room.HasExitOver(middle);
+        return room.Terrain.IsSolidIn(middle, SlopeTreatment.Wall) || room.HasExitOver(middle)
+            || room.HasStandingSolidOver(SquaresOf(room, middle), _launcher);
+    }
+
+    /// <summary>
+    /// Whether it meets the things that stand as part of the room, a door's cap or a gate, as it meets terrain: where
+    /// each move ends, by the squares its edge or its middle reached, and not at the first pixel its body touches
+    /// them. One that leads with its side still meets them as it moves.
+    /// </summary>
+    private bool MeetsStandingThingsAtEnd =>
+        _settings.MeetsTerrainBy is ProjectileSettings.TerrainBy.FrontEdge or ProjectileSettings.TerrainBy.Middle;
+
+    /// <summary>Whether <paramref name="target"/> is a thing that stands as part of the room: one with a solid that stands as terrain.</summary>
+    private static bool StandsAsPartOfRoom(IHittable target) =>
+        target is Node node && EntityNode.CollidersOf(node).Any(collider => collider.Role == ColliderRole.Solid && collider.StandsAsTerrain);
+
+    /// <summary>The whole squares of the room's tiles that <paramref name="area"/> lies in.</summary>
+    private static PixelRect SquaresOf(Room room, PixelRect area)
+    {
+        int size = room.Terrain.TileSize;
+        int left = (int)Math.Floor(area.Left / (double)size) * size, top = (int)Math.Floor(area.Top / (double)size) * size;
+        int right = (int)Math.Ceiling(area.Right / (double)size) * size, bottom = (int)Math.Ceiling(area.Bottom / (double)size) * size;
+        return new PixelRect(left, top, right - left, bottom - top);
+    }
+
+    /// <summary>
+    /// Lands the hit of a shot of the player's on the things standing as part of the room that lie in
+    /// <paramref name="squares"/>, each once: a door's cap or a gate's switch is shot so. What such a thing answers
+    /// does not end the shot; the squares it lies in do, as blocks do.
+    /// </summary>
+    private void HitStandingThings(Room room, PixelRect squares)
+    {
+        if (!MeetsStandingThingsAtEnd || !HarmsNow || Side == HitSide.Enemies)
+            return;
+        _alreadyHurt.Add(this);
+        foreach ((IHittable target, HitResult result) in room.DeliverHit(
+            Hit with { At = Position }, squares, from: _launcher, skipping: _alreadyHurt, landsOn: StandsAsPartOfRoom).ToList())
+        {
+            OnMetTarget(room, target, result);
+            if (result == HitResult.Ignored)
+                continue;
+            if (!_shookForTarget && _settings.TerrainShake is { } shake)
+            {
+                _shookForTarget = true;
+                shake.Start(room);
+            }
+
+            _alreadyHurt.Add(target);
+        }
     }
 
     /// <summary>
@@ -815,7 +874,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // is there is hit first, and only then does the solid stop the shot.
         // No other solid is a wall to a shot: it is solid to the player alone, and stops a shot only by what it does
         // when the shot hits it.
-        bool meetsSolid = !passes &&
+        // One that meets such things where its move ends, as it meets terrain, neither hits nor is stopped by them here.
+        bool meetsSolid = !passes && !MeetsStandingThingsAtEnd &&
             room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.StandsAsTerrain);
 
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
@@ -826,8 +886,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // an eye door's eye lies within its cap, and the shot would be gone before that enemy's turn came.
         if (!HarmsNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
-        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false }))
+        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false }
+            && !(MeetsStandingThingsAtEnd && StandsAsPartOfRoom(target))))
+        {
             return false;
+        }
+
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
     }
 

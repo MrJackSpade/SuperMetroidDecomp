@@ -1707,7 +1707,11 @@ what takes a destroyed enemy's place arrives as that pause ends. This game keeps
 leave none, as the cartridge's death explosion in its first place never becomes a pickup.
 
 **A shot meets what is solid and hittable.** A projectile that reaches a solid that stands as part of the room, such
-as a door's cap, delivers its hit to what is there before the solid stops it. Terrain stops it first. A solid that
+as a door's cap, delivers its hit to what is there before the solid stops it. Terrain stops it first. One that meets
+terrain where each move ends, by the edge it leads with or by its middle, meets such things the same way and at the
+same moment, as the blocks they are on the cartridge: the square of the room one lies in stops the edge or the middle
+as a way out does, the shot's hit lands on whatever of them lies in the squares reached (once on each), and what the
+thing answers does not end the shot; as it moves it neither hits nor is stopped by them. A solid that
 does not stand as part of the room, an enemy's or a thing's that was an enemy on the cartridge, is solid to the
 player alone and no wall to a shot: it stops one only by what it answers when the shot's hit lands on its hurtbox.
 

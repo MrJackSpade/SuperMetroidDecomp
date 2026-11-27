@@ -140,12 +140,12 @@ public sealed partial class EngineAssetWriter
         }
 
         // Every room that places a Kago places it solid to Samus: she stands on it and is stopped by it.
-        Enemy("enemies/kago.json", "Kago", EnemyDefinitionId.Kago).BodyColliders("Body", "Solid", "Hurtbox")
+        WithKagoBug(Enemy("enemies/kago.json", "Kago", EnemyDefinitionId.Kago).BodyColliders("Body", "Solid", "Hurtbox")
             .Value("shake_strength", ShakeStrength(KagoDefinitions.ShotQuake))
             .Value("shake_updates", KagoDefinitions.ShotQuakeDuration)
             .Value("shake_way", ShakeWayName(KagoDefinitions.ShotQuake))
             .Value("shake_reach", ShakeReachName(KagoDefinitions.ShotQuake))
-            .Looks(KagoAnimations.Segments, KagoAnimations.StartingWith, ("slow", KagoSegment.Slow), ("fast", KagoSegment.Fast))
+            .Looks(KagoAnimations.Segments, KagoAnimations.StartingWith, ("slow", KagoSegment.Slow), ("fast", KagoSegment.Fast)))
             .Write();
         Enemy("enemies/mochtroid.json", "Mochtroid", EnemyDefinitionId.Mochtroid).BodyColliders(Ordinary)
             .Value("attached_speed", Whole(MochtroidBehaviorDefinitions.AttachedSpeed))

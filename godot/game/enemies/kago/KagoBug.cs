@@ -3,24 +3,28 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
-using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
 
 /// <summary>
-/// One of the bugs a Kago lets out: it waits on the ground for a moment, jumps, a random height and usually back
-/// toward its hive, falls, and waits again. Until it has got clear of its hive, shots pass it by; after that any
-/// shot destroys it: it bursts where it is, still hurting to the touch, and as the burst ends it leaves its drop and
-/// is gone. Bombs and power bombs never touch it. Touching Samus hurts her and is the end of it.
+/// One of the bugs a Kago lets out, which is one of the enemies' shots, as the cartridge's is: it waits on the ground
+/// for a moment, jumps, a random height and usually back toward its hive, falls, and waits again. Until it has got
+/// clear of its hive Samus's shots pass it by; after that any shot of hers that comes to stand in its square of the
+/// room shoots it down: it bursts where it is, still hurting to the touch, and as the burst ends it leaves its drop
+/// and is gone, as its settings have it. Touching Samus hurts her and is the end of it.
 /// </summary>
 /// <remarks>
-/// Its timelines are "waiting", curled up before its first jump; "jump_start", whose cue "jump" launches it;
-/// "falling"; "landed", whose cue "wait" sets it waiting again, standing as it landed; and "burst", whose cue
-/// "drop" leaves its drop and ends it.
+/// Its settings name the timeline it comes out on, curled up before its first jump, and the burst a shot makes of
+/// it. Its own data names the others: "jump_start_timeline", whose cue "jump" launches it; "falling_timeline"; and
+/// "landed_timeline", whose cue "wait" sets it waiting again, standing as it landed.
 /// </remarks>
-public partial class KagoBug : Enemy
+public partial class KagoBug : Projectile, IHasValues
 {
+    /// <inheritdoc/>
+    [Export(PropertyHint.File)]
+    public string DataFile { get; set; } = "";
+
     /// <summary>The upward speed its lowest jump starts with, in pixels.</summary>
     [Export, DataValue("jump_speed")]
     public int JumpSpeed { get; set; } = 8;
@@ -57,6 +61,18 @@ public partial class KagoBug : Enemy
     [Export, DataValue("first_sound_after")]
     public int FirstSoundAfter { get; set; } = 3;
 
+    /// <summary>The data file of the timeline it sets itself to jump on.</summary>
+    [Export, DataValue("jump_start_timeline")]
+    public string JumpStartTimeline { get; set; } = "";
+
+    /// <summary>The data file of the timeline it falls on.</summary>
+    [Export, DataValue("falling_timeline")]
+    public string FallingTimeline { get; set; } = "";
+
+    /// <summary>The data file of the timeline it lands on.</summary>
+    [Export, DataValue("landed_timeline")]
+    public string LandedTimeline { get; set; } = "";
+
     private enum Doing
     {
         Waiting,
@@ -64,7 +80,7 @@ public partial class KagoBug : Enemy
         Jumping,
         Falling,
         Landed,
-        Bursting,
+        ShotDown,
     }
 
     private Doing _doing;
@@ -73,145 +89,104 @@ public partial class KagoBug : Enemy
     private bool _clear;
     private PixelPosition _hiveAt;
 
-    /// <summary>The hive that let it out.</summary>
-    public Kago? Hive { get; set; }
-
     /// <summary>
-    /// What holds its place among the room's places for what enemies launch, taken by its hive as it came out: on the
-    /// cartridge the bug is one of the enemies' shots. Null once it has given the place back.
+    /// The random number last drawn as its last turn ended. The cartridge's bug plays its pictures, and what they
+    /// tell it, once it has moved on each of its turns, and reads the number then; here its timeline's cues come as
+    /// its next turn begins, by when the room has drawn again, so they read the number it kept.
     /// </summary>
-    public Effect? Place { get; set; }
-
-    /// <summary>
-    /// How it is moved: on the cartridge the bug is one of the enemies' shots, whose move against blocks is tried
-    /// only where it ends, by the edge it leads with, and stopped rests on whole pixels against the block, its part
-    /// of a pixel dropped. Slopes are walls to it and no solid thing stops it.
-    /// </summary>
-    private static readonly MoveOptions ShotMoves =
-        MoveOptions.AmongBlocks with { Slopes = SlopeTreatment.Wall, Tries = WayTried.WhereItEnds, RestsAtPixelStart = true };
-
-    private Collider OwnBody => Body ?? throw new InvalidOperationException($"The Kago's bug \"{Name}\" has no body collider to move with.");
-
-    /// <summary>Moves it across as an enemy's shot is moved, and returns whether a block stopped it.</summary>
-    private bool MoveAcrossAsShot(Pixels distance) => Room.Mover.MoveAcross(OwnBody, distance, ShotMoves).Blocked;
-
-    /// <summary>Moves it down, or up, as an enemy's shot is moved, and returns whether a block stopped it.</summary>
-    private bool MoveDownAsShot(Pixels distance) => Room.Mover.MoveDown(OwnBody, distance, ShotMoves).Blocked;
-
-    /// <summary>Gives its place back to the room, as it goes.</summary>
-    private void GiveBackPlace()
-    {
-        if (Place is { } place)
-            Room.Remove(place);
-        Place = null;
-    }
-
-    /// <summary>On the cartridge the bug is one of the enemies' shots, there to be met from the update it comes out.</summary>
-    protected override bool MeetsFromFirstTurn => true;
+    private RandomDraw _numberAsTurnEnded;
 
     /// <inheritdoc/>
-    protected override void OnEnterRoom()
+    public void ReadValues(DataNode data)
     {
-        _hiveAt = Hive?.Position ?? Position;
-        // Its first wait is a few updates longer by chance, read from the number last drawn rather than a fresh one.
-        _wait = Countdown.Of(ShortestWait + Random.Last.Part(0, 3));
+    }
+
+    /// <inheritdoc/>
+    public override void _ValidateProperty(Godot.Collections.Dictionary property) => DataValues.Validate(this, property);
+
+    /// <summary>It moves itself against the blocks; its speed is what it leaves its place with.</summary>
+    protected override bool MovesItself => true;
+
+    /// <summary>Shots pass it by until it has got clear of its hive.</summary>
+    public override bool IsHitBy(HitSide side) => _clear && base.IsHitBy(side);
+
+    /// <inheritdoc/>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        // Shot down, it moves no more: it plays its burst out where it is, as its settings have it.
+        HitResult result = base.TakeHit(hit, part);
+        if (result == HitResult.Destroyed)
+            _doing = Doing.ShotDown;
+        return result;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnLaunched(Room room)
+    {
+        DataValues.Fill(this, room.Content);
+
+        // It comes out where its hive is. Its first wait is a few updates longer by chance, read from the number
+        // last drawn rather than a fresh one.
+        _hiveAt = Position;
+        _numberAsTurnEnded = room.Session.Random.Last;
+        _wait = Countdown.Of(ShortestWait + _numberAsTurnEnded.Part(0, 3));
         _untilSound = Countdown.Of(_wait.Remaining + FirstSoundAfter);
-        Play("waiting");
-
-        // On the cartridge the bug is one of the enemies' shots, which take their turns once the enemies have had
-        // theirs: it has its first turn on the update its hive lets it out. That turn of its wait is played here.
-        StepSound();
-        CheckClear();
-        _wait = _wait.Stepped();
     }
 
     /// <inheritdoc/>
-    protected override void OnTouchedPlayer()
+    protected override void OnCue(Room room, string cue)
     {
-        GiveBackPlace();
-        Vanish();
-    }
-
-    /// <summary>Counts one update toward its sound, which it makes as the count runs out. Only waiting, jumping and falling count.</summary>
-    private void StepSound()
-    {
-        if (_untilSound.IsOver)
-            return;
-        _untilSound = _untilSound.Stepped();
-        if (_untilSound.IsOver)
-            Sound(BugSound);
-    }
-
-    /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => _clear && _doing != Doing.Bursting && base.IsHitBy(side);
-
-    /// <inheritdoc/>
-    protected override bool DiesAtOnce(Hit hit)
-    {
-        // Shot down, it bursts where it is, as the cartridge's bug plays its shot animation: it moves no more, shows
-        // no hurt, and still hurts what touches it.
-        EndHurt();
-        _doing = Doing.Bursting;
-        Play("burst", restart: true);
-        return false;
-    }
-
-    /// <inheritdoc/>
-    public override HitResult TakeHit(Hit hit, Collider part) =>
-        // The old game's bombs and power bombs strike none of what enemies let out, its bugs among it.
-        hit.CarriesAny([new HitKind(HitKinds.Bomb), new HitKind(HitKinds.PowerBomb)]) ? HitResult.Ignored : base.TakeHit(hit, part);
-
-    /// <inheritdoc/>
-    protected override void OnCue(string cue)
-    {
-        if (cue == "jump")
-            Jump();
-        else if (cue == "wait")
+        switch (cue)
         {
-            // It waits standing, as it landed.
-            _wait = Countdown.Of(ShortestWait + Random.Last.Part(0, 5));
-            _doing = Doing.Waiting;
-        }
-        else if (cue == "drop")
-        {
-            // Its burst over, it leaves its drop where it is and is gone, a thing let out and no enemy killed. It has
-            // held its place through the burst, as the cartridge's bug plays its end in its own, and gives it back
-            // only now: its drop is left while the place is still its own.
-            Drop(Drops, Position);
-            GiveBackPlace();
-            Vanish();
+            case "jump":
+                Jump(room);
+                break;
+            case "wait":
+                // It waits standing, as it landed.
+                _wait = Countdown.Of(ShortestWait + _numberAsTurnEnded.Part(0, 5));
+                _doing = Doing.Waiting;
+                break;
+            default:
+                throw new InvalidOperationException($"A Kago's bug does not know the cue \"{cue}\".");
         }
     }
 
     /// <inheritdoc/>
-    protected override void Behave()
+    protected override void BeforeTravel(Room room)
+    {
+        Behave(room);
+        _numberAsTurnEnded = room.Session.Random.Last;
+    }
+
+    /// <summary>Plays its turn: it waits, sets itself, jumps or falls.</summary>
+    private void Behave(Room room)
     {
         switch (_doing)
         {
             case Doing.Waiting:
-                StepSound();
+                StepSound(room);
                 CheckClear();
                 _wait = _wait.Stepped();
                 if (_wait.IsRunning)
                     return;
-                Play("jump_start", restart: true);
+                PlayTimeline(JumpStartTimeline);
                 _doing = Doing.Poised;
                 return;
 
-            case Doing.Poised or Doing.Landed or Doing.Bursting:
+            case Doing.Poised or Doing.Landed or Doing.ShotDown:
                 return;
 
             case Doing.Jumping:
-                StepSound();
+                StepSound(room);
                 CheckClear();
-                if (MoveAcrossAsShot(Velocity.X))
+                if (MoveAgainstTerrain(room, Velocity.X, across: true))
                 {
                     Velocity = new PixelVelocity(Pixels.Zero, Pixels.FromNumber(FallStartSpeed));
                     BeginFall();
                     return;
                 }
 
-                if (MoveDownAsShot(Velocity.Y))
+                if (MoveAgainstTerrain(room, Velocity.Y, across: false))
                 {
                     Velocity = Velocity.WithY(Pixels.FromNumber(FallStartSpeed));
                     BeginFall();
@@ -224,19 +199,19 @@ public partial class KagoBug : Enemy
                 return;
 
             case Doing.Falling:
-                StepSound();
+                StepSound(room);
                 CheckClear();
-                if (MoveAcrossAsShot(Velocity.X))
+                if (MoveAgainstTerrain(room, Velocity.X, across: true))
                 {
                     Velocity = Velocity.WithX(Pixels.Zero);
                     return;
                 }
 
-                if (MoveDownAsShot(Velocity.Y))
+                if (MoveAgainstTerrain(room, Velocity.Y, across: false))
                 {
                     // It keeps the speed it landed with, which is what its place is left with if it goes now; its
                     // next jump gives it another.
-                    Play("landed", restart: true);
+                    PlayTimeline(LandedTimeline);
                     _doing = Doing.Landed;
                     return;
                 }
@@ -249,12 +224,22 @@ public partial class KagoBug : Enemy
         }
     }
 
-    /// <summary>Launches a jump: a random height, and back toward the hive when it has strayed, else either way by chance.</summary>
-    private void Jump()
+    /// <summary>Counts one update toward its sound, which it makes as the count runs out. Only waiting, jumping and falling count.</summary>
+    private void StepSound(Room room)
     {
-        StepSound();
+        if (_untilSound.IsOver)
+            return;
+        _untilSound = _untilSound.Stepped();
+        if (_untilSound.IsOver && BugSound.Length > 0)
+            room.Session.Sounds.Request(BugSound, channel: "enemies");
+    }
+
+    /// <summary>Launches a jump: a random height, and back toward the hive when it has strayed, else either way by chance.</summary>
+    private void Jump(Room room)
+    {
+        StepSound(room);
         CheckClear();
-        RandomDraw last = Random.Last;
+        RandomDraw last = _numberAsTurnEnded;
         int up = JumpSpeed + last.Part(8, 2);
         int toHive = _hiveAt.X.Whole - Position.X.Whole;
         bool left = Math.Abs(toHive) >= HomingDistance ? toHive < 0 : last.Part(8, 1) == 1;
@@ -277,6 +262,6 @@ public partial class KagoBug : Enemy
     private void BeginFall()
     {
         _doing = Doing.Falling;
-        Play("falling", restart: true);
+        PlayTimeline(FallingTimeline);
     }
 }

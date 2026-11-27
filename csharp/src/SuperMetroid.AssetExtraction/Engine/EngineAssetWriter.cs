@@ -52,7 +52,6 @@ public sealed partial class EngineAssetWriter
         ("the Magdollite", writer => writer.WriteMagdollite()),
         ("Shaktool", writer => writer.WriteShaktool()),
         ("the Nuclear Waffle", writer => writer.WriteNuclearWaffle()),
-        ("Kago's bugs", writer => writer.WriteKagoBug()),
         ("the eye doors", writer => writer.WriteEyeDoorEye()),
         ("the Chozo statues", writer => writer.WriteChozoStatues()),
         ("the Torizos", writer => writer.WriteTorizos()),

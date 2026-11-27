@@ -63,43 +63,36 @@ public sealed partial class EngineAssetWriter
     private const int RotationSteps = 256;
 
     /// <summary>
-    /// Writes the bug a Kago lets out, which the old game made a projectile of the Kago: it has no health to speak of,
-    /// hurts as the projectile did, and any shot ends it in a burst where it is, which still hurts to the touch and
-    /// leaves what a Kago leaves.
+    /// Gives a Kago the bug it lets out, which is one of its shots as the old game's is: it hurts as the old
+    /// projectile does, any shot of Samus's that meets it shoots it down into a burst where it is, which still hurts
+    /// to the touch, and as the burst ends it leaves what a Kago leaves. Writes the bug's own data file too.
     /// </summary>
-    private void WriteKagoBug()
+    private EngineEnemy WithKagoBug(EngineEnemy kago) => kago.Shot("bug", RoomEnemyProjectileKind.KagoBug, (_, shot, projectile) =>
     {
-        const string file = "enemies/kago_bug.json";
-        string folder = file[..file.LastIndexOf('.')];
-        string spawner = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Kago);
         EnemyProjectileDefinition old = EnemyProjectileDefinitionCatalog.Definitions[RoomEnemyProjectileKind.KagoBug];
         if (old.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))
             throw new InvalidDataException("The Kago's bug outlives touching Samus, which the Godot bug does not.");
         if (KagoDefinitions.JumpHeightStepPixels != 1)
             throw new InvalidDataException("The Kago's bug's jumps differ by other than a pixel an update, which the Godot bug's do.");
 
-        static string? Cue(KagoBugProjectileCue cue) => cue.Kind switch
+        Func<KagoBugProjectileCue, string?> cue = static raised => raised.Kind switch
         {
             KagoBugProjectileCueKind.StartJump => "jump",
             KagoBugProjectileCueKind.StartIdle => "wait",
-            KagoBugProjectileCueKind.SpawnDrop => "drop",
-            // It ends by taking itself away, which a timeline does by ending.
-            KagoBugProjectileCueKind.Delete => null,
-            _ => throw new InvalidDataException($"The Kago's bug raises {cue.Kind}, which this does not know."),
+            // Shot down, the Godot bug leaves its drop as its burst ends and is gone with it: its settings say what
+            // it leaves, and a timeline ends by ending.
+            KagoBugProjectileCueKind.SpawnDrop or KagoBugProjectileCueKind.Delete => null,
+            _ => throw new InvalidDataException($"The Kago's bug raises {raised.Kind}, which this does not know."),
         };
 
-        (string Name, KagoBugProjectileSegment Segment)[] looks =
-        [
-            ("waiting", KagoBugProjectileSegment.Waiting), ("jump_start", KagoBugProjectileSegment.JumpStart),
-            ("falling", KagoBugProjectileSegment.Falling), ("landed", KagoBugProjectileSegment.Landed),
-        ];
-        var played = looks.Select(look => (look.Name, Beats: EngineTimelines.Played(KagoBugProjectileAnimations.Segments, KagoBugProjectileAnimations.StartingAt[look.Segment]))).ToList();
-        EngineSheetPictures pictures = _sheets.CutSpawned(_tree, folder, spawner, played
-            .SelectMany(look => look.Beats.Lead.Concat(look.Beats.Cycle ?? []))
-            .Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value)));
+        string Look(string name, KagoBugProjectileSegment segment)
+        {
+            (List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>> lead, List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>>? cycle) =
+                EngineTimelines.Played(KagoBugProjectileAnimations.Segments, KagoBugProjectileAnimations.StartingAt[segment]);
+            return kago.SpawnedTimeline($"bug_{name}", lead, cycle, cue);
+        }
 
-        // Its end: the burst a shot makes of it where it is, which leaves the drop and is gone at once after it. The
-        // Godot bug goes as its drop is left, so the drop must be the burst's last cue but its taking itself away.
+        // Its end: the burst a shot makes of it where it is, which leaves the drop and is gone at once after it.
         (List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>> burst, List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>>? burstCycle) =
             EngineTimelines.Played(KagoBugProjectileAnimations.Segments, KagoBugProjectileAnimations.StartingAt[KagoBugProjectileSegment.Shot]);
         if (burstCycle is not null)
@@ -108,43 +101,39 @@ public sealed partial class EngineAssetWriter
             || burst[^2] is not AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Event { Raised.Kind: KagoBugProjectileCueKind.SpawnDrop }
             || burst[^1] is not AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Event { Raised.Kind: KagoBugProjectileCueKind.Delete })
             throw new InvalidDataException("The burst of a Kago's bug does not end by leaving its drop and then taking itself away.");
-        string burstFolder = $"{folder}/shot";
-        EngineSheetPictures burstPictures = _sheets.CutSpawned(_tree, burstFolder, spawner,
-            burst.Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value)));
-        JsonObject burstTimeline = EngineTimelines.Of(burst, null, frame => burstPictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), Cue);
-        // Its pictures are cut to a size of their own, so the timeline says where they lie beyond the bug's own.
-        burstTimeline["offset"] = new JsonObject { ["x"] = burstPictures.OffsetX - pictures.OffsetX, ["y"] = burstPictures.OffsetY - pictures.OffsetY };
 
-        // Samus's own body does a projectile no harm; everything she fires ends it.
-        var reactions = new JsonArray();
-        foreach (string kind in new[] { "screw_attack", "speed_boost", "shinespark", "charged_spin", "grapple" })
-            reactions.Add(new JsonObject { ["kinds"] = new JsonArray(kind), ["damage"] = "none" });
+        shot["scene"] = "res://game/enemies/kago/kago_bug.tscn";
+        projectile["timeline"] = Look("waiting", KagoBugProjectileSegment.Waiting);
+        // Her shots meet it only once it is clear of its hive, which its own class says; met, it is shot down.
+        projectile["met_by_shot"] = "destroyed";
+        projectile["shot_timeline"] = kago.SpawnedTimeline("bug_shot", burst, null, cue);
+        projectile["picture_offset"] = EngineEnemy.NoOffset();
+        // Its own class moves it against the blocks.
+        projectile["meeting_terrain"] = "passes_through";
+        if (Drops(kago.Definition.Drops) is { } drops)
+            projectile["drops"] = drops;
 
-        // The old bug is a shot drawn behind Samus, and so behind every enemy that stands behind her, the Kago it
-        // comes out of among them.
-        if (old.Depth != EnemyProjectileDepth.BehindSamus)
-            throw new InvalidDataException("The Kago's bug is not drawn behind Samus, which the Godot bug's standing says it is.");
-        EngineObjectFile bug = new EngineObjectFile(_tree, file, "KagoBug").PictureOffset(pictures)
-            .Group("standing", "rearmost")
-            .Value("health", 1)
-            .Value("contact_damage", old.Damage)
-            .Value("jump_speed", KagoDefinitions.BaseJumpSpeedPixels)
-            .Value("across_speed", EngineNames.Number(KagoDefinitions.BugHorizontalSpeed))
-            .Value("gravity", EngineNames.Number(KagoDefinitions.BugGravity))
-            .Value("fall_start_speed", EngineNames.Number(KagoDefinitions.BugFallStartSpeed))
-            .Value("shortest_wait", KagoDefinitions.ShortestGroundWait)
-            .Value("homing_distance", KagoDefinitions.BugHomingDistance)
-            .Value("clear_distance", KagoDefinitions.BugBlocksShotsDistance)
-            .Value("sound", EngineNames.Sound(EnemySoundEffectDefinitions.KagoBugSoundEffect))
-            .Value("first_sound_after", KagoDefinitions.FirstSoundPastFirstHop)
-            .Group("reactions", reactions)
-            .Timeline("burst", burstTimeline)
-            .Collider("Body", -old.Radius.X, -old.Radius.Y, old.Radius.X * 2, old.Radius.Y * 2)
-            .Collider("Hurtbox", -old.Radius.X, -old.Radius.Y, old.Radius.X * 2, old.Radius.Y * 2);
-        if (Drops(RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Kago].Drops) is { } drops)
-            bug.Group("drops", drops);
-        foreach ((string name, (List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>> lead, List<IAnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>>? cycle)) in played)
-            bug.Timeline(name, EngineTimelines.Of(lead, cycle, frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), Cue));
-        bug.Write();
-    }
+        var data = new JsonObject();
+        EngineDefaults.Fill(data, "KagoBug");
+        void Set(string name, JsonNode? value)
+        {
+            if (!data.ContainsKey(name))
+                throw new InvalidDataException($"The Kago's bug is given the value {name}, which its type does not read by that name.");
+            data[name] = value;
+        }
+
+        Set("jump_speed", KagoDefinitions.BaseJumpSpeedPixels);
+        Set("across_speed", EngineNames.Number(KagoDefinitions.BugHorizontalSpeed));
+        Set("gravity", EngineNames.Number(KagoDefinitions.BugGravity));
+        Set("fall_start_speed", EngineNames.Number(KagoDefinitions.BugFallStartSpeed));
+        Set("shortest_wait", KagoDefinitions.ShortestGroundWait);
+        Set("homing_distance", KagoDefinitions.BugHomingDistance);
+        Set("clear_distance", KagoDefinitions.BugBlocksShotsDistance);
+        Set("sound", EngineNames.Sound(EnemySoundEffectDefinitions.KagoBugSoundEffect));
+        Set("first_sound_after", KagoDefinitions.FirstSoundPastFirstHop);
+        Set("jump_start_timeline", Look("jump_start", KagoBugProjectileSegment.JumpStart));
+        Set("falling_timeline", Look("falling", KagoBugProjectileSegment.Falling));
+        Set("landed_timeline", Look("landed", KagoBugProjectileSegment.Landed));
+        _tree.WriteData("enemies/kago_bug.json", data);
+    });
 }

@@ -372,13 +372,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private bool _hadTurn;
 
     /// <summary>
-    /// Whether the enemy's hits are settled on the first turn it takes as on every other. An enemy is not hit and
-    /// touches nothing on its first turn, the one that first shows it; a kind that is there to be met from the
-    /// moment it appears says so here.
-    /// </summary>
-    protected virtual bool MeetsFromFirstTurn => false;
-
-    /// <summary>
     /// Plays one update, its turn: its timers move on; its hits are settled, the player's shots tried against it and
     /// then its touch against the player, where it stood before moving; it behaves, unless a status or a hurt stops
     /// it; and its timeline moves on, unless it is frozen.
@@ -401,7 +394,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         // which has shown nothing yet for a shot to land on or a touch to be made with.
         bool hadTurn = _hadTurn;
         _hadTurn = true;
-        if (!unhittableAtStart && (hadTurn || MeetsFromFirstTurn))
+        if (!unhittableAtStart && hadTurn)
         {
             Room.TryPlayerShotsAgainst(this);
             if (IsDead)

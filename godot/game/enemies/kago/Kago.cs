@@ -11,7 +11,7 @@ namespace Game.Enemies;
 /// <summary>
 /// A Kago: a hive that sits where it is. Every shot or bomb that lands on it shakes the room and brings out a bug;
 /// after enough of them the hive is gone. A power bomb's blast only hurts it, and enough of them destroy it. The
-/// bugs are enemies of their own. It is solid to Samus, who is stopped
+/// bugs are its shots (<see cref="KagoBug"/>), fired by the name "bug". It is solid to Samus, who is stopped
 /// by it and can stand on it. Its touch takes no energy and is a touch all the same: a Samus who has sunk into it,
 /// as by curling up just above it, is left safe for a while and knocked back if her state lets her be.
 /// </summary>
@@ -21,10 +21,6 @@ public partial class Kago : Enemy
     /// <summary>How many hits it survives; the one after that removes it.</summary>
     [Export]
     public int HitCount { get; set; } = 4;
-
-    /// <summary>The scene of the bugs it lets out.</summary>
-    [Export]
-    public PackedScene? BugScene { get; set; }
 
     /// <summary>How hard each hit shakes the room.</summary>
     [Export, DataValue("shake_strength")]
@@ -118,28 +114,18 @@ public partial class Kago : Enemy
     }
 
     /// <summary>
-    /// Lets out a bug, the last hit's as well. On the cartridge a bug is one of the enemies' shots: it holds one of the
-    /// room's places while it lives, and with none free no bug comes out.
+    /// Lets out a bug, the last hit's as well: one of its shots, which holds one of the room's places while it
+    /// lives. With none free no bug comes out.
     /// </summary>
     private void LetOutBug()
     {
-        PackedScene scene = BugScene ?? throw new InvalidOperationException($"The Kago \"{Name}\" names no scene for its bugs.");
-        var bug = scene.Instantiate<KagoBug>();
-        bug.Position = Position;
-        Effect place = Effect.HoldingPlaceFor(bug);
-        if (!Room.Spawn(place))
-        {
-            bug.Free();
+        if (!Room.HasFreePlace)
             return;
-        }
-
-        bug.Hive = this;
-        bug.Place = place;
+        Projectile bug = Fire("bug", Position, PixelVelocity.Zero);
 
         // A bug sets no speed of its own as it comes out: it has the speed its place's last holder left there, in
         // this room or the one before, until its first jump gives it one. It does not move by it; it is what the
         // bug leaves in its turn if it goes before it jumps.
-        bug.Velocity = Room.FoundInPlace(place).Speed;
-        Room.Spawn(bug);
+        bug.Velocity = Room.FoundInPlace(bug).Speed;
     }
 }

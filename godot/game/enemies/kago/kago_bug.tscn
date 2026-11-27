@@ -1,20 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://game/enemies/kago/KagoBug.cs" id="1"]
-[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
-[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="3"]
 
 [node name="KagoBug" type="Node2D"]
 script = ExtResource("1")
 DataFile = "enemies/kago_bug.json"
-
-[node name="Visual" type="Node2D" parent="."]
-script = ExtResource("3")
-
-[node name="Body" type="Node2D" parent="."]
-script = ExtResource("2")
-Role = 0
-
-[node name="Hurtbox" type="Node2D" parent="."]
-script = ExtResource("2")
-Role = 1

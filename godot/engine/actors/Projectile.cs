@@ -208,6 +208,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             return;
         }
 
+        // One shot down that has played its end out goes on the update after the end's last: its last picture shows
+        // its time through, still harming to the touch, and what it leaves it leaves then.
+        if (_shotDown && _timeline is { IsOver: true })
+        {
+            FinishShotDown(room);
+            return;
+        }
+
         Age++;
         if (_timeline is not null)
         {
@@ -219,13 +227,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
                     return;
             }
 
-            if (_timeline.IsOver && _shotDown)
-            {
-                FinishShotDown(room);
-                return;
-            }
-
-            if (_timeline.IsOver && _settings.LastsUpdates == 0)
+            if (_timeline.IsOver && !_shotDown && _settings.LastsUpdates == 0)
             {
                 End(room);
                 return;
@@ -904,8 +906,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <exception cref="InvalidOperationException">The game's definition gives the squares no size.</exception>
     private void MeetShot(Projectile enemyShot)
     {
-        // One an enemy's answer has spent meets no shot of theirs.
-        if (HasEnded || enemyShot.HasEnded || !HarmsNow || !MeetsShots || Side != HitSide.Player || _spent != Spent.No)
+        // One an enemy's answer has spent meets no shot of theirs. One spent on a shot of theirs in this same pass
+        // is only marked, and shoots down every other of their shots that stands in its square all the same.
+        if (HasEnded || enemyShot.HasEnded || !HarmsNow || !MeetsShots || Side != HitSide.Player || (_spent != Spent.No && !_spentOnTheirShots))
             return;
         int square = Room.Session.Definition.ShotMeetingSquare;
         if (square <= 0)
@@ -926,9 +929,15 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
             }
 
             if (landed && MeetsTargetAs == ProjectileSettings.Target.Ends)
+            {
+                _spentOnTheirShots |= _spent == Spent.No;
                 Spend(enemyShot, Spent.AsDud);
+            }
         }
     }
+
+    /// <summary>Whether what spent it was one of the enemies' shots, met in the room's pass of the player's shots against them.</summary>
+    private bool _spentOnTheirShots;
 
     /// <summary>
     /// Whether the projectile is tried against the other side's shots at all. A projectile of its own class that

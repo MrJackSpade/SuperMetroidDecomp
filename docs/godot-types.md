@@ -1508,7 +1508,7 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   rooms' generator tells it which enemy that is (`ListedAfterWing`).
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
-  and where it stood before moving: the player's shots are tried against it, each where the shot stands (not on the first turn it ever takes, which has shown nothing yet to be hit or to touch with: `Enemy.MeetsFromFirstTurn`), and then
+  and where it stood before moving: the player's shots are tried against it, each where the shot stands (not on the first turn it ever takes, which has shown nothing yet to be hit or to touch with), and then
   its touch against the player (not while frozen). An enemy a part of which meets shots at a moment of its own
   turn has them tried against it again then (`Enemy.TryPlayerShotsNow`) and says in its own answer which parts answer
   when, as the armour of this game's Ridley's tail does once his tail has moved. Then it behaves, unless a status or its hurt stops it, and
@@ -1678,12 +1678,13 @@ lights become the trailing pair's shot so as they start to fall.
 **A projectile shot down** stays what it is and where it is: it holds still, stops shots no longer, and harms
 what it touches whatever its data said of it and ends on it. The rest of the player's shots that stand in its
 square on the update it is shot down are spent on it all the same (`Projectile.MeetShots`: whether it stops shots is
-asked once, as its turn in the room's pass begins). One whose data gives it no end to play (`"shot_timeline"`) is
+asked once, as its turn in the room's pass begins). A shot of the player's spent on one of the enemies' shots in
+that pass is only marked: it shoots down every other of their shots that stands in its square on that update too. One whose data gives it no end to play (`"shot_timeline"`) is
 gone on its next update, leaving what it drops then: until then it is still shown and still holds its place. One
-with an end plays it, from the start again for each shot that strikes it; and as the timeline ends what it drops
+with an end plays it, from the start again for each shot that strikes it; and on the update after the end's last
+picture has shown its time through what it drops
 is rolled and left as a thing of its own: it takes a free place of the room while the projectile still holds its own, and where none is free nothing is rolled and nothing left, as the cartridge makes such a drop a new projectile before it deletes the old. A roll of nothing takes that place too, for the pause of a spent drop. Phantoon's flames, the Torizos' orbs, the Golden Torizo's eggs and the
-super missiles it throws back, Crocomire's fire, the rocks Kraid spits, Draygon's goop and what an eye door spits end so, and so does a Magdollite's lava, whose end is the picture it flew with for one update: the cartridge's shows nothing of its own and leaves its drop on its next update. The bug a Kago lets out, an enemy here, ends the same way in its
-own class: shot down, it plays its burst where it is, still hurting to the touch, and leaves its drop as it ends.
+super missiles it throws back, Crocomire's fire, the rocks Kraid spits, Draygon's goop and what an eye door spits end so, and so does the bug a Kago lets out (`KagoBug`, one of the hive's shots with a class of its own: it moves itself against the blocks, and its timelines' cues read the random number as its last turn left it, since the cartridge's bug plays its pictures once it has moved). A Magdollite's lava has no end to play: the cartridge's shows nothing of its own and leaves its drop on its next update.
 
 **Places for what enemies launch and leave.** A room may keep a count of places (`GameDefinition.EnemyPlaces`;
 none, unless the game says) for the enemies' shots, the remains of the destroyed and the pickups dropped. Each

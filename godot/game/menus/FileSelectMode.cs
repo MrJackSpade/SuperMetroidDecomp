@@ -270,6 +270,7 @@ public partial class FileSelectMode : GameMode
         {
             Session.Slot = _row + 1;
             TakeSlotSettings();
+            TakeSlotMaps();
             Sound("select_sound");
             FrameTimeline turn = Timelines().Get("helmet_turn");
             _helmets[_row].Play(turn);
@@ -410,9 +411,16 @@ public partial class FileSelectMode : GameMode
         }
 
         if (copying)
+        {
             Session.Saves.Copy(_from + 1, _to + 1);
+        }
         else
+        {
+            // Clearing a file starts a new one, as the cartridge has it: every copy of the explored map it keeps is
+            // cleared, and the live map is loaded from one that is now empty.
             Session.Saves.Clear(_from + 1);
+            Compatibility.KeptExploredMaps.Of(Session).ClearAll();
+        }
         Show(copying ? Asking.CopyDone : Asking.ClearDone);
     }
 
@@ -569,6 +577,24 @@ public partial class FileSelectMode : GameMode
             options.Controls = new Dictionary<string, string>(save.Controls);
             options.ApplyBindings(Session.Definition.AllActions);
         }
+    }
+
+    /// <summary>
+    /// Gives the explored maps the cartridge keeps what choosing the saved game does to them: a saved game sets the
+    /// copies from what it saved and loads the live map from the copy of the area it is taken up in; a new one clears
+    /// the copies and leaves the live map as it was.
+    /// </summary>
+    private void TakeSlotMaps()
+    {
+        Compatibility.KeptExploredMaps maps = Compatibility.KeptExploredMaps.Of(Session);
+        if (!Session.Saves.Has(Session.Slot))
+        {
+            maps.ClearCopies();
+            return;
+        }
+
+        maps.LoadFile(Session, Session.Saves.Read(Session.Slot));
+        maps.LoadLive(GameLoad.SavedArea(Session));
     }
 
     /// <summary>Lays over the page what the saved game numbered <paramref name="slot"/> holds: its energy, its tanks and its play time, or that it holds nothing.</summary>

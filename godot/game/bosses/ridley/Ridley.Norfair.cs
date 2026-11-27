@@ -231,7 +231,10 @@ public partial class Ridley
     {
         // His arena is marked explored as he begins, since the map explores nothing while he is there.
         for (int row = 0; row < ArenaMapRows; row++)
+        {
             Room.Session.Progress.MarkExplored(Room.Area, Room.MapCell.X, Room.MapCell.Y + row);
+            Compatibility.KeptExploredMaps.Of(Room.Session).MarkLive(Room.MapCell.X, Room.MapCell.Y + row);
+        }
         // In Norfair it stands behind Samus, where its data has it in front of her as aboard Ceres. The cartridge
         // draws it in front of the room's tiles as well, which one order of drawing cannot show together with its
         // standing behind her: here it is drawn among the room's things, behind her.

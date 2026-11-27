@@ -13,10 +13,10 @@ namespace Game.Compatibility;
 /// </summary>
 /// <remarks>
 /// A cell is found by its row times the room's width plus its column, with no regard to the room's height. A read
-/// past the fifty cells is, on the cartridge, a read of the explored maps it keeps after them, which this reads from
-/// what has been explored of each area. The cartridge's copies of those maps are written only as an area is left
-/// by a door that exchanges maps and as the game is saved, so its copy of the area being played can be behind what
-/// has been explored there; this reads what has been explored as it stands.
+/// past the fifty cells is, on the cartridge, a read of the copies of the explored map it keeps after them
+/// (<see cref="KeptExploredMaps"/>), which are written only as an area is left by a door that exchanges maps, as
+/// the game is saved and as a file is loaded: so the copy of the area being played can be behind what has been
+/// explored there, or hold what another game explored.
 /// </remarks>
 public sealed class KeptScrollCells : IScrollCells
 {
@@ -37,15 +37,15 @@ public sealed class KeptScrollCells : IScrollCells
 
     private const int RunsPerHalf = RunsPerHalfRow * MapRows, RunsPerMap = RunsPerHalf * 2, HalfWidth = RunCells * RunsPerHalfRow;
 
-    private readonly GameSession _session;
+    private readonly KeptExploredMaps _maps;
     private readonly ScreenScroll[] _cells = new ScreenScroll[Count];
     private int _columns = 1;
 
-    /// <summary>The cells of <paramref name="session"/>, whose explored maps a read past them reads.</summary>
+    /// <summary>The cells of <paramref name="session"/>, whose kept explored maps a read past them reads.</summary>
     public KeptScrollCells(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        _session = session;
+        _maps = KeptExploredMaps.Of(session);
     }
 
     /// <inheritdoc/>
@@ -79,9 +79,9 @@ public sealed class KeptScrollCells : IScrollCells
     }
 
     /// <summary>
-    /// What a read <paramref name="cellsPast"/> cells past the fifty finds: the explored maps, area by area, each run
-    /// of eight cells as one screen. A run with nothing explored is a closed screen, one whose only explored cell is
-    /// its last an open one aligned to its top, and any other an open one.
+    /// What a read <paramref name="cellsPast"/> cells past the fifty finds: the kept copies of the explored map, area
+    /// by area, each run of eight cells as one screen. A run with nothing explored is a closed screen, one whose only
+    /// explored cell is its last an open one aligned to its top, and any other an open one.
     /// </summary>
     private ScreenScroll ReadPast(int cellsPast, int column, int row)
     {
@@ -97,17 +97,16 @@ public sealed class KeptScrollCells : IScrollCells
         int run = cellsPast % RunsPerMap;
         int firstColumn = run / RunsPerHalf * HalfWidth + run % RunsPerHalfRow * RunCells;
         int mapRow = run % RunsPerHalf / RunsPerHalfRow;
-        Progress progress = _session.Progress;
         int explored = 0;
         for (int mapColumn = firstColumn; mapColumn < firstColumn + RunCells; mapColumn++)
         {
-            if (progress.IsExplored(MapOrder[map], mapColumn, mapRow))
+            if (_maps.IsExploredInCopy(MapOrder[map], mapColumn, mapRow))
                 explored++;
         }
 
         if (explored == 0)
             return ScreenScroll.Closed;
-        return explored == 1 && progress.IsExplored(MapOrder[map], firstColumn + RunCells - 1, mapRow)
+        return explored == 1 && _maps.IsExploredInCopy(MapOrder[map], firstColumn + RunCells - 1, mapRow)
             ? ScreenScroll.OpenAlignedToTop
             : ScreenScroll.Open;
     }

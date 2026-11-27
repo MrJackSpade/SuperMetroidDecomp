@@ -28,6 +28,9 @@ public partial class GameLoad : GameMode
         if (session.LoadSlot() is not { } save)
             return session.Definition.CreateModeForNewGame();
 
+        // Loading the game sets the copies of the explored map the cartridge keeps from it; the live map stays.
+        KeptExploredMaps.Of(session).LoadFile(session, save);
+
         // The tester's assists act on the game just loaded before any room is made from it.
         Assists.TesterAssists.Of(session).AfterLoad(session);
 
@@ -46,6 +49,25 @@ public partial class GameLoad : GameMode
     {
         ArgumentNullException.ThrowIfNull(session);
         return session.Saves.Has(session.Slot) && session.Saves.Read(session.Slot).Room != session.Definition.FirstRoom && !SaveMapMode.Shows(session);
+    }
+
+    /// <summary>
+    /// The area the game in <paramref name="session"/>'s save slot is kept in by the cartridge: that of the room it
+    /// resumes in, but Ceres for the game saved as Ceres was left, which the cartridge keeps at Ceres's elevator.
+    /// </summary>
+    public static string SavedArea(GameSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return SavedLeavingCeres(session) ? Data.Areas.Ceres : AreaOf(session, session.Saves.Read(session.Slot).Room);
+    }
+
+    /// <summary>The area of the room whose scene is <paramref name="room"/>.</summary>
+    private static string AreaOf(GameSession session, string room)
+    {
+        Engine.World.Room made = session.Definition.CreateRoom(room);
+        string area = made.Area;
+        made.Free();
+        return area;
     }
 
     /// <summary>
@@ -73,6 +95,9 @@ public partial class GameLoad : GameMode
             // she had selected) is gone. That starts the view's measure of her last move across again too.
             session.RenewPlayer();
             session.Player.Inventory.Fill(Engine.Actors.Inventory.Energy);
+
+            // Landing moves the game to the landing's area, whose copy of the explored map the live map is loaded from.
+            KeptExploredMaps.Of(session).LoadLive(AreaOf(session, room));
             return new Arrival(new PlayingMode(room, entryPoint), Arrival.LandingWaits);
         });
     }

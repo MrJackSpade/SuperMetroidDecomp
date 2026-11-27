@@ -177,16 +177,17 @@ public partial class TitleMode : GameMode
         {
             // The cartridge's start, as the game starts or starts again, is an update by itself: it starts the random
             // numbers over from its power-on number and draws one, puts its queues of sounds and music back as at
-            // power-on, puts its demos back to the first of the first set and asks for the opening's music. The
-            // opening plays from the update after. It is also the one thing that takes from the view the parts of a
-            // pixel the last game left it: every game, demo and continued game after it starts from what the one
-            // before left.
+            // power-on, forgets the explored maps it keeps, puts its demos back to the first of the first set and asks
+            // for the opening's music. The opening plays from the update after. It is also the one thing that takes
+            // from the view the parts of a pixel the last game left it: every game, demo and continued game after it
+            // starts from what the one before left.
             _starting = false;
             Session.Camera.Place(0, 0);
             Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
             Session.Clock.Restart();
             Session.Random.Next();
             Compatibility.CartridgeSounds.Of(Session).Reset();
+            Compatibility.KeptExploredMaps.Of(Session).ClearAll();
             Session.Service<DemoSchedule>().StartOver(Session.Saves);
             AskForMusic(opening);
             return this;

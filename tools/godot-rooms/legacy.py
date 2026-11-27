@@ -140,6 +140,7 @@ class Door:
     to_screen: tuple[int, int]
     speed: str
     setup: str
+    exchanges_maps: bool = False
 
 
 def properties_of(text: str, name_pattern: str) -> list[tuple[str, str]]:
@@ -355,7 +356,8 @@ def doors() -> dict[str, Door]:
             screen = numbers(a[4])
             result[name] = Door(
                 a[0].strip('"'), last_name(a[1]), last_name(orientation[0]), last_name(orientation[1]) if len(orientation) > 1 else '',
-                (block[0], block[1]) if len(block) >= 2 else None, (screen[0], screen[1]), last_name(a[5]), last_name(a[6]))
+                (block[0], block[1]) if len(block) >= 2 else None, (screen[0], screen[1]), last_name(a[5]), last_name(a[6]),
+                initializer_of(expression).get('ExchangesExploredMaps') == 'true')
     return result
 
 

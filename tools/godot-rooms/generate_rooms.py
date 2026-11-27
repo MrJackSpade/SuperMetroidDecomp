@@ -905,6 +905,11 @@ class Generator:
                 # Nothing faces this door where it leads: it arrives at a marker of its own there.
                 arrives_at = 'From' + name
                 self.markers.setdefault(target_key, []).append((arrives_at, door))
+            # A door into another area exchanges the explored maps the cartridge keeps unless it says it does not; a
+            # door within an area exchanges nothing, and one the cartridge has exchange there could not be written.
+            between_areas = room.area != target.area
+            if door.exchanges_maps and not between_areas:
+                raise ValueError(f'The door {name} exchanges explored maps within the area {room.area}, which a door of the Godot game cannot say.')
             across = door.direction in ('Left', 'Right')
             # Someone arriving at this exit comes the other way through it, and is put just inside the room.
             if across:
@@ -925,6 +930,7 @@ class Generator:
                 # A room that shows only what stands in it through its doors shows no tiles through the scroll, and
                 # neither does the room on the door's other side.
                 **({'ShowsTilesThrough': 'false'} if 'ObjectsOnly' in room.properties.get('DoorTransition', '') + target.properties.get('DoorTransition', '') else {}),
+                **({'ExchangesExploredMaps': 'false'} if between_areas and not door.exchanges_maps else {}),
             }
             scene.node(self.exit_name(room, name), '.', exit_settings, script='res://game/rooms/doors/Door.cs')
             entries.append((name, x, y))

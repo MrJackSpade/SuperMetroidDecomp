@@ -149,9 +149,10 @@ public sealed class CrawlingState : PlayerState
     }
 
     /// <summary>
-    /// Moves the low form. Rolled off a floor, or come down onto something, it is as its movement left it: that
-    /// outranks whatever the input asked of it on this update, a way out of the form and a turn or a roll within it
-    /// alike, and the state says so by naming itself as what the movement met.
+    /// Moves the low form. Rolled off a floor, come down onto something or risen into something, it is as its
+    /// movement left it: that outranks whatever the input asked of it on this update, a way out of the form, a turn
+    /// or a roll within it and what it does with nothing held alike, and the state says so by naming itself as what
+    /// the movement met.
     /// </summary>
     public override PlayerState? Move(Player owner)
     {
@@ -209,7 +210,7 @@ public sealed class CrawlingState : PlayerState
         return false;
     }
 
-    /// <summary>Moves through the air: in a jump of its own, falling, or bouncing. Returns whether it came down onto something.</summary>
+    /// <summary>Moves through the air: in a jump of its own, falling, or bouncing. Returns whether something stopped it, below or above.</summary>
     private bool MoveInAir(Player owner)
     {
         bool directionHeld = owner.Input.IsHeld(GameAction.Left) || owner.Input.IsHeld(GameAction.Right);
@@ -235,7 +236,7 @@ public sealed class CrawlingState : PlayerState
 
     /// <summary>
     /// Goes on up or down under gravity, landing where it comes down on something and falling from rest where it
-    /// rises into something. Returns whether it came down onto something.
+    /// rises into something. Returns whether something stopped it, below or above.
     /// </summary>
     private bool RiseOrFall(Player owner)
     {
@@ -248,7 +249,7 @@ public sealed class CrawlingState : PlayerState
             Land(owner);
         else
             owner.FallFromRest();
-        return falling;
+        return true;
     }
 
     /// <summary>

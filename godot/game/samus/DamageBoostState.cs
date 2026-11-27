@@ -83,11 +83,13 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
         owner.StepDash(building: false);
         JumpingState.CutShort(owner);
         owner.SteerAndMoveInAir(owner.Moves(Moves));
-        PlayerState? landed = AirStance.FallAndLand(owner, this);
+        // Met with a ceiling she goes on in the boost; landed, she is out of it.
+        PlayerState? met = AirStance.FallAndLand(owner, this);
+        bool landed = met is not null && !ReferenceEquals(met, this);
 
         // The knockback she left still runs out, and as it does her rise is over. Landed, she takes what is left of
         // it with her: it ends the rise of a jump she takes before it has run out.
-        if (landed is not null)
+        if (landed)
         {
             ((Samus)owner).CarryKnockbackOn(_knockbackLeft);
         }
@@ -98,6 +100,6 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
                 owner.FallFromRest();
         }
 
-        return landed;
+        return met;
     }
 }

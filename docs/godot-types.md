@@ -912,7 +912,7 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   what the blocks they are in do to them, the room's ongoing damage); and only then does a change take effect, by
   this rank: the state's own end (`Ended`, a turn done); something that interrupts the player (`Player.Interrupt`:
   a knockback, and whatever else a game throws them with), which stays waiting when the state's end comes first;
-  what the movement itself met (a landing, a floor walked off); what the input asked for; and last, when the input
+  what the movement itself met (a landing, a floor walked off, or a ceiling met in the air, which leaves them in the state they are in); what the input asked for; and last, when the input
   asked for nothing, what the state does unasked (`Unasked`). The state entered sets itself up as the update ends
   and first moves on the next, so a jump asked for while running still runs that update and rises on the next. A
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. `ChangeState`

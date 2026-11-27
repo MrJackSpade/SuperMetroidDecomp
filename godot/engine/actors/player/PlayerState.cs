@@ -187,7 +187,8 @@ public abstract class PlayerState : State<Player>
 
     /// <summary>
     /// Moves the player for one update as this state. Returns the state the movement itself brings about, a landing or
-    /// a floor walked off, which outranks what the input asked for; or null when it brings about none.
+    /// a floor walked off, which outranks what the input asked for; this state itself where what the movement met
+    /// leaves the player as they are, as a ceiling met in the air does; or null when it brings about none.
     /// </summary>
     public abstract PlayerState? Move(Player owner);
 

@@ -85,12 +85,54 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
         _front?.QueueRedraw();
     }
 
+    /// <summary>
+    /// Whether its share of the room's scrolling is how its room's background follows the view. A kind that places
+    /// its picture some other way says no: it neither keeps the last room's place nor gives the next room one.
+    /// </summary>
+    protected virtual bool FollowsAsItsShareSays => true;
+
+    /// <summary>
+    /// How far back its picture is laid along each axis, in pixels, less than the picture's size: along an axis it
+    /// follows the view on not at all, the place the backdrop of the room last left had there.
+    /// </summary>
+    private Vector2I _keptBack;
+
+    /// <summary>
+    /// Has the layer keep, along each axis it follows the view on not at all, the place the backdrop of the room last
+    /// left had: <paramref name="kept"/> is the pixel of that backdrop that lay at the view's top-left corner, and
+    /// the same pixel of this one's picture lies there. Only a picture that repeats keeps a place, round its own size.
+    /// Told by the room once the picture is loaded.
+    /// </summary>
+    internal void KeepPlace(Vector2I kept)
+    {
+        if (!FollowsAsItsShareSays || !Repeats || _texture is null)
+            return;
+        Vector2 size = _texture.GetSize();
+        _keptBack = new Vector2I(
+            ScrollShare.X == 0 ? Mathf.PosMod(kept.X, (int)size.X) : 0,
+            ScrollShare.Y == 0 ? Mathf.PosMod(kept.Y, (int)size.Y) : 0);
+        QueueRedraw();
+        _front?.QueueRedraw();
+    }
+
+    /// <summary>
+    /// The pixel of the layer's picture at the top-left corner of a view at <paramref name="viewTopLeft"/>, along each
+    /// axis: its share of the view's place, what is less than a pixel dropped, or <paramref name="kept"/>, the place
+    /// the room before left, along an axis it follows the view on not at all. What the room gives the next room as
+    /// it is left. A kind that places its picture some other way hands on what it was given.
+    /// </summary>
+    internal Vector2I PlaceAt(Vector2I viewTopLeft, Vector2I kept) => !FollowsAsItsShareSays
+        ? kept
+        : new Vector2I(
+            ScrollShare.X == 0 ? kept.X : Mathf.FloorToInt(viewTopLeft.X * ScrollShare.X),
+            ScrollShare.Y == 0 ? kept.Y : Mathf.FloorToInt(viewTopLeft.Y * ScrollShare.Y));
+
     /// <summary>Places the layer for a view whose top-left corner is at <paramref name="viewTopLeft"/> in the room.</summary>
     internal virtual void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {
         Position = new Vector2(
-            LiesAt.X + viewTopLeft.X * (1 - ScrollShare.X) + thrown.X,
-            LiesAt.Y + viewTopLeft.Y * (1 - ScrollShare.Y) + thrown.Y);
+            LiesAt.X + viewTopLeft.X * (1 - ScrollShare.X) + thrown.X - _keptBack.X,
+            LiesAt.Y + viewTopLeft.Y * (1 - ScrollShare.Y) + thrown.Y - _keptBack.Y);
     }
 
     /// <inheritdoc/>
@@ -116,6 +158,7 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
             return;
         }
 
-        on.DrawTextureRect(texture, new Rect2(Vector2.Zero, _roomSize), tile: true);
+        // Laid back to keep the last room's place, it is laid that much further on, to fill the room all the same.
+        on.DrawTextureRect(texture, new Rect2(Vector2.Zero, _roomSize + _keptBack), tile: true);
     }
 }

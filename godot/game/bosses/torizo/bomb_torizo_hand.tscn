@@ -14,7 +14,9 @@ script = ExtResource("2")
 [node name="Fingers" type="Node2D" parent="."]
 script = ExtResource("3")
 Role = 3
+StandsAsTerrain = true
 
 [node name="Palm" type="Node2D" parent="."]
 script = ExtResource("3")
 Role = 3
+StandsAsTerrain = true

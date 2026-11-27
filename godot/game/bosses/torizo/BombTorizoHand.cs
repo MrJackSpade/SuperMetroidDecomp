@@ -18,7 +18,8 @@ namespace Game.Enemies;
 /// it begins, which may be empty; and its "fragments" by name, each with where it starts from the hand's place ("x",
 /// "y") and the data file of its "shot". The hand's place is the top left of the block it fills. Its solid
 /// colliders "Fingers" and "Palm" are what Samus can stand on until a step that shows no picture, the hand cleared
-/// away, begins.
+/// away, begins. They stand as part of the room, as the cartridge's hand is blocks of it: a move stopped by them is
+/// stopped as by a wall, and reaches what lies beside them, the Bombs above the palm among it.
 /// </remarks>
 public partial class BombTorizoHand : RoomObject
 {

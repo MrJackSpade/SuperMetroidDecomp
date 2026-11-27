@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -113,13 +114,29 @@ public sealed partial class EngineAssetWriter
             .Shot("lava", RoomEnemyProjectileKind.LavaThrownByMagdollite, static (thrower, shot, projectile) =>
             {
                 shot["speed"] = EngineNames.Number(MagdolliteMotionDefinitions.LavaThrowSpeed);
+                // Shot, it holds still as it was, and on its next update leaves its drop and is gone: the old shot
+                // animation shows no picture of its own and raises its drop and its end on its first update.
+                static string? ShotCue(MagdolliteLavaCue cue) => cue.Kind is MagdolliteLavaCueKind.SpawnDrops or MagdolliteLavaCueKind.Delete
+                    ? null
+                    : throw new InvalidDataException($"A Magdollite's shot lava raises {cue}, which this does not know.");
+                (List<IAnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>> shotBeats, List<IAnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>>? shotCycle) =
+                    EngineTimelines.Played(MagdolliteLavaAnimations.Segments, MagdolliteLavaAnimations.StartingAt[MagdolliteLavaSegment.Shot]);
+                if (shotCycle is not null || shotBeats.Any(beat => beat.ShownFrame.HasValue)
+                    || !shotBeats.Any(beat => beat is AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Event { Raised.Kind: MagdolliteLavaCueKind.SpawnDrops }))
+                    throw new InvalidDataException("A Magdollite's shot lava shows a picture of its own, never ends or leaves no drop, where the Godot lava shows as it was for the one update before it leaves its drop and is gone.");
                 foreach ((string side, MagdolliteLavaSegment segment) in MagdolliteLavaSides)
                 {
                     EnemyProjectileFrameId frame = MagdolliteLavaAnimations.Segments.Beats(segment).Select(beat => beat.ShownFrame).Single(shown => shown.HasValue)!.Value;
-                    thrower.SpawnedPicture($"lava_{side}", frame);
+                    string flying = thrower.SpawnedPicture($"lava_{side}", frame);
+                    // The picture it flew with, for that one update, from the folder its glow changes.
+                    thrower.SpawnedTimelineAt<EnemyProjectileFrameId, MagdolliteLavaCue>($"{thrower.Folder}/lava_shot_{side}.json",
+                        [new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Frame(frame, 1), .. shotBeats], null,
+                        EnemySheetDefinitions.ProjectileFrameName, ShotCue, pictureFolder: flying[..flying.LastIndexOf('.')]);
                 }
 
                 projectile["timeline"] = $"{thrower.Folder}/lava_{{side}}.json";
+                // Chosen by the way it was thrown, as one shot down no longer goes either way.
+                projectile["shot_timeline"] = $"{thrower.Folder}/lava_shot_{{direction}}.json";
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
                 projectile["meeting_terrain"] = "passes_through";
                 EngineEnemy.GoneOutOfView(projectile);

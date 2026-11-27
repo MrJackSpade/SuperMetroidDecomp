@@ -1208,9 +1208,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   spin. Each update's movement says anew which are at work, and they stay so for whatever touches her until her
   next update; the speed boost's is at work from the update after she reaches full boost.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`, `SamusFlare`, `SamusSuitLight`.
-- **The light that puts a suit on her** (`SamusSuitLight`, her data's "suit_light") is stepped once on each update
-  of collecting a suit (`CollectingSuitState`) and shown as her update ends; on an update it is not stepped it shows
-  nothing. It adds its colour over everything of the room, in rows counted from the top of the screen: after a wait
+- **The light that puts a suit on her** (`SamusSuitLight`, her data's "suit_light") is a part her scene must have. It
+  is stepped once on each update of collecting a suit (`CollectingSuitState`) and shown as her update ends; on an
+  update it is not stepped it shows nothing. Collecting a suit lasts until the light has gone out, and the suit is
+  first seen on her on the update the light shows it, as the cartridge's pickup has no length of its own and ends
+  with its light. It adds its colour over everything of the room, in rows counted from the top of the screen: after a wait
   a one-column beam reaches in from the top and the bottom until its halves meet; it widens evenly, then by rounded
   sides (an oval about its middle line) to the whole screen while its colour whitens; the suit is shown; it closes
   from the top and, a line less, the bottom while its colour settles to the suit's; and its middle line narrows from

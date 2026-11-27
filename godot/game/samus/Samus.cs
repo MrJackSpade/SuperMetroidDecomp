@@ -324,21 +324,6 @@ public partial class Samus : Player
     [Export, DataValue("xray_widest_half_width")]
     public int XrayWidestHalfWidth { get; set; } = 10;
 
-    /// <summary>
-    /// How many updates collecting a suit holds her for. The cartridge's light gives her control back on its 165th
-    /// step: a wait of 2, the light appearing over 16, widening evenly over 24 and by its curve over 23, the suit shown
-    /// on one, the light closing over 83 and thinning out over 15, and the step that ends it.
-    /// </summary>
-    [Export, DataValue("suit_pickup_updates")]
-    public int SuitPickupUpdates { get; set; } = 164;
-
-    /// <summary>
-    /// On which update of collecting a suit the suit is first seen on her: the cartridge's light shows it on its
-    /// 66th step, once it has waited, appeared and widened. Until then she is seen as she was.
-    /// </summary>
-    [Export, DataValue("suit_shown_on_update")]
-    public int SuitShownOnUpdate { get; set; } = 66;
-
     /// <summary>How far the X-ray scope sees, in pixels.</summary>
     [Export, DataValue("xray_reach")]
     public int XrayReach { get; set; } = 256;
@@ -661,8 +646,7 @@ public partial class Samus : Player
 
         if (data.Has("arm_cannon"))
             GetNodeOrNull<SamusVisual>("Visual")?.ReadArmCannon(data.Get("arm_cannon"));
-        if (data.Has("suit_light"))
-            SuitLight?.ReadValues(data.Get("suit_light"));
+        SuitLight.ReadValues(data.Get("suit_light"));
 
         SpecialAttackShots = [];
         if (data.Has("special_attacks"))
@@ -1641,8 +1625,8 @@ public partial class Samus : Player
     /// <summary>Her X-ray scope, when her scene gives her one.</summary>
     public SamusXray? Xray => GetNodeOrNull<SamusXray>("Xray");
 
-    /// <summary>The light that puts a suit on her as she collects it, when her scene gives her one.</summary>
-    public SamusSuitLight? SuitLight => GetNodeOrNull<SamusSuitLight>("SuitLight");
+    /// <summary>The light that puts a suit on her as she collects it, which her scene must give her: it says how long collecting one lasts.</summary>
+    public SamusSuitLight SuitLight => GetNode<SamusSuitLight>("SuitLight");
 
     /// <summary>The wait between her shots that the X-ray scope holds her weapons at, on every update its time stands still.</summary>
     private const int ScopeShotWait = 32;
@@ -2318,7 +2302,7 @@ public partial class Samus : Player
         };
         KeepRunningArm();
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
-        SuitLight?.Show(this);
+        SuitLight.Show(this);
 
         // Once she is dying the cartridge no longer shows her the usual way, so nothing is looked at after she is shown,
         // and a spin or a boost her death ends asks for no stop.

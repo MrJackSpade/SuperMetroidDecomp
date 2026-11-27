@@ -945,15 +945,17 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private int _cueBeingActedOn = -1;
 
     /// <summary>
-    /// Shows the enemy as it is: frozen, flashing from a hurt, or neither. A look its data gives colours for is its
-    /// own pictures in those colours; one it gives none for is a tint of its picture.
+    /// Shows the enemy as it is: flashing from a hurt, frozen, or neither. On an update its hurt flash shows, that is
+    /// what it shows, over its own look and not its frozen one: a frozen enemy that is hurt shows the flash and its
+    /// frozen look by turns. A look its data gives colours for is its own pictures in those colours; one it gives
+    /// none for is a tint of its picture.
     /// </summary>
     private void ShowLook()
     {
         if (Visual is null)
             return;
-        bool frozen = ShowsFrozenLook, flashes = !frozen && ShowsHurtFlash;
-        Visual.Tint(frozen && _frozenColours is null ? FrozenTint : flashes && _hurtColours is null ? HurtTint : RestingTint);
+        bool flashes = ShowsHurtFlash, frozen = !flashes && ShowsFrozenLook;
+        Visual.Tint(flashes && _hurtColours is null ? HurtTint : frozen && _frozenColours is null ? FrozenTint : RestingTint);
         ShowColours(_frozenColours, frozen, FrozenColours, _frozenShownOn);
         ShowColours(_hurtColours, flashes, HurtFlashColours, _flashShownOn);
     }

@@ -1104,7 +1104,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 | Done to her | Bomb jumping, drained, grabbed, shoved (thrown aside by Ridley as he leaves Ceres). |
 | Her weapons' own ways | A full charge with power bombs selected and just one of the wave, ice, spazer and plasma beams carried lets loose that beam's special attack (`SpecialAttack`, four lights that move about her by their kind). A full charge carried into the morph ball throws a spread of five bombs, higher the longer down is held (`Bomb` can be thrown). A shinespark's crash holds her while two echoes of her circle, and then lets them fly (`ShinesparkEcho`). |
 | Appearing | Where a saved game is taken up from its map she appears (`AppearingState`, set by the arrival before play's first update): facing out of the screen, in no hands of her own, for 360 of her updates, her appearance's pictures playing through to the one they rest on (`appearing`) while her suit comes to its colours through the glow of the suit she wears (`loading_power` and its fellows among her glows). On the last of those updates she is her own again, standing in the front view (`StandingForwardState`) still shown as the appearance left her, until she is turned. A game saved at the arrival on Ceres does not. |
-| Stopped by a wall | A wall she runs into leaves her in the cartridge's wall-stop pose (`WallStoppedState`; the engine asks the player what a runner stopped by a wall becomes, `Player.StoppedByWall`): she moves as she does standing, and her input is asked in an order of its own, in which a jump is always a plain one and walking backwards needs an angle action. Set down by an elevator she stands in the front view until right or left turns her (`StandingForwardState`). |
+| Stopped by a wall | A wall she runs into leaves her in the cartridge's wall-stop pose (`WallStoppedState`; the engine asks the player what a runner stopped by a wall becomes, `Player.StoppedByWall`): she moves as she does standing, and her input is asked in an order of its own, in which a jump is always a plain one and walking backwards needs an angle action. Set down by an elevator, or let go by the light that puts a suit on her, she stands in the front view until right or left turns her (`StandingForwardState`). |
 | Not in control | Facing forward where something puts her (in the gunship, on the pad that sets her down in Ceres), collecting a suit, refilling from reserves. |
 
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
@@ -1185,9 +1185,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   turn, which cannot otherwise attack, plays the attack (`Player.AttacksNow`) for the beam alone (not for the hyper
   beam, which takes no handed shot), and the shot leaves the way the moonwalk aimed and from that way's muzzle
   (`Player.AimDirection`), not the way she now faces, raised by the height of the turn's look for the moonwalk's
-  aim; the turn made with the jump has heights of its own (`moonwalk_jump_turn` in her shot heights). A beam that
+  aim; the turn made with the jump has a look of its own and heights with it (`moonwalk_jump_turn`). A beam that
   charges lets its charge go at once, as for the shot a jump's pose is handed on a fresh press of the attack.
-  Unfired, the handed shot is lost.
+  Unfired, the handed shot is lost. With the grapple beam selected, a fresh press of the attack on that update fires
+  the line from a pose that aims nowhere, which gives it up at once: it ends on the next update, heard as any line's
+  end (`SamusGrapple.FireAimingNowhere`). Every turn out of a moonwalk aims as the moonwalk did before that update's
+  input, as the cartridge's turn takes its pose from the moonwalk's.
 - **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
   another aim or the attack is asked; her body is compact for as long (`aiming_down`). Coming down so she lands
   aiming level from the landing's own update (`Samus.OnLanded`), as the cartridge's plain landing does.
@@ -1198,7 +1201,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   a landing she came down aiming up or diagonally in, she keeps that aim while nothing is held that the landing
   answers (no direction, no aim, no fresh jump or press of down; the attack alone is nothing to it), and stands
   aiming so as the settling ends: the standing state is then not asked at all (`Samus.KeepsLandingAim`), as asking
-  it would lower her aim. A press of down crouches her before the moonwalk is tried.
+  it would lower her aim. A press of down crouches her before the moonwalk or the aim of both angle actions is tried.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
@@ -1297,8 +1300,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   left her is ended as it begins, as the rise ends, on every update of the taking and as it lets her go, so
   whatever touches her while her ammunition is taken hurts her every update; nothing knocks her back.
 - **Some of her states take their form outright** (`FormAsked.Unfitted`), as the cartridge sets those poses with no
-  feeling for room: the damage boost (the jump's body, out of the knockback's), the grapple beam's swing and its
-  holding her in place (whose bodies are hers wherever the line puts her), Draygon's grab, collecting a suit (the
+  feeling for room: the damage boost (the jump's body, out of the knockback's), the grapple beam's swing (in a
+  form of its own, `swinging`, shorter than the jump's, as the cartridge's swinging pose is) and its holding her in
+  place and against a wall (whose bodies are hers wherever the line puts her; against a wall the crouch's, as compact
+  as the cartridge's wall pose), the flight out of a swing (the jump's body, as the
+  cartridge sets its release pose once the flight's first move is made in the swing's), Draygon's grab, collecting a suit (the
   front view's body, before she is put at her place of the screen), and the front view (`FacingForwardState`,
   `StandingForwardState`, `RidingElevatorState`, `AppearingState`). The front view is taken about her middle where
   something puts her in it (Ceres's start, the landing on Zebes, a saved game taken up); where she turns to it
@@ -1311,8 +1317,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   the cartridge sets the size of those poses as it puts her in them, so that what meets her for the rest of the
   update meets the new body: a shinespark's windup, Draygon's grab, a Yapping Maw standing her up out of a spin or
   a wall jump, a crystal flash's start, the spin a moonwalk's turn runs out into with no jump begun, the jump's
-  pose an upright bomb jump throws her in, the damage boost, the grapple beam's swing and its holding her in place,
-  and collecting a suit; with crouching and curling up, which the engine's change of posture takes so. A landing, standing up, leaving the ball on the ground, a jump from the ground or from a crouch, a wall
+  pose an upright bomb jump throws her in, the damage boost, the grapple beam's swing and its holding her in place and against a
+  wall, the flight out of a swing, and collecting a suit; with crouching and curling up, which the engine's change of posture takes so. A landing, standing up, leaving the ball on the ground, a jump from the ground or from a crouch, a wall
   jump, an aim taken up in the air, a turn in the air and a knockback take their body from her next update, as the
   cartridge's do.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player
@@ -1344,7 +1350,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
   equipment; aiming level, a look may have pictures for how her arm is held (`Samus.HoldName`: `moving` in a
   jump steering the way she faces, `arm_out` with the attack held in the air or once held in a run); a turn in the
-  air is `air_turning_jump` or `air_turning_fall`; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
+  air is `air_turning_jump` or `air_turning_fall`; the turn a moonwalk makes with the jump is `moonwalk_jump_turn`; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
   `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.
 - **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
   `shot_heights` of her look (and of her look and aim where an aim has its own); while she settles from a landing

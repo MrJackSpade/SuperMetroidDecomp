@@ -36,6 +36,12 @@ public sealed class GrappleWallGrabState : PlayerState, ISamusLook
     /// </summary>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// The crouch's body, as compact as the wall's pose, taken with no feeling for room and hers at once, as the
+    /// cartridge sets that pose and its size outright as the swing stops: she is then put against the wall.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Crouching), Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

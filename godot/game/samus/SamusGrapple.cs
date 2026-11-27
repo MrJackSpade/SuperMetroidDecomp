@@ -217,6 +217,19 @@ public partial class SamusGrapple : Node2D
         samus.Colours.ShowBeams(samus.Colours.BeamsOf(FiringBeams));
     }
 
+    /// <summary>
+    /// Fires the line from a pose that aims nowhere, as a turn holding a shot handed out of a moonwalk is: as the
+    /// cartridge's does, it is given up as it is begun, reaches out nowhere, and ends on the next update, heard as any
+    /// line's end.
+    /// </summary>
+    public void FireAimingNowhere(Samus samus)
+    {
+        if (IsOut)
+            return;
+        _samus = samus;
+        (_phase, _stepSpent) = (Phase.CancelPending, true);
+    }
+
     /// <summary>Lets go of whatever the line holds and draws it in. Its end is heard whenever it was out, latched or not.</summary>
     public void Release()
     {

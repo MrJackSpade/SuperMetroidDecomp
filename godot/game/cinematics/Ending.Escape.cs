@@ -378,8 +378,10 @@ public partial class Ending
             "explosion_afterglow_glow", "explosion_afterglow", _actors.First(actor => actor.Role == "explosion_afterglow").Sprite);
         _gunshipEmergence = BeginColourSteps("gunship_emergence", "GunshipEmergence", gunship);
 
-        // The gunship passes in front of everything else from here on.
-        gunship.GetParent().MoveChild(gunship, -1);
+        // The gunship passes in front of everything else from here on, the white the blast left included: that white
+        // lightens the sky and what flies across it, never the gunship.
+        gunship.GetParent().RemoveChild(gunship);
+        (_front ?? throw NotEntered()).AddChild(gunship);
         SetFloor(-72, -104, 3072, -112);
         (_slowShake, _shake, _whiteHold) = (false, 0, 192);
     }

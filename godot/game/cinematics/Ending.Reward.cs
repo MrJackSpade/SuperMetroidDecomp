@@ -390,9 +390,10 @@ public partial class Ending
         _logoUncoloured.Clear();
         _logoUncoloured.AddRange(LogoPieces());
         _logoGlare = null;
+        // The emblem's picture lies beneath the shooting stars, which cross in front of it.
         _logoPicture = new Sprite2D
         {
-            Name = "Logo", Centered = false, Modulate = new Color(1, 1, 1, 0), ZIndex = -1, Texture = Session.Content.LoadTexture(Data().Text("logo")),
+            Name = "Logo", Centered = false, Modulate = new Color(1, 1, 1, 0), ZIndex = -3, Texture = Session.Content.LoadTexture(Data().Text("logo")),
         };
         sprites.AddChild(_logoPicture);
         _logoFade = -1;

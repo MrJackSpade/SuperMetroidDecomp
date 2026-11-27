@@ -604,7 +604,10 @@ A scene. One per room of the game.
   when it came into the room; what the player passes behind (`InFrontOfThings`, as a Ceres door's shutter); what is
   frontmost; what is launched and left in play (`Launched`: shots, and what a shot or a death leaves),
   in front of all of those; a pickup, which lies in front of every tile of the room so that nothing of the room
-  hides it (`InFrontOfRoom`, #3480); and, for something launched that is told to lie behind, behind all of those that stand
+  hides it (`InFrontOfRoom`, #3480); what changes how the whole room is seen, over the room and everything in it and under its
+  liquid and overlays (`OverRoom`: the wash of this game's X-ray scope outside its cone, drawn by adding the
+  scope's grey to what is under it, or taking it away in a room whose liquid or overlay darkens, as the
+  cartridge's colour maths does outside a window); and, for something launched that is told to lie behind, behind all of those that stand
   behind (`BehindAllThings`);
   the part of
   the backdrop's picture that lies in front of what stands in the room (`BackdropInFront`: a backdrop's picture may

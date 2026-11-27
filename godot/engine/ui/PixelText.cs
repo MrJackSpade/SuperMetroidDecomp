@@ -10,8 +10,16 @@ namespace Engine.Ui;
 /// A line ends at a line feed. Characters are counted as the text has them, line feeds included, so the count of
 /// those showing is an index into the text. With no font it can hold words but cannot draw them.
 /// </remarks>
-public partial class PixelText : Control
+public partial class PixelText : Control, IRecoloured
 {
+    private Recolouring? _recolouring;
+
+    /// <inheritdoc/>
+    public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Recolouring(this)).Recolour(source, swaps);
+
+    /// <inheritdoc/>
+    public bool ShowsPicturesIn(string place) => _font is { } font && Recolouring.LiesIn(font.PicturePath, place);
+
     private PixelFont? _font;
     private string _text = "";
     private int _visibleCharacters = -1;

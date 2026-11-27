@@ -18,10 +18,11 @@ public sealed class PixelFont
     private readonly string _file;
     private readonly Dictionary<char, int> _cells;
 
-    private PixelFont(string file, Texture2D picture, Vector2I cell, int lineHeight, Dictionary<char, int> cells)
+    private PixelFont(string file, Texture2D picture, string picturePath, Vector2I cell, int lineHeight, Dictionary<char, int> cells)
     {
         _file = file;
         Picture = picture;
+        PicturePath = picturePath;
         Cell = cell;
         LineHeight = lineHeight;
         _cells = cells;
@@ -29,6 +30,9 @@ public sealed class PixelFont
 
     /// <summary>The picture its characters are cells of.</summary>
     public Texture2D Picture { get; }
+
+    /// <summary>The path, within the assets tree, of the picture its characters are cells of.</summary>
+    public string PicturePath { get; }
 
     /// <summary>The width and height of one character's cell, in pixels.</summary>
     public Vector2I Cell { get; }
@@ -59,7 +63,7 @@ public sealed class PixelFont
         int lineHeight = data.Has("line_height") ? data.Int("line_height") : cell.Y;
         if (lineHeight <= 0)
             throw data.Get("line_height").Problem("must be a positive number of pixels");
-        return new PixelFont(file, picture, cell, lineHeight, cells);
+        return new PixelFont(file, picture, content.Named(data.Text("picture")), cell, lineHeight, cells);
     }
 
     /// <summary>Whether the font can show <paramref name="character"/>: it has a cell for it, or it is a space.</summary>

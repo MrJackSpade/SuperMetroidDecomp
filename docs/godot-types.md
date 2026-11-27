@@ -1508,7 +1508,7 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   rooms' generator tells it which enemy that is (`ListedAfterWing`).
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
-  and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then
+  and where it stood before moving: the player's shots are tried against it, each where the shot stands (not on the first turn it ever takes, which has shown nothing yet to be hit or to touch with: `Enemy.MeetsFromFirstTurn`), and then
   its touch against the player (not while frozen). An enemy a part of which meets shots at a moment of its own
   turn has them tried against it again then (`Enemy.TryPlayerShotsNow`) and says in its own answer which parts answer
   when, as the armour of this game's Ridley's tail does once his tail has moved. Then it behaves, unless a status or its hurt stops it, and

@@ -106,6 +106,9 @@ public partial class KagoBug : Enemy
         Place = null;
     }
 
+    /// <summary>On the cartridge the bug is one of the enemies' shots, there to be met from the update it comes out.</summary>
+    protected override bool MeetsFromFirstTurn => true;
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
@@ -114,6 +117,12 @@ public partial class KagoBug : Enemy
         _wait = Countdown.Of(ShortestWait + Random.Last.Part(0, 3));
         _untilSound = Countdown.Of(_wait.Remaining + FirstSoundAfter);
         Play("waiting");
+
+        // On the cartridge the bug is one of the enemies' shots, which take their turns once the enemies have had
+        // theirs: it has its first turn on the update its hive lets it out. That turn of its wait is played here.
+        StepSound();
+        CheckClear();
+        _wait = _wait.Stepped();
     }
 
     /// <inheritdoc/>

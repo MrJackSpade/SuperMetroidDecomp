@@ -36,7 +36,7 @@ public partial class MessageBoxMode : GameMode
         AfterClosing,
     }
 
-    private readonly GameMode _returnsTo;
+    private GameMode _returnsTo;
     private readonly string _message;
     private readonly Action<bool>? _answered;
 
@@ -172,7 +172,23 @@ public partial class MessageBoxMode : GameMode
     private static InvalidOperationException NotShown() => new("The message has not been shown.");
 
     /// <inheritdoc/>
-    public override GameMode Step(GameInput input) => StepWindow(input, _style ?? throw NotShown());
+    public override GameMode Step(GameInput input)
+    {
+        _returnsTo.StepCovered();
+        return StepWindow(input, _style ?? throw NotShown());
+    }
+
+    /// <summary>
+    /// Has the message lie over <paramref name="mode"/> and hand control back to it, in place of the mode it was made
+    /// over: for a mode that is itself laid over that one and is not done, as a pause is over play while it darkens
+    /// the picture. That mode then takes back for the one beneath it (<see cref="GameMode.TakeBack"/>) and plays what
+    /// of it goes on beneath the message.
+    /// </summary>
+    public void HandBackTo(GameMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(mode);
+        _returnsTo = mode;
+    }
 
     /// <summary>Turns from the question answered yes to the message that follows it, sounding its sound.</summary>
     private void Follow(MessageAfterYes after)

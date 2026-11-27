@@ -197,6 +197,8 @@ public partial class PauseScreen : GameMode
                 // through the refill that takes the update from the pause, or the door or the time up it is handed to.
                 GameMode? next = _playing.PlayBeneath(input, BeneathThePause);
                 bool black = StepFade(darker: true);
+                if (next is MessageBoxMode message)
+                    return Beneath(message, black);
                 if (SavedBeneath && next is null)
                     return _playing;
                 if (black)
@@ -268,6 +270,8 @@ public partial class PauseScreen : GameMode
                 // The brightening takes its step too, whatever the update of play began.
                 GameMode? next = _playing.PlayBeneath(input, BeneathThePause);
                 bool lit = StepFade(darker: false);
+                if (next is MessageBoxMode message)
+                    return Beneath(message, lit);
                 if (lit)
                 {
                     Session.Darkness.SetPace(0, 0);
@@ -296,6 +300,71 @@ public partial class PauseScreen : GameMode
             ChooseFirst();
             ShowEquipment();
         }
+    }
+
+    /// <summary>Whether the fade a message was opened beneath has run to its end.</summary>
+    private bool _fadeDone;
+
+    /// <summary>
+    /// A message that play opened beneath the pause's darkening or brightening is laid over the pause, not over play:
+    /// the fade goes on by a step on each of the message's updates, as the cartridge's does with the box open, and the
+    /// message hands back to the pause, which goes on from where its fade then stands.
+    /// </summary>
+    private GameMode Beneath(MessageBoxMode message, bool fadeDone)
+    {
+        message.HandBackTo(this);
+        _fadeDone = fadeDone;
+        if (fadeDone)
+            Session.Darkness.SetPace(0, 0);
+        return message;
+    }
+
+    /// <summary>The fade goes on beneath a message, a step on each of its updates, until it is done.</summary>
+    public override void StepCovered()
+    {
+        if (_phase is not (Phase.Darkening or Phase.Brightening) || _fadeDone)
+            return;
+        _fadeDone = StepFade(darker: _phase == Phase.Darkening);
+        if (_fadeDone)
+            Session.Darkness.SetPace(0, 0);
+    }
+
+    /// <summary>What goes on of play beneath a message laid over the pause is play's to play.</summary>
+    public override void StepBeneath() => _playing.StepBeneath();
+
+    /// <summary>
+    /// A message laid over the pause's fade hands back: play finishes what its update had left, or opens its next
+    /// message, and the pause goes on as its fade's own update does once play has been played, by how far the fade
+    /// has got beneath the message.
+    /// </summary>
+    public override GameMode TakeBack(GameInput input)
+    {
+        if (_phase is not (Phase.Darkening or Phase.Brightening))
+            return this;
+        GameMode back = _playing.TakeBack(input);
+        if (back is MessageBoxMode message)
+        {
+            message.HandBackTo(this);
+            return message;
+        }
+
+        GameMode? next = ReferenceEquals(back, _playing) ? null : back;
+        if (_phase == Phase.Darkening)
+        {
+            if (SavedBeneath && next is null)
+                return _playing;
+            if (next is not null)
+                return _fadeDone ? AfterDarkening(next) : next;
+            if (_fadeDone)
+                _phase = Phase.Preparing;
+            return this;
+        }
+
+        if (_fadeDone)
+            return AfterBrightening(next);
+        if (next is not null)
+            return next;
+        return SavedBeneath ? _playing : this;
     }
 
     /// <summary>

@@ -69,6 +69,15 @@ public abstract partial class GameMode : Node
     {
     }
 
+    /// <summary>
+    /// Called on every update a message laid over this mode plays, before the message's own part of it: what of this
+    /// mode goes on whatever covers it is played here, as a fade of the whole screen goes on. Nothing, unless the mode
+    /// says otherwise.
+    /// </summary>
+    public virtual void StepCovered()
+    {
+    }
+
     /// <summary>Called once as this mode takes control, before its first update.</summary>
     protected virtual void Enter()
     {

@@ -98,6 +98,8 @@ public partial class Ending
     /// <summary>The credits begin: everything of the flight is put away and the roll starts from below the screen.</summary>
     private void SetUpCredits()
     {
+        // The credits end every step of colours still playing.
+        StopAllColourSteps();
         ClearActors();
         (_floor ?? throw NotEntered()).Visible = false;
         foreach (PixelText line in _resultTexts.Values)

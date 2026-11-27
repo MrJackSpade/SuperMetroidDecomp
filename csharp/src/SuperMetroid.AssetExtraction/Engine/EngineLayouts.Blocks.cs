@@ -322,6 +322,8 @@ internal sealed partial class EngineLayouts
             ["holds_up"] = true,
             ["feet_only"] = true,
             ["stops_momentum"] = true,
+            // Standing on it she sinks only this far an update, the downward probe of a standing Samus being held to it.
+            ["standing_limit"] = EngineNames.Number(QuicksandDefinitions.StationarySurfaceProbeLimit),
             ["eased"] = new JsonObject
             {
                 ["by"] = new JsonArray("gravity_suit"),

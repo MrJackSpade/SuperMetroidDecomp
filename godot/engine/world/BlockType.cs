@@ -43,8 +43,9 @@ namespace Engine.World;
 /// unless the hit that broke it carries a kind "break_sound_by_kind" names, the first listed of them: then that
 /// kind's sound is.
 /// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
-/// it, "rise_limit", "holds_up", "feet_only", "stops_momentum", and under "eased" the equipment ("by") that eases
-/// it with the three numbers it has for one who wears it.
+/// it, "rise_limit", "holds_up", "feet_only", "stops_momentum", "standing_limit" for the most one who stands still
+/// is pressed down into it on an update, and under "eased" the equipment ("by") that eases it with the three numbers
+/// it has for one who wears it.
 /// </remarks>
 public sealed class BlockType
 {
@@ -107,6 +108,13 @@ public sealed class BlockType
 
     /// <summary>For a block that pulls: the fastest it lets what is in it rise; zero for no limit.</summary>
     public Pixels RiseLimit { get; private init; }
+
+    /// <summary>
+    /// For a block that pulls: the most a player standing still is pressed down on an update whose press would leave
+    /// the bottom row of their body in this block; zero for no limit. Sand's surface has one: who stands on it sinks
+    /// a little at a time until their feet are through it.
+    /// </summary>
+    public Pixels StandingLimit { get; private init; }
 
     /// <summary>For a block that pulls: whether what has its feet in it stands there as on ground, and does not fall through it.</summary>
     public bool HoldsUp { get; private init; }
@@ -233,6 +241,7 @@ public sealed class BlockType
             MovingContactSpeed = data.Has("moving_contact_speed") ? data.Distance("moving_contact_speed")
                 : data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
             RiseLimit = data.Has("rise_limit") ? data.Distance("rise_limit") : Pixels.Zero,
+            StandingLimit = data.Has("standing_limit") ? data.Distance("standing_limit") : Pixels.Zero,
             HoldsUp = data.Has("holds_up") && data.Flag("holds_up"),
             PullsFeetOnly = data.Has("feet_only") && data.Flag("feet_only"),
             StopsMomentum = data.Has("stops_momentum") && data.Flag("stops_momentum"),

@@ -2134,7 +2134,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
                     Velocity = Velocity.WithY(Pixels.Zero);
                 Pixels pull = moving
                     ? (eased ? sand.Eased.MovingContactSpeed : sand.MovingContactSpeed)
-                    : (eased ? sand.Eased.ContactSpeed : speed);
+                    : StandingSink(eased ? sand.Eased.ContactSpeed : speed);
                 if (pull > down)
                     down = pull;
             }
@@ -2144,6 +2144,30 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             MoveBodyAcross(across, BodyMoves);
         if (down != Pixels.Zero)
             MoveBodyDown(down, BodyMoves);
+    }
+
+    /// <summary>
+    /// How far a player standing still is taken down by a block's pull on one update: the pull and one pixel more, as a
+    /// standing player is pressed to the ground by one pixel more than they go; held to the limit of whatever block
+    /// the bottom row of their body would then lie in, where one gives a limit (<see cref="BlockType.StandingLimit"/>),
+    /// as sand's surface lets one who stands on it sink only a little at a time. An upward pull is as it is.
+    /// </summary>
+    private Pixels StandingSink(Pixels pull)
+    {
+        if (pull.IsNegative)
+            return pull;
+        Pixels pressed = pull + Pixels.FromWhole(1);
+        PixelRect body = BodyRect;
+        // The bottom row of the body they have, as far down as the press would carry it in whole pixels.
+        int row = body.Bottom - 1 + ((Position.Y + pressed).Whole - Position.Y.Whole);
+        foreach (Block under in Room.Terrain.BlocksIn(new PixelRect(body.Left, row, body.Width, 1)))
+        {
+            Pixels limit = under.Type.StandingLimit;
+            if (under.Type.Contact == BlockContact.PullsDown && limit > Pixels.Zero && pressed > limit)
+                pressed = limit;
+        }
+
+        return pressed;
     }
 
     /// <summary>

@@ -84,7 +84,9 @@ public sealed class CrawlingState : PlayerState
         _hadSpeed = !owner.Velocity.X.IsZero;
         (_jumpAsked, _turnAsked, _rollAsked) = (false, false, false);
         bool jumps = owner.MayJumpWhileCrawling;
-        if ((input.WasPressed(GameAction.Up) || (!jumps && owner.JumpPressed)) && owner.CanTakeForm(Player.Crouching))
+        // The way out of the low form is asked for whether or not there is room for it here: the taller body is
+        // fitted where this update's movement leaves the player, and with no room there they stay as they are.
+        if (input.WasPressed(GameAction.Up) || (!jumps && owner.JumpPressed))
             return owner.LeaveLowForm();
         if (jumps && StandsAsOnGround && owner.JumpPressed)
         {

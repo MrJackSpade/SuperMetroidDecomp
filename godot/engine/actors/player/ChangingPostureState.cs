@@ -40,6 +40,14 @@ public sealed class ChangingPostureState : PlayerState
     /// <inheritdoc/>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// A change into a taller form is fitted as the state is entered, where the update's movement has left the
+    /// player: with no room for it there the change is not begun, and they stay as they are. A smaller form is taken
+    /// as the state is entered.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) =>
+        _form != Player.Crawling && owner.HalfHeightOf(_form) > owner.HalfHeight ? new FormAsked(_form) : null;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

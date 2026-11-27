@@ -82,17 +82,18 @@ internal sealed partial class EngineEnemy
     /// Writes a timeline of pictures from the sheets of what it spawns to a data file of any name, cutting the
     /// pictures into a folder named as the file is, and returns the file. With a <paramref name="shade"/> the
     /// pictures are cut as that shade of their sheet shows them: what the old game draws in a look of its own, as the
-    /// projectiles' shared colours, and not in its sheet's own.
+    /// projectiles' shared colours, and not in its sheet's own. With a <paramref name="pictureFolder"/> they are cut
+    /// into that folder instead: the same pictures another of its timelines cut there and shows.
     /// </summary>
     internal string SpawnedTimelineAt<TFrame, TEvent>(
         string file, IReadOnlyList<IAnimationBeat<TFrame, TEvent>> lead, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> frameName,
-        Func<TEvent, string?> cue, string? shade = null)
+        Func<TEvent, string?> cue, string? shade = null, string? pictureFolder = null)
         where TFrame : struct
         where TEvent : notnull
     {
         IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue)
             .Select(frame => frameName(frame!.Value));
-        string folder = file[..file.LastIndexOf('.')], spawner = EnemyDefinitionIdKeys.Installed.Of(_id);
+        string folder = pictureFolder ?? file[..file.LastIndexOf('.')], spawner = EnemyDefinitionIdKeys.Installed.Of(_id);
         EngineSheetPictures pictures = shade is null
             ? _sheets.CutSpawned(_tree, folder, spawner, frames)
             : _sheets.CutSpawnedShade(_tree, folder, spawner, frames, shade);

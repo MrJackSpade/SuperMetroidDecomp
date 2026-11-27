@@ -64,6 +64,7 @@ public partial class Ending
 
     private readonly List<(int X, int Y, int SpeedX, int SpeedY, int Age, int Delay)> _stars = [];
     private readonly List<Sprite2D> _starSprites = [];
+    private Node2D? _starField;
     private Sprite2D? _credits;
     private Sprite2D? _waitingBackdrop;
     private ColorRect? _wavySamus;
@@ -137,7 +138,10 @@ public partial class Ending
                 ShowWavySamus(_age);
                 if (_age < BackdropUpdates)
                     break;
+                // The result is shown alone: the backdrop and the stars are put away while it is held.
                 (_wavySamus ?? throw NotEntered()).Visible = false;
+                (_waitingBackdrop ?? throw NotEntered()).Visible = false;
+                StarField().Visible = false;
                 ShowPanel("result_panel", 72);
                 (_phase, _wait) = (Phase.WaitingSamus, ResultUpdates);
                 break;
@@ -147,7 +151,7 @@ public partial class Ending
                     break;
                 SpawnIdleSamus();
                 (_phase, _wait, _revealStep, _age, _copyrightShown, _copyrightHolds) = (Phase.RewardReveal, RevealHalfUpdates, 0, 0, false, false);
-                ShowReveal();
+                ShowRevealing(true);
                 break;
 
             case Phase.RewardReveal:
@@ -181,16 +185,20 @@ public partial class Ending
 
         _stars.Clear();
         _starSprites.Clear();
+        _starField = new Node2D { Name = "ShootingStars" };
+        (_sprites ?? throw NotEntered()).AddChild(_starField);
         foreach ((_, _, _, int delay) in ShootingStars)
         {
             // A star that waits counts its wait, and one update more on which its wait runs out.
             _stars.Add((128 * 256, 128 * 256, 0, 0, 0, delay == 0 ? 0 : delay + 1));
             DataNode offset = Data().Get("shooting_star_offset");
             var sprite = new Sprite2D { Name = "ShootingStar", Centered = false, Offset = new Vector2(offset.Int("x"), offset.Int("y")), Visible = false, ZIndex = -2 };
-            (_sprites ?? throw NotEntered()).AddChild(sprite);
+            _starField.AddChild(sprite);
             _starSprites.Add(sprite);
         }
     }
+
+    private Node2D StarField() => _starField ?? throw NotEntered();
 
     private void ShowWavySamus(int age)
     {
@@ -214,7 +222,8 @@ public partial class Ending
 
     /// <summary>
     /// Plays one update of Samus's reveal: she comes in over the backdrop a step every fourth update; half-way the
-    /// copyright comes up and everything is held; then the rest, and she is ready to move.
+    /// copyright is shown alone while everything is held, she going on playing unseen; then the rest, and she is ready to
+    /// move.
     /// </summary>
     private void StepReveal()
     {
@@ -224,6 +233,7 @@ public partial class Ending
             if (--_wait > 0)
                 return;
             (_copyrightHolds, _wait) = (false, RevealHalfUpdates);
+            ShowRevealing(true);
             return;
         }
 
@@ -237,12 +247,27 @@ public partial class Ending
             return;
         if (!_copyrightShown)
         {
-            ShowPanel("copyright_panel", 96);
             (_copyrightShown, _copyrightHolds, _wait) = (true, true, CopyrightUpdates);
+            ShowRevealing(false);
             return;
         }
 
         BeginGesture();
+    }
+
+    /// <summary>
+    /// Shows the reveal, with the backdrop, Samus and the stars and no panel; or, while the copyright is held, the
+    /// copyright alone.
+    /// </summary>
+    private void ShowRevealing(bool revealing)
+    {
+        ShowPanel(revealing ? "" : "copyright_panel", 96);
+        StarField().Visible = revealing;
+        foreach (Actor actor in _actors)
+            actor.Sprite.Visible = revealing;
+        (_waitingBackdrop ?? throw NotEntered()).Visible = revealing;
+        if (revealing)
+            ShowReveal();
     }
 
     /// <summary>Shows the reveal as far as it has got. Samus in her armour is there from the first, with nothing behind her.</summary>

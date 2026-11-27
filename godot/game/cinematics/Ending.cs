@@ -286,6 +286,8 @@ public partial class Ending : Cinematic
             }
 
             place = _actors.IndexOf(actor);
+            if (place < 0)
+                throw new InvalidOperationException($"The ending's {actor.Role} was taken off the stage by its own update.");
             if (stays)
                 continue;
             _actors.RemoveAt(place--);

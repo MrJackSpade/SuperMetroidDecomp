@@ -98,7 +98,7 @@ public sealed class KeptExploredMaps : ISessionService
             if (area == Data.Areas.Ceres)
                 continue;
             Area map = MapOf(session, area);
-            foreach ((_, int column, int row) in saved.Explored.Where(cell => cell.Area == area))
+            foreach (var (_, column, row) in saved.Explored.Where(cell => cell.Area == area))
             {
                 if (RunCanBeDiscovered(map, column, row))
                     copy.Add((column, row));
@@ -136,8 +136,8 @@ public sealed class KeptExploredMaps : ISessionService
     }
 
     /// <summary>
-    /// Marks the live map where Samus is once the view has followed her, but while she dies. On an update the game is
-    /// saved, the live map is then stored as the area's copy.
+    /// Marks the live map where Samus is once the view has followed her, but not while she dies. On an update the
+    /// game is saved, the live map is then stored as the area's copy.
     /// </summary>
     public void Step(GameSession session)
     {

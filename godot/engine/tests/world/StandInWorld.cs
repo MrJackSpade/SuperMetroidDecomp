@@ -50,7 +50,10 @@ public sealed class StandInWorld : IDisposable
     /// <summary>The player.</summary>
     public Player Player => Session.Player;
 
-    /// <summary>Places the point the player starts at: the middle of their feet.</summary>
+    /// <summary>
+    /// Places the point the player starts at, given as the middle of their feet: the point itself is where their
+    /// middle is put, half their standing height above.
+    /// </summary>
     public StandInWorld StartAt(int x, int feetY)
     {
         Node? old = Room.GetNodeOrNull("Start");
@@ -60,7 +63,7 @@ public sealed class StandInWorld : IDisposable
             old.Free();
         }
 
-        Room.AddChild(new Marker2D { Name = "Start", Position = new Vector2(x, feetY) });
+        Room.AddChild(new Marker2D { Name = "Start", Position = new Vector2(x, feetY - Player.HalfHeightOf(Player.Standing)) });
         return this;
     }
 
@@ -89,14 +92,25 @@ public sealed class StandInWorld : IDisposable
     {
         Setup();
         for (int update = 0; update < updates; update++)
-            Room.Step(new GameInput(held, []));
+            Play(new GameInput(held, []));
+    }
+
+    /// <summary>
+    /// Plays one update of the room as play does: an update a message stopped part-way is finished at once, the
+    /// message left waiting in the session for the check to take.
+    /// </summary>
+    private void Play(GameInput input)
+    {
+        Room.Step(input);
+        if (Room.UpdateIsSuspended)
+            Room.FinishSuspendedUpdate();
     }
 
     /// <summary>Plays one update of the room in which the given actions are newly pressed, and held.</summary>
     public void Press(params GameAction[] pressed)
     {
         Setup();
-        Room.Step(new GameInput(pressed, pressed));
+        Play(new GameInput(pressed, pressed));
     }
 
     /// <summary>Plays updates, with the given actions held, until the player stands on the ground or a limit is reached.</summary>
@@ -105,7 +119,7 @@ public sealed class StandInWorld : IDisposable
         Setup();
         for (int update = 0; update < 600; update++)
         {
-            Room.Step(new GameInput(held, []));
+            Play(new GameInput(held, []));
             if (Player.IsOnGround)
                 return;
         }

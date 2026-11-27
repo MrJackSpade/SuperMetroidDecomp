@@ -31,7 +31,7 @@ public sealed class ModeChecks
 
         game.Press(GameAction.Pause);
         Expect.True(ReferenceEquals(playing, game.Mode));
-        Expect.Equal(1, game.Loop.GetChildCount());
+        Expect.Equal(1, game.Loop.GetChildren().OfType<GameMode>().Count());
         game.Step(2);
         Expect.Equal(played + 2, game.Session.Progress.PlayUpdates);
     }
@@ -69,7 +69,7 @@ public sealed class ModeChecks
         Expect.False(game.Session.Progress.Has("after the save"));
         Expect.False(ReferenceEquals(firstPlayer, game.Session.Player));
         Expect.False(Godot.GodotObject.IsInstanceValid(firstPlayer));
-        Expect.Equal(1, game.Loop.GetChildCount());
+        Expect.Equal(1, game.Loop.GetChildren().OfType<GameMode>().Count());
     }
 
     [Check]
@@ -91,13 +91,13 @@ public sealed class ModeChecks
         using var game = new StandInGame();
         game.Press(GameAction.Pause);
         var definition = (TwoRoomDefinition)game.Session.Definition;
-        Expect.Equal(2, game.Loop.GetChildCount());
+        Expect.Equal(2, game.Loop.GetChildren().OfType<GameMode>().Count());
 
         // A game's own pause screen may quit to its title; the engine's hand-over then ends the play beneath it.
         definition.QuitFromPause = true;
         game.Press(GameAction.Cancel);
         Expect.True(game.Mode is StandInMode);
-        Expect.Equal(1, game.Loop.GetChildCount());
+        Expect.Equal(1, game.Loop.GetChildren().OfType<GameMode>().Count());
     }
 
     [Check]

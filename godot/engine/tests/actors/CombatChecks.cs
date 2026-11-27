@@ -98,7 +98,7 @@ public sealed class CombatChecks
         world.StepUntilLanded();
 
         // The enemy's top is at pixel 64.
-        Expect.Equal(Pixels.FromWhole(64), world.Player.Position.Y);
+        Expect.Equal(64, world.Player.BodyRect.Bottom);
         Expect.Equal(99, world.Player.Inventory.Amount(Inventory.Energy));
     }
 

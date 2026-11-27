@@ -166,6 +166,11 @@ class Sequences:
             # The plants that seize Samus are blocks of the layout: one watcher finds and plays whichever the room has.
             self.placed.append(sequence('brinstar/SamusEaters.cs', 'Plants', {
                 'StartsWhen': ctx.always(), 'DataFile': quoted('objects/samus_eater.json')}))
+        if 'BossDead' in chosen_on and any(thing.boss == 'kraid' for thing in things):
+            # A room where Kraid has been beaten shows, as it is set up, the colours his death's last fade ends on:
+            # the old Kraid's body shows them as his defeated room loads.
+            self.placed.append(sequence('brinstar/KraidRoomColours.cs', 'KraidColours', {
+                'StartsWhen': ctx.always(), 'DataFile': quoted('bosses/kraid.json')}))
         if state.main in ESCAPES:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
                 'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),

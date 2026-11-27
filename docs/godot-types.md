@@ -1284,7 +1284,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
   by gravity and it rises no more than `shinespark_most_rise` whole pixels an update.
 - **Hurts.** A hit from the room itself (a spike) has its own invincibility and knockback lengths. The low-energy
-  warning is started once as her energy falls low and stopped once as it recovers.
+  warning is started once as her energy falls low and stopped once as it recovers. Her states that the cartridge
+  refuses a knockback in hold it off, and it begins once she is out of them if its time has not run out: the turns,
+  the changes of posture, the damage boost, every state of the grapple beam's hold (the swing, held in place by the
+  line, and against a wall), a boss's grip, the shinespark and being drained.
 - **A jump with the speed booster on** adds half the dash's whole pixels and all of its fraction to the jump's
   speed, each on its own with no carry, as the cartridge does.
 - **Grabbed** is being seized and carried by something that still lets her aim and fire (Draygon, Ridley). The

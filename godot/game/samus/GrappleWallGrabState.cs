@@ -28,6 +28,12 @@ public sealed class GrappleWallGrabState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
+    /// <summary>
+    /// A knockback waits while she is in this state, the window after she lets go included, as the cartridge refuses
+    /// it in the wall's pose and tries again each update of its time.
+    /// </summary>
+    public override bool HoldsOffInterruptions => true;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

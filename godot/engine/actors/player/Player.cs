@@ -777,6 +777,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         // What the blocks the player is in do to them is settled now, by the body just published and before they
         // attack, the enemies act or they move: it is part of this update's movement. While their state holds the
         // room still, the blocks do nothing to them.
+        _stoodIn = BlocksStoodIn();
         _blockMove = default;
         if (!State.Stops.HasFlag(World.Stopped.Room))
             NoteBlocksStoodIn();
@@ -1737,6 +1738,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// </summary>
     private PixelOffset _blockMove;
 
+    /// <summary>
+    /// The blocks the player was in as this update began (<see cref="BlocksStoodIn"/>), by the body their form had
+    /// just given them and before they or anything else moved: it is these that carry, pull and hurt them on this
+    /// update, wherever their move then takes them.
+    /// </summary>
+    private List<Block> _stoodIn = [];
+
     /// <summary>Takes what a block that pulls gave the player to go down by this update, to be part of the move being made.</summary>
     private Pixels TakeBlockPull()
     {
@@ -2169,7 +2177,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     private void NoteBlocksStoodIn()
     {
         Pixels across = Pixels.Zero, down = Pixels.Zero;
-        foreach (Block block in BlocksStoodIn())
+        foreach (Block block in _stoodIn)
         {
             Pixels speed = block.Type.ContactSpeed;
             if (block.Type.Contact == BlockContact.Carries)
@@ -2232,7 +2240,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>
     /// Takes this update's ongoing damage: what the room does where the player is, and what blocks they touch do, less
     /// whatever their equipment cancels. Parts of a point carry over to later updates. The room's liquid harms them
-    /// by where their feet are: while the lowest row of their body is under its surface.
+    /// by where their feet are: while the lowest row of their body is under its surface. A block that hurts whoever
+    /// is in it hurts by where they stood as the update began; a solid one, by having stopped a move of theirs on it.
     /// </summary>
     private void TakeOngoingDamage()
     {
@@ -2253,7 +2262,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         hundredths += fromRoom;
 
         int blockHit = 0;
-        foreach (Block block in BlocksStoodIn().Concat(BlocksMet()).Distinct())
+        // The blocks they were in as the update began, and the solid ones that stopped a move of theirs on it.
+        foreach (Block block in _stoodIn.Concat(BlocksMet()).Distinct())
         {
             if (block.Type.Contact != BlockContact.Hurts || IsCancelled("blocks"))
                 continue;

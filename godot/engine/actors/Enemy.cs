@@ -1068,6 +1068,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             EndStatus();
     }
 
+    /// <summary>
+    /// Counts the enemy among the room's killed (<see cref="World.Room.EnemiesKilled"/>) as its death does, for one
+    /// that is taken away without dying.
+    /// </summary>
+    protected void CountAsKilled() => Room.CountKilled();
+
     /// <summary>Ends the enemy's status.</summary>
     private void EndStatus()
     {

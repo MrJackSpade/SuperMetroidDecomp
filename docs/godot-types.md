@@ -148,7 +148,9 @@ something that leaves the room.
   every frame before Samus, the enemies and the room acted: much of this game reads the number last drawn
   (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
   It also stirs the number each time lava or acid moves (`ILiquidWatcher`), in view or out of it and before the
-  update's number is drawn: the two halves of the number change places, as the cartridge's liquid step does.
+  update's number is drawn: the two halves of the number change places, as the cartridge's liquid step does. The
+  first move of a room's liquid after the room is set up stirs nothing, as the cartridge's first pass only starts its
+  liquid; a room is made afresh each time it is set up, so a liquid it has not seen move is on its first.
   `CartridgeSpeedReadings` is how the cartridge reads Samus's speed across against its limits (`ISpeedReadings`,
   which the engine asks of the game and has no reading of its own for): whole pixels and fraction each on its own, by the sign of
   their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as

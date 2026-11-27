@@ -1163,8 +1163,15 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     {
         if (State is DyingState)
             return;
-        OnDying(State);
-        ChangeState(new DyingState(Thrown));
+        PlayerState from = State;
+        OnDying(from);
+
+        // A state whose movement goes on is kept beneath the death, not left, and goes on moving the player; any
+        // other is left, a throw that was carrying them going on.
+        if (Thrown is null && from is not HeldState && from.MovesOnWhileDying)
+            States.Cover(new DyingState(null, from));
+        else
+            ChangeState(new DyingState(Thrown));
     }
 
     /// <summary>

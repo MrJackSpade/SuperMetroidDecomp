@@ -101,6 +101,9 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
+    /// <summary>The movement is not her pose's own: it goes on moving her through her death's last pass of play, as the cartridge's does.</summary>
+    public override bool MovesOnWhileDying => true;
+
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 

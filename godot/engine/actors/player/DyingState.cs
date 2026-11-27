@@ -5,7 +5,8 @@ namespace Engine.Actors;
 /// <summary>
 /// Dying: the player's energy is gone and nothing saved them. They neither move of themselves nor act, and time
 /// stands still for everything else. A throw that was carrying them as they began to die goes on carrying them
-/// (<see cref="Throw"/>), for as long as the game playing the death lets it. The state has no end of its own: the
+/// (<see cref="Throw"/>), and so does the movement of a state that says its movement goes on
+/// (<see cref="PlayerState.MovesOnWhileDying"/>), for as long as the game playing the death lets it. The state has no end of its own: the
 /// game plays the death, in the mode its definition makes for it
 /// (<see cref="Core.GameDefinition.CreateDeathMode"/>), which is handed play on the update the player begins to die
 /// and says what comes after.
@@ -15,8 +16,17 @@ public sealed class DyingState : PlayerState
     /// <summary>The throw that was carrying the player as they began to die, if one was.</summary>
     private readonly Throw? _thrown;
 
-    /// <summary>Dying, carried on by <paramref name="thrown"/> if a throw had them.</summary>
-    public DyingState(Throw? thrown = null) => _thrown = thrown;
+    /// <summary>The state whose movement goes on moving the player, kept beneath this one; null for none, or once it is over.</summary>
+    private PlayerState? _movement;
+
+    /// <summary>
+    /// Dying, carried on by <paramref name="thrown"/> if a throw had them, or moved on by
+    /// <paramref name="movement"/>, the state they were in, if its movement goes on.
+    /// </summary>
+    public DyingState(Throw? thrown = null, PlayerState? movement = null) => (_thrown, _movement) = (thrown, movement);
+
+    /// <summary>Ends whatever movement was still moving the dying player: the game playing the death says when.</summary>
+    public void EndMovement() => _movement = null;
 
     /// <inheritdoc/>
     public override bool CanAttack => false;
@@ -38,10 +48,18 @@ public sealed class DyingState : PlayerState
     {
         if (_thrown is { } thrown)
             owner.GoOnThrown(thrown);
-        else
+        else if (_movement is null)
             owner.Velocity = PixelVelocity.Zero;
     }
 
-    /// <inheritdoc/>
-    public override PlayerState? Move(Player owner) => null;
+    /// <summary>
+    /// The movement that went on beneath the death moves the player; the update it would have handed over to another
+    /// state, it is over, and nothing moves them from then.
+    /// </summary>
+    public override PlayerState? Move(Player owner)
+    {
+        if (_movement is { } moving && moving.Move(owner) is not null)
+            _movement = null;
+        return null;
+    }
 }

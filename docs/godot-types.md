@@ -1085,6 +1085,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   below, she is put in the crouch, with no launch.
   A taller form that has no room leaves a crouching player in the plain crouch, their aim level for the update:
   whether the input asked for it (`CrouchingState.Asked`) or a state from outside did (`Player.Admit`).
+  A state's movement may go on moving the player once they have begun to die (`PlayerState.MovesOnWhileDying`): the
+  state is kept beneath the dying one, not left, and its move alone is played until it would hand over to another
+  state or the game playing the death ends it (`DyingState.EndMovement`). This game's shinespark and grapple swing go
+  on so through her death's last pass of play, as a knockback's throw does.
   A state may move the player in the first part of the update, before the enemies act, in place of the second
   (`PlayerState.MovesBeforeEnemies`): this game's grapple swing and its held poses do, and her grapple's line is
   played there too, before her weapons fire, as the cartridge plays the grapple's whole step in her input's part of

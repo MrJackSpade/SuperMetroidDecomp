@@ -34,6 +34,7 @@ public partial class Samus
         SelectBeam();
         BeInvincibleFor(0);
         EndThrow();
+        (State as DyingState)?.EndMovement();
     }
 
     /// <summary>Her death takes up its pose, which she shows from now. A spin she died in has its sound stopped.</summary>

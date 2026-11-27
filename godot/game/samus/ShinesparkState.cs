@@ -95,6 +95,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
+    /// <summary>The movement is not her pose's own: it goes on moving her through her death's last pass of play, as the cartridge's does.</summary>
+    public override bool MovesOnWhileDying => true;
+
     /// <inheritdoc/>
     public override bool InControl => false;
 

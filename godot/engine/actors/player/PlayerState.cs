@@ -131,6 +131,14 @@ public abstract class PlayerState : State<Player>
     public virtual bool StillInterrupts(Player owner, int waited) => true;
 
     /// <summary>
+    /// Whether the state's movement goes on moving the player once they have begun to die, for as long as the game
+    /// playing the death lets it (<see cref="DyingState"/>): a movement that is not their pose's own, which their
+    /// dying does not take from them. The state is then kept beneath the dying one, not left, and only its
+    /// <see cref="Move"/> is played. It does not, unless the state says otherwise.
+    /// </summary>
+    public virtual bool MovesOnWhileDying => false;
+
+    /// <summary>
     /// Whether the state moves the player in the first part of the update, before the room's enemies act, and not in
     /// the second: its <see cref="Move"/> is then played as the first part begins, once the game's player has done
     /// what it does before its state and before the weapons, with this update's input, and what it answers takes

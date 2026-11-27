@@ -2031,7 +2031,9 @@ explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinsta
 - Enemy and boss projectiles: settings on `Projectile` where they suffice, a class in the owner's folder where they
   do not; one several enemies fire goes in `game/projectiles/`.
 - Effects: explosions and death bursts; dust, splashes, bubbles and lava spray; hit sparks; speed echoes; falling
-  debris and shed parts; drop sparkles.
+  debris and shed parts; drop sparkles; the sparkles and smoke Samus's shots leave behind them, which are data: each
+  shot's trail, a file for each way it flies, and its sparkles' timelines, once for each sheet of her shots, under
+  `samus/weapons/trails/`.
 
 ### Samus and the screens
 

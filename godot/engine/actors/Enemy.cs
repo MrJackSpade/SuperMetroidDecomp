@@ -29,10 +29,8 @@ namespace Engine.Actors;
 /// "hurt_colours" is a change of its pictures' colours (<see cref="Ui.ColourChange"/>) shown while its hurt flash
 /// shows, on each of its visuals; without it the flash is its picture shown brighter. "frozen_colours" is the same
 /// for the look of a frozen one; without it a frozen one is shown in a blue tint.
-/// "lies" says where its pictures lie against the room's tiles (<see cref="LiesAgainstTiles"/>), in the word a
-/// timeline says it in: "in_front_of_tiles" has it drawn in front of every tile of the room, the ones in front of the
-/// room's things too, and so over the player whatever its standing; without it, it is drawn where it stands. No
-/// enemy as a whole lies behind the room.
+/// "in_front_of_tiles": true has it drawn in front of every tile of the room, the ones in front of the room's things
+/// too, and so over the player whatever its standing.
 /// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
 /// "death" names the timeline its death plays, which its <see cref="Remains"/> play out before its drop appears;
 /// "by_kind" names another for a death by a hit carrying a kind, the first listed that the hit carries.
@@ -251,21 +249,20 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         }
     }
 
-    private LiesAgainstTiles _lies;
+    private bool _inFrontOfTiles;
 
     /// <summary>
-    /// Where its pictures lie against the room's tiles, as its data says ("lies"). In front of every tile, the ones in
-    /// front of the room's things too, it is drawn there, over the player as well, whatever its standing: the room
-    /// draws in one order, and a thing in front of the tiles the player passes behind is in front of the player.
-    /// Otherwise it is drawn where it stands; no enemy as a whole lies behind the room.
+    /// Whether its pictures lie in front of every tile of the room, the ones in front of the room's things too, as
+    /// its data says ("in_front_of_tiles"). It is then drawn there, over the player as well, whatever its standing:
+    /// the room draws in one order, and a thing in front of the tiles the player passes behind is in front of the
+    /// player.
     /// </summary>
-    /// <exception cref="InvalidOperationException">It is said to lie behind the room.</exception>
-    public LiesAgainstTiles Lies
+    public bool InFrontOfTiles
     {
-        get => _lies;
+        get => _inFrontOfTiles;
         set
         {
-            _lies = value;
+            _inFrontOfTiles = value;
             ShowDepth();
         }
     }
@@ -273,17 +270,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private void ShowDepth()
     {
         RoomDepth.Stand(this, _standing);
-        switch (_lies)
-        {
-            case LiesAgainstTiles.WhereItStands:
-                break;
-            case LiesAgainstTiles.InFrontOfTiles:
-                ZIndex = RoomDepth.InFrontOfRoom;
-                break;
-            default:
-                throw new InvalidOperationException(
-                    $"The enemy \"{Name}\" is said to lie {_lies}: an enemy as a whole lies in front of the room's tiles or where it stands.");
-        }
+        if (_inFrontOfTiles)
+            ZIndex = RoomDepth.InFrontOfRoom;
     }
 
     /// <summary>What a picture's name holds where the word of the look it is shown in goes (<see cref="Look"/>).</summary>
@@ -309,7 +297,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
         _hurtColours = data.Has("hurt_colours") ? Ui.ColourChange.Read(data.Get("hurt_colours")) : null;
         _frozenColours = data.Has("frozen_colours") ? Ui.ColourChange.Read(data.Get("frozen_colours")) : null;
-        _lies = data.Has("lies") ? data.Get("lies").AsEnum<LiesAgainstTiles>() : LiesAgainstTiles.WhereItStands;
+        _inFrontOfTiles = data.Has("in_front_of_tiles") && data.Flag("in_front_of_tiles");
         Standing = data.Has("standing") ? data.Get("standing").AsEnum<Standing>() : Standing.Behind;
         StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
         _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";

@@ -296,8 +296,7 @@ public partial class Room : Node2D
         {
             // A backdrop lies behind everything else in its room, wherever it comes among the room's things. The
             // depth is the room's to give: a backdrop a screen shows by itself, as the title's floor, has none.
-            // One that darkens the room lies over it and everything in it, under its liquid.
-            backdrop.ZIndex = backdrop.DarkensRoom ? RoomDepth.OverRoom : RoomDepth.Backdrop;
+            backdrop.ZIndex = RoomDepth.Backdrop;
             backdrop.Setup(Content, new Vector2I(_terrain.WidthInPixels, _terrain.HeightInPixels));
 
             // Along an axis it does not follow the view on, it keeps the place the last room's backdrop had.

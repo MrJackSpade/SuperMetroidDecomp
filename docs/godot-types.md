@@ -1190,7 +1190,14 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   (`Samus.FlarePoint`), raised as a shot's start is; its sparks are the set of the way she faces, and moonwalking
   the other way's, as the cartridge's moonwalk poses face away from their aim. While her grapple beam is out it shows the glow alone, on a
   count of its own taken up where the glow loops, where the line leaves her (`Samus.GrappleFlarePoint`), which is
-  also where the line is laid from; the charge's flare neither shows nor moves on meanwhile.
+  also where the line is laid from; the charge's flare neither shows nor moves on meanwhile. With the hyper beam on
+  it counts every part back instead, through its timeline's steps as written and no further than the first, the
+  fast ring in front: from each part's last step after a hyper shot, and otherwise from where each part stands, as a
+  charge kept through the gift of the hyper beam is. Its fast ring stepping back onto its first picture ends the
+  count (`Samus.FlareCountedBack`). From a hyper shot until then her charge reads as past every count to every rule
+  of hers that asks of it (`Samus.ChargeReaches`): the charged spin, the morph ball's cancelling of a charge and its
+  spread of bombs, the charge's sound asked for again, the shinespark windup's cancel and the door's passage; and a
+  charge kept through the gift is gone as the count ends.
 - **The X-ray scope starts** (`Samus.ScopeStarts`) with the scope chosen and the run action held, from a Samus who
   stands, runs, crouches or is stopped by a wall and was so as her update before ended as well. Once started it
   takes its opening updates before the run action is looked at at all (`XrayWarmUpUpdates`); the first update after

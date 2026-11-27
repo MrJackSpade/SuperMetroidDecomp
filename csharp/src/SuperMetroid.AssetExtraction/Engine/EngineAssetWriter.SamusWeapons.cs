@@ -113,9 +113,14 @@ public sealed partial class EngineAssetWriter
             glow.Add(Step(main, "Glow", held));
         }
 
+        // The loop is written as one round of it, each of its turns: the hyper beam counts the glow back through them
+        // one by one before it reaches the swelling.
         int loop = glow.Count;
-        glow.Add(Step(main, "WhiteBall", held));
-        glow.Add(Step(main, "Starburst", held));
+        for (int turn = 0; turn < SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.StarburstPlays; turn++)
+        {
+            glow.Add(Step(main, "WhiteBall", held));
+            glow.Add(Step(main, "Starburst", held));
+        }
 
         JsonObject Ring(string speed, string side, int[] updates)
         {
@@ -171,6 +176,8 @@ public sealed partial class EngineAssetWriter
         {
             ["shows_from"] = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.MainFlareShownFrom,
             ["sparks_from"] = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.SparksShownFrom,
+            ["hyper_picture_updates"] = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates,
+            ["hyper_first_picture_updates"] = SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions.HyperBeamFirstPictureUpdates,
             ["pictures"] = byBeams,
             ["main"] = new JsonObject { ["steps"] = glow, ["loops_to"] = loop },
             ["slow_right"] = Ring("Slow", "Right", slow),

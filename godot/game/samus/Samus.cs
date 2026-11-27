@@ -839,7 +839,26 @@ public partial class Samus : Player
     }
 
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
-    public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
+    public bool ChargeIsSounding => ChargeReaches(ChargeSoundUpdates);
+
+    /// <summary>
+    /// Whether a hyper shot's count runs: from the shot until her flare has counted its fast ring of sparks back onto
+    /// its first picture (<see cref="SamusFlare"/>), the cartridge counts her as past every charge.
+    /// </summary>
+    private bool _hyperShotCounts;
+
+    /// <summary>
+    /// Whether her beam's charge reads as held for at least <paramref name="updates"/> updates, as every rule of hers
+    /// that asks of it reads it: her weapons' charge, or past every count while a hyper shot's count runs. One update
+    /// asks whether she holds a charge at all.
+    /// </summary>
+    public bool ChargeReaches(int updates) => _hyperShotCounts || Weapons.ChargedFor >= updates;
+
+    /// <summary>
+    /// Her flare has counted its fast ring of sparks back onto its first picture: a hyper shot's count is over, and a
+    /// charge kept through the gift of the hyper beam is gone with it, as the cartridge clears it.
+    /// </summary>
+    public void FlareCountedBack() => ForgetCharge();
 
     /// <summary>
     /// Where what holds the first of her shots' places stands, a shot or what a shot left there, and the room's corner
@@ -1617,14 +1636,14 @@ public partial class Samus : Player
 
         // A full charge is remembered for as long as the button stays down, even into the morph ball.
         bool held = input.IsHeld(GameAction.Attack);
-        bool beamCharged = Weapons.Selected?.Name == Arsenal.Beam && Weapons.IsCharged;
+        bool beamCharged = Weapons.Selected is { Name: Arsenal.Beam, ChargeUpdates: > 0 } selectedBeam && ChargeReaches(selectedBeam.ChargeUpdates);
         if (!held)
             (_spreadCharged, _spreadHeld) = (false, 0);
         else if (beamCharged)
             _spreadCharged = true;
 
         // A beam charge carried into the morph ball stays there until the ball uses it up.
-        _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor > 0));
+        _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && ChargeReaches(1)));
 
         // A handed shot lets the charge go before a special attack is tried, as the cartridge's beam input has it.
         if (!_shotHandedNow && weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
@@ -1719,9 +1738,16 @@ public partial class Samus : Player
             // A beam fired takes back the asking again of a charge's sound.
             _chargingSoundArmed = false;
 
-            // A hyper shot starts the hyper beam's glow of her suit, and a charged shot its flash.
+            // A hyper shot starts the hyper beam's glow of her suit, and a charged shot its flash. A hyper shot also
+            // takes the place of whatever charge she held with its own count, which reads as past every charge until
+            // her flare has counted back.
             if (Inventory.IsOn(Equipment.HyperBeam))
+            {
                 BeginShotGlow("hyper_shot_glow");
+                ForgetCharge();
+                _hyperShotCounts = true;
+                (Flare ?? throw new InvalidOperationException("A hyper shot's count is kept by her flare, and she has none.")).CountBackFromLast();
+            }
             else if (fullyCharged)
                 BeginShotGlow("charged_shot_flash");
         }
@@ -1850,7 +1876,7 @@ public partial class Samus : Player
     public void ForgetCharge()
     {
         Weapons.DropCharge();
-        (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
+        (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds, _hyperShotCounts) = (false, 0, false, false, false);
     }
 
     /// <summary>
@@ -1982,7 +2008,10 @@ public partial class Samus : Player
         if (target is not Enemy || result == HitResult.Ignored)
             return;
         if (power.Name == HitKinds.ChargedSpin)
+        {
             Weapons.DropCharge();
+            _hyperShotCounts = false;
+        }
         if (result is not (HitResult.Hurt or HitResult.Destroyed))
             return;
         Room.Session.Sounds.Request(Sounds.EnemyContactKill, channel: "enemies", priority: SoundPriority.WhenIdle);

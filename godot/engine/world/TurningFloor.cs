@@ -25,9 +25,6 @@ public partial class TurningFloor : Backdrop
         LayLevel();
     }
 
-    /// <summary>Its turn places it: its share of the room's scrolling says nothing of where a background would stand.</summary>
-    protected override bool FollowsAsItsShareSays => false;
-
     /// <summary>The floor keeps the place its turn gave it, whatever the view does and whatever shakes the room.</summary>
     internal override void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {

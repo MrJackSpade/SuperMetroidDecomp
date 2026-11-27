@@ -71,9 +71,6 @@ public partial class Room : Node2D
     private readonly List<RoomEffect> _roomEffects = [];
     private readonly List<RoomSequence> _sequences = [];
     private readonly List<Backdrop> _backdrops = [];
-
-    /// <summary>Where the backdrop of the room last left stood, as this room was set up (<see cref="GameSession.BackdropPlace"/>).</summary>
-    private Vector2I _backdropPlaceKept;
     private readonly List<IRoomEntity> _leaving = [];
     private readonly List<PatchSequence> _terrainChanges = [];
 
@@ -289,7 +286,6 @@ public partial class Room : Node2D
         }
 
         PlaceFirstView();
-        _backdropPlaceKept = Session.BackdropPlace;
 
         // The room's own pictures are ready before anything enters, so that what enters may change their colours.
         foreach (Backdrop backdrop in GetChildren().OfType<Backdrop>())
@@ -298,9 +294,6 @@ public partial class Room : Node2D
             // depth is the room's to give: a backdrop a screen shows by itself, as the title's floor, has none.
             backdrop.ZIndex = RoomDepth.Backdrop;
             backdrop.Setup(Content, new Vector2I(_terrain.WidthInPixels, _terrain.HeightInPixels));
-
-            // Along an axis it does not follow the view on, it keeps the place the last room's backdrop had.
-            backdrop.KeepPlace(_backdropPlaceKept);
             _backdrops.Add(backdrop);
         }
 
@@ -1189,12 +1182,6 @@ public partial class Room : Node2D
     {
         // What each place holds as the room is left is there for the next room's first holder of that place.
         Session.PlaceLeftovers = _places.Leftovers();
-
-        // Where its backdrop stands as the room is left is where the next room's stands along an axis that one does
-        // not follow the view on; a room with no backdrop hands on what it was given.
-        Session.BackdropPlace = _backdrops.Count == 0
-            ? _backdropPlaceKept
-            : _backdrops[0].PlaceAt(new Vector2I(Session.Camera.Left, Session.Camera.Top), _backdropPlaceKept);
         if (_player is not null && _player.GetParent() == this)
         {
             _player.OnLeavingRoom(this);

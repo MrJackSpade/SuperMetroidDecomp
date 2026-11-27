@@ -1113,8 +1113,14 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
 - The game's player is told as a shot of theirs ends where it is (`Player.OnShotEnded`: stopped by terrain, spent on
   what it struck, or run out): this game's Samus has a missile's or a super missile's explosion cut a longer wait
   between her shots to twenty updates (`Weapons.WaitAtMost`), as the cartridge's missile does.
-- The game's player is told as a shot of theirs is launched (`Player.OnFired`): this game's Samus holds her own
-  bombs off her for a count from each beam or missile fired, as the cartridge does.
+- The game's player is told as a shot of theirs is launched (`Player.OnFired`), with the projectiles launched,
+  which hold their numbered places by then (`Weapons.PlaceOf`): this game's Samus holds her own bombs off her for a
+  count from each beam or missile fired, as the cartridge does, and starts a beam fired straight left a pixel
+  further left, as the cartridge's check at the muzzle leaves it.
+- The game's player is told as the room they are in is left, their shots still in it (`Player.OnLeavingRoom`): this
+  game's Samus has each of her shot places keep the part of a pixel across of what holds it then, and the next beam
+  fired straight left from a place that kept enough starts at the muzzle and not a pixel left of it, as on the
+  cartridge.
 - Facing and aim are separate values, never part of a state's name.
 - Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
   wait before their next shot (`Weapons.WaitAtLeast`), and halve their speed across a number of times

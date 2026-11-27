@@ -1729,10 +1729,19 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
-    /// Called as a shot of <paramref name="weapon"/> has been launched from the player's weapons. A game in which
-    /// firing changes something of the player says so here.
+    /// Called as a shot of <paramref name="weapon"/> has been launched from the player's weapons, with the
+    /// projectiles it launched, which hold their places by now (<see cref="Weapons.PlaceOf"/>) and have not yet had a
+    /// turn. A game in which firing changes something of the player, or of the shot as it starts, says so here.
     /// </summary>
-    protected internal virtual void OnFired(WeaponStats weapon)
+    protected internal virtual void OnFired(WeaponStats weapon, IReadOnlyList<Projectile> shots)
+    {
+    }
+
+    /// <summary>
+    /// Called as the room the player is in is left, before they are taken out of it: their shots are still in it,
+    /// and go with it. A game in which something of them outlasts the room says so here.
+    /// </summary>
+    protected internal virtual void OnLeavingRoom(Room room)
     {
     }
 

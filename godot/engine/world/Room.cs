@@ -1140,6 +1140,7 @@ public partial class Room : Node2D
         Session.PlaceLeftovers = _places.Leftovers();
         if (_player is not null && _player.GetParent() == this)
         {
+            _player.OnLeavingRoom(this);
             foreach (Collider collider in EntityNode.CollidersOf(_player))
                 Collision.Unregister(collider);
             RemoveChild(_player);

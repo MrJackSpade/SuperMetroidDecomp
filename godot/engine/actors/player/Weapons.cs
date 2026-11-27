@@ -65,6 +65,21 @@ public sealed class Weapons
         return flyingOnly ? null : holder.Left.Where(GodotObject.IsInstanceValid).OfType<Engine.Collision.ICollisionOwner>().FirstOrDefault()?.Position;
     }
 
+    /// <summary>
+    /// The number of the place <paramref name="shot"/> holds in its pool, counted from nought: the first, where its
+    /// firing holds several. Null for a shot that holds none.
+    /// </summary>
+    public int? PlaceOf(Projectile shot)
+    {
+        foreach (Held held in _held)
+        {
+            if (held.Shots.Contains(shot))
+                return held.Numbers.Count > 0 ? held.Numbers[0] : null;
+        }
+
+        return null;
+    }
+
     /// <summary>How many places <paramref name="pool"/> has, as the weapons that share it give it.</summary>
     /// <exception cref="InvalidOperationException">No weapon shares the pool.</exception>
     public int PlacesIn(string pool) =>
@@ -354,7 +369,7 @@ public sealed class Weapons
         if (sound.Length > 0)
             player.Room.Session.Sounds.Request(sound, channel: "weapons");
         _cooldown = Countdown.Of(weapon.CooldownFor(player.Inventory, charged));
-        player.OnFired(weapon);
+        player.OnFired(weapon, launched);
         return true;
     }
 

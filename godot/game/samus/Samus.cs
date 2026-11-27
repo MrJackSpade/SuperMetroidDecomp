@@ -789,8 +789,9 @@ public partial class Samus : Player
     }
 
     /// <summary>A beam or a missile fired holds her own bombs off her for its count.</summary>
-    protected internal override void OnFired(WeaponStats weapon)
+    protected internal override void OnFired(WeaponStats weapon, IReadOnlyList<Projectile> shots)
     {
+        StartFromShotPlaces(weapon, shots);
         if (weapon.Name == Arsenal.Beam)
             _bombsHeldOff = Countdown.Of(BeamHoldsBombsOff);
         else if (weapon.Name is Arsenal.Missile or Arsenal.SuperMissile)

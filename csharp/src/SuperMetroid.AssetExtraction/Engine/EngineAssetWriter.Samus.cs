@@ -78,12 +78,6 @@ public sealed partial class EngineAssetWriter
         ? SamusCadenceDefinitions.BreathBubble.Period
         : throw new InvalidDataException("Samus's breath falls on another count of the clock than the one its period divides.");
 
-    /// <summary>How many pixels right of her middle each of a landing's pair begins: the right-hand one, then the left.</summary>
-    private static JsonArray LandingAcross(SamusLandingParticlePair pair) => new(pair.Right.X, pair.Right.X - pair.Separation);
-
-    /// <summary>The timelines of a pair her running feet raise of <paramref name="kind"/>: the leading one, then the trailing one.</summary>
-    private static JsonArray FootstepFiles(SamusParticleKind kind) => new(FootstepLeadFile(kind), SamusParticleFile(kind));
-
     /// <summary>A speed the old game keeps unsigned, as a plain number of pixels.</summary>
     private static double Number(UnsignedSixteenSixteen speed) => speed.RawValue / (double)UnsignedSixteenSixteen.FromWholePixels(1).RawValue;
 
@@ -207,29 +201,7 @@ public sealed partial class EngineAssetWriter
             .Value("room_damage_sound_least_energy", SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
             .Value("turn_pictures", SamusPictureUpdates(P.TurningRightToLeftPose, Seg.Main))
             .Value("fast_fall_look_speed", SamusMovementDefinitions.FastFallAnimationSpeed)
-
-            // What a landing raises by the ground it comes down on: a pair of splashes on wet ground, a pair of dust
-            // clouds on dusty ground, each pair's right-hand one holding her breath's next bubble off while it shows.
-            .Value("wet_landing_effect", SamusParticleFile(SamusParticleKind.SurfaceSplash))
-            .Value("wet_landing_across", LandingAcross(SamusLiquidParticleDefinitions.LandingSplashes))
-            .Value("wet_landing_rise", -SamusLiquidParticleDefinitions.LandingSplashes.Right.Y)
-            .Value("wet_landing_bubble_hold_updates", SamusParticle.UpdatesUntilFinished(
-                SamusParticleKind.SurfaceSplash, SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.AtOnce))
-            .Value("dusty_landing_effect", SamusParticleFile(SamusParticleKind.Dust))
-            .Value("dusty_landing_across", LandingAcross(SamusLiquidParticleDefinitions.LandingDust))
-            .Value("dusty_landing_rise", -SamusLiquidParticleDefinitions.LandingDust.Right.Y)
-            .Value("dusty_landing_bubble_hold_updates", SamusParticle.UpdatesUntilFinished(
-                SamusParticleKind.Dust, SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.AtOnce))
-
-            // What her running feet raise as they come down: splashes on wet ground, and dust on a boosted run, the
-            // leading one an update late and holding the next spray of a burning liquid off while it shows.
-            .Value("wet_footstep_effects", FootstepFiles(SamusParticleKind.SurfaceSplash))
-            .Value("boosted_footstep_effects", FootstepFiles(SamusParticleKind.Dust))
-            .Value("footstep_ahead", SamusLiquidParticleDefinitions.FootstepLeadingAhead)
-            .Value("footstep_behind", SamusLiquidParticleDefinitions.FootstepTrailingBehind)
-            .Value("footstep_below", SamusLiquidParticleDefinitions.FootstepBelowCentre)
-            .Value("boosted_footstep_spray_hold_updates", SamusParticle.UpdatesUntilFinished(
-                SamusParticleKind.Dust, SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, SamusLiquidParticleDefinitions.OneUpdateLate))
+            .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))
 
             // Her breath under water: a bubble on the clock's cadence, which holds the next off while it shows.
             .Value("breath_bubble_effect", SamusParticleFile(SamusParticleKind.Bubbles))

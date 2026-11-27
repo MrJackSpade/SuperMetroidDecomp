@@ -736,9 +736,8 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// Her landing makes its sound, a harder one from a fast fall, and raises what the ground she came down on raises,
-    /// on her feet or as a ball. A landing that is not a hard one and came down at a whole number of pixels an update,
-    /// none included, does neither.
+    /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
+    /// landing that is not a hard one and came down at a whole number of pixels an update, none included, does neither.
     /// </summary>
     protected override void OnLanded()
     {
@@ -749,8 +748,8 @@ public partial class Samus : Player
         bool hard = LandedAtLeast(HardLandingSpeed);
         if (!hard && LandingSpeed.Fraction == 0)
             return;
+        base.OnLanded();
         Room.Session.Sounds.Request(hard ? Sounds.HardLand : Sounds.Land, channel: "samus");
-        RaiseFromLanding();
     }
 
     /// <summary>A landing out of a spin or a wall jump takes a spin's landing to settle.</summary>
@@ -2325,17 +2324,14 @@ public partial class Samus : Player
         bool feetInLiquid = Room.Liquid is not null && FeetAreInLiquid;
         if (feetInLiquid ? Room.Liquid!.Type.Name == WaterName : _liquidLastEntered == WaterName)
             Breathe();
+        _bubbleWait = _bubbleWait.Stepped();
+        _sprayWait = _sprayWait.Stepped();
         _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
         if (_ranFromStart && State is RunningState)
         {
             StepStride();
             StepFootsteps();
         }
-
-        // What holds off her next bubble and the next spray is counted down once her feet have raised what they raise,
-        // as the cartridge counts what its effects hold off after it has raised them.
-        _bubbleWait = _bubbleWait.Stepped();
-        _sprayWait = _sprayWait.Stepped();
 
         WarnOfLowEnergy();
         Grapple?.Step(this);
@@ -2409,16 +2405,15 @@ public partial class Samus : Player
     private static readonly int[] FootContacts = [2, 7];
 
     /// <summary>
-    /// On the last update of each picture of her stride that brings a foot down, raises what the foot raises and asks
-    /// for her footsteps' sound, as the cartridge does: the sound not in a boss's room, not while she holds a shine as
-    /// the game's tests see it, not once the boost is at its full stage, and not while a scene is showing her. The
-    /// request counts among the sounds waiting whether or not it is heard.
+    /// Asks for her footsteps' sound on the last update of each picture of her stride that brings a foot down, as the
+    /// cartridge does: not in a boss's room, not while she holds a shine as the game's tests see it, not once the
+    /// boost is at its full stage, and not while a scene is showing her. The request counts among the sounds waiting
+    /// whether or not it is heard.
     /// </summary>
     private void StepFootsteps()
     {
         if (_strideLeft != 1 || !FootContacts.Contains(_strideAt))
             return;
-        RaiseFromFootstep();
         if (Room.HasBoss || ReadsAsHoldingShine || IsBoosting || IsShownByScene)
             return;
         Room.Session.Sounds.Request(Sounds.Footsteps, channel: "samus");

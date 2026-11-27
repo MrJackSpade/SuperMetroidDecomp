@@ -36,7 +36,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 import camera  # noqa: E402
 import enemies  # noqa: E402
 import fx  # noqa: E402
-import ground  # noqa: E402
 import legacy  # noqa: E402
 import objects  # noqa: E402
 import sequences  # noqa: E402
@@ -682,11 +681,6 @@ class Generator:
             things.extend(shown)
             for teller, target in told:
                 links[id(teller)] = {'Target': target}
-            # What its ground raises where Samus lands or runs, and the rain it is wet while, where it is so.
-            grounds, wetted_by = ground.things(room, shown)
-            things.extend(grounds)
-            for placed, rain in wetted_by:
-                links.setdefault(id(placed), {})['WhileShowing'] = rain
             if booster is not None:
                 # The item tells the room's lava to rise as its pickup ends, and the lava has its speed from that.
                 liquids = [thing for thing in shown if thing.name == 'Liquid']

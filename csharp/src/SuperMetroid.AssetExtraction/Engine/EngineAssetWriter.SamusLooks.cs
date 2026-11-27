@@ -715,10 +715,7 @@ public sealed partial class EngineAssetWriter
     /// <summary>The data file of the timeline of one of the puffs and splashes Samus raises.</summary>
     internal static string SamusParticleFile(SamusParticleKind kind) => $"samus/effects/{EngineSheets.FileName(kind.ToString())}.json";
 
-    /// <summary>
-    /// Writes the puffs and splashes Samus raises: what her landings and her running feet raise from the ground, and what
-    /// she throws up crossing a liquid's surface.
-    /// </summary>
+    /// <summary>Writes the puffs and splashes Samus raises: her landing's dust, and what she throws up crossing a liquid's surface.</summary>
     private void WriteSamusParticles()
     {
         string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusAtmosphere];
@@ -746,22 +743,11 @@ public sealed partial class EngineAssetWriter
             }
 
             // One that drifts the same way wherever it is raised, as her dust rises, moves on each update it is shown.
-            SamusSteadyParticle steady = SteadyParticles.Single(steady => steady.Kind == kind);
-            if (steady.Drift != default)
-                timeline["steps"] = Drifted(kind, timeline, steady.Drift.X, steady.Drift.Y);
+            if (SteadyParticles.SingleOrDefault(steady => steady.Kind == kind) is { } drifting && drifting.Drift != default)
+                timeline["steps"] = Drifted(kind, timeline, drifting.Drift.X, drifting.Drift.Y);
             _tree.WriteData(file, timeline);
-
-            // The leading one of a pair her running feet raise shows an update late.
-            if (FootstepParticles.Contains(kind))
-                _tree.WriteData(FootstepLeadFile(kind), PlayedParticleTimeline(kind, LiquidParticles.OneUpdateLate, steady.Drift, pictures));
         }
     }
-
-    /// <summary>The particles her running feet raise in pairs: splashes on wet ground, and dust on a boosted run.</summary>
-    private static readonly SamusParticleKind[] FootstepParticles = [SamusParticleKind.SurfaceSplash, SamusParticleKind.Dust];
-
-    /// <summary>The data file of the timeline of the leading one of a pair her running feet raise, which shows an update late.</summary>
-    internal static string FootstepLeadFile(SamusParticleKind kind) => $"samus/effects/{EngineSheets.FileName(kind.ToString())}_footstep_lead.json";
 
     /// <summary>Samus's particles that move the same way, or not at all, wherever they are raised.</summary>
     private static readonly SamusSteadyParticle[] SteadyParticles =
@@ -826,26 +812,17 @@ public sealed partial class EngineAssetWriter
         $"samus/effects/{EngineSheets.FileName(nameof(SamusParticleKind.LavaSpray))}_{puff.Name}.json";
 
     /// <summary>
-    /// The timeline of one puff of a spray, played as the old puff plays from the update it is thrown, rising and drifting
-    /// to its side.
+    /// The timeline of one puff of a spray, played as the old puff plays from the update it is thrown: each update a
+    /// step of its own, showing nothing while it waits to show, and placed as far as it has drifted, rising and to its
+    /// side on each update it is shown, its first among them.
     /// </summary>
     private static JsonObject LiquidSprayTimeline(LiquidSprayPuff puff, EngineSheetPictures pictures)
     {
-        int across = puff.Side == HorizontalDirection.Right ? LiquidParticles.LavaSprayDrift : -LiquidParticles.LavaSprayDrift;
-        return PlayedParticleTimeline(SamusParticleKind.LavaSpray, puff.Start,
-            new Offset16<RoomPixels>(across, SamusAtmosphericAnimationDefinitions.LavaSprayRise), pictures);
-    }
-
-    /// <summary>
-    /// The timeline of one of her particles, played as the old particle plays from the update it is raised: each update a
-    /// step of its own, showing nothing while it waits to show, and placed as far as it has drifted by
-    /// <paramref name="drift"/> on each update it is shown, its first among them.
-    /// </summary>
-    private static JsonObject PlayedParticleTimeline(SamusParticleKind kind, SamusParticleStart start, Offset16<RoomPixels> drift, EngineSheetPictures pictures)
-    {
-        // The old particle's place is never below nothing, so it is followed from a place clear of the edges.
+        // The old puff's place is never below nothing, so it is followed from a place clear of the edges.
         Position16<RoomPixels> from = Position16<RoomPixels>.Of(256, 256);
-        var particle = new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, from, drift);
+        int across = puff.Side == HorizontalDirection.Right ? LiquidParticles.LavaSprayDrift : -LiquidParticles.LavaSprayDrift;
+        var particle = new SamusParticle(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, puff.Start, from,
+            new Offset16<RoomPixels>(across, SamusAtmosphericAnimationDefinitions.LavaSprayRise));
         var steps = new JsonArray();
         while (true)
         {

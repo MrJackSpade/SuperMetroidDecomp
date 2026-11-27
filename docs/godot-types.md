@@ -1183,15 +1183,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   255 strides to climb back. Out of any liquid each picture of the stride lasts as many updates longer as she is
   slowed (`SpeedHalvings`).
 - **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
-  wears. Her landing, on her feet or as a ball, makes its sound and raises anything only if it is a hard one or came
-  down at other than a whole number of pixels an update. What it raises is the room's ground's (`Ground`, in
-  `game/rooms/`, which she finds among her room's children and asks, `Samus.RaiseFromLanding`): on wet ground a pair
-  of splashes, on dusty ground a pair of dust clouds, neither while her feet are under a liquid, the right-hand one
-  holding her breath's next bubble off while it shows; on plain ground nothing, and her breath's next bubble is let go
-  at once. Each foot her run brings down (`Samus.RaiseFromFootstep`) raises a pair of splashes on wet ground, which
-  lets the next spray of a burning liquid go at once, and otherwise on a boosted run with the row below her body clear
-  of any liquid a pair of dust clouds, whose leading one, raised an update late (its timeline begins with a step that
-  shows nothing), holds that spray off while it shows. Her dust rises a pixel on each update it shows, its first
+  wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
+  down at other than a whole number of pixels an update. Her dust rises a pixel on each update it shows, its first
   among them: its timeline has a step for each update, each placed a pixel higher than the one before.
 - **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
   carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
@@ -2098,13 +2091,6 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   gives it the depth in front of the room's tiles (`RoomDepth.BehindThings`), where the cartridge shows it in
   their place.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.
-- What a room's ground raises where Samus lands or runs is this game's own (`Ground`, in `game/rooms/`): a plain node
-  the room generator places in each room whose ground is wet or dusty, which does nothing by itself and which Samus
-  asks for what the ground is under her middle. A room without one has plain ground. Ground wet only at times says
-  what makes it so: the room effect it is wet only while it is in the room and showing (`WhileShowing`: the Landing
-  Site's rain, so the node is placed only in the versions that have it), and the height at and below which her middle
-  must lie (`FromHeight`: the West Ocean's waterline). It is a node of the room, not a setting of the engine's `Room`,
-  because what a landing raises is this game's and asked only by Samus.
 - Room versions: every case where the old code had more than one "state" of a room.
 
 ### Room sequences

@@ -179,29 +179,18 @@ def initializer_of(expression: str) -> dict[str, str]:
 
 def rooms() -> dict[str, Room]:
     text = without_comments(read('Rooms', 'RoomDefinitions.cs'))
-    # What each helper a room may be wrapped in gives it: `room with { A = x, B = y }`.
-    helpers = {}
-    for name, expression in properties_of(text, r'private static RoomDefinition (\w+)\(RoomDefinition room\) =>'):
-        given = expression[expression.index('{'):] if expression.startswith('room with') else ''
-        if not given:
-            raise ValueError(f'The room helper {name} is not a `room with {{ ... }}`, which this can read.')
-        helpers[name] = {part.split('=', 1)[0].strip(): part.split('=', 1)[1].strip()
-                         for part in split_arguments(given[1:matching(given, 0) - 1]) if '=' in part}
     result = {}
     for name, expression in properties_of(text, r'public static RoomDefinition (\w+) \{ get; \} ='):
         inner = expression
-        properties = {}
-        # A room wrapped in a helper (`WetWithShallowerFall(new(...))`) is the `new(...)` inside it, with what the
-        # helper gives it over what it gives itself.
+        # A room wrapped in a helper (`WetWithShallowerFall(new(...))`) is the `new(...)` inside it.
         if not inner.startswith('new('):
-            helper = inner[:inner.index('(')].strip()
-            if helper not in helpers:
-                raise ValueError(f'The room {name} is wrapped in {helper}, which is no helper this has read.')
             inner = inner[inner.index('new('):]
-            properties = helpers[helper]
         arguments = call_arguments(inner)
         cell, size = numbers(arguments[2]), numbers(arguments[3])
-        properties = initializer_of(inner) | properties
+        properties = initializer_of(inner)
+        if 'WithShallowerFall(' in expression:
+            # The helper gives the room this camera lead.
+            properties.setdefault('CameraLead', 'RoomCameraLeads.ShallowerFall')
         result[name] = Room(arguments[0].strip('"'), last_name(arguments[1]), (cell[0], cell[1]), (size[0], size[1]), properties)
     return result
 

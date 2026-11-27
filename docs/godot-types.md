@@ -1274,7 +1274,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **A crystal flash is upright where she is, and is no shield** (`CrystalFlashState`). She takes her upright
   form as it begins with no feeling for room (`FormAsked.Unfitted`), and with its body at once, rises two pixels an update for ten through
   whatever is there, and finishes for nine updates after the one that takes the last of her ammunition: three
-  pictures, then standing, set down a pixel an update while she is off the height she rose to. What a hurt
+  pictures, then standing, set down a pixel an update while she is off the height she rose to; she is let go standing
+  (`StandingState`), in the air too, and falls from standing on her next update if nothing is under her. What a hurt
   left her is ended as it begins, as the rise ends, on every update of the taking and as it lets her go, so
   whatever touches her while her ammunition is taken hurts her every update; nothing knocks her back.
 - **Some changes of her form take their body at once** (`FormAsked.AtOnce`, or `atOnce` given to `TrySetForm`), as

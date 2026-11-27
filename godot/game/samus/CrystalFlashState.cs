@@ -10,7 +10,7 @@ namespace Game;
 /// A crystal flash: at the edge of death, lying where a power bomb of hers lay as its blast ends, with the right actions
 /// held, her ammunition is turned into energy. She is upright from its start, where she is and whatever is around her;
 /// she rises a little, through anything; one piece of ammunition at a time, missiles, then super missiles, then power
-/// bombs, becomes energy; and it finishes with her standing where it left her. It is no shield: what a hurt left her
+/// bombs, becomes energy; and it finishes with her standing where it left her, in the air or not. It is no shield: what a hurt left her
 /// is ended as it begins, as its rise ends, on every update of the taking and as it lets her go, so whatever touches
 /// her while her ammunition is taken hurts her on every update, and nothing knocks her back.
 /// </summary>
@@ -104,9 +104,11 @@ public sealed class CrystalFlashState : PlayerState, ISamusLook
             }
 
             // Done, its colouring runs on a little; cut short, it would run on until another colouring took its place.
+            // She is let go standing, as the cartridge's finish leaves her in its standing pose, in the air too: from
+            // there she falls as a standing Samus with nothing under her does, from her next update.
             samus.FinishCrystalFlashColouring();
             owner.BeInvincibleFor(0);
-            return owner.StateAtRest();
+            return new StandingState();
         }
 
         if (_rising > 0)

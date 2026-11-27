@@ -516,7 +516,7 @@ public sealed partial class EngineAssetWriter
 
         // The old game keeps a place among her shots for the unseen thing that trails a super missile, so she has
         // half as many of them out at once as that leaves room for.
-        _tree.WriteData(SamusWeaponFiles[super ? 2 : 1], new JsonObject
+        var weapon = new JsonObject
         {
             ["name"] = name,
             ["damage"] = SamusProjectileDamage.Read(kind),
@@ -535,7 +535,13 @@ public sealed partial class EngineAssetWriter
             ["cost"] = 1,
             ["sound"] = EngineNames.Sound(super ? SamusProjectileSoundRoutingDefinitions.SuperMissileRequest : SamusProjectileSoundRoutingDefinitions.MissileRequest),
             ["projectile"] = projectile,
-        });
+        };
+
+        // A super missile is a class of its own: fast, it tries a second point against the terrain (the game's
+        // SuperMissile), which the cartridge's unseen link is.
+        if (super)
+            weapon["scene"] = "res://game/samus/super_missile.tscn";
+        _tree.WriteData(SamusWeaponFiles[super ? 2 : 1], weapon);
     }
 
     /// <summary>

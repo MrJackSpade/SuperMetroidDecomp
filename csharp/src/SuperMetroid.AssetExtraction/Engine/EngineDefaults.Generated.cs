@@ -178,6 +178,7 @@ internal static partial class EngineDefaults
         ["Squeept"] = "Enemy",
         ["Station"] = "RoomObject",
         ["SuperMetroid"] = "GameDefinition",
+        ["SuperMissile"] = "Projectile",
         ["Swooper"] = "Enemy",
         ["TimeUpMode"] = "GameMode",
         ["TitleMode"] = "GameMode",

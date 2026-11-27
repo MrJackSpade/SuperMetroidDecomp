@@ -633,12 +633,24 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (pixels == 0 && !Advance(room, Position))
             return false;
         Position = target;
-        return _settings.MeetsTerrainBy switch
+        bool carriesOn = _settings.MeetsTerrainBy switch
         {
             ProjectileSettings.TerrainBy.FrontEdge => !MeetTerrainWithEdge(room, across, backward: distance.IsNegative),
             ProjectileSettings.TerrainBy.Middle => !MeetTerrainAtMiddle(room),
             _ => !MeetTerrainWithSide(room, across, backward: distance.IsNegative, from),
         };
+        OnMovedToMeetTerrain(room, across, distance);
+        return carriesOn && !HasEnded;
+    }
+
+    /// <summary>
+    /// Called for a projectile that meets terrain where each move ends, once it has moved the whole of
+    /// <paramref name="distance"/> across or down and been tried against the terrain there, whether or not that ended
+    /// it; not called for a move that something along its way cut short. A projectile of its own class that tries
+    /// more of itself against the terrain than its settings say does so here (<see cref="StrikeTerrainAt"/>).
+    /// </summary>
+    protected virtual void OnMovedToMeetTerrain(Room room, bool across, Pixels distance)
+    {
     }
 
     /// <summary>Whether it meets terrain where each move ends, by what it leads with or by its middle, and not along the way.</summary>
@@ -652,18 +664,32 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// </summary>
     private bool MeetTerrainAtMiddle(Room room)
     {
-        bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
-        bool hitsTerrain = HarmsNow &&
-            _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
-        bool stopped = !passes && TerrainStops(room);
-        if (hitsTerrain && (passes || stopped))
-            room.Terrain.TakeHit(Hit, TerrainArea);
-        if (!stopped)
+        if (!StrikeTerrainAt(room, Position))
             return false;
         _settings.TerrainShake?.Start(room);
         OnMetTerrain(room);
         End(room);
         return true;
+    }
+
+    /// <summary>
+    /// Tries the point at <paramref name="point"/> against the terrain as the middle of a projectile that meets
+    /// terrain by its middle is tried: the terrain there takes the projectile's hit if it stops the projectile there,
+    /// or if the projectile passes through terrain and hits it. Nothing else comes of it here: the projectile neither
+    /// moves nor ends, and nothing is told. Returns whether the terrain stops it at that point. For a projectile
+    /// whose own class tries a point besides its middle, which says what being stopped there does.
+    /// </summary>
+    protected bool StrikeTerrainAt(Room room, PixelPosition point)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        var at = new PixelRect(point.X.Whole, point.Y.Whole, 1, 1);
+        bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
+        bool hitsTerrain = HarmsNow &&
+            _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
+        bool stopped = !passes && StopsWithin(room, at);
+        if (hitsTerrain && (passes || stopped))
+            room.Terrain.TakeHit(Hit, at);
+        return stopped;
     }
 
     /// <summary>The strip one pixel thick the projectile leads with, where it stands.</summary>
@@ -789,10 +815,18 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     {
         if (_settings.MeetsTerrainBy == ProjectileSettings.TerrainBy.Body)
             return room.Terrain.IsSolidIn(Area, SlopeTreatment.Wall);
-        PixelRect middle = TerrainArea;
-        if (middle.Left < 0 || middle.Top < 0 || middle.Right > room.Terrain.WidthInPixels || middle.Bottom > room.Terrain.HeightInPixels)
+        return StopsWithin(room, TerrainArea);
+    }
+
+    /// <summary>
+    /// Whether the terrain stops within <paramref name="area"/> a projectile that does not meet it by its body: by
+    /// what is solid there or a way out of the room there, and by nothing outside the room.
+    /// </summary>
+    private static bool StopsWithin(Room room, PixelRect area)
+    {
+        if (area.Left < 0 || area.Top < 0 || area.Right > room.Terrain.WidthInPixels || area.Bottom > room.Terrain.HeightInPixels)
             return false;
-        return room.Terrain.IsSolidIn(middle, SlopeTreatment.Wall) || room.HasExitOver(middle);
+        return room.Terrain.IsSolidIn(area, SlopeTreatment.Wall) || room.HasExitOver(area);
     }
 
     /// <summary>
@@ -1181,12 +1215,21 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         PixelPosition at = _settings.EndsAtFront
             ? Position + PixelOffset.FromWhole(_launchedAcross * (_width / 2), _launchedDown * (_height / 2))
             : Position;
+
+        // An effect that holds a place is made once the projectile is out of play, so the place it held is free
+        // for it; with none free it is not made.
+        if (_settings.EndingEffect.Length > 0 && _settings.EndingEffectHoldsPlace)
+            room.Remove(this);
+        LeaveEnding(room, at);
+        OnEnded(room);
+        Leave(room);
+    }
+
+    /// <summary>Leaves at <paramref name="at"/> what the projectile's settings say its ending leaves: its effect, its burst and its sound.</summary>
+    private void LeaveEnding(Room room, PixelPosition at)
+    {
         if (_settings.EndingEffect.Length > 0)
         {
-            // An effect that holds a place is made once the projectile is out of play, so the place it held is free
-            // for it; with none free it is not made.
-            if (_settings.EndingEffectHoldsPlace)
-                room.Remove(this);
             Effect effect = Effect.Of(
                 FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), at, _settings.EndingEffectHoldsPlace, _settings.EndingEffectStanding);
             if (room.Spawn(effect))
@@ -1202,8 +1245,19 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
         if (_settings.EndingSound.Length > 0)
             room.Session.Sounds.Request(_settings.EndingSound);
-        OnEnded(room);
-        Leave(room);
+    }
+
+    /// <summary>
+    /// Has the projectile burst against terrain at <paramref name="at"/> while it goes on itself: the room shakes as
+    /// its settings say terrain met shakes it, and what its ending leaves, its effect, its burst and its sound, is
+    /// left there, counted with what it leaves as it ends (<see cref="LeftOnEnding"/>). For a projectile whose own
+    /// class tries a point besides its middle (<see cref="StrikeTerrainAt"/>).
+    /// </summary>
+    protected void BurstAgainstTerrainAt(Room room, PixelPosition at)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        _settings.TerrainShake?.Start(room);
+        LeaveEnding(room, at);
     }
 
     /// <summary>

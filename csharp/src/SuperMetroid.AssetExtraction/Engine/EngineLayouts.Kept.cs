@@ -71,6 +71,34 @@ internal sealed partial class EngineLayouts
         layout.Patches[name] = patch;
     }
 
+    /// <summary>
+    /// The pictures of a column of tiles, top to bottom, as one of the old game's room object frames draws them: each
+    /// named by the room's set of graphics, so that one block type serves every set, and written for the set of the
+    /// state of a room that shows them. Empty for a tile the frame draws nothing at.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The state's set of graphics draws nothing for a block the frame shows.</exception>
+    internal JsonArray ColumnPictures(RoomStateSettings state, string directory, string frame, int height)
+    {
+        string tileset = state.GraphicsSet.ToString();
+        var pictures = new JsonArray();
+        for (int row = 0; row < height; row++)
+        {
+            if (FrameBlock(directory, frame, 0, row) is not { } drawn)
+            {
+                pictures.Add("");
+                continue;
+            }
+
+            if (Picture(tileset, drawn.Block, drawn.Mirroring) is null)
+                throw new InvalidDataException($"The graphics {tileset} draw nothing for the block {drawn.Block}, which the frame {frame} shows.");
+            string across = drawn.Mirroring.HasFlag(BlockMirroring.Horizontal) ? "_h" : "";
+            string down = drawn.Mirroring.HasFlag(BlockMirroring.Vertical) ? "_v" : "";
+            pictures.Add($"tiles/{{graphics}}/{drawn.Block}{across}{down}.png");
+        }
+
+        return pictures;
+    }
+
     /// <summary>A block of a level: what it is and where it lies.</summary>
     internal readonly partial record struct InstalledRoomLevelBlock(Position16<RoomBlocks> At, RoomTerrainBlock Terrain);
 

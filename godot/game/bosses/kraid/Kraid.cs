@@ -463,7 +463,9 @@ public partial class Kraid : Enemy
     /// <inheritdoc/>
     protected override Reaction ReactionTo(Hit hit, Collider part)
     {
-        Reaction reaction = base.ReactionTo(hit, part);
+        // No hit leaves it unhittable: the cartridge gives its body such a time, but its body heeds Samus only once it
+        // has sunk, so the time never runs, and neither its mouth nor its arm waits on it.
+        Reaction reaction = base.ReactionTo(hit, part) with { UnhittableUpdates = 0 };
         return part.Name == "Mouth" ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
     }
 

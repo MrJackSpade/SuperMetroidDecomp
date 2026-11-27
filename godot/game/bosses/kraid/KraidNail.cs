@@ -53,7 +53,7 @@ public partial class KraidNail : Enemy
     private Kraid? _kraid;
     private Phase _phase;
     private int _wait;
-    private bool _away = true;
+    private bool _away;
     private bool _kraidHadGrown;
 
     /// <summary>The colours of Kraid's parts last shown on it.</summary>
@@ -75,7 +75,10 @@ public partial class KraidNail : Enemy
             throw data.Problem("must give at least one ledge of Kraid's body");
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// It can be hit except while it is out of play, waiting at the far left for the top spike: then nothing reaches
+    /// it, and the time a hit left it unhittable for stands still.
+    /// </summary>
     public override bool IsHitBy(HitSide side) => !_away && base.IsHitBy(side);
 
     /// <inheritdoc/>
@@ -83,7 +86,9 @@ public partial class KraidNail : Enemy
     {
         AlwaysActive = true;
         Play("spinning");
-        SetAway(true);
+        // It is placed unseen but in play: until it first sets off, the cartridge's nail is only hidden, and is still
+        // touched and shot where it was placed.
+        Visual?.SetShown(false);
         // One that follows another is made in Kraid's parts' colours, as the old game's nail takes the shading its
         // place was left in. As the room is set up, Kraid shows them on the nails as he enters it.
         Room.Enemies.OfType<Kraid>().FirstOrDefault()?.ShowPartColoursOn(this);

@@ -315,8 +315,10 @@ public partial class SporeSpawn : Enemy
     {
         _dying = true;
         _sporesHeldBack = false;
-        // Its death begins at once, not when the flash of the hit that killed it is over.
+        // Its death begins at once, not when the flash of the hit that killed it is over, and ends any time the hit left
+        // it unhittable for: that time would stand while it cannot be reached, and meet its hardened husk.
         EndHurt();
+        BeUnhittableFor(0);
         // Everything the enemies have launched or left goes with its death, whatever it is and whoever made it:
         // spores, dust, blasts, drops. Only its stalk stays, for its death to show, and its emitters, which go next.
         foreach (IRoomEntity held in Room.PlaceHolders.Where(held => !_stalkHolds.Contains(held as Effect) && !_emitterHolds.Contains(held as Effect)).ToList())

@@ -235,10 +235,13 @@ public partial class Phantoon : Enemy
     /// <summary>The middle of the circles its flames turn in.</summary>
     public PixelPosition FlameCentre => PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole + 16);
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// He can be reached only from when he begins to track Samus, or has come into view over his rain, until his eye
+    /// shuts or he is killed: a swoop between keeps him there. Otherwise nothing can hit him, and the time a hit left
+    /// him unhittable for stands still.
+    /// </summary>
     public override bool IsHitBy(HitSide side) =>
-        _phase is not (Phase.WaitingOnEye or Phase.DyingFades or Phase.DyingExplosions or Phase.BeginDissolve or Phase.Dissolving or Phase.DyingFadeOut
-            or Phase.AlmostDead or Phase.Dead) && base.IsHitBy(side);
+        _phase is (Phase.EyeTracks or Phase.BecomeSolidAndSwoop or Phase.Swooping or Phase.TrackDuringRain) && base.IsHitBy(side);
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)

@@ -108,8 +108,12 @@ public partial class Powamp : Enemy, ILatchable
     /// <inheritdoc/>
     public void Unlatched() => _latched = false;
 
-    /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => !Untouchable && !IsDying && base.IsHitBy(side);
+    /// <summary>
+    /// One untouchable, or on its way to bursting, lets every hit pass. It still counts as one that can be hit, as the
+    /// cartridge's goes on heeding Samus then, so the time a hit left it unhittable for runs on.
+    /// </summary>
+    public override HitResult TakeHit(Hit hit, Collider part) =>
+        Untouchable || IsDying ? HitResult.Ignored : base.TakeHit(hit, part);
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)

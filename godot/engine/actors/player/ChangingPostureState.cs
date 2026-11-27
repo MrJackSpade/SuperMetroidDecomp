@@ -59,7 +59,9 @@ public sealed class ChangingPostureState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        _inAir = _fallsInAir && !owner.IsAdrift && (owner.IsRising || !owner.Velocity.Y.IsZero || !owner.IsOnGround);
+        // Whether they are on the ground is asked of the form they are in: a taller one has been fitted already, and
+        // they stand where it stands, in a body that is still the smaller one's.
+        _inAir = _fallsInAir && !owner.IsAdrift && (owner.IsRising || !owner.Velocity.Y.IsZero || !owner.IsOnGroundInForm);
 
         // A smaller body is the player's at once, as they shrink into it; a taller one is theirs from their next
         // update, so that what meets them meanwhile meets the body they had.

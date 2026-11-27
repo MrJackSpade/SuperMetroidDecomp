@@ -595,6 +595,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
 
     /// <summary>
+    /// Whether the player stands on terrain or a solid by the shape of the form they are in, where they are: for a
+    /// form just taken, whose shape the body has only from their next update on, and whose fitting has already put
+    /// them where it stands.
+    /// </summary>
+    public bool IsOnGroundInForm =>
+        !Room.Mover.IsFree(BodyRectFor(Form).At(Position).MovedBy(0, 1), this, BodyMoves) || StandsInBlockThatHoldsUp();
+
+    /// <summary>
     /// Whether the player's feet are in something that holds them up without being solid, as the surface of quicksand
     /// does. A fall asks this once it has moved: with the feet left in such a thing it has landed.
     /// </summary>

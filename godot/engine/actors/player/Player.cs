@@ -1396,6 +1396,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             return asked;
         }
 
+        // Not entered, a state that waits when its form does not fit goes on waiting to interrupt.
+        if (state.WaitsWhenItDoesNotFit)
+        {
+            _interruption = state;
+            _interruptionWaited++;
+        }
+
         if (taken is null)
             return States.Current;
         PlayerState instead = StateFor(taken);

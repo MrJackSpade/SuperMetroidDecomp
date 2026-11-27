@@ -821,11 +821,16 @@ public partial class Samus : Player
             return;
         }
 
-        bool upright = State is StandingState or WallStoppedState or RunningState or CrouchingState or FallingState
-            or MoonwalkingState or WallJumpingState or GrapplingState;
-        if (upright)
+        if (TakesUprightBombJump)
             Interrupt(new BombJumpingState(away, upright: true));
     }
+
+    /// <summary>
+    /// Whether what she is doing takes a bomb's throw upright: standing, stopped at a wall, running, crouching,
+    /// falling, walking backwards, a wall jump or the grapple. Every other state turns it down.
+    /// </summary>
+    public bool TakesUprightBombJump => State is StandingState or WallStoppedState or RunningState or CrouchingState or FallingState
+        or MoonwalkingState or WallJumpingState or GrapplingState;
 
     /// <summary>
     /// Where a shot starts: from her middle, raised by how high the pose she is in holds her arm, at the place her

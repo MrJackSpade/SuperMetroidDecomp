@@ -1077,6 +1077,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
 - A state names the form it is entered in (`PlayerState.EntersIn`), and the player fits it first (`FitForm`):
   where it does not fit the state is not entered. A wall jump is one of them, and is not begun at all where its
   body has no room (`WallJumpingState.HasRoom`): the player goes on as they were, with no sound of a launch.
+  A state asked for from outside whose form does not fit may go on waiting to interrupt
+  (`PlayerState.WaitsWhenItDoesNotFit`), tried again each update until it is entered or says it interrupts no longer:
+  this game's upright bomb jump does, as the cartridge keeps a bomb's request until her pose handling takes it or
+  turns it down.
   A form may also be taken outright in the midst of a state, or just before a state whose form it is
   (`Player.TakeFormOutright`), the middle kept or the feet: this game's Draygon lets Samus go standing where she is,
   and her shinespark's crash ends with her stood by her feet, each with no room felt for, as the cartridge sets those

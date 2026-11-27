@@ -48,6 +48,19 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
     public string Look => Upright ? "jumping" : "morph_ball";
 
     /// <summary>
+    /// An upright throw whose jump's body did not fit stays asked for, as the cartridge keeps the bomb's request until
+    /// her pose handling takes it or turns it down: it is tried again each update, crouched under a low ceiling too,
+    /// and is thrown late once the body fits.
+    /// </summary>
+    public override bool WaitsWhenItDoesNotFit => Upright;
+
+    /// <summary>
+    /// Each time it is tried, an upright throw is turned down for good if what she is doing by then refuses a bomb's
+    /// throw, as a jump or a turn does (<see cref="Samus.TakesUprightBombJump"/>). The ball's is never turned down.
+    /// </summary>
+    public override bool StillInterrupts(Player owner, int waited) => !Upright || ((Samus)owner).TakesUprightBombJump;
+
+    /// <summary>
     /// Upright she is thrown in the jump's body, fitted as the cartridge fits a larger pose: with no room for it she
     /// is not thrown, and with none above or below she is put in the crouch. The body is hers at once, as the
     /// cartridge sets the size of the jump pose it throws her in as it puts her in it. The ball is thrown as it is.

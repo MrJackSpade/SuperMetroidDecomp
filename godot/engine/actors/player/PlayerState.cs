@@ -131,6 +131,15 @@ public abstract class PlayerState : State<Player>
     public virtual bool StillInterrupts(Player owner, int waited) => true;
 
     /// <summary>
+    /// Whether the state, asked for from outside (<see cref="Player.Interrupt"/>) and not entered because the form
+    /// it is entered in did not fit, goes on waiting to interrupt: it is tried again each time the player has next
+    /// moved, asked each time whether it still interrupts (<see cref="StillInterrupts"/>), until it is entered, says
+    /// it interrupts no longer, or another interruption takes its place. It does not, unless the state says
+    /// otherwise; one that does is entered only from outside.
+    /// </summary>
+    public virtual bool WaitsWhenItDoesNotFit => false;
+
+    /// <summary>
     /// What the player's input asks of this state, decided before the player moves: another state to change to once
     /// this update's movement is done; this state, to carry on in it; or null when the input asks for nothing, which
     /// leaves the state to do what it does unasked. A state the player does not control carries on.

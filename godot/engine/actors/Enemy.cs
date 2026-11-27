@@ -397,8 +397,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>
     /// Whether it takes its whole turn with the room's objects, after the player and the projectiles and once the
     /// room's objects have had theirs, wherever the view is, in place of a turn in the enemies' pass: a kind that
-    /// takes hits and acts as an enemy does but belongs to the room's fittings. The player's shots are tried against
-    /// it, and it touches the player, in that turn all the same. No enemy does unless its kind says so.
+    /// takes hits and acts as an enemy does but belongs to the room's fittings. The player's shots meet it as they
+    /// move, as they meet the room's objects, since it may lie within one that stops them; one still standing on it
+    /// is tried against it in that turn, and it touches the player there. No enemy does unless its kind says so.
     /// </summary>
     public virtual bool ActsWithObjects => false;
 

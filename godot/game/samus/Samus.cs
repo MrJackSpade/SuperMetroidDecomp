@@ -1438,7 +1438,9 @@ public partial class Samus : Player
                     return null;
                 }
 
-                if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
+                // On the update her landing's own end falls, that end outranks what the input asks of her stance: the
+                // moonwalk and the aim straight up wait an update, as a run and a turn do.
+                if (current is StandingState { LandingEndsNow: false } && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
                 {
                     // The moonwalk is taken up aiming as asked, angle-down tested first whichever way she faces.
@@ -1447,7 +1449,7 @@ public partial class Samus : Player
                 }
 
                 // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
-                if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                if (current is StandingState { LandingEndsNow: false } && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
                     Intent != 0 && Intent > 0 == (Facing == Facing.Right))
                 {
                     AimFromInput();

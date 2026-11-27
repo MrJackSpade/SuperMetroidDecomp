@@ -906,6 +906,10 @@ public partial class Draygon : Enemy
         Player samus = Room.Player;
         samus.ComeToRest();
         samus.Velocity = PixelVelocity.Zero;
+
+        // The cartridge's release only sets her standing pose and its size, with no room felt for and no move: balled
+        // under a low ceiling, she stands into it.
+        samus.TakeFormOutright(Player.Standing, atOnce: true);
         samus.ChangeState(new StandingState());
     }
 

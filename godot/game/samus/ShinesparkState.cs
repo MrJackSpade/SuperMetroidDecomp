@@ -164,7 +164,13 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
                 // Its glow is kept going through the crash, and outlasts its end by a moment.
                 bool over = StepCrash(samus);
                 samus.KeepSparkGlow(over ? samus.SparkFinishedGlowUpdates : samus.SparkGlowUpdates);
-                return over ? owner.StateAtRest() : null;
+                if (!over)
+                    return null;
+
+                // The crash ends with her stood by her feet where she is, in the air too, with no room felt for: one
+                // crashed up against a ceiling ends with her head in it, and in the air she falls from her next update.
+                samus.TakeFormOutright(Player.Standing, feetKept: true, atOnce: true);
+                return new StandingState();
             default:
                 throw new InvalidOperationException($"Undefined shinespark stage {_stage}.");
         }

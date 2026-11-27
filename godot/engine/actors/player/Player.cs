@@ -1275,6 +1275,31 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         return true;
     }
 
+    /// <summary>
+    /// Takes <paramref name="form"/> where the player is, with no room felt for it, as a pose the cartridge sets
+    /// outright is taken: the middle of the body stays where it is, or, with <paramref name="feetKept"/>, the foot of
+    /// the body does and the middle moves by the difference of the two heights. A change of form is no move of the
+    /// player's: with the feet kept, the view takes them to have stood as much higher or lower. For a change in the
+    /// midst of a state, or one made just before a state is entered whose form it then already is, so that the state
+    /// fits nothing (<see cref="PlayerState.EntersIn"/>). With <paramref name="atOnce"/> the body is the new form's
+    /// from this moment.
+    /// </summary>
+    public void TakeFormOutright(string form, bool feetKept = false, bool atOnce = false)
+    {
+        if (form == Form)
+            return;
+        if (feetKept)
+        {
+            int lift = HalfHeightOf(Form) - HalfHeightOf(form);
+            Room.Session.Camera.ShiftWherePlayerStoodDown(lift);
+            Position = new PixelPosition(Position.X, Position.Y + Pixels.FromWhole(lift));
+        }
+
+        ApplyForm(form);
+        if (atOnce)
+            PublishForm();
+    }
+
     /// <summary>Whether the body could take <paramref name="form"/> where it is, as <see cref="TrySetForm"/> would place it.</summary>
     public bool CanTakeForm(string form, bool aroundMiddle = false) => form == Form || FitForm(form, aroundMiddle).Form == form;
 

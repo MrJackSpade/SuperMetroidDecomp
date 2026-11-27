@@ -326,7 +326,11 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     {
         for (int point = 0; point < rules.BodyPoints; point++)
         {
-            if (Strikes(owner, PointAt(rules, step, _length + (point + 1) * rules.BodyPointSpacing)))
+            // Each point felt for meets the block it lies in, up to the one that strikes: one that hurts whoever meets
+            // it, a spike or spike air, hurts her as the cartridge's swing is hurt at the points it tries.
+            PixelPosition felt = PointAt(rules, step, _length + (point + 1) * rules.BodyPointSpacing);
+            owner.MeetBlocksAt(felt);
+            if (Strikes(owner, felt))
                 return point;
         }
 

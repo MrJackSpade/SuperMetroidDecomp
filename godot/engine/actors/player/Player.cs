@@ -479,8 +479,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveResult TryBodyDown(Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null) =>
         Noted(Room.Mover.TryDown(Body, distance, options, out rest, shapedAs));
 
-    /// <summary>The tiles of terrain that stopped moves of the player's body on this update, made or only tried.</summary>
-    private readonly List<PixelRect> _stoppedBy = [];
+    /// <summary>
+    /// Where the player's body met blocks on this update: the tile of terrain that stopped each move of the body, made
+    /// or only tried, and wherever a state that moves the body a way of its own said it met them (<see cref="MeetBlocksAt"/>).
+    /// </summary>
+    private readonly List<PixelRect> _met = [];
+
+    /// <summary>
+    /// Says that the player's body met whatever block lies at <paramref name="point"/> on this update: for a state
+    /// that moves the body a way of its own, not through the room's mover, and feels for blocks point by point as a
+    /// swing on a line does. A block there that acts on contact acts as one that stopped a move of the body does.
+    /// </summary>
+    public void MeetBlocksAt(PixelPosition point) => _met.Add(new PixelRect(point.X.Whole, point.Y.Whole, 1, 1));
 
     /// <summary>Notes what a move of the body reached, and the tile that stopped it.</summary>
     private MoveResult Noted(MoveResult result)
@@ -488,7 +498,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         if (result.Reached is { IsEmpty: false } reached)
             _reached.Add(reached);
         if (result.StoppedByTile is { } tile)
-            _stoppedBy.Add(tile);
+            _met.Add(tile);
         return result;
     }
 
@@ -518,14 +528,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
-    /// The blocks that stopped a move of the player's body on this update: of each move stopped by terrain, the first
-    /// tile its leading edge was stopped by. A solid block that acts on contact, as a spike does, acts on a player
-    /// whose move it stopped, and on no one who only lies against it.
+    /// The blocks the player's body met on this update: of each move stopped by terrain, the first tile its leading
+    /// edge was stopped by, and what a state said it met. A solid block that acts on contact, as a spike does, acts on
+    /// a player who met it so, and on no one who only lies against it.
     /// </summary>
-    private List<Block> BlocksThatStoppedMoves()
+    private List<Block> BlocksMet()
     {
         var blocks = new List<Block>();
-        foreach (PixelRect tile in _stoppedBy)
+        foreach (PixelRect tile in _met)
         {
             foreach (Block block in Room.Terrain.BlocksIn(tile))
             {
@@ -753,7 +763,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _input = input;
         _medium = null;
         _reached.Clear();
-        _stoppedBy.Clear();
+        _met.Clear();
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
 
@@ -2016,7 +2026,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         hundredths += fromRoom;
 
         int blockHit = 0;
-        foreach (Block block in BlocksStoodIn().Concat(BlocksThatStoppedMoves()).Distinct())
+        foreach (Block block in BlocksStoodIn().Concat(BlocksMet()).Distinct())
         {
             if (block.Type.Contact != BlockContact.Hurts || IsCancelled("blocks"))
                 continue;

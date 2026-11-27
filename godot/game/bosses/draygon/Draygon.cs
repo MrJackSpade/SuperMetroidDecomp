@@ -21,8 +21,8 @@ namespace Game.Enemies;
 /// Its body plays "body_left", "body_right", "fire_goop_left", "fire_goop_right", "roar_left", "roar_right",
 /// "dying_left", "dying_right" and "rest"; a step with no picture leaves it as it was shown. The cue "goop" of a
 /// fire-goop timeline lets one go; of a dying timeline "dying_effect:" with an effect's data file leaves that effect
-/// somewhere about it, "intangible" ends its touch and "paralyse" stops its tail and arms where they are. The visual
-/// "Tail" plays "tail_fake_whip_left", its feint as the fight opens, "tail_left", "tail_right", "tail_whip_left",
+/// somewhere about it, "intangible" ends its touch and its being hit and "paralyse" stops its tail and arms where
+/// they are. The visual "Tail" plays "tail_fake_whip_left", its feint as the fight opens, "tail_left", "tail_right", "tail_whip_left",
 /// "tail_whip_right", "tail_final_whips_left" and "tail_final_whips_right", whose cue "whip_hit" lands a blow,
 /// "release" lets Samus go, "shift:" with how far across and down moves the pictures of its body and eye that far for
 /// the lash, and "sound:" with a sound's name asks for it; "Arms" plays "arms_left", "arms_right", "arms_reach_left",
@@ -194,7 +194,6 @@ public partial class Draygon : Enemy
     private int _spiralAngle;
     private int _spiralTurn;
     private Pixels _spiralY;
-    private bool _dying;
 
     /// <summary>The aim its eye last looked along, the cartridge's angle: straight up before its first look.</summary>
     private int _eyeAim;
@@ -277,8 +276,11 @@ public partial class Draygon : Enemy
             scatter.Corner.X + draw.Part(scatter.Across.From, scatter.Across.Digits), scatter.Corner.Y + draw.Part(scatter.Down.From, scatter.Down.Digits));
     }
 
-    /// <inheritdoc/>
-    public override bool IsHitBy(HitSide side) => !_dying && base.IsHitBy(side);
+    /// <summary>
+    /// Whether a hit can reach it: dying, it is hit still until its cry makes it intangible, and every such hit begins
+    /// its death again (<see cref="BeginDeath"/>).
+    /// </summary>
+    public override bool IsHitBy(HitSide side) => !_intangible && base.IsHitBy(side);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -317,11 +319,18 @@ public partial class Draygon : Enemy
         return false;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Touches Samus. A touch that reaches her, as one does while she is not safe from an earlier hurt, begins its
+    /// death again once its health is gone, as a hit does.
+    /// </summary>
     protected override void Touch(Collider part)
     {
-        if (!_intangible && !_passesThroughSamus)
-            base.Touch(part);
+        if (_intangible || _passesThroughSamus)
+            return;
+        bool reaches = !Room.Player.IsInvincible;
+        base.Touch(part);
+        if (reaches && Health.IsEmpty)
+            BeginDeath();
     }
 
     /// <inheritdoc/>
@@ -887,16 +896,29 @@ public partial class Draygon : Enemy
             BeginDeath();
     }
 
-    /// <summary>Starts its death: it lets Samus go and drifts down to where it will lie.</summary>
+    /// <summary>
+    /// Lets Samus go as its death does, whether it holds her or not: the cartridge's release stands her up wherever
+    /// she is and whatever she was doing, a shinespark among it, with no speed left but her dash's.
+    /// </summary>
+    private void StandSamusUp()
+    {
+        _holds = false;
+        Player samus = Room.Player;
+        samus.ComeToRest();
+        samus.Velocity = PixelVelocity.Zero;
+        samus.ChangeState(new StandingState());
+    }
+
+    /// <summary>
+    /// Starts its death: it lets Samus go and drifts down to where it will lie. A touch or hit on it with its health
+    /// gone starts it over, however long it has been dying, until its cry makes it intangible.
+    /// </summary>
     private void BeginDeath()
     {
-        if (_dying)
-            return;
-        _dying = true;
-        LetSamusGo();
+        StandSamusUp();
         (Room.Player as Samus)?.Grapple?.Release();
         Play(Facing == Facing.Right ? "dying_right" : "dying_left", restart: true);
-        PlayPart("Eye", Facing == Facing.Right ? "eye_dying_right" : "eye_dying_left");
+        PlayPart("Eye", Facing == Facing.Right ? "eye_dying_right" : "eye_dying_left", restart: true);
         _eyeFollows = null;
         _phase = Phase.Dying;
     }

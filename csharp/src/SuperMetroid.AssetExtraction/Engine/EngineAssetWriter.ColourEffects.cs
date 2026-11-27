@@ -23,9 +23,7 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// Writes the steps of every colour effect a room's effect starts on the room's own pictures, for each set of
     /// graphics that shows it. A step's colours are those the effect's frame shows changed on the set's blocks and on
-    /// the pictures behind the rooms that run it, and on what is drawn into a room with the set's blocks: door caps,
-    /// gates, item shells, stations (<see cref="EngineRoomObjects.Folders"/>), whose pictures are of the set's own
-    /// sheet and so change as its blocks do.
+    /// the pictures behind the rooms that run it.
     /// </summary>
     /// <exception cref="InvalidDataException">An effect cannot be shown by swapping colours on one of its sheets, or two of its sheets disagree about a colour.</exception>
     private void WriteRoomColourEffects()
@@ -44,8 +42,6 @@ public sealed partial class EngineAssetWriter
                 if (!shownOn.TryGetValue((set, effect), out SortedDictionary<string, string>? places))
                     shownOn[(set, effect)] = places = new SortedDictionary<string, string>(StringComparer.Ordinal);
                 AddRoomPlaces(places, state);
-                foreach (string folder in RoomObjects.Folders)
-                    places[$"{folder}/{set}"] = state.GraphicsSet.ToString();
             }
         }
 

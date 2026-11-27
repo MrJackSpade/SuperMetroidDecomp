@@ -171,7 +171,7 @@ public partial class Beetom : Enemy
         _shakesLeft = ShakeOffCount;
         _lastInput = Room.Player.Input;
         Random.Restart(23);
-        Play(TowardSamus == Facing.Left ? "crawling_left" : "crawling_right");
+        Play(TowardPlayer == Facing.Left ? "crawling_left" : "crawling_right");
     }
 
     /// <inheritdoc/>
@@ -206,7 +206,7 @@ public partial class Beetom : Enemy
                 return;
 
             case Doing.StartLunge:
-                _heading = TowardSamus;
+                _heading = TowardPlayer;
                 Facing = _heading;
                 StartLeap(Doing.LungeRising, LungeHeight, LungeAimMarks);
                 return;
@@ -500,9 +500,6 @@ public partial class Beetom : Enemy
 
     /// <summary>The collider it moves by.</summary>
     private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Beetom \"{Name}\" has no body collider.");
-
-    /// <summary>The side Samus is on, by whole pixels alone: in the same pixel column she counts as on its right.</summary>
-    private Facing TowardSamus => Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
 
     /// <summary>The speed curve its leaps follow.</summary>
     private SpeedCurve Curve => _curve ?? throw new InvalidOperationException($"The Beetom \"{Name}\" is not in a room.");

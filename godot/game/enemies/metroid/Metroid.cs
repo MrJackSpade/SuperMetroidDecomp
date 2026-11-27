@@ -68,6 +68,10 @@ public partial class Metroid : Enemy
     [Export, DataValue("ice_flash_updates")]
     public int IceFlashUpdates { get; set; } = 4;
 
+    /// <summary>How many updates it flashes for on each turn it is frozen while its count of escape moves runs on.</summary>
+    [Export, DataValue("escape_flash_updates")]
+    public int EscapeFlashUpdates { get; set; } = 2;
+
     private static readonly (int X, int Y)[] EscapeMoves = [(2, 0), (0, 2), (-2, 0), (0, -2)];
 
     private enum Moving
@@ -240,6 +244,19 @@ public partial class Metroid : Enemy
 
         Step(_electricity, "Electricity");
         Step(_shell, "Shell");
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Frozen, it does not move, but a count of escape moves it was still making goes on, and on each turn it does it
+    /// flashes; a count run out changes nothing more.
+    /// </remarks>
+    protected override void WhileFrozen()
+    {
+        if (_escapeMovesLeft == 0)
+            return;
+        _escapeMovesLeft--;
+        FlashFor(EscapeFlashUpdates);
     }
 
     /// <inheritdoc/>

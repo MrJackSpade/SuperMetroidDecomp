@@ -61,7 +61,7 @@ public partial class Zoa : Enemy
             case Doing.Hidden:
                 if (Math.Abs(Target.X.Whole - Position.X.Whole) >= Reach)
                     return;
-                Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
+                Facing = TowardPlayer;
                 Play(Facing == Facing.Left ? "rising_left" : "rising_right");
                 _doing = Doing.Rising;
                 return;

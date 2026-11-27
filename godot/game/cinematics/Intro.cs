@@ -78,7 +78,7 @@ public partial class Intro : Cinematic
     private int _crossfade;
 
     private ScreenFade? _fade;
-    private GradedGroup? _sceneRoot;
+    private GradedView? _sceneRoot;
     private Node2D? _narration;
     private Sprite2D? _card;
     private PixelText? _words;
@@ -123,7 +123,7 @@ public partial class Intro : Cinematic
         behind.AddChild(black);
         var scenes = new CanvasLayer { Name = "Scenes", Layer = 1 };
         AddChild(scenes);
-        _sceneRoot = new GradedGroup { Name = "Scene", Modulate = new Color(1, 1, 1, 0) };
+        _sceneRoot = new GradedView { Name = "Scene", Modulate = new Color(1, 1, 1, 0) };
         scenes.AddChild(_sceneRoot);
 
         var pages = new CanvasLayer { Name = "Pages", Layer = 2 };

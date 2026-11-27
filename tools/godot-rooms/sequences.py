@@ -23,6 +23,11 @@ TURNING_FLOOR = 'res://engine/world/TurningFloor.cs'
 TRIGGER = 'res://engine/world/Trigger.cs'
 SCREEN = 256
 
+# Where a room's terrain is shown and its backdrops lie: a row above the room's own rows. The cartridge shows a room's
+# tiles and background from the row below the view's and draws what stands in the room where its place says.
+PLANES_AT = (0, -1)
+PLANES_LIE_AT = 'Vector2i({}, {})'.format(*PLANES_AT)
+
 # The routines that are the escape as a room shows it, with how each room's differs.
 ESCAPES = {
     'ShakeScreenWithRandomExplosions': {'Outdoors': 'true', 'TurnsHarder': 'false'},
@@ -146,21 +151,21 @@ class Sequences:
             self.placed.append(Placed(BANDED_BACKDROP, 'Backdrop', {
                 'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
                 'ScrollShare': 'Vector2(0, 1)',
-                'BandsFile': quoted(SKY_BANDS_FILE)}, at=(0, 0), enemy=False))
+                'BandsFile': quoted(SKY_BANDS_FILE), 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False))
 
         elif state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties:
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 # A background is coloured by the room's set of graphics, so its picture is kept once for each set.
                 'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
-                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False))
 
         elif state.background == 'null':
             # What the level draws behind itself, which is kept as one picture for each set of graphics it is drawn in.
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 'Picture': quoted(f'backdrops/{{graphics}}/level_{snake(state.level)}.png'),
-                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})', 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False))
 
         if room.area == 'Brinstar':
             # The plants that seize Samus are blocks of the layout: one watcher finds and plays whichever the room has.
@@ -260,7 +265,8 @@ class Sequences:
         if state.main == 'CeresRidleyGetaway' and 'TurningFloor' in state.properties:
             # The floor he flies off over is put away until he does: the room rests on its own picture.
             # Nothing shows beyond its edges: the cartridge's floor for his flight does not come round again, as
-            # the shaft's does.
+            # the shaft's does. It lies at the room's corner, not a row up: the cartridge shows it by the getaway's
+            # own scroll, not from the view's row.
             floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png'), 'Repeats': 'false', 'visible': 'false'}, at=(0, 0), enemy=False,
                            children=[('Capsule', VISUAL, {'position': f'Vector2{FLOOR_CAPSULE_AT}'}),
                                      ('Wings', VISUAL, {'position': f'Vector2{FLOOR_WINGS_AT}'})])
@@ -282,10 +288,9 @@ class Sequences:
             if 'Ridley' in named:
                 self.links.append((named['Ridley'], 'ToldWhenGone', [getaway]))
         if state.main == 'CeresElevatorShaft':
-            # The cartridge shows a room's picture from the row below the view's, and draws what stands in it where
-            # its place says: the shaft, which is all the room's picture, lies a row above the room's own rows, so
-            # the black that hides the landing pad until the platform lands covers its top row.
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png'), 'LiesAt': 'Vector2i(0, -1)'}, at=(0, 0), enemy=False,
+            # The shaft, which is all the room's picture, lies a row above the room's own rows as every room's planes
+            # do, so the black that hides the landing pad until the platform lands covers its top row.
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png'), 'LiesAt': PLANES_LIE_AT}, at=(0, 0), enemy=False,
                            children=[('Platform', VISUAL, {'position': f'Vector2{FLOOR_PLATFORM_AT}'})])
             self.placed.append(floor)
             if 'ElevatorDoor' in named:

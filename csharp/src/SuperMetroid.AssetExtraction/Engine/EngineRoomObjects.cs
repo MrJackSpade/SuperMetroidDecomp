@@ -33,6 +33,13 @@ internal sealed partial class EngineRoomObjects
         _graphicsSets = graphicsSets;
     }
 
+    /// <summary>
+    /// Where the top-left corner of a picture made of the room's blocks lies from its thing's place, for a picture whose
+    /// blocks start <paramref name="x"/> across and <paramref name="y"/> down from it: a row higher, with the room's
+    /// tiles (<see cref="EngineSheets.LayersRowAbove"/>). Its thing's place, which is where it is in play, stays.
+    /// </summary>
+    internal static JsonObject PictureCorner(int x, int y) => new() { ["x"] = x, ["y"] = y - EngineSheets.LayersRowAbove };
+
     /// <summary>The name of a set of graphics as the Godot game's files write it: a layout's "graphics" and the folder of its pictures.</summary>
     internal static string GraphicsName(string graphicsSet) => EngineSheets.FileName(graphicsSet);
 
@@ -213,8 +220,11 @@ internal sealed partial class EngineRoomObjects
     /// <param name="wanted">Which of its cells to draw, by how far across and down from the object's block; all of them when not given.</param>
     /// <param name="name">The picture's name, where it is not the frame's.</param>
     /// <param name="over">
-    /// Something drawn over its blocks and under the part of them that the cartridge draws in front: its pixels, their
-    /// width and height, and where their corner lies in the picture.
+    /// Something drawn over its blocks and under the part of them that the cartridge draws in front, one of the
+    /// cartridge's sprites: its pixels, their width and height, and where their corner lies from the corner of the
+    /// blocks by the sprite's place. The blocks are shown a row above their place and the sprite where its place says
+    /// (<see cref="EngineSheets.LayersRowAbove"/>), so it is laid that much lower among them, and the picture is made
+    /// tall enough to hold it.
     /// </param>
     /// <param name="rows">How many blocks tall to make the picture at least, where that is more than its cells are.</param>
     internal string Picture(
@@ -224,13 +234,15 @@ internal sealed partial class EngineRoomObjects
         JsonArray cells = Cells(directory, frame);
         (int firstColumn, int firstRow, int columns, int rowsOfCells) = Bounds(directory, frame, wanted);
         rows = Math.Max(rows, rowsOfCells);
+        int overTop = (over?.Top ?? 0) + EngineSheets.LayersRowAbove;
+        int height = Math.Max(rows * Block, over is null ? 0 : overTop + over.Value.Height);
         name = EngineSheets.FileName(name ?? frame);
         foreach (string graphicsSet in _graphicsSets)
         {
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
             if (_tree.Holds(path))
                 continue;
-            var canvas = new RgbaPixel[columns * Block * rows * Block];
+            var canvas = new RgbaPixel[columns * Block * height];
 
             // The part of its blocks that the cartridge draws in front of what stands in the room is written beside
             // the picture, as a tile's is, for the Godot game to draw there.
@@ -272,14 +284,14 @@ internal sealed partial class EngineRoomObjects
                             continue;
                         // It lies over the blocks and under their front part, which is written beside the picture
                         // as it is: where the cartridge draws one of its sprites of the ordinary standing.
-                        canvas[(drawn.Top + y) * columns * Block + drawn.Left + x] = pixel;
+                        canvas[(overTop + y) * columns * Block + drawn.Left + x] = pixel;
                     }
                 }
             }
 
-            _tree.WritePicture(path, columns * Block, rows * Block, canvas);
+            _tree.WritePicture(path, columns * Block, height, canvas);
             if (hasFront && front.Any(pixel => pixel.A != 0))
-                _tree.WritePicture(EngineAssetTree.FrontPath(path), columns * Block, rows * Block, front);
+                _tree.WritePicture(EngineAssetTree.FrontPath(path), columns * Block, height, front);
         }
 
         return $"{folder}/{GraphicsPlaceholder}/{name}.png";

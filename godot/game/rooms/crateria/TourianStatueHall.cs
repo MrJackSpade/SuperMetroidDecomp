@@ -161,6 +161,9 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     private readonly List<(Effect Soul, Pixels Speed)> _souls = [];
     private DataNode? _data;
     private Vector2 _statueHome;
+
+    /// <summary>Where the backdrop lies before the statue sinks, as the room has it: a row above the room's own rows, as every room's backdrop lies.</summary>
+    private Vector2I _backdropHome;
     private Releases _releases;
     private Descent _descent;
     private Pixels _sunk;
@@ -202,6 +205,7 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
         _begun = true;
         _data = room.Content.ReadData(DataFile);
         _statueHome = StatueNode().Position;
+        _backdropHome = BackdropNode().LiesAt;
         _floorCrumble = PatchSequence.Read(Data().Get("floor_crumble"));
         (_dustRoundsLeft, _dustWait) = (0, 0);
         ActorVisual footing = Visual("Base");
@@ -533,24 +537,24 @@ public partial class TourianStatueHall : RoomSequence, IOpeningStep
     /// <summary>Leaves an effect the data names, if it names one, and returns it.</summary>
     /// <summary>
     /// Puts the statue and its backdrop where they are this update. The backdrop stays with the view as it moves up and
-    /// down, and so does what is part of it; what stands in the room does not.
+    /// down, and so does what is part of it, which lies where the backdrop does; what stands in the room does not.
     /// </summary>
     private void Place(Room room)
     {
         int view = room.Session.Camera.Top;
         StatueNode().Position = _statueHome + new Vector2(0, _sunk.Whole + view);
-        (GetNode(Backdrop) as Backdrop
-            ?? throw new InvalidOperationException($"The statue hall \"{Name}\" is given \"{Backdrop}\" as its backdrop, which is none."))
-            .LiesAt = new Vector2I(0, _sunk.Whole);
+        BackdropNode().LiesAt = _backdropHome + new Vector2I(0, _sunk.Whole);
         Visual("Base").Position = new Vector2(0, -view);
         foreach (Guardian guardian in _guardians)
         {
-            if (!Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Flag("in_room"))
-                continue;
-            Visual(guardian.Name).Position = new Vector2(0, -view);
-            Visual(guardian.Name + "Grey").Position = new Vector2(0, -view);
+            Vector2 at = Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Flag("in_room") ? new Vector2(0, -view) : _backdropHome;
+            Visual(guardian.Name).Position = at;
+            Visual(guardian.Name + "Grey").Position = at;
         }
     }
+
+    private Backdrop BackdropNode() => GetNode(Backdrop) as Backdrop
+        ?? throw new InvalidOperationException($"The statue hall \"{Name}\" is given \"{Backdrop}\" as its backdrop, which is none.");
 
     /// <summary>
     /// Plays one update of the dust the sinking statue raises: so many puffs at a time, each thrown a chance distance

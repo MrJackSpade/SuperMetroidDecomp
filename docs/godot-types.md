@@ -1926,6 +1926,19 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   grapple blocks, lasting and breaking.
 - Patches: everything the old code's scripts wrote into the tile grid during play (a collapsing bridge, a boss's
   room changing, a wall opening).
+- Where the tiles are shown: the cartridge shows a room's tiles and its background from the row below the view's and
+  draws what stands in the room where its place says. So every room the room generator writes shows its terrain a
+  row above where it is (the terrain's `ShownShift` at rest), and its backdrops lie a row above the room's own rows
+  (`LiesAt`); where anything is in play does not move. What shakes the terrain shakes it about that rest (Crocomire's
+  wall), and what moves a backdrop moves it from where the room lays it (the Tourian statue's hall, whose figures
+  that are part of the backdrop lie with it). What is cut from the room's blocks lies a row up with them: the
+  extractor writes the corner of its pictures a row above its place (door caps, gates and their switches, items and
+  their shells, stations and their arms, the eye door's eye and growth, Draygon's cannons, Bomb Torizo's hand, a Chozo
+  statue's plug breaking up), and a sprite laid into such a picture (a gate's column) a row lower among its blocks.
+  A boss's body, which the cartridge draws on the background, lies a row above its place against the boss's own
+  sprites (Kraid, Phantoon, Draygon, and inside the one picture of Crocomire and of Mother Brain). The opening's two
+  flashback rooms are made by hand with their own scroll, and the floor of Ceres Ridley's getaway is shown by its
+  own scroll: neither has the row. Liquids and overlays do not have it either.
 
 ### Room conditions
 
@@ -1938,7 +1951,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
   elevator shaft are `TurningFloor`s (a turning floor lies where its `LiesAt` says, level or turned: the shaft's lies
-  a row above the room's own rows, where the cartridge shows a room's picture against what stands in it). What a level draws behind itself is one picture, with the part of it the
+  a row above the room's own rows, as every room's backdrop does, "Terrain" above). What a level draws behind itself is one picture, with the part of it the
   cartridge draws in front of the room's things beside it: Ridley's room on Ceres is all that part, over tiles
   that are black all over. The floor he flies off over is put away until he flies, and while he does `CeresGetaway`
   gives it the depth in front of the room's tiles (`RoomDepth.BehindThings`), where the cartridge shows it in

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
 [ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="11"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/BackdropWaveEffect.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -115,4 +116,11 @@ TypeFile = "liquids/water.json"
 Drifts = true
 LowSurface = 168
 HighSurface = 168
+PresentWhen = SubResource("r1")
+
+[node name="BackdropWave" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
+EffectName = "backdrop_wave"
+WaveFile = "effects/backdrop_wave_water.json"
 PresentWhen = SubResource("r1")

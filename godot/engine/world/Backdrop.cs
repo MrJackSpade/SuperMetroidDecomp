@@ -127,6 +127,18 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
             ScrollShare.X == 0 ? kept.X : Mathf.FloorToInt(viewTopLeft.X * ScrollShare.X),
             ScrollShare.Y == 0 ? kept.Y : Mathf.FloorToInt(viewTopLeft.Y * ScrollShare.Y));
 
+    /// <summary>
+    /// Waves the layer's rows as <paramref name="wave"/> says, or not at all for null: what a room's
+    /// <see cref="BackdropWaveEffect"/> asks of what lies behind the room. Only a layer that follows the view as its
+    /// share says is waved.
+    /// </summary>
+    internal void ShowWave(Ui.RowWave? wave)
+    {
+        if (!FollowsAsItsShareSays || (wave is null && _recolouring is null))
+            return;
+        (_recolouring ??= new Ui.Recolouring(this)).Wave(wave);
+    }
+
     /// <summary>Places the layer for a view whose top-left corner is at <paramref name="viewTopLeft"/> in the room.</summary>
     internal virtual void Follow(Vector2I viewTopLeft, Vector2I thrown)
     {

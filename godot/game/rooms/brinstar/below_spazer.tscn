@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -11,8 +11,9 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/BackdropWaveEffect.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -293,14 +294,20 @@ Drifts = true
 LowSurface = 446
 HighSurface = 446
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="BackdropWave" type="Node2D" parent="."]
 script = ExtResource("12")
+position = Vector2(0, 0)
+EffectName = "backdrop_wave"
+WaveFile = "effects/backdrop_wave_water.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("13")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/brinstar_vertical_brick.png"
 ScrollShare = Vector2(0.75, 0.75)
 LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 StartsWhen = SubResource("r2")
 DataFile = "objects/samus_eater.json"

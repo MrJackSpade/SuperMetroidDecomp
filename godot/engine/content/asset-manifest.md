@@ -702,6 +702,8 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `colours/{graphics}/tourian_red_flashing_arkanoid_blocks_and_red_orbs.json` | `game/rooms/tourian/tourian_escape1.tscn`, `game/rooms/tourian/tourian_escape2.tscn`, `game/rooms/tourian/tourian_escape3.tscn` and 1 more |
 | `colours/{graphics}/upper_crateria_red_flashing.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/landing_site.tscn`, `game/rooms/crateria/parlor.tscn` |
 | `colours/{graphics}/wrecked_ship_green_lights.json` | `game/rooms/wrecked_ship/assembly_line.tscn`, `game/rooms/wrecked_ship/attic.tscn`, `game/rooms/wrecked_ship/basement.tscn` and 10 more |
+| `effects/backdrop_wave_heat.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/crateria_power_bombs.tscn`, `game/rooms/crateria/gauntlet_energy_tank.tscn` and 50 more |
+| `effects/backdrop_wave_water.json` | `game/rooms/brinstar/below_spazer.tscn`, `game/rooms/brinstar/blue_brinstar_boulders.tscn`, `game/rooms/brinstar/skree_boost.tscn` and 42 more |
 | `effects/big_dust_cloud.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/flyway.tscn` and 6 more |
 | `effects/ceres_debris_dark.json` | `game/rooms/ceres/falling_tile.tscn` |
 | `effects/ceres_debris_light.json` | `game/rooms/ceres/falling_tile.tscn` |

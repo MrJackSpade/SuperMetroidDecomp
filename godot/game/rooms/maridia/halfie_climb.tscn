@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -11,9 +11,10 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/BackdropWaveEffect.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -238,18 +239,24 @@ Drifts = true
 LowSurface = 309
 HighSurface = 309
 
-[node name="MaridiaBackgroundWaterfalls" type="Node2D" parent="."]
+[node name="BackdropWave" type="Node2D" parent="."]
 script = ExtResource("12")
+position = Vector2(0, 0)
+EffectName = "backdrop_wave"
+WaveFile = "effects/backdrop_wave_water.json"
+
+[node name="MaridiaBackgroundWaterfalls" type="Node2D" parent="."]
+script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "maridia_background_waterfalls"
 StepsFile = "colours/{graphics}/maridia_background_waterfalls.json"
 
 [node name="Ground" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 Kind = 0
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("15")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_halfie_climb.png"
 ScrollShare = Vector2(1, 1)

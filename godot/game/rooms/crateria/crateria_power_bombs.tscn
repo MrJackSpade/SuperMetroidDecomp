@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,7 +8,8 @@
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/BackdropWaveEffect.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -76,8 +77,14 @@ TideReach = 32
 TideTurnAbove = 0.5
 TideTurnBelow = 0.875
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="BackdropWave" type="Node2D" parent="."]
 script = ExtResource("9")
+position = Vector2(0, 0)
+EffectName = "backdrop_wave"
+WaveFile = "effects/backdrop_wave_heat.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/crateria_rocks.png"
 ScrollShare = Vector2(0.75, 0.75)

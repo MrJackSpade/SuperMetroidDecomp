@@ -188,8 +188,8 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// </summary>
     public bool IsAstir { get; private set; }
 
-    /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
-    public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
+    /// <summary>Whether <paramref name="point"/> lies under the surface: the pixel row it is in is below the surface's line, not on it.</summary>
+    public bool IsSubmerged(PixelPosition point) => point.Y > Surface;
 
     /// <summary>
     /// Takes the view it is drawn across. The room tells it each time the room shows itself, so it is drawn across

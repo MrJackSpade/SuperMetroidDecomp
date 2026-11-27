@@ -107,6 +107,22 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     /// </summary>
     protected abstract bool Play(Room room, int elapsed);
 
+    /// <summary>Plays the sequence's part of an update on which the room is held still, if it is running.</summary>
+    internal void StepHeld(Room room)
+    {
+        if (IsRunning)
+            WhileRoomHeld(room);
+    }
+
+    /// <summary>
+    /// Called in place of an update of the sequence while the room is held still, as under a player's state that
+    /// stops it: the sequence does not move on, and nothing happens. A sequence with something that goes on all the
+    /// same, a count kept through held time say, plays that here.
+    /// </summary>
+    protected virtual void WhileRoomHeld(Room room)
+    {
+    }
+
     /// <inheritdoc/>
     public void Triggered(string what)
     {

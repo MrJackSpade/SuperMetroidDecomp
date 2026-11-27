@@ -152,6 +152,17 @@ public sealed partial class EngineAssetWriter
         // says nothing, and is shown brighter by the engine.
         if (flash.Any(place => place.Value is System.Text.Json.Nodes.JsonObject { Count: > 0 }))
             enemy.Group("hurt_colours", flash);
+
+        // The colours it is shown in while it shows frozen: the cartridge's one frozen shade over its own pictures.
+        // One whose sheets have no such shade, or give it no colours of its own, says nothing, and is tinted by the
+        // engine if it is ever frozen.
+        string frozenShade = SuperMetroid.Core.Enemies.Drawing.EnemyShades.Frozen.Key;
+        if (named.All(sheet => _sheets.HasShade(family, sheet, frozenShade)))
+        {
+            System.Text.Json.Nodes.JsonObject frozen = ShadeChange(frozenShade, family, places);
+            if (frozen.Any(place => place.Value is System.Text.Json.Nodes.JsonObject { Count: > 0 }))
+                enemy.Group("frozen_colours", frozen);
+        }
         return enemy;
     }
 }

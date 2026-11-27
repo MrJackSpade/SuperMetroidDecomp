@@ -27,7 +27,8 @@ namespace Engine.Actors;
 /// </code>
 /// "standing" names where it stands against the player (<see cref="World.Standing"/>); without it, behind them.
 /// "hurt_colours" is a change of its pictures' colours (<see cref="Ui.ColourChange"/>) shown while its hurt flash
-/// shows, on each of its visuals; without it the flash is its picture shown brighter.
+/// shows, on each of its visuals; without it the flash is its picture shown brighter. "frozen_colours" is the same
+/// for the look of a frozen one; without it a frozen one is shown in a blue tint.
 /// "in_front_of_tiles": true has it drawn in front of every tile of the room, the ones in front of the room's things
 /// too, and so over the player whatever its standing.
 /// "dud" names what a shot that does it no harm leaves where the shot is, in place of the shot's own ending.
@@ -273,6 +274,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         EntityNode.ReadColliders(this, data);
         HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
         _hurtColours = data.Has("hurt_colours") ? Ui.ColourChange.Read(data.Get("hurt_colours")) : null;
+        _frozenColours = data.Has("frozen_colours") ? Ui.ColourChange.Read(data.Get("frozen_colours")) : null;
         _inFrontOfTiles = data.Has("in_front_of_tiles") && data.Flag("in_front_of_tiles");
         Standing = data.Has("standing") ? data.Get("standing").AsEnum<Standing>() : Standing.Behind;
         StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
@@ -915,39 +917,60 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private int _cueStep;
     private int _cueBeingActedOn = -1;
 
-    /// <summary>Shows the enemy as it is: flashing when hurt, tinted when frozen.</summary>
+    /// <summary>
+    /// Shows the enemy as it is: frozen, flashing from a hurt, or neither. A look its data gives colours for is its
+    /// own pictures in those colours; one it gives none for is a tint of its picture.
+    /// </summary>
     private void ShowLook()
     {
         if (Visual is null)
             return;
         bool frozen = ShowsFrozenLook, flashes = !frozen && ShowsHurtFlash;
-        if (_hurtColours is not { } colours)
-        {
-            Visual.Tint(frozen ? FrozenTint : flashes ? HurtTint : RestingTint);
-            return;
-        }
+        Visual.Tint(frozen && _frozenColours is null ? FrozenTint : flashes && _hurtColours is null ? HurtTint : RestingTint);
+        ShowColours(_frozenColours, frozen, FrozenColours, _frozenShownOn);
+        ShowColours(_hurtColours, flashes, HurtFlashColours, _flashShownOn);
+    }
 
-        // Its flash is its own pictures in the colours its data gives for it, shown only while it flashes, and on
-        // each of its visuals: one drawn in parts flashes whole. A change is worked out for a visual by the pictures
-        // it shows, so one that shows none yet is left until it does, and one that flashes is shown the flash again
-        // each update, since a hurt may have it take up another set of its pictures.
-        Visual.Tint(frozen ? FrozenTint : RestingTint);
-        if (!flashes && _flashShownOn.Count == 0)
+    /// <summary>
+    /// Shows a look's colours on each of the enemy's visuals while the look shows, and takes them back when it does
+    /// not: one drawn in parts takes the look whole. A change is worked out for a visual by the pictures it shows, so
+    /// one that shows none yet is left until it does, and one that has the look is shown it again each update, since
+    /// it may have taken up another set of its pictures.
+    /// </summary>
+    /// <param name="colours">The look's colours, as the enemy's data gives them; null for a look shown as a tint.</param>
+    /// <param name="shows">Whether the look shows on this update.</param>
+    /// <param name="name">The name the look's colours are shown under.</param>
+    /// <param name="shownOn">The visuals the look's colours are showing on now.</param>
+    private void ShowColours(Ui.ColourChange? colours, bool shows, string name, HashSet<ActorVisual> shownOn)
+    {
+        if (colours is null || (!shows && shownOn.Count == 0))
             return;
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
-            if (visual.Picture.Length == 0 || (!flashes && !_flashShownOn.Contains(visual)))
+            if (visual.Picture.Length == 0 || (!shows && !shownOn.Contains(visual)))
                 continue;
-            (flashes ? colours : Ui.ColourChange.None).ShowOn(visual, HurtFlashColours);
-            if (flashes)
-                _flashShownOn.Add(visual);
+            (shows ? colours : Ui.ColourChange.None).ShowOn(visual, name);
+            if (shows)
+                shownOn.Add(visual);
             else
-                _flashShownOn.Remove(visual);
+                shownOn.Remove(visual);
         }
     }
 
     /// <summary>The name its hurt flash's colours are shown under.</summary>
     private const string HurtFlashColours = "HurtFlash";
+
+    /// <summary>The name its frozen look's colours are shown under.</summary>
+    private const string FrozenColours = "Frozen";
+
+    /// <summary>
+    /// The colours its pictures are shown in while it shows frozen, as its data gives them ("frozen_colours"); null
+    /// for one whose data gives none, which is tinted instead.
+    /// </summary>
+    private Ui.ColourChange? _frozenColours;
+
+    /// <summary>The visuals of its own its frozen look's colours are showing on now.</summary>
+    private readonly HashSet<ActorVisual> _frozenShownOn = [];
 
     /// <summary>
     /// The colours its pictures are shown in while its hurt flash shows, as its data gives them ("hurt_colours");
@@ -994,10 +1017,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>The tint the enemy is shown with when nothing has happened to it. An enemy that glows says so here.</summary>
     protected virtual Color RestingTint => Colors.White;
 
-    /// <summary>The tint of a frozen enemy.</summary>
+    /// <summary>The tint of a frozen enemy whose data gives the look no colours.</summary>
     private static readonly Color FrozenTint = new(0.6f, 0.8f, 1.5f);
 
-    /// <summary>The tint of an enemy flashing from a hit.</summary>
+    /// <summary>The tint of an enemy flashing from a hit whose data gives the flash no colours.</summary>
     private static readonly Color HurtTint = new(2f, 2f, 2f);
 
     /// <summary>Takes away the solid the engine made for the enemy's freeze, if it has one.</summary>

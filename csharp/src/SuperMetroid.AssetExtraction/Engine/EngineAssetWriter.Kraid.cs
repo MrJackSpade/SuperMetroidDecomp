@@ -340,7 +340,8 @@ public sealed partial class EngineAssetWriter
                 ["parts"] = PartColours(KraidShades.Health(band).Key),
                 ["eyes"] = KraidEyes(eyes.Of(band)),
             })))
-            .Group("hurt_colours", new JsonObject
+            // Not "hurt_colours": every enemy's group of that name is one change of colours, which the engine reads.
+            .Group("mouth_hit_colours", new JsonObject
             {
                 ["body"] = BodyColours(KraidShades.HurtFlash.Key),
                 ["parts"] = PartColours(KraidShades.HurtFlash.Key),

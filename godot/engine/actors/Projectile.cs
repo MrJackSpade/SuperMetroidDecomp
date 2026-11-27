@@ -862,8 +862,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // No other solid is a wall to a shot: it is solid to the player alone, and stops a shot only by what it does
         // when the shot hits it.
         // One that meets such things where its move ends, as it meets terrain, neither hits nor is stopped by them here.
+        // Any other meets them by what of it meets terrain: its middle point alone, for one tried by its middle.
+        PixelRect meetsStanding = TerrainArea;
         bool meetsSolid = !passes && !MeetsStandingThingsAtEnd &&
-            room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.StandsAsTerrain);
+            room.Collision.Overlapping(meetsStanding, ColliderRole.Solid, except: _launcher).Any(solid => solid.StandsAsTerrain);
 
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
         // all have moved. The player's shot meets what it comes upon as it moves, but for enemies and their shots:
@@ -873,11 +875,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // an eye door's eye lies within its cap, and the shot would be gone before that enemy's turn came.
         if (!HarmsNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
-        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false }
-            && !(MeetsStandingThingsAtEnd && StandsAsPartOfRoom(target))))
-        {
+        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false } && !StandsAsPartOfRoom(target)))
             return false;
-        }
+        if (!MeetsStandingThingsAtEnd && !MeetTargets(room, meetsStanding, StandsAsPartOfRoom))
+            return false;
 
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
     }

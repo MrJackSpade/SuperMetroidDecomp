@@ -105,6 +105,9 @@ public partial class Intro : Cinematic
     private bool _awaitingSecondSubtitle;
     private int _subtitleHold;
 
+    /// <summary>Whether a flashback's room has opened this update, and with it drawn the update's random number.</summary>
+    private bool _roomOpenedUpdate;
+
     /// <inheritdoc/>
     protected override bool CanBeSkipped => false;
 
@@ -164,8 +167,7 @@ public partial class Intro : Cinematic
     /// <inheritdoc/>
     protected override bool Play(int elapsed)
     {
-        // Every update of the old introduction draws a random number before anything else of it.
-        Session.OpenUpdate();
+        _roomOpenedUpdate = false;
         ScreenFade fade = _fade ?? throw NotEntered();
         switch (_phase)
         {
@@ -337,6 +339,12 @@ public partial class Intro : Cinematic
 
         if (_scene.Length > 0)
             StepScene(_phase == Phase.CrossfadingToScene);
+
+        // Every update of the old introduction draws one random number. A flashback's room draws it as it opens its
+        // update, as play does; on any other update the opening draws it itself. Nothing of the opening outside a
+        // room reads the number, so it is drawn here, once the update has settled whether a room was played.
+        if (!_roomOpenedUpdate)
+            Session.OpenUpdate();
         return _phase == Phase.Finished;
     }
 

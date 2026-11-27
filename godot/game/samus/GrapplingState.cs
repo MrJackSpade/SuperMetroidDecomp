@@ -104,6 +104,12 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// The swing's body, taken with no feeling for room and hers at once, as the cartridge sets the swinging pose and
+    /// its size outright as the line takes hold: she is then put at the line's end.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
@@ -111,7 +117,6 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         SamusGrapple grapple = samus.Grapple ?? throw new InvalidOperationException("Samus is swinging with no grapple beam.");
         GrappleSwingRules rules = _rules = grapple.Swing;
         owner.LoseMomentum();
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
 
         // The angle is that of where she was when the line took hold, a whole step; a long line is shortened; and
         // the line begins to draw itself in. Her speeds are cleared.

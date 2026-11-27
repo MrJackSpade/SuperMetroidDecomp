@@ -393,7 +393,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
         PixelOffset from = samus.Position - Position;
         if (from.X.Whole <= -8 || from.X.Whole > 8 || from.Y.Whole <= -64 || from.Y.Whole > 0)
             return;
-        samus.ChangeState(new FacingForwardState());
+        samus.ChangeState(new FacingForwardState(turned: true));
 
         // Going aboard ends an elevator's ride and disarms its door.
         ElevatorJourney.Of(Room.Session).End();

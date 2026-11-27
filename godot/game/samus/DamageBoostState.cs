@@ -42,12 +42,14 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// The jump's body, taken where she is with no feeling for room and hers at once, as the cartridge sets the boost's
+    /// pose and its size outright out of the knockback's.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
-    public override void Enter(Player owner)
-    {
-        owner.Facing = _toward;
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
-    }
+    public override void Enter(Player owner) => owner.Facing = _toward;
 
     /// <summary>The boost lasts while the jump and the way it carries her are the first of its chords held.</summary>
     public override PlayerState? Asked(Player owner) => FirstChord(owner) == _toward ? this : null;

@@ -101,6 +101,13 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// The windup's body, the jump's, hers at once, as the cartridge sets the windup pose's size as it is taken up. It
+    /// is fitted about her middle as the jump's is: a windup begun out of a spin is the spin straightened out, whose
+    /// taller body the cartridge fits first; out of a jump or a boost the body is the same.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
@@ -129,8 +136,6 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);
         }
 
-        // The windup's body is hers at once, as the cartridge sets the windup pose's size as it is taken up.
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true, atOnce: true);
         samus.BoostFully();
         samus.BeginSparkColouring();
         samus.EndHurt();

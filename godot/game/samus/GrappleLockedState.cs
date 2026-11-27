@@ -34,6 +34,13 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 
+    /// <summary>
+    /// The body of standing or of the crouch, taken with no feeling for room and hers at once, as the cartridge sets
+    /// the held pose and its size outright: as the line takes hold, and as a swing stops at one of its angles.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) =>
+        new FormAsked(owner.FormOr(_crouched ? Player.Crouching : Player.Standing), Unfitted: true, AtOnce: true);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
@@ -44,9 +51,8 @@ public sealed class GrappleLockedState : PlayerState, ISamusLook
         owner.Velocity = PixelVelocity.Zero;
         if (_at is { } at && _aim is { } aim)
         {
-            // She is put there outright and takes the pose's body where she is, as the cartridge sets a pose's size.
+            // She is put there outright, in the pose's body (EntersIn).
             (owner.Aim, owner.Position) = (aim, at);
-            owner.TrySetForm(owner.FormOr(_crouched ? Player.Crouching : Player.Standing), aroundMiddle: true);
             samus.CapViewAfterPlacing();
             return;
         }

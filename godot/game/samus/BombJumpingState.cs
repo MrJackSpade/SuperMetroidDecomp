@@ -47,16 +47,19 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public string Look => Upright ? "jumping" : "morph_ball";
 
+    /// <summary>
+    /// Upright she is thrown in the jump's body, fitted as the cartridge fits a larger pose: with no room for it she
+    /// is not thrown, and with none above or below she is put in the crouch. The body is hers at once, as the
+    /// cartridge sets the size of the jump pose it throws her in as it puts her in it. The ball is thrown as it is.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) =>
+        Upright ? new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true, AtOnce: true) : null;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        if (!Upright)
-            return;
-        owner.Aim = Aim.Forward;
-
-        // The jump's body is hers at once, as the cartridge sets the size of the jump pose it throws her in as it
-        // puts her in it.
-        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true, atOnce: true);
+        if (Upright)
+            owner.Aim = Aim.Forward;
     }
 
     /// <summary>What she is once the throw is over: the ball, or the jump she was thrown in, falling.</summary>

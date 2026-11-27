@@ -31,15 +31,15 @@ public sealed class AppearingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override bool InAnothersHands => true;
 
-    /// <inheritdoc/>
-    public override void Enter(Player owner)
-    {
-        owner.Velocity = PixelVelocity.Zero;
+    /// <summary>
+    /// The place a game is taken up at is her middle's in the front view, as the cartridge's table of them has it: she
+    /// is given the front view's body about her middle with no feeling for room, as the cartridge puts her in the
+    /// front pose outright, which sets her feet on the ground there.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(RidingElevatorState.Form, Unfitted: true);
 
-        // The place a game is taken up at is her middle's in the front view, as the cartridge's table of them has it:
-        // she is given the front view's height about her middle, which sets her feet on the ground there.
-        owner.TrySetForm(RidingElevatorState.Form, aroundMiddle: true);
-    }
+    /// <inheritdoc/>
+    public override void Enter(Player owner) => owner.Velocity = PixelVelocity.Zero;
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)

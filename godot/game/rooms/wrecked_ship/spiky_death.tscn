@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,11 +6,10 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="7"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
-[ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="9"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -74,18 +73,14 @@ DataFile = "objects/door_cap_blue_left.json"
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("7")
-Kind = 1
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/wrecked_ship_columns_tubes.png"
 ScrollShare = Vector2(0.75, 0.75)
 LiesAt = Vector2i(0, -1)
 
-[node name="Kzan" parent="." instance=ExtResource("9")]
+[node name="Kzan" parent="." instance=ExtResource("8")]
 position = Vector2(80, 96)
 FallSpeed = 4
 FallWait = 16
@@ -93,14 +88,14 @@ FallDistance = 104
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Kzan2" parent="." instance=ExtResource("9")]
+[node name="Kzan2" parent="." instance=ExtResource("8")]
 position = Vector2(160, 96)
 FallSpeed = 4
 FallWait = 12
 FallDistance = 104
 PresentWhen = SubResource("r1")
 
-[node name="Kzan3" parent="." instance=ExtResource("9")]
+[node name="Kzan3" parent="." instance=ExtResource("8")]
 position = Vector2(256, 96)
 FallSpeed = 4
 FallWait = 17
@@ -108,14 +103,14 @@ FallDistance = 104
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Kzan4" parent="." instance=ExtResource("9")]
+[node name="Kzan4" parent="." instance=ExtResource("8")]
 position = Vector2(352, 96)
 FallSpeed = 4
 FallWait = 10
 FallDistance = 104
 PresentWhen = SubResource("r1")
 
-[node name="Kzan5" parent="." instance=ExtResource("9")]
+[node name="Kzan5" parent="." instance=ExtResource("8")]
 position = Vector2(432, 96)
 FallSpeed = 4
 FallWait = 20
@@ -124,7 +119,7 @@ AlwaysActive = true
 PresentWhen = SubResource("r1")
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/water.json"
 Drifts = true
@@ -133,7 +128,7 @@ HighSurface = 168
 PresentWhen = SubResource("r1")
 
 [node name="WreckedShipGreenLights" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "wrecked_ship_green_lights"
 StepsFile = "colours/{graphics}/wrecked_ship_green_lights.json"

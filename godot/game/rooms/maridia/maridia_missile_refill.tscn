@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,8 +7,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/station/missile_station.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="7"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -56,12 +55,8 @@ Drifts = true
 LowSurface = 0
 HighSurface = 0
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("8")
-Kind = 0
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_maridia_missile_refill.png"
 ScrollShare = Vector2(1, 1)

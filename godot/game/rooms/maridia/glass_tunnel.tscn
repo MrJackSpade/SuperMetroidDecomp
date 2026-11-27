@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -10,8 +10,7 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -213,12 +212,8 @@ TideReach = 8
 TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("11")
-Kind = 0
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_glass_tunnel_default.png"
 ScrollShare = Vector2(1, 0.75)
@@ -226,7 +221,7 @@ LiesAt = Vector2i(0, -1)
 PresentWhen = SubResource("r4")
 
 [node name="Backdrop2" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_glass_tunnel_when_maridia_noob_tube_broken.png"
 ScrollShare = Vector2(1, 0.75)

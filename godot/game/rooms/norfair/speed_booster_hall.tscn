@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -15,8 +15,7 @@
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="13"]
 [ext_resource type="Script" path="res://game/rooms/RisingLiquidQuake.cs" id="14"]
 [ext_resource type="Script" path="res://game/rooms/LavaBubbling.cs" id="15"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="16"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="17"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="16"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -227,12 +226,8 @@ StartsWhen = SubResource("r6")
 Interval = 112
 Sounds = Array[String](["enemy_lava_bubbling_burst", "enemy_lava_bubbling_falling", "enemy_lava_bubbling_rising"])
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("16")
-Kind = 1
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("17")
+script = ExtResource("16")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_small_pattern_brown_purple.png"
 ScrollShare = Vector2(0.75, 0.75)

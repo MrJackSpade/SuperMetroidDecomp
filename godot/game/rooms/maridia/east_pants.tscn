@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -10,8 +10,7 @@
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -158,12 +157,8 @@ position = Vector2(0, 0)
 EffectName = "maridia_sand_pits"
 StepsFile = "colours/{graphics}/maridia_sand_pits.json"
 
-[node name="Ground" type="Node" parent="."]
-script = ExtResource("11")
-Kind = 0
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_east_pants.png"
 ScrollShare = Vector2(1, 0.75)

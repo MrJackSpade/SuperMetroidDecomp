@@ -46,7 +46,9 @@ public sealed class RoomChecks
     public void ATriggerTellsItsTargetOnceWhenThePlayerEnters()
     {
         using var world = new StandInWorld(TwoScreens).StartAt(40, 80);
-        var zone = world.Place(new CameraZone { Name = "Zone" }, 300, 0);
+
+        // A screen lets the view in unless something says otherwise: this one is shut as the room is set up.
+        var zone = world.Place(new CameraZone { Name = "Zone", ToldAtSetup = "close" }, 300, 0);
         world.Place(new Trigger { Name = "Trigger", Size = new Vector2I(16, 80), Target = new NodePath("../Zone"), What = "open" }, 100, 0);
         world.Setup();
         Expect.False(zone.IsOpen);
@@ -64,7 +66,7 @@ public sealed class RoomChecks
     public void ATriggerWithAConditionWaitsForIt()
     {
         using var world = new StandInWorld(TwoScreens).StartAt(40, 80);
-        var zone = world.Place(new CameraZone { Name = "Zone" }, 300, 0);
+        var zone = world.Place(new CameraZone { Name = "Zone", ToldAtSetup = "close" }, 300, 0);
         world.Place(new Trigger
         {
             Name = "Trigger", Size = new Vector2I(16, 80), Target = new NodePath("../Zone"), What = "open",
@@ -253,17 +255,20 @@ public sealed class RoomChecks
     {
         string wide = new('.', 64);
         using var world = new StandInWorld(wide, wide, wide, wide, wide, new string('#', 64)).StartAt(40, 80);
-        var zone = world.Place(new CameraZone { Name = "Secret" }, 512, 0);
+        var zone = world.Place(new CameraZone { Name = "Secret", ToldAtSetup = "close" }, 512, 0);
         world.Setup();
         Expect.Equal(0, world.Session.Camera.Left);
 
-        world.Player.Position = PixelPosition.FromWhole(480, 80);
-        world.Step(1);
+        // The view follows the player as they go, and stops at the edge of the screen that is shut: the third
+        // screen begins at 512, so the view's left edge comes to rest a screen short of it.
+        while (world.Player.Position.X < Pixels.FromWhole(600))
+            world.Step(1, GameAction.Right);
         Expect.Equal(256, world.Session.Camera.Left);
 
+        // Opened, the screen lets the view in after the player.
         zone.Triggered("open");
-        world.Step(1);
-        Expect.Equal(480 - 128, world.Session.Camera.Left);
+        world.Step(60, GameAction.Right);
+        Expect.True(world.Session.Camera.Left > 256);
     }
 
     [Check]

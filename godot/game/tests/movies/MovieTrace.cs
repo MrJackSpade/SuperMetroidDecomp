@@ -11,44 +11,49 @@ namespace Game.Tests.Movies;
 /// </summary>
 /// <remarks>
 /// The files are the Classic game's compact trace, read as they are: <c>compact-manifest.json</c>,
-/// <c>updates.json.gz</c> (the converter's list of updates) and <c>expected.bin.gz</c> (every record in the order
-/// captured: two 32-bit words, the movie's frame and where the cartridge stood, then the layout's cells in ascending
-/// order of address, each record's cells given as their difference from the record before). Only the playthroughs'
-/// layout is read here.
+/// <c>updates.json.gz</c> (the converter's list of updates), <c>initial.wram.gz</c> (the cartridge's whole memory as
+/// the movie's first update began) and <c>expected.bin.gz</c> (every record in the order captured: two 32-bit words,
+/// the movie's frame and where the cartridge stood, then the layout's cells in ascending order of address, each
+/// record's cells given as their difference from the record before). The layouts are <see cref="TraceLayouts"/>'s.
 /// </remarks>
 public sealed class MovieTrace : IDisposable
 {
-    /// <summary>The layout the three playthroughs and the Mother Brain movie are kept in.</summary>
-    public const string PlaythroughLayout = "movie-desync";
+    private const int RecordHeaderBytes = 8;
 
-    /// <summary>The cells of the playthroughs' layout: where each run of them starts in the cartridge's memory, and how long it is.</summary>
-    private static readonly (int Start, int Length)[] PlaythroughRanges = BuildPlaythroughRanges();
+    /// <summary>How much memory the cartridge has: what <see cref="InitialMemory"/> holds.</summary>
+    public const int MemoryBytes = 0x20000;
 
+    private readonly string _folder;
+    private readonly (int Start, int Length)[] _ranges;
     private readonly Stream _records;
     private readonly byte[] _cells;
     private readonly byte[] _read;
     private readonly int[] _offsets;
     private int _recordsRead;
 
-    private MovieTrace(string name, IReadOnlyList<MovieUpdate> updates, int recordCount, Stream records)
+    private MovieTrace(string folder, string layout, IReadOnlyList<MovieUpdate> updates, int recordCount, bool startsFromReset, string movieSha256, Stream records)
     {
-        (Name, Updates, RecordCount, _records) = (name, updates, recordCount, records);
+        (_folder, Layout, Updates, RecordCount, StartsFromReset, MovieSha256, _records) =
+            (folder, layout, updates, recordCount, startsFromReset, movieSha256, records);
+        Name = Path.GetFileName(Path.TrimEndingDirectorySeparator(folder));
+        _ranges = TraceLayouts.Of(layout);
         int length = 0;
-        _offsets = new int[PlaythroughRanges.Length];
-        for (int index = 0; index < PlaythroughRanges.Length; index++)
+        _offsets = new int[_ranges.Length];
+        for (int index = 0; index < _ranges.Length; index++)
         {
             _offsets[index] = length;
-            length += PlaythroughRanges[index].Length;
+            length += _ranges[index].Length;
         }
 
         _cells = new byte[length];
         _read = new byte[RecordHeaderBytes + length];
     }
 
-    private const int RecordHeaderBytes = 8;
-
     /// <summary>The movie's name: its folder's.</summary>
     public string Name { get; }
+
+    /// <summary>The name of the layout the records are kept in.</summary>
+    public string Layout { get; }
 
     /// <summary>The movie's updates, in order.</summary>
     public IReadOnlyList<MovieUpdate> Updates { get; }
@@ -56,33 +61,54 @@ public sealed class MovieTrace : IDisposable
     /// <summary>How many records the trace holds.</summary>
     public int RecordCount { get; }
 
+    /// <summary>Whether the movie begins as the console is switched on; otherwise it begins from a snapshot of the cartridge mid-game.</summary>
+    public bool StartsFromReset { get; }
+
+    /// <summary>The SHA-256 of the movie's own file, in capital hexadecimal digits.</summary>
+    public string MovieSha256 { get; }
+
     /// <summary>The record last read (<see cref="ReadTo"/>): the movie's frame it was captured on. None before the first.</summary>
     public int RecordFrame { get; private set; }
 
     /// <summary>Opens the trace in <paramref name="folder"/>.</summary>
-    /// <exception cref="InvalidDataException">The folder does not hold a compact trace of the playthroughs' layout, or its files disagree.</exception>
+    /// <exception cref="InvalidDataException">The folder does not hold a compact trace of a known layout, or its files disagree.</exception>
     public static MovieTrace Open(string folder)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(folder);
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(folder, "compact-manifest.json")));
         JsonElement about = manifest.RootElement;
         string layout = about.GetProperty("layout").GetString() ?? "";
-        if (layout != PlaythroughLayout)
-            throw new InvalidDataException($"The trace in {folder} is kept in the layout \"{layout}\"; only \"{PlaythroughLayout}\" is read.");
-        int payload = PlaythroughRanges.Sum(range => range.Length);
+        int payload = TraceLayouts.Of(layout).Sum(range => range.Length);
         if (about.GetProperty("payloadBytes").GetInt32() != payload)
-            throw new InvalidDataException($"The trace in {folder} keeps {about.GetProperty("payloadBytes").GetInt32()} bytes a record; the layout comes to {payload}.");
+            throw new InvalidDataException($"The trace in {folder} keeps {about.GetProperty("payloadBytes").GetInt32()} bytes a record; the layout \"{layout}\" comes to {payload}.");
 
         var updates = new List<MovieUpdate>();
+        bool startsFromReset;
+        string movieSha256;
         using (var packed = new GZipStream(File.OpenRead(Path.Combine(folder, "updates.json.gz")), CompressionMode.Decompress))
         using (JsonDocument list = JsonDocument.Parse(packed))
         {
+            startsFromReset = list.RootElement.GetProperty("startsFromReset").GetBoolean();
+            movieSha256 = list.RootElement.GetProperty("movieSha256").GetString() ?? "";
             foreach (JsonElement update in list.RootElement.GetProperty("updates").EnumerateArray())
                 updates.Add(MovieUpdate.Read(update));
         }
 
         var records = new GZipStream(File.OpenRead(Path.Combine(folder, "expected.bin.gz")), CompressionMode.Decompress);
-        return new MovieTrace(Path.GetFileName(Path.TrimEndingDirectorySeparator(folder)), updates, about.GetProperty("recordCount").GetInt32(), records);
+        return new MovieTrace(folder, layout, updates, about.GetProperty("recordCount").GetInt32(), startsFromReset, movieSha256, records);
+    }
+
+    /// <summary>The cartridge's whole memory as the movie's first update began: <see cref="MemoryBytes"/> bytes.</summary>
+    /// <exception cref="InvalidDataException">The trace's starting memory is not that long.</exception>
+    public byte[] InitialMemory()
+    {
+        using var packed = new GZipStream(File.OpenRead(Path.Combine(_folder, "initial.wram.gz")), CompressionMode.Decompress);
+        using var whole = new MemoryStream();
+        packed.CopyTo(whole);
+        byte[] bytes = whole.ToArray();
+        if (bytes.Length != RecordHeaderBytes + MemoryBytes)
+            throw new InvalidDataException($"The starting memory of {Name} is {bytes.Length} bytes; {RecordHeaderBytes + MemoryBytes} were expected.");
+        return bytes[RecordHeaderBytes..];
     }
 
     /// <summary>
@@ -113,68 +139,18 @@ public sealed class MovieTrace : IDisposable
         return _cells[at] | (_cells[at + 1] << 8);
     }
 
-    /// <summary>The 8-bit cell at <paramref name="address"/> of the cartridge's memory, in the record last read.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The layout does not keep that cell.</exception>
-    public int Byte(int address) => _cells[OffsetOf(address)];
-
     private int OffsetOf(int address)
     {
-        for (int index = 0; index < PlaythroughRanges.Length; index++)
+        for (int index = 0; index < _ranges.Length; index++)
         {
-            (int start, int length) = PlaythroughRanges[index];
-            if (address >= start && address < start + length)
+            (int start, int length) = _ranges[index];
+            if (address >= start && address + 1 < start + length)
                 return _offsets[index] + address - start;
         }
 
-        throw new ArgumentOutOfRangeException(nameof(address), $"The layout \"{PlaythroughLayout}\" does not keep the cell ${address:X4}.");
+        throw new ArgumentOutOfRangeException(nameof(address), $"The layout \"{Layout}\" does not keep the cell ${address:X4}.");
     }
 
     /// <inheritdoc/>
     public void Dispose() => _records.Dispose();
-
-    /// <summary>
-    /// The playthroughs' layout, as the Classic game's catalog of compared cells gives it
-    /// (<c>ReplayTraceMemoryCatalog.MovieDesync</c>), in ascending order of address.
-    /// </summary>
-    private static (int Start, int Length)[] BuildPlaythroughRanges()
-    {
-        var ranges = new List<(int Start, int Length)>
-        {
-            (Cartridge.NmiCounter, 2),
-            (Cartridge.Random, 2),
-            (0x0629, 0x0650 - 0x0629),
-            (Cartridge.Room, 2),
-            (Cartridge.ViewXPart, Cartridge.ViewY + 2 - Cartridge.ViewXPart),
-            (0x093f, 2),
-            (Cartridge.EscapeTime, 0x0948 - Cartridge.EscapeTime),
-            (Cartridge.GameState, 2),
-            (0x099c, 2),
-            (Cartridge.EquipmentOn, Cartridge.BeamsOwned + 2 - Cartridge.EquipmentOn),
-            (Cartridge.Energy, Cartridge.Reserve + 2 - Cartridge.Energy),
-            (0x0a1c, 2),
-            (0x0a94, 0x0a98 - 0x0a94),
-            (Cartridge.SamusX, Cartridge.SamusYPart + 2 - Cartridge.SamusX),
-            (0x0b2c, 0x0b30 - 0x0b2c),
-            (0x0b42, 0x0b4c - 0x0b42),
-            (0x0b64, 0x0c2c - 0x0b64),
-            (0x0dba, 0x0dc0 - 0x0dba),
-        };
-        for (int place = 0; place < Cartridge.EnemyPlaces; place++)
-            ranges.Add((Cartridge.Enemies + place * Cartridge.EnemyStride, Cartridge.EnemyCellsKept));
-        ranges.AddRange(
-        [
-            (0x0fa8, 0x0fae - 0x0fa8),
-            (0x106a, 0x106e - 0x106a),
-            (Cartridge.LaunchedKinds, Cartridge.LaunchedPlaces * 2),
-            (Cartridge.LaunchedX, Cartridge.LaunchedPlaces * 2),
-            (Cartridge.LaunchedY, Cartridge.LaunchedPlaces * 2),
-            (0x1b23, 0x1bb3 - 0x1b23),
-            (0x1f51, 2),
-            (0x2000, 2),
-            (0x2020, 20 * 7),
-            (0x8026, 2),
-        ]);
-        ranges.Sort();
-        return [.. ranges];
-    }
 }

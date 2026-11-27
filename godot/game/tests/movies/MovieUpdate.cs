@@ -9,21 +9,25 @@ namespace Game.Tests.Movies;
 /// <param name="Number">The update's number in the movie, from one.</param>
 /// <param name="Kind">
 /// What kind of update the cartridge played: its main loop ("main-loop"), or one that went on inside something the
-/// main loop had begun (a step of a door's scroll, a wait on a music upload, and the like).
+/// main loop had begun (a step of a door's scroll, a wait for a frame of the display, and the like).
 /// </param>
 /// <param name="Buttons">The cartridge's buttons held on the update, as the cartridge's controller word has them.</param>
-/// <param name="Pressed">Those of them newly pressed on the update.</param>
+/// <param name="Pressed">
+/// Those of them the cartridge took as newly pressed on the update. It is the cartridge's own reading: after a wait
+/// the converter left out, a button first held during the wait is held here and not newly pressed.
+/// </param>
 /// <param name="SourceFrame">The movie's frame the update's buttons were read on.</param>
+/// <param name="EndSourceFrame">The movie's frame the update ended on: the frame the next update's buttons are read on.</param>
 /// <param name="ExpectedRecord">The trace's record of the cartridge's memory as the update ended; none for an update that has no record of its own.</param>
 /// <param name="MessageBoxStartFrame">The movie's frame on which a message box opened inside the update, when one did.</param>
 /// <param name="MessageBoxEndFrame">The movie's frame on which that message box closed, when it closed inside the update.</param>
 /// <param name="ConsoleReset">Whether the console was reset before the update: it is the first of the cartridge's updates after a reset.</param>
 public sealed record MovieUpdate(
-    int Number, string Kind, int Buttons, int Pressed, int SourceFrame, int? ExpectedRecord,
+    int Number, string Kind, int Buttons, int Pressed, int SourceFrame, int EndSourceFrame, int? ExpectedRecord,
     int? MessageBoxStartFrame, int? MessageBoxEndFrame, bool ConsoleReset)
 {
-    /// <summary>The kind of an update of the cartridge's main loop.</summary>
-    public const string MainLoop = "main-loop";
+    /// <summary>The kind of an update that goes on inside something the cartridge's main loop had begun.</summary>
+    public const string Continuation = "nmi-continuation";
 
     /// <summary>Reads one update of the converter's list.</summary>
     internal static MovieUpdate Read(JsonElement update)
@@ -37,6 +41,7 @@ public sealed record MovieUpdate(
             update.GetProperty("input").GetInt32(),
             update.GetProperty("pressed").GetInt32(),
             update.GetProperty("sourceFrame").GetInt32(),
+            update.GetProperty("endSourceFrame").GetInt32(),
             Whole(update, "expectedRecord"),
             Whole(update, "messageBoxStartFrame"),
             Whole(update, "messageBoxEndFrame"),

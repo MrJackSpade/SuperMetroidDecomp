@@ -41,6 +41,12 @@ public static class Cartridge
     /// <summary>Within an enemy's place: its kind (nought for an empty place), where it is, and its health.</summary>
     public const int EnemyKind = 0x00, EnemyX = 0x02, EnemyXPart = 0x04, EnemyY = 0x06, EnemyYPart = 0x08, EnemyHealth = 0x14;
 
+    /// <summary>Which way Samus faces: 4 for the left, 8 for the right. Kept by the wider layout and the starting memory only.</summary>
+    public const int SamusFacing = 0x0a1e;
+
+    /// <summary>The game state of ordinary play, and of the pause's screens once they are up.</summary>
+    public const int InPlay = 0x08, Paused = 0x0f;
+
     /// <summary>What enemies have launched: each one's kind (nought for an empty place), and where it is; and how many places there are.</summary>
     public const int LaunchedKinds = 0x1997, LaunchedX = 0x1a4b, LaunchedY = 0x1a93, LaunchedPlaces = 18;
 }

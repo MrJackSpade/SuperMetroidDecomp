@@ -1,19 +1,24 @@
 # Builds the Godot project, then plays one recorded movie through the game headless and checks the game against the
 # cartridge on every update. The one way a movie is played.
-# Usage: pwsh -File godot/movie.ps1 <movie> [-Until N]
+# Usage: pwsh -File godot/movie.ps1 <movie> [-Until N] [-NoBuild]
 #   <movie> is a folder under csharp/test-fixtures/replay-traces (low-13-percent, lowc, full-100-percent, ...), or a path.
-#   -Until N stops, as passed, once the movie's update N has been played and found to agree.
-# It ends with 0 when the movie agrees as far as it was played, 1 at the first update that differs, 2 on an error.
+#   -Until N stops, as agreeing, once the movie's update N has been played and found to agree.
+#   -NoBuild plays the project as it was last built: for a second movie when no code has changed since the first.
+# It ends with 0 when the movie agrees as far as it was played, 1 at the first update that differs, 2 on an error,
+# and 3 when every update agrees but kinds of enemy the movie met are not compared yet.
 param(
     [Parameter(Mandatory)][string]$Movie,
-    [int]$Until = 0
+    [int]$Until = 0,
+    [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 try {
-    & pwsh -NoProfile -NonInteractive -File (Join-Path $PSScriptRoot 'build.ps1')
-    if ($LASTEXITCODE -ne 0) { exit 2 }
+    if (-not $NoBuild) {
+        & pwsh -NoProfile -NonInteractive -File (Join-Path $PSScriptRoot 'build.ps1')
+        if ($LASTEXITCODE -ne 0) { exit 2 }
+    }
 
     $godot = $env:GODOT4_BIN
     if (-not $godot) { $godot = [Environment]::GetEnvironmentVariable('GODOT4_BIN', 'User') }

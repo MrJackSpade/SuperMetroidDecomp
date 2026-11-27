@@ -1,22 +1,38 @@
 using Engine.Core;
+using Engine.Input;
 using Godot;
 
 namespace Game.Tests.Movies;
 
 /// <summary>
 /// Plays one recorded movie through the game and checks the game against the cartridge on every update: the scene
-/// <c>godot/movie.ps1</c> runs. The game is begun as a player's is, on an empty folder of saves, and is given one
-/// update for each update of the movie, with the movie's buttons; hardware lag is not played. It stops at the first
-/// update on which the game and the cartridge differ, and never puts the game right from the movie.
+/// <c>godot/movie.ps1</c> runs. The game is given one update for each update of the movie, with the movie's buttons;
+/// hardware lag is not played. It stops at the first update on which the game and the cartridge differ, and never
+/// puts the game right from the movie.
 /// </summary>
 /// <remarks>
-/// Arguments, after Godot's <c>--</c>: the trace's folder, and optionally <c>--until N</c> to stop, as passed, once
-/// the movie's update N has been played and found to agree.
+/// <para>
+/// A movie that begins as the console is switched on begins the game as a player's is, on an empty folder of saves.
+/// One that begins from a snapshot is brought to the snapshot first (<see cref="MovieStart"/>). A reset of the
+/// console inside a movie ends the game and begins it again on the same saves. A message box, which the cartridge
+/// plays inside one of its updates reading the controller itself, is played with the movie's own frames
+/// (<see cref="MovieFile"/>) for as long as the cartridge's lasted.
+/// </para>
+/// <para>
+/// Arguments, after Godot's <c>--</c>: the trace's folder, and optionally <c>--until N</c> to stop, as agreeing, once
+/// the movie's update N has been played and found to agree. It ends with 0 when the movie agrees as far as it was
+/// played, 1 at the first difference, 2 on an error, and 3 when every update agrees but kinds of enemy the movie met
+/// are not yet compared (<see cref="CartridgeEnemies"/>).
+/// </para>
 /// </remarks>
 public partial class MovieRunner : Node
 {
     /// <summary>How many of the latest updates a difference is reported with.</summary>
     private const int Remembered = 12;
+
+    private GameLoop? _loop;
+    private Engine.Audio.AudioDirector? _director;
+    private MovieController? _controller;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -36,6 +52,8 @@ public partial class MovieRunner : Node
         GetTree().Quit(exitCode);
     }
 
+    private GameSession Session => (_loop ?? throw new InvalidOperationException("The game has not been begun.")).Session;
+
     private int Run(string[] arguments)
     {
         if (arguments.Length == 0)
@@ -51,70 +69,187 @@ public partial class MovieRunner : Node
         }
 
         using MovieTrace trace = MovieTrace.Open(folder);
-        Console.WriteLine($"MOVIE {trace.Name}: {trace.Updates.Count} updates, {trace.RecordCount} records");
+        string repository = Path.GetFullPath(Path.Combine(ProjectSettings.GlobalizePath("res://"), ".."));
+        MovieFile file = MovieFile.Of(trace, repository);
+        Console.WriteLine($"MOVIE {trace.Name}: {trace.Updates.Count} updates, {trace.RecordCount} records, layout {trace.Layout}, " +
+            (trace.StartsFromReset ? "from switching on" : "from a snapshot"));
 
         GameDefinition definition = ResourceLoader.Load<GameDefinition>("res://game/game_definition.tres");
         string saves = Path.Combine(Path.GetTempPath(), "movie-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(saves);
         try
         {
-            return Play(trace, definition, saves, until);
+            Begin(definition, saves);
+            if (trace.StartsFromReset)
+            {
+                if (!file.StartsWithNoSavedGame)
+                    throw new NotSupportedException($"The movie {trace.Name} is switched on with a saved game on the cartridge, which is not carried into the game's saves yet.");
+            }
+            else
+            {
+                MovieStart.FromSnapshot(Session, trace.InitialMemory(), Step);
+                Console.WriteLine("BEGUN from the snapshot. Not carried from it yet:");
+                foreach (string missing in MovieStart.NotCarried)
+                    Console.WriteLine("  " + missing);
+            }
+
+            return Play(trace, file, definition, saves, until);
         }
         finally
         {
+            End();
             Directory.Delete(saves, recursive: true);
         }
     }
 
-    private int Play(MovieTrace trace, GameDefinition definition, string saves, int until)
+    /// <summary>Begins the game on the saves in <paramref name="saves"/>, as switching the console on does.</summary>
+    private void Begin(GameDefinition definition, string saves)
     {
-        var options = Options.Load(Path.Combine(saves, "options.json"));
-        var controller = new MovieController(definition, options);
-        var loop = new GameLoop { Name = "MovieLoop" };
-        loop.Start(definition, controller, Engine.Content.ContentLibrary.ForProject(), new SaveFile(saves, definition.SaveSlots), options);
-        AddChild(loop);
-        loop.SetPhysicsProcess(false);
-        var director = new Engine.Audio.AudioDirector(loop.Session);
-        loop.AddChild(director);
-        director.SetPhysicsProcess(false);
+        // The options as the game's own start makes them: the game's standard buttons, and its actions on its controls.
+        Options options = Options.Load(Path.Combine(saves, "options.json"), definition.StandardBindings);
+        options.AddMissingControls(definition.StandardControls);
+        _controller = new MovieController(definition, options);
+        _loop = new GameLoop { Name = "MovieLoop" };
+        _loop.Start(definition, _controller, Engine.Content.ContentLibrary.ForProject(), new SaveFile(saves, definition.SaveSlots), options);
+        AddChild(_loop);
+        _loop.SetPhysicsProcess(false);
+        _director = new Engine.Audio.AudioDirector(_loop.Session);
+        _loop.AddChild(_director);
+        _director.SetPhysicsProcess(false);
+    }
 
-        var check = new MovieCheck(trace, loop.Session);
+    /// <summary>Ends the game, as switching the console off does.</summary>
+    private void End()
+    {
+        if (_loop is null)
+            return;
+        RemoveChild(_loop);
+        _loop.Free();
+        (_loop, _director, _controller) = (null, null, null);
+    }
+
+    /// <summary>Plays one update of the game with <paramref name="input"/>, and gives the sounds' host its turn after it.</summary>
+    private void Step(GameInput input)
+    {
+        Session.Step(input);
+        (_director ?? throw new InvalidOperationException("The game has not been begun.")).Step();
+    }
+
+    private GameInput InputOf(int held, int pressed) =>
+        (_controller ?? throw new InvalidOperationException("The game has not been begun.")).InputOf(held, pressed);
+
+    private int Play(MovieTrace trace, MovieFile file, GameDefinition definition, string saves, int until)
+    {
+        var check = new MovieCheck(trace);
         var latest = new Queue<string>();
-        foreach (MovieUpdate update in trace.Updates)
+        IReadOnlyList<MovieUpdate> updates = trace.Updates;
+        for (int index = 0; index < updates.Count; index++)
         {
-            if (update.ConsoleReset)
-                throw new NotSupportedException($"Update {update.Number} follows a reset of the console, which this does not play yet.");
-            controller.Held = update.Buttons;
-            loop.Step();
-            director.Step();
+            MovieUpdate update = updates[index];
+            MovieUpdate? next = index + 1 < updates.Count ? updates[index + 1] : null;
+            bool boxContinues = Session.Mode is MessageBoxMode;
+            Step(InputOf(update.Buttons, update.Pressed));
+            string? box = PlayMessageBox(file, update, next, boxContinues);
 
-            latest.Enqueue($"  update {update.Number} (movie frame {update.SourceFrame}, {update.Kind}) buttons {update.Buttons:X4}: {check.Describe()}");
+            latest.Enqueue($"  update {update.Number} (movie frame {update.SourceFrame}, {update.Kind}) buttons {update.Buttons:X4} new {update.Pressed:X4}: {MovieCheck.Describe(Session)}");
             if (latest.Count > Remembered)
                 latest.Dequeue();
 
-            if (update.ExpectedRecord is { } record)
+            var differences = new List<string>();
+            if (box is not null)
+                differences.Add(box);
+            if (next is { ConsoleReset: true })
+            {
+                // The cartridge's record at a reset is of the console before its start-up has run: it is not
+                // compared, and the game is ended and begun again on the same saves.
+                Console.WriteLine($"RESET of the console before update {next.Number} (movie frame {next.SourceFrame}).");
+                End();
+                Begin(definition, saves);
+            }
+            else if (update.ExpectedRecord is { } record)
             {
                 trace.ReadTo(record);
-                if (check.Differences() is { Count: > 0 } differences)
-                {
-                    Console.WriteLine($"DIFFERENCE at update {update.Number} of {trace.Name} (movie frame {update.SourceFrame}, {update.Kind}):");
-                    foreach (string difference in differences)
-                        Console.WriteLine("  " + difference);
-                    Console.WriteLine("The latest updates, as the game played them:");
-                    foreach (string line in latest)
-                        Console.WriteLine(line);
-                    return 1;
-                }
+                differences.AddRange(check.Differences(Session));
+            }
+
+            if (differences.Count > 0)
+            {
+                Console.WriteLine($"DIFFERENCE at update {update.Number} of {trace.Name} (movie frame {update.SourceFrame}, {update.Kind}):");
+                foreach (string difference in differences)
+                    Console.WriteLine("  " + difference);
+                Console.WriteLine("The latest updates, as the game played them:");
+                foreach (string line in latest)
+                    Console.WriteLine(line);
+                ReportUndecided(check);
+                return 1;
             }
 
             if (update.Number >= until)
             {
                 Console.WriteLine($"AGREED through update {update.Number} of {trace.Name}, as far as was asked.");
+                ReportUndecided(check);
                 return 0;
             }
         }
 
-        Console.WriteLine($"PASSED {trace.Name}: all {trace.Updates.Count} updates agree.");
+        Console.WriteLine($"AGREED on all {updates.Count} updates of {trace.Name}.");
+        if (ReportUndecided(check))
+            return 3;
+        Console.WriteLine($"PASSED {trace.Name}.");
         return 0;
+    }
+
+    /// <summary>
+    /// Plays the frames of a message box the cartridge played inside <paramref name="update"/>, with the movie's own
+    /// buttons on each, and returns how the game's box differed from the cartridge's; null when it did not.
+    /// </summary>
+    private string? PlayMessageBox(MovieFile file, MovieUpdate update, MovieUpdate? next, bool boxContinues)
+    {
+        if (Session.Mode is not MessageBoxMode)
+        {
+            if (update.MessageBoxStartFrame is { } opened)
+                return $"the cartridge opened a message box on movie frame {opened}; the game opened none";
+            if (update.MessageBoxEndFrame is { } closed)
+                return $"the cartridge closed a message box on movie frame {closed}; the game had none open";
+            return null;
+        }
+
+        if (boxContinues && update.MessageBoxStartFrame is not null)
+            return "the cartridge opened a new message box while the game's was still open";
+        if (!boxContinues && update.MessageBoxStartFrame is null)
+            return "the game opened a message box; the cartridge opened none in this update";
+        int start = boxContinues ? update.SourceFrame : update.MessageBoxStartFrame!.Value;
+
+        // The cartridge's box returns on its last frame; frames of the update past it are hardware lag.
+        int limit = update.MessageBoxEndFrame is { } end ? end + 1 : update.EndSourceFrame;
+        int frame = start + 1;
+        for (; frame < limit && Session.Mode is MessageBoxMode; frame++)
+            Step(InputOf(file.ButtonsOn(frame), file.ButtonsOn(frame) & ~file.ButtonsOn(frame - 1)));
+
+        if (update.MessageBoxEndFrame is { } last)
+        {
+            if (Session.Mode is MessageBoxMode)
+                return $"the cartridge's message box closed on movie frame {last}; the game's is still open after it";
+            if (frame != last + 1)
+                return $"the cartridge's message box closed on movie frame {last}; the game's closed after movie frame {frame - 1}";
+            return null;
+        }
+
+        // A box that asks a question reads the controller in an update of its own, which follows.
+        if (Session.Mode is not MessageBoxMode)
+            return $"the cartridge's message box is open past movie frame {update.EndSourceFrame - 1}; the game's closed after movie frame {frame - 1}";
+        if (next is not { Kind: MovieUpdate.Continuation })
+            return "the cartridge's message box is open past this update, and the next is not an update that goes on inside it";
+        return null;
+    }
+
+    /// <summary>Prints the kinds of enemy the movie has met that are not compared yet, and returns whether there are any.</summary>
+    private static bool ReportUndecided(MovieCheck check)
+    {
+        if (check.UndecidedEnemyKinds.Count == 0)
+            return false;
+        Console.WriteLine($"NOT COMPARED: {check.UndecidedEnemyKinds.Count} kinds of enemy met in play are not decided in CartridgeEnemies.cs: " +
+            string.Join(" ", check.UndecidedEnemyKinds.Select(kind => $"${kind:X4}")));
+        return true;
     }
 }

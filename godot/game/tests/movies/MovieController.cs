@@ -4,11 +4,17 @@ using Engine.Input;
 namespace Game.Tests.Movies;
 
 /// <summary>
-/// The controller a recorded movie plays the game with: the cartridge's buttons the movie holds on an update, given to
-/// the game as a controller's buttons are. Each of the game's actions is down while a button bound to it is held, by
-/// the session's own options (<see cref="Options.ButtonsOf"/>), so a movie that changes its controls in the options
-/// plays by them, and a menu's confirming and cancelling come from the buttons the game binds them to.
+/// The controller a recorded movie plays the game with: the cartridge's buttons, given to the game as a controller's
+/// buttons are. Each of the game's actions is down while a button bound to it is held, by the session's own options
+/// (<see cref="Options.ButtonsOf"/>), so a movie that changes its controls in the options plays by them, and a menu's
+/// confirming and cancelling come from the buttons the game binds them to.
 /// </summary>
+/// <remarks>
+/// An update's input is made here from two of the cartridge's words, the buttons held and those of them it took as
+/// newly pressed (<see cref="InputOf"/>), and is given to the session directly (<see cref="GameSession.Step"/>). The
+/// movie says which buttons are new because the cartridge read its controller on frames the trace leaves out (a wait
+/// on its sound chip), so the update before does not always tell.
+/// </remarks>
 public sealed class MovieController : IInputSource
 {
     /// <summary>
@@ -42,16 +48,30 @@ public sealed class MovieController : IInputSource
         (_definition, _options) = (definition, options);
     }
 
-    /// <summary>The cartridge's buttons held now, as its controller word has them.</summary>
-    public int Held { get; set; }
+    /// <summary>The cartridge's buttons held now, as its controller word has them: what anything that reads the controller itself is given.</summary>
+    public int Held { get; private set; }
+
+    /// <summary>
+    /// The input of an update on which the cartridge's buttons <paramref name="held"/> are held, of which it took
+    /// <paramref name="pressed"/> as newly pressed: an action is newly pressed when it is down now and would not be
+    /// with the newly pressed buttons let go.
+    /// </summary>
+    public GameInput InputOf(int held, int pressed)
+    {
+        Held = held;
+        HashSet<GameAction> down = ActionsOf(held), before = ActionsOf(held & ~pressed);
+        return new GameInput(down, down.Where(action => !before.Contains(action)));
+    }
 
     /// <inheritdoc/>
-    public IReadOnlySet<GameAction> TakeActionsDown()
+    public IReadOnlySet<GameAction> TakeActionsDown() => ActionsOf(Held);
+
+    private HashSet<GameAction> ActionsOf(int buttons)
     {
         var held = new HashSet<string>(StringComparer.Ordinal);
         foreach ((int bit, string button) in Buttons)
         {
-            if ((Held & bit) != 0)
+            if ((buttons & bit) != 0)
                 held.Add(button);
         }
 

@@ -48,9 +48,18 @@ public sealed class ChangingPostureState : PlayerState
     public override FormAsked? EntersIn(Player owner) =>
         _form != Player.Crawling && owner.HalfHeightOf(_form) > owner.HalfHeight ? new FormAsked(_form) : null;
 
+    /// <summary>
+    /// Whether the player is in the air through the change: rising or falling as it began, until ground stops a fall
+    /// of theirs. One begun on the ground, or come down onto it, presses them to the ground on every update after,
+    /// ground or none: it does not notice the ground gone from under them, and they go down by the press alone.
+    /// </summary>
+    private bool _inAir;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        _inAir = _fallsInAir && !owner.IsAdrift && (owner.IsRising || !owner.Velocity.Y.IsZero || !owner.IsOnGround);
+
         // A smaller body is the player's at once, as they shrink into it; a taller one is theirs from their next
         // update, so that what meets them meanwhile meets the body they had.
         // A change of posture comes once the update's movement is made and is no move of the player's: once the form
@@ -78,14 +87,18 @@ public sealed class ChangingPostureState : PlayerState
     public override PlayerState? Move(Player owner)
     {
         owner.MoveAcross(byDashAlone: true);
-        if (_fallsInAir && !owner.IsAdrift && (owner.IsRising || !owner.IsOnGround))
+        if (_inAir)
         {
-            // A rise stopped by a ceiling keeps its speed for gravity to wear away; a fall stopped by ground is over.
+            // A rise stopped by a ceiling keeps its speed for gravity to wear away; a fall stopped by ground is over,
+            // and the player is on the ground from then on.
             owner.TurnAtTop();
             bool falling = !owner.Velocity.Y.IsNegative;
             MoveResult down = owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
             if (falling && down.Blocked)
+            {
                 owner.FallFromRest();
+                _inAir = false;
+            }
         }
         else
         {

@@ -138,7 +138,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         if (_settings.Timeline.Length > 0)
         {
             _timeline = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(Named(_settings.Timeline))));
-            _laid.Show(this, _timeline.Current.Lies);
             picture = _timeline.Current.Picture;
         }
 
@@ -165,17 +164,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         .Replace("{direction}", _direction, StringComparison.Ordinal)
         .Replace("{side}", Velocity.X.IsNegative ? "left" : "right", StringComparison.Ordinal);
 
-    /// <summary>Where the step it shows lies against the room's tiles, when the step or its timeline says.</summary>
-    private readonly LaidDepth _laid = new();
-
-    /// <summary>
-    /// Starts the projectile on another timeline, by its data file. It is drawn where each step it shows lies against
-    /// the room's tiles, or at its own depth where the step says nothing.
-    /// </summary>
+    /// <summary>Starts the projectile on another timeline, by its data file.</summary>
     protected void PlayTimeline(string file)
     {
         _timeline = new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(Named(file))));
-        _laid.Show(this, _timeline.Current.Lies);
         _visual?.Show(_timeline.Current);
     }
 
@@ -241,7 +233,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
             // The picture is that of the step this update fell in: it changes on the update the step's cues come.
             _visual?.Show(_timeline.Shown);
-            _laid.Show(this, _timeline.Shown.Lies);
         }
 
         // Shot down, it holds still and only meets what is where it lies.

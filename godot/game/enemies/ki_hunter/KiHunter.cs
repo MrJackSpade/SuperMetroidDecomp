@@ -320,6 +320,17 @@ public partial class KiHunter : Enemy
     /// </remarks>
     protected override void WhileHurt() => StepWings();
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Loose, its wings are no longer part of it and flutter on down while its body is frozen; on it they are frozen
+    /// with it.
+    /// </remarks>
+    protected override void WhileFrozen()
+    {
+        if (_wings is WingState.Circling or WingState.Sinking)
+            StepWings();
+    }
+
     /// <summary>Whether it is doing one of the things it does on the wing.</summary>
     private bool Flies => _doing is Doing.Patrolling or Doing.Swooping or Doing.Striking or Doing.Recovering;
 

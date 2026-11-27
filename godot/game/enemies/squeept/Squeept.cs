@@ -141,7 +141,15 @@ public partial class Squeept : Enemy
     /// <summary>
     /// While it is hurt its flame, a thing of its own on the cartridge, goes on: it draws its number and plays on.
     /// </summary>
-    protected override void WhileHurt()
+    protected override void WhileHurt() => FlameGoesOn();
+
+    /// <summary>
+    /// While it is frozen its flame, not frozen itself on the cartridge, goes on as through a hurt, unseen.
+    /// </summary>
+    protected override void WhileFrozen() => FlameGoesOn();
+
+    /// <summary>Its flame's own update while it does nothing: the flame draws its number and plays on.</summary>
+    private void FlameGoesOn()
     {
         Random.Draw();
         ShowFlame();

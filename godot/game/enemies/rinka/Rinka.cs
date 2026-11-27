@@ -140,6 +140,14 @@ public partial class Rinka : Enemy
             Vanish();
     }
 
+    /// <inheritdoc/>
+    /// <remarks>One frozen outside the window it flies in thaws at once, to fly on and be gone.</remarks>
+    protected override void WhileFrozen()
+    {
+        if (!IsInFlightWindow())
+            EndFreeze();
+    }
+
     /// <summary>
     /// Whether it is inside the window it flies in: the screen widened by its margin on every side, the far edges
     /// outside, and nothing above or left of the room.

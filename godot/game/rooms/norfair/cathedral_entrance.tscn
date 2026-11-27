@@ -1,22 +1,29 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/LavaBubbling.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/cathedral_entrance_in_heated_norfair.json"
 Screens = PackedInt32Array(1, 1, 1, 2, 2, 2)
 KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="CathedralEntrance" type="Node2D"]
 script = ExtResource("2")
@@ -55,7 +62,7 @@ Travel = 0
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
 
-[node name="Sova" parent="." instance=ExtResource("5")]
+[node name="Sova" parent="." instance=ExtResource("6")]
 position = Vector2(40, 256)
 DataFile = "enemies/sova.json"
 StartsOn = 3
@@ -63,7 +70,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1
 
-[node name="Sova2" parent="." instance=ExtResource("5")]
+[node name="Sova2" parent="." instance=ExtResource("6")]
 position = Vector2(24, 312)
 DataFile = "enemies/sova.json"
 StartsOn = 3
@@ -72,7 +79,7 @@ PressesUp = false
 CrawlSpeed = 1
 AlwaysActive = true
 
-[node name="Sova3" parent="." instance=ExtResource("5")]
+[node name="Sova3" parent="." instance=ExtResource("6")]
 position = Vector2(248, 152)
 DataFile = "enemies/sova.json"
 StartsOn = 0
@@ -80,7 +87,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 1
 
-[node name="Sova4" parent="." instance=ExtResource("5")]
+[node name="Sova4" parent="." instance=ExtResource("6")]
 position = Vector2(176, 216)
 DataFile = "enemies/sova.json"
 StartsOn = 0
@@ -88,65 +95,71 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 1
 
-[node name="Dessgeega" parent="." instance=ExtResource("6")]
+[node name="Dessgeega" parent="." instance=ExtResource("7")]
 position = Vector2(392, 415)
 DataFile = "enemies/dessgeega.json"
 OnCeiling = false
 
-[node name="Dessgeega2" parent="." instance=ExtResource("6")]
+[node name="Dessgeega2" parent="." instance=ExtResource("7")]
 position = Vector2(559, 414)
 DataFile = "enemies/dessgeega.json"
 OnCeiling = false
 
-[node name="RedCap" parent="." instance=ExtResource("7")]
+[node name="RedCap" parent="." instance=ExtResource("8")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "cathedral_entrance_red_door_facing_left"
 Remembered = 1
 
-[node name="BlueCap" parent="." instance=ExtResource("7")]
+[node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/lava.json"
 LowSurface = 464
 HighSurface = 464
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
+[node name="LavaBubbling" type="Node" parent="."]
+script = ExtResource("12")
+StartsWhen = SubResource("r2")
+Interval = 112
+Sounds = Array[String](["enemy_lava_bubbling_burst", "enemy_lava_bubbling_falling", "enemy_lava_bubbling_rising"])
+
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("13")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_cathedral_entrance.png"
 ScrollShare = Vector2(1, 1)

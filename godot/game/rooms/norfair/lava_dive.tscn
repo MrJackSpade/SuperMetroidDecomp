@@ -1,15 +1,17 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="7"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
+[ext_resource type="Script" path="res://game/rooms/LavaBubbling.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -17,6 +19,11 @@ LayoutFile = "rooms/norfair/lava_dive_in_heated_norfair.json"
 Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2)
 Music = "upper_norfair"
 MusicIsTheme = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="LavaDive" type="Node2D"]
 script = ExtResource("2")
@@ -55,7 +62,7 @@ Travel = 1
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
 
-[node name="Namihe" parent="." instance=ExtResource("5")]
+[node name="Namihe" parent="." instance=ExtResource("6")]
 position = Vector2(496, 264)
 DataFile = "enemies/namihe.json"
 StartsFacing = 0
@@ -63,7 +70,7 @@ CooldownUpdates = 0
 LevelDistance = 128
 LaunchSpeed = 1.5
 
-[node name="Namihe2" parent="." instance=ExtResource("5")]
+[node name="Namihe2" parent="." instance=ExtResource("6")]
 position = Vector2(288, 464)
 DataFile = "enemies/namihe.json"
 StartsFacing = 1
@@ -71,7 +78,7 @@ CooldownUpdates = 0
 LevelDistance = 128
 LaunchSpeed = 1.5
 
-[node name="Namihe3" parent="." instance=ExtResource("5")]
+[node name="Namihe3" parent="." instance=ExtResource("6")]
 position = Vector2(288, 584)
 DataFile = "enemies/namihe.json"
 StartsFacing = 1
@@ -79,7 +86,7 @@ CooldownUpdates = 0
 LevelDistance = 128
 LaunchSpeed = 1.5
 
-[node name="Namihe4" parent="." instance=ExtResource("5")]
+[node name="Namihe4" parent="." instance=ExtResource("6")]
 position = Vector2(639, 568)
 DataFile = "enemies/namihe.json"
 StartsFacing = 0
@@ -87,7 +94,7 @@ CooldownUpdates = 0
 LevelDistance = 128
 LaunchSpeed = 1.5
 
-[node name="Namihe5" parent="." instance=ExtResource("5")]
+[node name="Namihe5" parent="." instance=ExtResource("6")]
 position = Vector2(912, 280)
 DataFile = "enemies/namihe.json"
 StartsFacing = 0
@@ -95,7 +102,7 @@ CooldownUpdates = 0
 LevelDistance = 128
 LaunchSpeed = 1.5
 
-[node name="Namihe6" parent="." instance=ExtResource("5")]
+[node name="Namihe6" parent="." instance=ExtResource("6")]
 position = Vector2(832, 408)
 DataFile = "enemies/namihe.json"
 StartsFacing = 0
@@ -103,53 +110,59 @@ CooldownUpdates = 0
 LevelDistance = 128
 LaunchSpeed = 1.5
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
+[node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="BlueCap2" parent="." instance=ExtResource("6")]
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(0, 0)
 TypeFile = "liquids/lava.json"
 LowSurface = 208
 HighSurface = 208
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
+[node name="LavaBubbling" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r2")
+Interval = 112
+Sounds = Array[String](["enemy_lava_bubbling_burst", "enemy_lava_bubbling_falling", "enemy_lava_bubbling_rising"])
+
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_small_pattern_brown_purple.png"
 ScrollShare = Vector2(0.75, 0.75)

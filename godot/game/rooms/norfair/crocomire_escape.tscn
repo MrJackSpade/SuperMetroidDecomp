@@ -1,19 +1,21 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/dragon/dragon.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="12"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/dragon/dragon.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="14"]
+[ext_resource type="Script" path="res://game/rooms/LavaBubbling.cs" id="15"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="16"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -21,6 +23,11 @@ LayoutFile = "rooms/norfair/crocomire_escape_in_heated_norfair.json"
 Screens = PackedInt32Array(1, 1, 1, 1, 2, 2, 2, 2)
 ScrollLayout = "CrocomireEscape"
 KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="CrocomireEscape" type="Node2D"]
 script = ExtResource("2")
@@ -59,92 +66,98 @@ Travel = 0
 ToScreen = Vector2i(12, 0)
 SamusStep = 0.78125
 
-[node name="Dragon" parent="." instance=ExtResource("5")]
+[node name="Dragon" parent="." instance=ExtResource("6")]
 position = Vector2(896, 488)
 Look = "crocomire_escape"
 
-[node name="Geruta" parent="." instance=ExtResource("6")]
+[node name="Geruta" parent="." instance=ExtResource("7")]
 position = Vector2(918, 127)
 DataFile = "enemies/geruta.json"
 
-[node name="Dragon2" parent="." instance=ExtResource("5")]
+[node name="Dragon2" parent="." instance=ExtResource("6")]
 position = Vector2(704, 488)
 Look = "crocomire_escape"
 
-[node name="Dragon3" parent="." instance=ExtResource("5")]
+[node name="Dragon3" parent="." instance=ExtResource("6")]
 position = Vector2(512, 488)
 Look = "crocomire_escape"
 
-[node name="Dragon4" parent="." instance=ExtResource("5")]
+[node name="Dragon4" parent="." instance=ExtResource("6")]
 position = Vector2(320, 488)
 Look = "crocomire_escape"
 
-[node name="Dragon5" parent="." instance=ExtResource("5")]
+[node name="Dragon5" parent="." instance=ExtResource("6")]
 position = Vector2(128, 488)
 Look = "crocomire_escape"
 
-[node name="Gate" parent="." instance=ExtResource("7")]
+[node name="Gate" parent="." instance=ExtResource("8")]
 position = Vector2(96, 80)
 
-[node name="GateSwitch" parent="." instance=ExtResource("8")]
+[node name="GateSwitch" parent="." instance=ExtResource("9")]
 position = Vector2(96, 80)
 DataFile = "objects/gate_switch_green_right.json"
 ComesBack = 3
 TellsWhat = "toggle"
 TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
 
-[node name="MissileTank" parent="." instance=ExtResource("9")]
+[node name="MissileTank" parent="." instance=ExtResource("10")]
 position = Vector2(216, 152)
 TypeFile = "items/missile_tank.json"
 RememberedAs = "crocomire_escape_exposed_missile_tank"
 
-[node name="BlueCap" parent="." instance=ExtResource("10")]
+[node name="BlueCap" parent="." instance=ExtResource("11")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="BlueCap2" parent="." instance=ExtResource("10")]
+[node name="BlueCap2" parent="." instance=ExtResource("11")]
 position = Vector2(992, 352)
 DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 TypeFile = "liquids/lava.json"
 LowSurface = 440
 HighSurface = 440
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
+[node name="LavaBubbling" type="Node" parent="."]
+script = ExtResource("15")
+StartsWhen = SubResource("r2")
+Interval = 112
+Sounds = Array[String](["enemy_lava_bubbling_burst", "enemy_lava_bubbling_falling", "enemy_lava_bubbling_rising"])
+
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("16")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_crocomire_escape.png"
 ScrollShare = Vector2(0.75, 1)

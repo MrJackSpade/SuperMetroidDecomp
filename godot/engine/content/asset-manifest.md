@@ -205,7 +205,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `objects/escape_dachora.json` | `EscapeDachora` |  |
 | `objects/escape_etecoon.json` | `EscapeEtecoon` |  |
 | `objects/etecoon.json` | `Etecoon` | jump_sound, wake_sound, wall_sound |
-| `objects/gate.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
+| `objects/gate.json` | `Gate` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/gate_switch_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/gate_switch_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/gate_switch_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |

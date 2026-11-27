@@ -158,6 +158,7 @@ public sealed partial class EngineAssetWriter
             .Value("fastest_fall_mark", EngineNames.Marks(OumMotionDefinitions.FastestFallPlace))
             .Value("impact_loss_marks", EngineNames.Marks(OumMotionDefinitions.ImpactCurveLoss))
             .Value("roll_speed", OumMotionDefinitions.RollSpeed.WholePixels)
+            .Value("push_reach", OumMotionDefinitions.PushReach.WholePixels)
             .Value("shove_distance", OumMotionDefinitions.ShoveDistance)
             .Looks(OumAnimations.Segments, OumAnimations.StartingWith,
                 static (OumCue cue) => cue.Kind switch

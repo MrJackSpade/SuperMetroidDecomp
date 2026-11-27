@@ -83,8 +83,9 @@ public partial class FallingSpark : Projectile, IHasValues
                 Velocity = Velocity.WithY(faster);
         }
 
-        // Its trail is timed by the short count, which a door's scroll starts over, as the old game's sparks are.
+        // Its trail is timed by the short count, which a door's scroll starts over, as the old game's sparks are, and
+        // is left where this update's move takes it.
         if (TrailEffect.Length > 0 && room.Session.Clock.ShortUpdates % TrailEvery == 0)
-            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(TrailEffect)), Position));
+            room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(TrailEffect)), Position + Velocity.OverOneUpdate));
     }
 }

@@ -247,7 +247,7 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
                     _heading = parts[2] == "left" ? Facing.Left : Facing.Right;
                 break;
             case "start_active":
-                Play(Sided("active", TowardPlayer), restart: true);
+                Play(Sided("active", FacingSamus), restart: true);
                 break;
             case "reset_spin":
                 _spinSpeed = Pixels.Zero;
@@ -278,7 +278,7 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
                 if (Math.Abs(Position.X.Whole - Target.X.Whole) >= ActivationDistance)
                     Flinches();
                 else
-                    Play(Sided("active", TowardPlayer), restart: true);
+                    Play(Sided("active", FacingSamus), restart: true);
                 return;
 
             case Doing.Active:
@@ -379,6 +379,9 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
     /// <summary>The name of one of its timelines for a side.</summary>
     private static string Sided(string timeline, Facing side) => side == Facing.Left ? $"{timeline}_left" : $"{timeline}_right";
 
+    /// <summary>The way it turns to face Samus: right only while her whole pixel lies right of its own, as on the cartridge.</summary>
+    private Facing FacingSamus => Position.X.Whole < Target.X.Whole ? Facing.Right : Facing.Left;
+
     /// <summary>
     /// Flinches, facing Samus, if the shot it watches has come near; returns whether it did. It watches one shot: the
     /// one still flying in the highest of her shots' places that holds one, and no other when that one is far off.
@@ -391,16 +394,16 @@ public partial class NinjaPirate : SpacePirate, ITurnsShots
             return false;
         }
 
-        Play(Sided("flinch", TowardPlayer), restart: true);
+        Play(Sided("flinch", FacingSamus), restart: true);
         return true;
     }
 
-    /// <summary>Kicks, facing Samus, if she is close; returns whether it did.</summary>
+    /// <summary>Kicks, facing Samus, if she is close by whole pixels; returns whether it did.</summary>
     private bool Kicks()
     {
-        if (!PlayerIsWithin(KickDistance, KickDistance))
+        if (Math.Abs(Target.X.Whole - Position.X.Whole) >= KickDistance || Math.Abs(Target.Y.Whole - Position.Y.Whole) >= KickDistance)
             return false;
-        Play(Sided("kick", TowardPlayer), restart: true);
+        Play(Sided("kick", FacingSamus), restart: true);
         return true;
     }
 

@@ -195,6 +195,24 @@ public partial class Swooper : Enemy
         ShowFlames();
     }
 
+    /// <summary>
+    /// While its body holds still hurt, its flames, an enemy of their own on the cartridge, go on: they draw their
+    /// number and play on.
+    /// </summary>
+    protected override void WhileHurt()
+    {
+        Random.Next();
+        ShowFlames();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnStatusBegan(string status)
+    {
+        // Its flames are not shown while it is frozen.
+        if (IsFrozen)
+            Flames?.SetShown(false);
+    }
+
     /// <summary>Starts the climb back to the perch.</summary>
     private void BeginClimb()
     {
@@ -210,7 +228,7 @@ public partial class Swooper : Enemy
         ActorVisual? flames = Flames;
         if (flames is null)
             return;
-        bool shown = _flames is not null && Playing != "idle";
+        bool shown = _flames is not null && Playing != "idle" && !IsFrozen;
         flames.SetShown(shown);
         if (!shown || _flames is null)
             return;

@@ -59,8 +59,10 @@ public partial class Tripper : Enemy
         int beforeX = Position.X.Whole;
         if (MoveAcrossBy(Facing.Toward(Pixels.FromNumber(Speed))))
         {
+            // A wall turns it and starts its still picture the other way, but it still counts as showing what it
+            // showed: a rise under way goes on showing the still picture until it ends, as on the cartridge.
             Facing = Facing.Opposite();
-            Show(moving: false, restart: true);
+            Play(Facing == Facing.Left ? "still_left" : "still_right", restart: true);
         }
 
         int top = FastestMark * SpeedCurve.PartsPerMark;
@@ -71,7 +73,7 @@ public partial class Tripper : Enemy
             if (MoveDownBy(curve.SpeedAt(_place)))
             {
                 _place = 0;
-                Show(moving: false, restart: false);
+                Show(moving: false);
             }
 
             // Its rider goes where it went, by whole pixels.
@@ -80,16 +82,16 @@ public partial class Tripper : Enemy
         else if (Position.Y.Whole < _restsAt)
         {
             _place = 0;
-            Show(moving: false, restart: false);
+            Show(moving: false);
         }
         else
         {
-            Show(moving: true, restart: false);
+            Show(moving: true);
             _place = Math.Min(_place + SpeedCurve.PartsPerMark, top);
             if (MoveDownBy(-curve.SpeedAt(_place)))
             {
                 _place = 0;
-                Show(moving: false, restart: false);
+                Show(moving: false);
             }
         }
 
@@ -98,10 +100,10 @@ public partial class Tripper : Enemy
         _wasSinking = sinking;
     }
 
-    /// <summary>Shows it heading the way it faces, moving up or down or not.</summary>
-    private void Show(bool moving, bool restart)
+    /// <summary>Shows it heading the way it faces, moving up or down or not, unless it already counts as showing that.</summary>
+    private void Show(bool moving)
     {
-        if (!restart && moving == _showsMoving)
+        if (moving == _showsMoving)
             return;
         _showsMoving = moving;
         Play($"{(moving ? "moving" : "still")}_{(Facing == Facing.Left ? "left" : "right")}", restart: true);

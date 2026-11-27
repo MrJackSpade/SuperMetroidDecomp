@@ -38,6 +38,9 @@ public partial class Gamet : Enemy
     [Export, DataValue("rise_speed")]
     public int RiseSpeed { get; set; } = 1;
 
+    /// <summary>How many come out together, the leader with them.</summary>
+    private const int FormationSize = 5;
+
     private enum Doing
     {
         InPipe,
@@ -60,6 +63,7 @@ public partial class Gamet : Enemy
     protected override void OnEnterRoom()
     {
         _pipe = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
+        _departsIn = DepartureWait;
         Play("rising_left");
         Visual?.SetShown(false);
     }
@@ -70,16 +74,19 @@ public partial class Gamet : Enemy
         switch (_doing)
         {
             case Doing.InPipe:
-                // Only the leader moves the five on, and only once every one of them is back in the pipe.
-                if (Leader.IsEmpty && Five().All(member => member.IsInPipe))
+                // Only the leader moves the five on, and only once every one of them is back in the pipe: one killed
+                // holds the rest back until it is there again.
+                List<Gamet> five = [.. Five()];
+                if (Leader.IsEmpty && five.Count == FormationSize && five.All(member => member.IsInPipe))
                     _doing = Doing.WaitingForSamus;
                 break;
 
             case Doing.WaitingForSamus:
                 if (Math.Abs(Position.X.Whole - Target.X.Whole) < TriggerWidth && Position.Y.Whole >= Target.Y.Whole)
                 {
+                    // One killed since they were all back has nothing to come out.
                     bool right = Target.X.Whole >= Position.X.Whole;
-                    foreach (Gamet member in Five())
+                    foreach (Gamet member in Five().Where(member => !member.IsDead))
                         member.ComeOut(right);
                     Tick();
                 }
@@ -134,12 +141,12 @@ public partial class Gamet : Enemy
                 throw new InvalidOperationException($"Undefined Gamet stage {_doing}.");
         }
 
-        // Out of view, it is back in the pipe.
+        // Out of view, it is back in the pipe, keeping its parts of a pixel and how near it had come to flying off.
         if (IsInView(0))
             return;
         Visual?.SetShown(false);
         _doing = Doing.InPipe;
-        Position = _pipe;
+        Position = new PixelPosition(Pixels.FromParts(_pipe.X.Whole, Position.X.Fraction), Pixels.FromParts(_pipe.Y.Whole, Position.Y.Fraction));
     }
 
     /// <summary>Sets it rising out of the pipe, facing right or left.</summary>
@@ -147,7 +154,6 @@ public partial class Gamet : Enemy
     {
         Play(right ? "rising_right" : "rising_left", restart: true);
         _doing = Doing.Rising;
-        _departsIn = DepartureWait;
     }
 
     /// <summary>Counts one update toward flying off.</summary>

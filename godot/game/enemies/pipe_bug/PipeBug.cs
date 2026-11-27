@@ -90,8 +90,10 @@ public partial class PipeBug : Enemy
 
             case Doing.Flying:
                 Position += PixelOffset.FromWhole(Facing == Facing.Left ? -FlightStep : FlightStep, 0);
+                // It flies on until its middle has passed the view's right edge, or its body has wholly passed the left.
                 PixelRect view = Room.Session.Camera.View;
-                if (Position.X.Whole >= view.Left && Position.X.Whole < view.Left + view.Width)
+                int x = Position.X.Whole;
+                if (x >= 0 && x + BodyHalfWidth >= view.Left && x < view.Left + view.Width)
                     return;
                 // Back in its pipe, the fine part of its height takes the number of its height in pixels.
                 Position = new PixelPosition(_pipe.X, Pixels.FromParts(_pipe.Y.Whole, _pipe.Y.Whole % Pixels.FractionsPerPixel));

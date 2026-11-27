@@ -12,8 +12,8 @@ namespace Game.Enemies;
 
 /// <summary>
 /// An Oum: a great snail in a boulder of a shell. Dropped into the room it bounces to rest, and when Samus comes close
-/// it rolls, back and forth between walls. She can stand on it and be carried, lean on it to stop it, or be pushed
-/// along ahead of it. Now and then, when she is near, it turns to her and lunges out of its shell on a jet, which is
+/// it rolls, back and forth between walls. She can stand on it and ride its bounces, lean on it to stop it, or be
+/// pushed along ahead of it. Now and then, when she is near, it turns to her and lunges out of its shell on a jet, which is
 /// the only time its touch hurts.
 /// </summary>
 /// <remarks>
@@ -65,6 +65,10 @@ public partial class Oum : Enemy
     [Export, DataValue("roll_speed")]
     public int RollSpeed { get; set; } = 1;
 
+    /// <summary>How much further ahead, in pixels, it feels for a wall while it rolls toward Samus near it.</summary>
+    [Export, DataValue("push_reach")]
+    public int PushReach { get; set; } = 16;
+
     /// <summary>How far its touch shoves Samus aside, in pixels.</summary>
     [Export, DataValue("shove_distance")]
     public int ShoveDistance { get; set; } = 4;
@@ -92,6 +96,13 @@ public partial class Oum : Enemy
     private bool _mayAttack;
     private bool _stopped;
     private ColliderPoses? _poses;
+
+    /// <summary>
+    /// Whether it still shows the left-facing idle it is placed with, which counts as its right-facing one: as on the
+    /// cartridge, asking for the right-facing idle then changes nothing, and the first other timeline it starts, the
+    /// left-facing idle too, starts from the beginning.
+    /// </summary>
+    private bool _showsPlacedIdle;
 
     /// <summary>What each of its parts does with a shot and with Samus's touch, by its pose and the part's name.</summary>
     private readonly Dictionary<(string Pose, string Part), (string Shot, string Touch)> _parts = [];
@@ -127,6 +138,22 @@ public partial class Oum : Enemy
         _cooldown = Countdown.Of(AttackCooldown);
         _bouncesLeft = SettlingBounces;
         Play("idle_left");
+        _showsPlacedIdle = true;
+    }
+
+    /// <summary>Starts the timeline named <paramref name="name"/> unless it is the one showing, or its placed idle stands for it.</summary>
+    private void Start(string name)
+    {
+        if (!_showsPlacedIdle)
+        {
+            Play(name);
+            return;
+        }
+
+        if (name == "idle_right")
+            return;
+        _showsPlacedIdle = false;
+        Play(name, restart: true);
     }
 
     /// <summary>What the part of it a shot or Samus has met does, in the pose it is in.</summary>
@@ -157,6 +184,13 @@ public partial class Oum : Enemy
         if (hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]))
             return HitResult.Dud;
         return base.TakeHit(hit, part);
+    }
+
+    /// <summary>A beam, missile, super missile or bomb its soft part takes no harm from is answered with a dud's sound of its own besides.</summary>
+    protected override void OnAbsorbed(Hit hit, Collider part)
+    {
+        if (hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.Bomb)]))
+            Sound(Sounds.ShotDeflected);
     }
 
     /// <inheritdoc/>
@@ -215,7 +249,7 @@ public partial class Oum : Enemy
                 Facing = samusSide;
                 if (Facing == Facing.Left)
                     _heading = Facing.Left;
-                Play(Facing == Facing.Left ? "idle_left" : "idle_right");
+                Start(Facing == Facing.Left ? "idle_left" : "idle_right");
                 if (Math.Abs(Target.X.Whole - Position.X.Whole) >= PushingReachAcross)
                     break;
                 StartRolling();
@@ -242,21 +276,16 @@ public partial class Oum : Enemy
                     _heading = samusSide;
                     _cooldown = Countdown.Of(AttackCooldown);
                     Facing = _heading;
-                    Play(Facing == Facing.Left ? "attack_left" : "attack_right", restart: true);
+                    Start(Facing == Facing.Left ? "attack_left" : "attack_right");
                     _doing = Doing.Attacking;
                     break;
                 }
 
-                var roll = PixelOffset.FromWhole(_heading == Facing.Left ? -RollSpeed : RollSpeed, 0);
-                if (Blocked(roll))
+                if (Roll(near ? samusSide : default(Facing?)))
                 {
                     _heading = _heading.Opposite();
                     _rollsBackward = !_rollsBackward;
-                    Play(RollTimeline, restart: true);
-                }
-                else
-                {
-                    MoveCarrying(roll);
+                    Start(RollTimeline);
                 }
 
                 break;
@@ -274,8 +303,15 @@ public partial class Oum : Enemy
 
         if (!near)
             return;
-        // Samus leaning against the way it rolls stops it for the next update, and puts it back where it was.
+
+        // Samus near it on the side it moved toward is pushed along as far as it moved; one standing on it is too
+        // high to be pushed so, and is not carried across.
         int moved = Position.X.Whole - beforeX;
+        if (moved != 0 && (moved < 0) == (samusSide == Facing.Left))
+            ShiftPlayer(PixelOffset.FromWhole(moved, 0));
+
+        // Samus leaning against the way it rolls stops it for the next update, and puts it back where it was, though
+        // she stays where it pushed her.
         GameInput input = Room.Player.Input;
         bool leans = moved == 0
             ? samusSide == _heading && input.IsHeld(_heading == Facing.Left ? GameAction.Right : GameAction.Left)
@@ -283,8 +319,7 @@ public partial class Oum : Enemy
         if (!leans)
             return;
         _stopped = true;
-        if (moved != 0)
-            MoveCarrying(PixelOffset.FromWhole(-moved, 0));
+        Position -= PixelOffset.FromWhole(moved, 0);
     }
 
     /// <summary>The name of its rolling timeline for the way it faces and rolls.</summary>
@@ -294,13 +329,22 @@ public partial class Oum : Enemy
     private void StartRolling()
     {
         _rollsBackward = false;
-        Play(RollTimeline);
+        Start(RollTimeline);
         _doing = Doing.Rolling;
     }
 
-    /// <summary>Whether terrain stops its shell moving by <paramref name="offset"/>.</summary>
-    private bool Blocked(PixelOffset offset) =>
-        Solid is { } shell && Room.Terrain.IsSolidIn(shell.RoomRect.MovedBy(offset.X.Whole, offset.Y.Whole), SlopeTreatment.Wall);
+    /// <summary>
+    /// Rolls one update the way it heads, carrying no one, and returns whether a wall stopped it, which leaves it
+    /// against the wall. Rolling toward Samus near it, it feels for a wall as much further ahead as its push reach and
+    /// draws back by as much after, as the cartridge does: a wall that near turns it, and it ends that far short of it.
+    /// </summary>
+    private bool Roll(Facing? pushSide)
+    {
+        Pixels reach = Pixels.FromWhole(_heading == pushSide ? PushReach : 0);
+        bool blocked = MoveAcrossBy(_heading.Toward(Pixels.FromWhole(RollSpeed) + reach));
+        Position -= new PixelOffset(_heading.Toward(reach), Pixels.Zero);
+        return blocked;
+    }
 
     /// <summary>Moves one update of a bounce: falling until it lands, each landing weaker, and rising between.</summary>
     private void Bounce()

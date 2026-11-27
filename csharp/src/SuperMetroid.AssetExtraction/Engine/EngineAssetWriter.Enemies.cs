@@ -160,7 +160,8 @@ public sealed partial class EngineAssetWriter
         foreach ((string name, PuyoHopType type) in new[]
                  {
                      ("small", PuyoHopType.NormalSmall), ("big", PuyoHopType.NormalBig), ("long", PuyoHopType.NormalLong), ("giant", PuyoHopType.Giant),
-                     ("dropping", PuyoHopType.Dropping), ("dropped_small", PuyoHopType.DroppedSmall), ("dropped_big", PuyoHopType.DroppedBig),
+                     // A drop falls at the speed of the hop it cut short, so the drop itself is no hop of its own here.
+                     ("dropped_small", PuyoHopType.DroppedSmall), ("dropped_big", PuyoHopType.DroppedBig),
                  })
         {
             PuyoHopDefinition hop = PuyoHopDefinitions.Hops[type];

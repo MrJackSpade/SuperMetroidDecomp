@@ -135,11 +135,17 @@ public partial class WalkingPirate : SpacePirate
         }
 
         // It settles a pixel toward the floor each update, and walks only once it stands on it.
-        if (!MoveDownBy(Pixels.FromWhole(1)) || Body is not { } body)
+        if (!MoveDownBy(Pixels.FromWhole(1)))
             return;
-        // Left and right are not mirrors in the old game: each way has its own reach for a ledge and its own step.
+
+        // Left and right are not mirrors in the old game: each way has its own reach for a ledge and its own step. It
+        // feels for the floor ahead by moving a pixel down where it would stand there, and back across: with no floor
+        // there, it keeps that pixel, as on the cartridge.
         bool left = Facing == Facing.Left;
-        bool floorAhead = Room.Terrain.IsSolidIn(body.RoomRect.MovedBy(left ? -LedgeReachLeft : LedgeReachRight, 1), SlopeTreatment.Wall);
+        Pixels here = Position.X;
+        Position = new PixelPosition(here + Pixels.FromWhole(left ? -LedgeReachLeft : LedgeReachRight), Position.Y);
+        bool floorAhead = MoveDownBy(Pixels.FromWhole(1));
+        Position = new PixelPosition(here, Position.Y);
         if (floorAhead && !MoveAcrossBy(left ? -Pixels.FromNumber(WalkSpeedLeft) : Pixels.FromNumber(WalkSpeedRight)))
         {
             bool withinBeat = left ? Position.X.Whole >= _leftPost : Position.X.Whole < _rightPost;

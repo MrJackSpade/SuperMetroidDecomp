@@ -12,12 +12,16 @@ public sealed class RunningState : PlayerState
     /// <summary>Whether the player had any speed of their own as this update's input was asked.</summary>
     private bool _hadSpeed;
 
+    /// <summary>Where the player aimed as this update's input was asked.</summary>
+    private Shared.Aim _aimed;
+
     /// <inheritdoc/>
     public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing);
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
+        _aimed = owner.Aim;
         owner.AimFromInput();
         _hadSpeed = !owner.Velocity.X.IsZero;
         if (owner.CanCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
@@ -49,8 +53,9 @@ public sealed class RunningState : PlayerState
     }
 
     /// <summary>
-    /// With nothing asked of them, a runner who had speed stays running: the dash's speed is added into their own and
-    /// lost, their momentum ends, and they slow, unsteered, until at rest. One who had none stands.
+    /// With nothing asked of them, a runner who had speed stays running as they were, aiming as they aimed: the
+    /// dash's speed is added into their own and lost, their momentum ends, and they slow, unsteered, until at rest.
+    /// One who had none stands.
     /// </summary>
     public override PlayerState? Unasked(Player owner)
     {
@@ -61,6 +66,7 @@ public sealed class RunningState : PlayerState
             return new StandingState();
         }
 
+        owner.Aim = _aimed;
         if (owner.Velocity.X.IsZero)
         {
             owner.Steering = Steering.Steered;

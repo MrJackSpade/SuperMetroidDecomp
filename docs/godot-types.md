@@ -941,7 +941,7 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   rest. States that throw the player about (a knockback, a push, a script) set `Velocity` outright.
 - **Standing** keeps no speed: each update a dash's speed alone still carries the player, and then everything across
   is at rest. **Running** builds the dash while its action is held. A runner whose input asks for nothing still moves
-  that update at full speed; then, if they had speed, they stay running, the dash is folded into their speed, their
+  that update at full speed; then, if they had speed, they stay running, aiming as they aimed, the dash is folded into their speed, their
   momentum ends, and they slow, unsteered, each update, even if steered again, until past rest; they then gain one
   step and stand. A runner who lets the direction go but still aims stands at once. A runner stopped by a wall
   stands. **Turning** on the ground faces the new way from its first update and reverses by the turn's own move

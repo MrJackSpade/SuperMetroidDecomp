@@ -45,7 +45,7 @@ public partial class StandInDefinition : GameDefinition
     public override GameMode CreateModeForNewGame() => new PlayingMode();
 
     /// <inheritdoc/>
-    public override GameMode CreateDeathMode(PlayingMode playing) => new LoadingMode();
+    public override GameMode CreateDeathMode(PlayingMode playing) => new StandInLoading();
 
     /// <inheritdoc/>
     public override bool RemainsLeaveDrop(int place) => true;

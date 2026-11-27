@@ -7,8 +7,7 @@ namespace Game.Menus;
 /// <summary>
 /// The update a game is loaded on, as the cartridge spends one in black: the update's random number is drawn, then
 /// the game is set up and play is made, its room with it. Play does not begin at once: what is made is laid under
-/// an <see cref="Arrival"/>, which holds the black and then brings play up. It takes the place of the engine's
-/// <see cref="LoadingMode"/> wherever this game starts play.
+/// an <see cref="Arrival"/>, which holds the black and then brings play up.
 /// </summary>
 public partial class GameLoad : GameMode
 {

@@ -101,9 +101,13 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         owner.Velocity = PixelVelocity.Zero;
         samus.SpendChargeOnShinespark();
 
-        // The lift moves her as she is, whatever is above her, as the cartridge's does.
+        // The lift moves her as she is, whatever is above her, as the cartridge's does, and the view takes her to
+        // have stood where it leaves her: it is not a rise of hers for the view to follow.
         if (_lifted)
+        {
             owner.Position += PixelOffset.FromWhole(0, -samus.ShinesparkLift);
+            owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);
+        }
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         samus.BoostFully();
         samus.BeginSparkColouring();

@@ -1103,10 +1103,12 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Shows a change of colours on the room's own pictures, its terrain and its backdrops, at once, in place of
-    /// whatever <paramref name="source"/> last asked for there: what something does to the room's colours in its own
-    /// turn, or as the room is set up, shown on the update it is done. <see cref="ColourChange.None"/> takes back
-    /// what the source asked for.
+    /// Shows a change of colours on the room's own pictures, its terrain, its backdrops and the visuals of the
+    /// objects that are in it now, at once, in place of whatever <paramref name="source"/> last asked for there: what
+    /// something does to the room's colours in its own turn, or as the room is set up, shown on the update it is
+    /// done. <see cref="ColourChange.None"/> takes back what the source asked for. An object shows the colours
+    /// written for the places its pictures are from, so one drawn with nothing of the room's is left as it is; one
+    /// that joins the room afterwards is shown the next change asked for, not this one.
     /// </summary>
     public void Recolour(string source, ColourChange change)
     {
@@ -1114,6 +1116,11 @@ public partial class Room : Node2D
         change.ShowOn(Terrain, source);
         foreach (Backdrop backdrop in _backdrops)
             change.ShowOn(backdrop, source);
+        foreach (RoomObject thing in _objects)
+        {
+            foreach (Actors.Components.ActorVisual visual in thing.GetChildren().OfType<Actors.Components.ActorVisual>())
+                change.ShowOn(visual, source);
+        }
     }
 
     /// <summary>

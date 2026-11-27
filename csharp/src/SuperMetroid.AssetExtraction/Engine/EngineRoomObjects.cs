@@ -23,17 +23,16 @@ internal sealed partial class EngineRoomObjects
     private readonly string _content;
     private readonly IReadOnlyList<string> _graphicsSets;
     private readonly Dictionary<string, Dictionary<string, JsonArray>> _frames = new(StringComparer.Ordinal);
-    private readonly SortedSet<string> _folders = new(StringComparer.Ordinal);
-    private readonly SortedSet<string> _withSprites = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// The folders pictures have been written under so far, each holding a folder for every set of graphics: what is
-    /// drawn with a room's own blocks, and so shows a change of the room's colours as the set's blocks show it. A
-    /// folder that holds a picture with one of the cartridge's sprites drawn into it is left out, as a gate's is for
-    /// its column: a sprite's colours are not the room's, and a change written for the blocks' colours would reach
-    /// any of the sprite's pixels that happen to be of the same colour.
+    /// The folders of the pictures of what the Godot game places in a room as an object of the room and draws with
+    /// the set's own blocks alone: a door's cap, an item, its shell, a station. Each holds a folder for every set of
+    /// graphics. Their pictures are of the set's sheet, so a change of a room's colours is written for them with the
+    /// colours it has for the set's blocks, and the Godot game shows it on them. None of them may hold a picture with
+    /// one of the cartridge's sprites drawn into it, as a gate's folder does for its column: a sprite's colours are
+    /// not the room's, and a change written for the blocks would reach any of its pixels of the same colour.
     /// </summary>
-    internal IReadOnlyCollection<string> Folders => [.. _folders.Except(_withSprites)];
+    internal static readonly IReadOnlyList<string> FoldersShownRoomColours = ["items", "objects/door_cap", "objects/item_shell", "objects/station"];
 
     /// <summary>The room objects' pictures of the installation at <paramref name="content"/>, for the sets of graphics <paramref name="graphicsSets"/>.</summary>
     internal EngineRoomObjects(EngineAssetTree tree, EngineSheets sheets, string content, IReadOnlyList<string> graphicsSets)
@@ -162,7 +161,6 @@ internal sealed partial class EngineRoomObjects
     {
         const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
         name = EngineSheets.FileName(name);
-        _folders.Add(folder);
         bool written = false;
         foreach (string graphicsSet in _graphicsSets)
         {
@@ -256,7 +254,8 @@ internal sealed partial class EngineRoomObjects
         int overTop = (over?.Top ?? 0) + EngineSheets.LayersRowAbove;
         int height = Math.Max(rows * Block, over is null ? 0 : overTop + over.Value.Height);
         name = EngineSheets.FileName(name ?? frame);
-        (over is null ? _folders : _withSprites).Add(folder);
+        if (over is not null && FoldersShownRoomColours.Contains(folder))
+            throw new InvalidDataException($"The room object frame {frame} has one of the cartridge's sprites drawn into it and lies in {folder}, whose pictures are shown the room's changes of colour as its blocks are.");
         foreach (string graphicsSet in _graphicsSets)
         {
             string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";

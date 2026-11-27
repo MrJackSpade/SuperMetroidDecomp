@@ -1349,6 +1349,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// </summary>
     private State<Player> Admit(State<Player> asked)
     {
+        // A knockback that arrives while a throw is under way does not begin again: the throw takes its way and its
+        // time and goes on as it was, and the player stays in the state they are in.
+        if (asked is KnockedBackState renewing && Thrown is { } under)
+        {
+            renewing.Renew(this, under);
+            return States.Current;
+        }
+
         // The low form is not knocked back into a state of the knockback's: it is thrown as it is, in its own state,
         // which goes on being asked its input while the throw moves it.
         if (asked is KnockedBackState knockback && Form == Crawling)

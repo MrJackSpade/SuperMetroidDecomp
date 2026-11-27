@@ -16,7 +16,7 @@ namespace Engine.Actors;
 public sealed class Throw
 {
     /// <summary>The way the player is thrown.</summary>
-    private readonly Facing _toward;
+    private Facing _toward;
 
     /// <summary>Whether the throw is kept low: pressed down to the ground instead of rising.</summary>
     private readonly bool _low;
@@ -37,6 +37,16 @@ public sealed class Throw
 
     /// <summary>The updates of the throw still to come.</summary>
     public int UpdatesLeft => _left.Remaining;
+
+    /// <summary>
+    /// Renews the throw for a knockback that arrives while it is under way: it takes the new one's way and its time
+    /// from the start, and goes on as it was otherwise, low or rising as it began, with no new rise.
+    /// </summary>
+    internal void Renew(Facing toward, int updates)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        (_toward, _left) = (toward, Countdown.Of(updates));
+    }
 
     /// <summary>
     /// Moves the player through one update of the throw, in place of <paramref name="state"/>'s own movement. Returns

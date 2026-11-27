@@ -48,6 +48,9 @@ public sealed class KnockedBackState : PlayerState
     internal Throw ThrowOfLowForm(Player owner) =>
         new(_toward, _updates ?? owner.KnockbackUpdates, low: false, owner.IsOnGround ? CrawlingMoves : CrawlingInAirMoves);
 
+    /// <summary>Renews <paramref name="under"/>, the throw already carrying the player, with this knockback's way and time.</summary>
+    internal void Renew(Player owner, Throw under) => under.Renew(_toward, _updates ?? owner.KnockbackUpdates);
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

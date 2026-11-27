@@ -1050,9 +1050,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>
     /// Whether the picture of this update shows the enemy's hurt flash: while the flash still runs once the turn
-    /// has counted it down, on so many updates in turn as the game's definition gives the flash, by the updates the
-    /// flash has left. An enemy that shows its hurt its own way, and not by the flash every enemy shares, says so
-    /// here.
+    /// has counted it down, on so many of the enemies' passes in turn as the game's definition gives the flash, by
+    /// the count of those passes as it stands once this one is counted (<see cref="GameSession.EnemyPasses"/>): every
+    /// enemy that flashes does so on the same passes, whenever it was hurt. An enemy that shows its hurt its own
+    /// way, and not by the flash every enemy shares, says so here.
     /// </summary>
     protected virtual bool ShowsHurtFlash
     {
@@ -1061,7 +1062,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             if (!_flash.IsRunning)
                 return false;
             int each = Room.Session.Definition.EnemyFlashUpdatesEachWay;
-            return each == 0 || _flash.Remaining % (2 * each) >= each;
+            return each == 0 || (Room.Session.EnemyPasses + 1) % (2 * each) >= each;
         }
     }
 

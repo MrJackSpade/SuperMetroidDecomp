@@ -119,6 +119,7 @@ position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_ridley_floor.png"
 Repeats = false
 visible = false
+PresentWhen = SubResource("r6")
 
 [node name="Capsule" type="Node2D" parent="Floor"]
 script = ExtResource("13")
@@ -139,6 +140,7 @@ Subtitle = "ceres_self_destruct_subtitle"
 GetawaySound = "enemy_ceres_ridley_getaway"
 Floor = NodePath("../Floor")
 ToldWhenCountdownBegins = Array[NodePath]([NodePath("../Shaking")])
+PresentWhen = SubResource("r6")
 
 [node name="Haze2" type="Node2D" parent="."]
 script = ExtResource("11")

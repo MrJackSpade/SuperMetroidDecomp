@@ -123,8 +123,10 @@ public partial class MamaTurtle : Enemy
         _shellLeft.AddRange(data.List("shell_left").Select(height => height.AsInt()));
         _shellRight.Clear();
         _shellRight.AddRange(data.List("shell_right").Select(height => height.AsInt()));
-        if (_shellLeft.Count == 0 || _shellRight.Count != _shellLeft.Count)
-            throw data.Problem("must list as many shell heights to the right as to the left, and at least one");
+        // Under her middle and to its left a height is read at the distance itself; to the right at one less, as the
+        // cartridge's two tables are read. So the right has one height fewer than the left.
+        if (_shellLeft.Count == 0 || _shellRight.Count != _shellLeft.Count - 1)
+            throw data.Problem("must list at least one shell height to the left, and one fewer to the right than to the left");
     }
 
     /// <inheritdoc/>

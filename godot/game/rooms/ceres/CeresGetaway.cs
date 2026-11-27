@@ -1,3 +1,4 @@
+using Engine.Actors.Components;
 using Engine.Content;
 using Engine.Ui;
 using Engine.World;
@@ -67,8 +68,9 @@ public partial class CeresGetaway : RoomSequence
     /// are typed in, where their first letter's cell lies ("x", "y"), how many updates each letter takes
     /// ("updates_per_letter"), how many letters at the start are followed by the next at once ("undelayed_letters"),
     /// how many letters appear for each sound ("letters_per_sound"), the sound of a letter appearing ("letter_sound"),
-    /// and its "second_wordings", each under a name with the "languages" it is shown in and its "pictures", each with
-    /// where it goes.
+    /// its "second_wordings", each under a name with the "languages" it is shown in and its "pictures", each with
+    /// where it goes, and its "alarm": the steps of colours everything written on the warning flashes through, a step
+    /// on each of the updates the clock's count is a multiple of four.
     /// </summary>
     [Export]
     public string LayoutFolder { get; set; } = "text/typed";
@@ -76,10 +78,6 @@ public partial class CeresGetaway : RoomSequence
     /// <summary>The warning's second wording, shown beneath a moment into the typing; by its name in the warning's layout, empty for none.</summary>
     [Export]
     public string Subtitle { get; set; } = "";
-
-    /// <summary>The colours the warning flashes through, in order; empty for none.</summary>
-    [Export]
-    public Godot.Collections.Array<Color> AlarmColours { get; set; } = [];
 
     /// <summary>The things told "start" as the countdown begins: the room's shaking, say.</summary>
     [Export]
@@ -134,7 +132,12 @@ public partial class CeresGetaway : RoomSequence
     private Vector2I _scroll;
     private int _capsule;
     private int _wings;
-    private int _alarm = -1;
+
+    /// <summary>The alarm's steps of colours, shown on everything written on the warning; none before the warning comes up.</summary>
+    private ColourSteps? _alarm;
+
+    /// <summary>The name the warning's colours are changed under by its alarm.</summary>
+    private const string AlarmColours = "Alarm";
     private int _typedFor;
     private CanvasLayer? _warning;
     private TypedText? _words;
@@ -170,13 +173,13 @@ public partial class CeresGetaway : RoomSequence
             case Stage.BeforeHeading:
                 if (--_wait > 0)
                     break;
-                ShowHeading(room);
+                SetUpWarning(room);
                 room.Session.Sounds.RequestMusic(EscapeMusic);
                 (_stage, _wait) = (Stage.HoldingHeading, 128);
                 break;
 
             case Stage.HoldingHeading:
-                StepAlarm(elapsed);
+                StepAlarm(room);
                 if (--_wait > 0)
                     break;
                 BeginTyping(room);
@@ -184,7 +187,7 @@ public partial class CeresGetaway : RoomSequence
                 break;
 
             case Stage.Typing:
-                StepAlarm(elapsed);
+                StepAlarm(room);
                 TypedText words = _words ?? throw new InvalidOperationException("The warning is not being typed.");
                 if (_subtitle is not null && ++_typedFor == 32)
                     _subtitle.Visible = true;
@@ -196,7 +199,7 @@ public partial class CeresGetaway : RoomSequence
                 break;
 
             case Stage.Finishing:
-                StepAlarm(elapsed);
+                StepAlarm(room);
 
                 // The station is now going to blow up, and the way out is open.
                 room.Session.Progress.Record(StoryEvents.CeresSelfDestructStarted);
@@ -213,7 +216,7 @@ public partial class CeresGetaway : RoomSequence
                 break;
 
             case Stage.Alarm:
-                StepAlarm(elapsed);
+                StepAlarm(room);
                 break;
 
             default:
@@ -227,7 +230,8 @@ public partial class CeresGetaway : RoomSequence
     {
         room.Session.Progress.Record(StoryEvents.CeresRidleyEscaped);
         (_stage, _flown, _angle, _scroll) = (Stage.Flying, 0, 1, new Vector2I(-128, 32));
-        (_capsule, _wings, _alarm, _typedFor) = (0, 0, -1, 0);
+        (_capsule, _wings, _typedFor) = (0, 0, 0);
+        _alarm = null;
         _wingStrideUpdates = WingLeftoversFile.Length == 0
             ? []
             : [.. room.Content.ReadData(WingLeftoversFile).List("stride_updates").Select(wing => wing.Items().Select(updates => updates.AsInt()).ToArray())];
@@ -331,20 +335,17 @@ public partial class CeresGetaway : RoomSequence
         floor.Turn(_angle * Math.Tau / 65536, size / 256.0, new Vector2(64, 64), _scroll);
     }
 
-    private void ShowHeading(Room room)
-    {
-        if (HeadingPicture.Length == 0)
-            return;
-        var heading = new Sprite2D
-        {
-            Name = "Heading", Texture = room.Content.LoadTexture(HeadingPicture), Centered = false, Position = HeadingAt,
-        };
-        Warning().AddChild(heading);
-    }
-
-    private void BeginTyping(Room room)
+    /// <summary>
+    /// Puts up the warning's heading, and makes ready what will be written under it: the words, typed later, and the
+    /// second wording in the languages that have one, hidden until its moment. The alarm is shown on all of it.
+    /// </summary>
+    private void SetUpWarning(Room room)
     {
         DataNode layout = room.Session.Content.ReadData($"{LayoutFolder}/{Message}.json");
+        ColourSteps alarm = _alarm = new ColourSteps(layout.Get("alarm"), AlarmColours);
+        if (HeadingPicture.Length > 0)
+            alarm.ShowOn(Written(room, Warning(), "Heading", HeadingPicture, HeadingAt));
+
         _words = new TypedText
         {
             Name = "Words", Font = PixelFont.Read(room.Session.Content, layout.Text("font")), UpdatesPerCharacter = layout.Int("updates_per_letter"),
@@ -352,8 +353,7 @@ public partial class CeresGetaway : RoomSequence
             Position = new Vector2(layout.Int("x"), layout.Int("y")),
         };
         Warning().AddChild(_words);
-        _words.Type(room.Session.Text.Get(Message));
-        _typedFor = 0;
+        alarm.ShowOn(_words);
         if (Subtitle.Length == 0)
             return;
 
@@ -362,25 +362,34 @@ public partial class CeresGetaway : RoomSequence
         if (!second.List("languages").Any(language => language.AsText() == room.Session.Options.Language))
             return;
         _subtitle = new Node2D { Name = "Subtitle", Visible = false };
-        foreach (DataNode line in second.List("pictures"))
-        {
-            _subtitle.AddChild(new Sprite2D
-            {
-                Texture = room.Content.LoadTexture(line.Text("picture")), Centered = false, Position = new Vector2(line.Int("x"), line.Int("y")),
-            });
-        }
-
         Warning().AddChild(_subtitle);
+        IReadOnlyList<DataNode> lines = second.List("pictures");
+        for (int line = 0; line < lines.Count; line++)
+            alarm.ShowOn(Written(room, _subtitle, $"Line{line}", lines[line].Text("picture"), new Vector2I(lines[line].Int("x"), lines[line].Int("y"))));
     }
 
-    /// <summary>Moves the warning's flashing on, every fourth update.</summary>
-    private void StepAlarm(int elapsed)
+    /// <summary>A picture written on the warning, its corner where it goes: a visual whose colours can be changed.</summary>
+    private static ActorVisual Written(Room room, Node on, string name, string picture, Vector2I corner)
     {
-        if (elapsed % 4 != 0 || AlarmColours.Count == 0)
-            return;
-        _alarm = (_alarm + 1) % AlarmColours.Count;
-        foreach (CanvasItem written in Warning().GetChildren().OfType<CanvasItem>())
-            written.Modulate = AlarmColours[_alarm];
+        var written = new ActorVisual { Name = name, Position = corner };
+        on.AddChild(written);
+        written.Bind(room.Content);
+        written.Show(picture);
+        return written;
+    }
+
+    private void BeginTyping(Room room)
+    {
+        (_words ?? throw new InvalidOperationException("The warning has not come up.")).Type(room.Session.Text.Get(Message));
+        _typedFor = 0;
+    }
+
+    /// <summary>Moves the warning's alarm on, on the updates the clock's count is a multiple of four.</summary>
+    private void StepAlarm(Room room)
+    {
+        ColourSteps alarm = _alarm ?? throw new InvalidOperationException("The warning has not come up.");
+        if (room.Session.Clock.Updates % 4 == 0)
+            alarm.Step();
     }
 
     private CanvasLayer Warning() => _warning ?? throw new InvalidOperationException("The warning has not come up.");

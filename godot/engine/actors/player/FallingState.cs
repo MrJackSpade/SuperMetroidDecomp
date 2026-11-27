@@ -1,3 +1,5 @@
+using Engine.Input;
+
 namespace Engine.Actors;
 
 /// <summary>
@@ -72,7 +74,10 @@ public sealed class FallingState : PlayerState
 
     /// <summary>
     /// Left and right held together are read as the way behind by a player falling upright, who turns in the air, and
-    /// as the way ahead by one falling in the low form, who falls on as they are.
+    /// as the way ahead by one falling in the low form, who falls on as they are. With up or down held as well the
+    /// upright one reads them as the way ahead too, and aims on a slant the way they face; an aiming action of the
+    /// game's own does not do that in a fall.
     /// </summary>
-    public override int ReadsBothAcross(Player owner) => owner.Form == Player.Crawling ? Forward(owner) : -Forward(owner);
+    public override int ReadsBothAcross(Player owner) =>
+        owner.Form == Player.Crawling || owner.Input.IsHeld(GameAction.Up) || owner.Input.IsHeld(GameAction.Down) ? Forward(owner) : -Forward(owner);
 }

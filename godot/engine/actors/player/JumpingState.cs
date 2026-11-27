@@ -235,6 +235,15 @@ public sealed class JumpingState : PlayerState
             owner.Velocity = owner.Velocity.WithY(cut);
     }
 
-    /// <summary>Left and right held together are read as the way behind: the player turns in the air.</summary>
-    public override int ReadsBothAcross(Player owner) => -Forward(owner);
+    /// <summary>
+    /// Left and right held together are read as the way behind, and the player turns in the air; unless they aim as
+    /// well, by up or down, or by an aiming action of the game's own with the jump still held, which reads them as the
+    /// way ahead: the player aims on a slant the way they face.
+    /// </summary>
+    public override int ReadsBothAcross(Player owner)
+    {
+        GameInput input = owner.Input;
+        bool upOrDown = input.IsHeld(GameAction.Up) || input.IsHeld(GameAction.Down);
+        return upOrDown || (owner.AimIsHeld && input.IsHeld(GameAction.Jump)) ? Forward(owner) : -Forward(owner);
+    }
 }

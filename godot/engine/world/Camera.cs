@@ -31,6 +31,9 @@ public sealed class Camera
     private int? _trackedXWritten;
     private int? _trackedYWritten;
 
+    /// <summary>How far down where the player is taken to have stood has been shifted since the view last tracked, where nothing was written outright.</summary>
+    private int _shiftedY;
+
     /// <summary>A camera whose view is <paramref name="width"/> by <paramref name="height"/> pixels.</summary>
     public Camera(int width, int height)
     {
@@ -107,7 +110,7 @@ public sealed class Camera
             ? new PixelPosition(Pixels.FromParts(left, Position.X.Fraction), Pixels.FromParts(top, Position.Y.Fraction))
             : PixelPosition.FromWhole(left, top);
         (IdealLeft, IdealTop) = (left, top);
-        (_tracked, _trackedXWritten, _trackedYWritten) = (null, null, null);
+        (_tracked, _trackedXWritten, _trackedYWritten, _shiftedY) = (null, null, null, 0);
     }
 
     /// <summary>Moves the view's whole pixels to a place, keeping its fractions, with no regard to the room: what a scripted move of the view does.</summary>
@@ -124,7 +127,28 @@ public sealed class Camera
     public void TakePlayerToHaveStoodAtX(int x) => _trackedXWritten = x;
 
     /// <summary>The same, for how far down the player is taken to have stood.</summary>
-    public void TakePlayerToHaveStoodAtY(int y) => _trackedYWritten = y;
+    public void TakePlayerToHaveStoodAtY(int y) => (_trackedYWritten, _shiftedY) = (y, 0);
+
+    /// <summary>
+    /// Moves where the player is taken to have stood down by <paramref name="by"/> pixels, up when negative, whatever
+    /// it was: for a change that moves the player's place without their having moved, made before they move on that
+    /// update, as a change of form that keeps the feet where they were moves the middle. The rest of the update's way
+    /// is followed, where saying outright where they stood (<see cref="TakePlayerToHaveStoodAtY"/>) would hide it.
+    /// </summary>
+    public void ShiftWherePlayerStoodDown(int by)
+    {
+        if (_trackedYWritten is { } written)
+            _trackedYWritten = written + by;
+        else
+            _shiftedY += by;
+    }
+
+    /// <summary>
+    /// Where, in whole pixels, the view takes the player to have stood when it last tracked them, with whatever it
+    /// has been told of that since; null when it has tracked nothing since it was placed.
+    /// </summary>
+    public (int X, int Y)? PlayerTakenToHaveStoodAt =>
+        _tracked is { } tracked ? (_trackedXWritten ?? tracked.X.Whole, _trackedYWritten ?? tracked.Y.Whole + _shiftedY) : null;
 
     /// <summary>
     /// Caps how fast the view follows across a player now at <paramref name="now"/>: where they stand more than
@@ -150,9 +174,9 @@ public sealed class Camera
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(most);
         if (_tracked is not { } tracked)
             return;
-        int moved = now.Whole - (_trackedYWritten ?? tracked.Y.Whole);
+        int moved = now.Whole - (_trackedYWritten ?? tracked.Y.Whole + _shiftedY);
         if (moved < -most || (!risingOnly && moved > most))
-            _trackedYWritten = now.Whole - Math.Sign(moved) * most;
+            (_trackedYWritten, _shiftedY) = (now.Whole - Math.Sign(moved) * most, 0);
     }
 
     /// <summary>
@@ -169,7 +193,9 @@ public sealed class Camera
             before = new PixelPosition(before.X.WithWhole(x), before.Y);
         if (_trackedYWritten is { } y)
             before = new PixelPosition(before.X, before.Y.WithWhole(y));
-        (_trackedXWritten, _trackedYWritten) = (null, null);
+        else if (_shiftedY != 0)
+            before = new PixelPosition(before.X, before.Y.WithWhole(before.Y.Whole + _shiftedY));
+        (_trackedXWritten, _trackedYWritten, _shiftedY) = (null, null, 0);
 
         TrackAcross(before, now, tracking, frozen);
         TrackDown(before, now, tracking, frozen);
@@ -184,7 +210,7 @@ public sealed class Camera
     {
         // Where the player was taken to have stood is used up by an update's tracking of either kind: it does not
         // last into the ordinary tracking that follows a swing.
-        (_trackedXWritten, _trackedYWritten) = (null, null);
+        (_trackedXWritten, _trackedYWritten, _shiftedY) = (null, null, 0);
         if (now.X.Whole >= 0)
         {
             SetLeft(TowardMiddle(Left, now.X.Whole, middle.Left, middle.Right, step));

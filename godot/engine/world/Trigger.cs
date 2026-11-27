@@ -33,9 +33,14 @@ public partial class Trigger : Node2D, IPlaced
     [Export]
     public Condition? OnlyWhen { get; set; }
 
-    /// <summary>Whether it fires only the first time the player enters it after the room is set up.</summary>
+    /// <summary>
+    /// Whether it fires on every update the player touches it, and not once, the first time they come into it: for
+    /// what must go on holding while the player stays, as a change of the view's limits that another may undo. Such a
+    /// one is touched by a move of the player's body tried into it (<see cref="Actors.Player.MovesReached"/>), by the
+    /// player's own place lying in it, or by the reach of a state that has one of its own.
+    /// </summary>
     [Export]
-    public bool Once { get; set; } = true;
+    public bool WhileTouched { get; set; }
 
     /// <summary>
     /// The entry point of the room whose use fires it, once, as the room is set up: when everything of the room is
@@ -76,16 +81,30 @@ public partial class Trigger : Node2D, IPlaced
         return true;
     }
 
-    /// <summary>Fires if the player has just entered the region and the trigger may fire.</summary>
+    /// <summary>
+    /// Fires if the trigger may and the player has come into the region for the first time; or, for one that fires
+    /// while touched, if the player touches it on this update.
+    /// </summary>
     internal void Step(Room room, PixelRect playerBody)
     {
         // One that fires for an entry point has fired, or not, as the room was set up.
         if (AtEntry.Length > 0)
             return;
-        bool inside = MeetsMiddle ? Area.Contains(room.Player.Position.X.Whole, room.Player.Position.Y.Whole) : Area.Overlaps(playerBody);
+        Actors.Player player = room.Player;
+        bool middleInside = Area.Contains(player.Position.X.Whole, player.Position.Y.Whole);
+        if (WhileTouched)
+        {
+            // A state that gives the triggers a reach of its own, not the body, touches by that reach.
+            bool touched = middleInside || player.MovesReached(Area) || (playerBody != player.BodyRect && Area.Overlaps(playerBody));
+            if (touched && (OnlyWhen is null || OnlyWhen.IsTrue(room)))
+                Fire();
+            return;
+        }
+
+        bool inside = MeetsMiddle ? middleInside : Area.Overlaps(playerBody);
         bool entered = inside && !_playerWasInside;
         _playerWasInside = inside;
-        if (!entered || (Once && _fired) || (OnlyWhen is not null && !OnlyWhen.IsTrue(room)))
+        if (!entered || _fired || (OnlyWhen is not null && !OnlyWhen.IsTrue(room)))
             return;
         Fire();
     }

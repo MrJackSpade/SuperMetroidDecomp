@@ -122,7 +122,7 @@ script = ExtResource("12")
 position = Vector2(240, 144)
 Size = Vector2i(16, 48)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen0x0")
 
 [node name="Liquid" type="Node2D" parent="."]

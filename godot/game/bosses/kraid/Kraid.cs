@@ -41,7 +41,7 @@ namespace Game.Enemies;
 /// "spit", where its rocks leave it from, how fast they rise and the eight speeds across that chance picks from;
 /// "health_shades", most health first, the changes of the colours of its body and head ("body") and of its parts
 /// ("parts") it shows at each least "health" (<see cref="ColourChange"/>), and the colours of its "eyes" there;
-/// "hurt_colours", the same two changes for the flash of a hit in the mouth; "death_colours", the change of its body's
+/// "mouth_hit_colours", the same two changes for the flash of a hit in the mouth; "death_colours", the change of its body's
 /// and head's colours as it dies; "eye_colours", the colours each of those changes but the last shows its eyes in
 /// ("pictured"), which its eyes' colours are shown in place of, its eyes' colours in the flash of a hit ("hurt"), and
 /// the "steps" a channel of a colour moves through as its eyes glow and dim, darkest first; and "hurt_flash", the
@@ -367,7 +367,7 @@ public partial class Kraid : Enemy
             (band.Int("health"), ColourChange.Read(band.Get("body")), ColourChange.Read(band.Get("parts")), ReadEyes(band, "eyes"))));
         if (_healthShades.Count == 0)
             throw data.Problem("must give at least one of its health shades");
-        DataNode hurt = data.Get("hurt_colours");
+        DataNode hurt = data.Get("mouth_hit_colours");
         (_hurtBody, _hurtParts) = (ColourChange.Read(hurt.Get("body")), ColourChange.Read(hurt.Get("parts")));
         _deathColours = ColourChange.Read(data.Get("death_colours"));
         DataNode fades = data.Get("backdrop_fades");

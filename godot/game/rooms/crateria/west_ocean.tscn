@@ -87,22 +87,66 @@ SamusStep = 0.78125
 
 [node name="ToMoat" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(0, 608)
-Size = Vector2i(1296, 576)
+position = Vector2(0, 1120)
+Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/crateria/moat.tscn"
 LeadsToExit = "ToWestOcean"
-ArrivalOffset = Vector2i(40, 552)
+ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(1, 0)
+SamusStep = 0.78125
+
+[node name="ToMoatAt48x38" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(768, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/moat.tscn"
+LeadsToExit = "ToWestOcean"
+ArrivalOffset = Vector2i(8, 32)
+Travel = 1
+ToScreen = Vector2i(1, 0)
+SamusStep = 0.78125
+
+[node name="ToMoatAt80x38" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1280, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/moat.tscn"
+LeadsToExit = "ToWestOcean"
+ArrivalOffset = Vector2i(8, 32)
 Travel = 1
 ToScreen = Vector2i(1, 0)
 SamusStep = 0.78125
 
 [node name="ToWreckedShipEntrance" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(1264, 608)
-Size = Vector2i(784, 576)
+position = Vector2(2032, 1120)
+Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_entrance.tscn"
 LeadsToExit = "ToWestOcean"
-ArrivalOffset = Vector2i(744, 552)
+ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+
+[node name="ToWreckedShipEntranceAt95x38" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1520, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_entrance.tscn"
+LeadsToExit = "ToWestOcean"
+ArrivalOffset = Vector2i(8, 32)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+
+[node name="ToWreckedShipEntranceAt79x38" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1264, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_entrance.tscn"
+LeadsToExit = "ToWestOcean"
+ArrivalOffset = Vector2i(8, 32)
 Travel = 0
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125

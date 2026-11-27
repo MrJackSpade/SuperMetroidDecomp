@@ -35,6 +35,7 @@ public sealed class GrappleWallGrabState : PlayerState, ISamusLook
         owner.Velocity = PixelVelocity.Zero;
         owner.Aim = Aim.Forward;
         owner.Position = _at;
+        ((Samus)owner).CapViewAfterPlacing();
     }
 
     /// <inheritdoc/>

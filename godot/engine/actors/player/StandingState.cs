@@ -25,18 +25,33 @@ public sealed class StandingState : PlayerState
     /// <summary>Whether the player was still settling from a landing through this state's latest move.</summary>
     public bool MovedSettling { get; private set; }
 
+    /// <summary>
+    /// Whether the landing's own end falls on this update: its last picture's time is up as the state next moves. On
+    /// that update the end outranks what the input asks of the player's stance, which waits an update; only a jump
+    /// takes its place.
+    /// </summary>
+    public bool LandingEndsNow => _settling.IsOnLastUpdate;
+
+    /// <summary>Whether an aim taken up on this update ends the settling once the state has moved.</summary>
+    private bool _aimEndsSettling;
+
     /// <inheritdoc/>
     public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Standing);
 
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
+        // On the update the landing's own end falls, that end outranks what the input asks: the player ends standing
+        // as they landed, a change held takes effect on the update after, and a press of anything but the jump is lost.
+        if (LandingEndsNow && !owner.JumpPressed)
+            return null;
+
         owner.AimFromInput();
 
-        // An aim taken up while settling ends the landing at once: the player stands aiming, and the landing's own
-        // end, with what it gives, never comes.
+        // An aim taken up while settling ends the landing: the player stands aiming, and the landing's own end, with
+        // what it gives, never comes. It ends once this update's move is made, through which they are settling still.
         if (_settling.IsRunning && owner.Aim != Shared.Aim.Forward)
-            _settling = PictureCount.Over;
+            _aimEndsSettling = true;
         if (owner.JumpPressed)
             return new JumpingState();
         if (owner.CanCrouch && owner.Input.WasPressed(GameAction.Down))
@@ -61,7 +76,11 @@ public sealed class StandingState : PlayerState
         bool grounded = owner.PressToGround();
         owner.StopAcross();
         MovedSettling = _settling.IsRunning;
-        if (_settling.IsRunning)
+        if (_aimEndsSettling)
+        {
+            (_settling, _aimEndsSettling) = (PictureCount.Over, false);
+        }
+        else if (_settling.IsRunning)
         {
             _settling = _settling.Stepped(owner);
             if (_settling.IsOver)

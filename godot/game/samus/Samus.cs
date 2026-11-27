@@ -798,9 +798,40 @@ public partial class Samus : Player
 
     /// <summary>
     /// How far, in whole pixels, the view takes her to have moved at most on an update something that holds her has
-    /// placed her: a Yapping Maw, or Draygon.
+    /// placed her: a Yapping Maw, Draygon, or the grapple's line as it takes hold of her or stops her at an angle.
     /// </summary>
     public const int PlacedViewCap = 12;
+
+    /// <summary>
+    /// Has the view take her to have moved no more than <see cref="PlacedViewCap"/> each way on this update, once
+    /// something has put her where she now is: the view follows the placement by that much and its one pixel more.
+    /// </summary>
+    public void CapViewAfterPlacing()
+    {
+        Room.Session.Camera.CapFollowUpOrDown(Position.Y, PlacedViewCap);
+        Room.Session.Camera.CapFollowAcross(Position.X, PlacedViewCap);
+    }
+
+    /// <summary>
+    /// Holds the view to following her by <see cref="PlacedViewCap"/> and its one pixel more, each way, once a Yapping
+    /// Maw or Draygon has placed her, as the cartridge's cap for those two does: where she stands that far or further
+    /// from where the view takes her to have stood, she is taken to have stood that far off, on the side she moved
+    /// toward, past her and not behind her. Only the distance reaches the view, which goes the way she went; the
+    /// side decides which of the two parts of a pixel is taken from the other. A view that has tracked nothing since
+    /// it was placed is left as it is.
+    /// </summary>
+    public static void CapViewOfHeld(Player held)
+    {
+        ArgumentNullException.ThrowIfNull(held);
+        Camera view = held.Room.Session.Camera;
+        if (view.PlayerTakenToHaveStoodAt is not { } stood)
+            return;
+        int down = held.Position.Y.Whole - stood.Y, across = held.Position.X.Whole - stood.X;
+        if (Math.Abs(down) >= PlacedViewCap)
+            view.TakePlayerToHaveStoodAtY(held.Position.Y.Whole + Math.Sign(down) * PlacedViewCap);
+        if (Math.Abs(across) >= PlacedViewCap)
+            view.TakePlayerToHaveStoodAtX(held.Position.X.Whole + Math.Sign(across) * PlacedViewCap);
+    }
 
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
@@ -1417,7 +1448,9 @@ public partial class Samus : Player
                     return null;
                 }
 
-                if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
+                // On the update her landing's own end falls, that end outranks what the input asks of her stance: the
+                // moonwalk and the aim straight up wait an update, as a run and a turn do.
+                if (current is StandingState { LandingEndsNow: false } && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
                 {
                     // The moonwalk is taken up aiming as asked, angle-down tested first whichever way she faces.
@@ -1426,7 +1459,7 @@ public partial class Samus : Player
                 }
 
                 // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
-                if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                if (current is StandingState { LandingEndsNow: false } && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
                     Intent != 0 && Intent > 0 == (Facing == Facing.Right))
                 {
                     AimFromInput();

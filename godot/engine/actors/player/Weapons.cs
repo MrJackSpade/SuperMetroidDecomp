@@ -229,7 +229,9 @@ public sealed class Weapons
     /// <summary>
     /// Plays one update: the cooldown moves on, and the selected weapon fires. One that charges fires a plain shot on
     /// the first update its attack is held, and as the attack is let go a charged one, or a plain one where it had not
-    /// charged and the weapon says so. One that does not charge fires on a press, and while held as its data says.
+    /// charged and the weapon says so. One that does not charge fires on a press, and while held as its data says;
+    /// where its data says a press carries over, one seen on the update before (<see cref="Player.InputBefore"/>)
+    /// is a press too.
     /// </summary>
     public void Step(Player player, GameInput input)
     {
@@ -261,7 +263,7 @@ public sealed class Weapons
         }
 
         // A weapon that does not charge leaves a charge already built as it stands.
-        if (input.WasPressed(GameAction.Attack))
+        if (input.WasPressed(GameAction.Attack) || (weapon.PressCarriesOver && player.InputBefore.WasPressed(GameAction.Attack)))
         {
             _heldFor = 0;
             Fire(player, weapon, charged: false);

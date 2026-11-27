@@ -413,6 +413,24 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>The input of the update being played.</summary>
     public GameInput Input => _input;
 
+    /// <summary>
+    /// The input of the update before this one on which the player was to be seen in play: an update of their room's,
+    /// whether or not they were played in it, or one of whatever shows them between rooms and says so
+    /// (<see cref="SeeInput"/>). What takes a press made an update too soon reads it here.
+    /// </summary>
+    public GameInput InputBefore { get; private set; } = GameInput.None;
+
+    /// <summary>
+    /// Takes <paramref name="input"/> as the input of an update the player was to be seen in play on, once whatever
+    /// of that update reads the one before has read it. The room does this on each of its updates; a mode that shows
+    /// the player without playing them does on each of its own.
+    /// </summary>
+    public void SeeInput(GameInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        InputBefore = input;
+    }
+
     /// <summary>What the player is doing.</summary>
     public PlayerState State => (PlayerState)States.Current;
 

@@ -17,7 +17,8 @@ namespace Engine.Actors;
 /// first of them; let go, it fires a charged shot once "charge_updates" were counted, and with "part_charge_fires" a
 /// plain one when fewer were. A weapon that does not charge fires on a press; with a "held_cooldown" it also fires
 /// while the attack stays held, whenever the cooldown allows, and waits that long after such a shot; with
-/// "repeats_every" it fires every so many held updates instead.
+/// "repeats_every" it fires every so many held updates instead. With "press_carries_over" a press counts once more
+/// on the update after it, so one made an update before the weapon could fire still fires it.
 /// </para>
 /// <para>
 /// "max_live" is how many places there are for its shots out at once. Weapons that give the same "pool" share those
@@ -76,6 +77,9 @@ public sealed class WeaponStats
 
     /// <summary>Whether letting the attack go before a full charge fires a plain shot.</summary>
     public bool PartChargeFires { get; private init; }
+
+    /// <summary>Whether a press of the attack counts once more on the update after it, for a weapon that fires on a press.</summary>
+    public bool PressCarriesOver { get; private init; }
 
     /// <summary>
     /// How many places its pool has for shots that are out at once; zero for no limit. A shot is out until every
@@ -156,6 +160,7 @@ public sealed class WeaponStats
             RepeatsEvery = data.Has("repeats_every") ? data.Int("repeats_every") : 0,
             HeldCooldown = data.Has("held_cooldown") ? data.Int("held_cooldown") : 0,
             PartChargeFires = data.Has("part_charge_fires") && data.Flag("part_charge_fires"),
+            PressCarriesOver = data.Has("press_carries_over") && data.Flag("press_carries_over"),
             MaxLive = data.Has("max_live") ? data.Int("max_live") : 0,
             Pool = data.Has("pool") ? data.Text("pool") : data.Text("name"),
             PlacesTaken = data.Has("places") ? data.Int("places") : 0,

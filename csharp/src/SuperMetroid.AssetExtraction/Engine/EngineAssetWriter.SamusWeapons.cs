@@ -489,6 +489,8 @@ public sealed partial class EngineAssetWriter
             ["diagonal_speed"] = EngineNames.Number(SamusProjectileMotionDefinitions.MissileIgnitionSpeed),
             ["inherits_speed"] = true,
             ["cooldown"] = super ? SamusProjectileCooldownDefinitions.SuperMissileShot : SamusProjectileCooldownDefinitions.MissileShot,
+            // A missile is fired by a press of this update or of the one before (BeamFiring.TryFireMissile).
+            ["press_carries_over"] = true,
             // A super missile takes a second place for its unseen link: none is fired with four places held.
             ["max_live"] = SamusProjectileSystem.PlaceCount,
             ["pool"] = ShotPool,

@@ -263,6 +263,11 @@ public partial class DoorTransitionMode : GameMode
         ScreenFade fade = _fade ?? throw new InvalidOperationException("The door's passage has not taken control.");
         _closing = _stage is Stage.Loading or Stage.Scrolling ? ClosingSoundWork.None : ClosingSoundWork.Usual;
 
+        // Through the door's waits and its fades she is shown as in play, and what is pressed there is seen as it is
+        // in play: a press made on the door's last update still fires a weapon that takes one an update late.
+        if (_stage is Stage.Entering or Stage.WaitingForSounds or Stage.FadingOut or Stage.FadingIn)
+            samus.SeeInput(input);
+
         // From the update that places Samus for the next room's load to the one that finishes the scroll, the
         // clock's short count is started over on every update, so what is timed by it begins together afterwards.
         if (_stage is Stage.PlacingSamus or Stage.Loading or Stage.Scrolling or Stage.AligningSamus or Stage.SteppingBlocks

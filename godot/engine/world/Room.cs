@@ -398,6 +398,9 @@ public partial class Room : Node2D
             stopped |= Player.StopsAsAsked;
         }
 
+        // Played or held still, the player has now read what they read of the update before: this one's input is seen.
+        Player.SeeInput(input);
+
         // The player's shots move, and hit, before the enemies act; a shot fired this update among them.
         if (!stopped.HasFlag(Stopped.PlayerShots))
         {

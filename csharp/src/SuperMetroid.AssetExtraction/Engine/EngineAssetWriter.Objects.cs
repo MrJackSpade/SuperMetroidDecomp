@@ -167,12 +167,28 @@ public sealed partial class EngineAssetWriter
             .Write();
     }
 
-    /// <summary>The eye in the wall by the Morph Ball: shut, opening and closing for each way it faces, its looks round the turn, and its sockets.</summary>
+    /// <summary>
+    /// The eye in the wall by the Morph Ball: shut, opening and closing for each way it faces, its looks round the
+    /// turn, and its sockets. The cartridge draws it in one room's colours in some rooms and another's in others, so a
+    /// set of its pictures is cut for each look, its data names them by <see cref="LookPlaceholder"/>, and the room
+    /// places it with the look it is drawn in there.
+    /// </summary>
     private void WriteMorphBallEye()
     {
-        EngineSheetPictures pictures = EnemyPictures("objects/morph_ball_eye", EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MorphBallEye));
+        const string folder = "objects/morph_ball_eye";
+        string eye = EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MorphBallEye);
+        IReadOnlyList<EngineEnemyLook> drawnIn = _sheets.EnemyLooks(eye);
+        string firstSet = $"{folder}_{drawnIn[0].Word}";
+        EngineSheetPictures pictures = _sheets.Cut(_tree, GameInstallationLayout.EnemySheetDirectoryName, firstSet, drawnIn[0].Sheet);
+        CutLooks(folder, eye, drawnIn, pictures);
+        string Shown(EnemyFrameId frame)
+        {
+            string picture = PictureOf(pictures, frame);
+            return picture.Length == 0 ? picture : folder + LookPlaceholder + picture[firstSet.Length..];
+        }
+
         JsonObject Look(MorphBallEyeSegment segment) => EngineTimelines.Of(
-            MorphBallEyeAnimations.Segments, MorphBallEyeAnimations.StartingWith(segment), frame => PictureOf(pictures, frame), static (NoAnimationCue _) => null);
+            MorphBallEyeAnimations.Segments, MorphBallEyeAnimations.StartingWith(segment), Shown, static (NoAnimationCue _) => null);
 
         // The old game's looks go round from straight up, clockwise; the Godot game's from the right.
         IReadOnlyList<EnemyFrameId> looks = MorphBallEyeAnimations.AimFrames.InTurnOrder;
@@ -180,7 +196,7 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException("The Morph Ball eye's looks do not divide a quarter turn evenly.");
         var aims = new JsonArray();
         for (int index = 0; index < looks.Count; index++)
-            aims.Add(PictureOf(pictures, looks[(index + looks.Count / 4) % looks.Count]));
+            aims.Add(Shown(looks[(index + looks.Count / 4) % looks.Count]));
 
         var mounts = new JsonObject();
         foreach ((string side, MorphBallEyeMountSide mounted) in new[]
@@ -192,7 +208,7 @@ public sealed partial class EngineAssetWriter
             MorphBallEyeMountDefinition mount = MorphBallEyeGeometry.Mount(mounted);
             EnemyFrameId socket = MorphBallEyeAnimations.Segments.Beats(mount.Animation).Select(beat => beat.ShownFrame).FirstOrDefault(frame => frame.HasValue)
                 ?? throw new InvalidDataException($"The Morph Ball eye's socket on its {side} side shows nothing.");
-            mounts[side] = new JsonObject { ["picture"] = PictureOf(pictures, socket), ["x"] = mount.Offset.X, ["y"] = mount.Offset.Y };
+            mounts[side] = new JsonObject { ["picture"] = Shown(socket), ["x"] = mount.Offset.X, ["y"] = mount.Offset.Y };
         }
 
         new EngineObjectFile(_tree, "objects/morph_ball_eye.json", "MorphBallEye")

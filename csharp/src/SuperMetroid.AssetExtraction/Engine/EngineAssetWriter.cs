@@ -162,10 +162,28 @@ public sealed partial class EngineAssetWriter
         foreach (EngineEnemyLook look in looks)
             places[$"{folder}_{look.Word}"] = [look.Sheet];
         EngineEnemy drawn = Enemy(file, type, id, [looks[0].Sheet], places);
+        CutLooks(folder, enemy, looks, drawn.Pictures);
+        return drawn.PictureSets(LookPlaceholder);
+    }
+
+    /// <summary>
+    /// Cuts a set of the pictures of <paramref name="enemy"/>, an old enemy drawn in more than one look, for each of
+    /// its looks, into the folder named <paramref name="folder"/> with an underscore and the look's word after it, and
+    /// keeps which look each room's enemy population draws it in, for <see cref="WriteRoomLooks"/>.
+    /// </summary>
+    /// <param name="folder">The folder its pictures are named under where they name no look.</param>
+    /// <param name="enemy">The old enemy, by the installation's name for it.</param>
+    /// <param name="looks">Its looks, as the installation lists them.</param>
+    /// <param name="laidOut">Its pictures as one of its looks lays them out, which every look's set must match.</param>
+    /// <exception cref="InvalidDataException">
+    /// Two of its looks differ in more than their colours, or the rooms of one population draw it in two looks.
+    /// </exception>
+    private void CutLooks(string folder, string enemy, IReadOnlyList<EngineEnemyLook> looks, EngineSheetPictures laidOut)
+    {
         foreach (EngineEnemyLook look in looks)
         {
             EngineSheetPictures set = _sheets.Cut(_tree, GameInstallationLayout.EnemySheetDirectoryName, $"{folder}_{look.Word}", look.Sheet);
-            if (!set.LaidOutAs(drawn.Pictures))
+            if (!set.LaidOutAs(laidOut))
                 throw new InvalidDataException($"The look {look.Word} of {enemy} ({look.Sheet}) differs from its look {looks[0].Word} ({looks[0].Sheet}) in more than its colours.");
             foreach (string population in look.Populations)
             {
@@ -176,8 +194,6 @@ public sealed partial class EngineAssetWriter
                 drawnThere[enemy] = look.Word;
             }
         }
-
-        return drawn.PictureSets(LookPlaceholder);
     }
 
     /// <summary>

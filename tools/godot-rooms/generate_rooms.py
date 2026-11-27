@@ -566,13 +566,14 @@ class Generator:
             # What each thing names: for each such property, the thing or things it names.
             links: dict[int, dict[str, object]] = {}
             by_index = dict(enemies.places(self.populations[state.enemies], enemies.RULES, self.unplaced))
-            # An enemy the cartridge draws in colours of the room's own is drawn in the look this version's enemies are.
+            # An enemy the cartridge draws in colours of the room's own is drawn in the look this version's enemies are,
+            # as is a room object the cartridge drew as one of its enemies.
             looks = self.room_looks.get(self.population_names[state.enemies], {})
             for index, placed in by_index.items():
                 look = looks.get(self.populations[state.enemies][index].enemy)
                 if look is None:
                     continue
-                if not placed.enemy:
+                if not placed.enemy and not placed.takes_look:
                     raise ValueError(f'{key}: the {placed.name} is drawn in a look of the room\'s own, and is placed as no enemy.')
                 placed.properties['Look'] = quoted(look)
             ctx = Context(self, scene, room, self.quotas[state.enemies])

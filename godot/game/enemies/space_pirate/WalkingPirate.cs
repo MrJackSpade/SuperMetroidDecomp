@@ -119,6 +119,7 @@ public partial class WalkingPirate : SpacePirate
             return;
         }
 
+        // Leftward with Samus in its own pixel, as the cartridge's flinch.
         Play(Position.X.Whole < Target.X.Whole ? "flinch_right" : "flinch_left", restart: true);
     }
 

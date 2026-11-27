@@ -234,6 +234,7 @@ public partial class MamaTurtle : Enemy
                 return;
 
             case Doing.EnteringShell:
+                // Her left with Samus in her own pixel, as the cartridge's.
                 Play(Position.X.Whole >= Target.X.Whole ? "enter_shell_left" : "enter_shell_right", restart: true);
                 _doing = Doing.Posed;
                 return;
@@ -249,7 +250,8 @@ public partial class MamaTurtle : Enemy
                 _wait = _wait.Stepped();
                 if (_wait.IsRunning)
                     return;
-                _quickening = Position.X.Whole < Target.X.Whole ? Pixels.FromNumber(HoverQuickening) : -Pixels.FromNumber(HoverQuickening);
+                // Leftward with Samus in her own pixel, as the cartridge's.
+                _quickening = Position.X.Whole < Target.X.Whole ?Pixels.FromNumber(HoverQuickening) : -Pixels.FromNumber(HoverQuickening);
                 Velocity = Velocity.WithX(Pixels.Zero);
                 _doing = Doing.Hovering;
                 return;

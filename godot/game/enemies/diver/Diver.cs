@@ -174,6 +174,7 @@ public partial class Diver : Enemy
             return;
         }
 
+        // Leftward with Samus in its own pixel, as the cartridge's drifts.
         int toward = Position.X.Whole < Target.X.Whole ? Drift : -Drift;
         Position += PixelOffset.FromWhole(toward, _diveStep);
     }

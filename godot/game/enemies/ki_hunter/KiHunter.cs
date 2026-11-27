@@ -266,6 +266,7 @@ public partial class KiHunter : Enemy
 
             case Doing.StartHop:
                 _doing = Doing.Posed;
+                // Leftward with Samus in its own pixel, as the cartridge's hops.
                 _heading = Position.X.Whole >= Target.X.Whole ? Facing.Left : Facing.Right;
                 _acrossSpeed = HopAcrossSpeed;
                 // The number last drawn decides whether this hop starts a pixel slower.
@@ -290,7 +291,8 @@ public partial class KiHunter : Enemy
                 break;
 
             case Doing.ChoosingSpit:
-                _spits = Position.X.Whole < Target.X.Whole ? Facing.Right : Facing.Left;
+                // Leftward with Samus in its own pixel, as the cartridge's spits.
+                _spits =Position.X.Whole < Target.X.Whole ? Facing.Right : Facing.Left;
                 Play(_spits == Facing.Right ? "spit_right" : "spit_left", restart: true);
                 _doing = Doing.Posed;
                 break;

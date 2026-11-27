@@ -127,6 +127,13 @@ public sealed class Camera
     public void TakePlayerToHaveStoodAtY(int y) => _trackedYWritten = y;
 
     /// <summary>
+    /// Where, in whole pixels, the view takes the player to have stood when it last tracked them, with whatever it
+    /// has been told of that since; null when it has tracked nothing since it was placed.
+    /// </summary>
+    public (int X, int Y)? PlayerTakenToHaveStoodAt =>
+        _tracked is { } tracked ? (_trackedXWritten ?? tracked.X.Whole, _trackedYWritten ?? tracked.Y.Whole) : null;
+
+    /// <summary>
     /// Caps how fast the view follows across a player now at <paramref name="now"/>: where they stand more than
     /// <paramref name="most"/> whole pixels from where the view takes them to have stood, they are taken to have stood
     /// exactly that far off, so that the view follows by that and its one pixel more. For something that moves the

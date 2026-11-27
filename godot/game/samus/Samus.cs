@@ -811,6 +811,27 @@ public partial class Samus : Player
         Room.Session.Camera.CapFollowAcross(Position.X, PlacedViewCap);
     }
 
+    /// <summary>
+    /// Holds the view to following her by <see cref="PlacedViewCap"/> and its one pixel more, each way, once a Yapping
+    /// Maw or Draygon has placed her, as the cartridge's cap for those two does: where she stands that far or further
+    /// from where the view takes her to have stood, she is taken to have stood that far off, on the side she moved
+    /// toward, past her and not behind her. Only the distance reaches the view, which goes the way she went; the
+    /// side decides which of the two parts of a pixel is taken from the other. A view that has tracked nothing since
+    /// it was placed is left as it is.
+    /// </summary>
+    public static void CapViewOfHeld(Player held)
+    {
+        ArgumentNullException.ThrowIfNull(held);
+        Camera view = held.Room.Session.Camera;
+        if (view.PlayerTakenToHaveStoodAt is not { } stood)
+            return;
+        int down = held.Position.Y.Whole - stood.Y, across = held.Position.X.Whole - stood.X;
+        if (Math.Abs(down) >= PlacedViewCap)
+            view.TakePlayerToHaveStoodAtY(held.Position.Y.Whole + Math.Sign(down) * PlacedViewCap);
+        if (Math.Abs(across) >= PlacedViewCap)
+            view.TakePlayerToHaveStoodAtX(held.Position.X.Whole + Math.Sign(across) * PlacedViewCap);
+    }
+
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
 

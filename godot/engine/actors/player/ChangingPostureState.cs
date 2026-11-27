@@ -45,9 +45,13 @@ public sealed class ChangingPostureState : PlayerState
     {
         // A smaller body is the player's at once, as they shrink into it; a taller one is theirs from their next
         // update, so that what meets them meanwhile meets the body they had.
+        // A change of posture comes once the update's movement is made and is no move of the player's: once the form
+        // is theirs the view takes them to have stood where it leaves them, whether or not the change moved their
+        // middle, and follows nothing of this update's way down.
         if (_form != Player.Crawling)
         {
-            owner.TrySetForm(_form, atOnce: owner.HalfHeightOf(_form) < owner.HalfHeight);
+            if (owner.TrySetForm(_form, atOnce: owner.HalfHeightOf(_form) < owner.HalfHeight))
+                owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);
             return;
         }
 
@@ -56,10 +60,10 @@ public sealed class ChangingPostureState : PlayerState
         // drop is the low body's own: tried with the body they had it would be stopped by the floor they stand on.
         int drop = owner.HalfHeightOf(Player.Crouching) - owner.HalfHeightOf(Player.Crawling);
         owner.TrySetForm(Player.Crawling, aroundMiddle: true, atOnce: true);
-        MoveResult dropped = owner.MoveBodyDown(Pixels.FromWhole(drop), owner.BodyMoves);
+        owner.MoveBodyDown(Pixels.FromWhole(drop), owner.BodyMoves);
 
-        // The drop is the change's own and no move of the player's: the view does not follow it.
-        owner.Room.Session.Camera.ShiftWherePlayerStoodDown(dropped.Moved.Whole);
+        // The view takes them to have stood where the drop leaves them.
+        owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);
     }
 
     /// <inheritdoc/>

@@ -71,14 +71,6 @@ public abstract class PlayerState : State<Player>
     public virtual int ReadsBothAcross(Player owner) => 0;
 
     /// <summary>
-    /// Whether the form this state is entered in, when the input asked for the state, stands for a change made before
-    /// the update's movement: the view then discounts the change's own lift and follows the update's way. Most do.
-    /// One whose body is taken once the update's movement is made says not: the view takes the player to have stood
-    /// where the fitting leaves them, where a try of it was stopped, and follows nothing of that update's way down.
-    /// </summary>
-    public virtual bool FormComesBeforeMoving => true;
-
-    /// <summary>
     /// Whether this state passes over the way behind the player held by itself (<see cref="Player.Intent"/>): the
     /// player then steers neither way. No state does unless it says so.
     /// </summary>

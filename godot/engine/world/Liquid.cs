@@ -148,6 +148,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         _level = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
         _target = _level;
         (_motion, _speedSpent, _waiting, _tidePhase, _tide) = (Motion.Dormant, false, MoveDelay, 0, Pixels.Zero);
+        _begun = false;
         IsAstir = false;
         Surface = _level;
         _content = content;
@@ -211,14 +212,25 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         QueueRedraw();
     }
 
+    /// <summary>Whether its motion has begun: its first move since it was set up, which does nothing else, is behind it.</summary>
+    private bool _begun;
+
     /// <summary>
-    /// Plays one update of the surface's rise or fall, and turns its tide. A rise or fall goes by stages: dormant, an
-    /// update on which it has somewhere to go and a speed only begins its wait; waiting, it counts the wait down; and
-    /// from the update after the count runs out it moves, until it arrives. The room does this as an update opens, so
-    /// that everything in the update finds the surface where the update shows it.
+    /// Plays one update of the surface's rise or fall, and turns its tide, and returns whether it did: its first move
+    /// after it is set up only begins its motion, with no stage of a rise or fall and no turn of the tide. A rise or
+    /// fall goes by stages: dormant, an update on which it has somewhere to go and a speed only begins its wait;
+    /// waiting, it counts the wait down; and from the update after the count runs out it moves, until it arrives. The
+    /// room does this as an update opens, so that everything in the update finds the surface where the update shows
+    /// it.
     /// </summary>
-    internal void Move()
+    internal bool Move()
     {
+        if (!_begun)
+        {
+            _begun = true;
+            return false;
+        }
+
         IsAstir = _motion != Motion.Dormant;
         switch (_motion)
         {
@@ -258,6 +270,7 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         }
 
         Surface = _level + _tide;
+        return true;
     }
 
     /// <summary>

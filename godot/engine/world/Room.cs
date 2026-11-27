@@ -622,9 +622,12 @@ public partial class Room : Node2D
         {
             if (Liquid is { } liquid)
             {
-                liquid.Move();
-                foreach (ILiquidWatcher watcher in Session.Services.OfType<ILiquidWatcher>())
-                    watcher.LiquidMoved(Session, liquid);
+                // Its first move after the room is set up only begins its motion, and is told to no one.
+                if (liquid.Move())
+                {
+                    foreach (ILiquidWatcher watcher in Session.Services.OfType<ILiquidWatcher>())
+                        watcher.LiquidMoved(Session, liquid);
+                }
             }
 
             foreach (RoomSequence sequence in _sequences)

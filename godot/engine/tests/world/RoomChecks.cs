@@ -183,11 +183,11 @@ public sealed class RoomChecks
         world.Setup();
         Expect.False(water.IsSubmerged(world.Player.Feet));
 
-        // Told to rise, it begins to wait on the first update, its wait runs out on the second, and it moves two
-        // pixels on each of the eight after.
+        // Its first move after the room is set up only begins its motion. Told to rise, it begins to wait on the
+        // second update, its wait runs out on the third, and it moves two pixels on each of the seven after.
         water.Triggered("rise");
         world.Step(10);
-        Expect.Equal(Pixels.FromWhole(74), water.Surface);
+        Expect.Equal(Pixels.FromWhole(76), water.Surface);
         Expect.True(water.IsSubmerged(world.Player.Feet));
         world.Step(40);
         Expect.Equal(Pixels.FromWhole(30), water.Surface);

@@ -46,9 +46,10 @@ def named(setup: str, family: str) -> str:
     return re.search(family + r'\.(\w+)', setup).group(1)
 
 
-def remembered(setup: str) -> dict[str, str]:
-    """What a lock that stays open says of its barrier: the name it is remembered by, and that it is plain from then on."""
-    if 'DoorOpeningPersistence.Persistent' not in setup:
+def remembered(setup: str, stays_open: bool = False) -> dict[str, str]:
+    """What a lock that stays open says of its barrier: the name it is remembered by, and that it is plain from then on.
+    The old code's lists say which locks stay open, unless `stays_open` says this one does whatever they say."""
+    if not stays_open and 'DoorOpeningPersistence.Persistent' not in setup:
         return {}
     return {'RememberedAs': quoted(snake(named(setup, 'LockedDoorDefinitions'))), 'Remembered': REMEMBERED_PLAIN}
 
@@ -99,6 +100,7 @@ class Objects:
         ctx = self.ctx
         condition = named(setup, 'GreyDoorCondition')
         extra: list[Placed] = []
+        stays_open = False
         if condition in ('AreaBossDefeated', 'AreaMiniBossDefeated', 'AreaTorizoDefeated'):
             opens = ctx.fact(ctx.boss(condition[:-len('Defeated')]) + '_defeated')
         elif condition == 'EnemyDeathQuota':
@@ -111,11 +113,14 @@ class Objects:
             opens = ctx.never()
         elif condition == 'TourianStatueFinished':
             opens = ctx.fact('tourian_unlocked')
+            # The cartridge keeps this door's bit once it has been shot open, as it does a coloured door's, and it is
+            # a blue door on every visit after; the old code's lists shut it again each time the room is set up.
+            stays_open = True
         elif condition == 'CrittersEscaped':
             opens = ctx.fact('animals_escaped')
         else:
             raise ValueError(f'A grey door opens on a condition this does not know: {condition}')
-        held = {'HeldShutBy': opens, **remembered(setup)}
+        held = {'HeldShutBy': opens, **remembered(setup, stays_open)}
         if 'GreyDoorClosing.AfterBombs' in setup:
             # This one does not shut behind Samus until she has the bombs: it stands open till then, and then shuts
             # and is held shut as any other is.

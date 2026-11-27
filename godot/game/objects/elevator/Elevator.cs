@@ -199,8 +199,9 @@ public partial class Elevator : RoomObject
         Position = new PixelPosition(Position.X, Position.Y.WithWhole(_restY));
         Hold(samus);
 
-        // She is let go still facing forward, and stays so until she is turned.
-        samus.ChangeState(new StandingForwardState());
+        // She is let go still facing forward, and stays so until she is turned: nothing turns her afresh, so she is
+        // not lifted, though the body she rode in was not the front view's.
+        samus.ChangeState(new StandingForwardState(turns: false));
     }
 
     private void MoveBy(double pixels) => Position = new PixelPosition(Position.X, Position.Y + Pixels.FromNumber(pixels));

@@ -13,7 +13,11 @@ namespace Game;
 /// The look she stands in: the front view's own, or the one she is already shown in, which then goes on unbroken, as
 /// the last picture of her appearance does where a saved game is taken up.
 /// </param>
-public sealed class StandingForwardState(string look = "facing_forward") : PlayerState, ISamusLook
+/// <param name="turns">
+/// Whether she is turned to face the screen as she is put in it. Not when an elevator lets her go: she faces it
+/// already, in the body she boarded with, and nothing of her place changes.
+/// </param>
+public sealed class StandingForwardState(string look = "facing_forward", bool turns = true) : PlayerState, ISamusLook
 {
     /// <inheritdoc/>
     public string Look => look;
@@ -31,7 +35,8 @@ public sealed class StandingForwardState(string look = "facing_forward") : Playe
     public override void Enter(Player owner)
     {
         owner.Velocity = PixelVelocity.Zero;
-        ((Samus)owner).TurnToFaceForward();
+        if (turns)
+            ((Samus)owner).TurnToFaceForward();
     }
 
     /// <inheritdoc/>

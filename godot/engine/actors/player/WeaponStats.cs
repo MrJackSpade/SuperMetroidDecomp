@@ -18,7 +18,8 @@ namespace Engine.Actors;
 /// plain one when fewer were. A weapon that does not charge fires on a press; with a "held_cooldown" it also fires
 /// while the attack stays held, whenever the cooldown allows, and waits that long after such a shot; with
 /// "repeats_every" it fires every so many held updates instead. With "press_carries_over" a press counts once more
-/// on the update after it, so one made an update before the weapon could fire still fires it.
+/// on the update after it, so one made an update before the weapon could fire still fires it; for a weapon with a
+/// "held_cooldown", which fires only while held, the carried press says which wait its shot leaves.
 /// </para>
 /// <para>
 /// "max_live" is how many places there are for its shots out at once. Weapons that give the same "pool" share those

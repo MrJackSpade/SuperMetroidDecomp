@@ -360,6 +360,9 @@ public sealed partial class EngineAssetWriter
             ["inherits_speed"] = true,
             ["cooldown"] = SamusProjectileCooldowns.Read(plain, BeamShotCooldowns.Shot.Uncharged),
             ["held_cooldown"] = SamusProjectileCooldowns.Read(plain, BeamShotCooldowns.Shot.HeldFire),
+            // A shot fired on the update of the press or on the one after waits the plain wait
+            // (BeamFiring.TryFireBeam: both input-edge latches); only one the hold alone fires waits the longer.
+            ["press_carries_over"] = true,
             ["max_live"] = SamusProjectileSystem.PlaceCount,
             // Beams and missiles share the five places: a beam takes one however many projectiles show it.
             ["pool"] = ShotPool,

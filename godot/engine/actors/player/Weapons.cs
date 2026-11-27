@@ -262,19 +262,26 @@ public sealed class Weapons
             return;
         }
 
-        // A weapon that does not charge leaves a charge already built as it stands.
-        if (input.WasPressed(GameAction.Attack) || (weapon.PressCarriesOver && player.InputBefore.WasPressed(GameAction.Attack)))
+        // A weapon that does not charge leaves a charge already built as it stands. Its press is this update's, or
+        // the one before's where its data says a press carries over.
+        bool pressed = input.WasPressed(GameAction.Attack) || (weapon.PressCarriesOver && player.InputBefore.WasPressed(GameAction.Attack));
+        int heldCooldown = weapon.HeldCooldownFor(player.Inventory);
+        if (heldCooldown > 0)
         {
-            _heldFor = 0;
-            Fire(player, weapon, charged: false);
+            // One that fires for as long as it is held fires only while held, whenever the wait allows. A shot the
+            // hold alone fired leaves the longer wait; one the press fired, on its own update or carried to the
+            // next, leaves the plain one.
+            if (pressed)
+                _heldFor = 0;
+            if (held && Fire(player, weapon, charged: false) && !pressed)
+                _cooldown = Countdown.Of(heldCooldown);
             return;
         }
 
-        int heldCooldown = weapon.HeldCooldownFor(player.Inventory);
-        if (held && heldCooldown > 0)
+        if (pressed)
         {
-            if (Fire(player, weapon, charged: false))
-                _cooldown = Countdown.Of(heldCooldown);
+            _heldFor = 0;
+            Fire(player, weapon, charged: false);
             return;
         }
 

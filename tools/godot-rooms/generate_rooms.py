@@ -539,6 +539,11 @@ class Generator:
             extras.append(enemies.Placed(boss.scene, 'CrocomireSkeleton', {'Corpse': 'true'},
                                          at=(int(at.group(1)), int(at.group(2))), only_when=defeated))
         if boss.boss == 'kraid':
+            # A room where it has been beaten places the same scene as what is left of it: sunk and never seen, it
+            # takes its sinking's last steps over each time the room is entered, as the old Kraid's body does in its
+            # defeated room, and a door's fade in lasts the longer for the count the two share.
+            extras.append(enemies.Placed(boss.scene, 'KraidSunk', {
+                'Sunk': 'true', 'VictoryMusic': boss.properties['VictoryMusic']}, at=boss.at, only_when=defeated))
             # The old Kraid sets its room's screens as it is set up, and again as it has grown. Each screen it changes
             # is a zone, told its first state as the room is set up and opened by Kraid as it grows.
             cameras = legacy.read('Bosses', 'Kraid', 'KraidCameraDefinitions.cs')

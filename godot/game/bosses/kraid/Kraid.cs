@@ -84,6 +84,15 @@ public partial class Kraid : Enemy
     [Export]
     public int SunkY { get; set; } = 608;
 
+    /// <summary>
+    /// Whether it is what is left of it in a room where it has been beaten: sunk already and never seen, it takes
+    /// the last steps of its sinking over each time the room is entered: the wait, the steps of the room's last fade
+    /// by the count every fade shares, and its victory's music asked for. The fade shows nothing, the room having
+    /// those colours already; but a door's fade in, sharing the count, lasts the longer for it.
+    /// </summary>
+    [Export]
+    public bool Sunk { get; set; }
+
     /// <summary>How far across the room its lunge carries it.</summary>
     [Export]
     public int LungeReachX { get; set; } = 92;
@@ -551,6 +560,17 @@ public partial class Kraid : Enemy
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
+        if (Sunk)
+        {
+            foreach (string part in new[] { "Visual", "Arm", "Foot", "Head" })
+                GetNodeOrNull<ActorVisual>(part)?.SetShown(false);
+            _armPoses?.TakeNone();
+            _footPoses?.TakeNone();
+            _headPoses?.TakeNone();
+            _stage = Stage.Sunk;
+            _sinking = Sinking.HideBody;
+            return;
+        }
 
         // Its fight keeps Samus where a boss's does in the view, from its setup until it has sunk.
         Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
@@ -916,6 +936,10 @@ public partial class Kraid : Enemy
 
                 foreach (string part in new[] { "Arm", "Foot", "Head" })
                     GetNodeOrNull<ActorVisual>(part)?.SetShown(false);
+
+                // Its room is drawn anew before its last fade too, and the shared count starts over.
+                FadeCount.Restart();
+                _backdropStep = 0;
                 _stage = Stage.Sunk;
                 _sinking = Sinking.HideBody;
                 break;
@@ -938,22 +962,21 @@ public partial class Kraid : Enemy
 
             case Sinking.Wait:
                 if (--_wait <= 0)
-                {
-                    // His room is drawn anew before this fade too, and the shared count starts over.
-                    FadeCount.Restart();
-                    _backdropStep = 0;
                     _sinking = Sinking.FadeIn;
-                }
-
                 break;
 
             case Sinking.FadeIn:
-                if (!StepBackdropFade(_sunkBackdrop))
+                // What is left of it in a room it was beaten in takes the count's steps alone: the room has the
+                // fade's last colours already.
+                if (!(Sunk ? FadeCount.TakeStep(BackdropFadeSteps - 1) : StepBackdropFade(_sunkBackdrop)))
                     break;
                 if (VictoryMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(VictoryMusic);
                 _sinking = Sinking.Finished;
-                Die();
+
+                // Beaten here and now, it is gone. What was left of it stays as it is, and does nothing more.
+                if (!Sunk)
+                    Die();
                 break;
 
             case Sinking.Finished:

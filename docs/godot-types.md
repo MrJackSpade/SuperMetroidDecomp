@@ -1328,7 +1328,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.
 - **A special attack** is let loose while the attack is still held, once it has been held `special_attack_updates`.
 - **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
-  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update.
+  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update. Its windup ends a knockback she
+  carries as it begins (a throw, and what she carries of one she let a damage boost go with,
+  `Samus.EndCarriedKnockback`), and each update of it that launches nothing lets her run's momentum go, as the
+  cartridge's does: her boost ends then if she had momentum as the windup began, and her speed echoes are sent
+  closing on her (`ShinesparkState.SendsEchoesOff`).
 - **Hurts.** A hit from the room itself (a spike) has its own invincibility and knockback lengths. The low-energy
   warning is started once as her energy falls low and stopped once as it recovers. Her states that the cartridge
   refuses a knockback in hold it off, and it begins once she is out of them if its time has not run out: the turns,

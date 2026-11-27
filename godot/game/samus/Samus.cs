@@ -534,6 +534,9 @@ public partial class Samus : Player
     /// </summary>
     public void CarryKnockbackOn(Countdown left) => _knockbackCarried = left;
 
+    /// <summary>Ends what she carries of a knockback she left a damage boost with, as a shinespark's windup ends a knockback.</summary>
+    public void EndCarriedKnockback() => _knockbackCarried = Countdown.Over;
+
     /// <summary>Whether the enemies' shots are being tried against her, all of which land once the trying has begun.</summary>
     private bool _shotsLand;
 

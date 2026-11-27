@@ -192,7 +192,8 @@ public partial class SamusVisual : Node2D
     /// <summary>
     /// Leaves and moves her echoes. At full speed one of the two is left where she is every few updates, turn about,
     /// and while a shinespark flies, where she stood before it moved her. When she slows they close on her from behind,
-    /// drawing level as they come, and are gone as they reach her. A shinespark's launch and its crash take them away.
+    /// drawing level as they come, and are gone as they reach her. A shinespark's windup holds them until an update of
+    /// it launches nothing, which sends them closing on her; its launch and its crash take them away.
     /// They are shown by the visuals "Echo1" and "Echo2", if her scene has them.
     /// </summary>
     private void StepEchoes(Samus samus, ActorVisual picture)
@@ -212,9 +213,10 @@ public partial class SamusVisual : Node2D
                 _nextEcho = 1 - _nextEcho;
             }
         }
-        else if (samus.State is ShinesparkState && _echoesLeaving == 0)
+        else if (samus.State is ShinesparkState { SendsEchoesOff: false } && _echoesLeaving == 0)
         {
-            // Winding up, echoes that are not closing on her stay where they were left.
+            // Winding up, until an update of it launches nothing, echoes that are not closing on her stay where they
+            // were left; from then they close on her.
         }
         else if (boosting && _echoesLeaving == 0)
         {

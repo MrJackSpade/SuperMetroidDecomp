@@ -78,6 +78,15 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     public bool IsWindingUp => _stage == Stage.WindingUp;
 
     /// <summary>
+    /// Whether her speed echoes have been sent off as she winds up: from the first update of the windup that launches
+    /// nothing, as the cartridge lets her run's momentum go on each such update.
+    /// </summary>
+    public bool SendsEchoesOff { get; private set; }
+
+    /// <summary>Whether she had her run's momentum as the windup began, which the first update of it that launches nothing lets go.</summary>
+    private bool _momentumToLetGo;
+
+    /// <summary>
     /// Where she stood before she moved this update, while she flies; none on the update she launches and once she
     /// has crashed. Her speed echoes are left from here.
     /// </summary>
@@ -97,7 +106,18 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     {
         var samus = (Samus)owner;
         samus.SpendShine();
+
+        // Her boost is held at its full stage until the windup lets her run's momentum go, so whether she had it is
+        // kept for then.
+        _momentumToLetGo = owner.HasMomentum;
         owner.StopAcross();
+
+        // A knockback she carries ends here, as the cartridge's windup clears it: a throw still carrying her, and what
+        // was left of the one she let a damage boost go with, which would otherwise end her speed up or down as it ran
+        // out. No bomb's throw is left waiting into it: one is refused in every state the windup is begun from, and
+        // one given in any other is taken, ahead of what her input asks, before a windup can be begun.
+        owner.EndThrow();
+        samus.EndCarriedKnockback();
         owner.Velocity = PixelVelocity.Zero;
         samus.SpendChargeOnShinespark();
 
@@ -149,7 +169,8 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// Waits for a direction, which launches her only with the jump held, the first of these that holds, as the
     /// cartridge has it: up launches her straight up, the angle-up action diagonally the way she faces, and the way she
     /// faces across. The way behind her does nothing. The windup running out launches her straight up, whatever is
-    /// held on that update: the cartridge's launch then takes the place of what the input asked for.
+    /// held on that update: the cartridge's launch then takes the place of what the input asked for. An update that
+    /// launches nothing lets her run's momentum go.
     /// </summary>
     private void WindUp(Samus samus)
     {
@@ -179,8 +200,20 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             if (input.IsHeld(forward > 0 ? GameAction.Right : GameAction.Left))
             {
                 Launch(samus, forward, 0);
+                return;
             }
         }
+
+        // An update that launches nothing lets her run's momentum go, as the cartridge's windup does when her input
+        // matches none of its launches: her boost ends with it, if she had it as the windup began, and her speed
+        // echoes are sent off whether or not she had.
+        if (_momentumToLetGo)
+        {
+            _momentumToLetGo = false;
+            samus.EndBoost();
+        }
+
+        SendsEchoesOff = true;
     }
 
     /// <summary>Launches her the given way.</summary>

@@ -106,16 +106,16 @@ position = Vector2(344, 136)
 TypeFile = "items/super_missile_tank.json"
 RememberedAs = "golden_torizo_shot_block_super_missile_tank"
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="GreyCap" parent="." instance=ExtResource("9")]
 position = Vector2(480, 352)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "golden_torizo_grey_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")

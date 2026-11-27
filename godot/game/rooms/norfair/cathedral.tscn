@@ -111,15 +111,15 @@ position = Vector2(552, 456)
 TypeFile = "items/missile_tank.json"
 RememberedAs = "cathedral_shot_block_missile_tank"
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="GreenCap" parent="." instance=ExtResource("9")]
 position = Vector2(736, 352)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "cathedral_green_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("10")

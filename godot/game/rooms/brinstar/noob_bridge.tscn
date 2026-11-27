@@ -131,15 +131,15 @@ PressesUp = false
 CrawlSpeed = 0.25
 AlwaysActive = true
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="GreenCap" parent="." instance=ExtResource("8")]
 position = Vector2(1504, 96)
 DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "noob_bridge_green_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="BrinstarBlueBackgroundSpores" type="Node2D" parent="."]
 script = ExtResource("9")

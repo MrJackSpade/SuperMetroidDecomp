@@ -62,15 +62,15 @@ Travel = 1
 ToScreen = Vector2i(0, 0)
 SamusStep = 0.78125
 
-[node name="BlueCap" parent="." instance=ExtResource("5")]
-position = Vector2(16, 352)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="RedCap" parent="." instance=ExtResource("5")]
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "seaweed_red_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("5")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="TourianGlowingArkanoidBlocksAndRedOrbs" type="Node2D" parent="."]
 script = ExtResource("6")

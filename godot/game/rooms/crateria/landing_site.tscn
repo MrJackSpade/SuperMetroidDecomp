@@ -183,14 +183,12 @@ TurnsOnlyInView = true
 TurnsWithEnemies = true
 ToldWhenAway = Array[NodePath]([NodePath("../Departure")])
 
-[node name="BlueCap" parent="." instance=ExtResource("7")]
-position = Vector2(16, 608)
-DataFile = "objects/door_cap_blue_right.json"
+[node name="GreenCap" parent="." instance=ExtResource("7")]
+position = Vector2(2272, 1120)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "landing_site_green_door_facing_left"
+Remembered = 1
 PresentWhen = SubResource("r16")
-
-[node name="BlueCap2" parent="." instance=ExtResource("7")]
-position = Vector2(16, 1120)
-DataFile = "objects/door_cap_blue_right.json"
 
 [node name="YellowCap" parent="." instance=ExtResource("7")]
 position = Vector2(2272, 352)
@@ -199,12 +197,14 @@ RememberedAs = "landing_site_yellow_door_facing_left"
 Remembered = 1
 PresentWhen = SubResource("r16")
 
-[node name="GreenCap" parent="." instance=ExtResource("7")]
-position = Vector2(2272, 1120)
-DataFile = "objects/door_cap_green_left.json"
-RememberedAs = "landing_site_green_door_facing_left"
-Remembered = 1
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_blue_right.json"
 PresentWhen = SubResource("r16")
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(16, 1120)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("8")
@@ -449,13 +449,13 @@ HeldShutBy = SubResource("r9")
 PresentWhen = SubResource("r1")
 
 [node name="GreyCap2" parent="." instance=ExtResource("7")]
-position = Vector2(2272, 352)
+position = Vector2(2272, 1120)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r9")
 PresentWhen = SubResource("r1")
 
 [node name="GreyCap3" parent="." instance=ExtResource("7")]
-position = Vector2(2272, 1120)
+position = Vector2(2272, 352)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r9")
 PresentWhen = SubResource("r1")

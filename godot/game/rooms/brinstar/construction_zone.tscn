@@ -211,15 +211,15 @@ TriggerDistance = 0
 StartsFacing = 0
 Look = "climb_default"
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="RedCap" parent="." instance=ExtResource("8")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "construction_zone_red_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(16, 352)

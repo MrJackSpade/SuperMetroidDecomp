@@ -9,8 +9,8 @@
 [ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="10"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="11"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
 [ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="14"]
@@ -139,22 +139,22 @@ ComesBack = 3
 TellsWhat = "toggle"
 TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
 
-[node name="MissileTank" parent="." instance=ExtResource("10")]
-position = Vector2(984, 392)
-TypeFile = "items/missile_tank.json"
-RememberedAs = "green_hill_zone_exposed_missile_tank"
-
-[node name="BlueCap" parent="." instance=ExtResource("11")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
-[node name="YellowCap" parent="." instance=ExtResource("11")]
+[node name="YellowCap" parent="." instance=ExtResource("10")]
 position = Vector2(480, 96)
 DataFile = "objects/door_cap_yellow_left.json"
 RememberedAs = "green_hill_zone_yellow_door_facing_left"
 Remembered = 1
 
-[node name="BlueCap2" parent="." instance=ExtResource("11")]
+[node name="MissileTank" parent="." instance=ExtResource("11")]
+position = Vector2(984, 392)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "green_hill_zone_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("10")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("10")]
 position = Vector2(2016, 864)
 DataFile = "objects/door_cap_blue_left.json"
 

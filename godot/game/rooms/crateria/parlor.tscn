@@ -363,6 +363,13 @@ Runs = 0
 Look = "parlor_default"
 PresentWhen = SubResource("r9")
 
+[node name="RedCap" parent="." instance=ExtResource("7")]
+position = Vector2(480, 864)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "parlor_red_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r12")
+
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(1248, 96)
 DataFile = "objects/door_cap_blue_left.json"
@@ -380,13 +387,6 @@ PresentWhen = SubResource("r12")
 [node name="BlueCap4" parent="." instance=ExtResource("7")]
 position = Vector2(992, 608)
 DataFile = "objects/door_cap_blue_left.json"
-
-[node name="RedCap" parent="." instance=ExtResource("7")]
-position = Vector2(480, 864)
-DataFile = "objects/door_cap_red_left.json"
-RememberedAs = "parlor_red_door_facing_left"
-Remembered = 1
-PresentWhen = SubResource("r12")
 
 [node name="BlueCap5" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
@@ -916,32 +916,32 @@ TurnsWithEnemies = true
 PresentWhen = SubResource("r1")
 
 [node name="GreyCap" parent="." instance=ExtResource("7")]
-position = Vector2(272, 608)
-DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r6")
-PresentWhen = SubResource("r1")
-
-[node name="GreyCap2" parent="." instance=ExtResource("7")]
-position = Vector2(352, 1232)
-DataFile = "objects/door_cap_grey_up.json"
-HeldShutBy = SubResource("r6")
-PresentWhen = SubResource("r1")
-
-[node name="GreyCap3" parent="." instance=ExtResource("7")]
-position = Vector2(480, 864)
-DataFile = "objects/door_cap_grey_left.json"
-HeldShutBy = SubResource("r6")
-PresentWhen = SubResource("r1")
-
-[node name="GreyCap4" parent="." instance=ExtResource("7")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r6")
 PresentWhen = SubResource("r1")
 
-[node name="GreyCap5" parent="." instance=ExtResource("7")]
+[node name="GreyCap2" parent="." instance=ExtResource("7")]
+position = Vector2(272, 608)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap3" parent="." instance=ExtResource("7")]
 position = Vector2(272, 864)
 DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap4" parent="." instance=ExtResource("7")]
+position = Vector2(480, 864)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap5" parent="." instance=ExtResource("7")]
+position = Vector2(352, 1232)
+DataFile = "objects/door_cap_grey_up.json"
 HeldShutBy = SubResource("r6")
 PresentWhen = SubResource("r1")
 

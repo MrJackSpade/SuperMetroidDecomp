@@ -98,10 +98,6 @@ PressesUp = false
 CrawlSpeed = 0.5
 Look = "crateria_kihunter"
 
-[node name="BlueCap" parent="." instance=ExtResource("7")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="YellowCap" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_yellow_left.json"
@@ -113,6 +109,10 @@ position = Vector2(352, 720)
 DataFile = "objects/door_cap_yellow_up.json"
 RememberedAs = "crateria_kihunter_yellow_door_facing_up"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("8")

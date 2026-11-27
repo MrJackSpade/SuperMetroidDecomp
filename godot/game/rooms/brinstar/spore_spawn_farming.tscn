@@ -94,15 +94,15 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
-position = Vector2(736, 96)
-DataFile = "objects/door_cap_blue_left.json"
-
 [node name="GreenCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_green_right.json"
 RememberedAs = "spore_spawn_farming_green_door_facing_right"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Spores" type="Node2D" parent="."]
 script = ExtResource("9")

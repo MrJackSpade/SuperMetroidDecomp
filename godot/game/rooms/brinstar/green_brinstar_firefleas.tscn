@@ -94,6 +94,12 @@ Circles = false
 Speed = 0.5
 StartsUpward = true
 
+[node name="GreenCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_green_right.json"
+RememberedAs = "green_brinstar_firefleas_green_door_facing_right"
+Remembered = 1
+
 [node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
@@ -101,12 +107,6 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
-
-[node name="GreenCap" parent="." instance=ExtResource("7")]
-position = Vector2(16, 608)
-DataFile = "objects/door_cap_green_right.json"
-RememberedAs = "green_brinstar_firefleas_green_door_facing_right"
-Remembered = 1
 
 [node name="Darkness" type="Node2D" parent="."]
 script = ExtResource("8")

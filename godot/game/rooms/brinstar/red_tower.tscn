@@ -159,15 +159,21 @@ StartsFacing = 0
 Speed = 2
 RespawnsWhenKilled = true
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
-position = Vector2(16, 1120)
-DataFile = "objects/door_cap_blue_right.json"
+[node name="GreenCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 2400)
+DataFile = "objects/door_cap_green_right.json"
+RememberedAs = "red_tower_green_door_facing_right"
+Remembered = 1
 
 [node name="YellowCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 1632)
 DataFile = "objects/door_cap_yellow_right.json"
 RememberedAs = "red_tower_yellow_door_facing_right"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 1120)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(224, 96)
@@ -176,12 +182,6 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="BlueCap3" parent="." instance=ExtResource("9")]
 position = Vector2(224, 2400)
 DataFile = "objects/door_cap_blue_left.json"
-
-[node name="GreenCap" parent="." instance=ExtResource("9")]
-position = Vector2(16, 2400)
-DataFile = "objects/door_cap_green_right.json"
-RememberedAs = "red_tower_green_door_facing_right"
-Remembered = 1
 
 [node name="Screen0x6" type="Node2D" parent="."]
 script = ExtResource("10")

@@ -173,17 +173,17 @@ RespawnsWhenKilled = true
 PresentWhen = SubResource("r4")
 
 [node name="GreyCap" parent="." instance=ExtResource("11")]
-position = Vector2(16, 352)
-DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r1")
-RememberedAs = "kraid_grey_door_facing_right"
-Remembered = 1
-
-[node name="GreyCap2" parent="." instance=ExtResource("11")]
 position = Vector2(480, 352)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "kraid_grey_door_facing_left"
+Remembered = 1
+
+[node name="GreyCap2" parent="." instance=ExtResource("11")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "kraid_grey_door_facing_right"
 Remembered = 1
 
 [node name="Plants" type="Node" parent="."]

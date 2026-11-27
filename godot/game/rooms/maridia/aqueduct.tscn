@@ -5,8 +5,8 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
@@ -132,33 +132,33 @@ StartsOn = 2
 Clockwise = true
 CrawlSpeed = 0.75
 
-[node name="MissileTank" parent="." instance=ExtResource("6")]
-position = Vector2(1224, 152)
-TypeFile = "items/missile_tank.json"
-RememberedAs = "aqueduct_exposed_missile_tank"
-
-[node name="SuperMissileTank" parent="." instance=ExtResource("6")]
-position = Vector2(1480, 136)
-TypeFile = "items/super_missile_tank.json"
-RememberedAs = "aqueduct_exposed_super_missile_tank"
-
-[node name="BlueCap" parent="." instance=ExtResource("7")]
-position = Vector2(16, 352)
-DataFile = "objects/door_cap_blue_right.json"
-
-[node name="BlueCap2" parent="." instance=ExtResource("7")]
-position = Vector2(96, 32)
-DataFile = "objects/door_cap_blue_down.json"
-
-[node name="BlueCap3" parent="." instance=ExtResource("7")]
-position = Vector2(1504, 352)
-DataFile = "objects/door_cap_blue_left.json"
-
-[node name="RedCap" parent="." instance=ExtResource("7")]
+[node name="RedCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "aqueduct_red_door_facing_right"
 Remembered = 1
+
+[node name="MissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(1224, 152)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "aqueduct_exposed_missile_tank"
+
+[node name="SuperMissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(1480, 136)
+TypeFile = "items/super_missile_tank.json"
+RememberedAs = "aqueduct_exposed_super_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(96, 32)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("6")]
+position = Vector2(1504, 352)
+DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("8")

@@ -142,10 +142,6 @@ Until = SubResource("r5")
 Records = PackedStringArray("second_metroid_shaft_cleared")
 PresentWhen = SubResource("r7")
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="GreyCap" parent="." instance=ExtResource("9")]
 position = Vector2(96, 480)
 DataFile = "objects/door_cap_grey_up.json"
@@ -159,6 +155,10 @@ StartsWhen = SubResource("r4")
 Until = SubResource("r5")
 Records = PackedStringArray("zebes_awake")
 PresentWhen = SubResource("r7")
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="TourianGlowingArkanoidBlocksAndRedOrbs" type="Node2D" parent="."]
 script = ExtResource("10")

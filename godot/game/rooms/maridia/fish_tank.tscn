@@ -142,15 +142,15 @@ Radius = 16
 AngleStep = 2
 Look = "west_ocean"
 
-[node name="BlueCap" parent="." instance=ExtResource("7")]
-position = Vector2(16, 608)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="RedCap" parent="." instance=ExtResource("7")]
 position = Vector2(992, 608)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "fish_tank_red_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(96, 32)

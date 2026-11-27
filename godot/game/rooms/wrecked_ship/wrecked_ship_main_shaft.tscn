@@ -367,13 +367,19 @@ position = Vector2(40, 1432)
 TypeFile = "items/missile_tank.json"
 RememberedAs = "wrecked_ship_main_shaft_exposed_missile_tank"
 
-[node name="BlueCap" parent="." instance=ExtResource("11")]
-position = Vector2(1040, 864)
-DataFile = "objects/door_cap_blue_right.json"
+[node name="GreyCap" parent="." instance=ExtResource("11")]
+position = Vector2(1040, 1632)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_right"
+Remembered = 1
 
-[node name="BlueCap2" parent="." instance=ExtResource("11")]
-position = Vector2(1120, 32)
-DataFile = "objects/door_cap_blue_down.json"
+[node name="GreyCap2" parent="." instance=ExtResource("11")]
+position = Vector2(1248, 1120)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_left"
+Remembered = 1
 
 [node name="GreenCap" parent="." instance=ExtResource("11")]
 position = Vector2(1120, 2000)
@@ -381,19 +387,13 @@ DataFile = "objects/door_cap_green_up.json"
 RememberedAs = "wrecked_ship_main_shaft_green_door_facing_up"
 Remembered = 1
 
-[node name="GreyCap" parent="." instance=ExtResource("11")]
-position = Vector2(1248, 1120)
-DataFile = "objects/door_cap_grey_left.json"
-HeldShutBy = SubResource("r1")
-RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_left"
-Remembered = 1
+[node name="BlueCap" parent="." instance=ExtResource("11")]
+position = Vector2(1040, 864)
+DataFile = "objects/door_cap_blue_right.json"
 
-[node name="GreyCap2" parent="." instance=ExtResource("11")]
-position = Vector2(1040, 1632)
-DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r1")
-RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_right"
-Remembered = 1
+[node name="BlueCap2" parent="." instance=ExtResource("11")]
+position = Vector2(1120, 32)
+DataFile = "objects/door_cap_blue_down.json"
 
 [node name="BlueCap3" parent="." instance=ExtResource("11")]
 position = Vector2(1504, 1632)

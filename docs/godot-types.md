@@ -809,7 +809,7 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 - **An item held in a shell** (a statue's orb) is an `Item` with a `Barrier` around it. The item cannot be touched
   until the barrier is open, because the barrier is solid.
 - **An item hidden in the wall** is an `Item` behind a block. It cannot be seen or touched until the block is gone.
-- **A boss room's locked doors** are `Barrier`s held shut by "this boss is not defeated". One that does not shut behind the player until something has happened is held open by a condition as well (`HeldOpenBy`): it stands open from the room's setting up, nothing remembered and no one told, and closes on the update the condition stops holding, as the Bomb Torizo's door does not shut until Samus has the Bombs. The `BossEncounter` does
+- **A boss room's locked doors** are `Barrier`s held shut by "this boss is not defeated". One that does not shut behind the player until something has happened is held open by a condition as well (`HeldOpenBy`): it stands open from the room's setting up, nothing remembered and no one told, showing its `held_open` look over and over; the condition is looked at each time that look has played through, and once it no longer holds the barrier plays its `let_go` look, standing open still until the step of it that shuts it (`shut`). So the Bomb Torizo's door does not shut until Samus has the Bombs, and then stands open forty updates more, in which she may leave by it. The `BossEncounter` does
   not touch them.
 - **A switch** is a `Barrier` with one health and no body to speak of, whose opening tells another barrier to open.
   A gate's switch never opens itself: each hit that would open it tells its gate to "toggle", which opens a shut

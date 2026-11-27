@@ -169,16 +169,16 @@ ComesBack = 3
 TellsWhat = "toggle"
 TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
 
-[node name="YellowCap" parent="." instance=ExtResource("11")]
-position = Vector2(16, 1376)
-DataFile = "objects/door_cap_yellow_right.json"
-RememberedAs = "caterpillar_yellow_door_facing_right"
-Remembered = 1
-
 [node name="GreenCap" parent="." instance=ExtResource("11")]
 position = Vector2(16, 864)
 DataFile = "objects/door_cap_green_right.json"
 RememberedAs = "caterpillar_green_door_facing_right_at1x54"
+Remembered = 1
+
+[node name="YellowCap" parent="." instance=ExtResource("11")]
+position = Vector2(16, 1376)
+DataFile = "objects/door_cap_yellow_right.json"
+RememberedAs = "caterpillar_yellow_door_facing_right"
 Remembered = 1
 
 [node name="GreenCap2" parent="." instance=ExtResource("11")]

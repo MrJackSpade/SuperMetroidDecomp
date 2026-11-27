@@ -98,15 +98,15 @@ Wingless = false
 WingsLostAtHealth = 32
 AlwaysActive = true
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="YellowCap" parent="." instance=ExtResource("6")]
 position = Vector2(608, 1232)
 DataFile = "objects/door_cap_yellow_up.json"
 RememberedAs = "red_kihunter_shaft_yellow_door_facing_up"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(224, 96)

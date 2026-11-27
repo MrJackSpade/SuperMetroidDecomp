@@ -92,9 +92,19 @@ class Objects:
         for placed in self.caps.values():
             self.placed.extend(placed)
 
+    def place_cap(self, block, things: list[Placed]) -> None:
+        """Places a cap the room's own list names, with whatever stands with it.
+
+        It takes its turn where the list has it among the room's objects, as the old room updates them in the order
+        it places them: a cap listed before an item has had its turn when the item is taken. It stands in place of
+        the blue cap its door would otherwise close with, which like every such cap comes after the room's own.
+        """
+        self.caps.pop(block, None)
+        self.placed.extend(things)
+
     def colored_door_setup(self, block, setup, gates) -> None:
         colour = named(setup, 'ColoredDoorColor').lower()
-        self.caps[block] = [cap(block, colour, named(setup, 'ColoredDoorOrientation'), remembered(setup))]
+        self.place_cap(block, [cap(block, colour, named(setup, 'ColoredDoorOrientation'), remembered(setup))])
 
     def grey_door_setup(self, block, setup, gates) -> None:
         ctx = self.ctx
@@ -125,7 +135,7 @@ class Objects:
             # This one does not shut behind Samus until she has the bombs: it stands open till then, and then shuts
             # and is held shut as any other is.
             held['HeldOpenBy'] = ctx.none_of([ctx.owns('bombs')])
-        self.caps[block] = [cap(block, 'grey', named(setup, 'ColoredDoorOrientation'), held)] + extra
+        self.place_cap(block, [cap(block, 'grey', named(setup, 'ColoredDoorOrientation'), held)] + extra)
 
     def eye_door_part_setup(self, block, setup, gates) -> None:
         # The growth round an eye door is the eye's own; its topmost part lies on the cap's block.
@@ -137,12 +147,12 @@ class Objects:
         destroyed = snake(named(setup, 'LockedDoorDefinitions'))
         top = (block[0], block[1] - 1)
         # The cap is held shut for as long as the eye lives; with the eye gone it is an ordinary door.
-        self.caps[top] = [
+        self.place_cap(top, [
             cap(top, 'eye', way, {'HeldShutBy': ctx.fact(destroyed)}),
             Placed(E + 'eye_door/eye_door_eye.tscn', 'EyeDoorEye', {
                 'StartsFacing': LEFT if way == 'Left' else RIGHT, 'DestroyedFact': quoted(destroyed), 'AlwaysActive': 'true'},
                 at=corner(block), only_when=ctx.none_of([ctx.fact(destroyed)])),
-        ]
+        ])
 
     def collectible_setup(self, block, setup, gates) -> None:
         ctx = self.ctx

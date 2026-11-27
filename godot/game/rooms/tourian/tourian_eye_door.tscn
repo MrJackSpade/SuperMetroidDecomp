@@ -62,10 +62,6 @@ Travel = 1
 ToScreen = Vector2i(0, 1)
 SamusStep = 0.78125
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="EyeCap" parent="." instance=ExtResource("6")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_eye_left.json"
@@ -77,6 +73,10 @@ StartsFacing = 0
 DestroyedFact = "tourian_eye_door_eye_door_facing_left"
 AlwaysActive = true
 PresentWhen = SubResource("r3")
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="TourianGlowingArkanoidBlocksAndRedOrbs" type="Node2D" parent="."]
 script = ExtResource("8")

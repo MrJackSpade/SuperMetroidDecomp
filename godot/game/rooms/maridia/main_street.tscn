@@ -6,8 +6,8 @@
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
@@ -194,31 +194,31 @@ CrawlSpeed = 0.5
 AlwaysActive = true
 Look = "main_street"
 
-[node name="MissileTank" parent="." instance=ExtResource("7")]
-position = Vector2(232, 856)
-TypeFile = "items/missile_tank.json"
-RememberedAs = "main_street_exposed_missile_tank"
-
-[node name="SuperMissileTank" parent="." instance=ExtResource("7")]
-position = Vector2(360, 648)
-TypeFile = "items/super_missile_tank.json"
-RememberedAs = "main_street_exposed_super_missile_tank"
-
-[node name="BlueCap" parent="." instance=ExtResource("8")]
-position = Vector2(352, 2000)
-DataFile = "objects/door_cap_blue_up.json"
-
-[node name="BlueCap2" parent="." instance=ExtResource("8")]
-position = Vector2(736, 1632)
-DataFile = "objects/door_cap_blue_left.json"
-
-[node name="RedCap" parent="." instance=ExtResource("8")]
+[node name="RedCap" parent="." instance=ExtResource("7")]
 position = Vector2(480, 1888)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "main_street_red_door_facing_left"
 Remembered = 1
 
-[node name="BlueCap3" parent="." instance=ExtResource("8")]
+[node name="MissileTank" parent="." instance=ExtResource("8")]
+position = Vector2(232, 856)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "main_street_exposed_missile_tank"
+
+[node name="SuperMissileTank" parent="." instance=ExtResource("8")]
+position = Vector2(360, 648)
+TypeFile = "items/super_missile_tank.json"
+RememberedAs = "main_street_exposed_super_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(352, 2000)
+DataFile = "objects/door_cap_blue_up.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(736, 1632)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("7")]
 position = Vector2(480, 96)
 DataFile = "objects/door_cap_blue_left.json"
 

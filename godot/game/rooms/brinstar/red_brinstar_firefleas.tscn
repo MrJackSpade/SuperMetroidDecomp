@@ -131,15 +131,15 @@ position = Vector2(936, 192)
 ActivationDistance = 80
 StrikesDown = false
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
-position = Vector2(2016, 96)
-DataFile = "objects/door_cap_blue_left.json"
-
 [node name="RedCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "red_brinstar_firefleas_red_door_facing_right"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(2016, 96)
+DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Screen2x1" type="Node2D" parent="."]
 script = ExtResource("10")

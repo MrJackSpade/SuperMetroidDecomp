@@ -336,12 +336,6 @@ StartsFacing = 0
 Look = "climb_default"
 PresentWhen = SubResource("r1")
 
-[node name="PowerBombTank" parent="." instance=ExtResource("9")]
-position = Vector2(648, 680)
-TypeFile = "items/power_bomb_tank.json"
-RememberedAs = "morph_ball_exposed_power_bomb_tank"
-PresentWhen = SubResource("r1")
-
 [node name="GreyCap" parent="." instance=ExtResource("10")]
 position = Vector2(16, 608)
 DataFile = "objects/door_cap_grey_right.json"
@@ -355,6 +349,12 @@ script = ExtResource("16")
 StartsWhen = SubResource("r4")
 Until = SubResource("r5")
 Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r1")
+
+[node name="PowerBombTank" parent="." instance=ExtResource("9")]
+position = Vector2(648, 680)
+TypeFile = "items/power_bomb_tank.json"
+RememberedAs = "morph_ball_exposed_power_bomb_tank"
 PresentWhen = SubResource("r1")
 
 [node name="AtMorphBallElevator" type="Marker2D" parent="."]

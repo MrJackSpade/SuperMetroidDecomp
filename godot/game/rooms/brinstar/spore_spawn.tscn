@@ -103,15 +103,15 @@ script = ExtResource("8")
 position = Vector2(0, 464)
 PresentWhen = SubResource("r4")
 
-[node name="BlueCap" parent="." instance=ExtResource("9")]
-position = Vector2(224, 96)
-DataFile = "objects/door_cap_blue_left.json"
-
 [node name="GreenCap" parent="." instance=ExtResource("9")]
 position = Vector2(96, 736)
 DataFile = "objects/door_cap_green_up.json"
 RememberedAs = "spore_spawn_green_door_facing_up"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
 
 [node name="SporeSpawnBlueBackgroundSpores" type="Node2D" parent="."]
 script = ExtResource("10")

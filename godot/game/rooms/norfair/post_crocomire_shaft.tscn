@@ -105,15 +105,15 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
-position = Vector2(96, 32)
-DataFile = "objects/door_cap_blue_down.json"
-
 [node name="RedCap" parent="." instance=ExtResource("6")]
 position = Vector2(224, 864)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "post_crocomire_shaft_red_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(96, 32)
+DataFile = "objects/door_cap_blue_down.json"
 
 [node name="BlueCap2" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)

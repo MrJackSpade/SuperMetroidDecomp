@@ -15,11 +15,14 @@ namespace Engine.World.Objects;
 /// <remarks>
 /// Its data may name the timelines that show it: "closed", "sealed" (while its condition holds it shut), "hurt"
 /// (played once when a hit wears it down without opening it), "opening", "open" and "closing", and "sealing"
-/// (played once as the room is entered while it is held shut, before "sealed"). One with an "opening" timeline goes
+/// (played once as the room is entered while it is held shut, before "sealed"). One that a condition holds open
+/// (<see cref="HeldOpenBy"/>) shows "held_open" over and over while it is held, and "let_go" once it is not, which
+/// ends in its being shut. One with an "opening" timeline goes
 /// on blocking until that has played. A look's steps may say how the barrier stands in the way from that step on:
 /// "passable" and "blocking", and "solid_height:" with how many pixels down from its top its solid part reaches, for
 /// one that comes down or goes up bit by bit; what the first step of "open" or "closed" says holds from the moment
-/// that look is taken up. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
+/// that look is taken up. A step of "let_go" says where the barrier is shut ("shut"): until then it stands open
+/// as it did while held. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
 /// "sealed_sound", and its "refused_sound" for a hit of no kind that wears it down. One that is plain, having once been opened and remembered so, shows the timeline named with
 /// "plain_" before each of those names where its data has one, and is opened by the kinds its data lists under
 /// "plain_opened_by", or by any hit where it lists none: a red door's cap comes back as a blue one.
@@ -70,8 +73,10 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 
     /// <summary>
     /// A condition that holds the barrier open while it is true, from the room's setting up on: it stands open,
-    /// nothing remembered and no one told, and closes on the update the condition stops holding. Null when nothing
-    /// holds it open. A door's cap that does not shut behind the player until something has happened is held so.
+    /// nothing remembered and no one told, showing its "held_open" look over and over. The condition is looked at
+    /// each time that look has played through: no longer held, the barrier plays its "let_go" look, standing open
+    /// still until a step of that shuts it. Null when nothing holds it open. A door's cap that does not shut behind
+    /// the player until something has happened is held so.
     /// </summary>
     [Export]
     public Condition? HeldOpenBy { get; set; }
@@ -134,9 +139,6 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     private string _showingName = "";
     private bool _opening;
 
-    /// <summary>Whether it stands open only because its condition holds it open (<see cref="HeldOpenBy"/>).</summary>
-    private bool _heldOpen;
-
     /// <summary>The kinds of hit that open it once it is plain; none listed when any hit does.</summary>
     private readonly HashSet<HitKind> _plainOpenedBy = [];
 
@@ -193,11 +195,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         }
 
         // One its condition holds open stands open for now: it is not gone, and nothing is remembered or told.
-        _heldOpen = !IsOpen && HeldOpenBy is not null && HeldOpenBy.IsTrue(Room);
-        if (_heldOpen)
+        if (!IsOpen && HeldOpenBy is not null && HeldOpenBy.IsTrue(Room))
         {
+            if (!_timelines.Has("held_open") || !_timelines.Has("let_go"))
+                throw new InvalidOperationException($"The barrier \"{Name}\" is held open by a condition, and its data has no \"held_open\" and \"let_go\" looks to show it by.");
             IsOpen = true;
             SetSolid(false);
+            Show("held_open");
+            return;
         }
 
         // One that is held shut as the room is entered may show itself shutting first.
@@ -298,25 +303,24 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         if (!IsOpen)
             return;
+        Shut();
+        Show(_timelines.Has("closing") ? "closing" : "closed");
+    }
+
+    /// <summary>Shuts it where it stands, at full strength, whatever it goes on showing.</summary>
+    private void Shut()
+    {
         IsOpen = false;
         _opening = false;
         _health = _plain ? 1 : MaxHealth;
         SetSolid(true);
         Sound(CloseSound);
-        Show(_timelines.Has("closing") ? "closing" : "closed");
     }
 
     /// <inheritdoc/>
     protected override void OnStep()
     {
         StepLook();
-
-        // One held open closes on the update its condition stops holding it.
-        if (_heldOpen && HeldOpenBy is not null && !HeldOpenBy.IsTrue(Room))
-        {
-            _heldOpen = false;
-            Close();
-        }
 
         if (OpensAroundPlayer && !IsOpen && _showingName == "closed" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } around
             && around.RoomRect.Contains(Room.Player.Position.X.Whole, Room.Player.Position.Y.Whole))
@@ -430,7 +434,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                 case "closing":
                 case "hurt":
                 case "sealing":
+                case "let_go":
                     Show(IsSealed ? "sealed" : "closed");
+                    break;
+                case "held_open":
+                    // Its hold is looked at each time the look has played through. Held still, the look plays again;
+                    // let go, it plays the look that ends in its being shut. Either is played from this very update.
+                    Show(HeldOpenBy is { } hold && hold.IsTrue(Room) ? "held_open" : "let_go");
+                    StandAs(_showing.Step());
                     break;
             }
         }
@@ -495,6 +506,13 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         const string height = "solid_height:", ends = "solid_ends:";
         foreach (string cue in cues)
         {
+            // One let go is shut where its look says, and stands whole until a later cue says otherwise.
+            if (cue == "shut")
+            {
+                Shut();
+                continue;
+            }
+
             if (EntityNode.ColliderOf(this, ColliderRole.Solid) is not { } solid)
                 continue;
             if (cue is "passable" or "blocking")

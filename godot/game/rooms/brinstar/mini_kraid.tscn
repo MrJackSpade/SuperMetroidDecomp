@@ -106,10 +106,10 @@ position = Vector2(1328, 160)
 AlwaysActive = true
 
 [node name="GreyCap" parent="." instance=ExtResource("8")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_grey_right.json"
+position = Vector2(1504, 96)
+DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r4")
-RememberedAs = "mini_kraid_grey_door_facing_right"
+RememberedAs = "mini_kraid_grey_door_facing_left"
 Remembered = 1
 
 [node name="ZebesWakes" type="Node" parent="."]
@@ -119,10 +119,10 @@ Until = SubResource("r4")
 Records = PackedStringArray("zebes_awake")
 
 [node name="GreyCap2" parent="." instance=ExtResource("8")]
-position = Vector2(1504, 96)
-DataFile = "objects/door_cap_grey_left.json"
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r4")
-RememberedAs = "mini_kraid_grey_door_facing_left"
+RememberedAs = "mini_kraid_grey_door_facing_right"
 Remembered = 1
 
 [node name="ZebesWakes2" type="Node" parent="."]

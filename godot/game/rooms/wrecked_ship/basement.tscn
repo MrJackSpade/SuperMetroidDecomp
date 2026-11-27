@@ -302,14 +302,6 @@ AlwaysActive = true
 Look = "basement_default"
 PresentWhen = SubResource("r6")
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
-position = Vector2(608, 32)
-DataFile = "objects/door_cap_blue_down.json"
-
-[node name="BlueCap2" parent="." instance=ExtResource("8")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="EyeCap" parent="." instance=ExtResource("8")]
 position = Vector2(1248, 96)
 DataFile = "objects/door_cap_eye_left.json"
@@ -322,6 +314,14 @@ StartsFacing = 0
 DestroyedFact = "basement_eye_door_facing_left"
 AlwaysActive = true
 PresentWhen = SubResource("r7")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(608, 32)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Screen3x0" type="Node2D" parent="."]
 script = ExtResource("10")

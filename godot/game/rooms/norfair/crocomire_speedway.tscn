@@ -170,15 +170,15 @@ TravelDistance = 16
 Speed = 0
 Look = "crocomire_speedway"
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="GreenCap" parent="." instance=ExtResource("8")]
 position = Vector2(3168, 720)
 DataFile = "objects/door_cap_green_up.json"
 RememberedAs = "crocomire_speedway_green_door_facing_up"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(3088, 96)

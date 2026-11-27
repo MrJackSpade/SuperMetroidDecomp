@@ -13,8 +13,8 @@
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
 [ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="13"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="14"]
-[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="15"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="14"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -330,28 +330,7 @@ FlinchesFromShots = true
 PatrolReach = 32
 PresentWhen = SubResource("r3")
 
-[node name="MissileTank" parent="." instance=ExtResource("14")]
-position = Vector2(88, 424)
-TypeFile = "items/missile_tank.json"
-RememberedAs = "pit_exposed_missile_tank"
-PresentWhen = SubResource("r3")
-
 [node name="GreyCap2" parent="." instance=ExtResource("7")]
-position = Vector2(16, 96)
-DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r7")
-RememberedAs = "pit_grey_door_facing_right_until_enemies_killed"
-Remembered = 1
-PresentWhen = SubResource("r3")
-
-[node name="ZebesWakes" type="Node" parent="."]
-script = ExtResource("15")
-StartsWhen = SubResource("r8")
-Until = SubResource("r7")
-Records = PackedStringArray("zebes_awake")
-PresentWhen = SubResource("r3")
-
-[node name="GreyCap3" parent="." instance=ExtResource("7")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r7")
@@ -359,9 +338,30 @@ RememberedAs = "pit_grey_door_facing_left"
 Remembered = 1
 PresentWhen = SubResource("r3")
 
-[node name="ZebesWakes2" type="Node" parent="."]
-script = ExtResource("15")
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("14")
 StartsWhen = SubResource("r8")
 Until = SubResource("r7")
 Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r3")
+
+[node name="GreyCap3" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r7")
+RememberedAs = "pit_grey_door_facing_right_until_enemies_killed"
+Remembered = 1
+PresentWhen = SubResource("r3")
+
+[node name="ZebesWakes2" type="Node" parent="."]
+script = ExtResource("14")
+StartsWhen = SubResource("r8")
+Until = SubResource("r7")
+Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r3")
+
+[node name="MissileTank" parent="." instance=ExtResource("15")]
+position = Vector2(88, 424)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "pit_exposed_missile_tank"
 PresentWhen = SubResource("r3")

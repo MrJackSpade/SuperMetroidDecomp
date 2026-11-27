@@ -116,15 +116,15 @@ CrawlSpeed = 0.75
 AlwaysActive = true
 Look = "main_street"
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
-position = Vector2(16, 352)
-DataFile = "objects/door_cap_blue_right.json"
-
 [node name="RedCap" parent="." instance=ExtResource("6")]
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "crab_hole_red_door_facing_left"
 Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
 
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("7")

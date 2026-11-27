@@ -63,6 +63,16 @@ public sealed partial class EngineAssetWriter
                 .Timeline("opening", CapTimeline("grey", way, GreyDoorDefinitions.Opening, untilCleared: true))
                 .Timeline("open", CapOpen(way))
                 .Timeline("closing", CapTimeline("grey", way, DoorCapSequenceDefinitions.CapClosing, untilCleared: false));
+
+            // The one grey cap held open, Bomb Torizo's, faces right: held, it shows its cleared doorway over and
+            // over, and its hold is looked at as each showing ends; let go, it stands open a while longer before it
+            // closes.
+            if (way == ColoredDoorOrientation.Right)
+            {
+                grey.Timeline("held_open", CapTimeline("grey", way, GreyDoorDefinitions.BombTorizoHeldOpen, untilCleared: false))
+                    .Timeline("let_go", ShutWhereNoLongerCleared(CapTimeline("grey", way, GreyDoorDefinitions.BombTorizoClosing, untilCleared: false), way));
+            }
+
             BlueLooks(grey, way, "plain_");
             grey.Group("plain_opened_by", new JsonArray([.. OpensBlueCaps.Select(kind => (JsonNode)kind)])).Write();
 
@@ -164,6 +174,20 @@ public sealed partial class EngineAssetWriter
             }
         }
 
+        return timeline;
+    }
+
+    /// <summary>
+    /// A cap's timeline that begins with its doorway cleared, with the cap said to be shut on the first step that
+    /// shows anything else: the old cap's blocks are air while its doorway is drawn cleared.
+    /// </summary>
+    private JsonObject ShutWhereNoLongerCleared(JsonObject timeline, ColoredDoorOrientation way)
+    {
+        string cleared = CapPicture("grey", way, new DoorCapShown(DoorCapLook.Cleared, DoorCapShownPaint.Grey));
+        JsonObject shuts = timeline["steps"]!.AsArray().Select(step => step!.AsObject()).First(step => step["picture"]!.GetValue<string>() != cleared);
+        if (shuts["cues"] is not JsonArray cues)
+            shuts["cues"] = cues = [];
+        cues.Insert(0, "shut");
         return timeline;
     }
 

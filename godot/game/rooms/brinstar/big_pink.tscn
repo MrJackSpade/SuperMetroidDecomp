@@ -219,19 +219,11 @@ RememberedAs = "big_pink_chozo_charge_beam"
 position = Vector2(592, 1888)
 PresentWhen = SubResource("r3")
 
-[node name="BlueCap" parent="." instance=ExtResource("11")]
-position = Vector2(528, 608)
-DataFile = "objects/door_cap_blue_right.json"
-
-[node name="RedCap" parent="." instance=ExtResource("11")]
-position = Vector2(992, 96)
-DataFile = "objects/door_cap_red_left.json"
-RememberedAs = "big_pink_red_door_facing_left"
+[node name="YellowCap" parent="." instance=ExtResource("11")]
+position = Vector2(992, 1120)
+DataFile = "objects/door_cap_yellow_left.json"
+RememberedAs = "big_pink_yellow_door_facing_left"
 Remembered = 1
-
-[node name="BlueCap2" parent="." instance=ExtResource("11")]
-position = Vector2(528, 1120)
-DataFile = "objects/door_cap_blue_right.json"
 
 [node name="GreenCap" parent="." instance=ExtResource("11")]
 position = Vector2(992, 1632)
@@ -239,9 +231,11 @@ DataFile = "objects/door_cap_green_left.json"
 RememberedAs = "big_pink_green_door_facing_left"
 Remembered = 1
 
-[node name="BlueCap3" parent="." instance=ExtResource("11")]
-position = Vector2(1248, 1376)
-DataFile = "objects/door_cap_blue_left.json"
+[node name="RedCap" parent="." instance=ExtResource("11")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "big_pink_red_door_facing_left"
+Remembered = 1
 
 [node name="RedCap2" parent="." instance=ExtResource("11")]
 position = Vector2(16, 2400)
@@ -249,11 +243,17 @@ DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "big_pink_red_door_facing_right"
 Remembered = 1
 
-[node name="YellowCap" parent="." instance=ExtResource("11")]
-position = Vector2(992, 1120)
-DataFile = "objects/door_cap_yellow_left.json"
-RememberedAs = "big_pink_yellow_door_facing_left"
-Remembered = 1
+[node name="BlueCap" parent="." instance=ExtResource("11")]
+position = Vector2(528, 608)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("11")]
+position = Vector2(528, 1120)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("11")]
+position = Vector2(1248, 1376)
+DataFile = "objects/door_cap_blue_left.json"
 
 [node name="BlueCap4" parent="." instance=ExtResource("11")]
 position = Vector2(272, 96)

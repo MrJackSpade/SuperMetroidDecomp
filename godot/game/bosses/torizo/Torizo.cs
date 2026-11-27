@@ -140,7 +140,10 @@ public partial class Torizo : Enemy
     [Export, DataValue("stagger_health")]
     public int StaggerHealth { get; set; } = 10800;
 
-    /// <summary>How long Samus must have been space jumping, in updates, for the golden one to leap at her whatever she does.</summary>
+    /// <summary>
+    /// How long Samus must have been in the space jump's spin, in updates, for the golden one to leap at her whatever
+    /// she does.
+    /// </summary>
     [Export, DataValue("space_jump_updates")]
     public int SpaceJumpUpdates { get; set; } = 360;
 
@@ -399,8 +402,9 @@ public partial class Torizo : Enemy
     protected override void Behave()
     {
         Player samus = Room.Player;
+        // Only a spin that shows itself the space jump's counts: the screw attack's, with the space jump on too, does not.
         if (Golden)
-            _spaceJumping = samus.State is SpinJumpingState && samus.Inventory.IsOn(Equipment.SpaceJump) ? _spaceJumping + 1 : 0;
+            _spaceJumping = samus.State is SpinJumpingState { ShownSound: Sounds.SpaceJump } ? _spaceJumping + 1 : 0;
 
         switch (_stage)
         {

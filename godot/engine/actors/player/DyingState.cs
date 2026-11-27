@@ -27,8 +27,11 @@ public sealed class DyingState : PlayerState
     /// <inheritdoc/>
     public override bool InAnothersHands => true;
 
-    /// <summary>Time stands still for everything but the player: the enemies, every shot and pickup, and the room itself wait.</summary>
-    public override World.Stopped Stops => World.Stopped.Enemies | World.Stopped.Projectiles | World.Stopped.Room;
+    /// <summary>
+    /// Time stands still for the enemies, the player's own shots and the room itself. What the enemies had launched
+    /// goes on moving, and strikes no one.
+    /// </summary>
+    public override World.Stopped Stops => World.Stopped.Enemies | World.Stopped.PlayerShots | World.Stopped.Room;
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

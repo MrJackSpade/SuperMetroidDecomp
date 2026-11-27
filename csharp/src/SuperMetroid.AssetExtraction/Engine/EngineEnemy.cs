@@ -220,7 +220,8 @@ internal sealed partial class EngineEnemy
         const string family = Installation.GameInstallationLayout.EnemySheetDirectoryName;
         string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(_id));
         _sheets.CutShade(_tree, family, Folder + after, sheet, shade);
-        return FlashShaded(Folder + after, family, sheet, shade, SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key);
+        FlashShaded(Folder + after, family, sheet, shade, SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key);
+        return FlashShaded(Folder + after, family, sheet, shade, SuperMetroid.Core.Enemies.Drawing.EnemyShades.Frozen.Key, "frozen_colours");
     }
 
     /// <summary>
@@ -228,12 +229,13 @@ internal sealed partial class EngineEnemy
     /// pictures cut in one of a sheet's shades and kept in <paramref name="place"/>: each colour as the shade shows
     /// it, as the flash shows the colour it came from. The flash is the sheet's shade <paramref name="flash"/>, whose
     /// colours are named for the pictures as the sheet has them, which a set cut in a shade does not show. One with
-    /// no flash colours, or whose sheet has no such flash shade, is left as it is.
+    /// no flash colours, or whose sheet has no such flash shade, is left as it is. The colours of another look of
+    /// its, as of a frozen one ("frozen_colours"), are added to the same way, by that look's name and shade.
     /// </summary>
     /// <exception cref="InvalidDataException">One colour of the set would flash as two.</exception>
-    internal EngineEnemy FlashShaded(string place, string family, string sheet, string shade, string flash)
+    internal EngineEnemy FlashShaded(string place, string family, string sheet, string shade, string flash, string look = "hurt_colours")
     {
-        if (Data["hurt_colours"] is not JsonObject colours || !_sheets.HasShade(family, sheet, flash))
+        if (Data[look] is not JsonObject colours || !_sheets.HasShade(family, sheet, flash))
             return this;
         static string Written(int colour) => colour.ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
         var shaded = new Dictionary<(int Colour, int Region), int>();

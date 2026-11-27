@@ -503,9 +503,6 @@ public partial class MotherBrain : ITriggerTarget
 
             case Death.KeepEarthquakeGoing:
                 KeepShaking();
-                // Whatever else the room would play now, the escape's music stays.
-                if (EscapeMusic.Length > 0 && Room.Session.Sounds.Music != EscapeMusic)
-                    Room.Session.Sounds.RequestMusic(EscapeMusic);
                 return false;
 
             default:

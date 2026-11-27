@@ -342,7 +342,7 @@ public partial class Room : Node2D
         _play = play;
         EnergySettled = EmptyEnergy.NotGone;
         _playerAtUpdateStart = Player.Position;
-        OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
+        OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.PlayerShots));
 
         SettleWhoTakesTurns();
 
@@ -364,7 +364,7 @@ public partial class Room : Node2D
             Player.BeginUpdate(input);
 
         // The player's shots move, and hit, before the enemies act; a shot fired this update among them.
-        if (!stopped.HasFlag(Stopped.Projectiles))
+        if (!stopped.HasFlag(Stopped.PlayerShots))
         {
             foreach (Projectile projectile in _projectiles.ToList())
             {
@@ -407,7 +407,7 @@ public partial class Room : Node2D
             MeetExits();
         }
 
-        if (!stopped.HasFlag(Stopped.Projectiles))
+        if (!stopped.HasFlag(Stopped.Launched))
             StepWhatEnemiesLaunched();
 
         if (!stopped.HasFlag(Stopped.Room))
@@ -501,7 +501,8 @@ public partial class Room : Node2D
     {
         // The enemies' shots are tried against the player only now, each once where it stands: all have moved, and
         // the room's objects have played. The player says first whether any is tried at all.
-        if (!stopped.HasFlag(Stopped.Projectiles) && Player.BeginEnemyShots())
+        // While the enemies themselves are held still, what they launched strikes no one, though it may go on moving.
+        if ((stopped & (Stopped.Launched | Stopped.Enemies)) == 0 && Player.BeginEnemyShots())
         {
             foreach (Projectile projectile in EnemyShotsInTurn())
             {
@@ -514,7 +515,7 @@ public partial class Room : Node2D
 
         // Then the player's shots against the enemies' shots, each of the enemies' in turn against each of the
         // player's, whether or not any was tried against the player.
-        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDying)
+        if ((stopped & (Stopped.Projectiles | Stopped.Enemies)) == 0 && !Player.IsDying)
         {
             var shots = _projectiles.Where(projectile => projectile.Side == HitSide.Player).ToList();
             foreach (Projectile enemyShot in EnemyShotsInTurn())
@@ -530,7 +531,7 @@ public partial class Room : Node2D
         }
 
         // Then whatever a projectile has left for the end of the update, and then whatever an enemy has.
-        if (!stopped.HasFlag(Stopped.Projectiles) && !Player.IsDying)
+        if (!stopped.HasFlag(Stopped.PlayerShots) && !Player.IsDying)
         {
             foreach (Projectile projectile in _projectiles.ToList())
             {
@@ -564,13 +565,13 @@ public partial class Room : Node2D
 
         // Play's own part of the update that comes here: whatever lasts beyond the room plays its update.
         _play?.AfterView(this);
-        if (!stopped.HasFlag(Stopped.Room))
+        foreach (RoomSequence sequence in _sequences)
         {
-            foreach (RoomSequence sequence in _sequences)
-            {
-                if (!sequence.PlaysBeforeView)
-                    sequence.Step(this);
-            }
+            // Held still, the room's sequences do not move on; each plays only what it keeps going through that.
+            if (stopped.HasFlag(Stopped.Room))
+                sequence.StepHeld(this);
+            else if (!sequence.PlaysBeforeView)
+                sequence.Step(this);
         }
 
         // Only now is a player with no energy left asked what follows: they die, unless the update has also taken

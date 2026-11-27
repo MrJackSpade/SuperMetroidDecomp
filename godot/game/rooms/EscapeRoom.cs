@@ -60,21 +60,18 @@ public partial class EscapeRoom : RoomSequence
     /// <summary>How many updates a harder shake lasts.</summary>
     private const int HarderUpdates = 42;
 
-    /// <inheritdoc/>
-    protected override bool Play(Room room, int elapsed)
-    {
-        Escape escape = room.Session.Service<Escape>();
-        if (elapsed == 0)
-        {
-            // As the room is set up: a harder spell the room before left is ended, or goes on here for what is left.
-            if (StartsShakeAfresh)
-                escape.HarderShakeLeft = 0;
-            else if (TurnsHarder && escape.HarderShakeLeft > 0)
-                room.Shake(ShakeStrength + 1, escape.HarderShakeLeft, ShakeWay.Both);
-        }
+    /// <summary>
+    /// While the room is held still, as under the X-ray scope or a refill from her reserves, the shaking's own count
+    /// goes on and its chance is still drawn, as the cartridge's are; the blasts wait.
+    /// </summary>
+    protected override void WhileRoomHeld(Room room) => KeepShaking(room, room.Session.Service<Escape>());
 
-        // The shaking never stops; now and then, by chance, it is harder for a while. A room that never turns harder
-        // neither counts a spell down nor draws for one.
+    /// <summary>
+    /// The shaking never stops; now and then, by chance, it is harder for a while. A room that never turns harder
+    /// neither counts a spell down nor draws for one.
+    /// </summary>
+    private void KeepShaking(Room room, Escape escape)
+    {
         if (!TurnsHarder)
         {
             if (room.ShakeStrength == 0)
@@ -99,7 +96,22 @@ public partial class EscapeRoom : RoomSequence
                 room.Shake(ShakeStrength, 600);
             }
         }
+    }
 
+    /// <inheritdoc/>
+    protected override bool Play(Room room, int elapsed)
+    {
+        Escape escape = room.Session.Service<Escape>();
+        if (elapsed == 0)
+        {
+            // As the room is set up: a harder spell the room before left is ended, or goes on here for what is left.
+            if (StartsShakeAfresh)
+                escape.HarderShakeLeft = 0;
+            else if (TurnsHarder && escape.HarderShakeLeft > 0)
+                room.Shake(ShakeStrength + 1, escape.HarderShakeLeft, ShakeWay.Both);
+        }
+
+        KeepShaking(room, escape);
         if (room.Session.Clock.Updates % (Outdoors ? 2 : 4) != 0)
             return false;
         RandomDraw where = room.Session.Random.Draw();

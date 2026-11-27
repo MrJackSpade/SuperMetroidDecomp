@@ -1500,13 +1500,25 @@ public partial class Samus : Player
     /// <summary>The light that puts a suit on her as she collects it, when her scene gives her one.</summary>
     public SamusSuitLight? SuitLight => GetNodeOrNull<SamusSuitLight>("SuitLight");
 
+    /// <summary>The wait between her shots that the X-ray scope holds her weapons at, on every update its time stands still.</summary>
+    private const int ScopeShotWait = 32;
+
     /// <summary>
     /// The wait between her shots counts down whatever she is doing, as the cartridge counts it before it asks what
-    /// her movement lets her weapons do; only facing out of the screen, where the cartridge does nothing of her
-    /// weapons at all, does it stand.
+    /// her movement lets her weapons do. It stands where the cartridge does nothing of her weapons at all: facing
+    /// out of the screen, through the refill from her reserves and through her death. Under the X-ray scope it is
+    /// put back to a wait of its own on every update, so the first shot after the scope waits that out.
     /// </summary>
     protected override void WaitToAttack()
     {
+        if (State is RefillingFromReservesState or DyingState)
+            return;
+        if (State is XrayState)
+        {
+            Weapons.SetWait(ScopeShotWait);
+            return;
+        }
+
         if (!SamusLooks.FacesOut(this))
             base.WaitToAttack();
     }

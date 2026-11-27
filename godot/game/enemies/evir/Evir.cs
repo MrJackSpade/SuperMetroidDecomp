@@ -93,6 +93,16 @@ public partial class Evir : Enemy
             _bobsDown = !_bobsDown;
         }
 
+        StepArms();
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>Its arms move on while a hurt holds its body still: they are not hurt with it.</remarks>
+    protected override void WhileHurt() => StepArms();
+
+    /// <summary>Moves its arms on by one update, where they are for the way it faces.</summary>
+    private void StepArms()
+    {
         if (_arms is null || GetNodeOrNull<ActorVisual>("Arms") is not { } arms)
             return;
         _arms.Step();
@@ -114,7 +124,8 @@ public partial class Evir : Enemy
     /// <summary>Turns to face Samus, body and arms.</summary>
     private void FaceSamus(bool restart)
     {
-        Facing = TowardPlayer;
+        // By whole pixels: in its own pixel column Samus counts as on its right.
+        Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
         Play(Facing == Facing.Left ? "body_left" : "body_right", restart);
         FrameTimeline arms = Timelines.Get(Facing == Facing.Left ? "arms_left" : "arms_right");
         if (_arms is null || _arms.Timeline != arms)

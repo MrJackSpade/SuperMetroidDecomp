@@ -82,6 +82,12 @@ public partial class Covern : Enemy
     private (int X, int Y) _lastSamus;
     private (int X, int Y) _course;
 
+    /// <summary>
+    /// Whether it has a box about where Samus last was to find her still within: not before it first watches her, nor
+    /// on the first update it watches her after each appearance.
+    /// </summary>
+    private bool _hasStillBox;
+
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => _doing == Doing.Bobbing && base.IsHitBy(side);
 
@@ -152,6 +158,7 @@ public partial class Covern : Enemy
                 Velocity = new PixelVelocity(Pixels.Zero, Pixels.FromNumber(BobStartSpeed));
                 _course = (0, 0);
                 _lastSamus = (Target.X.Whole, Target.Y.Whole);
+                _hasStillBox = false;
                 return;
 
             case Doing.Bobbing:
@@ -207,7 +214,7 @@ public partial class Covern : Enemy
     private void Watch()
     {
         (int X, int Y) samus = (Target.X.Whole, Target.Y.Whole);
-        bool still = Math.Abs(samus.X - _lastSamus.X) <= 1 && Math.Abs(samus.Y - _lastSamus.Y) <= 1
+        bool still = _hasStillBox && Math.Abs(samus.X - _lastSamus.X) <= 1 && Math.Abs(samus.Y - _lastSamus.Y) <= 1
             && samus.X - _lastSamus.X < 1 && samus.Y - _lastSamus.Y < 1;
         if (still)
         {
@@ -240,14 +247,17 @@ public partial class Covern : Enemy
         }
 
         _lastSamus = samus;
+        _hasStillBox = true;
     }
 
     /// <summary>Appears ahead of Samus along her course, and starts flickering in.</summary>
     private void Appear((int X, int Y) samus)
     {
         // Heading up and to the right, it appears level with her: the cartridge's table has it so.
+        // Only its whole pixels are put there: the part of a pixel its last bobbing left it at stays.
         int down = _course is (1, -1) ? 0 : _course.Y;
-        Position = PixelPosition.FromWhole(samus.X + _course.X * LeadDistance, samus.Y + down * LeadDistance);
+        Position = new PixelPosition(
+            Position.X.WithWhole(samus.X + _course.X * LeadDistance), Position.Y.WithWhole(samus.Y + down * LeadDistance));
         _doing = Doing.Brightening;
         _flickerWait = Countdown.Of(1);
         _flickerStep = 0;

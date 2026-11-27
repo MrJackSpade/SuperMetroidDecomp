@@ -171,7 +171,7 @@ public partial class Beetom : Enemy
         _shakesLeft = ShakeOffCount;
         _lastInput = Room.Player.Input;
         Random.Restart(23);
-        Play(TowardPlayer == Facing.Left ? "crawling_left" : "crawling_right");
+        Play(TowardSamus == Facing.Left ? "crawling_left" : "crawling_right");
     }
 
     /// <inheritdoc/>
@@ -206,7 +206,7 @@ public partial class Beetom : Enemy
                 return;
 
             case Doing.StartLunge:
-                _heading = TowardPlayer;
+                _heading = TowardSamus;
                 Facing = _heading;
                 StartLeap(Doing.LungeRising, LungeHeight, LungeAimMarks);
                 return;
@@ -271,18 +271,18 @@ public partial class Beetom : Enemy
                 return;
 
             case Doing.Dropping:
-                if (!MoveDownBy(Pixels.FromNumber(DropSpeed)))
+                if (!Drop(Pixels.FromNumber(DropSpeed)))
                     return;
                 _heading = Facing;
                 _doing = Doing.StartCrawling;
                 return;
 
             case Doing.Flung:
-                if (MoveDownBy(Curve.SpeedAt(_place)))
+                if (Drop(Curve.SpeedAt(_place)))
                     _doing = Doing.Deciding;
                 else
                     SpeedUpFall(FlungMarks);
-                if (!MoveAcrossBy(Facing.Opposite().Toward(Pixels.FromNumber(FlungSpeed))))
+                if (!Stride(Facing.Opposite().Toward(Pixels.FromNumber(FlungSpeed))))
                     return;
                 Facing = Facing.Opposite();
                 _doing = Doing.StartDropping;
@@ -339,9 +339,10 @@ public partial class Beetom : Enemy
     /// <inheritdoc/>
     protected override void OnStatusBegan(string status)
     {
-        // Frozen while it clings, it lets go and drops.
+        // Frozen while it clings, it drops; a hit that gives it a status lets go of her as any other hit does.
         if (status == Frozen && _doing == Doing.Clinging)
             _doing = Doing.StartDropping;
+        Struck();
     }
 
     /// <summary>Answers anything that lands on it: its next touch counts as taking hold afresh.</summary>
@@ -392,10 +393,11 @@ public partial class Beetom : Enemy
             return;
         }
 
-        // It feels for floor a little ahead of itself: with none there, it turns back, a pixel higher than it was.
+        // It feels for floor a little ahead of itself, by a real move down: with none there, it turns back where it
+        // was. What part of a pixel the move leaves it at stays.
         PixelOffset reach = PixelOffset.FromWhole(_heading == Facing.Left ? -LedgeReach : LedgeReach, 0);
         Position += reach;
-        bool floorAhead = MoveDownBy(Pixels.FromWhole(1));
+        bool floorAhead = Drop(Pixels.FromWhole(1));
         Position -= reach;
         if (!floorAhead)
         {
@@ -405,7 +407,7 @@ public partial class Beetom : Enemy
             return;
         }
 
-        if (!MoveAcrossBy(_heading.Toward(Pixels.FromNumber(CrawlSpeed))))
+        if (!Stride(_heading.Toward(Pixels.FromNumber(CrawlSpeed))))
             return;
         _heading = _heading.Opposite();
         _doing = Doing.StartCrawling;
@@ -414,7 +416,7 @@ public partial class Beetom : Enemy
     /// <summary>Rises one update of a leap; a ceiling drops it, and the top of the leap turns it to falling.</summary>
     private void Rise(int marks, Doing falling)
     {
-        if (MoveDownBy(-Curve.SpeedAt(_place)))
+        if (Drop(-Curve.SpeedAt(_place)))
         {
             _doing = Doing.StartDropping;
             return;
@@ -430,7 +432,7 @@ public partial class Beetom : Enemy
     /// <summary>Falls one update of a leap; the floor sets it deciding again.</summary>
     private void Fall(int marks)
     {
-        if (MoveDownBy(Curve.SpeedAt(_place)))
+        if (Drop(Curve.SpeedAt(_place)))
         {
             _doing = Doing.Deciding;
             return;
@@ -446,7 +448,7 @@ public partial class Beetom : Enemy
     /// <summary>Moves across one update of a leap; a wall turns it round and drops it.</summary>
     private void LeapAcross(double speed)
     {
-        if (!MoveAcrossBy(_heading.Toward(Pixels.FromNumber(speed))))
+        if (!Stride(_heading.Toward(Pixels.FromNumber(speed))))
             return;
         Facing = Facing.Opposite();
         _doing = Doing.StartDropping;
@@ -457,7 +459,8 @@ public partial class Beetom : Enemy
     {
         if (_shakesLeft != 0)
         {
-            Position = PixelPosition.FromWhole(Target.X.Whole, Target.Y.Whole - ClingAbove);
+            // Only its whole pixels follow her: the part of a pixel it is at stays.
+            Position = new PixelPosition(Position.X.WithWhole(Target.X.Whole), Position.Y.WithWhole(Target.Y.Whole - ClingAbove));
             GameInput input = Room.Player.Input;
             if (!input.HoldsSameAs(_lastInput))
             {
@@ -469,15 +472,37 @@ public partial class Beetom : Enemy
         }
 
         // Thrown against a wall, it comes back off it twice as far.
-        if (MoveAcrossBy(_heading.Opposite().Toward(Pixels.FromWhole(ThrownDistance))))
+        if (Stride(_heading.Opposite().Toward(Pixels.FromWhole(ThrownDistance))))
         {
             Facing = _heading.Opposite();
-            MoveAcrossBy(_heading.Toward(Pixels.FromWhole(2 * ThrownDistance)));
+            Stride(_heading.Toward(Pixels.FromWhole(2 * ThrownDistance)));
         }
 
         _clings = false;
         _doing = Doing.StartFlung;
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool Stride(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Beetom \"{Name}\" has no body collider.");
+
+    /// <summary>The side Samus is on, by whole pixels alone: in the same pixel column she counts as on its right.</summary>
+    private Facing TowardSamus => Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
 
     /// <summary>The speed curve its leaps follow.</summary>
     private SpeedCurve Curve => _curve ?? throw new InvalidOperationException($"The Beetom \"{Name}\" is not in a room.");

@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Game.Compatibility;
 using Godot;
 
@@ -67,6 +68,15 @@ public partial class Bull : Enemy
     private Pixels _speed;
     private Pixels _gain;
 
+    /// <summary>
+    /// How much its gain of speed itself changes each time: its acceleration step from when it takes aim, and nothing
+    /// once it has stopped. A knock leaves it as it stands, so one knocked while waiting slows by its whole loss each time.
+    /// </summary>
+    private Pixels _gainStep;
+
+    /// <summary>Whether the hit being taken has frozen it.</summary>
+    private bool _frozenByHit;
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
@@ -93,12 +103,13 @@ public partial class Bull : Enemy
             case Doing.Aiming:
                 _angle = AngleToSamus();
                 _doing = Doing.Gathering;
+                _gainStep = step;
                 return;
 
             case Doing.Gathering:
                 if (_speed < Pixels.FromNumber(MaximumSpeed) && Tick(AccelerationInterval))
                 {
-                    _gain += step;
+                    _gain += _gainStep;
                     _speed += _gain;
                 }
 
@@ -108,7 +119,11 @@ public partial class Bull : Enemy
                 int turn = AngleToSamus() - _angle;
                 int off = turn >= Turns.PerTurn / 2 ? Turns.PerTurn - turn : Math.Abs(turn);
                 if (off >= OffTargetTurn)
+                {
                     _doing = Doing.Slowing;
+                    _gainStep = step;
+                }
+
                 return;
 
             case Doing.Slowing:
@@ -116,6 +131,7 @@ public partial class Bull : Enemy
                 {
                     _doing = Doing.Waiting;
                     _gain = Pixels.Zero;
+                    _gainStep = Pixels.Zero;
                     _speed = Pixels.Zero;
                     return;
                 }
@@ -123,7 +139,7 @@ public partial class Bull : Enemy
                 Drift();
                 if (Tick(DecelerationInterval))
                 {
-                    _gain -= step;
+                    _gain -= _gainStep;
                     _speed -= _gain;
                 }
 
@@ -135,7 +151,29 @@ public partial class Bull : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnAbsorbed(Hit hit, Collider part)
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        // A shot that freezes it knocks it as one that cannot hurt it does, whatever else the shot did.
+        _frozenByHit = false;
+        HitResult result = base.TakeHit(hit, part);
+        if (_frozenByHit && !IsDead)
+            Knock(hit);
+        _frozenByHit = false;
+        return result;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnStatusBegan(string status)
+    {
+        if (status == Frozen)
+            _frozenByHit = true;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAbsorbed(Hit hit, Collider part) => Knock(hit);
+
+    /// <summary>Knocks it away along <paramref name="hit"/>, unless a knock not long before still guards it.</summary>
+    private void Knock(Hit hit)
     {
         if (_guard.IsRunning)
             return;

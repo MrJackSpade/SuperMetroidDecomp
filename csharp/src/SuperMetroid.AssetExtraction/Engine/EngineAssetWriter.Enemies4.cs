@@ -78,11 +78,12 @@ public sealed partial class EngineAssetWriter
                 .Value("wing_half_height", wings.Radius.Y)
                 .Value("spit_reach", KiHunterMotionDefinitions.AcidSpitReach)
                 .Value("spit_height", KiHunterMotionDefinitions.AcidSpitHeight)
+                // Each spit is heard, before its acid is made, whether or not the room has a place for the acid.
+                .Value("spit_sound", EngineNames.Sound(EnemySound.AcidSpit))
                 // Its acid gathers at its mouth, shoots forward and falls; where it meets the floor it splashes.
                 .Shot("acid", RoomEnemyProjectileKind.KiHunterAcidSpit, static (hunter, shot, projectile) =>
                 {
                     shot["speed"] = EngineNames.Number(KiHunterMotionDefinitions.AcidHorizontalSpeed);
-                    shot["sound"] = EngineNames.Sound(EnemySound.AcidSpit);
                     shot["scene"] = "res://game/enemies/ki_hunter/ki_hunter_acid.tscn";
                     hunter.SpawnedTimeline("acid_left", KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt[KiHunterAcidSpitSegment.Left], AcidCue);
                     hunter.SpawnedTimeline("acid_right", KiHunterAcidSpitAnimations.Segments, KiHunterAcidSpitAnimations.StartingAt[KiHunterAcidSpitSegment.Right], AcidCue);

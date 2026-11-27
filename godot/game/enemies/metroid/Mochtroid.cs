@@ -83,17 +83,39 @@ public partial class Mochtroid : Enemy
         {
             Pixels fastest = Pixels.FromWhole(FastestFlight);
             Pixels down = Metroid.Limited(Velocity.Y - Metroid.Pull(Position.Y.Whole - Target.Y.Whole), fastest);
-            Velocity = Velocity.WithY(MoveDownBy(down) ? Pixels.Zero : down);
+            Velocity = Velocity.WithY(Drop(down) ? Pixels.Zero : down);
             Pixels across = Metroid.Limited(Velocity.X - Metroid.Pull(Position.X.Whole - Target.X.Whole), fastest);
-            Velocity = Velocity.WithX(MoveAcrossBy(across) ? Pixels.Zero : across);
+            Velocity = Velocity.WithX(Stride(across) ? Pixels.Zero : across);
             Play("free");
             return;
         }
 
-        int toX = Target.X.Whole - Position.X.Whole, toY = Target.Y.Whole - Position.Y.Whole;
-        Pixels creepAcross = Pixels.FromWhole(Math.Sign(toX) * AttachedSpeed), creepDown = Pixels.FromWhole(Math.Sign(toY) * AttachedSpeed);
-        Velocity = new PixelVelocity(creepAcross, creepDown);
-        MoveAcrossBy(creepAcross);
-        MoveDownBy(creepDown);
+        int toX = Target.X.Whole - Position.X.Whole;
+        Pixels creepAcross = Pixels.FromWhole(Math.Sign(toX) * AttachedSpeed);
+        Velocity = Velocity.WithX(creepAcross);
+        Stride(creepAcross);
+        int toY = Target.Y.Whole - Position.Y.Whole;
+        Pixels creepDown = Pixels.FromWhole(Math.Sign(toY) * AttachedSpeed);
+        Velocity = Velocity.WithY(creepDown);
+        Drop(creepDown);
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool Stride(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Mochtroid \"{Name}\" has no body collider.");
 }

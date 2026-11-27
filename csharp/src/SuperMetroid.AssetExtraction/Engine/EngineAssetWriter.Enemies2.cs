@@ -99,11 +99,12 @@ public sealed partial class EngineAssetWriter
             .Value("fireball_rise", EngineNames.Number(-DragonFireballDefinitions.LaunchRise))
             .Value("muzzle_across", DragonFireballDefinitions.MuzzleFacingRight.X)
             .Value("muzzle_up", -DragonFireballDefinitions.MuzzleFacingRight.Y)
+            // Each spit is heard whether or not the room has a place for its fireball.
+            .Value("spit_sound", EngineNames.Sound(EnemySoundEffectDefinitions.DragonFireballSound))
             // Its fireball rises and falls through everything, shown by other pictures once it falls.
             .Shot("fireball", RoomEnemyProjectileKind.DragonFireball, static (dragon, shot, projectile) =>
             {
                 shot["speed"] = EngineNames.Number(DragonFireballDefinitions.SidewaysSpeed);
-                shot["sound"] = EngineNames.Sound(EnemySoundEffectDefinitions.DragonFireballSound);
                 foreach ((string name, DragonFireballSegment segment) in new[]
                          {
                              ("fireball_rising_left", DragonFireballSegment.RisingLeft), ("fireball_rising_right", DragonFireballSegment.RisingRight),

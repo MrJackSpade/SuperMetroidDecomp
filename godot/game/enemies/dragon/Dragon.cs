@@ -44,6 +44,10 @@ public partial class Dragon : Enemy
     [Export, DataValue("fireball_rise")]
     public double FireballRise { get; set; } = 961.0 / 256;
 
+    /// <summary>The sound of each fireball it spits, by name: heard though the room has no place for the fireball.</summary>
+    [Export, DataValue("spit_sound")]
+    public string SpitSound { get; set; } = "";
+
     private enum Doing
     {
         WaitingToRise,
@@ -89,7 +93,8 @@ public partial class Dragon : Enemy
                     break;
                 _wait = Countdown.Of(RiseUpdates);
                 _doing = Doing.Rising;
-                Facing = TowardPlayer;
+                // It faces Samus by whole pixels: in its own pixel column she counts as on its right.
+                Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
                 Play(Named("idle"));
                 FrameTimeline wings = Timelines.Get(Named("wings"));
                 if (_wings is null || _wings.Timeline != wings)
@@ -115,6 +120,7 @@ public partial class Dragon : Enemy
                 PixelPosition muzzle = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole)
                     + PixelOffset.FromWhole(Facing == Facing.Left ? -MuzzleAcross : MuzzleAcross, -MuzzleUp);
                 Fire("fireball", muzzle, new PixelVelocity(Facing.Toward(Shot("fireball").Speed), -Pixels.FromNumber(FireballRise)));
+                Sound(SpitSound);
                 if (--_shotsLeft != 0)
                 {
                     _doing = Doing.Reattacking;
@@ -156,6 +162,10 @@ public partial class Dragon : Enemy
 
         ShowWings();
     }
+
+    /// <inheritdoc/>
+    /// <remarks>Its wings beat on while a hurt holds its body still, as they do while it acts.</remarks>
+    protected override void WhileHurt() => ShowWings();
 
     /// <summary>The name of one of its timelines for the way it faces.</summary>
     private string Named(string timeline) => Facing == Facing.Left ? $"{timeline}_left" : $"{timeline}_right";

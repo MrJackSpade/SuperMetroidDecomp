@@ -60,9 +60,13 @@ public partial class Metroid : Enemy
     [Export, DataValue("recoil_sound")]
     public string RecoilSound { get; set; } = "";
 
-    /// <summary>How many things it drops when it is destroyed, scattered about where it was.</summary>
+    /// <summary>How many things it drops when it is destroyed, scattered about where it was, beside its death's own drop.</summary>
     [Export, DataValue("drop_count")]
     public int DropCount { get; set; } = 5;
+
+    /// <summary>How many updates an ice shot that lands on it, unfrozen, makes it flash.</summary>
+    [Export, DataValue("ice_flash_updates")]
+    public int IceFlashUpdates { get; set; } = 4;
 
     private static readonly (int X, int Y)[] EscapeMoves = [(2, 0), (0, 2), (-2, 0), (0, -2)];
 
@@ -142,6 +146,7 @@ public partial class Metroid : Enemy
         Play("chasing", restart: true);
         if (hit.Carries(new HitKind(HitKinds.Ice)))
         {
+            FlashFor(IceFlashUpdates);
             if (hit.Damage >= _iceLeft)
             {
                 _iceLeft = 0;
@@ -212,7 +217,8 @@ public partial class Metroid : Enemy
                 break;
 
             case Moving.Attached:
-                Position = PixelPosition.FromWhole(aimX, aimY);
+                // Its whole pixels are held on her; the part of a pixel it had stays.
+                Position = new PixelPosition(Position.X.WithWhole(aimX), Position.Y.WithWhole(aimY));
                 Velocity = PixelVelocity.Zero;
                 break;
 
@@ -241,23 +247,56 @@ public partial class Metroid : Enemy
     {
         (Room.Player as Samus)?.SetDrainFlash(false);
 
-        // Beside its own drop it leaves more, scattered about, each placed by a fresh random number.
-        for (int drop = 1; drop < DropCount; drop++)
+        // Beside its death's own drop it leaves its full count more, scattered about, each placed by a fresh random number.
+        for (int drop = 0; drop < DropCount; drop++)
         {
             RandomDraw draw = Random.Draw();
             Drop(Drops, PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + PixelOffset.FromWhole(draw.Part(0, 5) - 16, draw.Part(8, 5) - 16));
         }
     }
 
-    /// <summary>Flies one update at the given speeds, each stopped dead by whatever it meets.</summary>
+    /// <inheritdoc/>
+    protected override void OnStatusBegan(string status)
+    {
+        // Frozen, its electricity and shell stand still on their first pictures.
+        if (status != Frozen)
+            return;
+        _electricity = Restarted(_electricity, "Electricity");
+        _shell = Restarted(_shell, "Shell");
+    }
+
+    /// <summary>Flies one update at the given speeds, down and then across, each stopped dead by whatever it meets.</summary>
     private void Fly(Pixels across, Pixels down)
     {
         Velocity = new PixelVelocity(Velocity.X, down);
-        if (MoveDownBy(down))
+        if (Room.Mover.MoveDown(MovingBody(), down, Moves).Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         Velocity = Velocity.WithX(across);
-        if (MoveAcrossBy(across))
+        if (Room.Mover.MoveAcross(MovingBody(), across, MovesAcross).Blocked)
             Velocity = Velocity.WithX(Pixels.Zero);
+    }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Metroid \"{Name}\" has no body collider.");
+
+    /// <summary>One of its outer visuals' timelines started again and shown from its first step.</summary>
+    private TimelinePlayer? Restarted(TimelinePlayer? player, string visual)
+    {
+        if (player is null)
+            return null;
+        var restarted = new TimelinePlayer(player.Timeline);
+        GetNodeOrNull<ActorVisual>(visual)?.Show(restarted.Shown);
+        return restarted;
     }
 
     /// <summary>The pull toward its aim across a distance: a 1024th of the distance, counted in 256ths of a pixel.</summary>

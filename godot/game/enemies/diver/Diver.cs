@@ -159,13 +159,15 @@ public partial class Diver : Enemy
         Position += PixelOffset.FromWhole(toward, _diveStep);
     }
 
-    /// <summary>Throws up the debris: each listed piece, and its mirror image on the other side.</summary>
+    /// <summary>
+    /// Throws up the debris from its whole pixels: each listed piece, then each one's mirror image on the other side.
+    /// With too few places free in the room the first thrown are the ones made.
+    /// </summary>
     private void ThrowDebris()
     {
         foreach ((int side, Pixels across, Pixels up) in _debris)
-        {
-            Fire("debris", Position + PixelOffset.FromWhole(side, 0), new PixelVelocity(across, -up));
-            Fire("debris", Position + PixelOffset.FromWhole(-side, 0), new PixelVelocity(-across, -up));
-        }
+            Fire("debris", PixelPosition.FromWhole(Position.X.Whole + side, Position.Y.Whole), new PixelVelocity(across, -up));
+        foreach ((int side, Pixels across, Pixels up) in _debris)
+            Fire("debris", PixelPosition.FromWhole(Position.X.Whole - side, Position.Y.Whole), new PixelVelocity(-across, -up));
     }
 }

@@ -162,12 +162,11 @@ public partial class KagoBug : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (Math.Abs(_hiveAt.X.Whole - Position.X.Whole) >= ClearDistance)
-            _clear = true;
         switch (_doing)
         {
             case Doing.Waiting:
                 StepSound();
+                CheckClear();
                 _wait = _wait.Stepped();
                 if (_wait.IsRunning)
                     return;
@@ -181,6 +180,7 @@ public partial class KagoBug : Enemy
 
             case Doing.Jumping:
                 StepSound();
+                CheckClear();
                 if (MoveAcrossBy(Velocity.X))
                 {
                     Velocity = new PixelVelocity(Pixels.Zero, Pixels.FromNumber(FallStartSpeed));
@@ -202,6 +202,7 @@ public partial class KagoBug : Enemy
 
             case Doing.Falling:
                 StepSound();
+                CheckClear();
                 if (MoveAcrossBy(Velocity.X))
                 {
                     Velocity = Velocity.WithX(Pixels.Zero);
@@ -228,6 +229,7 @@ public partial class KagoBug : Enemy
     private void Jump()
     {
         StepSound();
+        CheckClear();
         RandomDraw last = Random.Last;
         int up = JumpSpeed + last.Part(8, 2);
         int toHive = _hiveAt.X.Whole - Position.X.Whole;
@@ -235,6 +237,16 @@ public partial class KagoBug : Enemy
         Pixels across = Pixels.FromNumber(AcrossSpeed);
         Velocity = new PixelVelocity(left ? -across : across, -Pixels.FromWhole(up));
         _doing = Doing.Jumping;
+    }
+
+    /// <summary>
+    /// Lets shots land on it from now on once it is far enough across from its hive, where it is before it moves: it
+    /// looks only while it waits, jumps or falls and as it starts a jump, never while it sets itself or lands.
+    /// </summary>
+    private void CheckClear()
+    {
+        if (Math.Abs(_hiveAt.X.Whole - Position.X.Whole) >= ClearDistance)
+            _clear = true;
     }
 
     /// <summary>Turns the jump into a fall.</summary>

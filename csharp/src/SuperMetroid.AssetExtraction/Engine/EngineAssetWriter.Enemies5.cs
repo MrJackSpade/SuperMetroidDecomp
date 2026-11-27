@@ -75,6 +75,7 @@ public sealed partial class EngineAssetWriter
             .Value("drain_hundredths", Hundredths(MetroidBehaviorDefinitions.PowerSuitDrainFraction))
             .Value("feeding_sound_every", MetroidCadenceDefinitions.DrainSound.Period)
             .Value("drop_count", MetroidBehaviorDefinitions.FrozenDeathDropCount)
+            .Value("ice_flash_updates", MetroidBehaviorDefinitions.IceFlashDuration)
             .Value("feeding_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Value("recoil_sound", EngineNames.Sound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect))
             // The eight cries its cry is picked from by a number drawn.

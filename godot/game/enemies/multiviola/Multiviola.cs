@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Shared;
 using Game.Compatibility;
 using Godot;
@@ -31,6 +32,16 @@ public partial class Multiviola : Enemy
     [Export]
     public int Speed { get; set; } = 1;
 
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
     private int _heading;
 
     /// <inheritdoc/>
@@ -45,7 +56,7 @@ public partial class Multiviola : Enemy
     {
         Velocity = new PixelVelocity(AlongAxis(_heading + QuarterTurn), AlongAxis(_heading + HalfTurn));
         int quarter = _heading / QuarterTurn;
-        if (MoveAcrossBy(Velocity.X))
+        if (MoveAcross(MovesAcross).Blocked)
         {
             // A wall swaps the heading's quarter with its neighbour.
             _heading = InQuarter(quarter % 2 == 0 ? quarter + 1 : quarter - 1);
@@ -53,7 +64,7 @@ public partial class Multiviola : Enemy
         }
 
         // A floor or a ceiling takes the heading to the quarter opposite across the turn.
-        if (MoveDownBy(Velocity.Y))
+        if (MoveDown(Moves).Blocked)
             _heading = InQuarter(3 - quarter);
     }
 

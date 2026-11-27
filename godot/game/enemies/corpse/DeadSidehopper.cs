@@ -88,6 +88,16 @@ public partial class DeadSidehopper : Enemy
         new(Pixels.FromNumber(1.125), Pixels.FromWhole(-2)), new(Pixels.FromWhole(3), Pixels.FromWhole(-4)),
     ];
 
+    /// <summary>
+    /// How its moves over the room's terrain are tried, as the cartridge moves an enemy: only where each would end, and
+    /// sloped ground that holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
     private Doing _doing;
     private PixelVelocity _speed;
     private int _nextLaunch;
@@ -223,9 +233,9 @@ public partial class DeadSidehopper : Enemy
         bool landed;
         if (Position.X.Whole >= TerrainFrom)
         {
-            MoveAcrossBy(_speed.X);
+            Room.Mover.MoveAcross(MovingBody(), _speed.X, MovesAcross);
             _speed = _speed.WithY(_speed.Y + (_speed.Y.IsNegative ? RisingGravity : FallingGravity));
-            landed = MoveDownBy(_speed.Y);
+            landed = Room.Mover.MoveDown(MovingBody(), _speed.Y, Moves).Blocked;
         }
         else
         {
@@ -268,6 +278,9 @@ public partial class DeadSidehopper : Enemy
         _crumble ??= new RowCrumble(Rows);
         _crumble.StartNow();
     }
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The dead Sidehopper \"{Name}\" has no body collider.");
 
     /// <summary>
     /// Leaves the puff of dust of a row reaching the ground: one of the enemies' shots on the cartridge, which holds one

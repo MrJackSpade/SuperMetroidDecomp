@@ -84,6 +84,13 @@ public partial class MamaTurtle : Enemy
         Falling,
     }
 
+    /// <summary>
+    /// How the push out of her shell is tried, as the cartridge moves an enemy across: only where it would end, and
+    /// sloped ground that holds things up by their middle no part of it.
+    /// </summary>
+    private static readonly MoveOptions PushesAcross =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
     private readonly List<int> _shellLeft = [];
     private readonly List<int> _shellRight = [];
     private Doing _doing;
@@ -210,7 +217,7 @@ public partial class MamaTurtle : Enemy
                 if (ridden)
                     ShiftPlayer(PixelOffset.FromWhole(-1, 0));
                 SetShellHeight(AwakeHalfHeight);
-                if (MoveAcrossBy(Pixels.FromWhole(1)))
+                if (Room.Mover.MoveAcross(Shell(), Pixels.FromWhole(1), PushesAcross).Blocked)
                     return;
                 Play("leave_shell_left", restart: true);
                 _doing = Doing.Posed;
@@ -313,6 +320,9 @@ public partial class MamaTurtle : Enemy
         shell.Rect = new PixelRect(-shell.Size.X / 2, -halfHeight, shell.Size.X, halfHeight * 2);
         shell.Enabled = halfHeight > 0;
     }
+
+    /// <summary>Her shell, which she meets the room's blocks with: she has no other body.</summary>
+    private Collider Shell() => Solid ?? throw new InvalidOperationException($"The Mama Turtle \"{Name}\" has no shell collider.");
 
     /// <summary>Whether terrain stops her shell moving by <paramref name="offset"/>.</summary>
     private bool Blocked(PixelOffset offset)

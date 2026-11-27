@@ -539,6 +539,12 @@ internal sealed partial class EngineLayouts
             layout.Rows.Add(row.ToString());
         }
 
+        // A few of the cartridge's levels run on below their room (Double Chamber's and the Bowling Alley's each hold
+        // a screen more of rows than the room has). The layout is the room's own rows: its screens are the room's.
+        int roomRows = room.Size.Y * (256 / Block);
+        if (layout.Rows.Count > roomRows)
+            layout.Rows.RemoveRange(roomRows, layout.Rows.Count - roomRows);
+
         _graphicsSets.Add(tileset);
         foreach ((int x, int y, SpecialAirReaction kind) in plants)
             PatchPlant(room, state, x, y, kind);

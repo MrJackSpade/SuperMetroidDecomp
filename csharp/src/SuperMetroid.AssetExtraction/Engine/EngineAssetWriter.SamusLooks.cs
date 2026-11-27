@@ -531,6 +531,12 @@ public sealed partial class EngineAssetWriter
         heights["changing_to_crouch_diagonal_down"] = SamusShotHeight(P.CrouchingTransitionAimDiagonalDownRightPose, P.CrouchingTransitionAimDiagonalDownLeftPose);
         heights["changing_to_stand_diagonal_down"] = SamusShotHeight(P.StandingTransitionAimDiagonalDownRightPose, P.StandingTransitionAimDiagonalDownLeftPose);
 
+        // The turn a moonwalk makes with the jump fires the shot the moonwalk hands it from heights of its own, by the
+        // moonwalk's aim. She faces the way she turns to, so the pose that turns to the right is the right-facing one.
+        heights["moonwalk_jump_turn"] = SamusShotHeight(P.MoonwalkTurnToSpinJumpRightPose, P.MoonwalkTurnToSpinJumpLeftPose);
+        heights["moonwalk_jump_turn_diagonal_up"] = SamusShotHeight(P.MoonwalkTurnToSpinJumpAimUpRightPose, P.MoonwalkTurnToSpinJumpAimUpLeftPose);
+        heights["moonwalk_jump_turn_diagonal_down"] = SamusShotHeight(P.MoonwalkTurnToSpinJumpAimDownRightPose, P.MoonwalkTurnToSpinJumpAimDownLeftPose);
+
         foreach (string from in new[] { "falling", "jumping" })
         {
             Passing(from, "standing", P.NormalLandingRightPose, P.NormalLandingLeftPose);

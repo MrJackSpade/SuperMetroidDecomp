@@ -340,14 +340,16 @@ public partial class Yard : Enemy
         _turnRest = Countdown.Of(TurnRestUpdates);
     }
 
-    /// <summary>Whether what it clings to is still there, a little beyond a crawling step away.</summary>
+    /// <summary>
+    /// Whether what it clings to is still there, a little beyond a crawling step away: whether a move that far toward
+    /// it would end in solid ground. It does not move.
+    /// </summary>
     private bool StillClings()
     {
-        PixelPosition from = Position;
         Pixels reach = _crawl.Speed + Pixels.FromWhole(HidingProbeReach);
-        bool clings = _feelsAcross ? MoveAcrossBy(reach * _crawl.PressesAcross) : MoveDownBy(reach * _crawl.PressesDown);
-        Position = from;
-        return clings;
+        return _feelsAcross
+            ? Room.Mover.TryAcross(MovingBody(), reach * _crawl.PressesAcross, Feels, out _).Blocked
+            : Room.Mover.TryDown(MovingBody(), reach * _crawl.PressesDown, Feels, out _).Blocked;
     }
 
     /// <summary>Shuts it in its shell while Samus is level with it, or below, and looking its way.</summary>
@@ -471,7 +473,7 @@ public partial class Yard : Enemy
     {
         if (_mood != Mood.Dropped)
         {
-            if (MoveAcrossBy(_flight.X))
+            if (Room.Mover.MoveAcross(MovingBody(), _flight.X, FliesAcross).Blocked)
             {
                 _flight = _flight.WithX(Reversed(_flight.X));
                 Sound(BounceSound);
@@ -482,7 +484,7 @@ public partial class Yard : Enemy
             }
         }
 
-        if (!MoveDownBy(_flight.Y))
+        if (!Room.Mover.MoveDown(MovingBody(), _flight.Y, Flies).Blocked)
         {
             _flight = _flight.WithY(Fallen(_flight.Y));
             return;
@@ -528,4 +530,23 @@ public partial class Yard : Enemy
         _doing = Doing.Still;
         Play(_landing, restart: true);
     }
+
+    /// <summary>
+    /// How its flight is tried, as the cartridge moves an enemy: only where each move would end, and sloped ground that
+    /// holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Flies =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How its flight across is tried: as the rest of it, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions FliesAcross = Flies with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>
+    /// How it feels for what it clings to while hiding, as the cartridge does: only where the move would end, and only
+    /// solid ground found there, no slope.
+    /// </summary>
+    private static readonly MoveOptions Feels = MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.Ignore };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Yard \"{Name}\" has no body collider.");
 }

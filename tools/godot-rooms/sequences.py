@@ -255,7 +255,9 @@ class Sequences:
             self.placed.append(sequence('ceres/CeresDebris.cs', 'Debris', {
                 'StartsWhen': ctx.fact('ceres_self_destruct_started'),
                 'LightPiece': quoted('effects/ceres_debris_light.json'), 'DarkPiece': quoted('effects/ceres_debris_dark.json')}))
-        if state.main == 'CeresRidleyGetaway':
+        # The room's version after his getaway runs the same routine on the cartridge and has no floor to turn: the
+        # floor and the getaway are placed only where the room has one.
+        if state.main == 'CeresRidleyGetaway' and 'TurningFloor' in state.properties:
             # The floor he flies off over is put away until he does: the room rests on its own picture.
             # Nothing shows beyond its edges: the cartridge's floor for his flight does not come round again, as
             # the shaft's does.

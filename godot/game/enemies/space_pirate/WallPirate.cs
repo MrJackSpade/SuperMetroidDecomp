@@ -1,5 +1,6 @@
 using System.Globalization;
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Game.Compatibility;
@@ -99,7 +100,7 @@ public partial class WallPirate : SpacePirate
                 Wall = side;
                 break;
             case "climb":
-                if (MoveDownBy(Pixels.FromWhole(int.Parse(parts[1], CultureInfo.InvariantCulture))))
+                if (Room.Mover.MoveDown(MovingBody(), Pixels.FromWhole(int.Parse(parts[1], CultureInfo.InvariantCulture)), Moves).Blocked)
                 {
                     _climbsUp = !_climbsUp;
                     Play(ClimbTimeline, restart: true);
@@ -170,4 +171,14 @@ public partial class WallPirate : SpacePirate
         int half = BlockSize / 2;
         Position = new PixelPosition(Position.X.WithWhole(within < BlockSize * 11 / 16 ? start + within / half * half : start + BlockSize), Position.Y);
     }
+
+    /// <summary>
+    /// How its climb is tried, as the cartridge moves an enemy up and down: only where it would end, and sloped ground
+    /// that holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The wall Space Pirate \"{Name}\" has no body collider.");
 }

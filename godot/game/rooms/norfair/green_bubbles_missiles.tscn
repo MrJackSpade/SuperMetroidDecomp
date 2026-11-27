@@ -109,7 +109,7 @@ script = ExtResource("10")
 position = Vector2(256, 80)
 Size = Vector2i(16, 16)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen0x0")
 
 [node name="Arriving" type="Node2D" parent="."]

@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Game.Compatibility;
@@ -39,7 +40,7 @@ public partial class Waver : Enemy
     {
         // A roll that has played through gives way to level flight at the end of this update, whatever the flight does.
         bool rolled = Playing.StartsWith("spin", StringComparison.Ordinal) && AnimationIsOver;
-        if (MoveAcrossBy(Facing.Toward(Pixels.FromNumber(Speed))))
+        if (Room.Mover.MoveAcross(MovingBody(), Facing.Toward(Pixels.FromNumber(Speed)), MovesAcross).Blocked)
         {
             Facing = Facing.Opposite();
             Play(Steady);
@@ -49,7 +50,8 @@ public partial class Waver : Enemy
             // The wave is in whole pixels a step, as the original's is: the whole pixels of the cartridge's short
             // product a half turn on.
             int down = CartridgeAngles.CircleSine(_angle + Turns.PerTurn / 2, WaveHeight).Whole;
-            _angle = Turns.Wrap(MoveDownBy(Pixels.FromWhole(down)) ? _angle + Turns.PerTurn / 2 : _angle + WaveStep);
+            bool met = Room.Mover.MoveDown(MovingBody(), Pixels.FromWhole(down), Moves).Blocked;
+            _angle = Turns.Wrap(met ? _angle + Turns.PerTurn / 2 : _angle + WaveStep);
         }
 
         if (_angle % (Turns.PerTurn / 2) == SpinsAt)
@@ -60,4 +62,17 @@ public partial class Waver : Enemy
 
     /// <summary>The timeline of level flight the way it faces.</summary>
     private string Steady => Facing == Facing.Left ? "steady_left" : "steady_right";
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Waver \"{Name}\" has no body collider.");
 }

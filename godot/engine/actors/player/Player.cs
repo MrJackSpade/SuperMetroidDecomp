@@ -479,12 +479,72 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveResult TryBodyDown(Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null) =>
         Noted(Room.Mover.TryDown(Body, distance, options, out rest, shapedAs));
 
-    /// <summary>Notes what a move of the body reached.</summary>
+    /// <summary>
+    /// Where the player's body met blocks on this update: the tile of terrain that stopped each move of the body, made
+    /// or only tried, and wherever a state that moves the body a way of its own said it met them (<see cref="MeetBlocksAt"/>).
+    /// </summary>
+    private readonly List<PixelRect> _met = [];
+
+    /// <summary>
+    /// Says that the player's body met whatever block lies at <paramref name="point"/> on this update: for a state
+    /// that moves the body a way of its own, not through the room's mover, and feels for blocks point by point as a
+    /// swing on a line does. A block there that acts on contact acts as one that stopped a move of the body does.
+    /// </summary>
+    public void MeetBlocksAt(PixelPosition point) => _met.Add(new PixelRect(point.X.Whole, point.Y.Whole, 1, 1));
+
+    /// <summary>Notes what a move of the body reached, and the tile that stopped it.</summary>
     private MoveResult Noted(MoveResult result)
     {
         if (result.Reached is { IsEmpty: false } reached)
             _reached.Add(reached);
+        if (result.StoppedByTile is { } tile)
+            _met.Add(tile);
         return result;
+    }
+
+    /// <summary>
+    /// The blocks the player is in, for what a block does to whoever is in it: those at their feet, their middle and
+    /// their head, down the middle column of their body, each of the three where it lies in a row of tiles the ones
+    /// before it did not. A block beside that column, or one the body only lies against, is not one they are in.
+    /// </summary>
+    private List<Block> BlocksStoodIn()
+    {
+        PixelRect body = BodyRect;
+        int x = Position.X.Whole, size = Room.Terrain.TileSize;
+        var rows = new HashSet<int>();
+        var blocks = new List<Block>();
+        foreach (int y in (int[])[body.Bottom - 1, Position.Y.Whole, body.Top])
+        {
+            if (!rows.Add((int)Math.Floor((double)y / size)))
+                continue;
+            foreach (Block block in Room.Terrain.BlocksIn(new PixelRect(x, y, 1, 1)))
+            {
+                if (!blocks.Contains(block))
+                    blocks.Add(block);
+            }
+        }
+
+        return blocks;
+    }
+
+    /// <summary>
+    /// The blocks the player's body met on this update: of each move stopped by terrain, the first tile its leading
+    /// edge was stopped by, and what a state said it met. A solid block that acts on contact, as a spike does, acts on
+    /// a player who met it so, and on no one who only lies against it.
+    /// </summary>
+    private List<Block> BlocksMet()
+    {
+        var blocks = new List<Block>();
+        foreach (PixelRect tile in _met)
+        {
+            foreach (Block block in Room.Terrain.BlocksIn(tile))
+            {
+                if (!blocks.Contains(block))
+                    blocks.Add(block);
+            }
+        }
+
+        return blocks;
     }
 
     /// <summary>
@@ -492,7 +552,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// update was tried into it, though something beside it stopped them short of it. What is taken by being touched
     /// is touched so: a thing standing on a block is touched by a player who runs against that block.
     /// </summary>
-    public bool Reaches(PixelRect area) => BodyRect.Overlaps(area) || _reached.Exists(reached => reached.Overlaps(area));
+    public bool Reaches(PixelRect area) => BodyRect.Overlaps(area) || MovesReached(area);
+
+    /// <summary>
+    /// Whether a move of the player's body on this update, made or only tried, was tried into <paramref name="area"/>:
+    /// whether the body's leading edge, where the move was tried, lay in it before anything stopped the move. A body
+    /// that only lies in the area, having moved no edge into it on this update, has not.
+    /// </summary>
+    public bool MovesReached(PixelRect area) => _reached.Exists(reached => reached.Overlaps(area));
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
@@ -548,7 +615,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveValues Moves(string state) => Medium.MovesFor(state);
 
     /// <summary>Which way a shot leaves: one step across and one step down, each -1, 0 or 1.</summary>
-    public (int Across, int Down) AimDirection
+    public virtual (int Across, int Down) AimDirection
     {
         get
         {
@@ -703,6 +770,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _input = input;
         _medium = null;
         _reached.Clear();
+        _met.Clear();
+        _enteringAsAsked = false;
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
 
@@ -710,7 +779,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         PublishForm();
         TakeJumpBuffer();
         BeforeState();
-        if (State.CanAttack)
+        if (AttacksNow)
             Attack(input);
         else
             WaitToAttack();
@@ -718,6 +787,12 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _asked = AskedOf(state);
         _askedOf = state;
     }
+
+    /// <summary>
+    /// Whether this update's attack is played: whether the state the player is in can attack, unless the game's
+    /// player says otherwise, as one does that still owes a shot from the state it has just left.
+    /// </summary>
+    protected virtual bool AttacksNow => State.CanAttack;
 
     /// <summary>
     /// Plays the rest of an update, which comes after the room's enemies have acted: the player moves as the state
@@ -728,6 +803,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         BeforeMoving();
         MovedAs = State;
         States.Step();
+        _enteringAsAsked = false;
         DeliverBodyPowers();
         AfterState();
         CountJumpHeld();
@@ -877,7 +953,18 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     protected abstract PlayerState Entering(PlayerState from, PlayerState to, bool unasked);
 
     /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
-    internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
+    internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked)
+    {
+        _enteringAsAsked = !unasked;
+        return Entering(from, to, unasked);
+    }
+
+    /// <summary>
+    /// Whether the state being entered as this update's movement ends is the one the input asked for. A change of
+    /// form made for such a state stands for one made before the update's movement, and tells the view so
+    /// (<see cref="TakeFit"/>). False from the update's beginning until then, and again once the state is entered.
+    /// </summary>
+    private bool _enteringAsAsked;
 
     /// <summary>
     /// Called as a jump from the ground has gathered itself and is about to rise in the stance it began in. A game
@@ -1216,10 +1303,21 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Puts the player where a fitting leaves them, in the form it gives, and returns that form: null when they stay in the form they have.</summary>
     private string? TakeFit(FormFit fit)
     {
-        // A change of form that moves the middle of the body is not a move of the player's: the view takes them to
-        // have stood where the change leaves them, and follows nothing of this update's way down.
-        if (fit.StoodThere)
+        // A change of form that moves the middle of the body is not a move of the player's. One made for the state
+        // the input asked for stands for a change made before this update's movement: where the view takes them to
+        // have stood is shifted by the change's own lift, and the update's way is followed. Any other comes after
+        // the movement: the view takes them to have stood where the change leaves them, and follows nothing of this
+        // update's way down.
+        int lift = fit.Place.Y.Whole - Position.Y.Whole;
+        if (_enteringAsAsked)
+        {
+            if (lift != 0)
+                Room.Session.Camera.ShiftWherePlayerStoodDown(lift);
+        }
+        else if (fit.StoodThere)
+        {
             Room.Session.Camera.TakePlayerToHaveStoodAtY(fit.Place.Y.Whole);
+        }
         Position = fit.Place;
         if (fit.Form is { } taken)
             ApplyForm(taken);
@@ -1903,7 +2001,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     private void BeMovedByBlocks()
     {
         Pixels across = Pixels.Zero, down = Pixels.Zero;
-        foreach (Block block in Room.Terrain.BlocksIn(BodyRect))
+        foreach (Block block in BlocksStoodIn())
         {
             Pixels speed = block.Type.ContactSpeed;
             if (block.Type.Contact == BlockContact.Carries)
@@ -1965,7 +2063,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         hundredths += fromRoom;
 
         int blockHit = 0;
-        foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
+        foreach (Block block in BlocksStoodIn().Concat(BlocksMet()).Distinct())
         {
             if (block.Type.Contact != BlockContact.Hurts || IsCancelled("blocks"))
                 continue;

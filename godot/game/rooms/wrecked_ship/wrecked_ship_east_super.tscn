@@ -309,7 +309,7 @@ script = ExtResource("12")
 position = Vector2(752, 112)
 Size = Vector2i(16, 16)
 What = "open_to_top"
-Once = false
+WhileTouched = true
 Target = NodePath("../Screen3x0")
 
 [node name="Backdrop" type="Node2D" parent="."]

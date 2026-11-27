@@ -383,8 +383,7 @@ public partial class YappingMaw : Enemy
 
         // Each placing drops a grapple she has out, and holds the view to following her by twelve pixels and one more.
         (samus as Samus)?.Grapple?.Release();
-        Room.Session.Camera.CapFollowUpOrDown(samus.Position.Y, Samus.PlacedViewCap);
-        Room.Session.Camera.CapFollowAcross(samus.Position.X, Samus.PlacedViewCap);
+        Samus.CapViewOfHeld(samus);
     }
 
     /// <summary>Lets Samus go, if it holds her.</summary>

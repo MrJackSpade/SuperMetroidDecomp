@@ -55,11 +55,22 @@ SamusStep = 1.5
 
 [node name="ToFishTankRight" type="Node2D" parent="."]
 script = ExtResource("4")
-position = Vector2(1120, 512)
-Size = Vector2i(320, 512)
+position = Vector2(1120, 1008)
+Size = Vector2i(64, 16)
 LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
 LeadsToExit = "ToMtEverestRight"
-ArrivalOffset = Vector2i(160, 472)
+ArrivalOffset = Vector2i(32, -24)
+Travel = 2
+ToScreen = Vector2i(3, 0)
+SamusStep = 1.5
+
+[node name="ToFishTankRightAt86x32" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1376, 512)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
+LeadsToExit = "ToMtEverestRight"
+ArrivalOffset = Vector2i(32, 8)
 Travel = 2
 ToScreen = Vector2i(3, 0)
 SamusStep = 1.5

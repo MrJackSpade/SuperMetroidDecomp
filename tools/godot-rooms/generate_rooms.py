@@ -378,6 +378,9 @@ class Generator:
         self.room_doors: dict[str, dict[str, tuple[int, int, int, int]]] = {}
         # The blocks an elevator rests on in each room that has one: their rectangle, in pixels.
         self.elevator_rests: dict[str, tuple[int, int, int, int]] = {}
+        # A door whose blocks lie in more than one group apart from each other: the rectangles of the groups other
+        # than the one at the room's edge, each an exit of its own that leads the same way.
+        self.further_door_groups: dict[str, dict[str, list[tuple[int, int, int, int]]]] = {}
         for key, room in self.rooms.items():
             levels = self.door_blocks.get(room.name, {})
             default_level = self.states[self.choices[key][0]].level
@@ -392,7 +395,10 @@ class Generator:
                         raise ValueError(f'The blocks an elevator rests on in {room.name} are not one rectangle')
                     self.elevator_rests[key] = (min(xs) * BLOCK, min(ys) * BLOCK, (max(xs) - min(xs) + 1) * BLOCK, (max(ys) - min(ys) + 1) * BLOCK)
                     continue
-                doors[door] = (min(xs) * BLOCK, min(ys) * BLOCK, (max(xs) - min(xs) + 1) * BLOCK, (max(ys) - min(ys) + 1) * BLOCK)
+                groups = self.door_block_groups(room.name, door, cells)
+                doors[door] = groups[0]
+                if len(groups) > 1:
+                    self.further_door_groups.setdefault(key, {})[door] = groups[1:]
             self.room_doors[key] = doors
         # Mother Brain's way out is a door her death makes: her room's level has no blocks for it until then. It lies
         # in the wall until the patch of her death opens it.
@@ -417,6 +423,42 @@ class Generator:
                     seen.add(beyond)
                     queue.append(beyond)
         raise ValueError(f'No room within reach of {key} names a set of music.')
+
+    def door_block_groups(self, room_name: str, door: str, cells: list[dict]) -> list[tuple[int, int, int, int]]:
+        """The rectangles, in pixels, of a door's blocks: one for each group of blocks that touch each other, the
+        group furthest the way the door leads first. The cartridge gives a few doors blocks in more than one place
+        (West Ocean, Mt. Everest, the Plasma Spark room), and each place is a way through of its own; one rectangle
+        round them all would take in the room between them."""
+        left = {(cell['x'], cell['y']) for cell in cells}
+        groups: list[set[tuple[int, int]]] = []
+        while left:
+            stack = [left.pop()]
+            group = set(stack)
+            while stack:
+                x, y = stack.pop()
+                for beside in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                    if beside in left:
+                        left.remove(beside)
+                        group.add(beside)
+                        stack.append(beside)
+            groups.append(group)
+        rectangles = []
+        for group in groups:
+            xs, ys = [x for x, _ in group], [y for _, y in group]
+            width, height = max(xs) - min(xs) + 1, max(ys) - min(ys) + 1
+            if len(group) != width * height:
+                raise ValueError(f'A group of the blocks of the door {door} in {room_name} is not a rectangle')
+            rectangles.append((min(xs) * BLOCK, min(ys) * BLOCK, width * BLOCK, height * BLOCK))
+        if len(rectangles) == 1:
+            return rectangles
+        definition = self.doors.get(door)
+        if definition is None:
+            raise ValueError(f'The installed door blocks name a door the definitions do not have: {door}')
+        furthest = {
+            'Left': lambda r: (r[0], r[1]), 'Right': lambda r: (-r[0], r[1]),
+            'Up': lambda r: (r[1], r[0]), 'Down': lambda r: (-r[1], r[0]),
+        }[definition.direction]
+        return sorted(rectangles, key=furthest)
 
     def exit_name(self, room: legacy.Room, door: str) -> str:
         return door[len(room.name):] if door.startswith(room.name) and len(door) > len(room.name) else door
@@ -871,7 +913,7 @@ class Generator:
             else:
                 offset_x = width // 2
                 offset_y = ARRIVAL_INSET if door.direction == 'Up' else height - ARRIVAL_INSET
-            scene.node(self.exit_name(room, name), '.', {
+            exit_settings = {
                 'position': f'Vector2({x}, {y})',
                 'Size': f'Vector2i({width}, {height})',
                 'LeadsToRoom': quoted(room_scene(target)),
@@ -883,8 +925,17 @@ class Generator:
                 # A room that shows only what stands in it through its doors shows no tiles through the scroll, and
                 # neither does the room on the door's other side.
                 **({'ShowsTilesThrough': 'false'} if 'ObjectsOnly' in room.properties.get('DoorTransition', '') + target.properties.get('DoorTransition', '') else {}),
-            }, script='res://game/rooms/doors/Door.cs')
+            }
+            scene.node(self.exit_name(room, name), '.', exit_settings, script='res://game/rooms/doors/Door.cs')
             entries.append((name, x, y))
+            # The door's blocks that lie apart from its own doorway are ways through of their own, to the same place.
+            for further_x, further_y, further_width, further_height in self.further_door_groups.get(key, {}).get(name, []):
+                scene.node(f'{self.exit_name(room, name)}At{further_x // BLOCK}x{further_y // BLOCK}', '.', {
+                    **exit_settings,
+                    'position': f'Vector2({further_x}, {further_y})',
+                    'Size': f'Vector2i({further_width}, {further_height})',
+                    'ArrivalOffset': f'Vector2i({further_width // 2}, {further_height // 2})',
+                }, script='res://game/rooms/doors/Door.cs')
 
         self.place_things(key, scene, room)
         self.scenes[key] = scene

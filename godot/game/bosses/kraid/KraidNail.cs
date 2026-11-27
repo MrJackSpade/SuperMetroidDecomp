@@ -148,9 +148,17 @@ public partial class KraidNail : Enemy
     {
         if (_kraid is null)
         {
-            _kraid = Room.Enemies.OfType<Kraid>().FirstOrDefault()
-                ?? throw new InvalidOperationException($"The nail \"{Name}\" is in a room with no Kraid.");
-            _kraidHadGrown = _kraid.HasGrown;
+            // A nail comes back as a new one after it is shot, and Kraid may have gone meanwhile: its first turn then
+            // finds none in the room, and it does as a nail whose Kraid has gone does. No more follow.
+            if (Room.Enemies.OfType<Kraid>().FirstOrDefault() is not { } found)
+            {
+                RespawnsWhenKilled = false;
+                Die();
+                return;
+            }
+
+            _kraid = found;
+            _kraidHadGrown = found.HasGrown;
         }
 
         Kraid kraid = _kraid;
@@ -189,12 +197,12 @@ public partial class KraidNail : Enemy
                 break;
 
             case Phase.Fly:
-                bool turned = MoveAcrossBy(Flight.X);
+                bool turned = Room.Mover.MoveAcross(MovingBody(), Flight.X, FliesAcross).Blocked;
                 if (!turned && !Flight.X.IsNegative && Body is { } body)
                     turned = Position.X.Whole + body.Rect.Width / 2 >= kraid.Position.X.Whole + LedgeLeft(Position.Y.Whole - kraid.Position.Y.Whole);
                 if (turned)
                     Flight = Flight.WithX(-Flight.X);
-                if (MoveDownBy(Flight.Y))
+                if (Room.Mover.MoveDown(MovingBody(), Flight.Y, Flies).Blocked)
                     Flight = Flight.WithY(-Flight.Y);
                 break;
 
@@ -246,4 +254,17 @@ public partial class KraidNail : Enemy
         _away = away;
         Visual?.SetShown(!away);
     }
+
+    /// <summary>
+    /// How its flight is tried, as the cartridge moves an enemy: only where each move would end, and sloped ground that
+    /// holds things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Flies =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How its flight across is tried: as the rest of it, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions FliesAcross = Flies with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"Kraid's nail \"{Name}\" has no body collider.");
 }

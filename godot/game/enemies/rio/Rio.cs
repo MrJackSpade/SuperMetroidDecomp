@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Game.Compatibility;
@@ -41,6 +42,16 @@ public partial class Rio : Enemy
     [Export, DataValue("dive_sound")]
     public string DiveSound { get; set; } = "";
 
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
     private enum Doing
     {
         Waiting,
@@ -81,14 +92,14 @@ public partial class Rio : Enemy
                 return;
 
             case Doing.Swooping:
-                if (MoveAcrossBy(Velocity.X))
+                if (MoveAcross(MovesAcross).Blocked)
                 {
                     Velocity = new PixelVelocity(-Velocity.X, -Velocity.Y);
                     _doing = Doing.Climbing;
                     return;
                 }
 
-                if (MoveDownBy(Velocity.Y))
+                if (MoveDown(Moves).Blocked)
                 {
                     Velocity = Velocity.WithY(-Velocity.Y);
                     _doing = Doing.Climbing;
@@ -125,14 +136,14 @@ public partial class Rio : Enemy
                 Velocity = new PixelVelocity(
                     FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, aim)),
                     FromTwoFiftySixths(CartridgeAngles.SpeedAlong(256, aim + 64)));
-                MoveAcrossBy(Velocity.X);
-                MoveDownBy(Velocity.Y);
+                MoveAcross(MovesAcross);
+                MoveDown(Moves);
                 return;
 
             case Doing.Climbing:
-                if (MoveAcrossBy(Velocity.X))
+                if (MoveAcross(MovesAcross).Blocked)
                     Velocity = Velocity.WithX(-Velocity.X);
-                if (MoveDownBy(Velocity.Y))
+                if (MoveDown(Moves).Blocked)
                 {
                     // An animation's finish is kept until it is taken: one its swoop's opening gave after a wall or the
                     // floor turned it back ends its landing at once.

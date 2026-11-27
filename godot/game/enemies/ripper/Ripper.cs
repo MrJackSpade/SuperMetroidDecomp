@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -52,7 +53,7 @@ public partial class Ripper : Enemy, ILatchable
     /// <inheritdoc/>
     protected override void Behave()
     {
-        bool turns = MoveAcrossBy(Facing.Toward(Pixels.FromNumber(Speed)));
+        bool turns = Room.Mover.MoveAcross(MovingBody(), Facing.Toward(Pixels.FromNumber(Speed)), MovesAcross).Blocked;
         // A patrol bound, unlike a wall, does not put it back flush: it keeps what it overshot by.
         if (!turns && (PatrolLeft != 0 || PatrolRight != 0))
             turns = Facing == Facing.Left ? Position.X.Whole < PatrolLeft : Position.X.Whole >= PatrolRight;
@@ -87,4 +88,14 @@ public partial class Ripper : Enemy, ILatchable
 
     /// <summary>Shows the timeline of the way it is flying.</summary>
     private void ShowHeading() => Play(Facing == Facing.Left ? "left" : "right", restart: true);
+
+    /// <summary>
+    /// How its flight across is tried, as the cartridge moves an enemy across: only where it would end, and sloped
+    /// ground that holds things up by their middle no part of it.
+    /// </summary>
+    private static readonly MoveOptions MovesAcross =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Ripper \"{Name}\" has no body collider.");
 }

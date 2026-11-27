@@ -345,10 +345,11 @@ public partial class Samus : Player
 
     /// <summary>
     /// The names in her shot heights of the heights she fires from while settling from a landing, while a jump
-    /// gathers, and while she crouches down and stands up.
+    /// gathers, while she crouches down and stands up, and in the turn a moonwalk makes with the jump.
     /// </summary>
     private const string LandingHeights = "landing", JumpStartHeights = "jump_start",
-        CrouchChangeHeights = "changing_to_crouch", StandChangeHeights = "changing_to_stand";
+        CrouchChangeHeights = "changing_to_crouch", StandChangeHeights = "changing_to_stand",
+        MoonwalkJumpTurnHeights = "moonwalk_jump_turn";
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -790,16 +791,48 @@ public partial class Samus : Player
         {
             // A shot leaves her arm from a whole pixel: the fraction of a pixel her own place has is not the shot's.
             // What she lays as a ball is laid where she is.
-            PixelPosition at = Origin(_muzzles);
+            // A shot handed out of a moonwalk's turn leaves from the muzzle of the way it is handed.
+            PixelPosition at = Origin(_muzzles, way: HandedWay);
             return Form == Crawling ? at : PixelPosition.FromWhole(at.X.Whole, at.Y.Whole);
         }
     }
 
     /// <summary>
     /// How far, in whole pixels, the view takes her to have moved at most on an update something that holds her has
-    /// placed her: a Yapping Maw, or Draygon.
+    /// placed her: a Yapping Maw, Draygon, or the grapple's line as it takes hold of her or stops her at an angle.
     /// </summary>
     public const int PlacedViewCap = 12;
+
+    /// <summary>
+    /// Has the view take her to have moved no more than <see cref="PlacedViewCap"/> each way on this update, once
+    /// something has put her where she now is: the view follows the placement by that much and its one pixel more.
+    /// </summary>
+    public void CapViewAfterPlacing()
+    {
+        Room.Session.Camera.CapFollowUpOrDown(Position.Y, PlacedViewCap);
+        Room.Session.Camera.CapFollowAcross(Position.X, PlacedViewCap);
+    }
+
+    /// <summary>
+    /// Holds the view to following her by <see cref="PlacedViewCap"/> and its one pixel more, each way, once a Yapping
+    /// Maw or Draygon has placed her, as the cartridge's cap for those two does: where she stands that far or further
+    /// from where the view takes her to have stood, she is taken to have stood that far off, on the side she moved
+    /// toward, past her and not behind her. Only the distance reaches the view, which goes the way she went; the
+    /// side decides which of the two parts of a pixel is taken from the other. A view that has tracked nothing since
+    /// it was placed is left as it is.
+    /// </summary>
+    public static void CapViewOfHeld(Player held)
+    {
+        ArgumentNullException.ThrowIfNull(held);
+        Camera view = held.Room.Session.Camera;
+        if (view.PlayerTakenToHaveStoodAt is not { } stood)
+            return;
+        int down = held.Position.Y.Whole - stood.Y, across = held.Position.X.Whole - stood.X;
+        if (Math.Abs(down) >= PlacedViewCap)
+            view.TakePlayerToHaveStoodAtY(held.Position.Y.Whole + Math.Sign(down) * PlacedViewCap);
+        if (Math.Abs(across) >= PlacedViewCap)
+            view.TakePlayerToHaveStoodAtX(held.Position.X.Whole + Math.Sign(across) * PlacedViewCap);
+    }
 
     /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
     public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
@@ -853,19 +886,22 @@ public partial class Samus : Player
 
     /// <summary>
     /// The place of <paramref name="origins"/> for how she stands, faces and aims, raised by how high her pose holds her
-    /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up.
+    /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up. Given a
+    /// <paramref name="way"/>, the place is that of its facing and aim in place of hers.
     /// </summary>
-    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins, bool moonwalkRuns = true)
+    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins, bool moonwalkRuns = true,
+        (Facing Facing, Aim Aim)? way = null)
     {
         // In the morph ball there is no arm to fire from: what she lays, she lays where she is.
         if (Form == Crawling)
             return Position;
+        (Facing faces, Aim aims) = way ?? (Facing, Aim);
         string stance = State is RunningState || (moonwalkRuns && State is MoonwalkingState && Aim == Aim.DiagonalUp) ? "running" : "standing";
-        string facing = Facing == Facing.Right ? "right" : "left";
-        if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
-            !aims.TryGetValue(AimName(Aim), out Vector2I offset))
+        string facing = faces == Facing.Right ? "right" : "left";
+        if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aimed) ||
+            !aimed.TryGetValue(AimName(aims), out Vector2I offset))
             return base.MuzzlePoint;
-        return Raised(offset);
+        return Raised(offset, way?.Aim);
     }
 
     /// <summary>
@@ -910,20 +946,26 @@ public partial class Samus : Player
         _ => Origin(_grappleFlarePlaces, moonwalkRuns: false),
     };
 
-    /// <summary>A place her data gives from her own, raised by how high her pose holds her arm.</summary>
-    private PixelPosition Raised(Vector2I offset)
+    /// <summary>
+    /// A place her data gives from her own, raised by how high her pose holds her arm; for a shot handed to her turn,
+    /// by the height of the <paramref name="handedAim"/> it was handed with, as the cartridge's turn took its pose from it.
+    /// </summary>
+    private PixelPosition Raised(Vector2I offset, Aim? handedAim = null)
     {
         // Settling from a landing, gathering a jump, crouching down and standing up hold her arm at heights of their
-        // own, as the cartridge's poses do. Coming out of the ball is a change she cannot fire through, and has none.
+        // own, as the cartridge's poses do, and so does the turn a moonwalk makes with the jump. Coming out of the
+        // ball is a change she cannot fire through, and has none.
         string look = State switch
         {
             StandingState { IsSettling: true } => LandingHeights,
             JumpingState jump when ReferenceEquals(jump, _gatheringJump) => JumpStartHeights,
             ChangingPostureState { CanAttack: true, Then: CrouchingState } => CrouchChangeHeights,
             ChangingPostureState { CanAttack: true, Then: StandingState } => StandChangeHeights,
+            TurningState turn when ReferenceEquals(turn, _moonwalkJumpTurn) => MoonwalkJumpTurnHeights,
             _ => SamusLooks.Of(this),
         };
-        int height = _shotHeights.TryGetValue($"{look}_{HoldName}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
+        string hold = handedAim is { } handed ? AimName(handed) : HoldName;
+        int height = _shotHeights.TryGetValue($"{look}_{hold}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
         return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
     }
 
@@ -1068,6 +1110,15 @@ public partial class Samus : Player
         // next update's firing.
         if (to is JumpingState handing && Input.WasPressed(GameAction.Attack) && (!ReferenceEquals(from, to) || handing.TookUpStance))
             _shotHanded = true;
+
+        // Every turn out of a moonwalk hands a shot to the next update's firing, whatever is pressed, to leave the way
+        // the moonwalk aimed: the way she faced and her aim as this update began, as the moonwalk's pose had them.
+        // The turn the jump makes of it fires that shot from heights of its own.
+        if (from is MoonwalkingState moonwalk && to is TurningState turn)
+        {
+            (_shotHanded, _wayHanded) = (true, (Facing, _aimAtUpdateStart));
+            _moonwalkJumpTurn = ReferenceEquals(moonwalk.JumpTurn, turn) ? turn : null;
+        }
 
         if (to is JumpingState jump)
         {
@@ -1322,6 +1373,7 @@ public partial class Samus : Player
         _bombsHeldOff = _bombsHeldOff.Stepped();
         // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
         (_shotHandedNow, _shotHanded) = (_shotHanded, false);
+        (_wayHandedNow, _wayHanded) = (_wayHanded, null);
         StartCrystalFlashIfOffered();
         _ranFromStart = State is RunningState;
         _spunAtStart = State is SpinJumpingState or WallJumpingState;
@@ -1407,7 +1459,9 @@ public partial class Samus : Player
                     return null;
                 }
 
-                if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
+                // On the update her landing's own end falls, that end outranks what the input asks of her stance: the
+                // moonwalk and the aim straight up wait an update, as a run and a turn do.
+                if (current is StandingState { LandingEndsNow: false } && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
                 {
                     // The moonwalk is taken up aiming as asked, angle-down tested first whichever way she faces.
@@ -1416,7 +1470,7 @@ public partial class Samus : Player
                 }
 
                 // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
-                if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                if (current is StandingState { LandingEndsNow: false } && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
                     Intent != 0 && Intent > 0 == (Facing == Facing.Right))
                 {
                     AimFromInput();
@@ -1527,6 +1581,15 @@ public partial class Samus : Player
     {
         string weapon = WeaponInHand();
 
+        // A turn out of a moonwalk fires only the beam handed to it: the cartridge's turning pose has no aim of its own
+        // for a missile or for the hyper beam, which take no handed shot, so it launches neither and waits as a turn
+        // does otherwise.
+        if (HandedWay is not null && (weapon != Arsenal.Beam || Inventory.IsOn(Equipment.HyperBeam)))
+        {
+            WaitToAttack();
+            return;
+        }
+
         // A full charge is remembered for as long as the button stays down, even into the morph ball.
         bool held = input.IsHeld(GameAction.Attack);
         bool beamCharged = Weapons.Selected?.Name == Arsenal.Beam && Weapons.IsCharged;
@@ -1538,7 +1601,8 @@ public partial class Samus : Player
         // A beam charge carried into the morph ball stays there until the ball uses it up.
         _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor > 0));
 
-        if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
+        // A handed shot lets the charge go before a special attack is tried, as the cartridge's beam input has it.
+        if (!_shotHandedNow && weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
             Selected == Amounts.PowerBombs)
         {
             // Every try at a special attack forgets the item that was to cancel itself, whether or not her beams
@@ -1596,9 +1660,11 @@ public partial class Samus : Player
             // A handed shot makes a beam that charges let its charge go at once, before the hold is asked about: a
             // full charge as a charged shot, anything less as a plain one, if the wait and the places allow one at
             // all. The charge starts over either way.
+            // The attack still held remembers no full charge after it, for the ball's spread of bombs.
             bool full = Weapons.IsCharged;
             Weapons.StepCooldown();
             Weapons.DropCharge();
+            (_spreadCharged, _spreadHeld) = (false, 0);
             Weapons.Fire(this, beam, full);
         }
         else
@@ -1972,6 +2038,42 @@ public partial class Samus : Player
 
     /// <summary>Whether this update's change of pose handed a shot to the next update's firing, and whether the last one's did.</summary>
     private bool _shotHanded, _shotHandedNow;
+
+    /// <summary>
+    /// The way a shot handed out of a moonwalk's turn leaves, the moonwalk's facing and aim, handed this update and
+    /// handed by the last; none for a jump's, which leaves the way she aims.
+    /// </summary>
+    private (Facing Facing, Aim Aim)? _wayHanded, _wayHandedNow;
+
+    /// <summary>The last turn a moonwalk made with the jump, whose shots leave from heights of their own.</summary>
+    private TurningState? _moonwalkJumpTurn;
+
+    /// <summary>The way the shot handed to the turn she is in leaves; none when she is in no such turn.</summary>
+    private (Facing Facing, Aim Aim)? HandedWay => State is TurningState ? _wayHandedNow : null;
+
+    /// <summary>
+    /// A turn out of a moonwalk fires the shot handed to it, though a turn cannot attack, as the cartridge's turning
+    /// pose runs the beam's input while it holds one.
+    /// </summary>
+    protected override bool AttacksNow => base.AttacksNow || HandedWay is not null;
+
+    /// <summary>A shot handed out of a moonwalk's turn leaves the way the moonwalk aimed, not the way she now faces.</summary>
+    public override (int Across, int Down) AimDirection
+    {
+        get
+        {
+            if (HandedWay is not { } way)
+                return base.AimDirection;
+            int forward = way.Facing == Facing.Right ? 1 : -1;
+            return way.Aim switch
+            {
+                Aim.Forward => (forward, 0),
+                Aim.DiagonalUp => (forward, -1),
+                Aim.DiagonalDown => (forward, 1),
+                _ => throw new InvalidOperationException($"A moonwalk does not aim {way.Aim}."),
+            };
+        }
+    }
 
     /// <inheritdoc/>
     protected override void OnBodyMoved(bool across, Pixels asked, Pixels moved) => _shotInheritance.Record(across, asked, moved);

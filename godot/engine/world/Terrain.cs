@@ -491,9 +491,9 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             : SlopeShape.WholeShare;
     }
 
-    /// <summary>The intact blocks <paramref name="rect"/> overlaps or, when <paramref name="touchingCounts"/>, lies against.</summary>
-    public IReadOnlyList<Block> BlocksIn(PixelRect rect, bool touchingCounts = false) =>
-        _blocks.Where(block => !block.Broken && (touchingCounts ? rect.OverlapsOrTouches(block.Rect) : rect.Overlaps(block.Rect))).ToList();
+    /// <summary>The intact blocks <paramref name="rect"/> overlaps.</summary>
+    public IReadOnlyList<Block> BlocksIn(PixelRect rect) =>
+        _blocks.Where(block => !block.Broken && rect.Overlaps(block.Rect)).ToList();
 
     /// <summary>
     /// Lands a hit on the terrain within <paramref name="area"/>. Each intact block there is revealed if the hit carries

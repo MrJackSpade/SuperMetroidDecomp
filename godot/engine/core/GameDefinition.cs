@@ -22,10 +22,21 @@ public abstract partial class GameDefinition : Resource
     public string[] Actions { get; set; } = [];
 
     /// <summary>
-    /// The buttons this game's own actions are bound to until the player chooses otherwise, by the action's name and
-    /// written as <see cref="Options"/> writes bindings.
+    /// The buttons this game's own controls are bound to until the player chooses otherwise, by the control's name
+    /// and written as <see cref="Options"/> writes bindings. A control is a button of the game's own controller; an
+    /// action the game puts on none of them is on its own, of the action's name.
     /// </summary>
     public abstract Dictionary<string, List<string>> StandardBindings { get; }
+
+    /// <summary>
+    /// The control each action is on until the player chooses otherwise, by the action's name, for the actions this
+    /// game puts on a control other than their own; none for a game whose every action is on its own.
+    /// </summary>
+    public abstract IReadOnlyDictionary<string, string> StandardControls { get; }
+
+    /// <summary>Every action there is: the engine's own and this game's.</summary>
+    public IReadOnlyList<Engine.Input.GameAction> AllActions =>
+        [.. Engine.Input.GameAction.Standard, .. Actions.Select(name => new Engine.Input.GameAction(name))];
 
     /// <summary>
     /// How an exported game that starts with no assets has them made from a file the player supplies

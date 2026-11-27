@@ -142,7 +142,9 @@ public partial class SamusFlare : Node2D
         }
 
         Vector2 at = new(samus.FlarePoint.X.Whole - samus.Position.X.Whole, samus.FlarePoint.Y.Whole - samus.Position.Y.Whole);
-        bool armOut = samus.HoldsArmOut, facingRight = samus.Facing == Facing.Right;
+        // Moonwalking, the sparks are the other side's: the cartridge's moonwalk poses are set down as facing away
+        // from the way she aims, and its flare takes its sparks by the pose's facing.
+        bool armOut = samus.HoldsArmOut, facingRight = (samus.Facing == Facing.Right) != (samus.State is MoonwalkingState);
         void Play(Part part, int from)
         {
             if (held < from)

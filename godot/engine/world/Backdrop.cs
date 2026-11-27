@@ -18,6 +18,12 @@ public partial class Backdrop : Node2D, IPlaced, Ui.IRecoloured
     /// <inheritdoc/>
     public void Recolour(string source, IReadOnlyList<Shared.ColourSwap> swaps) => (_recolouring ??= new Ui.Recolouring(this)).Recolour(source, swaps);
 
+    /// <summary>
+    /// Adds a colour to, or takes one from, every colour of its picture, in place of what <paramref name="source"/>
+    /// last asked; <see cref="Shared.ColourShift.None"/> takes it back.
+    /// </summary>
+    public void Shift(string source, Shared.ColourShift shift) => (_recolouring ??= new Ui.Recolouring(this)).Shift(source, shift);
+
     /// <summary>The picture it shows as its room's content names it, with the room's set of graphics put in; empty before it is set up or with no picture.</summary>
     private string _pictureNamed = "";
 

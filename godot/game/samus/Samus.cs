@@ -250,13 +250,16 @@ public partial class Samus : Player
     [Export, DataValue("crouch_jump_lift")]
     public int CrouchJumpLift { get; set; } = 10;
 
-    /// <summary>How many updates she takes to settle after landing from a spin or a wall jump.</summary>
-    [Export, DataValue("spin_landing_updates")]
-    public int SpinLandingUpdates { get; set; } = 10;
+    /// <summary>How many updates each picture of her settling after landing from a spin or a wall jump is held, in order.</summary>
+    [Export, DataValue("spin_landing_pictures")]
+    public int[] SpinLandingPictures { get; set; } = [];
 
-    /// <summary>How many updates a spin that has found a wall to jump from stays ready to jump off it.</summary>
-    [Export, DataValue("wall_jump_ready_updates")]
-    public int WallJumpReadyUpdates { get; set; } = 8;
+    /// <summary>
+    /// How many updates each picture of a spin that has found a wall to jump from is held, in order: the spin stays
+    /// ready to jump off the wall as long as they last.
+    /// </summary>
+    [Export, DataValue("wall_jump_ready_pictures")]
+    public int[] WallJumpReadyPictures { get; set; } = [];
 
     /// <summary>How many updates of the charge it takes for a spin jump to hurt what it touches.</summary>
     [Export, DataValue("charged_spin_updates")]
@@ -362,6 +365,9 @@ public partial class Samus : Player
     /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the last when boosting.</summary>
     public int BoostStage => Math.Max(0, _boostStage);
 
+    /// <summary>The picture of her running stride she is at, counted from nought: the stride the boost is counted by, each picture lasting as her dash and the boost's stage have it.</summary>
+    public int StridePicture => _strideAt;
+
     /// <summary>The last stage of the boost: the one at which she is boosting.</summary>
     private int FullBoostStage => BoostStrideCounts.Length - 1;
 
@@ -425,20 +431,25 @@ public partial class Samus : Player
     /// <summary>The crystal flash is done, and its colouring ends at the end of the update after.</summary>
     public void FinishCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.EndingNext;
 
-    /// <summary>The power bomb of hers whose blast ended as this update opened, and on which update; none if none.</summary>
-    private (PowerBomb Bomb, long Update)? _blastEnded;
+    /// <summary>The power bomb of hers whose blast ended as this update opened; none if none.</summary>
+    private PowerBomb? _blastEnded;
 
     /// <summary>The power bomb kept for the crystal flash its blast started, until the flash's own blast begins.</summary>
     private PowerBomb? _flashBomb;
 
     /// <summary>
     /// A power bomb of hers has ended its blast as this update opens: a crystal flash may start this update, if she
-    /// lies exactly where it lies, and her sounds are then asked for again. The bomb waits to be told.
+    /// lies exactly where it lies, and her sounds are then asked for again. The bomb waits to be told. Beneath a
+    /// message, on an update she does not play, the flash is offered at once, by what was held on the last update she
+    /// played, as the cartridge offers it whatever the game is doing; nothing is asked for again then.
     /// </summary>
     public void PowerBombBlastEnded(PowerBomb bomb)
     {
         ArgumentNullException.ThrowIfNull(bomb);
-        _blastEnded = (bomb, Room.Session.UpdateNumber);
+        if (Room.UpdateIsSuspended)
+            OfferCrystalFlash(bomb);
+        else
+            _blastEnded = bomb;
     }
 
     /// <summary>
@@ -479,33 +490,34 @@ public partial class Samus : Player
     /// <summary>
     /// Starts a crystal flash if a power bomb's blast ended where she lies as this update opened, as the cartridge
     /// offers one only then; she may be doing anything. Her sounds are then asked for again, by what she is doing
-    /// once the flash has been offered: a flash begun from a spin asks for the charge's sound, not the spin's. A blast
-    /// that ended beneath a message, on an update she did not play, offers nothing and asks for nothing again.
+    /// once the flash has been offered: a flash begun from a spin asks for the charge's sound, not the spin's.
     /// </summary>
     private void StartCrystalFlashIfOffered()
     {
-        if (_blastEnded is not { } ended)
+        if (_blastEnded is not { } bomb)
             return;
         _blastEnded = null;
-        if (ended.Update != Room.Session.UpdateNumber)
-        {
-            ended.Bomb.LeaveAfterBlast(Room);
-            return;
-        }
+        OfferCrystalFlash(bomb);
+        ResumeSoundsAfterBlast();
+    }
 
-        PixelPosition at = ended.Bomb.Position;
+    /// <summary>
+    /// Offers her the crystal flash as <paramref name="bomb"/>'s blast ends: it starts if she lies exactly where the
+    /// bomb lies and may start one, and otherwise the bomb leaves.
+    /// </summary>
+    private void OfferCrystalFlash(PowerBomb bomb)
+    {
+        PixelPosition at = bomb.Position;
         if (at.X.Whole == Position.X.Whole && at.Y.Whole == Position.Y.Whole && CrystalFlashState.CanStart(this))
         {
             // The bomb is kept, and with it the hold that allows one power bomb at a time, until the flash's own blast begins.
-            _flashBomb = ended.Bomb;
+            _flashBomb = bomb;
             ChangeState(new CrystalFlashState());
         }
         else
         {
-            ended.Bomb.LeaveAfterBlast(Room);
+            bomb.LeaveAfterBlast(Room);
         }
-
-        ResumeSoundsAfterBlast();
     }
 
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
@@ -611,6 +623,11 @@ public partial class Samus : Player
             Flare?.ReadValues(flare);
         }
 
+        if (data.Has("arm_cannon"))
+            GetNodeOrNull<SamusVisual>("Visual")?.ReadArmCannon(data.Get("arm_cannon"));
+        if (data.Has("suit_light"))
+            SuitLight?.ReadValues(data.Get("suit_light"));
+
         SpecialAttackShots = [];
         if (data.Has("special_attacks"))
         {
@@ -691,8 +708,17 @@ public partial class Samus : Player
     }
 
     /// <summary>A landing out of a spin or a wall jump takes a spin's landing to settle.</summary>
-    public override int SettlingUpdatesAfter(PlayerState from) =>
-        from is SpinJumpingState or WallJumpingState ? InMedium("spin_landing_updates", SpinLandingUpdates) : base.SettlingUpdatesAfter(from);
+    public override IReadOnlyList<int> SettlingPicturesAfter(PlayerState from) =>
+        from is SpinJumpingState or WallJumpingState ? SpinLandingPictures : base.SettlingPicturesAfter(from);
+
+    /// <summary>
+    /// With her feet under a liquid that does not hinder her, as with the gravity suit, a picture that follows another
+    /// is held no longer at all, while the first picture of a change begun there is held as out of any liquid: the
+    /// cartridge gives a pose it begins her slowing for its delay, and takes the delay away on every update she
+    /// stands in such a liquid.
+    /// </summary>
+    public override int PictureHold(bool asChangeBegins) =>
+        !asChangeBegins && FeetAreInLiquid && Medium.MediumName == PlayerMedium.Air ? 0 : base.PictureHold(asChangeBegins);
 
     /// <summary>
     /// How many updates a fired beam, and a fired missile or super missile, keep her own bombs from throwing her: the
@@ -1071,7 +1097,7 @@ public partial class Samus : Player
 
         // A run taken up afresh starts its stride again.
         if (!alreadyRunning && RunStrideUpdates.Length > 0)
-            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0]);
+            (_strideAt, _strideLeft) = (0, RunStrideUpdates[0] + PictureHold(asChangeBegins: true));
         RunPose pose = NextRunPose(alreadyRunning);
         bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
         _runPose = pose;
@@ -1233,6 +1259,9 @@ public partial class Samus : Player
     /// </summary>
     public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
 
+    /// <summary>Whether the spring ball was switched on in the last update she played: what a pause's end compares with.</summary>
+    private bool _springBallWasOn;
+
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
 
@@ -1242,11 +1271,17 @@ public partial class Samus : Player
     /// <summary>
     /// What follows, as a pause ends, from what was switched on or off on its pages. Her beams show the colours of
     /// those now switched on. With the speed booster switched on, a run that has its momentum and no boost begun
-    /// begins one; with it switched off her boost and her run's momentum end and her echoes are gone at once.
+    /// begins one; with it switched off her boost and her run's momentum end and her echoes are gone at once. With
+    /// the spring ball switched either way, the ball is taken to be on the ground where it is.
     /// </summary>
     public void ReconcileAfterPause()
     {
         ShowBeamColours();
+
+        // The spring ball switched on or off puts the ball in its pose of the ground where it is, in the air too,
+        // with its speed left as it was: so a ball in the air may then jump as from the ground.
+        if (State is CrawlingState ball && Inventory.IsOn(Equipment.SpringBall) != _springBallWasOn)
+            ball.TakeAsOnGround();
         if (Inventory.IsOn(Equipment.SpeedBooster))
         {
             if (HasMomentum && _boostStage < 0)
@@ -1263,8 +1298,12 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeMoving()
     {
-        // Her shots have been fired: the record of her moves that they inherit from starts over before she moves.
-        _shotInheritance.Clear();
+        // Her shots have been fired: the record of her moves that they inherit from starts over before she moves. Not
+        // while her reserves refill her or she is dying: the cartridge clears it only where it handles her firing,
+        // which it does not then (it does under the X-ray scope), so what her last moves recorded is still there for
+        // the first shot afterwards.
+        if (State is not (RefillingFromReservesState or DyingState))
+            _shotInheritance.Clear();
 
         // Each update's movement says anew which of her body's powers are at work; they stay so for what touches her
         // afterwards, the enemies of the next update among it. The speed booster's is at work from the update after
@@ -1278,6 +1317,9 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void BeforeState()
     {
+        // The tester's assists keep her ammunition from being found at none within her update.
+        Assists.TesterAssists.Of(Room.Session).LendAmmo(Room.Session);
+        _springBallWasOn = Inventory.IsOn(Equipment.SpringBall);
         _bombsHeldOff = _bombsHeldOff.Stepped();
         // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
         (_shotHandedNow, _shotHanded) = (_shotHanded, false);
@@ -1304,6 +1346,9 @@ public partial class Samus : Player
 
     /// <summary>The suit being put on is seen on her from now, as its light shows it.</summary>
     public void ShowSuitPutOn() => _suitUnseen = "";
+
+    /// <summary>The suit that is hers but not yet seen on her, by its equipment's name; empty when none is.</summary>
+    public string SuitBeingPutOn => _suitUnseen;
 
     /// <summary>Shows the colours of the beams she has switched on, if she owns a beam she did not when this last looked.</summary>
     private void ShowNewBeamColours()
@@ -1451,6 +1496,9 @@ public partial class Samus : Player
 
     /// <summary>Her X-ray scope, when her scene gives her one.</summary>
     public SamusXray? Xray => GetNodeOrNull<SamusXray>("Xray");
+
+    /// <summary>The light that puts a suit on her as she collects it, when her scene gives her one.</summary>
+    public SamusSuitLight? SuitLight => GetNodeOrNull<SamusSuitLight>("SuitLight");
 
     /// <summary>
     /// The wait between her shots counts down whatever she is doing, as the cartridge counts it before it asks what
@@ -1997,6 +2045,7 @@ public partial class Samus : Player
         Grapple?.Step(this);
         Flare?.Step(this);
         ShowSelection();
+        Assists.TesterAssists.Of(Room.Session).TakeAmmoBack(Room.Session);
         if (_knockbackCarried.IsRunning)
         {
             _knockbackCarried = _knockbackCarried.Stepped();
@@ -2021,6 +2070,7 @@ public partial class Samus : Player
         };
         KeepRunningArm();
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
+        SuitLight?.Show(this);
 
         // Once she is dying the cartridge no longer shows her the usual way, so nothing is looked at after she is shown,
         // and a spin or a boost her death ends asks for no stop.
@@ -2077,6 +2127,15 @@ public partial class Samus : Player
         Room.Session.Sounds.Request(Sounds.Footsteps, channel: "samus");
     }
 
+    /// <summary>The strides a boost taken down a stage has to complete before it climbs back, as many as the cartridge's count of them holds.</summary>
+    private const int StridesToClimbBack = 255;
+
+    /// <summary>
+    /// The stage whose pace the stride takes after the boost's echo was turned away: the cartridge picks it by the
+    /// number the echo's sound has, which is what the request leaves where it would leave how many were waiting.
+    /// </summary>
+    private const int PaceAfterEchoTurnedAway = 3;
+
     /// <summary>
     /// Moves her running stride on by one update. The speed booster's boost is counted in strides: each one completed
     /// with momentum and the dash held counts one off the stage she is at, and with none left the stage is done. How
@@ -2098,26 +2157,31 @@ public partial class Samus : Player
         bool dashing = HasMomentum && DashIsHeld;
         if (!dashing)
         {
-            _strideLeft = RunStrideUpdates[0];
+            _strideLeft = RunStrideUpdates[0] + StrideSlowing;
             return;
         }
 
         if (_boostStage < 0)
         {
-            _strideLeft = DashStrideUpdates[0];
+            _strideLeft = DashStrideUpdates[0] + StrideSlowing;
             return;
         }
 
+        // A stride counted off a stage with none left takes the boost down a stage, to climb back from there.
         if (_stridesLeft > 0)
             _stridesLeft--;
+        else if (_boostStage > 0)
+            (_boostStage, _stridesLeft) = (_boostStage - 1, StridesToClimbBack);
+        else
+            throw new InvalidOperationException("The boost's first stage has no strides left and no stage to go down to.");
         if (_stridesLeft > 0)
         {
-            _strideLeft = RunStrideUpdates[0];
+            _strideLeft = RunStrideUpdates[0] + StrideSlowing;
             return;
         }
 
-        // The stage is done. Reaching the last, she is boosting, and the stride starts again at the first stage's
-        // pace, as the cartridge has it when nothing else is sounding.
+        // The stage is done. Reaching the last, she is boosting, and the stride starts again at the pace the echo's
+        // request picks by how many sounds it found waiting.
         int pace = _boostStage;
         if (!IsBoosting)
         {
@@ -2125,25 +2189,40 @@ public partial class Samus : Player
             pace = _boostStage;
             if (IsBoosting)
             {
-                Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+                SoundAdmission echo = Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
                 _boostSounding = true;
-                pace = 0;
+                if (echo.Admitted && echo.Waiting == BoostStrideCounts.Length)
+                {
+                    // A stage past the last: no strides to count, and a first picture as long as whatever lies there.
+                    _stridesLeft = 0;
+                    _strideLeft = Room.Session.Service<Compatibility.LeftoverStridePace>().Updates(0) + StrideSlowing;
+                    return;
+                }
+
+                pace = echo.Admitted ? echo.Waiting : PaceAfterEchoTurnedAway;
             }
         }
 
         _stridesLeft = BoostStrideCounts[pace];
-        _strideLeft = BoostStrideUpdates[pace * RunStrideUpdates.Length];
+        _strideLeft = BoostStrideUpdates[pace * RunStrideUpdates.Length] + StrideSlowing;
     }
 
-    /// <summary>How many updates a picture of her stride lasts now: by her dash and the boost's stage while she has momentum, and otherwise its own length.</summary>
+    /// <summary>How many updates a picture of her stride lasts now: by her dash and the boost's stage while she has momentum, and otherwise its own length, each slowed as she is.</summary>
     private int StridePictureUpdates(int picture)
     {
         if (!HasMomentum)
-            return RunStrideUpdates[picture];
-        return Inventory.IsOn(Equipment.SpeedBooster)
+            return RunStrideUpdates[picture] + StrideSlowing;
+        return StrideSlowing + (Inventory.IsOn(Equipment.SpeedBooster)
             ? BoostStrideUpdates[BoostStage * RunStrideUpdates.Length + picture]
-            : DashStrideUpdates[picture];
+            : DashStrideUpdates[picture]);
     }
+
+    /// <summary>
+    /// The updates added to each picture of her stride that follows another: as many as her pictures are then held
+    /// longer, by the liquid she is in or by what clings to her, as the cartridge adds its delay to every picture of
+    /// her animation.
+    /// </summary>
+    private int StrideSlowing => PictureHold(asChangeBegins: false);
 
     /// <summary>Starts the warning as her energy falls low and stops it as her energy recovers. The warning goes on by itself in between.</summary>
     private void WarnOfLowEnergy()

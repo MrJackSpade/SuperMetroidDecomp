@@ -95,8 +95,9 @@ public sealed class GrabbedState : PlayerState, ISamusLook
         if (ways != 0 && ways != _lastWays)
         {
             _lastWays = ways;
+            // Free, she stands, on the ground or not, as the cartridge lets her go.
             if (_pressesToEscape > 0 && ++_presses >= _pressesToEscape)
-                return owner.StateAtRest();
+                return new StandingState();
         }
 
         return null;

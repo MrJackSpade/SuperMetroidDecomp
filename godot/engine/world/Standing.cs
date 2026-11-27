@@ -38,4 +38,10 @@ public enum Standing
     /// left lies when nothing says otherwise.
     /// </summary>
     Foremost,
+
+    /// <summary>
+    /// In front of everything standing in the room and of everything launched and left in it, whenever each came
+    /// into the room: where something launched lies that is drawn over what the other side launches in front too.
+    /// </summary>
+    Topmost,
 }

@@ -316,6 +316,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
+    /// Counts on, for an update the enemies are held still through, the one thing of an enemy that does not stand
+    /// still then: the time it cannot be hit for. The room asks it of each enemy whose turn it would have been.
+    /// </summary>
+    internal void CountWhileHeldStill()
+    {
+        if (!IsAsleep)
+            _unhittable = _unhittable.Stepped();
+    }
+
+    /// <summary>
     /// Plays one update, its turn: its timers move on; its hits are settled, the player's shots tried against it and
     /// then its touch against the player, where it stood before moving; it behaves, unless a status or a hurt stops
     /// it; and its timeline moves on, unless it is frozen.

@@ -174,7 +174,19 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     /// <param name="change">The whole change, as <see cref="ShadeChange(string, IReadOnlyDictionary{string, string})"/> writes one.</param>
     /// <param name="progress">How far along the way.</param>
-    private static JsonObject ChangePartWay(JsonObject change, SuperMetroid.Core.Assets.FadeLevel progress)
+    private static JsonObject ChangePartWay(JsonObject change, SuperMetroid.Core.Assets.FadeLevel progress) => ChangeBetween([], change, progress);
+
+    /// <summary>
+    /// A fade between two changes of colours taken part of the way, as the old game's fades between two colourings
+    /// go: each colour as the pictures have it is shown so far from what <paramref name="from"/> shows it as toward
+    /// what <paramref name="to"/> shows it as, each of its three parts by the old game's own steps of brightness; a
+    /// colour a change leaves alone is shown by it as the pictures have it. A colour shown as the pictures have it is
+    /// left out, and so is a place none is shown otherwise in.
+    /// </summary>
+    /// <param name="from">The change the fade starts from, as <see cref="ShadeChange(string, IReadOnlyDictionary{string, string})"/> writes one; empty for the pictures' own colours.</param>
+    /// <param name="to">The change the fade ends on, written the same way.</param>
+    /// <param name="progress">How far along the way.</param>
+    private static JsonObject ChangeBetween(JsonObject from, JsonObject to, SuperMetroid.Core.Assets.FadeLevel progress)
     {
         static SuperMetroid.Core.Assets.RgbColor Read(string written)
         {
@@ -182,18 +194,22 @@ public sealed partial class EngineAssetWriter
             return new SuperMetroid.Core.Assets.RgbColor((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
         }
 
+        static IEnumerable<string> Keys(JsonObject? group) => group?.Select(entry => entry.Key) ?? [];
+
         var partWay = new JsonObject();
-        foreach ((string place, JsonNode? colours) in change)
+        foreach (string place in Keys(from).Union(Keys(to)).OrderBy(place => place, StringComparer.Ordinal))
         {
+            JsonObject? starts = from[place]?.AsObject(), ends = to[place]?.AsObject();
             var moved = new JsonObject();
-            foreach ((string from, JsonNode? to) in colours!.AsObject())
+            foreach (string colour in Keys(starts).Union(Keys(ends)).OrderBy(colour => colour, StringComparer.Ordinal))
             {
-                SuperMetroid.Core.Compatibility.FadeLevelColour start = SuperMetroid.Core.Compatibility.FadeLevelColour.Of(Read(from));
-                SuperMetroid.Core.Compatibility.FadeLevelColour end = SuperMetroid.Core.Compatibility.FadeLevelColour.Of(Read(to!.GetValue<string>()));
+                string own = colour[..6];
+                SuperMetroid.Core.Compatibility.FadeLevelColour start = SuperMetroid.Core.Compatibility.FadeLevelColour.Of(Read(starts?[colour]?.GetValue<string>() ?? own));
+                SuperMetroid.Core.Compatibility.FadeLevelColour end = SuperMetroid.Core.Compatibility.FadeLevelColour.Of(Read(ends?[colour]?.GetValue<string>() ?? own));
                 SuperMetroid.Core.Assets.RgbColor shown = start.Map((channel, level) => level + ((end[channel] - level) * progress.Step / progress.Steps)).ToColour();
                 string written = ((shown.Red << 16) | (shown.Green << 8) | shown.Blue).ToString("x6", System.Globalization.CultureInfo.InvariantCulture);
-                if (written != from[..6])
-                    moved[from] = written;
+                if (written != own)
+                    moved[colour] = written;
             }
 
             if (moved.Count > 0)

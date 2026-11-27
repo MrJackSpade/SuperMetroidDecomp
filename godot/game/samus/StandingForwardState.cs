@@ -35,9 +35,11 @@ public sealed class StandingForwardState(string look = "facing_forward") : Playe
         if (!right && !owner.Input.IsHeld(GameAction.Left))
             return this;
 
-        // The turn begins from the other way, in the upright body, and ends facing the way held.
+        // The turn begins from the other way, in the upright body, and ends facing the way held. The upright body is
+        // taken about her middle, as the cartridge only changes her body's size there: her feet are left above the
+        // floor by the difference, and the turn's own press to the ground brings her down as it goes.
         owner.Facing = right ? Facing.Left : Facing.Right;
-        owner.TrySetForm(Player.Standing);
+        owner.TrySetForm(Player.Standing, aroundMiddle: true);
         return new TurningState();
     }
 

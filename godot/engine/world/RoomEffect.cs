@@ -41,6 +41,14 @@ public abstract partial class RoomEffect : Node2D, IPlaced, ITriggerTarget
     {
     }
 
+    /// <summary>
+    /// Whether the effect takes its step as an update ends, once everything that may start it or tell it something
+    /// has run, and so shows on that same update what it was told. Unless its kind says so, an effect takes its step
+    /// as an update opens, before anyone acts: started or told something during an update, it first shows it on the
+    /// next.
+    /// </summary>
+    protected internal virtual bool StepsAsUpdateEnds => false;
+
     /// <summary>Runs one update of the effect while it is active.</summary>
     internal void Step(Room room)
     {

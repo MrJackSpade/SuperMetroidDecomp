@@ -56,13 +56,6 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("forms", ReadByOwner = true)]
     public Godot.Collections.Dictionary<string, int> Forms { get; set; } = new() { [Standing] = 20, [Crouching] = 14, [Crawling] = 7 };
 
-    /// <summary>
-    /// How many pictures each timed change of the player's shows, by the name of the value that gives the change's
-    /// length. A change with none listed lasts the same however the player is slowed.
-    /// </summary>
-    [Export, DataValue("change_pictures", ReadByOwner = true)]
-    public Godot.Collections.Dictionary<string, int> ChangePictures { get; set; } = [];
-
     /// <summary>How the player moves in each medium. One of them is named "air".</summary>
     [Export, DataValue("mediums", ReadByOwner = true)]
     public Godot.Collections.Array<PlayerMedium> Mediums { get; set; } = [];
@@ -75,9 +68,9 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("invincible_updates")]
     public int InvincibleUpdates { get; set; } = 60;
 
-    /// <summary>How many updates turning around on the ground takes; zero turns at once.</summary>
-    [Export, DataValue("turn_updates")]
-    public int TurnUpdates { get; set; }
+    /// <summary>How many updates each picture of turning around on the ground is held, in order: the turn lasts as long as they do. None turns at once.</summary>
+    [Export, DataValue("turn_pictures")]
+    public int[] TurnPictures { get; set; } = [];
 
     /// <summary>The effect left at the player's feet on landing, by the data file of its timeline; empty for none.</summary>
     [Export(PropertyHint.File), DataValue("land_effect")]
@@ -119,38 +112,41 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     [Export, DataValue("wall_jump_reach")]
     public int WallJumpReach { get; set; } = 1;
 
-    /// <summary>How many updates crouching down takes; zero crouches at once.</summary>
-    [Export, DataValue("crouch_updates")]
-    public int CrouchUpdates { get; set; }
+    /// <summary>How many updates each picture of crouching down is held, in order; none crouches at once.</summary>
+    [Export, DataValue("crouch_pictures")]
+    public int[] CrouchPictures { get; set; } = [];
 
-    /// <summary>How many updates standing up from a crouch takes; zero stands at once.</summary>
-    [Export, DataValue("stand_updates")]
-    public int StandUpdates { get; set; }
+    /// <summary>How many updates each picture of standing up from a crouch is held, in order; none stands at once.</summary>
+    [Export, DataValue("stand_pictures")]
+    public int[] StandPictures { get; set; } = [];
 
-    /// <summary>How many updates taking the low form takes; zero takes it at once.</summary>
-    [Export, DataValue("crawl_enter_updates")]
-    public int CrawlEnterUpdates { get; set; }
+    /// <summary>How many updates each picture of taking the low form is held, in order; none takes it at once.</summary>
+    [Export, DataValue("crawl_enter_pictures")]
+    public int[] CrawlEnterPictures { get; set; } = [];
 
-    /// <summary>How many updates leaving the low form takes; zero leaves it at once.</summary>
-    [Export, DataValue("crawl_leave_updates")]
-    public int CrawlLeaveUpdates { get; set; }
-
-    /// <summary>
-    /// How many updates the player takes to settle after landing on their feet. Settled, a jump already held may once
-    /// more count as pressed afresh, where the game gives the player that.
-    /// </summary>
-    [Export, DataValue("landing_updates")]
-    public int LandingUpdates { get; set; }
+    /// <summary>How many updates each picture of leaving the low form is held, in order; none leaves it at once.</summary>
+    [Export, DataValue("crawl_leave_pictures")]
+    public int[] CrawlLeavePictures { get; set; } = [];
 
     /// <summary>
-    /// How many updates the player takes to settle after landing on their feet out of <paramref name="from"/>: as
-    /// long as their landings take where they are. A game whose landings differ by what they end says so here.
+    /// How many updates each picture of the player's settling after landing on their feet is held, in order. Settled,
+    /// a jump already held may once more count as pressed afresh, where the game gives the player that.
     /// </summary>
-    public virtual int SettlingUpdatesAfter(PlayerState from) => InMedium("landing_updates", LandingUpdates);
+    [Export, DataValue("landing_pictures")]
+    public int[] LandingPictures { get; set; } = [];
 
-    /// <summary>How many updates a jump from the ground gathers itself for, moving nothing, before it rises.</summary>
-    [Export, DataValue("jump_start_updates")]
-    public int JumpStartUpdates { get; set; }
+    /// <summary>
+    /// The pictures of the player's settling after landing on their feet out of <paramref name="from"/>, by how many
+    /// updates each is held: those of their landings. A game whose landings differ by what they end says so here.
+    /// </summary>
+    public virtual IReadOnlyList<int> SettlingPicturesAfter(PlayerState from) => LandingPictures;
+
+    /// <summary>
+    /// How many updates each picture of a jump's gathering is held, in order: a jump from the ground gathers itself
+    /// that long, moving nothing, before it rises.
+    /// </summary>
+    [Export, DataValue("jump_start_pictures")]
+    public int[] JumpStartPictures { get; set; } = [];
 
     /// <summary>
     /// A jump still held as the player lands or finishes a turn counts as pressed afresh on the next update when it
@@ -212,33 +208,30 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public bool JumpsAreBoosted => JumpBoostNeeds.Length > 0 && Inventory.IsOn(JumpBoostNeeds);
 
     /// <summary>The state that crouches the player down: the crouch, by way of the change into it where that takes time.</summary>
-    public PlayerState Crouch() => Changing(Crouching, new CrouchingState(), InMedium("crouch_updates", CrouchUpdates), fallsInAir: false, attacks: true);
+    public PlayerState Crouch() => Changing(Crouching, new CrouchingState(), PictureCount.Begin(this, CrouchPictures), fallsInAir: false, attacks: true);
 
     /// <summary>The state that stands the player up from a crouch.</summary>
-    public PlayerState StandUp() => Changing(Standing, new StandingState(), InMedium("stand_updates", StandUpdates), fallsInAir: false, attacks: true);
+    public PlayerState StandUp() => Changing(Standing, new StandingState(), PictureCount.Begin(this, StandPictures), fallsInAir: false, attacks: true);
 
     /// <summary>The state that puts the player into the low form.</summary>
-    public PlayerState TakeLowForm() => Changing(Crawling, new CrawlingState(), InMedium("crawl_enter_updates", CrawlEnterUpdates), fallsInAir: true, attacks: false);
+    public PlayerState TakeLowForm() => Changing(Crawling, new CrawlingState(), PictureCount.Begin(this, CrawlEnterPictures), fallsInAir: true, attacks: false);
 
     /// <summary>The state that brings the player out of the low form, into a crouch.</summary>
-    public PlayerState LeaveLowForm() => Changing(Crouching, new CrouchingState(), InMedium("crawl_leave_updates", CrawlLeaveUpdates), fallsInAir: true, attacks: false);
+    public PlayerState LeaveLowForm() => Changing(Crouching, new CrouchingState(), PictureCount.Begin(this, CrawlLeavePictures), fallsInAir: true, attacks: false);
 
     /// <summary>
-    /// How many updates a timed change lasts where the player is now: the length the medium they are in gives for the
-    /// value named <paramref name="name"/>, or failing that <paramref name="updates"/>. Where the medium gives none,
-    /// as out of any liquid, whatever clings to the player and halves their speed (<see cref="SpeedHalvings"/>)
-    /// holds each picture of the change that many updates longer (<see cref="ChangePictures"/>).
+    /// How many updates longer each picture of the player's timed changes is held where they are now: as many as the
+    /// medium they are in holds them (<see cref="PlayerMedium.PictureHold"/>), and in a medium that holds them no
+    /// longer, as out of any liquid, as many as whatever clings to the player halves their speed
+    /// (<see cref="SpeedHalvings"/>). A change asks as each of its pictures begins (<see cref="PictureCount"/>), and
+    /// says whether the picture begins the change: a game whose rule differs between the two says so here.
     /// </summary>
-    public int InMedium(string name, int updates)
-    {
-        if (Medium.Updates.TryGetValue(name, out int own))
-            return own;
-        return SpeedHalvings > 0 && ChangePictures.TryGetValue(name, out int pictures) ? updates + pictures * SpeedHalvings : updates;
-    }
+    /// <param name="asChangeBegins">Whether the picture asked for is the first of a change the player now begins.</param>
+    public virtual int PictureHold(bool asChangeBegins) => Medium.PictureHold > 0 ? Medium.PictureHold : SpeedHalvings;
 
     /// <summary>A posture's state, by way of the change into it where that takes time.</summary>
-    private static PlayerState Changing(string form, PlayerState then, int updates, bool fallsInAir, bool attacks) =>
-        updates > 0 ? new ChangingPostureState(form, then, updates, fallsInAir, attacks) : then;
+    private static PlayerState Changing(string form, PlayerState then, PictureCount count, bool fallsInAir, bool attacks) =>
+        count.IsRunning ? new ChangingPostureState(form, then, count, fallsInAir, attacks) : then;
 
     /// <summary>Whether the equipment a mechanic needs is switched on; a mechanic that needs none always has it.</summary>
     private bool HasWhatItNeeds(string equipment) => equipment.Length == 0 || Inventory.IsOn(equipment);
@@ -607,12 +600,6 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         Forms = [];
         foreach ((string form, DataNode halfHeight) in data.Get("forms").Entries())
             Forms[form] = halfHeight.AsInt();
-        ChangePictures = [];
-        if (data.Has("change_pictures"))
-        {
-            foreach ((string change, DataNode pictures) in data.Get("change_pictures").Entries())
-                ChangePictures[change] = pictures.AsInt();
-        }
 
         Mediums = [];
         foreach ((string name, DataNode medium) in data.Get("mediums").Entries())

@@ -57,11 +57,18 @@ public static class RoomDepth
     public const int Frontmost = 12;
 
     /// <summary>
-    /// What is launched and left in the room in play: shots, what a shot or a death leaves, what is dropped. In
+    /// What is launched and left in the room in play: shots, and what a shot or a death leaves. In
     /// front of everything standing in the room, what stands frontmost too, and behind the room's own front. A thing
     /// of these kinds that is told where it stands takes that place in its stead.
     /// </summary>
     public const int Launched = 13;
+
+    /// <summary>
+    /// In front of what is launched and left in the room: where something launched lies that is drawn over the rest
+    /// of what is launched, as the bursts of the player's own shots are over what enemies launch. Behind the room's
+    /// own front.
+    /// </summary>
+    public const int OverLaunched = 14;
 
     /// <summary>
     /// The part of the picture behind the room that lies in front of the things standing in it, which a backdrop
@@ -72,7 +79,7 @@ public static class RoomDepth
     /// <summary>The part of the room's tiles that lies in front of the things standing in it.</summary>
     public const int TilesInFront = 20;
 
-    /// <summary>In front of every tile of the room, the ones in front of its things too.</summary>
+    /// <summary>In front of every tile of the room, the ones in front of its things too: where a pickup lies, and an enemy whose data says so.</summary>
     public const int InFrontOfRoom = 30;
 
     /// <summary>The room's liquid: over the room and what is in it, under the overlays.</summary>
@@ -92,6 +99,7 @@ public static class RoomDepth
         Standing.Frontmost => Frontmost,
         Standing.Hindmost => BehindAllThings,
         Standing.Foremost => Launched,
+        Standing.Topmost => OverLaunched,
         _ => throw new ArgumentOutOfRangeException(nameof(standing), standing, "Undefined standing."),
     };
 

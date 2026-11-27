@@ -304,8 +304,10 @@ public sealed partial class EngineAssetWriter
                 projectile["timeline"] = goop;
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
                 projectile["meeting_terrain"] = "passes_through";
-                projectile["ending_effect"] = Launched("goop_burst", DraygonProjectileSegment.GoopShot);
-                // What a burst gob leaves is what the old game lists for Draygon's eye.
+                // A shot one stops where it is and bursts, harming to the touch while it does; touching Samus it is
+                // only taken away.
+                projectile["shot_timeline"] = Launched("goop_burst", DraygonProjectileSegment.GoopShot);
+                // What a burst gob leaves, as its burst ends, is what the old game lists for Draygon's eye.
                 if (Drops(RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.DraygonEye].Drops) is { } drops)
                     projectile["drops"] = drops;
             });

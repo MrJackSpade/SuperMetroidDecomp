@@ -16,7 +16,8 @@ namespace Game.Objects;
 /// </summary>
 /// <remarks>
 /// Its timelines are "idle", "blink", "running", "running_fast", "running_very_fast", "charge", "shinespark" and
-/// "falling", each ending in "_left" or "_right" for the way it faces.
+/// "falling", each ending in "_left" or "_right" for the way it faces. As it shoots up it leaves a trail of echoes of
+/// itself, the visuals under its node "Echoes", each one place in the trail; they play its "shinespark" timeline.
 /// </remarks>
 public partial class Dachora : Creature
 {
@@ -40,9 +41,13 @@ public partial class Dachora : Creature
     [Export]
     public double Gravity { get; set; } = 0.109375;
 
-    /// <summary>The effect it leaves behind it as it shoots up, by the data file of its timeline.</summary>
-    [Export, DataValue("echo_effect")]
-    public string EchoEffect { get; set; } = "";
+    /// <summary>How many updates each echo it leaves as it shoots up lasts.</summary>
+    [Export, DataValue("echo_updates")]
+    public int EchoUpdates { get; set; } = 8;
+
+    /// <summary>How many updates apart it leaves its echoes as it shoots up.</summary>
+    [Export, DataValue("echo_spacing")]
+    public int EchoSpacing { get; set; } = 2;
 
     /// <summary>The sound of it noticing Samus, by name.</summary>
     [Export, DataValue("activation_sound")]
@@ -96,7 +101,21 @@ public partial class Dachora : Creature
     private int _timer;
     private Pixels _speed;
     private Pixels _lift;
+
+    /// <summary>The visuals of its trail of echoes, one for each place in the trail.</summary>
+    private ActorVisual[] _echoes = [];
+
+    /// <summary>Where each echo of the trail was left.</summary>
+    private PixelPosition[] _echoPlaces = [];
+
+    /// <summary>The updates each echo of the trail has left; none for one that is gone.</summary>
+    private int[] _echoLives = [];
+
+    /// <summary>The updates before it leaves its next echo.</summary>
     private int _echoWait;
+
+    /// <summary>The timeline its echoes play, from the update it shot up; null before it ever has.</summary>
+    private TimelinePlayer? _echoAnimation;
 
     /// <summary>The updates it has glowed for, since its run reached full speed or since it began to gather itself.</summary>
     private int _glowing;
@@ -113,6 +132,15 @@ public partial class Dachora : Creature
         DataNode glows = data.Get("glow_colours");
         _speedGlow = ReadGlow(glows, "speed");
         _shineGlow = ReadGlow(glows, "shine");
+
+        // Its echoes are its own pictures and lie as they do.
+        _echoes = [.. GetNode("Echoes").GetChildren().OfType<ActorVisual>()];
+        if (data.Has("picture_offset"))
+        {
+            var offset = new Vector2I(data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y"));
+            foreach (ActorVisual echo in _echoes)
+                echo.PictureOffset = offset;
+        }
     }
 
     /// <summary>Reads the frames of one glow, each a group of the colours it changes.</summary>
@@ -128,6 +156,12 @@ public partial class Dachora : Creature
         Facing = StartsFacing;
         (_doing, _speed) = (Doing.Waiting, Pixels.Zero);
         Play($"idle_{Side}");
+        (_echoPlaces, _echoLives, _echoWait, _echoAnimation) = (new PixelPosition[_echoes.Length], new int[_echoes.Length], 0, null);
+        foreach (ActorVisual echo in _echoes)
+        {
+            echo.Bind(Room.Content);
+            echo.SetShown(false);
+        }
     }
 
     /// <inheritdoc/>
@@ -160,18 +194,17 @@ public partial class Dachora : Creature
                 if (--_timer > 0)
                     break;
                 Play($"shinespark_{Side}", restart: true);
-                (_doing, _speed, _lift, _echoWait) = (Doing.Shinesparking, Pixels.Zero, Pixels.Zero, 0);
+                (_doing, _speed, _lift) = (Doing.Shinesparking, Pixels.Zero, Pixels.Zero);
                 Position -= PixelOffset.FromWhole(0, 8);
                 Sound(LaunchSound);
+                // Its trail begins again: every echo gone, and all of them playing the timeline afresh.
+                (_echoWait, _echoAnimation) = (0, new TimelinePlayer(Timelines.Get($"shinespark_{Side}")));
+                Array.Clear(_echoLives);
                 break;
 
             case Doing.Shinesparking:
                 StepShineGlow();
-                if (EchoEffect.Length > 0 && --_echoWait <= 0)
-                {
-                    _echoWait = 2;
-                    Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(EchoEffect)), Position));
-                }
+                LeaveEcho();
 
                 // It gathers speed faster and faster on the way up.
                 _lift += Pixels.FromNumber(Gravity);
@@ -196,6 +229,53 @@ public partial class Dachora : Creature
 
             default:
                 throw new InvalidOperationException($"The Dachora has no step {_doing}.");
+        }
+
+        StepEchoes();
+    }
+
+    /// <summary>
+    /// Leaves an echo where it stands, before it moves, once every so many updates as it shoots up: in the first
+    /// place of its trail whose echo is gone. With none gone, it leaves none.
+    /// </summary>
+    private void LeaveEcho()
+    {
+        if (_echoWait > 0)
+        {
+            _echoWait--;
+            return;
+        }
+
+        _echoWait = EchoSpacing - 1;
+        int place = Array.IndexOf(_echoLives, 0);
+        if (place < 0)
+            return;
+        (_echoPlaces[place], _echoLives[place]) = (Position, EchoUpdates);
+    }
+
+    /// <summary>
+    /// One update of its echoes: each counts down its life, and while it lasts shows on the updates of one parity of
+    /// the short count, the first place of the trail on odd ones, the next on even ones, and so on by turns; and all
+    /// of them step on through the timeline they play.
+    /// </summary>
+    private void StepEchoes()
+    {
+        bool odd = Room.Session.Clock.ShortUpdates % 2 == 1;
+        _echoAnimation?.Step();
+        for (int place = 0; place < _echoes.Length; place++)
+        {
+            ActorVisual echo = _echoes[place];
+            if (_echoLives[place] == 0)
+            {
+                echo.SetShown(false);
+                continue;
+            }
+
+            _echoLives[place]--;
+            echo.SetShown(odd == (place % 2 == 0));
+            echo.Position = new Vector2(_echoPlaces[place].X.Whole - Position.X.Whole, _echoPlaces[place].Y.Whole - Position.Y.Whole);
+            if (_echoAnimation is { } animation)
+                echo.Show(animation.Shown);
         }
     }
 
@@ -260,7 +340,7 @@ public partial class Dachora : Creature
     /// <summary>Shows the shine glow's next frame, each update it gathers itself and flies: its frames over and over.</summary>
     private void StepShineGlow() => ShowColours(_shineGlow[_glowing++ % _shineGlow.Length]);
 
-    /// <summary>Shows its pictures with the colours given changed; none shows them in their own colours.</summary>
+    /// <summary>Shows its pictures with the colours given changed; none shows them in their own colours. Its echoes keep their own.</summary>
     private void ShowColours(IReadOnlyList<ColourSwap> swaps)
     {
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())

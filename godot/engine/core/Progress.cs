@@ -51,6 +51,9 @@ public sealed class Progress
     /// <summary>Records the named fact. Recording a fact already recorded changes nothing.</summary>
     public void Record(string fact) => _facts.Add(RequireName(fact));
 
+    /// <summary>Takes the named fact back, as though it had never been recorded. Taking back one that is not recorded changes nothing.</summary>
+    public void Forget(string fact) => _facts.Remove(RequireName(fact));
+
     /// <summary>The name, which must say something.</summary>
     private static string RequireName(string fact)
     {

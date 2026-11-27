@@ -251,6 +251,18 @@ public partial class Kraid : Enemy
     /// <summary>The colours its body and head, and its parts, show while it lives.</summary>
     private ColourChange _bodyColours = ColourChange.None, _partColours = ColourChange.None;
 
+    /// <summary>The name its room's colours are shown under as its backdrop fades.</summary>
+    private const string BackdropColours = "KraidBackdrop";
+
+    /// <summary>
+    /// Its room's colours at each step of its backdrop's fades: into its colours as it grows; to black as it dies, from
+    /// its colours or, killed before its room has faded into them, from the room's own; and back once it has sunk.
+    /// </summary>
+    private readonly List<ColourChange> _growingBackdrop = [], _dyingBackdrop = [], _dyingUngrownBackdrop = [], _sunkBackdrop = [];
+
+    /// <summary>How many steps the backdrop's fade under way has taken of its own.</summary>
+    private int _backdropStep;
+
     /// <summary>For each of its visuals, the colours last shown on it.</summary>
     private readonly Dictionary<ActorVisual, ColourChange> _shownColours = [];
     private readonly List<int> _channelSteps = [];
@@ -358,6 +370,16 @@ public partial class Kraid : Enemy
         DataNode hurt = data.Get("hurt_colours");
         (_hurtBody, _hurtParts) = (ColourChange.Read(hurt.Get("body")), ColourChange.Read(hurt.Get("parts")));
         _deathColours = ColourChange.Read(data.Get("death_colours"));
+        DataNode fades = data.Get("backdrop_fades");
+        foreach ((List<ColourChange> fade, string name) in new[]
+            { (_growingBackdrop, "growing"), (_dyingBackdrop, "dying"), (_dyingUngrownBackdrop, "dying_before_grown"), (_sunkBackdrop, "sunk") })
+        {
+            fade.Clear();
+            fade.AddRange(fades.List(name).Select(ColourChange.Read));
+            if (fade.Count == 0)
+                throw fades.Problem($"must give at least one step of its backdrop's fade \"{name}\"");
+        }
+
         if (_hurtEyes.Length != _picturedEyes.Length || _healthShades.Any(band => band.Eyes.Length != _picturedEyes.Length))
             throw data.Problem("must give the colours of each of its eyes, as many as its pictures have, wherever it gives its eyes' colours");
         DataNode flash = data.Get("hurt_flash");
@@ -793,11 +815,12 @@ public partial class Kraid : Enemy
             case Growth.ShowBackdrop:
                 // His room is drawn anew before its backdrop fades, which starts the fades' shared count over.
                 FadeCount.Restart();
+                _backdropStep = 0;
                 _growth = Growth.FadeBackdrop;
                 break;
 
             case Growth.FadeBackdrop:
-                if (!FadeCount.TakeStep(BackdropFadeSteps - 1))
+                if (!StepBackdropFade(_growingBackdrop))
                     break;
                 _stage = Stage.Fighting;
                 _fight = Fight.SecondThinking;
@@ -826,12 +849,14 @@ public partial class Kraid : Enemy
                 PlayPart("Head", "head_death", restart: true);
                 if (_deathSpikes is { } spikes)
                     Room.Play(spikes.FromStart());
+                _backdropStep = 0;
                 _death = Death.FadeOut;
                 break;
 
             case Death.FadeOut:
                 StepHead();
-                if (!FadeCount.TakeStep(BackdropFadeSteps - 1))
+                // The room fades from what it shows: its colours once its growth's fade is done, its own before.
+                if (!StepBackdropFade(HasGrown ? _dyingBackdrop : _dyingUngrownBackdrop))
                     break;
                 // With the room dark its body is drawn behind what stands in the room again, grown or not.
                 _death = Death.ShowBody;
@@ -908,13 +933,14 @@ public partial class Kraid : Enemy
                 {
                     // His room is drawn anew before this fade too, and the shared count starts over.
                     FadeCount.Restart();
+                    _backdropStep = 0;
                     _sinking = Sinking.FadeIn;
                 }
 
                 break;
 
             case Sinking.FadeIn:
-                if (!FadeCount.TakeStep(BackdropFadeSteps - 1))
+                if (!StepBackdropFade(_sunkBackdrop))
                     break;
                 if (VictoryMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(VictoryMusic);
@@ -928,6 +954,26 @@ public partial class Kraid : Enemy
             default:
                 throw new InvalidOperationException($"Kraid's sinking has no step {_sinking}.");
         }
+    }
+
+    /// <summary>
+    /// Takes one step of a fade of its room's backdrop by the count every fade shares, showing the room's colours as
+    /// far as the fade's own steps have taken it: its first step shows the room unmoved. Once the count has passed the
+    /// fade's last step the fade is done and the room keeps the colours it ends on, however few steps it took, as a
+    /// door's fade sharing the count makes it. Returns whether it is done.
+    /// </summary>
+    private bool StepBackdropFade(List<ColourChange> fade)
+    {
+        if (FadeCount.TakeStep(BackdropFadeSteps - 1))
+        {
+            Room.Recolour(BackdropColours, fade[^1]);
+            _backdropStep = 0;
+            return true;
+        }
+
+        Room.Recolour(BackdropColours, fade[Math.Min(_backdropStep, fade.Count - 1)]);
+        _backdropStep++;
+        return false;
     }
 
     /// <summary>What its legs are doing: lunging and backing off at first, and walking to and fro once it has grown.</summary>

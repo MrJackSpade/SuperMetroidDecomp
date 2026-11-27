@@ -11,8 +11,8 @@ namespace Engine.Actors;
 /// </summary>
 public sealed class AirTurningState : PlayerState
 {
-    /// <summary>The updates left before the turn is done.</summary>
-    private Countdown _left;
+    /// <summary>What is left of the turn, counted by its pictures.</summary>
+    private PictureCount _left;
 
     /// <summary>A turn in the air out of a jump or out of a fall.</summary>
     public AirTurningState(bool fromJump) => FromJump = fromJump;
@@ -38,7 +38,7 @@ public sealed class AirTurningState : PlayerState
     public override void Enter(Player owner)
     {
         owner.TurnAround();
-        _left = Countdown.Of(owner.InMedium("turn_updates", owner.TurnUpdates));
+        _left = PictureCount.Begin(owner, owner.TurnPictures);
     }
 
     /// <summary>Anything held keeps the turn as it is; with nothing held at all the player stops reversing.</summary>
@@ -63,7 +63,7 @@ public sealed class AirTurningState : PlayerState
         }
 
         owner.LoseMomentum();
-        _left = _left.Stepped();
+        _left = _left.Stepped(owner);
         return null;
     }
 

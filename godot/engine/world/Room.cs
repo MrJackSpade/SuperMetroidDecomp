@@ -324,11 +324,12 @@ public partial class Room : Node2D
     /// <summary>
     /// Plays one update of the room, in a fixed order: the opening, in which the liquid moves, the sequences and
     /// projectiles with a part in it play that part, and then the session services that open an update play
-    /// theirs; the first part of the player's
+    /// theirs; the room's effects, all but those that step as the update ends, and the liquid's pictures; the first
+    /// part of the player's
     /// update, in which their input is read and their weapons fire; the player's own shots; enemies; the rest of the
     /// player's update, in which they move; triggers and exits; every other projectile, pickups and the remains of
-    /// the destroyed; room objects, the terrain, the liquid's pictures, the room's effects and its sequences; then
-    /// effects. Groups named in
+    /// the destroyed; room objects, the terrain, the room's sequences and the effects that step as the update ends,
+    /// as its shaking does. Groups named in
     /// <paramref name="stopped"/> do not run; the services that open the update always do.
     /// </summary>
     /// <param name="input">The update's input.</param>
@@ -342,6 +343,22 @@ public partial class Room : Node2D
         EnergySettled = EmptyEnergy.NotGone;
         _playerAtUpdateStart = Player.Position;
         OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
+
+        SettleWhoTakesTurns();
+
+        // The room's conditions play on before anyone acts, and then the liquid's pictures: one that is started or
+        // told something during an update first shows it in the next. A kind that says it steps as the update ends
+        // waits until then.
+        if (!stopped.HasFlag(Stopped.Room))
+        {
+            foreach (RoomEffect effect in _roomEffects)
+            {
+                if (!effect.StepsAsUpdateEnds)
+                    effect.Step(this);
+            }
+
+            Liquid?.Step();
+        }
 
         if (!stopped.HasFlag(Stopped.Player))
             Player.BeginUpdate(input);
@@ -362,7 +379,17 @@ public partial class Room : Node2D
 
             // What has been left to be seen takes its turn as the enemies' pass ends, and stands still when they do.
             // An effect left later in the update first takes a turn on the next.
-            StepEffects(holdingPlaces: false);
+            StepEffects();
+        }
+        else
+        {
+            // Held still, the enemies whose turn it would have been do nothing but count on the time they cannot be
+            // hit for: the cartridge's pass still goes through them while time is frozen, and counts that alone.
+            foreach (Enemy enemy in _enemyPass.OfType<Enemy>().ToList())
+            {
+                if (_takingTurns.Contains(enemy) && !_leaving.Contains(enemy))
+                    enemy.CountWhileHeldStill();
+            }
         }
 
         // The pass is counted whether or not the enemies were held still through it.
@@ -516,7 +543,7 @@ public partial class Room : Node2D
         {
             foreach (Enemy enemy in _enemies.ToList())
             {
-                if (enemy is IClosingStep closing && !_leaving.Contains(enemy) && !enemy.IsAsleep && IsActive(enemy))
+                if (enemy is IClosingStep closing && !_leaving.Contains(enemy) && !enemy.IsAsleep && _takingTurns.Contains(enemy))
                     closing.StepClosing(this);
             }
         }
@@ -556,13 +583,12 @@ public partial class Room : Node2D
             ExitEntered = null;
         if (!stopped.HasFlag(Stopped.Room) && !energyGone)
         {
-            Liquid?.Step();
             foreach (RoomEffect effect in _roomEffects)
-                effect.Step(this);
+            {
+                if (effect.StepsAsUpdateEnds)
+                    effect.Step(this);
+            }
         }
-
-        // An effect that holds one of the places of what the enemies launch takes its turn here, as the update ends.
-        StepEffects(holdingPlaces: true);
 
         RemoveLeaving();
         AddArriving();
@@ -620,6 +646,8 @@ public partial class Room : Node2D
 
         if (enemies)
         {
+            // Through a door the list of who takes a turn is made as the pass begins.
+            SettleWhoTakesTurns();
             StepEnemyPass();
             Session.CountEnemyPass();
         }
@@ -628,11 +656,9 @@ public partial class Room : Node2D
             StepWhatEnemiesLaunched(shotsOnly: true);
 
         // What has been left to be seen plays on with the enemies; an effect that holds one of the places of what
-        // the enemies launch waits and goes on with their projectiles.
+        // the enemies launch has had its turn among their projectiles.
         if (enemies)
-            StepEffects(holdingPlaces: false);
-        if (enemyProjectiles)
-            StepEffects(holdingPlaces: true);
+            StepEffects();
 
         if (objects)
             StepObjects();
@@ -641,12 +667,15 @@ public partial class Room : Node2D
         ShowAll();
     }
 
-    /// <summary>The effects take their turns, in the order they were left: those that hold a place, or the rest.</summary>
-    private void StepEffects(bool holdingPlaces)
+    /// <summary>
+    /// The effects that hold no place take their turns, in the order they were left. One that holds a place takes
+    /// its turn in the order of the places, with everything else that holds one.
+    /// </summary>
+    private void StepEffects()
     {
         foreach (Effect effect in _effects.ToList())
         {
-            if (effect.HoldsPlace == holdingPlaces && !_leaving.Contains(effect))
+            if (!effect.HoldsPlace && !_leaving.Contains(effect))
                 effect.Step();
         }
     }
@@ -664,7 +693,7 @@ public partial class Room : Node2D
             if (entity is Enemy enemy)
             {
                 // One that acts with the room's objects takes its turn with them.
-                if (!enemy.ActsWithObjects && IsActive(enemy))
+                if (!enemy.ActsWithObjects && _takingTurns.Contains(enemy))
                     enemy.Step();
             }
             else
@@ -676,11 +705,11 @@ public partial class Room : Node2D
 
     /// <summary>
     /// What the enemies have launched and left takes its turns: first every projectile not the player's that holds no
-    /// place, in the order launched, and then whatever holds a place, their shots, the remains of the destroyed and
-    /// the pickups, in the order of the places. What takes the place of something that has just had its turn, as a
-    /// pickup takes that of the remains that leave it, waits for the next update.
+    /// place, in the order launched, and then whatever holds a place, their shots, the remains of the destroyed, the
+    /// pickups and the effects left to hold one, in the order of the places. What takes the place of something that
+    /// has just had its turn, as a pickup takes that of the remains that leave it, waits for the next update.
     /// </summary>
-    /// <param name="shotsOnly">Whether only the projectiles take a turn.</param>
+    /// <param name="shotsOnly">Whether only the projectiles, and the effects that hold a place as they do, take a turn.</param>
     private void StepWhatEnemiesLaunched(bool shotsOnly = false)
     {
         // What took a place over since the last turns were taken has waited its update.
@@ -700,6 +729,9 @@ public partial class Room : Node2D
                     break;
                 case Remains remains when !shotsOnly:
                     remains.Step();
+                    break;
+                case Effect effect:
+                    effect.Step();
                     break;
             }
         });
@@ -815,6 +847,18 @@ public partial class Room : Node2D
         Remove(leaving);
         AddChild(node);
         Join(entity);
+    }
+
+    /// <summary>
+    /// Has a free place of the room held, for the pause of a spent drop (<see cref="GameDefinition.SpentDropUpdates"/>),
+    /// by something that shows nothing at <paramref name="at"/>: what a drop that rolled nothing leaves where it was
+    /// to be a thing of its own. With no pause, or no place free, nothing is held.
+    /// </summary>
+    public void HoldFreePlace(PixelPosition at)
+    {
+        int updates = Session.Definition.SpentDropUpdates;
+        if (updates > 0)
+            Spawn(Effect.HoldingPlace(at, updates));
     }
 
     /// <summary>
@@ -984,6 +1028,18 @@ public partial class Room : Node2D
     }
 
     /// <summary>
+    /// Adds a colour to, or takes one from, every colour of the room's backdrops, the pictures behind its tiles, at
+    /// once, in place of whatever <paramref name="source"/> last asked for there: the cartridge's arithmetic on the
+    /// colours of what lies behind a room, which leaves the room's tiles and what stands in it as they are.
+    /// <see cref="ColourShift.None"/> takes back what the source asked for.
+    /// </summary>
+    public void ShiftBackdrops(string source, ColourShift shift)
+    {
+        foreach (Backdrop backdrop in _backdrops)
+            backdrop.Shift(source, shift);
+    }
+
+    /// <summary>
     /// Adds a room-wide condition to the room while it is being played: whatever starts one that the room's scene does
     /// not place. It is the room's from then on, set up at once and stepped with the room's other effects from the
     /// next update that steps them.
@@ -1025,6 +1081,25 @@ public partial class Room : Node2D
         foreach ((Node2D node, _, _) in _arriving)
             node.Free();
         _arriving.Clear();
+    }
+
+    /// <summary>
+    /// The enemies that take a turn on the update being played. It is settled once, as the update opens and before
+    /// the player's input, from where each enemy stands, whether it is frozen and where the view lies then, as the
+    /// cartridge makes its list of them once a frame: an enemy that something moves across the edge of the view's
+    /// reach later in the update is not asked again until the next.
+    /// </summary>
+    private readonly HashSet<Enemy> _takingTurns = [];
+
+    /// <summary>Settles which enemies take a turn on this update.</summary>
+    private void SettleWhoTakesTurns()
+    {
+        _takingTurns.Clear();
+        foreach (Enemy enemy in _enemies)
+        {
+            if (IsActive(enemy))
+                _takingTurns.Add(enemy);
+        }
     }
 
     /// <summary>

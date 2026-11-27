@@ -131,6 +131,14 @@ public abstract class PlayerState : State<Player>
     public virtual bool StillInterrupts(Player owner, int waited) => true;
 
     /// <summary>
+    /// Whether the state gives way to <paramref name="asked"/>, the other state this update's input asks for, before
+    /// the update's movement: the player is then in that state from the first part of the update, before the room's
+    /// enemies act, and moves as it. It does not, unless the state says otherwise: a state asked to give way is
+    /// otherwise left once it has moved the player.
+    /// </summary>
+    public virtual bool GivesWayBeforeMoving(Player owner, PlayerState asked) => false;
+
+    /// <summary>
     /// Whether the state, asked for from outside (<see cref="Player.Interrupt"/>) and not entered because the form
     /// it is entered in did not fit, goes on waiting to interrupt: it is tried again each time the player has next
     /// moved, asked each time whether it still interrupts (<see cref="StillInterrupts"/>), until it is entered, says

@@ -1077,6 +1077,9 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
 - A state names the form it is entered in (`PlayerState.EntersIn`), and the player fits it first (`FitForm`):
   where it does not fit the state is not entered. A wall jump is one of them, and is not begun at all where its
   body has no room (`WallJumpingState.HasRoom`): the player goes on as they were, with no sound of a launch.
+  A state may give way to what the input asks before the update's movement (`PlayerState.GivesWayBeforeMoving`):
+  the player is then in the state asked for from the first part of the update, before the enemies act, and moves
+  as it. This game's upright bomb jump ends so, as the cartridge ends the throw in its input phase.
   A state asked for from outside whose form does not fit may go on waiting to interrupt
   (`PlayerState.WaitsWhenItDoesNotFit`), tried again each update until it is entered or says it interrupts no longer:
   this game's upright bomb jump does, as the cartridge keeps a bomb's request until her pose handling takes it or

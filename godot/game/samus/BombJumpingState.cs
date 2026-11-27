@@ -1,6 +1,8 @@
 using Engine.Actors;
 using Engine.Collision;
+using Engine.Input;
 using Engine.Shared;
+using Game.Data;
 
 namespace Game;
 
@@ -25,6 +27,12 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
 
     /// <summary>Whether the throw has yet to set the ball rising.</summary>
     private bool _starting = true;
+
+    /// <summary>
+    /// Whether her input is asked again: from the update after the one on which her rise, as it stood before that
+    /// update's move, was slower than a pixel an update.
+    /// </summary>
+    private bool _inputBack;
 
     /// <summary>
     /// A bomb jump throwing her the given way across: the ball, or upright. <paramref name="ballWasAirborne"/> says
@@ -75,6 +83,31 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
             owner.Aim = Aim.Forward;
     }
 
+    /// <summary>
+    /// Thrown upright, once her input is asked again she keeps the throw's pose only with the way behind her, up,
+    /// down and both angle buttons let go, and either the way she faces held or neither the jump nor the attack: as
+    /// the cartridge's jump pose with the arm level keeps itself. Anything else ends the throw, and she is in the
+    /// jump she was thrown in. The ball's throw asks nothing here.
+    /// </summary>
+    public override PlayerState? Asked(Player owner)
+    {
+        if (!Upright || !_inputBack)
+            return this;
+        GameInput input = owner.Input;
+        bool facesRight = owner.Facing == Facing.Right;
+        bool ahead = input.IsHeld(facesRight ? GameAction.Right : GameAction.Left);
+        bool behind = input.IsHeld(facesRight ? GameAction.Left : GameAction.Right);
+        bool aims = input.IsHeld(GameAction.Up) || input.IsHeld(GameAction.Down) || input.IsHeld(Actions.AngleUp) || input.IsHeld(Actions.AngleDown);
+        bool keeps = !behind && !aims && (ahead || (!input.IsHeld(GameAction.Jump) && !input.IsHeld(GameAction.Attack)));
+        return keeps ? this : Thrown();
+    }
+
+    /// <summary>
+    /// The throw ends as her input is read, before the update's movement: on that update she moves as the jump she is
+    /// then in, as the cartridge ends the throw in its input phase. Until her input is asked again nothing ends it so.
+    /// </summary>
+    public override bool GivesWayBeforeMoving(Player owner, PlayerState asked) => Upright && _inputBack;
+
     /// <summary>What she is once the throw is over: the ball, or the jump she was thrown in, falling.</summary>
     private PlayerState Thrown() => Upright ? new JumpingState(keepsSpeed: true) : new CrawlingState();
 
@@ -106,6 +139,10 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
             return Thrown();
         }
 
+        // Her input is asked again from the next update once her rise, before this update's move, is slower than a
+        // pixel an update.
+        if (owner.IsRising && owner.Velocity.Y.Abs().Whole == 0)
+            _inputBack = true;
         if (!owner.IsRising)
             return Thrown();
         MoveResult up = owner.MoveDownUnderGravity();

@@ -782,6 +782,14 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         PlayerState state = State;
         _asked = AskedOf(state);
         _askedOf = state;
+
+        // A state that gives way to what the input asks before the update's movement is left now: the player is in
+        // the state asked for through the rest of the update, and moves as it, having been asked nothing more.
+        if (_asked is { } wanted && !ReferenceEquals(wanted, state) && state.GivesWayBeforeMoving(this, wanted))
+        {
+            ChangeState(EnteringFrom(state, wanted, unasked: false));
+            (_asked, _askedOf) = (null, null);
+        }
     }
 
     /// <summary>

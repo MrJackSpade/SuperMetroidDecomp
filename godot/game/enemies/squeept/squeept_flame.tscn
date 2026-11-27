@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://game/enemies/squeept/SqueeptFlame.cs" id="1"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="2"]
+
+[node name="SqueeptFlame" type="Node2D"]
+script = ExtResource("1")
+TurnsWithEnemies = true
+TurnsOnlyInView = true
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("2")

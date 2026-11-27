@@ -11,8 +11,9 @@ namespace Game.Enemies;
 /// and again, each leap one of four heights picked by chance. Nothing in the room stops it.
 /// </summary>
 /// <remarks>
-/// Its timelines are "hidden", "jump", whose cue "flipped" marks the end of its flip, and "flame" for the visual
-/// named "Flame", shown while it rises. Its data lists the upward speeds its leaps start with under "launch_speeds".
+/// Its timelines are "hidden", "jump", whose cue "flipped" marks the end of its flip, and "flame", which its flame
+/// plays from its data file: the flame is a thing of the room in its own right, placed after it
+/// (<see cref="SqueeptFlame"/>). Its data lists the upward speeds its leaps start with under "launch_speeds".
 /// </remarks>
 public partial class Squeept : Enemy
 {
@@ -48,7 +49,12 @@ public partial class Squeept : Enemy
     private readonly List<Pixels> _launchSpeeds = [];
     private Doing _doing;
     private PixelPosition _placed;
-    private TimelinePlayer? _flame;
+
+    /// <summary>Whether it is on its way up, as it is while its flame shows.</summary>
+    public bool IsRising => Velocity.Y.IsNegative;
+
+    /// <summary>The offset its pictures are drawn at, which its flame's are drawn at too.</summary>
+    public Vector2I PictureOffset => Visual?.PictureOffset ?? Vector2I.Zero;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -65,7 +71,6 @@ public partial class Squeept : Enemy
     {
         _placed = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         Play("hidden");
-        _flame = new TimelinePlayer(Timelines.Get("flame"));
     }
 
     /// <inheritdoc/>
@@ -81,10 +86,8 @@ public partial class Squeept : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        // It draws a number every update, and its flame, a thing of its own on the cartridge listed after it, draws
-        // another, whether or not either is used.
+        // It draws a number every update, whether or not it is used.
         RandomDraw draw = Random.Draw();
-        Random.Draw();
         Pixels gravity = Pixels.FromNumber(Gravity);
         switch (_doing)
         {
@@ -134,43 +137,6 @@ public partial class Squeept : Enemy
             default:
                 throw new InvalidOperationException($"Undefined Squeept stage {_doing}.");
         }
-
-        ShowFlame();
-    }
-
-    /// <summary>
-    /// While it is hurt its flame, a thing of its own on the cartridge, goes on: it draws its number and plays on.
-    /// </summary>
-    protected override void WhileHurt() => FlameGoesOn();
-
-    /// <summary>
-    /// While it is frozen its flame, not frozen itself on the cartridge, goes on as through a hurt, unseen.
-    /// </summary>
-    protected override void WhileFrozen() => FlameGoesOn();
-
-    /// <summary>Its flame's own update while it does nothing: the flame draws its number and plays on.</summary>
-    private void FlameGoesOn()
-    {
-        Random.Draw();
-        ShowFlame();
-    }
-
-    /// <inheritdoc/>
-    protected override void OnStatusBegan(string status)
-    {
-        // Its flame is not shown while it is frozen.
-        if (IsFrozen)
-            GetNodeOrNull<ActorVisual>("Flame")?.SetShown(false);
-    }
-
-    /// <summary>Moves its flame on an update, shown only while it rises.</summary>
-    private void ShowFlame()
-    {
-        if (_flame is null || GetNodeOrNull<ActorVisual>("Flame") is not { } flame)
-            return;
-        _flame.Step();
-        flame.SetShown(Velocity.Y.IsNegative && !IsFrozen);
-        flame.Show(_flame.Shown);
     }
 
     /// <summary>Moves it by its speed and lets gravity slow or quicken that.</summary>

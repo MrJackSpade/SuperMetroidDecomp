@@ -8,9 +8,6 @@
 script = ExtResource("1")
 DataFile = "enemies/squeept.json"
 
-[node name="Flame" type="Node2D" parent="."]
-script = ExtResource("3")
-
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 

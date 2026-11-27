@@ -388,7 +388,8 @@ def swooper(p, index, listed):
 @rule('Squeept')
 def squeept(p, index, listed):
     if legacy.last_name(p.settings['Role']) != 'Leader':
-        return None
+        # Its flame, listed right after it: a thing of the room in its own right, as a swooper's flames are.
+        return Placed(E + 'squeept/squeept_flame.tscn', 'SqueeptFlame', only_in_view(p), enemy=False, refers={'Leader': index - 1})
     return Placed(E + 'squeept/squeept.tscn', 'Squeept')
 
 

@@ -133,25 +133,9 @@ public sealed partial class EngineAssetWriter
         };
     }
 
-    /// <summary>
-    /// The two sets of console lights on the title's backdrop, the tube's slow light and then the displays' flicker,
-    /// each the steps of its old colour effect as changes of colours on <paramref name="pictures"/>, the backdrop and
-    /// the larva on it, which the old game colours as one. They play from the title's first update and start again as
-    /// a skip rebuilds the title.
-    /// </summary>
-    private JsonArray TitleLights(IReadOnlyList<string> pictures)
+    /// <summary>The larva in its tube on the title's backdrop: where it lies on the backdrop, and its pulsing.</summary>
+    private JsonObject TitleBaby(string folder)
     {
-        var places = pictures.Distinct(StringComparer.Ordinal).ToDictionary(
-            picture => picture, _ => (IReadOnlyList<string>)[EngineSheets.SheetOf(SpriteSheetId.TitleFloor)], StringComparer.Ordinal);
-        return new JsonArray(
-            ColourSteps(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, shade => ShadeChange(shade, EngineSheets.SpriteFamily, places)),
-            ColourSteps(TitleSequenceDefinitions.ConsoleColourEffects.FastLights, shade => ShadeChange(shade, EngineSheets.SpriteFamily, places)));
-    }
-
-    /// <summary>The larva in its tube on the title's backdrop: where it lies on the backdrop, and its pulsing; with the pictures it is shown in.</summary>
-    private (JsonObject Baby, IReadOnlyList<string> Pictures) TitleBaby(string folder)
-    {
-        var pictures = new List<string>();
         var looks = new JsonArray();
         (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.TitleFloor, TitleFloors.BabyFrameName(TitleBabyPose.Closed));
         foreach (TitleBabyPose pose in TitleSequenceDefinitions.Graphics.BabyAnimation)
@@ -159,15 +143,13 @@ public sealed partial class EngineAssetWriter
             string frame = TitleFloors.BabyFrameName(pose);
             if (_sheets.SpriteSize(SpriteSheetId.TitleFloor, frame) is var (_, _, x, y) && (x != originX || y != originY))
                 throw new InvalidDataException("The larva's pictures on the title's backdrop do not all lie alike.");
-            string picture = _sheets.WriteSpriteWithRegions(_tree, SpriteSheetId.TitleFloor, frame, $"{folder}/baby_{Named(pose)}.png");
-            pictures.Add(picture);
             looks.Add(new JsonObject
             {
-                ["picture"] = picture,
+                ["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.TitleFloor, frame, $"{folder}/baby_{Named(pose)}.png"),
                 ["updates"] = TitleSequenceDefinitions.Timing.BabyFrameDuration,
             });
         }
 
-        return (new JsonObject { ["x"] = -originX, ["y"] = -originY, ["timeline"] = new JsonObject { ["steps"] = looks, ["loops_to"] = 0 } }, pictures);
+        return new JsonObject { ["x"] = -originX, ["y"] = -originY, ["timeline"] = new JsonObject { ["steps"] = looks, ["loops_to"] = 0 } };
     }
 }

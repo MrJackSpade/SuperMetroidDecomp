@@ -14,13 +14,13 @@ namespace Game.Menus;
 /// copyright under that, and it rests. A press during the opening cuts it short. At rest, confirm goes to the choice
 /// of saved game; left alone for a while it shows its demos, a set of them at a time, and comes back from its
 /// opening once a set has played through, or straight to its rest when a demo is cut short. The larva in its tube on
-/// the backdrop pulses throughout, and the backdrop's console lights glow and flicker.
+/// the backdrop pulses throughout.
 /// </summary>
 /// <remarks>
 /// Its data names its "music" at rest, asked for when the opening is cut short; its "backdrop" colour; its "floor",
 /// the picture behind the title, with how much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
 /// ("floor_centre") and how far it is moved at rest ("floor_scroll"); the "baby" on the floor (where, and its
-/// "timeline"); its console "lights", steps of colours each, shown on the floor and the baby in turn; how many updates it is left alone before it
+/// "timeline"); how many updates it is left alone before it
 /// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos, and the
 /// "completed_demo_sets" that follow them once the game has been completed; and its "opening":
 /// its "music"; how long each letter of a card but the last shows before the next is typed ("letter_updates") and
@@ -99,9 +99,6 @@ public partial class TitleMode : GameMode
     private DataNode? _data;
     private TurningFloor? _floor;
     private CinematicSprite? _baby;
-
-    /// <summary>The console lights on the floor, each steps of colours shown on the floor and the baby.</summary>
-    private ColourSteps[] _lights = [];
     private Node2D? _card;
     private CinematicSprite? _logo;
     private CinematicSprite? _copyright;
@@ -137,14 +134,6 @@ public partial class TitleMode : GameMode
         _baby = CinematicSprite.Of(Session.Content, FrameTimeline.Read(baby.Get("timeline")), PixelPosition.FromWhole(baby.Int("x"), baby.Int("y")));
         _baby.Name = "Baby";
         _floor.AddChild(_baby);
-        IReadOnlyList<DataNode> lights = _data.List("lights");
-        _lights = [.. lights.Select((light, index) => new ColourSteps(light, $"Lights{index}"))];
-        foreach (ColourSteps light in _lights)
-        {
-            light.ShowOn(_floor);
-            light.ShowOn(_baby);
-        }
-
         _card = new Node2D { Name = "Card" };
         layer.AddChild(_card);
         DataNode opening = _data.Get("opening");
@@ -198,8 +187,6 @@ public partial class TitleMode : GameMode
         Session.OpenUpdate();
         ScreenFade fade = _fade ?? throw NotShown();
         (_baby ?? throw NotShown()).Step();
-        foreach (ColourSteps light in _lights)
-            light.Step();
         bool pressed = input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause) || input.WasPressed(GameAction.Cancel);
         switch (_doing)
         {
@@ -231,11 +218,8 @@ public partial class TitleMode : GameMode
                     Rest(rebuilt: false);
                 break;
             case Doing.Rebuilding:
-                // The old game rebuilds the title at rest on the update after the skip's fade reaches black. Its lights
-                // start again then: the floor shows its own colours until their first steps, on the next update.
+                // The old game rebuilds the title at rest on the update after the skip's fade reaches black.
                 Rest(rebuilt: true);
-                foreach (ColourSteps light in _lights)
-                    light.Stop();
                 fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
             case Doing.Resting:

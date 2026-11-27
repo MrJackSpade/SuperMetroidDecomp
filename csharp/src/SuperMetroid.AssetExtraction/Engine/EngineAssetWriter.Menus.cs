@@ -210,25 +210,19 @@ public sealed partial class EngineAssetWriter
             (index < ordinary.Count ? sets : completedSets).Add(files);
         }
 
-        // The backdrop and the larva on it are written as their sheet has them, so that the console lights' changes
-        // of colours meet them.
-        string floor = _sheets.WriteSpriteWithRegions(_tree, SpriteSheetId.TitleFloor, TitleFloors.FloorFrameName, folder + "/floor.png");
-        (JsonObject baby, IReadOnlyList<string> babyPictures) = TitleBaby(folder);
-
         // The title's backdrop comes to rest at its own size.
         _tree.WriteData("menus/title.json", new JsonObject
         {
             ["music"] = MusicName(TitleSequenceDefinitions.Music.ImmediateTitleTrack),
             ["backdrop"] = Colour(screens.TitleBackdrop),
-            ["floor"] = floor,
-            ["lights"] = TitleLights([floor, .. babyPictures]),
+            ["floor"] = _sheets.WriteSprite(_tree, SpriteSheetId.TitleFloor, TitleFloors.FloorFrameName, folder + "/floor.png"),
             ["floor_per_pixel"] = 1,
             ["floor_centre"] = At(TitleSequenceDefinitions.Scenes.FloorCentre.X, TitleSequenceDefinitions.Scenes.FloorCentre.Y),
             ["floor_scroll"] = At(resting.Position.X, resting.Position.Y),
             // At rest the title and the copyright show the colours their fades end on (the opening's "logo" and
             // "copyright"), which is how the old game restores them once a skip has rebuilt the title.
             ["opening"] = TitleOpening(folder),
-            ["baby"] = baby,
+            ["baby"] = TitleBaby(folder),
             ["demo_after_updates"] = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,
             ["demo_sets"] = sets,
             ["completed_demo_sets"] = completedSets,

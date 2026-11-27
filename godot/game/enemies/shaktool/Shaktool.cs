@@ -13,9 +13,9 @@ namespace Game.Enemies;
 /// <summary>
 /// Shaktool: a digging machine, a chain of seven parts with a saw at each end and its head in the middle. One saw
 /// stays put while the rest of the chain curls round it and straightens out ahead; when the far saw meets a wall the
-/// chain pauses, each part nodding in its turn, and either turns end for end or curls back the other way. Its saws
-/// cut through what they are made to cut, and so it digs its way along. Every part can be shot and has health of its
-/// own; the first part destroyed takes the whole machine with it.
+/// chain pauses, each part nodding in its turn, and either turns end for end or curls back the other way. Its far saw
+/// cuts through what it is made to cut as it moves, and so it digs its way along. Every part can be shot and has
+/// health of its own; the first part destroyed takes the whole machine with it.
 /// </summary>
 /// <remarks>
 /// <code>
@@ -216,8 +216,6 @@ public partial class Shaktool : Enemy
                 DriveTail();
             else if (!_paused && part > 0)
                 Orbit(part);
-            if (part == Parts - 1)
-                Cut();
             StepPart(part);
         }
 
@@ -233,14 +231,6 @@ public partial class Shaktool : Enemy
         int back = Wrapped(_angle[Head] + TurnParts / 2);
         int midway = Wrapped(back + Wrapped(_angle[Head + 1] - back) / 2 + (_headReversed ? TurnParts / 2 : 0));
         Play($"head_{Ways[Turns.Wrap(midway / StepParts + 8) * Ways.Length / Turns.PerTurn]}");
-    }
-
-    /// <summary>Its saws cut what lies where they are.</summary>
-    private void Cut()
-    {
-        Hit cut = new(1, HitSide.Enemies, new HitKind(HitKinds.Saw)) { Source = this };
-        Room.Terrain.TakeHit(cut, PartRect(_at[0]));
-        Room.Terrain.TakeHit(cut, PartRect(_at[Parts - 1]));
     }
 
     /// <summary>An angle in 256ths of a step brought into one turn.</summary>
@@ -305,21 +295,49 @@ public partial class Shaktool : Enemy
     }
 
     /// <summary>
-    /// Moves a part at <paramref name="at"/> a pixel at a time, stopping short of terrain. Returns whether terrain
-    /// stopped it.
+    /// Moves the far saw at <paramref name="at"/> a pixel at a time, stopping short of terrain. Before each pixel it
+    /// cuts what it is about to run into (<see cref="CutAhead"/>), and passes through what it has broken. Returns
+    /// whether terrain stopped it.
     /// </summary>
     private bool MovePart(ref PixelPosition at, int across, int down, SlopeTreatment slopes)
     {
         for (int moved = 0; moved < Math.Abs(across) + Math.Abs(down); moved++)
         {
             PixelPosition next = at + PixelOffset.FromWhole(Math.Sign(across), Math.Sign(down));
-            if (Room.Terrain.IsSolidIn(PartRect(next), slopes))
+            PixelRect body = PartRect(next);
+            CutAhead(body, Math.Sign(across), Math.Sign(down), slopes);
+            if (Room.Terrain.IsSolidIn(body, slopes))
                 return true;
             at = next;
         }
 
         return false;
     }
+
+    /// <summary>
+    /// Cuts the blocks along the edge the far saw's square leads with, moved a pixel the way given: tile by tile, from
+    /// the top of an edge it leads with across or from the left of one it leads with up or down, up to the first tile
+    /// that stops it and is not cut. So the cartridge's far saw breaks the blocks its move reaches, and only those.
+    /// </summary>
+    private void CutAhead(PixelRect body, int across, int down, SlopeTreatment slopes)
+    {
+        Hit cut = new(1, HitSide.Enemies, new HitKind(HitKinds.Saw)) { Source = this };
+        int size = Room.Terrain.TileSize;
+        bool leadsAcross = across != 0;
+        int edge = leadsAcross ? (across > 0 ? body.Right - 1 : body.Left) : (down > 0 ? body.Bottom - 1 : body.Top);
+        int from = leadsAcross ? body.Top : body.Left;
+        int to = leadsAcross ? body.Bottom : body.Right;
+        for (int tile = TileOf(from, size); tile <= TileOf(to - 1, size); tile++)
+        {
+            int start = Math.Max(from, tile * size), end = Math.Min(to, (tile + 1) * size);
+            PixelRect cell = leadsAcross ? new PixelRect(edge, start, 1, end - start) : new PixelRect(start, edge, end - start, 1);
+            if (Room.Terrain.TakeHit(cut, cell).Count == 0 && Room.Terrain.IsSolidIn(cell, slopes))
+                return;
+        }
+    }
+
+    /// <summary>The tile a pixel lies in, counted from the room's top left, below nought too.</summary>
+    private static int TileOf(int pixel, int size) => pixel >= 0 ? pixel / size : (pixel - size + 1) / size;
 
     /// <summary>Answers the far saw meeting a wall: the chain turns end for end, or the next time curls back the other way.</summary>
     private void MeetWall()

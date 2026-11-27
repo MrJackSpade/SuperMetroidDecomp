@@ -536,9 +536,6 @@ public partial class Kraid : Enemy
     {
         AlwaysActive = true;
 
-        // Each of its parts takes its own depth as the fight goes (its body among the room's things, its head, arm
-        // and foot in front of the room's tiles), so it is not put in front of the tiles as a whole.
-        InFrontOfTiles = false;
         // Its fight keeps Samus where a boss's does in the view, from its setup until it has sunk.
         Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
         _initialHealth = Health.Current;
@@ -548,11 +545,12 @@ public partial class Kraid : Enemy
         _stage = Stage.Rising;
         _rise = Rise.Wait;
         _wait = RiseWaitUpdates;
+        // Its body, and its head with it, are hidden until its body first shows. Small, its body lies behind the room's
+        // tiles, the spikes among them, and its head lies with its body until it first shows a pose.
         Visual?.SetShown(false);
-        if (Visual is { } body)
-            body.ZIndex = RoomDepth.Things;
-        // Its head is drawn with its body until it first shows a pose.
-        SetPartDepth("Head", RoomDepth.Things);
+        GetNodeOrNull<ActorVisual>("Head")?.SetShown(false);
+        SetPartDepth("Visual", RoomDepth.BehindRoom);
+        SetPartDepth("Head", RoomDepth.BehindRoom);
         Play("body");
         PlayPart("Arm", "arm_rising_or_sinking");
         PlayPart("Foot", "foot_initial");
@@ -632,6 +630,7 @@ public partial class Kraid : Enemy
 
             case Rise.ShowBody:
                 Visual?.SetShown(true);
+                GetNodeOrNull<ActorVisual>("Head")?.SetShown(true);
                 _rise = Rise.StartQuake;
                 break;
 
@@ -797,9 +796,8 @@ public partial class Kraid : Enemy
                 break;
 
             case Growth.BringInFront:
-                // Its grown body comes in front of what stands in the room, still behind the room's front tiles.
-                if (Visual is { } body)
-                    body.ZIndex = 1;
+                // Its grown body comes in front of Samus and of what is launched, still behind the room's front tiles.
+                SetPartDepth("Visual", RoomDepth.OverLaunched);
                 _armHarmless = false;
                 // Its arm meets shots again where its pose has it.
                 if (ArmPoses.Current.Length > 0)
@@ -858,10 +856,9 @@ public partial class Kraid : Enemy
                 // The room fades from what it shows: its colours once its growth's fade is done, its own before.
                 if (!StepBackdropFade(HasGrown ? _dyingBackdrop : _dyingUngrownBackdrop))
                     break;
-                // With the room dark its body is drawn behind what stands in the room again, grown or not.
+                // With the room dark its body is drawn behind the room's tiles again, grown or not.
                 _death = Death.ShowBody;
-                if (Visual is { } body)
-                    body.ZIndex = RoomDepth.Things;
+                SetPartDepth("Visual", RoomDepth.BehindRoom);
                 break;
 
             case Death.ShowBody:
@@ -1433,11 +1430,17 @@ public partial class Kraid : Enemy
         GetNodeOrNull<ActorVisual>(part)?.Show(step);
     }
 
-    /// <summary>Sets the depth in the room one of its parts is drawn at.</summary>
+    /// <summary>
+    /// Sets the depth in the room one of its visuals is drawn at, its body ("Visual") or a part, whatever depth it has
+    /// as a whole: each takes its own as the fight goes.
+    /// </summary>
     private void SetPartDepth(string part, int depth)
     {
         if (GetNodeOrNull<ActorVisual>(part) is { } visual)
+        {
+            visual.ZAsRelative = false;
             visual.ZIndex = depth;
+        }
     }
 
     /// <summary>Moves its head's timeline on by one update.</summary>
@@ -1457,13 +1460,14 @@ public partial class Kraid : Enemy
         _partPlaying[part] = timeline;
         _parts[part] = new TimelinePlayer(Timelines.Get(timeline));
         // Its arm and foot are in front of every tile of the room, but behind the room's front tiles while it rises or
-        // sinks; its head, from the first pose its fight shows on, is in front of what stands in the room for good.
+        // sinks. Its head, from the first pose its fight shows on, is in front of Samus and of what is launched and
+        // behind the room's front tiles for good, so the ledge hides it as it grows and the floor as it sinks.
         if (part == "Arm")
             SetPartDepth(part, timeline == "arm_rising_or_sinking" ? RoomDepth.Things : RoomDepth.InFrontOfRoom);
         else if (part == "Foot")
             SetPartDepth(part, timeline == "foot_initial" ? RoomDepth.Things : RoomDepth.InFrontOfRoom);
         else if (part == "Head" && _stage != Stage.Rising)
-            SetPartDepth(part, RoomDepth.InFrontOfRoom);
+            SetPartDepth(part, RoomDepth.OverLaunched);
         ShowPart(part);
         if (part == "Head")
             _headOver = false;

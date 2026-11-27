@@ -565,8 +565,9 @@ A scene. One per room of the game.
   the tiles that lies in front
   of what stands in the room (`TerrainFront`, which the terrain makes and draws: a tile's picture may have that
   part beside it, and it is drawn again over the room's things); what a thing puts in front of every tile; the
-  liquid; the overlays. A thing has the depth of the room's things unless it takes another of these, as a boss's
-  head in front of everything does. No thing picks a depth of its own outside them. A backdrop's depth is given
+  liquid; the overlays. A thing has the depth of the room's things unless it takes another of these, as Kraid's
+  head, once it shows a pose, lies over what is launched and behind the tiles' front, and his small body behind the
+  room's tiles. No thing picks a depth of its own outside them. A backdrop's depth is given
   by its room as the room sets it up: a backdrop shown by a screen with no room (the title's floor, the opening's
   flight, Ceres's destruction, the ending) has none, and is drawn in its place among that screen's own things.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
@@ -1870,7 +1871,9 @@ the room's tiles with it, at `RoomDepth.BehindRoom`; each effect a guardian lets
 light of that guardian's eyes), and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
-(`SpeedBoosterLavaquake`). The escape:
+(`SpeedBoosterLavaquake`). Kraid's room, once he is beaten, shows the colours his death's last fade ends on from the
+moment it is set up (`KraidRoomColours`, in `game/rooms/brinstar/`: the last step of the "sunk" fade of his data, on
+the room's pictures). The escape:
 explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinstar that seize Samus (`SamusEaters`, in `game/rooms/brinstar/`): one in each Brinstar room finds the blocks of the terrain that are plants, by their block type, and plays each: it holds her, shows its chewing as patches of the terrain named for where the plant is, hurts her at each bite, lets her go and stays shut a while.
 
 ### Projectiles and effects

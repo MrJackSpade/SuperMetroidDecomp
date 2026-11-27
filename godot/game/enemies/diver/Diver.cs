@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -60,7 +61,12 @@ public partial class Diver : Enemy
         Burrowing,
     }
 
+    /// <summary>The kinds of a killing hit that throw the debris up: her shots and her bombs.</summary>
+    private static readonly HitKind[] ThrowsDebris =
+        [new(HitKinds.Beam), new(HitKinds.Missile), new(HitKinds.SuperMissile), new(HitKinds.Bomb)];
+
     private readonly List<(int Side, Pixels Across, Pixels Up)> _debris = [];
+    private bool _killedByShotOrBomb;
     private Doing _doing;
     private int _diveStep;
     private Countdown _burrowing;
@@ -136,7 +142,20 @@ public partial class Diver : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnDied() => ThrowDebris();
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        _killedByShotOrBomb = hit.CarriesAny(ThrowsDebris);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDied()
+    {
+        // As on the cartridge, only a deadly shot or bomb throws the debris up; a blow of her body, the grapple and a
+        // power bomb's blast kill it without.
+        if (_killedByShotOrBomb)
+            ThrowDebris();
+    }
 
     /// <summary>Dives one update: straight down by whole pixels, a little toward Samus, until the ground is under it.</summary>
     private void Dive()

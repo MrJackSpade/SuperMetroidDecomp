@@ -775,6 +775,9 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         PublishForm();
         TakeJumpBuffer();
         BeforeState();
+
+        // A state that moves the player before the enemies act moves them now; a throw moves them in its place, later.
+        _movedEarly = Thrown is null && State is { MovesBeforeEnemies: true } early ? (early, early.Move(this)) : null;
         if (AttacksNow)
             Attack(input);
         else
@@ -818,6 +821,21 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// have become since. Nothing before their first.
     /// </summary>
     public PlayerState? MovedAs { get; private set; }
+
+    /// <summary>The state that moved the player in the first part of this update, and what its move answered; null when none did.</summary>
+    private (PlayerState State, PlayerState? Met)? _movedEarly;
+
+    /// <summary>
+    /// What the move <paramref name="state"/> made in the first part of this update answered
+    /// (<see cref="PlayerState.MovesBeforeEnemies"/>); null when it answered nothing, or made none because the player
+    /// was put in it since.
+    /// </summary>
+    internal PlayerState? TakeEarlyMove(PlayerState state)
+    {
+        (PlayerState State, PlayerState? Met)? moved = _movedEarly;
+        _movedEarly = null;
+        return moved is { } early && ReferenceEquals(early.State, state) ? early.Met : null;
+    }
 
     /// <summary>What the input asked, in the first part of this update, of the state the player was then in; and that state.</summary>
     private PlayerState? _asked;

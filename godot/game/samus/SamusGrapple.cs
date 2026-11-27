@@ -114,8 +114,14 @@ public partial class SamusGrapple : Node2D
     /// <summary>The line's length as it is counted while it reaches out.</summary>
     private int _length;
 
-    /// <summary>Whether this update's step of the line is already spent: by its firing, which only begins it, or by its being let go.</summary>
-    private bool _stepSpent;
+    /// <summary>
+    /// The update on which the line's step was spent by something else: its firing, which only begins it, or its being
+    /// let go. The line's own step is not played on that update.
+    /// </summary>
+    private long _spentOn = -1;
+
+    /// <summary>The update the line's own step was last played on: it is played once an update.</summary>
+    private long _steppedOn = -1;
     private ILatchable? _held;
     private Block? _heldBlock;
     private GrappleSwingRules? _swing;
@@ -203,7 +209,7 @@ public partial class SamusGrapple : Node2D
         _reached = PixelOffset.Zero;
         _length = 0;
         _phase = Phase.Firing;
-        _stepSpent = true;
+        _spentOn = samus.Room.Session.UpdateNumber;
 
         // Its pictures start over: the pattern's first holds an update longer than the rest, as the first drawing
         // of a line only takes the pattern up. Its angle is that of her place from where it is headed.
@@ -227,7 +233,7 @@ public partial class SamusGrapple : Node2D
         if (IsOut)
             return;
         _samus = samus;
-        (_phase, _stepSpent) = (Phase.CancelPending, true);
+        (_phase, _spentOn) = (Phase.CancelPending, samus.Room.Session.UpdateNumber);
     }
 
     /// <summary>Lets go of whatever the line holds and draws it in. Its end is heard whenever it was out, latched or not.</summary>
@@ -248,13 +254,12 @@ public partial class SamusGrapple : Node2D
     }
 
     /// <summary>
-    /// Plays one update of the line. Reaching out, it is counted on, looks at its end for what it can latch or
-    /// hurt, and moves its end in substeps, asking the block there after each. Letting go of the attack, its reach,
-    /// or a block that stops it at the last substep gives it up, and it ends on the update after.
+    /// Plays what of the line comes once she has moved: its end takes up the pickups in its reach, and the line is
+    /// drawn from where she now is. Its own step, the reaching out and the taking hold, is played before the enemies
+    /// act (<see cref="StepBeforeEnemies"/>).
     /// </summary>
     public void Step(Samus samus)
     {
-        StepLine(samus);
         TakePickups(samus);
         ShowLine(samus);
     }
@@ -279,15 +284,20 @@ public partial class SamusGrapple : Node2D
         }
     }
 
-    /// <summary>Plays the line's own update.</summary>
-    private void StepLine(Samus samus)
+    /// <summary>
+    /// Plays the line's own update, once an update, in the first part of hers, before her weapons fire and before the
+    /// enemies act, from where her last move left her: as the cartridge plays the grapple's step in her input's part
+    /// of the update. Reaching out, it is counted on, looks at its end for what it can latch or hurt, and moves its
+    /// end in substeps, asking the block there after each. Letting go of the attack, its reach, or a block that stops
+    /// it at the last substep gives it up, and it ends on the update after.
+    /// </summary>
+    public void StepBeforeEnemies(Samus samus)
     {
         // The update a line is fired on only begins it, and one let go on this update ends on the next.
-        if (_stepSpent)
-        {
-            _stepSpent = false;
+        long update = samus.Room.Session.UpdateNumber;
+        if (_spentOn == update || _steppedOn == update)
             return;
-        }
+        _steppedOn = update;
 
         switch (_phase)
         {
@@ -413,7 +423,9 @@ public partial class SamusGrapple : Node2D
         if (!IsOut)
             return;
         _tip = Anchor;
-        (_phase, _stepSpent) = (Phase.CancelPending, true);
+        _phase = Phase.CancelPending;
+        if (_samus is { } samus)
+            _spentOn = samus.Room.Session.UpdateNumber;
     }
 
     /// <summary>Gives up a line that is reaching out: it stays as it is for this update and ends on the next.</summary>

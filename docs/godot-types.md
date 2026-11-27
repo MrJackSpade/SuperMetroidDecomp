@@ -1083,6 +1083,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   body has no room (`WallJumpingState.HasRoom`): the player goes on as they were, with no sound of a launch.
   A taller form that has no room leaves a crouching player in the plain crouch, their aim level for the update:
   whether the input asked for it (`CrouchingState.Asked`) or a state from outside did (`Player.Admit`).
+  A state may move the player in the first part of the update, before the enemies act, in place of the second
+  (`PlayerState.MovesBeforeEnemies`): this game's grapple swing and its held poses do, and her grapple's line is
+  played there too, before her weapons fire, as the cartridge plays the grapple's whole step in her input's part of
+  the update, so that the enemies meet her where the swing has put her.
   A state may give way to what the input asks before the update's movement (`PlayerState.GivesWayBeforeMoving`):
   the player is then in the state asked for from the first part of the update, before the enemies act, and moves
   as it. This game's upright bomb jump ends so, as the cartridge ends the throw in its input phase.

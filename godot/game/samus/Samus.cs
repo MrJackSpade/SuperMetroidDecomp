@@ -1666,6 +1666,8 @@ public partial class Samus : Player
     /// </summary>
     protected override void WaitToAttack()
     {
+        // Her grapple's line is played first, before anything of her weapons and before the enemies act.
+        Grapple?.StepBeforeEnemies(this);
         if (State is RefillingFromReservesState or DyingState)
             return;
         if (State is XrayState)
@@ -1681,6 +1683,16 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void Attack(GameInput input)
     {
+        // Her grapple's line is played first, before her weapons fire and before the enemies act. A line that takes
+        // hold there puts her in her swing at once, and she fires nothing on that update: her weapons only wait.
+        PlayerState before = State;
+        Grapple?.StepBeforeEnemies(this);
+        if (!ReferenceEquals(State, before))
+        {
+            WaitToAttack();
+            return;
+        }
+
         string weapon = WeaponInHand();
 
         // A turn out of a moonwalk fires only the beam handed to it: the cartridge's turning pose has no aim of its own

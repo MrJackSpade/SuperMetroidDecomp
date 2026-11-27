@@ -137,6 +137,9 @@ public sealed class GrapplingState : PlayerState, ISamusLook
         samus.CapViewAfterPlacing();
     }
 
+    /// <summary>The swing is hers before the enemies act, as the cartridge plays the grapple's whole step in her input's part of the update.</summary>
+    public override bool MovesBeforeEnemies => true;
+
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {

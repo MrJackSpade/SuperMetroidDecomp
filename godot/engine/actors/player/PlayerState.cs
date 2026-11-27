@@ -131,6 +131,15 @@ public abstract class PlayerState : State<Player>
     public virtual bool StillInterrupts(Player owner, int waited) => true;
 
     /// <summary>
+    /// Whether the state moves the player in the first part of the update, before the room's enemies act, and not in
+    /// the second: its <see cref="Move"/> is then played as the first part begins, once the game's player has done
+    /// what it does before its state and before the weapons, with this update's input, and what it answers takes
+    /// effect where any move's answer does, in the second part. A state the player is put in later in an update than
+    /// that does not move them on that update. It does not, unless the state says otherwise.
+    /// </summary>
+    public virtual bool MovesBeforeEnemies => false;
+
+    /// <summary>
     /// Whether the state gives way to <paramref name="asked"/>, the other state this update's input asks for, before
     /// the update's movement: the player is then in that state from the first part of the update, before the room's
     /// enemies act, and moves as it. It does not, unless the state says otherwise: a state asked to give way is
@@ -208,7 +217,10 @@ public abstract class PlayerState : State<Player>
         PlayerState? asked = owner.TakeAsked(this);
 
         // A throw carries the player in place of the state's own movement for as long as it lasts.
-        PlayerState? met = owner.Thrown is { } thrown ? thrown.Carry(owner, this) : Move(owner);
+        // A state that moves the player before the enemies act has moved them already, or was entered too late to.
+        PlayerState? met = owner.Thrown is { } thrown ? thrown.Carry(owner, this)
+            : MovesBeforeEnemies ? owner.TakeEarlyMove(this)
+            : Move(owner);
         owner.SettleAfterMoving();
 
         // Something that put the player into another state while they moved has already had its way.

@@ -11,9 +11,6 @@ namespace Engine.Ui;
 /// A colour may also be added to or taken from every colour the thing shows, after its swaps (<see cref="Shift"/>).
 /// A swap may be of one region of a picture only: the shader reads the region of each pixel from the picture's map
 /// of regions, which a picture that has one is drawn with (<see cref="Content.ContentLibrary.LoadTexture"/>).
-/// The thing's rows may also be waved (<see cref="Wave"/>): each row reads its picture some pixels further on, by a
-/// table of offsets gone round row by row, as the cartridge moves a layer's lines one by one. Only a thing drawn
-/// from one picture can be waved so, and only one that is waved is drawn with the part of the shader that does it.
 /// </summary>
 /// <remarks>
 /// Where two sources change the same colour, the one that asked last is shown, as the last to write a colour of a
@@ -60,108 +57,6 @@ public sealed class Recolouring
             COLOR = shown * tint;
         }
         """;
-
-    /// <summary>
-    /// What is put into the shader for a thing whose rows are waved: where the picture is read is moved, for the row
-    /// of the thing the pixel lies on, by the table's entry for that row.
-    /// </summary>
-    private const string WaveHead = """
-        uniform int wave_count = 0;
-        uniform float wave_offsets[64];
-        uniform float wave_phase = 0.0;
-        uniform float wave_first = 0.0;
-        uniform bool wave_down = false;
-        vec2 waved(vec2 uv, vec2 own_place, vec2 pixel) {
-            float row = floor(own_place.y);
-            if (wave_count < 1 || row < wave_first) {
-                return uv;
-            }
-            int entry = min(int(mod(wave_phase + row, float(wave_count))), wave_count - 1);
-            float by = wave_offsets[entry];
-            return wave_down ? uv + vec2(0.0, by * pixel.y) : uv + vec2(by * pixel.x, 0.0);
-        }
-
-        """;
-
-    /// <summary>The most entries a wave's table can have.</summary>
-    public const int MostWaveEntries = 64;
-
-    /// <summary>The shader of a thing whose rows are waved, made from the one shader the first time it is wanted.</summary>
-    private static string? _wavedCode;
-
-    /// <summary>
-    /// The one shader with the waving of rows put into it: its head before the shader's own, the thing's own place
-    /// handed on from each corner, and both readings of the picture made through it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The shader no longer has one of the places the waving is put in at.</exception>
-    private static string WavedCode()
-    {
-        if (_wavedCode is not null)
-            return _wavedCode;
-        string code = Code;
-        foreach ((string from, string to) in new[]
-        {
-            ("varying vec4 tint;", WaveHead + "varying vec4 tint;\nvarying vec2 own;"),
-            ("tint = COLOR;", "tint = COLOR;\n    own = VERTEX;"),
-            ("texture(TEXTURE, UV)", "texture(TEXTURE, waved(UV, own, TEXTURE_PIXEL_SIZE))"),
-            ("texture(SPECULAR_SHININESS_TEXTURE, UV)", "texture(SPECULAR_SHININESS_TEXTURE, waved(UV, own, TEXTURE_PIXEL_SIZE))"),
-        })
-        {
-            int at = code.IndexOf(from, StringComparison.Ordinal);
-            if (at < 0 || code.IndexOf(from, at + from.Length, StringComparison.Ordinal) >= 0)
-                throw new InvalidOperationException($"The shader that changes colours has not exactly one \"{from}\" for the waving of rows to be put in at.");
-            code = code.Replace(from, to, StringComparison.Ordinal);
-        }
-
-        return _wavedCode = code;
-    }
-
-    /// <summary>The wave of the thing's rows, or null for none.</summary>
-    private RowWave? _wave;
-
-    /// <summary>The table of the wave the material was last given, so that it is given a table only when the table changes.</summary>
-    private IReadOnlyList<int>? _waveTableShown;
-
-    /// <summary>Whether the material has the shader that waves rows.</summary>
-    private bool _showsWaved;
-
-    private Shader? _plain, _waved;
-
-    /// <summary>
-    /// Waves the thing's rows as <paramref name="wave"/> says, in place of whatever wave it had, or stops waving them
-    /// for null. A wave by itself, with no colour changed, is drawn through the shader as a change of colours is.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The wave's table has more entries than a thing can be waved by.</exception>
-    public void Wave(RowWave? wave)
-    {
-        if (wave == _wave)
-            return;
-        if (wave is { } given && (given.Offsets.Count < 1 || given.Offsets.Count > MostWaveEntries))
-            throw new InvalidOperationException($"\"{_item.Name}\" is waved by a table of {given.Offsets.Count} entries; a table has 1 to {MostWaveEntries}.");
-        _wave = wave;
-        if (_material is null || !ReferenceEquals(_item.Material, _material) || _showsWaved != (wave is not null))
-            Show();
-        else if (wave is { } shown)
-            ShowWave(_material, shown);
-    }
-
-    /// <summary>Hands the shader a wave.</summary>
-    private void ShowWave(ShaderMaterial material, RowWave wave)
-    {
-        if (!ReferenceEquals(_waveTableShown, wave.Offsets))
-        {
-            var offsets = new float[MostWaveEntries];
-            for (int index = 0; index < wave.Offsets.Count; index++)
-                offsets[index] = wave.Offsets[index];
-            material.SetShaderParameter("wave_count", wave.Offsets.Count);
-            material.SetShaderParameter("wave_offsets", offsets);
-            _waveTableShown = wave.Offsets;
-        }
-
-        material.SetShaderParameter("wave_phase", (float)wave.Phase);
-        material.SetShaderParameter("wave_first", (float)wave.FirstRow);
-        material.SetShaderParameter("wave_down", wave.Down);
-    }
 
     /// <summary>What each source asked for, the source that asked last first.</summary>
     private readonly List<(string Source, IReadOnlyList<ColourSwap> Swaps)> _asked = [];
@@ -229,7 +124,7 @@ public sealed class Recolouring
     /// <summary>Hands the shader every colour changed and what is added to them all, or takes the shader away when nothing is asked.</summary>
     private void Show()
     {
-        if (_asked.Count == 0 && _shifted.Count == 0 && _wave is null)
+        if (_asked.Count == 0 && _shifted.Count == 0)
         {
             if (ReferenceEquals(_item.Material, _material))
                 _item.Material = null;
@@ -255,13 +150,7 @@ public sealed class Recolouring
             }
         }
 
-        // A thing whose rows are waved is drawn with the shader that waves them, and any other with the one without.
-        _material ??= new ShaderMaterial();
-        _showsWaved = _wave is not null;
-        _material.Shader = _showsWaved ? _waved ??= new Shader { Code = WavedCode() } : _plain ??= new Shader { Code = Code };
-        _waveTableShown = null;
-        if (_wave is { } wave)
-            ShowWave(_material, wave);
+        _material ??= new ShaderMaterial { Shader = new Shader { Code = Code } };
         _material.SetShaderParameter("swap_count", count);
         _material.SetShaderParameter("swap_from", from);
         _material.SetShaderParameter("swap_to", to);

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,11 +9,10 @@
 [ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/BackdropWaveEffect.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -129,48 +128,42 @@ TideReach = 8
 TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 
-[node name="BackdropWave" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-EffectName = "backdrop_wave"
-WaveFile = "effects/backdrop_wave_heat.json"
-
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="NorfairForegroundAndHeatPhase" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_foreground_and_heat_phase"
 StepsFile = "colours/{graphics}/norfair_foreground_and_heat_phase.json"
 
 [node name="NorfairGreenForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_green_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_green_foreground_heat_glow.json"
 
 [node name="NorfairPurpleForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_purple_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_purple_foreground_heat_glow.json"
 
 [node name="NorfairDarkForegroundHeatGlow" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
 [node name="Ground" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("12")
 Kind = 1
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("14")
+script = ExtResource("13")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_cavern_vertical_ruins.png"
 ScrollShare = Vector2(0.75, 0.75)

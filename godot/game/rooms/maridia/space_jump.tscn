@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,9 +9,8 @@
 [ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/BackdropWaveEffect.cs" id="10"]
-[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -80,18 +79,12 @@ TideReach = 8
 TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 
-[node name="BackdropWave" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-EffectName = "backdrop_wave"
-WaveFile = "effects/backdrop_wave_water.json"
-
 [node name="Ground" type="Node" parent="."]
-script = ExtResource("11")
+script = ExtResource("10")
 Kind = 0
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_space_jump.png"
 ScrollShare = Vector2(1, 1)

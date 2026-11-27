@@ -1466,14 +1466,8 @@ public partial class Room : Node2D
         Vector2I thrown = quake?.Thrown ?? Vector2I.Zero;
         Position = new Vector2(-viewTopLeft.X, -viewTopLeft.Y);
         Terrain.Thrown = quake is { ThrowsTiles: true } ? thrown : Vector2I.Zero;
-        BackdropWaveEffect? waver = _roomEffects.OfType<BackdropWaveEffect>().FirstOrDefault(effect => effect.IsActive);
         foreach (Backdrop backdrop in _backdrops)
-        {
             backdrop.Follow(viewTopLeft, quake is { ThrowsBackdrops: true } ? thrown : Vector2I.Zero);
-
-            // What lies behind the room wavers as the room's effect for that says, row by row of the screen.
-            backdrop.ShowWave(waver?.WaveOver(this, viewTopLeft.Y, Mathf.FloorToInt(backdrop.Position.Y)));
-        }
         foreach (OverlayEffect overlay in _roomEffects.OfType<OverlayEffect>())
             overlay.Follow(Session.Camera.View);
         Liquid?.Follow(Session.Camera.View);

@@ -16,7 +16,6 @@ import legacy
 
 LIQUID = 'res://engine/world/Liquid.cs'
 OVERLAY = 'res://engine/world/OverlayEffect.cs'
-WAVE = 'res://engine/world/BackdropWaveEffect.cs'
 TRIGGER = 'res://engine/world/Trigger.cs'
 DARKNESS = 'res://game/effects/FirefleaDarkness.cs'
 COLOURS = 'res://engine/world/ColourEffect.cs'
@@ -136,13 +135,6 @@ def effect_things(effect: dict, room: legacy.Room, ctx, told_speed: float | None
                 'What': quoted('rise' if rises else 'fall')}, at=(0, 0), enemy=False)
             placed.append(tide)
             links.append((tide, liquid))
-    # What lies behind the room wavers with its water, or sways with the heat of its lava or acid, where the old
-    # effect says so, whether or not any liquid is in sight. The statue's water moves the statue with that motion,
-    # not the background.
-    if effect['waves_backdrops'] and kind in ('Water', 'Lava', 'Acid'):
-        placed.append(Placed(WAVE, 'BackdropWave', {
-            'EffectName': quoted('backdrop_wave'),
-            'WaveFile': quoted(f'effects/backdrop_wave_{"water" if kind == "Water" else "heat"}.json')}, at=(0, 0), enemy=False))
     if 'SamusInHeat' in effect['colours']:
         placed.append(Placed(OVERLAY, 'Heat', {'EffectName': quoted('heat'), 'DamageHundredths': str(HEAT_DAMAGE)}, at=(0, 0), enemy=False))
     if kind in OVERLAYS:

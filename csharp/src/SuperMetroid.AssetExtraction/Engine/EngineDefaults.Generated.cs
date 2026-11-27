@@ -19,7 +19,6 @@ internal static partial class EngineDefaults
         ["AttractDemoMode"] = "PlayingMode",
         ["BabyMetroid"] = "Enemy",
         ["BabyTurtle"] = "Enemy",
-        ["BackdropWaveEffect"] = "RoomEffect",
         ["BandedBackdrop"] = "Backdrop",
         ["Barrier"] = "RoomObject",
         ["Beetom"] = "Enemy",

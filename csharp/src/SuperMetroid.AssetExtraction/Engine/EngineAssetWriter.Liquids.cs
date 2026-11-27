@@ -233,34 +233,8 @@ public sealed partial class EngineAssetWriter
             }
         }
 
-        // How what lies behind a room wavers with the room's effect, where the effect says so (the rooms' generator
-        // places it): behind water the rows below the surface are moved across, each step drawing the table a row
-        // further up; behind lava and acid, and in the heat of a room with neither in sight, every row sways up and
-        // down, each step drawing it a row further down, its first step counted as shown for an update as the room
-        // loads.
-        _tree.WriteData("effects/backdrop_wave_water.json", BackdropWave(
-            WaterWaveDefinitions.BackgroundWaveform, WaterWaveDefinitions.BackgroundWavePhaseDuration, down: false, belowSurface: true, shownAtStart: 0));
-        _tree.WriteData("effects/backdrop_wave_heat.json", BackdropWave(
-            LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Vertical], LavaAcidWaveDefinitions.VerticalWavePhaseDuration,
-            down: true, belowSurface: false, shownAtStart: LavaAcidWaveDefinitions.HazeStart.UpdatesShown));
         WriteCeresHaze();
     }
-
-    /// <summary>
-    /// A wave of the rows of what lies behind a room, as the engine's effect for it reads one: its table of whole pixels, the
-    /// updates each step shows for, which way the rows are moved, whether only the rows below the surface are, and
-    /// how many updates its first step counts as shown as the room loads. One that waves every row moves down a row
-    /// each step, and one that waves below the surface moves up.
-    /// </summary>
-    private static JsonObject BackdropWave(IEnumerable<int> offsets, int updates, bool down, bool belowSurface, int shownAtStart) => new()
-    {
-        ["offsets"] = new JsonArray([.. offsets.Select(offset => (JsonNode)offset)]),
-        ["updates"] = updates,
-        ["down"] = down,
-        ["below_surface"] = belowSurface,
-        ["moves_down"] = !belowSurface,
-        ["shown_at_start"] = shownAtStart,
-    };
 
     /// <summary>The data of a liquid's type: what it does to Samus, and how it looks.</summary>
     private static JsonObject LiquidType(RoomEffectDefinition effect, JsonObject surface, JsonObject body)

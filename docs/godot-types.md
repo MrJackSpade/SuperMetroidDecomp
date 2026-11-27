@@ -1549,7 +1549,8 @@ other way. Such a move says what it reached (`MoveResult.Reached`): the stretch 
 the move was tried, that came before whatever stopped it, in the order the edge is asked about (from the top for a
 move across, from the left for a move down unless it is tried from the right). Every move of the player's body goes
 through the player (`MoveBodyAcross`, `MoveBodyDown`, `TryBodyAcross`, `TryBodyDown`), which keeps what the update's
-moves reached, made or only tried, so that what is taken by a touch can ask (`Player.Reaches`). The rest of the way:
+moves reached, made or only tried, so that what is taken by a touch can ask (`Player.Reaches`): an `Item` asks it,
+and the room asks it of each of its exits. The rest of the way:
 
 - Solids are tried first. The first registered that the body would overlap where the move is tried, and does not
   overlap already, stops it: the body goes the whole pixels between them and keeps its part of a pixel, losing its

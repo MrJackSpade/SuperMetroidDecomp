@@ -432,9 +432,11 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Tests the player's body against the room's exits, as each update does once the player has moved: the exit
-    /// they arrived by does not take them until they have left it in control of themselves, and a state that meets
-    /// no exits is taken by none. For whoever moves the player later in an update than their own movement.
+    /// Tests the player against the room's exits, as each update does once the player has moved: an exit takes a
+    /// player who reaches into it (<see cref="Player.Reaches"/>), by their body or by a move of it tried into the exit
+    /// that something beside the exit stopped short, as a jump at a doorway that the wall under it stops. The exit
+    /// they arrived by does not take them until their body has left it in control of themselves, and a state that
+    /// meets no exits is taken by none. For whoever moves the player later in an update than their own movement.
     /// </summary>
     public void MeetExits()
     {
@@ -442,7 +444,7 @@ public partial class Room : Node2D
         if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
             _arrivedAt = null;
         if (Player.State.MeetsExits)
-            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
+            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && Player.Reaches(exit.Area));
     }
 
     /// <summary>What the room's playing sequences hold still between them.</summary>

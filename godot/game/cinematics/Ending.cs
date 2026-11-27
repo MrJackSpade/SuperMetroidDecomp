@@ -97,9 +97,6 @@ public partial class Ending : Cinematic
         public bool Released { get; set; }
         public bool Moving { get; set; }
         public Pixels Speed { get; set; }
-
-        /// <summary>Colours of its own it is shown in, given it once it shows its first picture; null once given, or for none.</summary>
-        public ColourChange? Colours { get; set; }
     }
 
     /// <summary>How many updates the set-up waits out before the update that sets the clouds up.</summary>
@@ -154,15 +151,6 @@ public partial class Ending : Cinematic
 
     /// <summary>The fade of the exploding planet's colours, from its cue until the planet goes; none before or after.</summary>
     private ColourSteps? _planetFade;
-
-    /// <summary>
-    /// The other steps of colours playing on what the ending shows, in the order they began: each from the update the
-    /// old game starts it until the scene it plays in ends or what it is shown on goes.
-    /// </summary>
-    private readonly List<ColourSteps> _colourSteps = [];
-
-    /// <summary>The gunship's coming out of the blast's white, and the planet's afterglow, while they play.</summary>
-    private ColourSteps? _gunshipEmergence, _afterglowGlow;
     private int _shake;
     private bool _slowShake;
     private double _planetSpeed;
@@ -259,20 +247,12 @@ public partial class Ending : Cinematic
             Session.Sounds.RequestMusic(Music.ZebesExplosion, MusicWait);
             _phase = Phase.WaitingForEscapeMusic;
         }
+        else if (_phase < Phase.Credits)
+            StepEscape();
+        else if (_phase < Phase.Gesture)
+            StepCreditsAndWaiting();
         else
-        {
-            // Steps of colours begun on an earlier update take theirs before anything else of the update; one begun
-            // on this update shows its first step as it begins.
-            foreach (ColourSteps steps in _colourSteps)
-                steps.Step();
-            if (_phase < Phase.Credits)
-                StepEscape();
-            else if (_phase < Phase.Gesture)
-                StepCreditsAndWaiting();
-            else
-                StepReward();
-        }
-
+            StepReward();
         if (_phase >= Phase.PostCreditsBlank)
             StepShootingStars();
         _frame++;
@@ -317,11 +297,6 @@ public partial class Ending : Cinematic
                 foreach (string cue in actor.Sprite.Step())
                     OnCue(cue);
                 stays = !actor.Sprite.IsOver;
-                if (actor.Colours is { } colours && colours.On(actor.Sprite).Count > 0)
-                {
-                    colours.ShowOn(actor.Sprite, actor.Role);
-                    actor.Colours = null;
-                }
             }
 
             place = _actors.IndexOf(actor);
@@ -443,35 +418,6 @@ public partial class Ending : Cinematic
             return;
         (_washLeft, _washWait) = (_washLeft - 1, _washPace);
         (_white ?? throw NotEntered()).Cover(_washLeft, WashLevels);
-    }
-
-    /// <summary>
-    /// Begins the steps of colours the data names, shown on <paramref name="on"/> under <paramref name="source"/>: the
-    /// first shows at once, and each later update steps them before anything else.
-    /// </summary>
-    private ColourSteps BeginColourSteps(string data, string source, params IRecoloured[] on)
-    {
-        var steps = new ColourSteps(Data().Get(data), source);
-        foreach (IRecoloured target in on)
-            steps.ShowOn(target);
-        steps.Step();
-        _colourSteps.Add(steps);
-        return steps;
-    }
-
-    /// <summary>Ends steps of colours, taking their colours back from what they are shown on.</summary>
-    private void StopColourSteps(ColourSteps steps)
-    {
-        steps.Stop();
-        _colourSteps.Remove(steps);
-    }
-
-    /// <summary>Ends every step of colours still playing, as the old game does at the start of a new scene.</summary>
-    private void StopAllColourSteps()
-    {
-        foreach (ColourSteps steps in _colourSteps)
-            steps.Stop();
-        _colourSteps.Clear();
     }
 
     private ScreenFade Fade() => _fade ?? throw NotEntered();

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -76,20 +75,7 @@ public sealed partial class EngineAssetWriter
         Explosion("stars", EndingActorDefinitions.ExplosionStars);
         Explosion("explosion_silhouette", EndingActorDefinitions.ExplosionSilhouette);
         Explosion("explosion_stars", EndingActorDefinitions.ExplosionStarsRight);
-
-        // The planet's afterglow is cut as its sheet has it, and shown in the explosion's colours for it as a change of
-        // colours. As the gunship flies out its glow plays: each step is the glow's look laid over those colours.
-        EndingSpriteDefinition afterglow = EndingActorDefinitions.ExplosionAfterglow;
-        Scene("explosion_afterglow", afterglow.Animation, EndingSpriteSheets.Explosion, CinematicSpriteFamily.EndingExplosion, null);
-        var afterglowPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
-        {
-            [$"{folder}/explosion_afterglow"] = [EngineSheets.SheetOf(EndingSpriteSheets.Explosion)],
-        };
-        string afterglowOwn = EndingShade(afterglow.Colouring, EndingColourLoad.Explosion).Key;
-        string afterglowDrawn = EndingShades.Drawn(afterglow.Colouring).Effect;
-        JsonObject afterglowColours = ShadeChange(afterglowOwn, EngineSheets.SpriteFamily, afterglowPlaces);
-        JsonObject afterglowGlow = ColourSteps(
-            EndingColourEffectDefinitions.PlanetAfterglow, shade => ShadeChange($"{afterglowOwn}+{afterglowDrawn}.{shade}", EngineSheets.SpriteFamily, afterglowPlaces));
+        Explosion("explosion_afterglow", EndingActorDefinitions.ExplosionAfterglow);
         if (EndingActorDefinitions.ExplosionStarsLeft.Animation != EndingSceneAnimation.ExplosionLeftStars
             || EndingSceneAnimations.Pictures.Segments.Beats(EndingSceneAnimation.ExplosionLeftStars) is not [AnimationBeat<CinematicSpritePose, EndingSceneCue>.HeldFrame left]
             || EndingSceneAnimations.Pictures.Segments.Beats(EndingSceneAnimation.ExplosionStars) is not [AnimationBeat<CinematicSpritePose, EndingSceneCue>.HeldFrame still]
@@ -185,11 +171,8 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException("Samus lands without firing, which the Godot ending waits for.");
         timelines["landing"] = landing;
 
-        // Her emblem, its pieces cut as their sheet has them and shown in the emblem's first colours as a change of
-        // colours. As its upper half lands its glare plays: each step is the glare's look laid over those colours.
-        string emblem = EndingShade(EndingLogoDefinitions.Colouring, EndingColourLoad.LogoInitial).Key;
-        string emblemDrawn = EndingShades.Drawn(EndingLogoDefinitions.Colouring).Effect;
-        var emblemPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        // Her emblem.
+        PictureShade emblem = EndingShade(EndingLogoDefinitions.Colouring, EndingColourLoad.LogoInitial);
         (string Name, EndingLogoActorDefinition Part)[] parts =
         [
             ("logo_upper_s", EndingLogoDefinitions.UpperS), ("logo_lower_s", EndingLogoDefinitions.LowerS),
@@ -199,14 +182,9 @@ public sealed partial class EngineAssetWriter
         {
             timelines[name] = SpriteTimeline(
                 EndingLogoAnimations.Logo.Segments, EndingLogoAnimations.Logo.StartingWith(part.Animation), EndingSpriteSheets.FallingSamusAndLogo,
-                CinematicSpriteFamily.EndingLogo, $"{folder}/{name}", null,
+                CinematicSpriteFamily.EndingLogo, $"{folder}/{name}", emblem,
                 static (EndingLogoCue cue) => cue == EndingLogoCue.GreyOut ? "grey_out" : throw new InvalidDataException($"The emblem raises {cue}, which this does not know."));
-            emblemPlaces[$"{folder}/{name}"] = [EngineSheets.SheetOf(EndingSpriteSheets.FallingSamusAndLogo)];
         }
-
-        JsonObject emblemColours = ShadeChange(emblem, EngineSheets.SpriteFamily, emblemPlaces);
-        JsonObject emblemGlare = ColourSteps(
-            EndingLogoDefinitions.LandingColourEffect, shade => ShadeChange($"{emblem}+{emblemDrawn}.{shade}", EngineSheets.SpriteFamily, emblemPlaces));
 
         // The shooting stars, from faintest to fullest.
         EngineSheetPictures stars = _sheets.CutSprites(
@@ -244,37 +222,10 @@ public sealed partial class EngineAssetWriter
         var gunshipPlaces = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [gunshipFloor] = [EngineSheets.SheetOf(gunshipSheet)] };
         JsonObject GunshipColours(EndingColourLoad stage) => ShadeChange(EndingShades.Loaded(stage).Key, EngineSheets.SpriteFamily, gunshipPlaces);
 
-        // The gunship comes out of the blast's white: from its first update it is shown in steps from white to the
-        // explosion's colours for it, over those colours.
-        JsonObject gunshipEmergence = ColourSteps(
-            EndingColourEffectDefinitions.GunshipEmergence, shade => ShadeChange(shade, EngineSheets.SpriteFamily, gunshipPlaces));
-
-        // The two floors of clouds are written as their sheets have them, with the escape's colours for both as one
-        // change of colours on them. Under the clouds at the sides the lava glows and the crust fades; under those
-        // above and below, the grey clouds fade. Each is steps of colours on its floor, over the escape's.
-        Dictionary<string, IReadOnlyList<string>> CloudFloor(EndingFloorShot shot, string name)
-        {
-            SpriteSheetId sheet = EndingFloorDefinitions.Sheets[shot];
-            string written = _sheets.WriteSpriteWithRegions(_tree, sheet, EndingFloorDefinitions.FrameName, $"{folder}/{name}.png");
-            return new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal) { [written] = [EngineSheets.SheetOf(sheet)] };
-        }
-
-        Dictionary<string, IReadOnlyList<string>> sideClouds = CloudFloor(EndingFloorShot.SideCloudEscape, "cloud_floor");
-        Dictionary<string, IReadOnlyList<string>> topAndBottomClouds = CloudFloor(EndingFloorShot.TopAndBottomCloudEscape, "top_and_bottom_cloud_floor");
-        var bothClouds = new Dictionary<string, IReadOnlyList<string>>(sideClouds, StringComparer.Ordinal);
-        foreach ((string place, IReadOnlyList<string> sheets) in topAndBottomClouds)
-            bothClouds[place] = sheets;
-        JsonObject CloudSteps(ColourEffectId effect, IReadOnlyDictionary<string, IReadOnlyList<string>> places) =>
-            ColourSteps(effect, shade => ShadeChange(shade, EngineSheets.SpriteFamily, places));
-
         var data = new JsonObject
         {
-            ["cloud_floor"] = sideClouds.Keys.Single(),
-            ["top_and_bottom_cloud_floor"] = topAndBottomClouds.Keys.Single(),
-            ["cloud_colours"] = ShadeChange(EndingShades.Loaded(EndingColourLoad.Escape).Key, EngineSheets.SpriteFamily, bothClouds),
-            ["cloud_lava"] = CloudSteps(EndingColourEffectDefinitions.Lava, sideClouds),
-            ["cloud_crust"] = CloudSteps(EndingColourEffectDefinitions.Crust, sideClouds),
-            ["grey_clouds"] = CloudSteps(EndingColourEffectDefinitions.GreyClouds, topAndBottomClouds),
+            ["cloud_floor"] = Floor(EndingFloorShot.SideCloudEscape, "cloud_floor", EndingColourLoad.Escape),
+            ["top_and_bottom_cloud_floor"] = Floor(EndingFloorShot.TopAndBottomCloudEscape, "top_and_bottom_cloud_floor", EndingColourLoad.Escape),
             ["planet_floor"] = Floor(EndingFloorShot.PlanetExplosion, "planet_floor", EndingColourLoad.Explosion),
             ["gunship_floor"] = gunshipFloor,
             ["gunship_colours"] = new JsonObject
@@ -282,11 +233,6 @@ public sealed partial class EngineAssetWriter
                 ["flying_out"] = GunshipColours(EndingColourLoad.ExplosionBackgrounds),
                 ["clear"] = GunshipColours(EndingColourLoad.FinalGunship),
             },
-            ["gunship_emergence"] = gunshipEmergence,
-            ["explosion_afterglow_colours"] = afterglowColours,
-            ["explosion_afterglow_glow"] = afterglowGlow,
-            ["emblem_colours"] = emblemColours,
-            ["emblem_glare"] = emblemGlare,
             ["shot_floor"] = Floor(EndingFloorShot.RewardIcon, "shot_floor", EndingColourLoad.RestoredShot),
             ["planet_explosion"] = Blast(EndingExplosionDisplayDefinitions.PlanetExplosion, "planet_explosion"),
             ["burst_glow"] = Blast(EndingExplosionDisplayDefinitions.BurstGlow, "burst_glow"),

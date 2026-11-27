@@ -63,11 +63,8 @@ public sealed partial class EngineAssetWriter
             }
 
             string looks = $"items/{name}_looks.json";
-            JsonObject shown = EngineTimelines.Of(
-                CollectibleSequenceAnimations.Segments, CollectibleSequenceAnimations.Exposed, Look, static (CollectiblePhase _) => null);
-            // Its looks are of the room's blocks, and lie a row up with the room's tiles.
-            shown["offset"] = EngineRoomObjects.PictureCorner(0, 0);
-            _tree.WriteData(looks, shown);
+            _tree.WriteData(looks, EngineTimelines.Of(
+                CollectibleSequenceAnimations.Segments, CollectibleSequenceAnimations.Exposed, Look, static (CollectiblePhase _) => null));
 
             var type = new JsonObject
             {
@@ -123,8 +120,6 @@ public sealed partial class EngineAssetWriter
             .Value("health", 1)
             .Value("any_hit", 0)
             .Group("damaged_by", burstBy)
-            // Its pictures are of the room's blocks, and lie a row up with the room's tiles.
-            .Group("picture_offset", EngineRoomObjects.PictureCorner(0, 0))
             .Collider("Solid", 0, 0, block, block)
             .Collider("Hurtbox", 0, 0, block, block)
             .Timeline("closed", EngineTimelines.Of(

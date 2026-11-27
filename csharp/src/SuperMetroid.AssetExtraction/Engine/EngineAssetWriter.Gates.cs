@@ -132,9 +132,6 @@ public sealed partial class EngineAssetWriter
             .Value("opens_around_player", true)
             .Value("open_sound", EngineNames.Sound(DownwardGateDefinitions.MovementSound))
             .Value("close_sound", EngineNames.Sound(DownwardGateDefinitions.MovementSound))
-            // Its housing is of the room's blocks, and lies a row up with the room's tiles; its column, a sprite, is
-            // laid a row lower among them, where its place puts it.
-            .Group("picture_offset", EngineRoomObjects.PictureCorner(0, 0))
             .Collider("Solid", 0, 0, block, DownwardGateDefinitions.GateHeightInBlocks * block)
             .Timeline("closed", Resting(DownwardGateMovementDefinitions.Closed, way))
             .Timeline("opening", Moving(DownwardGateMovementDefinitions.Reopening, DownwardGateMovement.Rising))
@@ -154,8 +151,7 @@ public sealed partial class EngineAssetWriter
             {
                 ["steps"] = new JsonArray(new JsonObject { ["picture"] = RoomObjects.Picture(directory, frame, folder, BesideTheHousing), ["updates"] = 1 }),
                 ["loops_to"] = 0,
-                // It is of the room's blocks, and lies a row up with the room's tiles.
-                ["offset"] = EngineRoomObjects.PictureCorner(left * block, top * block),
+                ["offset"] = new JsonObject { ["x"] = left * block, ["y"] = top * block },
             };
             var setOffBy = new JsonObject();
             foreach ((SamusProjectileFamily family, string kind) in new[]

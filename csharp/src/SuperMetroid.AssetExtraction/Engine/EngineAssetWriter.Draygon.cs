@@ -367,11 +367,10 @@ public sealed partial class EngineAssetWriter
         }
 
         // Where the corner of its pictures lies from its block, facing each way, and the blocks of it that are solid.
-        // Its pictures are of the room's blocks, and lie a row up with the room's tiles.
         JsonObject Corner(DraygonCannonDraw shield)
         {
             (int column, int row, int _, int _) = RoomObjects.Bounds(directory, DraygonCannonDrawKeys.Installed.Of(shield));
-            return EngineRoomObjects.PictureCorner(column * EngineRoomObjects.Block, row * EngineRoomObjects.Block);
+            return new JsonObject { ["x"] = column * EngineRoomObjects.Block, ["y"] = row * EngineRoomObjects.Block };
         }
 
         (int Left, int Top, int Width, int Height) Core(DraygonCannonDraw draw)

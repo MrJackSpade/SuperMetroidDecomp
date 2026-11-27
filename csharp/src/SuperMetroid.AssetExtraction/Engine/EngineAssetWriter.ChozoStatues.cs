@@ -131,8 +131,7 @@ public sealed partial class EngineAssetWriter
             }
 
             string crumbleFile = $"{statue.Folder}/plug_crumble.json";
-            // Its pictures are of the room's blocks, and lie a row up with the room's tiles.
-            _tree.WriteData(crumbleFile, new JsonObject { ["steps"] = crumbling, ["offset"] = EngineRoomObjects.PictureCorner(0, 0) });
+            _tree.WriteData(crumbleFile, new JsonObject { ["steps"] = crumbling });
             statue.Value("plug_crumble", crumbleFile);
 
             IEnumerable<(RoomDefinition Room, RoomStateSettings State)> everyState = EngineLayouts.States().Where(placed => rooms.Contains(placed.Room));

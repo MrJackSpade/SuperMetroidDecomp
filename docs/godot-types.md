@@ -1493,6 +1493,9 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   it, the turn that ends the freeze among them), as this game's Ki-Hunter's loose wings flutter on, its Squeept's
   flame takes its random number and its Metroid counts its escape; and it may end its own freeze at once
   (`Enemy.EndFreeze`), as a Rinka frozen outside its flight's window does.
+- **An enemy replaced when killed** (`RespawnsWhenKilled`) is replaced by a copy of it as it was placed. As it dies
+  it is told of that copy (`Enemy.OnReplacedBy`), so that a kind something of which its setup does not set afresh
+  hands that on: this game's Beetom the way it last faced, and its Bull what is left of its guard against a knock.
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could
   not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
   and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then

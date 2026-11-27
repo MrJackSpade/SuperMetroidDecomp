@@ -731,6 +731,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Sound(_deathSound);
         Enemy? replacement = _replacement;
         _replacement = null;
+        if (replacement is not null)
+            OnReplacedBy(replacement);
         if (death.Length > 0)
         {
             var remains = Remains.Of(FrameTimeline.Read(Room.Content.ReadData(death)), Position, _drops);
@@ -804,6 +806,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>Called as the enemy is destroyed, before it leaves its room.</summary>
     protected virtual void OnDied()
+    {
+    }
+
+    /// <summary>
+    /// Called as an enemy that is replaced when killed dies, with the copy that will take its place, which has not
+    /// yet entered the room. A kind something of which is not set afresh by its setup, and so is found by the next
+    /// of its place as the last one left it, hands that on here.
+    /// </summary>
+    protected virtual void OnReplacedBy(Enemy replacement)
     {
     }
 

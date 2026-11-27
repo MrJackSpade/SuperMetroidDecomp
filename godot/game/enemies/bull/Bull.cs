@@ -77,6 +77,12 @@ public partial class Bull : Enemy
     /// <summary>Whether the hit being taken has frozen it.</summary>
     private bool _frozenByHit;
 
+    /// <summary>
+    /// The Bull that takes its place has what is left of its guard against a knock: the cartridge's setup does not
+    /// write the guard, so a new Bull whose predecessor's was still running cannot be knocked until it runs out.
+    /// </summary>
+    protected override void OnReplacedBy(Enemy replacement) => ((Bull)replacement)._guard = _guard;
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {

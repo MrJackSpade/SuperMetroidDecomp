@@ -163,11 +163,21 @@ public partial class Beetom : Enemy
     private bool _clings;
     private GameInput _lastInput = GameInput.None;
 
+    /// <summary>
+    /// The way the Beetom whose place it takes last faced; null for the first of its place, which faces left. The
+    /// cartridge's setup does not write a Beetom's facing, so a new one touched before it first moves clings facing
+    /// as the last one did.
+    /// </summary>
+    private Facing? _facingLeftToIt;
+
+    /// <inheritdoc/>
+    protected override void OnReplacedBy(Enemy replacement) => ((Beetom)replacement)._facingLeftToIt = Facing;
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         _curve = SpeedCurve.Read(Room.Content.ReadData(SpeedCurveFile));
-        Facing = Facing.Left;
+        Facing = _facingLeftToIt ?? Facing.Left;
         _shakesLeft = ShakeOffCount;
         _lastInput = Room.Player.Input;
         Random.Restart(23);

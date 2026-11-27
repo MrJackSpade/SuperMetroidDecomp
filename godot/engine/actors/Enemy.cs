@@ -342,14 +342,21 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>
     /// Counts on, for an update the enemies are held still through, the one thing of an enemy that does not stand
     /// still then: the time it cannot be hit for. The room asks it of each enemy whose turn it would have been. The
-    /// time counts on only while the player's side can hit the enemy at all (<see cref="IsHitBy"/>): what it is a time
-    /// of is the settling of hits, which passes an enemy by while nothing of the player's can reach it.
+    /// time counts on only while the settling of hits reaches the enemy (<see cref="UnhittableTimeRuns"/>).
     /// </summary>
     internal void CountWhileHeldStill()
     {
-        if (IsHitBy(HitSide.Player))
+        if (UnhittableTimeRuns)
             _unhittable = _unhittable.Stepped();
     }
+
+    /// <summary>
+    /// Whether the time the enemy cannot be hit for counts on this turn. What it is a time of is the settling of
+    /// hits, which passes an enemy by while nothing of the player's can reach it: so it runs while the player's side
+    /// can hit the enemy at all (<see cref="IsHitBy"/>). An enemy of several parts whose time is one part's says
+    /// when that part is in reach, as one whose head is away while the rest of it still takes shots.
+    /// </summary>
+    protected virtual bool UnhittableTimeRuns => IsHitBy(HitSide.Player);
 
     /// <summary>
     /// Plays one update, its turn: its timers move on; its hits are settled, the player's shots tried against it and
@@ -363,9 +370,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         bool unhittableAtStart = _unhittable.IsRunning;
 
-        // The time it cannot be hit for counts on only on a turn the player's side can hit it at all: the settling of
-        // hits it is a time of passes it by otherwise, and the time stands.
-        if (IsHitBy(HitSide.Player))
+        // The time it cannot be hit for counts on only on a turn the settling of hits reaches it: it passes it by
+        // otherwise, and the time stands.
+        if (UnhittableTimeRuns)
             _unhittable = _unhittable.Stepped();
 
         // Its hits are settled in its own turn, before it acts and where it stood before moving: the player's shots

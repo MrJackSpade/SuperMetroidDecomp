@@ -374,7 +374,9 @@ charged.
   - whether the thing is briefly unhittable afterwards, and for how long: after taking the damage, and after
     being put in the status. An enemy's time counts on only on its turns, and the updates it is held still
     through, on which the player's side can hit it at all (`IsHitBy`): the cartridge's settling of hits passes
-    over an enemy that ignores Samus, and its time stands meanwhile;
+    over an enemy that ignores Samus, and its time stands meanwhile. An enemy of several parts whose time is one
+    part's says when it runs (`Enemy.UnhittableTimeRuns`), as this game's Botwoon's runs only while his head is in
+    reach, his body's segments taking shots all the while;
   - whether the hit passes: it takes no notice of the thing, nothing is done to it, and what delivered the hit
     goes on unspent (`Reaction.Passes`, "passes" in data). Doing no damage is not that: such a hit is a dud or
     is absorbed, and is spent. This game's extractor writes a passing reaction for what the cartridge's enemy

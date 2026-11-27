@@ -197,6 +197,12 @@ public partial class Botwoon : Enemy
     /// </summary>
     private bool HeadIsTangible => _headTangible;
 
+    /// <summary>
+    /// The time he cannot be hit for is his head's, as the cartridge's is: it stands while his head is out of reach,
+    /// hidden, inside the wall or dead, though the segments of his body out of the wall go on taking shots.
+    /// </summary>
+    protected override bool UnhittableTimeRuns => _headTangible;
+
     /// <summary>Switches its head's hurtbox on or off as its head meets shots or not.</summary>
     private void ShowHeadTangible() => GetNode<Collider>("Hurtbox").Enabled = HeadIsTangible;
 

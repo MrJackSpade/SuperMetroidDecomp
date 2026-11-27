@@ -20,16 +20,27 @@ public sealed class CrouchingState : PlayerState
         owner.AimFromInput();
         GameInput input = owner.Input;
         if (input.WasPressed(GameAction.Up))
-            return owner.CanTakeForm(Player.Standing) ? owner.StandUp() : this;
+            return owner.CanTakeForm(Player.Standing) ? owner.StandUp() : PlainCrouch(owner);
         if (input.WasPressed(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right))
             return new TurningState(crouched: true);
         if (owner.MayCrawl && input.WasPressed(GameAction.Down))
             return owner.TakeLowForm();
-        if (owner.JumpPressed && owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true))
-            return new JumpingState();
+        if (owner.JumpPressed)
+            return owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true) ? new JumpingState() : PlainCrouch(owner);
         if (input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left))
-            return owner.CanTakeForm(Player.Standing) ? new StandingState() : this;
+            return owner.CanTakeForm(Player.Standing) ? new StandingState() : PlainCrouch(owner);
         return owner.Aim == Aim.Forward ? null : this;
+    }
+
+    /// <summary>
+    /// What a taller form asked for that has no room leaves: the plain crouch. The player stays crouched with their
+    /// aim level for the update, whatever aim the input asked for, as the cartridge picks the taller pose and falls
+    /// back to its plain crouching pose.
+    /// </summary>
+    private PlayerState PlainCrouch(Player owner)
+    {
+        owner.Aim = Aim.Forward;
+        return this;
     }
 
     /// <inheritdoc/>

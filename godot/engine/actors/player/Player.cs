@@ -1414,7 +1414,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         if (taken is null)
             return States.Current;
         PlayerState instead = StateFor(taken);
-        return States.Current.GetType() == instead.GetType() ? States.Current : instead;
+        if (States.Current.GetType() != instead.GetType())
+            return instead;
+
+        // Staying in the state of the form the fitting answered with, they are in it plainly: their aim is level, as
+        // a crouch taken in place of a taller form is the plain crouch.
+        Aim = Aim.Forward;
+        return States.Current;
     }
 
     /// <summary>The state that goes with a form the player was put in when the form a state asked for did not fit.</summary>

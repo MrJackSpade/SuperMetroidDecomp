@@ -1299,7 +1299,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Some of her states take their form outright** (`FormAsked.Unfitted`), as the cartridge sets those poses with no
   feeling for room: the damage boost (the jump's body, out of the knockback's), the grapple beam's swing (in a
   form of its own, `swinging`, shorter than the jump's, as the cartridge's swinging pose is) and its holding her in
-  place (whose bodies are hers wherever the line puts her), the flight out of a swing (the jump's body, as the
+  place and against a wall (whose bodies are hers wherever the line puts her; against a wall the crouch's, as compact
+  as the cartridge's wall pose), the flight out of a swing (the jump's body, as the
   cartridge sets its release pose once the flight's first move is made in the swing's), Draygon's grab, collecting a suit (the
   front view's body, before she is put at her place of the screen), and the front view (`FacingForwardState`,
   `StandingForwardState`, `RidingElevatorState`, `AppearingState`). The front view is taken about her middle where
@@ -1313,8 +1314,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   the cartridge sets the size of those poses as it puts her in them, so that what meets her for the rest of the
   update meets the new body: a shinespark's windup, Draygon's grab, a Yapping Maw standing her up out of a spin or
   a wall jump, a crystal flash's start, the spin a moonwalk's turn runs out into with no jump begun, the jump's
-  pose an upright bomb jump throws her in, the damage boost, the grapple beam's swing and its holding her in place,
-  the flight out of a swing, and collecting a suit; with crouching and curling up, which the engine's change of posture takes so. A landing, standing up, leaving the ball on the ground, a jump from the ground or from a crouch, a wall
+  pose an upright bomb jump throws her in, the damage boost, the grapple beam's swing and its holding her in place and against a
+  wall, the flight out of a swing, and collecting a suit; with crouching and curling up, which the engine's change of posture takes so. A landing, standing up, leaving the ball on the ground, a jump from the ground or from a crouch, a wall
   jump, an aim taken up in the air, a turn in the air and a knockback take their body from her next update, as the
   cartridge's do.
 - **Leaving water in a spin** asks for her spin's sound again, right after the splash's own: the engine's player

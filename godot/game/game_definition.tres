@@ -22,6 +22,7 @@ SpentDropUpdates = 64
 EnemyFlashUpdatesEachWay = 2
 FrozenLookSteadyUpdates = 90
 FrozenLookBlinkUpdatesEachWay = 2
+ShakenEnemyShows = 2
 ClockPeriod = 65536
 ShortClockPeriod = 256
 FirstRoom = "res://game/rooms/ceres/ceres_elevator.tscn"

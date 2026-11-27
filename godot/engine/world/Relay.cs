@@ -5,7 +5,7 @@ namespace Engine.World;
 /// <summary>
 /// Something placed in a room that turns one word into what the room does about it. Things that only know that
 /// something has happened to them (a door that has been come in by, an escape that has begun) tell a relay a word,
-/// and its rules say what follows: which patch of terrain changes, and whether the room shakes. It holds no
+/// and its rules say what follows: which patch of terrain changes. It holds no
 /// behaviour of its own, and a word none of its rules is for is a mistake.
 /// </summary>
 public partial class Relay : Node, ITriggerTarget, IPlaced
@@ -30,8 +30,6 @@ public partial class Relay : Node, ITriggerTarget, IPlaced
             heard = true;
             if (rule.AppliesPatch.Length > 0)
                 room.Terrain.ApplyPatch(rule.AppliesPatch);
-            if (rule.ShakeStrength > 0)
-                room.Shake(rule.ShakeStrength, rule.ShakeUpdates, rule.ShakeWay, rule.ShakeReach);
         }
 
         if (!heard)

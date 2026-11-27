@@ -465,7 +465,7 @@ public partial class MotherBrain
                 if (Position.Y.Whole > RisenY)
                     break;
                 Position = new PixelPosition(Position.X, Pixels.FromWhole(RisenY));
-                Room.Shake(0, 0, ShakeWay.Both, ShakeReach.Tiles);
+                Room.RunShake(0);
                 Play("stand_after_crouch_slow", restart: true);
                 _ascent = Ascent.WaitUntilStanding;
                 break;

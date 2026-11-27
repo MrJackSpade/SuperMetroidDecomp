@@ -207,8 +207,9 @@ class Sequences:
             self.placed += [wall, passed]
             self.links.append((passed, 'Target', wall))
         if state.setup == 'OpenRescuedAnimalsPassageAndQuake':
-            # The way the animals left by stands open, and the room shakes, once they have been set free.
-            relay = Placed('res://engine/world/Relay.cs', 'AnimalsPassage', {'Rules': 'rules:open:animals_passage_open'},
+            # The way the animals left by stands open once they have been set free. The cartridge's passage shakes
+            # nothing as it opens: the room's shaking is the escape's own.
+            relay = Placed('res://engine/world/Relay.cs', 'AnimalsPassage', {'Rules': 'patches:open:animals_passage_open'},
                            at=None, enemy=False, kind='Node')
             opens = Placed(TRIGGER, 'AnimalsGone', {'Size': whole, 'What': quoted('open'), 'OnlyWhen': ctx.fact('animals_escaped')},
                            at=(0, 0), enemy=False)

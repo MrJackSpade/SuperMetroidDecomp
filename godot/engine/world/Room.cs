@@ -586,12 +586,17 @@ public partial class Room : Node2D
             ExitEntered = null;
         // Held still, the room is shown still: a shake neither counts on nor throws anything on such an update.
         _shownStill = stopped.HasFlag(Stopped.Room);
+        bool shakesEnemies = false;
         if (!stopped.HasFlag(Stopped.Room) && !energyGone)
         {
             foreach (RoomEffect effect in _roomEffects)
             {
-                if (effect.StepsAsUpdateEnds)
-                    effect.Step(this);
+                if (!effect.StepsAsUpdateEnds)
+                    continue;
+
+                // A shake with updates left throws the room on this step of it.
+                shakesEnemies |= effect is Earthquake { IsShaking: true, ThrowsThings: true };
+                effect.Step(this);
             }
         }
 
@@ -599,6 +604,15 @@ public partial class Room : Node2D
         AddArriving();
         MarkExplored();
         ShowAll();
+
+        // A shake that reaches what the enemies have launched does not throw the enemies: it starts the own shake of
+        // each that took its turn over, once they have been shown, so that they are shown shaken from the next update
+        // and for their shake's length after the room's last.
+        if (shakesEnemies)
+        {
+            foreach (Enemy enemy in _takingTurns)
+                enemy.ShakeFor(Session.Definition.ShakenEnemyShows);
+        }
     }
 
     /// <summary>
@@ -1007,6 +1021,31 @@ public partial class Room : Node2D
     /// </summary>
     public void SustainShake(int strength, int atLeast, ShakeWay way, ShakeReach reach) =>
         OwnEarthquake().Sustain(strength, atLeast, way, reach);
+
+    /// <summary>
+    /// Changes the look of the room's shake, leaving its run (<see cref="Earthquake.Change"/>): what is running goes
+    /// on with it, and a still room keeps it for whatever next runs its shake. A room with no earthquake of its own
+    /// is given one.
+    /// </summary>
+    public void ChangeShake(int strength, ShakeWay way, ShakeReach reach) => OwnEarthquake().Change(strength, way, reach);
+
+    /// <summary>
+    /// Runs the room's shake for so many updates with the look it has (<see cref="Earthquake.RunFor"/>); none stills
+    /// the room, its look kept. A room with no earthquake of its own is given one.
+    /// </summary>
+    public void RunShake(int updates) => OwnEarthquake().RunFor(updates);
+
+    /// <summary>
+    /// Runs the room's shake with the look it has and no length, until something gives it one
+    /// (<see cref="Earthquake.RunOn"/>). A room with no earthquake of its own is given one.
+    /// </summary>
+    public void RunShakeOn() => OwnEarthquake().RunOn();
+
+    /// <summary>
+    /// Takes its length from the room's shake, which goes on from where it is until something gives it one
+    /// (<see cref="Earthquake.KeepOn"/>). A room with no earthquake of its own is given one.
+    /// </summary>
+    public void KeepShakeOn() => OwnEarthquake().KeepOn();
 
     /// <summary>The room's earthquake, made where it has none.</summary>
     private Earthquake OwnEarthquake()

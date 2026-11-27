@@ -563,8 +563,13 @@ A scene. One per room of the game.
 - **Manages:** setting itself up when entered, placing the player from the `RoomEntry`, admitting and removing live
   things, deciding which enemies are active (one far enough outside the camera's view does not update), marking the
   map cell the player is in as explored (unless something of the room has said its map is hidden, `Room.MapShown`,
-  as Ridley does, whose room shows and explores none of it), starting an earthquake when something asks, putting itself on screen
-  where the camera's view has it (thrown about by an earthquake, which does not throw the player about), and
+  as Ridley does, whose room shows and explores none of it), starting an earthquake when something asks (a shake has a look, how far it throws, which way and what of the room, and a run, a
+  length or none, and either may be changed apart from the other: `Room.Shake` gives both, `Room.ChangeShake` the look
+  alone, `Room.RunShake` a length for the look the room has, none stilling it, `Room.RunShakeOn` no length, and
+  `Room.KeepShakeOn` takes the length from what runs; `Room.SustainShake` keeps one going), putting itself on screen
+  where the camera's view has it (thrown about by an earthquake, which does not throw the player about, nor the
+  enemies: one that reaches what the enemies have launched starts the own shake of each enemy that took its turn
+  over on every update it throws the room, for the game's `GameDefinition.ShakenEnemyShows`), and
   tearing itself down when left.
 - **Steps, in this order:** the opening of the update: the liquid moves, each running sequence and then each live
   projectile with a part in the opening (`IOpeningStep`) plays it, and then the session services that open an
@@ -834,7 +839,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | `Trigger` | A region that calls one named method the first time the player enters it, optionally only when a `Condition` holds; or, where it says so (`WhileTouched`), on every update the player touches it, by a move of their body tried into it, by their own place lying in it, or by the reach of a state that has one of its own: a change of the view's limits is told so, and so goes on holding against another's while the player stays in it. It is the player's body that enters it, or, where it says so (`MeetsMiddle`), their own place: the escape's wall and rising acid are set off by where Samus is. | Hold logic. |
 | `Barrier`'s reactions | A barrier's data may list reactions as an enemy's does, for the hits that pass it or that it swallows; they are asked before it is worn, opened or refuses. This game's Ceres doors have them, written from the old enemy they were: shut, a shot that is not plasma is spent on one unseen and a plasma beam flies on. |
 | `Barrier`'s solid by its look | A barrier's timeline may say, step by step, how it stands in the way: "passable" or "blocking"; "solid_height:" and so many pixels from its top; "solid_ends:" and so many pixels at each end of its length, the middle letting through (its far end is a second solid collider of its scene), and "solid_whole" again. This game's door caps are solid at their two end blocks only while nearly open, where the cartridge's are. |
-| `Relay` | Turning a word it is told into what the room does about it, by its rules: putting a terrain patch in place, and shaking the room. A door come in by tells a relay to start the treadmill it starts; the escape tells one to open the animals' passage. | Hold behaviour, or accept a word it has no rule for. |
+| `Relay` | Turning a word it is told into what the room does about it, by its rules: putting a terrain patch in place. A door come in by tells a relay to start the treadmill it starts; the escape tells one to open the animals' passage. | Hold behaviour, or accept a word it has no rule for. |
 
 **Why, and extending it.** A room is a container that forgets. That one decision is why "remembered as" and
 "present when" exist: instead of each object managing its own persistence and each room having variants, there is

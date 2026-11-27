@@ -455,7 +455,8 @@ public partial class MotherBrain : ITriggerTarget
                     return false;
                 if (EscapeMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(EscapeMusic);
-                Room.Shake(2, 600, ShakeWay.Both, ShakeReach.Tiles);
+                Room.ChangeShake(2, ShakeWay.Both, ShakeReach.Tiles);
+                Room.RunShakeOn();
                 _escapeTextDone = false;
                 foreach (NodePath path in ToldWhenEscapeBegins)
                 {
@@ -510,11 +511,14 @@ public partial class MotherBrain : ITriggerTarget
         }
     }
 
-    /// <summary>The room does not stop shaking once the alarm has started.</summary>
+    /// <summary>
+    /// The room does not stop shaking once the alarm has started: whenever something has given its shake a length
+    /// and that has run out, it shakes on again with no length, with whatever look the room's shake has by then.
+    /// </summary>
     private void KeepShaking()
     {
         if (Room.ShakeStrength == 0)
-            Room.Shake(2, 600, ShakeWay.Both, ShakeReach.Tiles);
+            Room.RunShakeOn();
     }
 
     /// <summary>

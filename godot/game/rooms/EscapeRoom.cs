@@ -6,10 +6,13 @@ using Godot;
 namespace Game.Rooms;
 
 /// <summary>
-/// The escape as one of its rooms shows it: the room shakes without stopping, harder and corner to corner for a moment now and then,
+/// The escape as one of its rooms shows it: the room shakes with no length, harder and corner to corner for a moment now and then,
 /// and blasts and smoke go off all over what the camera shows. It goes on for as long as the room is there. A harder
-/// spell is the escape's own count (<see cref="Escape.HarderShakeLeft"/>): one the room before left goes on here, and
-/// no chance of another is drawn until it is over.
+/// spell is the escape's own count (<see cref="Escape.HarderShakeLeft"/>): one the room before left goes on being
+/// counted here, the room shaking its own way meanwhile, and no chance of another is drawn until it is over. The
+/// shaking has no length only until something gives it one: indoors a shake started by anything else, a super missile
+/// against a wall, runs its length and leaves the room still, the harder spells then changing a shake that does not
+/// run; out of doors the length is taken from it again on every update, and the room shakes on with that shake's look.
 /// </summary>
 public partial class EscapeRoom : RoomSequence
 {
@@ -71,35 +74,33 @@ public partial class EscapeRoom : RoomSequence
     protected override void WhileRoomHeld(Room room) => KeepShaking(room, room.Session.Service<Escape>());
 
     /// <summary>
-    /// The shaking never stops; now and then, by chance, it is harder for a while. A room that never turns harder
-    /// neither counts a spell down nor draws for one.
+    /// Now and then, by chance, the shaking is harder for a while: only its look changes, and however long it runs
+    /// is left as it is. A room that never turns harder neither counts a spell down nor draws for one. Out of doors
+    /// the shake then has its length taken from it, whatever gave it one.
     /// </summary>
     private void KeepShaking(Room room, Escape escape)
     {
-        if (!TurnsHarder)
+        if (TurnsHarder)
         {
-            if (room.ShakeStrength == 0)
-                room.Shake(ShakeStrength, 600, ShakeWay.Across, Reach);
-        }
-        else if (escape.HarderShakeLeft > 0)
-        {
-            if (--escape.HarderShakeLeft == 0)
-                room.Shake(ShakeStrength, 600, ShakeWay.Across, Reach);
-        }
-        else
-        {
-            uint chance = room.Session.Random.Draw().Number & 0xFFFF;
-            bool harder = ShakeStrength <= 1 ? chance >> 9 == 0 : chance >> 7 < 3;
-            if (harder)
+            if (escape.HarderShakeLeft > 0)
             {
-                escape.HarderShakeLeft = HarderUpdates;
-                room.Shake(ShakeStrength + 1, HarderUpdates, ShakeWay.Both, Reach);
+                if (--escape.HarderShakeLeft == 0)
+                    room.ChangeShake(ShakeStrength, ShakeWay.Across, Reach);
             }
-            else if (room.ShakeStrength == 0)
+            else
             {
-                room.Shake(ShakeStrength, 600, ShakeWay.Across, Reach);
+                uint chance = room.Session.Random.Draw().Number & 0xFFFF;
+                bool harder = ShakeStrength <= 1 ? chance >> 9 == 0 : chance >> 7 < 3;
+                if (harder)
+                {
+                    escape.HarderShakeLeft = HarderUpdates;
+                    room.ChangeShake(ShakeStrength + 1, ShakeWay.Both, Reach);
+                }
             }
         }
+
+        if (Outdoors)
+            room.KeepShakeOn();
     }
 
     /// <inheritdoc/>
@@ -108,11 +109,12 @@ public partial class EscapeRoom : RoomSequence
         Escape escape = room.Session.Service<Escape>();
         if (elapsed == 0)
         {
-            // As the room is set up: a harder spell the room before left is ended, or goes on here for what is left.
+            // As the room is set up it shakes its own way, with no length. A harder spell the room before left is
+            // ended, or goes on being counted here: the room shakes its own way through what is left of it.
             if (StartsShakeAfresh)
                 escape.HarderShakeLeft = 0;
-            else if (TurnsHarder && escape.HarderShakeLeft > 0)
-                room.Shake(ShakeStrength + 1, escape.HarderShakeLeft, ShakeWay.Both, Reach);
+            room.ChangeShake(ShakeStrength, ShakeWay.Across, Reach);
+            room.RunShakeOn();
         }
 
         KeepShaking(room, escape);

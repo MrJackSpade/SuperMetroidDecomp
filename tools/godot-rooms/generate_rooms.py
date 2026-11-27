@@ -812,14 +812,6 @@ class Generator:
                     _, hears, patch = value.split(':')
                     rule = 'res://engine/world/RelayRule.cs'
                     value = scene.listed(rule, [scene.resource(rule, {'Hears': quoted(hears), 'AppliesPatch': quoted(patch)})])
-                elif value.startswith('rules:'):
-                    # A relay's one rule: the word it hears and the terrain patch it applies, shaking the room.
-                    _, hears, patch = value.split(':')
-                    rule = 'res://engine/world/RelayRule.cs'
-                    value = scene.listed(rule, [scene.resource(rule, {
-                        'Hears': quoted(hears), 'AppliesPatch': quoted(patch), 'ShakeStrength': '1', 'ShakeUpdates': '60',
-                        # Side to side, the whole room: what this shake did before a shake had a reach (ShakeReach.Everything).
-                        'ShakeWay': '0', 'ShakeReach': '2'})])
                 properties[name] = value
             for name, target in named.items():
                 if isinstance(target, list):

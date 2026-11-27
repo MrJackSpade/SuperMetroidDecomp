@@ -244,6 +244,15 @@ public abstract partial class GameDefinition : Resource
     public int FrozenLookBlinkUpdatesEachWay { get; set; }
 
     /// <summary>
+    /// For how many updates an enemy is shown shaken (<see cref="Engine.Actors.Enemy.ShakeFor"/>) by a shake of the
+    /// room that reaches what its enemies have launched (<see cref="Engine.World.Earthquake.ThrowsThings"/>): each
+    /// update such a shake throws the room, every enemy that took its turn has its own shake started over at this
+    /// length, once it has been shown. The enemies themselves are never thrown by the shake's own distance.
+    /// </summary>
+    [Export]
+    public int ShakenEnemyShows { get; set; }
+
+    /// <summary>
     /// Whether a status an enemy is in still lasts, apart from its time: a game may have something that ends a
     /// status early. Each enemy in a status asks on its turn.
     /// </summary>

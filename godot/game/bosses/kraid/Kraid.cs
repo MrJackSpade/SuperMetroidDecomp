@@ -554,6 +554,10 @@ public partial class Kraid : Enemy
         _stage = Stage.Rising;
         _rise = Rise.Wait;
         _wait = RiseWaitUpdates;
+
+        // Its setup only gives the room the look of its rise's shake; the rise runs it later, with whatever look the
+        // room's shake has by then: a super missile against a wall in between changes how the rise shakes.
+        Room.ChangeShake(2, ShakeWay.Both, ShakeReach.Tiles);
         // Its body, and its head with it, are hidden until its body first shows. Small, its body lies behind the room's
         // tiles, the spikes among them, and its head lies with its body until it first shows a pose.
         Visual?.SetShown(false);
@@ -647,7 +651,7 @@ public partial class Kraid : Enemy
                 _rise = Rise.SlowRocks;
                 _rocksWait = 120;
                 _wait = 496;
-                Room.Shake(2, 496, ShakeWay.Both, ShakeReach.Tiles);
+                Room.RunShake(496);
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
                 break;

@@ -92,10 +92,6 @@ Parts = Array[ExtResource("1")]([SubResource("r11"), SubResource("r9")])
 script = ExtResource("17")
 Hears = "open"
 AppliesPatch = "animals_passage_open"
-ShakeStrength = 1
-ShakeUpdates = 60
-ShakeWay = 0
-ShakeReach = 2
 
 [node name="Parlor" type="Node2D"]
 script = ExtResource("3")

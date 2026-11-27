@@ -380,7 +380,7 @@ public partial class MotherBrain
                 _samusFall = new PixelVelocity(Pixels.FromWhole(-1), Pixels.Zero);
                 StopBeamSound();
                 _tint = Colors.White;
-                Room.Shake(0, 0, ShakeWay.Both, ShakeReach.Tiles);
+                Room.RunShake(0);
                 samus.Weapons.WaitAtLeast(8);
                 _rainbow = Rainbow.LetSamusFall;
                 return false;

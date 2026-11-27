@@ -35,7 +35,11 @@ namespace Engine.World;
 /// One that "hides_again" comes back from breaking looking like plain terrain once more. "breaking" is the timeline shown,
 /// at each of its tiles, from the moment it breaks, and "regrowing" the one whose end is the moment it comes back;
 /// "regrows_after" counts from the break to the return and takes in both. One that "blocks_while_crumbling" goes on
-/// blocking for as long as either timeline's pictures show, and lets things through only between them. "break_sound" is heard as it breaks,
+/// blocking for as long as either timeline's pictures show, and lets things through only between them. One that
+/// "stays_solid" goes on blocking for good once broken: only what it shows changes, and nothing strikes it again. A
+/// step of "breaking" may give "pictures" in place of "picture": one for each of the block's tiles, row by row, for a
+/// block of several tiles whose tiles differ as it breaks. The fact a type "records" is recorded on the update after
+/// the last picture of its breaking has shown, and at once where it has no breaking. "break_sound" is heard as it breaks,
 /// unless the hit that broke it carries a kind "break_sound_by_kind" names, the first listed of them: then that
 /// kind's sound is.
 /// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
@@ -139,8 +143,33 @@ public sealed class BlockType
     /// <summary>Whether it goes on blocking, broken, for as long as the pictures of its breaking or of its regrowing show.</summary>
     public bool BlocksWhileCrumbling { get; private init; }
 
-    /// <summary>The fact recorded as it breaks, by name ("records"); empty for none: a wall whose breaking the game remembers.</summary>
+    /// <summary>Whether it goes on blocking for good once broken ("stays_solid"): only what it shows changes.</summary>
+    public bool StaysSolid { get; private init; }
+
+    /// <summary>
+    /// The fact recorded once it has broken, by name ("records"); empty for none: a wall whose breaking the game
+    /// remembers. It is recorded on the update after the last picture of its breaking has shown, and as it breaks
+    /// where it has no breaking.
+    /// </summary>
     public string Records { get; private init; } = "";
+
+    /// <summary>
+    /// For each step of its breaking, the pictures the step gives for each of the block's tiles, row by row
+    /// ("pictures"); none for a step that gives one picture for every tile.
+    /// </summary>
+    private IReadOnlyList<IReadOnlyList<string>> BreakingParts { get; init; } = [];
+
+    /// <summary>The picture one of its tiles shows at a step of its breaking, by the step's place and the tile's place in the block, row by row.</summary>
+    /// <exception cref="ContentException">The step gives pictures for fewer tiles than the block has.</exception>
+    public string BreakingPictureOf(int step, int part)
+    {
+        FrameTimeline breaking = Breaking ?? throw new InvalidOperationException($"The block type {File} has no breaking.");
+        IReadOnlyList<string> parts = BreakingParts[step];
+        if (parts.Count == 0)
+            return breaking.Steps[step].Picture;
+        return part >= 0 && part < parts.Count ? parts[part]
+            : throw new ContentException(File, $"gives {parts.Count} pictures at a step of its breaking for the tiles of a block that has more of them");
+    }
 
     /// <summary>The picture shown while hidden; empty for the pictures of the tiles it lies on.</summary>
     public string HiddenPicture { get; private init; } = "";
@@ -215,7 +244,13 @@ public sealed class BlockType
                 : pictures.Has("intact") ? [pictures.Text("intact")] : [],
             HidesAgain = data.Has("hides_again") && data.Flag("hides_again"),
             HiddenPicture = pictures is not null && pictures.Has("hidden") ? pictures.Text("hidden") : "",
+            StaysSolid = data.Has("stays_solid") && data.Flag("stays_solid"),
             Breaking = data.Has("breaking") ? FrameTimeline.Read(data.Get("breaking")) : null,
+            BreakingParts = data.Has("breaking")
+                ? [.. data.Get("breaking").List("steps").Select(step => step.Has("pictures")
+                    ? (IReadOnlyList<string>)[.. step.List("pictures").Select(picture => picture.AsText())]
+                    : [])]
+                : [],
             Regrowing = data.Has("regrowing") ? FrameTimeline.Read(data.Get("regrowing")) : null,
             BreakSound = data.Has("break_sound") ? data.Text("break_sound") : "",
             BreakSoundsByKind = data.Has("break_sound_by_kind")

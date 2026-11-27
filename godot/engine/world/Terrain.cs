@@ -559,7 +559,9 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         string sound = block.Type.BreakSoundFor(by);
         if (sound.Length > 0)
             _breakSounds.Add(sound);
-        if (block.Type.Records.Length > 0)
+        // Its fact is recorded as it breaks only where it shows no breaking; one that does records it after the last
+        // picture of that has shown.
+        if (block.Type.Records.Length > 0 && block.Type.Breaking is null)
             _brokenFacts.Add(block.Type.Records);
     }
 
@@ -635,6 +637,8 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
             changed |= block.Step(spaceIsClear: !isOccupied(block.Rect));
             if (stood && block.Broken)
                 NoteBroken(block, by: null);
+            if (block.HasShownItsBreaking && block.Type.Records.Length > 0)
+                _brokenFacts.Add(block.Type.Records);
         }
 
         if (changed)

@@ -37,7 +37,13 @@ public sealed class Block
     private int _brokenFor;
 
     /// <summary>Whether the block is solid right now.</summary>
-    public bool IsSolid => Type.Solid && (!Broken || (Type.BlocksWhileCrumbling && ShowsChange()));
+    public bool IsSolid => Type.Solid && (!Broken || Type.StaysSolid || (Type.BlocksWhileCrumbling && ShowsChange()));
+
+    /// <summary>
+    /// Whether the last picture of its breaking showed on the update before this one: the update a type that has a
+    /// breaking records its fact on. True through one update, the one its timers were moved on to.
+    /// </summary>
+    internal bool HasShownItsBreaking => Broken && Type.Breaking is { } breaking && _brokenFor == breaking.Steps.Sum(step => step.Updates);
 
     /// <summary>Shows the block for what it is.</summary>
     internal void Reveal() => Hidden = false;
@@ -65,8 +71,8 @@ public sealed class Block
             return own.Length > 0 ? own : tilePicture;
         }
 
-        if (Type.Breaking is { } breaking && PictureAt(breaking, _brokenFor) is { } crumbling)
-            return crumbling;
+        if (Type.Breaking is { } breaking && StepAt(breaking, _brokenFor) is { } crumbling)
+            return Type.BreakingPictureOf(crumbling, part);
         if (Type.RegrowsAfter > 0 && Type.Regrowing is { } regrowing)
         {
             int left = Type.RegrowsAfter - _brokenFor;
@@ -88,13 +94,17 @@ public sealed class Block
     }
 
     /// <summary>The picture a timeline shows so many updates in; null once it is over.</summary>
-    private static string? PictureAt(FrameTimeline timeline, int updates)
+    private static string? PictureAt(FrameTimeline timeline, int updates) =>
+        StepAt(timeline, updates) is { } step ? timeline.Steps[step].Picture : null;
+
+    /// <summary>The place of the step a timeline is at so many updates in; null once it is over.</summary>
+    private static int? StepAt(FrameTimeline timeline, int updates)
     {
-        foreach (TimelineStep step in timeline.Steps)
+        for (int index = 0; index < timeline.Steps.Count; index++)
         {
-            if (updates < step.Updates)
-                return step.Picture;
-            updates -= step.Updates;
+            if (updates < timeline.Steps[index].Updates)
+                return index;
+            updates -= timeline.Steps[index].Updates;
         }
 
         return null;

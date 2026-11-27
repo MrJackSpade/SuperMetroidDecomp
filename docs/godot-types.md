@@ -639,6 +639,10 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 - A **block** is a reactive piece of terrain, as many tiles wide and high as its layout says (the cartridge's
   own are one or two each way, and the wall the animals leave by in the escape is three high), placed as one unit
   with a `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.
+- A `BlockType` may say that it stays solid once broken (only what it shows changes, and nothing strikes it again), may
+  give a picture for each of its tiles at a step of its breaking, and records its fact on the update after the last
+  picture of its breaking has shown (at once where it has none): this game's wall the animals leave by in the escape is
+  all three, as the cartridge's goes on standing while it cracks and the animals are free only once it has.
 - A `BlockType` is a combination of these rules and nothing else. The rules are the engine's; the hit kinds, powers
   and abilities a block type names are the game's:
 

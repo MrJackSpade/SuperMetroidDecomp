@@ -1143,6 +1143,11 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   runs; walking off a floor she falls facing the way she was going. A turn made with the jump that runs out leads
   to a spin with no jump begun (`SpinJumpingState.Start.Adrift`): she is adrift in the spin's smaller body, cannot
   space jump, and is drawn down with no fastest fall until she lands, which is the cartridge's moonfall.
+  Every turn out of a moonwalk hands a shot to the next update's firing, whatever is pressed: on that update the
+  turn, which cannot otherwise attack, plays the attack (`Player.AttacksNow`) for the beam alone, and the shot
+  leaves the way the moonwalk aimed and from that way's muzzle (`Player.AimDirection`), not the way she now faces;
+  a beam that charges lets its charge go at once, as for the shot a jump's pose is handed on a fresh press of the
+  attack. Unfired, the handed shot is lost.
 - **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
   another aim or the attack is asked; her body is compact for as long (`aiming_down`).
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down

@@ -790,7 +790,8 @@ public partial class Samus : Player
         {
             // A shot leaves her arm from a whole pixel: the fraction of a pixel her own place has is not the shot's.
             // What she lays as a ball is laid where she is.
-            PixelPosition at = Origin(_muzzles);
+            // A shot handed out of a moonwalk's turn leaves from the muzzle of the way it is handed.
+            PixelPosition at = Origin(_muzzles, way: HandedWay);
             return Form == Crawling ? at : PixelPosition.FromWhole(at.X.Whole, at.Y.Whole);
         }
     }
@@ -853,17 +854,20 @@ public partial class Samus : Player
 
     /// <summary>
     /// The place of <paramref name="origins"/> for how she stands, faces and aims, raised by how high her pose holds her
-    /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up.
+    /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up. Given a
+    /// <paramref name="way"/>, the place is that of its facing and aim in place of hers.
     /// </summary>
-    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins, bool moonwalkRuns = true)
+    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins, bool moonwalkRuns = true,
+        (Facing Facing, Aim Aim)? way = null)
     {
         // In the morph ball there is no arm to fire from: what she lays, she lays where she is.
         if (Form == Crawling)
             return Position;
+        (Facing faces, Aim aims) = way ?? (Facing, Aim);
         string stance = State is RunningState || (moonwalkRuns && State is MoonwalkingState && Aim == Aim.DiagonalUp) ? "running" : "standing";
-        string facing = Facing == Facing.Right ? "right" : "left";
-        if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
-            !aims.TryGetValue(AimName(Aim), out Vector2I offset))
+        string facing = faces == Facing.Right ? "right" : "left";
+        if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aimed) ||
+            !aimed.TryGetValue(AimName(aims), out Vector2I offset))
             return base.MuzzlePoint;
         return Raised(offset);
     }
@@ -1068,6 +1072,11 @@ public partial class Samus : Player
         // next update's firing.
         if (to is JumpingState handing && Input.WasPressed(GameAction.Attack) && (!ReferenceEquals(from, to) || handing.TookUpStance))
             _shotHanded = true;
+
+        // Every turn out of a moonwalk hands a shot to the next update's firing, whatever is pressed, to leave the way
+        // the moonwalk aimed: the way she faced and her aim as this update began, as the moonwalk's pose had them.
+        if (from is MoonwalkingState && to is TurningState)
+            (_shotHanded, _wayHanded) = (true, (Facing, _aimAtUpdateStart));
 
         if (to is JumpingState jump)
         {
@@ -1322,6 +1331,7 @@ public partial class Samus : Player
         _bombsHeldOff = _bombsHeldOff.Stepped();
         // A shot handed over by the last update's change of pose is this update's to fire, or is lost.
         (_shotHandedNow, _shotHanded) = (_shotHanded, false);
+        (_wayHandedNow, _wayHanded) = (_wayHanded, null);
         StartCrystalFlashIfOffered();
         _ranFromStart = State is RunningState;
         _spunAtStart = State is SpinJumpingState or WallJumpingState;
@@ -1527,6 +1537,14 @@ public partial class Samus : Player
     {
         string weapon = WeaponInHand();
 
+        // A turn out of a moonwalk fires only the beam handed to it: the cartridge's turning pose has no aim of its own
+        // for a missile, which it does not launch, and waits as a turn does otherwise.
+        if (HandedWay is not null && weapon != Arsenal.Beam)
+        {
+            WaitToAttack();
+            return;
+        }
+
         // A full charge is remembered for as long as the button stays down, even into the morph ball.
         bool held = input.IsHeld(GameAction.Attack);
         bool beamCharged = Weapons.Selected?.Name == Arsenal.Beam && Weapons.IsCharged;
@@ -1538,7 +1556,8 @@ public partial class Samus : Player
         // A beam charge carried into the morph ball stays there until the ball uses it up.
         _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor > 0));
 
-        if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
+        // A handed shot lets the charge go before a special attack is tried, as the cartridge's beam input has it.
+        if (!_shotHandedNow && weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
             Selected == Amounts.PowerBombs)
         {
             // Every try at a special attack forgets the item that was to cancel itself, whether or not her beams
@@ -1972,6 +1991,39 @@ public partial class Samus : Player
 
     /// <summary>Whether this update's change of pose handed a shot to the next update's firing, and whether the last one's did.</summary>
     private bool _shotHanded, _shotHandedNow;
+
+    /// <summary>
+    /// The way a shot handed out of a moonwalk's turn leaves, the moonwalk's facing and aim, handed this update and
+    /// handed by the last; none for a jump's, which leaves the way she aims.
+    /// </summary>
+    private (Facing Facing, Aim Aim)? _wayHanded, _wayHandedNow;
+
+    /// <summary>The way the shot handed to the turn she is in leaves; none when she is in no such turn.</summary>
+    private (Facing Facing, Aim Aim)? HandedWay => State is TurningState ? _wayHandedNow : null;
+
+    /// <summary>
+    /// A turn out of a moonwalk fires the shot handed to it, though a turn cannot attack, as the cartridge's turning
+    /// pose runs the beam's input while it holds one.
+    /// </summary>
+    protected override bool AttacksNow => base.AttacksNow || HandedWay is not null;
+
+    /// <summary>A shot handed out of a moonwalk's turn leaves the way the moonwalk aimed, not the way she now faces.</summary>
+    public override (int Across, int Down) AimDirection
+    {
+        get
+        {
+            if (HandedWay is not { } way)
+                return base.AimDirection;
+            int forward = way.Facing == Facing.Right ? 1 : -1;
+            return way.Aim switch
+            {
+                Aim.Forward => (forward, 0),
+                Aim.DiagonalUp => (forward, -1),
+                Aim.DiagonalDown => (forward, 1),
+                _ => throw new InvalidOperationException($"A moonwalk does not aim {way.Aim}."),
+            };
+        }
+    }
 
     /// <inheritdoc/>
     protected override void OnBodyMoved(bool across, Pixels asked, Pixels moved) => _shotInheritance.Record(across, asked, moved);

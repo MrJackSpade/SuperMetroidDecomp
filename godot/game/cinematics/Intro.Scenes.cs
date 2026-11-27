@@ -178,6 +178,7 @@ public partial class Intro
         RecordedInputSource recording = _recording ?? throw NotEntered();
         GameInput input = recording.IsOver ? GameInput.None : recording.Next();
         RoomNow().Step(input);
+        _roomOpenedUpdate = true;
     }
 
     private void BeginLaboratory(string picture, string larva, Vector2 startsAt)

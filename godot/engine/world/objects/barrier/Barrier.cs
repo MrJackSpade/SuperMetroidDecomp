@@ -68,6 +68,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     [Export]
     public Condition? HeldShutBy { get; set; }
 
+    /// <summary>
+    /// A condition that holds the barrier open while it is true, from the room's setting up on: it stands open,
+    /// nothing remembered and no one told, and closes on the update the condition stops holding. Null when nothing
+    /// holds it open. A door's cap that does not shut behind the player until something has happened is held so.
+    /// </summary>
+    [Export]
+    public Condition? HeldOpenBy { get; set; }
+
     /// <summary>What an open barrier does.</summary>
     [Export]
     public ComesBackWhen ComesBack { get; set; } = ComesBackWhen.NextSetup;
@@ -126,6 +134,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     private string _showingName = "";
     private bool _opening;
 
+    /// <summary>Whether it stands open only because its condition holds it open (<see cref="HeldOpenBy"/>).</summary>
+    private bool _heldOpen;
+
     /// <summary>The kinds of hit that open it once it is plain; none listed when any hit does.</summary>
     private readonly HashSet<HitKind> _plainOpenedBy = [];
 
@@ -179,6 +190,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                 _plain = true;
                 _health = 1;
             }
+        }
+
+        // One its condition holds open stands open for now: it is not gone, and nothing is remembered or told.
+        _heldOpen = !IsOpen && HeldOpenBy is not null && HeldOpenBy.IsTrue(Room);
+        if (_heldOpen)
+        {
+            IsOpen = true;
+            SetSolid(false);
         }
 
         // One that is held shut as the room is entered may show itself shutting first.
@@ -291,6 +310,14 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     protected override void OnStep()
     {
         StepLook();
+
+        // One held open closes on the update its condition stops holding it.
+        if (_heldOpen && HeldOpenBy is not null && !HeldOpenBy.IsTrue(Room))
+        {
+            _heldOpen = false;
+            Close();
+        }
+
         if (OpensAroundPlayer && !IsOpen && _showingName == "closed" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } around
             && around.RoomRect.Contains(Room.Player.Position.X.Whole, Room.Player.Position.Y.Whole))
         {

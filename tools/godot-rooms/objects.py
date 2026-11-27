@@ -115,10 +115,12 @@ class Objects:
             opens = ctx.fact('animals_escaped')
         else:
             raise ValueError(f'A grey door opens on a condition this does not know: {condition}')
+        held = {'HeldShutBy': opens, **remembered(setup)}
         if 'GreyDoorClosing.AfterBombs' in setup:
-            # This one is an ordinary door until Samus has the bombs, and only then is held shut.
-            opens = ctx.any_of([ctx.none_of([ctx.owns('bombs')]), opens])
-        self.caps[block] = [cap(block, 'grey', named(setup, 'ColoredDoorOrientation'), {'HeldShutBy': opens, **remembered(setup)})] + extra
+            # This one does not shut behind Samus until she has the bombs: it stands open till then, and then shuts
+            # and is held shut as any other is.
+            held['HeldOpenBy'] = ctx.none_of([ctx.owns('bombs')])
+        self.caps[block] = [cap(block, 'grey', named(setup, 'ColoredDoorOrientation'), held)] + extra
 
     def eye_door_part_setup(self, block, setup, gates) -> None:
         # The growth round an eye door is the eye's own; its topmost part lies on the cap's block.

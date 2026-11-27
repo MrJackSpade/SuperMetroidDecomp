@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -70,58 +70,53 @@ Parts = Array[ExtResource("1")]([SubResource("r7")])
 
 [sub_resource type="Resource" id="r9"]
 script = ExtResource("1")
-Kind = 5
-Parts = Array[ExtResource("1")]([SubResource("r8"), SubResource("r3")])
-
-[sub_resource type="Resource" id="r10"]
-script = ExtResource("1")
 Kind = 0
 About = "bomb_torizo_chozo_bombs"
 
-[sub_resource type="Resource" id="r11"]
+[sub_resource type="Resource" id="r10"]
 script = ExtResource("1")
 Kind = 6
-Parts = Array[ExtResource("1")]([SubResource("r10")])
+Parts = Array[ExtResource("1")]([SubResource("r9")])
 
-[sub_resource type="Resource" id="r12"]
+[sub_resource type="Resource" id="r11"]
 script = ExtResource("1")
 Kind = 0
 About = "animals_escaped"
 
-[sub_resource type="Resource" id="r13"]
+[sub_resource type="Resource" id="r12"]
 script = ExtResource("1")
 Kind = 4
 Parts = Array[ExtResource("1")]([])
 
-[sub_resource type="Resource" id="r14"]
+[sub_resource type="Resource" id="r13"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
 
-[sub_resource type="Resource" id="r15"]
+[sub_resource type="Resource" id="r14"]
 script = ExtResource("1")
 Kind = 4
-Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r14")])
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r13")])
 
-[sub_resource type="Resource" id="r16"]
+[sub_resource type="Resource" id="r15"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
 
-[sub_resource type="Resource" id="r17"]
+[sub_resource type="Resource" id="r16"]
 script = ExtResource("1")
 Kind = 5
-Parts = Array[ExtResource("1")]([SubResource("r15"), SubResource("r16")])
+Parts = Array[ExtResource("1")]([SubResource("r14"), SubResource("r15")])
+
+[sub_resource type="Resource" id="r17"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r16"), SubResource("r6")])
 
 [sub_resource type="Resource" id="r18"]
 script = ExtResource("1")
 Kind = 4
-Parts = Array[ExtResource("1")]([SubResource("r17"), SubResource("r6")])
-
-[sub_resource type="Resource" id="r19"]
-script = ExtResource("1")
-Kind = 4
-Parts = Array[ExtResource("1")]([SubResource("r17"), SubResource("r11")])
+Parts = Array[ExtResource("1")]([SubResource("r16"), SubResource("r10")])
 
 [node name="BombTorizo" type="Node2D"]
 script = ExtResource("3")
@@ -152,7 +147,7 @@ position = Vector2(219, 179)
 AwakeningMusic = "torizo_awakening"
 FightMusic = "ridley_and_draygon_battle"
 VictoryMusic = "elevator"
-PresentWhen = SubResource("r18")
+PresentWhen = SubResource("r17")
 
 [node name="Encounter" type="Node2D" parent="."]
 script = ExtResource("7")
@@ -160,29 +155,30 @@ position = Vector2(0, 0)
 Size = Vector2i(256, 256)
 RememberedAs = "bomb_torizo_defeated"
 Boss = NodePath("../BombTorizo")
-PresentWhen = SubResource("r17")
+PresentWhen = SubResource("r16")
 
 [node name="Bombs" parent="." instance=ExtResource("8")]
 position = Vector2(200, 168)
 TypeFile = "items/bombs.json"
 RememberedAs = "bomb_torizo_chozo_bombs"
-PresentWhen = SubResource("r17")
+PresentWhen = SubResource("r16")
 
 [node name="ItemShell" parent="." instance=ExtResource("9")]
 position = Vector2(192, 160)
-PresentWhen = SubResource("r19")
+PresentWhen = SubResource("r18")
 
 [node name="BombTorizoHand" parent="." instance=ExtResource("10")]
 position = Vector2(208, 176)
-PresentWhen = SubResource("r17")
+PresentWhen = SubResource("r16")
 
 [node name="GreyCap" parent="." instance=ExtResource("11")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r9")
+HeldShutBy = SubResource("r3")
 RememberedAs = "bomb_torizo_grey_door"
 Remembered = 1
-PresentWhen = SubResource("r17")
+HeldOpenBy = SubResource("r8")
+PresentWhen = SubResource("r16")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")
@@ -222,7 +218,7 @@ PresentWhen = SubResource("r1")
 [node name="GreyCap2" parent="." instance=ExtResource("11")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_grey_right.json"
-HeldShutBy = SubResource("r12")
+HeldShutBy = SubResource("r11")
 RememberedAs = "bomb_torizo_grey_door_facing_right"
 Remembered = 1
 PresentWhen = SubResource("r1")
@@ -247,14 +243,14 @@ PresentWhen = SubResource("r1")
 
 [node name="LiquidQuake" type="Node" parent="."]
 script = ExtResource("17")
-StartsWhen = SubResource("r13")
+StartsWhen = SubResource("r12")
 Sound = "enemy_lavaquake"
 Silent = true
 PresentWhen = SubResource("r1")
 
 [node name="Escape" type="Node" parent="."]
 script = ExtResource("18")
-StartsWhen = SubResource("r13")
+StartsWhen = SubResource("r12")
 Outdoors = true
 TurnsHarder = false
 ShakeStrength = 3

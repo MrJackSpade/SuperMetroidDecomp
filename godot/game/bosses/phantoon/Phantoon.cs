@@ -790,7 +790,6 @@ public partial class Phantoon : Enemy
 
                 // Its body wavers as it goes: a longer wave that starts flat and grows a pixel an update.
                 (_waveQuarters, _waveAsked) = (0, DyingWaveLines);
-                Visual?.ShowInBlocks(_dissolve);
                 foreach (string part in new[] { "Eye", "Mouth", "Tentacles" })
                     GetNodeOrNull<ActorVisual>(part)?.SetShown(false);
                 Sound(DyingCry);
@@ -805,9 +804,7 @@ public partial class Phantoon : Enemy
                     break;
                 if (_dissolve < DissolveSizes)
                 {
-                    // Its body is shown in blocks of the size it has reached.
                     _dissolve++;
-                    Visual?.ShowInBlocks(_dissolve);
                     break;
                 }
 
@@ -825,7 +822,6 @@ public partial class Phantoon : Enemy
                 // An update of its own, on which what is left of it is cleared away and the wait for the power begins.
                 (_waving, _waveAsked) = (false, null);
                 Visual?.ShiftRows(null);
-                Visual?.ShowInBlocks(1);
                 _phase = Phase.Dead;
                 _wait = PowerWaitUpdates;
                 _powerStep = 0;

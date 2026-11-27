@@ -140,23 +140,6 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
         Redraw();
     }
 
-    /// <summary>How many pixels wide and tall the blocks of the screen are that the picture is shown in; one for none.</summary>
-    private int _blockWidth = 1;
-
-    /// <summary>
-    /// Shows the picture in blocks of the screen, <paramref name="width"/> pixels each way and counted from the
-    /// screen's top-left corner: every pixel of a block takes the colour of the block's top-left pixel, as the
-    /// picture then lies, its rows moved if they are (<see cref="ShiftRows"/>). A width of one shows it as it is.
-    /// </summary>
-    public void ShowInBlocks(int width)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
-        _blockWidth = width;
-        if (width == 1)
-            _recolouring?.Blocks(1, 0);
-        Redraw();
-    }
-
     /// <summary>Tints the picture; white leaves it as it is.</summary>
     public void Tint(Color colour) => Modulate = colour;
 
@@ -184,11 +167,7 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
             return;
         var size = texture.GetSize();
         Vector2I offset = PictureOffset + _stepOffset;
-        // Its blocks across are the shader's to show, counted from the screen's left edge; its blocks down are shown
-        // here, a row at a time.
-        if (_blockWidth > 1)
-            (_recolouring ??= new Ui.Recolouring(this)).Blocks(_blockWidth, Mathf.FloorToInt(GlobalPosition.X));
-        if (_rows is not null || _rowShift is not null || _blockWidth > 1)
+        if (_rows is not null || _rowShift is not null)
         {
             // The line of the screen its first row lies on: a room is put on the screen by its own place, so where
             // the visual is on the canvas is where it is on the screen.
@@ -196,17 +175,11 @@ public partial class ActorVisual : Node2D, Ui.IRecoloured
             int count = _rows is { } listed ? Math.Min(listed.Count, (int)size.Y) : (int)size.Y;
             for (int row = 0; row < count; row++)
             {
-                // In blocks, every line of a block shows what the block's top line shows: the row lying there, moved
-                // as that line is. A block whose top line is above the picture shows nothing of it.
-                int lineShown = firstLine + row - Mathf.PosMod(firstLine + row, _blockWidth);
-                int rowShown = lineShown - firstLine;
-                if (rowShown < 0)
-                    continue;
-                int? shown = _rows is { } rows ? rows[rowShown] : rowShown;
+                int? shown = _rows is { } rows ? rows[row] : row;
                 if (shown is not { } source)
                     continue;
                 var from = new Rect2(0, source, size.X, 1);
-                int shift = _rowShift?.Invoke(lineShown) ?? 0;
+                int shift = _rowShift?.Invoke(firstLine + row) ?? 0;
                 if (_rowsRound > 0)
                     shift = Mathf.PosMod(shift + _rowsRound / 2, _rowsRound) - _rowsRound / 2;
                 Rect2 at = _mirrored

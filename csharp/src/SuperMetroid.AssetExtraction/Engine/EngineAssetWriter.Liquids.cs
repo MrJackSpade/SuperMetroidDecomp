@@ -252,13 +252,13 @@ public sealed partial class EngineAssetWriter
     /// how many updates its first step counts as shown as the room loads. One that waves every row moves down a row
     /// each step, and one that waves below the surface moves up.
     /// </summary>
-    private static JsonObject BackdropWave(IEnumerable<int> offsets, int updates, bool down, bool belowSurface, int shownAtStart) => new()
+    private static JsonObject BackdropWave(IEnumerable<int> offsets, int updates, bool down, bool belowSurface, int shownAtStart, bool? movesDown = null) => new()
     {
         ["offsets"] = new JsonArray([.. offsets.Select(offset => (JsonNode)offset)]),
         ["updates"] = updates,
         ["down"] = down,
         ["below_surface"] = belowSurface,
-        ["moves_down"] = !belowSurface,
+        ["moves_down"] = movesDown ?? !belowSurface,
         ["shown_at_start"] = shownAtStart,
     };
 
@@ -279,6 +279,15 @@ public sealed partial class EngineAssetWriter
             ["blend"] = BlendName(effect),
             ["drift"] = effect.Liquid is RoomWater ? -WaterWaveDefinitions.SurfaceDriftSpeed.Pixels : 0m,
         };
+
+        // Water's own pictures ripple below its surface: their rows moved across by the surface's table, counted
+        // from the row below the surface, each step drawing it a row further down. Lava and acid lie still.
+        if (effect.Liquid is RoomWater)
+        {
+            type["ripple"] = BackdropWave(
+                WaterWaveDefinitions.SurfaceWaveform, WaterWaveDefinitions.OverlayWavePhaseDuration, down: false, belowSurface: true, shownAtStart: 0, movesDown: true);
+        }
+
         // Lava and acid throw up nothing as she crosses their surface: their spray is Samus's, while they harm her.
         switch (effect.Type)
         {

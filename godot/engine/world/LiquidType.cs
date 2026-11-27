@@ -61,6 +61,13 @@ public sealed class LiquidType
     /// <summary>The sound of something coming out through its surface, by name; empty for none.</summary>
     public string SplashOutSound { get; private init; } = "";
 
+    /// <summary>
+    /// How the liquid's own pictures ripple below its surface ("ripple", a <see cref="RowWaveSteps"/>): their rows
+    /// moved across by a table gone round a row at a time from the row below the surface; null for a kind that lies
+    /// still.
+    /// </summary>
+    public RowWaveSteps? Ripple { get; private init; }
+
     /// <summary>Reads a liquid type from its data file.</summary>
     public static LiquidType Read(DataNode data)
     {
@@ -80,6 +87,7 @@ public sealed class LiquidType
             SplashEffect = data.Has("splash") ? data.Text("splash") : "",
             SplashSound = data.Has("splash_sound") ? data.Text("splash_sound") : "",
             SplashOutSound = data.Has("splash_out_sound") ? data.Text("splash_out_sound") : "",
+            Ripple = data.Has("ripple") ? RowWaveSteps.Read(data.Get("ripple")) : null,
         };
         if ((type.Surface is null) != (type.Body is null))
             throw data.Problem("gives one of a surface and a body, and a liquid is drawn with both or neither");

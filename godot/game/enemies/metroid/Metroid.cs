@@ -10,13 +10,13 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A Metroid: it homes in on Samus, clamps onto her head, and drains her energy for as long as it holds. Shots only
-/// knock it back; ice freezes it once enough has landed, and only missiles hurt it while it is frozen. A bomb set off
-/// while it holds her shakes it loose.
+/// knock it back; ice freezes it once enough has landed, and only missiles hurt it while it is frozen. A power bomb's
+/// blast hurts it frozen or not. A bomb set off while it holds her shakes it loose.
 /// </summary>
 /// <remarks>
 /// Its timelines are "chasing", whose cue "cry" sounds one of its cries, and "draining"; "electricity" and "shell"
 /// are for the visuals of those names. Its data lists its eight cries under "cries". Its reactions are what it takes
-/// while frozen; unfrozen it takes nothing.
+/// while frozen; unfrozen it takes only a power bomb's.
 /// </remarks>
 public partial class Metroid : Enemy
 {
@@ -86,6 +86,7 @@ public partial class Metroid : Enemy
     private Moving _moving;
     private int _escapeMovesLeft;
     private int _iceLeft;
+    private bool _killedByMissile;
     private TimelinePlayer? _electricity;
     private TimelinePlayer? _shell;
 
@@ -118,17 +119,37 @@ public partial class Metroid : Enemy
     /// <inheritdoc/>
     protected override Reaction ReactionTo(Hit hit, Collider part)
     {
-        // Unfrozen, nothing hurts it; what a shot does to it then is its own affair.
+        // Unfrozen, nothing hurts it but a power bomb's blast, which hurts it frozen or not; what a shot does to it
+        // then is its own affair.
         Reaction reaction = base.ReactionTo(hit, part);
-        return IsFrozen ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
+        return IsFrozen || IsPowerBomb(hit) ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
     }
 
     /// <inheritdoc/>
-    protected override void OnAbsorbed(Hit hit, Collider part)
+    protected override void OnAbsorbed(Hit hit, Collider part) => Struck(hit);
+
+    /// <inheritdoc/>
+    protected override void OnHurt(Hit hit, Collider part) => Struck(hit);
+
+    /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        _killedByMissile = hit.CarriesAny([new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]);
+        return true;
+    }
+
+    /// <summary>Whether <paramref name="hit"/> is a power bomb's blast.</summary>
+    private static bool IsPowerBomb(Hit hit) => hit.Carries(new HitKind(HitKinds.PowerBomb));
+
+    /// <summary>
+    /// What a hit that landed on it does unfrozen, beside any harm: a bomb shakes it loose from Samus, and anything
+    /// else knocks it back and may freeze it.
+    /// </summary>
+    private void Struck(Hit hit)
     {
         if (IsFrozen)
             return;
-        bool bomb = hit.Carries(new HitKind(HitKinds.Bomb)) || hit.Carries(new HitKind(HitKinds.PowerBomb));
+        bool bomb = hit.Carries(new HitKind(HitKinds.Bomb)) || IsPowerBomb(hit);
         if (_moving == Moving.Attached)
         {
             if (!bomb)
@@ -264,7 +285,10 @@ public partial class Metroid : Enemy
     {
         (Room.Player as Samus)?.SetDrainFlash(false);
 
-        // Beside its death's own drop it leaves its full count more, scattered about, each placed by a fresh random number.
+        // Killed frozen by a missile, beside its death's own drop it leaves its full count more, scattered about, each
+        // placed by a fresh random number. Killed by a power bomb's blast it leaves only its death's own.
+        if (!_killedByMissile)
+            return;
         for (int drop = 0; drop < DropCount; drop++)
         {
             RandomDraw draw = Random.Draw();

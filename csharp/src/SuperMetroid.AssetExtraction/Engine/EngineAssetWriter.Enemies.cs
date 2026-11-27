@@ -207,10 +207,18 @@ public sealed partial class EngineAssetWriter
                      ("grapple_ripper", EnemyDefinitionId.GrappleRipper, RipperSegment.GrappleRipperMovingLeft, RipperSegment.GrappleRipperMovingRight),
                  })
         {
-            Enemy($"enemies/{file}.json", "Ripper", id).BodyColliders(Ordinary)
+            EngineEnemy ripper = Enemy($"enemies/{file}.json", "Ripper", id).BodyColliders(Ordinary)
                 .Value("can_be_latched", id == EnemyDefinitionId.GrappleRipper)
-                .Looks(RipperAnimations.Segments, RipperAnimations.StartingWith, ("left", left), ("right", right))
-                .Write();
+                .Looks(RipperAnimations.Segments, RipperAnimations.StartingWith, ("left", left), ("right", right));
+            // The jet and grapple Rippers have a frozen picture for each way they face, which a freeze shows; the plain
+            // one has none and stays frozen in its flight.
+            if (id != EnemyDefinitionId.Ripper)
+            {
+                ripper.Still("frozen_left", SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.RipperFrozenFacingLeft)
+                    .Still("frozen_right", SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.RipperFrozenFacingRight);
+            }
+
+            ripper.Write();
         }
     }
 

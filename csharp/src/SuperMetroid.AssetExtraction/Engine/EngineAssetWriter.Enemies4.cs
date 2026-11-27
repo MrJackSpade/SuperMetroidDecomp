@@ -264,6 +264,9 @@ public sealed partial class EngineAssetWriter
             .Looks(PlatformAnimations.Segments, PlatformAnimations.StartingWith, static (PlatformCue _) => null,
                 ("moving_left", PlatformSegment.TripperMovingLeft), ("moving_right", PlatformSegment.TripperMovingRight),
                 ("still_left", PlatformSegment.TripperStillMovingLeft), ("still_right", PlatformSegment.TripperStillMovingRight))
+            // Its frozen picture for each way it heads, which a freeze shows.
+            .Still("frozen_left", SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.TripperFrozenFacingLeft)
+            .Still("frozen_right", SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.TripperFrozenFacingRight)
             .Write();
         Enemy("enemies/suspensor_platform.json", "Tripper", EnemyDefinitionId.SuspensorPlatform).BodyColliders("Body", "Solid", "Hurtbox")
             .Value("resting_depth", PlatformMotionDefinitions.RestingDepthBelowPlacement)

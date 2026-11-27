@@ -93,7 +93,10 @@ public partial class IntroEgg : RoomObject
     /// <summary>Whether its remains have lain long enough that the page should turn.</summary>
     public bool WantsNextPage { get; private set; }
 
-    /// <summary>Whether the larva is, this update, on the near side of Samus.</summary>
+    /// <summary>
+    /// Whether the larva is, this update, on the near side of Samus: it is until it dances, and then while it moves
+    /// left; moving right, she is shown over it.
+    /// </summary>
     public bool BabyIsInFront { get; private set; }
 
     /// <inheritdoc/>
@@ -112,7 +115,7 @@ public partial class IntroEgg : RoomObject
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_hatching, _burst, _shedSlime, WantsNextPage, BabyIsInFront) = (false, false, false, false, false);
+        (_hatching, _burst, _shedSlime, WantsNextPage, BabyIsInFront) = (false, false, false, false, true);
         (_baby, _babyAt, _babySpeed) = (Baby.WaitingForHatch, Position, PixelVelocity.Zero);
         _thrown.Clear();
         _egg = new TimelinePlayer(_timelines.Get("intact"));
@@ -223,7 +226,7 @@ public partial class IntroEgg : RoomObject
                     Cry();
                 _babySpeed = new PixelVelocity(
                     Toward(_babyAt.X.Whole, samus.Position.X.Whole, _babySpeed.X, MostAcross), _babySpeed.Y);
-                BabyIsInFront = !_babySpeed.X.IsNegative;
+                BabyIsInFront = _babySpeed.X.IsNegative;
                 _babyAt = new PixelPosition(_babyAt.X + _babySpeed.X, _babyAt.Y);
                 _babySpeed = _babySpeed.WithY(Toward(_babyAt.Y.Whole, samus.Position.Y.Whole - DanceAboveSamus, _babySpeed.Y, MostDown));
                 _babyAt = new PixelPosition(_babyAt.X, _babyAt.Y + _babySpeed.Y);

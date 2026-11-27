@@ -41,8 +41,11 @@ public partial class IntroMotherBrain : Enemy
     /// <summary>How many missiles it takes, how long she flashes at each, and how long she blows up for.</summary>
     private const int HitsToExplode = 4, FlashUpdates = 8, ExplodingUpdates = 128;
 
-    /// <summary>How long a ring takes to appear before it moves.</summary>
-    private const int RingAppearingUpdates = 30;
+    /// <summary>
+    /// How many updates a ring holds still, the one it appears on first: its appearing's thirty, and the one on which it
+    /// is set moving. It moves from the update after.
+    /// </summary>
+    private const int RingStillUpdates = 31;
 
     /// <summary>
     /// How many updates the ring that strikes Samus throws her back for: longer than a hit of play's, far enough to
@@ -133,8 +136,10 @@ public partial class IntroMotherBrain : Enemy
             StepBlasts();
             if (_phase == Phase.Exploding && --_left <= 0)
             {
+                // Asking for the next page, her pulse starts over.
                 _phase = Phase.AwaitingNextPage;
                 WantsNextPage = true;
+                Play("pulsing", restart: true);
             }
         }
 
@@ -192,11 +197,12 @@ public partial class IntroMotherBrain : Enemy
             (Effect ring, bool strikes, double drift, int age) = _rings[index];
             age++;
             _rings[index] = (ring, strikes, drift, age);
-            if (age < RingAppearingUpdates)
+            if (age <= RingStillUpdates)
                 continue;
 
-            // Once it has appeared it drifts down and across.
-            ring.Velocity = new PixelVelocity(Pixels.FromNumber(drift), Pixels.FromNumber(0.5));
+            // Once it has appeared it drifts down and across, in her turn, and where it has come to is what decides
+            // whether it strikes Samus or has gone.
+            ring.Position += new PixelOffset(Pixels.FromNumber(drift), Pixels.FromNumber(0.5));
             bool gone;
             if (strikes)
             {

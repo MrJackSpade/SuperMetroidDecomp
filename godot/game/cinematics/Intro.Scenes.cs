@@ -85,9 +85,10 @@ public partial class Intro
                 Sprite2D picture = _laboratory ?? throw NotEntered();
                 CinematicSprite larva = _larva ?? throw NotEntered();
 
-                // As the scene comes in, every fourth update, the picture slides a pixel toward its place.
+                // As the scene comes in, every fourth update, the third of each four the crossfade takes, the picture
+                // slides a pixel toward its place.
                 bool across = _scene == "delivery";
-                if (comingIn && _crossfade % 4 == 0 && (across ? picture.Position.X < 0 : picture.Position.Y > -8))
+                if (comingIn && _crossfade % CrossfadeStepUpdates == CrossfadeStepUpdates - 1 && (across ? picture.Position.X < 0 : picture.Position.Y > -8))
                 {
                     picture.Position += across ? new Vector2(1, 0) : new Vector2(0, -1);
                     larva.Place += across ? PixelOffset.FromWhole(1, 0) : PixelOffset.FromWhole(0, -1);

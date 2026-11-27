@@ -42,6 +42,12 @@ public partial class Ending
     /// <summary>How long her words wait before they are typed, how long each letter takes, and how long the share of items is held.</summary>
     private const int TypingDelay = 64, TypingLetterUpdates = 4, PercentageUpdates = 128;
 
+    /// <summary>How many updates the white flash after her shot lasts before her emblem begins.</summary>
+    private const int WhiteFlashUpdates = 32;
+
+    /// <summary>How many steps, an update each, her shot and the stars take to fade out, and she after them.</summary>
+    private const int ShotFadeSteps = 32;
+
     private CinematicSprite? _jumpBody;
     private CinematicSprite? _jumpHead;
     private bool _bodyRising, _bodyFalling, _headRising;
@@ -57,6 +63,9 @@ public partial class Ending
     private Sprite2D? _logoPicture;
     private int _logoFade = -1;
     private PixelText? _lastWords;
+
+    /// <summary>How far the share of items found has been moved down the screen, which her sign-off is laid down by too.</summary>
+    private int _wordsDrop;
     private PixelText? _percentage;
     private Sprite2D? _subtitle;
     private bool _percentageShown;
@@ -147,7 +156,7 @@ public partial class Ending
                 break;
 
             case Phase.WhiteFlash:
-                (_white ?? throw NotEntered()).Step();
+                StepWhiteWash();
                 StepJump();
                 if (--_whiteLeft <= 0)
                     BeginLogo();
@@ -183,7 +192,8 @@ public partial class Ending
                 break;
 
             case Phase.ItemPercentageDrop:
-                // Those words drop away down the screen, and her sign-off is typed in their place.
+                // Those words move down the screen, and her sign-off is typed above them, as far down as they moved.
+                _wordsDrop += 2;
                 (_lastWords ?? throw NotEntered()).Position += new Vector2(0, 2);
                 (_percentage ?? throw NotEntered()).Position += new Vector2(0, 2);
                 if (--_wait <= 0)
@@ -244,11 +254,19 @@ public partial class Ending
                 _jumpSpeed += JumpGravity;
                 _headY += _jumpSpeed;
                 head.Place = PixelPosition.FromWhole(head.Place.X.Whole, (int)Math.Floor(_headY));
-                head.Visible = _headY >= FallStartY;
             }
 
-            foreach (string cue in head.Step())
-                shoots |= OnJumpCue(cue);
+            if (_headY < FallStartY)
+            {
+                // Above the screen her helmet or head is gone, before it plays again.
+                head.QueueFree();
+                _jumpHead = null;
+            }
+            else
+            {
+                foreach (string cue in head.Step())
+                    shoots |= OnJumpCue(cue);
+            }
         }
 
         if (_bodyRising || _bodyFalling)
@@ -310,13 +328,18 @@ public partial class Ending
         _headY = at.Y;
     }
 
-    /// <summary>Her shot comes at the view, spinning and swelling until it fills it; it is held, and then all is white.</summary>
+    /// <summary>
+    /// Her shot comes at the view, spinning and swelling, and fades out with the shooting stars a step an update; she fades
+    /// out after it. It is held, and then all is white.
+    /// </summary>
     private void StepShot()
     {
         StepJump();
         _shotAge++;
-        (_floor ?? throw NotEntered()).Modulate = new Color(1, 1, 1, Math.Min(1f, _shotAge / 32f));
-        (_jumpBody ?? throw NotEntered()).Tint(new Color(1, 1, 1, 1 - Math.Clamp((_shotAge - 16) / 32f, 0f, 1f)));
+        var shotShown = new Color(1, 1, 1, Math.Max(0, ShotFadeSteps - _shotAge) / (float)ShotFadeSteps);
+        (_floor ?? throw NotEntered()).Modulate = shotShown;
+        StarField().Modulate = shotShown;
+        (_jumpBody ?? throw NotEntered()).Tint(new Color(1, 1, 1, 1 - Math.Clamp((_shotAge - 16) / (float)ShotFadeSteps, 0f, 1f)));
         if (!_shotHolding)
         {
             _shotAngle -= 8;
@@ -328,12 +351,13 @@ public partial class Ending
 
         if (--_wait > 0)
             return;
-        ScreenFade white = _white ?? throw NotEntered();
-        white.FadeOut(1);
-        white.Step();
-        white.FadeIn(32);
+
+        // All is white, and clears a step an update; the emblem begins once the flash has lasted its while. The stars are
+        // shown again.
+        BeginWhiteWash(1);
         (_floor ?? throw NotEntered()).Visible = false;
-        (_phase, _whiteLeft) = (Phase.WhiteFlash, 32);
+        StarField().Modulate = Colors.White;
+        (_phase, _whiteLeft) = (Phase.WhiteFlash, WhiteFlashUpdates);
     }
 
     /// <summary>The two halves of her emblem set out from the corners of the screen.</summary>
@@ -371,6 +395,8 @@ public partial class Ending
     /// </summary>
     private bool StepLogo()
     {
+        // The crossfade takes a step from the update after the grey-out, before the pieces move and play, which they go
+        // on doing until its last step.
         if (_logoFade >= 0)
         {
             _logoFade++;
@@ -378,13 +404,14 @@ public partial class Ending
             (_logoPicture ?? throw NotEntered()).Modulate = new Color(1, 1, 1, shown);
             foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
                 piece.Tint(new Color(1, 1, 1, 1 - shown));
-            if (_logoFade < 16)
-                return false;
-            foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
-                piece.QueueFree();
-            _logoHalves.Clear();
-            _logoCircles.Clear();
-            return true;
+            if (_logoFade >= 16)
+            {
+                foreach (CinematicSprite piece in _logoHalves.Select(half => half.Half).Concat(_logoCircles))
+                    piece.QueueFree();
+                _logoHalves.Clear();
+                _logoCircles.Clear();
+                return true;
+            }
         }
 
         for (int index = 0; index < _logoHalves.Count; index++)
@@ -415,25 +442,33 @@ public partial class Ending
         return false;
     }
 
-    /// <summary>Starts typing one of her last pieces of text.</summary>
+    /// <summary>
+    /// Starts typing one of her last pieces of text. The share of items found, once typed and moved down, stays shown
+    /// beneath her sign-off.
+    /// </summary>
     private void BeginLastWords(string words, Phase phase)
     {
         CanvasLayer picture = _picture ?? throw NotEntered();
-        _lastWords?.QueueFree();
-        _percentage?.QueueFree();
-        DataNode lastWords = Data().Get("last_words"), line = lastWords.Get(words), figures = lastWords.Get("percentage");
+        DataNode lastWords = Data().Get("last_words"), line = lastWords.Get(words);
+        if (phase == Phase.ItemPercentage)
+            _wordsDrop = 0;
         _lastWords = new PixelText
         {
-            Name = "LastWords", Font = PixelFont.Read(Session.Content, line.Text("font")), Position = new Vector2(0, line.Int("y")), Size = new Vector2(256, 0),
+            Name = "LastWords", Font = PixelFont.Read(Session.Content, line.Text("font")), Position = new Vector2(0, line.Int("y") + _wordsDrop), Size = new Vector2(256, 0),
             HorizontalAlignment = HorizontalAlignment.Center, Text = Session.Text.Get(words), VisibleCharacters = 0,
         };
         picture.AddChild(_lastWords);
+        // The typing begins on the update after this one, which starts its delay.
+        (_typed, _typeWait, _percentageShown, _phase) = (0, 1 + TypingDelay, false, phase);
+        if (phase != Phase.ItemPercentage)
+            return;
+
+        DataNode figures = lastWords.Get("percentage");
         _percentage = new PixelText
         {
             Name = "Percentage", Font = PixelFont.Read(Session.Content, figures.Text("font")), Position = new Vector2(figures.Int("x"), figures.Int("y")), Visible = false,
         };
         picture.AddChild(_percentage);
-        _subtitle?.QueueFree();
         DataNode subtitle = lastWords.Get("japanese_subtitle");
         _subtitle = new Sprite2D
         {
@@ -441,17 +476,20 @@ public partial class Ending
             Position = new Vector2(subtitle.Int("x"), subtitle.Int("y")), TextureFilter = CanvasItem.TextureFilterEnum.Nearest, Visible = false,
         };
         picture.AddChild(_subtitle);
-        (_typed, _typeWait, _percentageShown, _phase) = (0, TypingDelay, false, phase);
     }
 
-    /// <summary>Types the next letter when it is due, and returns whether the text is all there.</summary>
+    /// <summary>
+    /// Types the next letter when it is due, and returns whether the text is all there and its last letter has had
+    /// its while.
+    /// </summary>
     private bool StepLastWords()
     {
         PixelText words = _lastWords ?? throw NotEntered();
+        _typeWait = Math.Max(0, _typeWait - 1);
+        if (_typeWait > 0)
+            return false;
         if (_typed >= words.Text.Length)
             return true;
-        if (--_typeWait > 0)
-            return false;
         _typed++;
         while (_typed < words.Text.Length && char.IsControl(words.Text[_typed]))
             _typed++;

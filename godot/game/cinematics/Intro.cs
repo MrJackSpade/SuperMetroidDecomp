@@ -43,6 +43,7 @@ public partial class Intro : Cinematic
         FadingInFirstPage,
         PageText,
         PageAwaitingInput,
+        StartingLastPage,
         CrossfadingToScene,
         Scene,
         CrossfadingToPage,
@@ -259,6 +260,10 @@ public partial class Intro : Cinematic
                     TurnPage();
                 break;
 
+            case Phase.StartingLastPage:
+                StartLastPage();
+                break;
+
             case Phase.CrossfadingToScene:
                 if (!StepCrossfade(toScene: true))
                     break;
@@ -278,6 +283,13 @@ public partial class Intro : Cinematic
                 break;
 
             case Phase.CrossfadingToPage:
+                // A flashback's lights go out as the page comes back, their last colours shown until then.
+                if (_crossfade == 0)
+                {
+                    foreach (Engine.World.ColourEffect lights in _room?.GetChildren().OfType<Engine.World.ColourEffect>() ?? [])
+                        lights.Triggered("stop");
+                }
+
                 if (!StepCrossfade(toScene: false))
                     break;
                 EndScene();
@@ -485,15 +497,25 @@ public partial class Intro : Cinematic
         string scene = page.Has("scene") ? page.Text("scene") : "";
         if (scene.Length == 0)
         {
-            ClearWords();
-            StartPage(LastPage, restoresCaret: true);
-            _phase = Phase.PageText;
+            // With subtitles the last page starts on the update after the press; without, on the same update.
+            if (IsSubtitled)
+                _phase = Phase.StartingLastPage;
+            else
+                StartLastPage();
             return;
         }
 
         (_caret ?? throw NotEntered()).Visible = false;
         BeginScene(scene);
         (_phase, _crossfade) = (Phase.CrossfadingToScene, 0);
+    }
+
+    /// <summary>The last page takes the place of the words before it and begins to be typed.</summary>
+    private void StartLastPage()
+    {
+        ClearWords();
+        StartPage(LastPage, restoresCaret: true);
+        _phase = Phase.PageText;
     }
 
     /// <summary>

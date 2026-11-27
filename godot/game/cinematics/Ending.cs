@@ -108,6 +108,9 @@ public partial class Ending : Cinematic
     /// <summary>How many updates a quick fade of the whole screen takes, and how many steps it goes in.</summary>
     private const int FadeUpdates = 30, FadeLevels = 15;
 
+    /// <summary>How many steps a wash of white over the whole screen clears in: the cartridge's thirty-one levels of added white.</summary>
+    private const int WashLevels = 31;
+
     /// <summary>The points of the floor that stay put as it turns: among the clouds and over the planet, and behind the gunship.</summary>
     private static readonly Vector2 AtmosphereCentre = new(128, 128), GunshipCentre = new(56, 24);
 
@@ -147,6 +150,9 @@ public partial class Ending : Cinematic
     private int _typed;
     private int _typeWait;
     private int _digitsShown;
+
+    /// <summary>The steps of white the wash over the screen has left, how many updates each takes, and how many until the next.</summary>
+    private int _washLeft, _washPace, _washWait;
 
     /// <inheritdoc/>
     protected override bool CanBeSkipped => false;
@@ -262,14 +268,15 @@ public partial class Ending : Cinematic
         _actors.Clear();
     }
 
-    /// <summary>Moves and plays everything on show, acting on the cues its timelines give.</summary>
+    /// <summary>
+    /// Moves and plays everything on show in order, acting on the cues its timelines give. Something a cue puts up
+    /// after the one playing plays later in the same update; something put in ahead of it waits for the next.
+    /// </summary>
     private void StepActors()
     {
-        foreach (Actor actor in _actors.ToList())
+        for (int place = 0; place < _actors.Count; place++)
         {
-            // A cue may have cleared the stage of it already.
-            if (!_actors.Contains(actor))
-                continue;
+            Actor actor = _actors[place];
             bool stays = Move(actor);
             if (stays)
             {
@@ -278,8 +285,12 @@ public partial class Ending : Cinematic
                 stays = !actor.Sprite.IsOver;
             }
 
-            if (stays || !_actors.Remove(actor))
+            place = _actors.IndexOf(actor);
+            if (place < 0)
+                throw new InvalidOperationException($"The ending's {actor.Role} was taken off the stage by its own update.");
+            if (stays)
                 continue;
+            _actors.RemoveAt(place--);
             actor.Sprite.QueueFree();
         }
     }
@@ -375,6 +386,22 @@ public partial class Ending : Cinematic
         // Setting the floor's place keeps the part of a pixel it had across.
         _floorX = x + (_floorX - Math.Floor(_floorX));
         (_floorY, _floorSize, _floorAngle) = (y, size, angle);
+    }
+
+    /// <summary>Washes the screen fully white; it clears a step on the first update it is stepped and every <paramref name="pace"/> updates after.</summary>
+    private void BeginWhiteWash(int pace)
+    {
+        (_washLeft, _washPace, _washWait) = (WashLevels, pace, 1);
+        (_white ?? throw NotEntered()).Cover(WashLevels, WashLevels);
+    }
+
+    /// <summary>Plays one update of the wash of white, which stays clear once it has cleared.</summary>
+    private void StepWhiteWash()
+    {
+        if (_washLeft == 0 || --_washWait > 0)
+            return;
+        (_washLeft, _washWait) = (_washLeft - 1, _washPace);
+        (_white ?? throw NotEntered()).Cover(_washLeft, WashLevels);
     }
 
     private ScreenFade Fade() => _fade ?? throw NotEntered();

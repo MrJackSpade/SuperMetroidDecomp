@@ -148,9 +148,17 @@ public partial class KraidNail : Enemy
     {
         if (_kraid is null)
         {
-            _kraid = Room.Enemies.OfType<Kraid>().FirstOrDefault()
-                ?? throw new InvalidOperationException($"The nail \"{Name}\" is in a room with no Kraid.");
-            _kraidHadGrown = _kraid.HasGrown;
+            // A nail comes back as a new one after it is shot, and Kraid may have gone meanwhile: its first turn then
+            // finds none in the room, and it does as a nail whose Kraid has gone does. No more follow.
+            if (Room.Enemies.OfType<Kraid>().FirstOrDefault() is not { } found)
+            {
+                RespawnsWhenKilled = false;
+                Die();
+                return;
+            }
+
+            _kraid = found;
+            _kraidHadGrown = found.HasGrown;
         }
 
         Kraid kraid = _kraid;

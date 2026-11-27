@@ -8,7 +8,8 @@ namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// Ridley's getaway from Ceres and what follows it. Told to start as he leaves with the capsule, it shows him flying
-/// off over the turning floor toward the screen, throws Samus aside as he passes, and then begins the station's
+/// off over the turning floor toward the screen, the room in the colours of the floor's size, throws Samus aside as he
+/// passes, and then begins the station's
 /// self-destruct: the warning comes up, the escape music starts, the words are typed out, and the countdown begins.
 /// The warning stays up, flashing, for as long as the room is there.
 /// </summary>
@@ -38,9 +39,12 @@ public partial class CeresGetaway : RoomSequence
     [Export(PropertyHint.File)]
     public string WingLeftoversFile { get; set; } = "";
 
-    /// <summary>The floor's tint at each whole size it is shown at, from nearest to farthest; empty for none.</summary>
-    [Export]
-    public Godot.Collections.Array<Color> SizeTints { get; set; } = [];
+    /// <summary>
+    /// The data file of the colours the room is shown in through the flight by the floor's size: under "by_whole_size",
+    /// a change of colours for each whole floor pixel to a pixel of the screen, from none on; empty for none.
+    /// </summary>
+    [Export(PropertyHint.File)]
+    public string SizeColoursFile { get; set; } = "";
 
     /// <summary>The sound of him leaving, by name.</summary>
     [Export]
@@ -137,6 +141,12 @@ public partial class CeresGetaway : RoomSequence
     private Node2D? _subtitle;
     private IReadOnlyList<int[]> _wingStrideUpdates = [];
 
+    /// <summary>The room's colours for each whole size of the floor, from none on.</summary>
+    private IReadOnlyList<ColourChange> _sizeColours = [];
+
+    /// <summary>The name the room's colours are changed under for the floor's size.</summary>
+    private const string SizeColours = "GetawayFloorSize";
+
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
@@ -223,6 +233,9 @@ public partial class CeresGetaway : RoomSequence
             : [.. room.Content.ReadData(WingLeftoversFile).List("stride_updates").Select(wing => wing.Items().Select(updates => updates.AsInt()).ToArray())];
         if (_wingStrideUpdates.Count != 0 && _wingStrideUpdates.Count != WingPictures.Count)
             throw new InvalidOperationException($"Ridley's getaway \"{Name}\" has {WingPictures.Count} wing pictures but what {_wingStrideUpdates.Count} of them leave behind.");
+        _sizeColours = SizeColoursFile.Length == 0
+            ? []
+            : [.. room.Content.ReadData(SizeColoursFile).List("by_whole_size").Select(ColourChange.Read)];
         TurningFloor floor = FloorOf();
         floor.Visible = true;
 
@@ -258,6 +271,16 @@ public partial class CeresGetaway : RoomSequence
         _scroll = new Vector2I(_scroll.X - drift.X, _scroll.Y + drift.Y);
         _angle += TurnPerUpdate;
         ShowFloor(floor, size);
+
+        // The room is shown in the colours of the floor's whole size on every update of the flight, and keeps the last
+        // of them once he is gone.
+        if (_sizeColours.Count > 0)
+        {
+            int whole = size / 256;
+            if (whole >= _sizeColours.Count)
+                throw new InvalidOperationException($"Ridley's getaway \"{Name}\" shows the floor at {whole} floor pixels to a pixel, which its colours do not reach.");
+            room.Recolour(SizeColours, _sizeColours[whole]);
+        }
 
         long updates = room.Session.Clock.Updates;
         if (updates % 4 == 0 && CapsulePictures.Count > 0)
@@ -306,9 +329,6 @@ public partial class CeresGetaway : RoomSequence
     private void ShowFloor(TurningFloor floor, int size)
     {
         floor.Turn(_angle * Math.Tau / 65536, size / 256.0, new Vector2(64, 64), _scroll);
-        int whole = size / 256;
-        if (SizeTints.Count > 0)
-            floor.Modulate = SizeTints[Math.Min(whole, SizeTints.Count - 1)];
     }
 
     private void ShowHeading(Room room)

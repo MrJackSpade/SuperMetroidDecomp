@@ -68,6 +68,7 @@ public sealed partial class EngineAssetWriter
         ("Ceres's floors", writer => writer.WriteCeresFloors()),
         ("Ceres's debris", writer => writer.WriteCeresDebris()),
         ("Ridley's wings at Ceres", writer => writer.WriteCeresGetawayWings()),
+        ("the colours of Ridley's getaway at Ceres", writer => writer.WriteCeresGetawayFloorColours()),
         ("the arrival at Ceres", writer => writer.WriteCeresArrival()),
         ("the Samus eaters", writer => writer.WriteSamusEaters()),
         ("the opening", writer => writer.WriteIntro()),

@@ -95,6 +95,10 @@ public partial class KiHunter : Enemy
     [Export, DataValue("spit_height")]
     public int SpitHeight { get; set; } = 16;
 
+    /// <summary>The sound of each spit, by name: heard though the room has no place for the acid.</summary>
+    [Export, DataValue("spit_sound")]
+    public string SpitSound { get; set; } = "";
+
     /// <summary>The radius of the arcs its loose wings flutter down in, in pixels.</summary>
     [Export, DataValue("wing_arc_radius")]
     public int WingArcRadius { get; set; } = 48;
@@ -210,6 +214,7 @@ public partial class KiHunter : Enemy
                 break;
             case "spit":
                 PixelPosition mouth = PixelPosition.FromWhole(Position.X.Whole + (_spits == Facing.Left ? -SpitReach : SpitReach), Position.Y.Whole - SpitHeight);
+                Sound(SpitSound);
                 Fire("acid", mouth, new PixelVelocity(_spits.Toward(Shot("acid").Speed), Pixels.Zero));
                 _wait = Countdown.Of(SpitWait);
                 break;
@@ -241,14 +246,19 @@ public partial class KiHunter : Enemy
                 break;
 
             case Doing.Recovering:
-                if (MoveAcrossBy(_heading.Toward(Pixels.FromWhole(_acrossSpeed))))
+                if (Stride(_heading.Toward(Pixels.FromWhole(_acrossSpeed))))
+                {
                     _doing = Doing.Patrolling;
-                else if (MoveDownBy(_downSpeed) || Position.Y.Whole < _placedY)
+                    break;
+                }
+
+                Align();
+                if (Drop(_downSpeed) || Position.Y.Whole < _placedY)
                     _doing = Doing.Patrolling;
                 break;
 
             case Doing.Falling:
-                if (MoveDownBy(_downSpeed))
+                if (Drop(_downSpeed))
                     _doing = Doing.StartHop;
                 else
                     _downSpeed += Pixels.FromNumber(Gravity);
@@ -303,23 +313,33 @@ public partial class KiHunter : Enemy
             LoseWings();
     }
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Its wings go on while a hurt holds its body still: on it they beat on, and loose they flutter down, as they begin
+    /// to on the very hurt that took them off.
+    /// </remarks>
+    protected override void WhileHurt() => StepWings();
+
     /// <summary>Whether it is doing one of the things it does on the wing.</summary>
     private bool Flies => _doing is Doing.Patrolling or Doing.Swooping or Doing.Striking or Doing.Recovering;
 
     /// <summary>Flies one update of its patrol, and begins a swoop when Samus is near enough below.</summary>
     private void Patrol()
     {
-        if (MoveDownBy(_downSpeed))
+        if (Drop(_downSpeed))
             _downSpeed = -_downSpeed;
         else if (Position.Y.Whole < _upperY)
             _downSpeed = Pixels.FromWhole(PatrolSpeed);
         else if (Position.Y.Whole >= _lowerY)
             _downSpeed = Pixels.FromWhole(-PatrolSpeed);
-        if (MoveAcrossBy(_heading.Toward(Pixels.FromWhole(_acrossSpeed))))
+        if (Stride(_heading.Toward(Pixels.FromWhole(_acrossSpeed))))
         {
             _heading = _heading.Opposite();
             FaceAlong();
         }
+
+        // Its patrol is put where sloped ground has it under its middle, wall or no wall.
+        Align();
 
         int across = Target.X.Whole - Position.X.Whole;
         int depth = Target.Y.Whole - Position.Y.Whole;
@@ -359,7 +379,7 @@ public partial class KiHunter : Enemy
         }
 
         int x = _swoopTargetX + CircleAcross(_swoopAngle, _swoopAcross);
-        if (MoveAcrossBy(Pixels.FromWhole(x - Position.X.Whole)))
+        if (Stride(Pixels.FromWhole(x - Position.X.Whole)))
         {
             _heading = _heading.Opposite();
             _acrossSpeed = PatrolSpeed;
@@ -367,8 +387,9 @@ public partial class KiHunter : Enemy
             return;
         }
 
+        Align();
         int y = _swoopOriginY + CircleDown(_swoopAngle, _swoopDown);
-        if (MoveDownBy(Pixels.FromWhole(y - Position.Y.Whole)))
+        if (Drop(Pixels.FromWhole(y - Position.Y.Whole)))
             Recover();
     }
 
@@ -382,7 +403,7 @@ public partial class KiHunter : Enemy
     /// <summary>Moves one update of a hop.</summary>
     private void Hop()
     {
-        if (MoveDownBy(_downSpeed))
+        if (Drop(_downSpeed))
         {
             if (_downSpeed.IsNegative)
             {
@@ -398,14 +419,37 @@ public partial class KiHunter : Enemy
             return;
         }
 
-        if (MoveAcrossBy(_heading.Toward(Pixels.FromWhole(_acrossSpeed))))
+        if (Stride(_heading.Toward(Pixels.FromWhole(_acrossSpeed))))
         {
             _heading = _heading.Opposite();
             return;
         }
 
+        Align();
         _downSpeed += Pixels.FromNumber(Gravity);
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool Stride(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>Puts it where sloped ground has it under its middle: a move across of no distance, which meets nothing.</summary>
+    private void Align() => Room.Mover.MoveAcross(MovingBody(), Pixels.Zero, Moves);
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Ki-Hunter \"{Name}\" has no body collider.");
 
     /// <summary>Shows it and its wings flying the way it is heading.</summary>
     private void FaceAlong()

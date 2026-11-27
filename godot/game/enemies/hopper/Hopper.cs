@@ -101,7 +101,8 @@ public partial class Hopper : Enemy
                 _doing = Doing.ChoosingDirection;
                 return;
             case Doing.ChoosingDirection:
-                Facing = TowardPlayer;
+                // By whole pixels: in its own pixel column Samus counts as on its right.
+                Facing = Target.X.Whole < Position.X.Whole ? Facing.Left : Facing.Right;
                 _doing = Doing.Starting;
                 return;
             case Doing.Starting:

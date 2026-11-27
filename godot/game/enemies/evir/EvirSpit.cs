@@ -82,9 +82,13 @@ public partial class EvirSpit : Enemy
         switch (_doing)
         {
             case Doing.Held:
-                Position = holder.Grip;
+                // It is thrown from where it was put last update, before it is put in the grip again.
                 if (Math.Abs(Target.X.Whole - holder.Position.X.Whole) >= ThrowDistance)
+                {
+                    PutAt(holder.Grip);
                     return;
+                }
+
                 // As the cartridge has it: the aim between whole pixels, counting up from right, and its speed laid
                 // along it by the short product, across by the cosine and down by the sine a half turn on.
                 int aim = CartridgeAngles.AimAngle(Target.X.Whole - Position.X.Whole, Target.Y.Whole - Position.Y.Whole);
@@ -109,13 +113,17 @@ public partial class EvirSpit : Enemy
             case Doing.GrowingBack:
                 Play("regrowing");
                 if (!holder.IsFrozen)
-                    Position = holder.Grip + PixelOffset.FromWhole(_regrowAcross, 0);
+                    PutAt(holder.Grip + PixelOffset.FromWhole(_regrowAcross, 0));
                 return;
 
             default:
                 throw new InvalidOperationException($"Undefined Evir spine ball stage {_doing}.");
         }
     }
+
+    /// <summary>Puts its whole pixels at <paramref name="place"/>'s: the part of a pixel its last flight left it at stays.</summary>
+    private void PutAt(PixelPosition place) =>
+        Position = new PixelPosition(Position.X.WithWhole(place.X.Whole), Position.Y.WithWhole(place.Y.Whole));
 
     /// <summary>The Evir that holds it.</summary>
     private Evir TheHolder => Holder ?? throw new InvalidOperationException($"The Evir spine ball \"{Name}\" has no Evir.");

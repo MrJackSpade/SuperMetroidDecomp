@@ -127,7 +127,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/pirate_claw.json` | `PirateClaw` | sink, speed_change |
 | `enemies/polyp.json` | `Polyp` | contact_damage, first_launch_mark, health, reach |
 | `enemies/polyp_rock.json` | `PolypRock` | curve_marks, fastest_fall_mark, speed_curve |
-| `enemies/powamp.json` | `Powamp` | contact_damage, death_delay, health, inflation_updates, rest_updates, rise_distance, rise_speed, sink_speed, spike_quickening, wiggle_step_updates |
+| `enemies/powamp.json` | `Powamp` | burst_death, burst_death_second_place, burst_death_third_place, contact_damage, death_delay, health, inflation_updates, rest_updates, rise_distance, rise_speed, sink_speed, spike_quickening, wiggle_step_updates |
 | `enemies/puyo.json` | `Puyo` | contact_damage, health, speed_curve |
 | `enemies/rinka.json` | `Rinka` | aim_updates, contact_damage, health, puff_effect, speed, view_margin |
 | `enemies/rio.json` | `Rio` | across_speed, contact_damage, dive_sound, dive_speed, health, lift, reach, return_speed |

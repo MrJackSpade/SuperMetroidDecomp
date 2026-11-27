@@ -13,8 +13,12 @@ namespace Game;
 /// </summary>
 public sealed class RidingElevatorState : PlayerState, ISamusLook
 {
-    /// <inheritdoc/>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(Samus.FacingForward, Unfitted: true);
+    /// <summary>
+    /// She rides in the body she boarded with: she is shown facing forward, but the cartridge takes up a pose's size
+    /// only where it reads her input, which a ride does not, so her step down feels for the blocks under the feet
+    /// she had.
+    /// </summary>
+    public override FormAsked? EntersIn(Player owner) => null;
 
     /// <inheritdoc/>
     public string Look => "facing_forward";
@@ -69,10 +73,14 @@ public sealed class RidingElevatorState : PlayerState, ISamusLook
             if (leaving && owner.Room.Exits.OfType<Door>().FirstOrDefault(exit => exit.Area.Overlaps(under)) is { } door)
                 owner.Room.EnterExit(door);
         }
-        else if (leaving && owner is Samus samus && !samus.Inventory.IsOn(Equipment.VariaSuit) && !samus.Inventory.IsOn(Equipment.GravitySuit))
+        else
         {
+            // Stopped by the terrain, she rests at the far end of her pixel, as any move down the terrain stops does.
+            owner.Position = new PixelPosition(owner.Position.X, owner.Position.Y.WithFraction(Pixels.FractionsPerPixel - 1));
+
             // Stopped by the blocks the elevator rests on, she stands at its door again; in a later suit she does not.
-            samus.NoteElevatorStand(under);
+            if (leaving && owner is Samus samus && !samus.Inventory.IsOn(Equipment.VariaSuit) && !samus.Inventory.IsOn(Equipment.GravitySuit))
+                samus.NoteElevatorStand(under);
         }
 
         return null;

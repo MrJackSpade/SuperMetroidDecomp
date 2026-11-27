@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Actors.Components;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Godot;
@@ -57,6 +58,16 @@ public partial class Swooper : Enemy
     /// </summary>
     [Export, DataValue("idles_whenever_perched")]
     public bool IdlesWheneverPerched { get; set; }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
 
     private enum Doing
     {
@@ -139,9 +150,9 @@ public partial class Swooper : Enemy
                 break;
 
             case Doing.Diving:
-                if (MoveAcrossBy(Velocity.X))
+                if (MoveAcross(MovesAcross).Blocked)
                     Velocity = Velocity.WithX(-Velocity.X);
-                if (MoveDownBy(Velocity.Y))
+                if (MoveDown(Moves).Blocked)
                 {
                     BeginClimb();
                     break;
@@ -153,9 +164,9 @@ public partial class Swooper : Enemy
                 break;
 
             case Doing.Climbing:
-                if (MoveAcrossBy(Velocity.X))
+                if (MoveAcross(MovesAcross).Blocked)
                     Velocity = Velocity.WithX(-Velocity.X);
-                if (MoveDownBy(Velocity.Y))
+                if (MoveDown(Moves).Blocked)
                 {
                     // An animation's finish is kept until it is taken, through the landing: one its climb's start gave
                     // ends a landing at once.

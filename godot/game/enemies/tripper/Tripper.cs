@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Actors.Movement;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Godot;
@@ -47,7 +48,7 @@ public partial class Tripper : Enemy
     }
 
     /// <summary>Its touch does nothing: the cartridge's ignores hers, and it is only something to stand on.</summary>
-    protected override void Touch(Engine.Collision.Collider part)
+    protected override void Touch(Collider part)
     {
     }
 
@@ -57,7 +58,7 @@ public partial class Tripper : Enemy
         SpeedCurve curve = _curve ?? throw new InvalidOperationException($"The Tripper \"{Name}\" is not in a room.");
         bool sinking = IsRiddenByPlayer;
         int beforeX = Position.X.Whole;
-        if (MoveAcrossBy(Facing.Toward(Pixels.FromNumber(Speed))))
+        if (GoAcross(Facing.Toward(Pixels.FromNumber(Speed))))
         {
             // A wall turns it and starts its still picture the other way, but it still counts as showing what it
             // showed: a rise under way goes on showing the still picture until it ends, as on the cartridge.
@@ -70,7 +71,7 @@ public partial class Tripper : Enemy
         {
             _place = Math.Min(_place + SpeedCurve.PartsPerMark, top);
             int beforeY = Position.Y.Whole;
-            if (MoveDownBy(curve.SpeedAt(_place)))
+            if (GoDown(curve.SpeedAt(_place)))
             {
                 _place = 0;
                 Show(moving: false);
@@ -88,7 +89,7 @@ public partial class Tripper : Enemy
         {
             Show(moving: true);
             _place = Math.Min(_place + SpeedCurve.PartsPerMark, top);
-            if (MoveDownBy(-curve.SpeedAt(_place)))
+            if (GoDown(-curve.SpeedAt(_place)))
             {
                 _place = 0;
                 Show(moving: false);
@@ -108,4 +109,23 @@ public partial class Tripper : Enemy
         _showsMoving = moving;
         Play($"{(moving ? "moving" : "still")}_{(Facing == Facing.Left ? "left" : "right")}", restart: true);
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool GoAcross(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>Moves it down by <paramref name="distance"/>, upward when less than nothing; returns whether something stopped it.</summary>
+    private bool GoDown(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Tripper \"{Name}\" has no body collider.");
 }

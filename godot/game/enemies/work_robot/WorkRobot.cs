@@ -106,7 +106,7 @@ public partial class WorkRobot : Enemy
         _glow?.Step();
 
         // In the air its timeline waits, and it falls faster; landed, it keeps the speed it landed with.
-        bool landed = MoveDownBy(_fallSpeed);
+        bool landed = Room.Mover.MoveDown(MovingBody(), _fallSpeed, Moves).Blocked;
         HoldsTimeline = !landed;
         if (!landed)
             _fallSpeed += Pixels.FromNumber(Gravity);
@@ -198,7 +198,7 @@ public partial class WorkRobot : Enemy
         int pixels = int.Parse(parts[1], CultureInfo.InvariantCulture);
         Facing = parts[2] == "left" ? Facing.Left : Facing.Right;
         bool ridden = IsRiddenByPlayer;
-        if (MoveAcrossBy(Pixels.FromWhole(pixels)))
+        if (Room.Mover.MoveAcross(MovingBody(), Pixels.FromWhole(pixels), MovesAcross).Blocked)
         {
             _cooldown += TurnDelay;
             Play(parts[3], restart: true);
@@ -207,12 +207,7 @@ public partial class WorkRobot : Enemy
 
         if (ridden)
             ShiftPlayer(PixelOffset.FromWhole(pixels, 0));
-        if (parts.Length < 7 || Body is not { } body)
-            return;
-        // It feels for floor a body's width to one side of itself.
-        int reach = (parts[4] == "left" ? -2 : 2) * (body.Size.X / 2);
-        PixelRect under = body.RoomRect.MovedBy(reach, 1);
-        if (Room.Terrain.IsSolidIn(under, SlopeTreatment.Wall))
+        if (parts.Length < 7 || FeelsFloor(parts[4] == "left" ? Facing.Left : Facing.Right))
             return;
         _cooldown += TurnDelay;
         Facing = parts[6] == "left" ? Facing.Left : Facing.Right;
@@ -228,4 +223,31 @@ public partial class WorkRobot : Enemy
         Play($"shot_{(Facing == Facing.Left ? "left" : "right")}_{(ahead ? "ahead" : "behind")}", restart: true);
         _cooldown += RecoilDelay;
     }
+
+    /// <summary>
+    /// Whether there is floor a body's width to one side of it, felt as the cartridge feels it: by moving a pixel down
+    /// from there. It is left at its own whole pixels, with the part of a pixel that move left it at.
+    /// </summary>
+    private bool FeelsFloor(Facing side)
+    {
+        Collider body = MovingBody();
+        PixelPosition standing = Position;
+        Position = new PixelPosition(standing.X + side.Toward(Pixels.FromWhole(2 * (body.Size.X / 2))), standing.Y);
+        bool floor = Room.Mover.MoveDown(body, Pixels.FromWhole(1), Moves).Blocked;
+        Position = new PixelPosition(standing.X, Position.Y.WithWhole(standing.Y.Whole));
+        return floor;
+    }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a step across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The Work Robot \"{Name}\" has no body collider.");
 }

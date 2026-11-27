@@ -135,7 +135,7 @@ public partial class WalkingPirate : SpacePirate
         }
 
         // It settles a pixel toward the floor each update, and walks only once it stands on it.
-        if (!MoveDownBy(Pixels.FromWhole(1)))
+        if (!Drop(Pixels.FromWhole(1)))
             return;
 
         // Left and right are not mirrors in the old game: each way has its own reach for a ledge and its own step. It
@@ -144,9 +144,9 @@ public partial class WalkingPirate : SpacePirate
         bool left = Facing == Facing.Left;
         Pixels here = Position.X;
         Position = new PixelPosition(here + Pixels.FromWhole(left ? -LedgeReachLeft : LedgeReachRight), Position.Y);
-        bool floorAhead = MoveDownBy(Pixels.FromWhole(1));
+        bool floorAhead = Drop(Pixels.FromWhole(1));
         Position = new PixelPosition(here, Position.Y);
-        if (floorAhead && !MoveAcrossBy(left ? -Pixels.FromNumber(WalkSpeedLeft) : Pixels.FromNumber(WalkSpeedRight)))
+        if (floorAhead && !Stride(left ? -Pixels.FromNumber(WalkSpeedLeft) : Pixels.FromNumber(WalkSpeedRight)))
         {
             bool withinBeat = left ? Position.X.Whole >= _leftPost : Position.X.Whole < _rightPost;
             if (withinBeat)
@@ -155,4 +155,23 @@ public partial class WalkingPirate : SpacePirate
 
         Play(left ? "looking_left" : "looking_right", restart: true);
     }
+
+    /// <summary>
+    /// How its moves are tried, as the cartridge moves an enemy: only where each would end, and sloped ground that holds
+    /// things up by their middle met under its middle alone.
+    /// </summary>
+    private static readonly MoveOptions Moves =
+        MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsUnderSlopes = true };
+
+    /// <summary>How a move across is tried: as its other moves, and such sloped ground is no part of it.</summary>
+    private static readonly MoveOptions MovesAcross = Moves with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
+
+    /// <summary>Moves it down by <paramref name="distance"/>; returns whether something stopped it.</summary>
+    private bool Drop(Pixels distance) => Room.Mover.MoveDown(MovingBody(), distance, Moves).Blocked;
+
+    /// <summary>Moves it across by <paramref name="distance"/>, sloped ground no part of the move; returns whether a wall stopped it.</summary>
+    private bool Stride(Pixels distance) => Room.Mover.MoveAcross(MovingBody(), distance, MovesAcross).Blocked;
+
+    /// <summary>The collider it moves by.</summary>
+    private Collider MovingBody() => Body ?? throw new InvalidOperationException($"The walking Space Pirate \"{Name}\" has no body collider.");
 }

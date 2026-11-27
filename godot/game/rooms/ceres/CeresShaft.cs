@@ -57,19 +57,28 @@ public partial class CeresShaft : RoomSequence
     private bool _backward;
     private bool _taken;
 
+    /// <summary>
+    /// Leaves the step of the shaft set up level for the hall's falling pieces to count from. The cartridge sets the
+    /// shaft's turn up, level, whenever its room is entered, Samus's arrival on the station among the times: the
+    /// shaft turns only once the station is coming apart, so the hall's first pieces of all count from the step left
+    /// as she arrived.
+    /// </summary>
+    internal static void LeaveLevelStep(Engine.Core.GameSession session) => session.Service<CeresDebrisCount>().LeftByShaft(FullTilt, swingingBack: false);
+
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
-        if (elapsed == 0)
-            (_hold, _tilt, _backward, _taken) = (LevelUpdates, 0, false, false);
-        if (!room.Session.Progress.Has(StoryEvents.CeresElevatorDoorDestroyed))
-            return false;
-
         // The shaft leaves each step of its turn for the hall's falling pieces to count from: its level start as its
-        // turn is set up, and every step after as it is reached.
+        // turn is set up, which is whenever its room is (LeaveLevelStep), and every step after as it is reached.
         CeresDebrisCount count = room.Session.Service<CeresDebrisCount>();
         if (elapsed == 0)
-            count.LeftByShaft(_tilt + FullTilt, _backward);
+        {
+            (_hold, _tilt, _backward, _taken) = (LevelUpdates, 0, false, false);
+            LeaveLevelStep(room.Session);
+        }
+
+        if (!room.Session.Progress.Has(StoryEvents.CeresElevatorDoorDestroyed))
+            return false;
 
         // The elevator takes her only on an update that is play's own, as the cartridge's does only while the game is
         // still in its main play: not on the update the countdown runs out, which the time up takes, nor beneath the

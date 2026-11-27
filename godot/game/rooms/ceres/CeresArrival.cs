@@ -34,7 +34,14 @@ public partial class CeresArrival : RoomSequence
     /// She faces forward on the pad from the moment the room is set up, before any update of hers is played: put in
     /// the front view where she is, at the room's top, as the cartridge puts her, and not moved down clear of its edge.
     /// </summary>
-    protected override void OnStarted() => ((Room)GetParent()).Player.ChangeState(new FacingForwardState());
+    protected override void OnStarted()
+    {
+        var room = (Room)GetParent();
+        room.Player.ChangeState(new FacingForwardState());
+
+        // The shaft is set up level as she arrives, as whenever its room is entered.
+        CeresShaft.LeaveLevelStep(room.Session);
+    }
 
     /// <summary>She is lowered before the view follows her, so it follows each pixel on the update it is made.</summary>
     public override bool PlaysBeforeView => true;

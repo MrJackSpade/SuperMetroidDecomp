@@ -32,7 +32,8 @@ internal sealed partial class EngineSheets
 
     /// <summary>
     /// The installed list of which sheet each room's enemies, and the things they spawn, are drawn from. The old game
-    /// draws some of them differently from room to room; the Godot game's data names one look of each.
+    /// draws some of them differently from room to room: an enemy is given a set of its pictures for each look it has
+    /// (<see cref="EnemyLooks"/>); what they spawn is drawn in one look of each.
     /// </summary>
     private readonly JsonObject _enemyLooks;
 
@@ -51,12 +52,46 @@ internal sealed partial class EngineSheets
     /// The sheet an enemy is drawn from: the one the most rooms draw it from, where the installation lists rooms that
     /// hold it, and otherwise the sheet of its name.
     /// </summary>
-    internal string EnemySheet(string enemy)
+    internal string EnemySheet(string enemy) => EnemyLooks(enemy)[0].Sheet;
+
+    /// <summary>
+    /// The looks the old game draws an enemy in, room by room, each with its sheet and the rooms' enemy populations
+    /// that draw it so: the one the most rooms draw first, and of those drawn by as many, the first by the
+    /// installation's name for it. A look is named by a word, the name of the first population that draws it, which
+    /// no other look of the enemy can share. An enemy no room's population lists has one look, the sheet of its name.
+    /// </summary>
+    internal IReadOnlyList<EngineEnemyLook> EnemyLooks(string enemy)
     {
-        string? look = MostCommon(_enemyLooks["populations"]!.AsObject()
-            .Select(population => population.Value!["enemies"]![enemy]?.GetValue<string>())
-            .OfType<string>());
-        return look is null ? SheetNamed(EnemyFamily, enemy) : _enemyLooks["variants"]![look]!["sheet"]!.GetValue<string>();
+        var drawnBy = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach ((string population, JsonNode? listed) in _enemyLooks["populations"]!.AsObject())
+        {
+            if (listed!["enemies"]![enemy]?.GetValue<string>() is not { } look)
+                continue;
+            if (!drawnBy.TryGetValue(look, out List<string>? populations))
+                drawnBy[look] = populations = [];
+            populations.Add(population);
+        }
+
+        if (drawnBy.Count == 0)
+            return [new EngineEnemyLook(FileName(enemy), SheetNamed(EnemyFamily, enemy), [])];
+        return [.. drawnBy
+            .OrderByDescending(look => look.Value.Count)
+            .ThenBy(look => look.Key, StringComparer.Ordinal)
+            .Select(look => new EngineEnemyLook(FileName(look.Value[0]), _enemyLooks["variants"]![look.Key]!["sheet"]!.GetValue<string>(), look.Value))];
+    }
+
+    /// <summary>The sheet the rooms whose enemy populations are <paramref name="populations"/> all draw an enemy from.</summary>
+    /// <exception cref="InvalidDataException">One of the populations does not draw the enemy, or they draw it in more than one look.</exception>
+    internal string EnemySheetIn(string enemy, IEnumerable<string> populations)
+    {
+        var wanted = populations.ToHashSet(StringComparer.Ordinal);
+        IReadOnlyList<EngineEnemyLook> looks = EnemyLooks(enemy);
+        if (wanted.FirstOrDefault(population => !looks.Any(look => look.Populations.Contains(population))) is { } missing)
+            throw new InvalidDataException($"The rooms of the population {missing} do not draw {enemy}.");
+        EngineEnemyLook[] drawing = [.. looks.Where(look => look.Populations.Any(wanted.Contains))];
+        return drawing.Length == 1
+            ? drawing[0].Sheet
+            : throw new InvalidDataException($"The rooms of the populations {string.Join(", ", wanted)} draw {enemy} in {drawing.Length} looks, not one.");
     }
 
     /// <summary>The look of what <paramref name="spawner"/> spawns that the most rooms show.</summary>
@@ -464,4 +499,19 @@ internal sealed partial record EngineSheetPictures(int OffsetX, int OffsetY, int
     internal string Of(string frame) => Paths.TryGetValue(frame, out string? path)
         ? path
         : throw new InvalidDataException($"A sheet cut for the engine has no frame named {frame}.");
+
+    /// <summary>
+    /// Whether these pictures lie as <paramref name="other"/> do: on a canvas of the same size at the same offset, at
+    /// the same depth, with the same frames, each showing something or nothing alike. Two such differ only in colours.
+    /// </summary>
+    internal bool LaidOutAs(EngineSheetPictures other) =>
+        (OffsetX, OffsetY, Width, Height, Depth) == (other.OffsetX, other.OffsetY, other.Width, other.Height, other.Depth)
+        && Paths.Count == other.Paths.Count
+        && Paths.All(path => other.Paths.TryGetValue(path.Key, out string? its) && (its.Length == 0) == (path.Value.Length == 0));
 }
+
+/// <summary>One look the old game draws an enemy in, as some rooms draw it.</summary>
+/// <param name="Word">The word it is named by, in the names of its pictures' folder and in the rooms that draw it so.</param>
+/// <param name="Sheet">The installed sheet it is drawn from.</param>
+/// <param name="Populations">The enemy populations of the rooms that draw it so.</param>
+internal sealed partial record EngineEnemyLook(string Word, string Sheet, IReadOnlyList<string> Populations);

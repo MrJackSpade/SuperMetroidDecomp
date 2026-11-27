@@ -34,15 +34,18 @@ internal sealed partial class EngineEnemy
 
     /// <summary>
     /// The data file <paramref name="file"/> of the enemy the old game lists as <paramref name="id"/>, which the Godot
-    /// type <paramref name="type"/> reads, shown by the pictures <paramref name="pictures"/>.
+    /// type <paramref name="type"/> reads, shown by the pictures <paramref name="pictures"/>, which lie in the places
+    /// <paramref name="places"/>, each cut from the sheets given for it.
     /// </summary>
-    internal EngineEnemy(EngineAssetTree tree, EngineSheets sheets, string file, string type, EnemyDefinitionId id, EngineSheetPictures pictures)
+    internal EngineEnemy(EngineAssetTree tree, EngineSheets sheets, string file, string type, EnemyDefinitionId id, EngineSheetPictures pictures,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> places)
     {
         _tree = tree;
         _sheets = sheets;
         _id = id;
         _file = file;
         Pictures = pictures;
+        Places = places;
         // An enemy a fight brings into a room is listed apart from those rooms place.
         Definition = RoomEnemyDefinitionCatalog.ById.TryGetValue(id, out RoomEnemyDefinition placed)
             ? placed
@@ -102,6 +105,12 @@ internal sealed partial class EngineEnemy
 
     /// <summary>Its pictures.</summary>
     internal EngineSheetPictures Pictures { get; }
+
+    /// <summary>
+    /// The places its pictures are shown from, each with the sheets they were cut from: its own folder, or, for one
+    /// drawn in a look of the room's own, the folder of each look's set. A change of its colours is written for these.
+    /// </summary>
+    internal IReadOnlyDictionary<string, IReadOnlyList<string>> Places { get; }
 
     /// <summary>The file's values so far.</summary>
     internal JsonObject Data { get; } = [];
@@ -215,10 +224,13 @@ internal sealed partial class EngineEnemy
     }
 
     /// <summary>Cuts another set of its pictures, in one of its sheet's shades, into the folder named as its own with <paramref name="after"/> added.</summary>
+    /// <exception cref="InvalidDataException">Its own pictures are not cut from one sheet.</exception>
     internal EngineEnemy ShadedSet(string after, string shade)
     {
         const string family = Installation.GameInstallationLayout.EnemySheetDirectoryName;
-        string sheet = _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(_id));
+        string sheet = Places.TryGetValue(Folder, out IReadOnlyList<string>? own) && own.Count == 1
+            ? own[0]
+            : throw new InvalidDataException($"The pictures of {_file} are not cut from one sheet, to be cut again in the shade {shade}.");
         _sheets.CutShade(_tree, family, Folder + after, sheet, shade);
         FlashShaded(Folder + after, family, sheet, shade, SuperMetroid.Core.Enemies.Drawing.EnemyShades.HurtFlash.Key);
         return FlashShaded(Folder + after, family, sheet, shade, SuperMetroid.Core.Enemies.Drawing.EnemyShades.Frozen.Key, "frozen_colours");

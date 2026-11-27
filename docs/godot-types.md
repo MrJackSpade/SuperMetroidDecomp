@@ -1323,6 +1323,13 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   left, where a hit merely absorbed ends the shot with its own ending. A hit that comes of nothing with a place
   (the player's body, a blast) leaves none. An enemy whose class leaves its own, part by part, has no `"dud"`.
 - **Colour and strength variants** are one scene with different data files.
+- **An enemy's look by the room.** One the cartridge draws in colours of the room's own, a look for some rooms and
+  another for others, has one data file with a set of its pictures for each look, its pictures' names holding
+  "{look}" where the look's word goes, and the colours of its hurt, its freeze and any change of colours of its own
+  written for each set; the room places it with the look its version draws it in (`Enemy.Look`), which the base puts
+  in place of "{look}". This game's extractor writes which look each room's enemy population draws such an enemy in
+  (`enemies/looks_by_room.json`), and the room generator places them by it. An enemy every room draws alike has no
+  "{look}" and no look; one of which each data file serves rooms of one look is cut in that look (the Chozo statues).
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
   that starts another timeline taking effect in the same update; having a timeline begin where the step showing
   ends (`PlayAfterStep`), so that the picture showing stays out its time, as this game's Yard turns round when it

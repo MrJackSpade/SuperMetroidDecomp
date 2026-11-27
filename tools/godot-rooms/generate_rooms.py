@@ -3,8 +3,9 @@
     python tools/godot-rooms/generate_rooms.py
 
 Each room of the game becomes one scene under godot/game/rooms/<area>/. What a room is made of is read from the C#
-port's definition files as text (see legacy.py) and from one file of the installed assets, which says where each
-door's blocks lie. Nothing of the old game is run.
+port's definition files as text (see legacy.py), from one file of the installed assets, which says where each
+door's blocks lie, and from one the asset extractor writes into godot/assets, which says the look each room's
+enemies are drawn in where the cartridge draws them in colours of the room's own. Nothing of the old game is run.
 
 A room's scene holds:
 - its place on the map and its versions (the old code's "states"), each with the condition it is chosen on, its
@@ -16,7 +17,8 @@ A room's scene holds:
 - its camera zones, and the triggers that open and close them (see camera.py);
 - its liquid and its room effects: heat, rain, fog, spores, the Fireflea rooms' dark (see fx.py);
 - its room sequences with what they are given, and its backdrop (see sequences.py);
-- its enemies, each with the settings its placement gives it (see enemies.py), and its room objects: door caps,
+- its enemies, each with the settings its placement gives it (see enemies.py) and the look it is drawn in there
+  where it has more than one, and its room objects: door caps,
   items, stations, gates and the rest (see objects.py). One placed in some versions of the room and not in others is
   present only when one of those versions is the one in force.
 
@@ -355,6 +357,7 @@ class Generator:
         self.choices = legacy.state_choices()
         self.doors = legacy.doors()
         self.populations = legacy.enemy_populations()
+        self.population_names = legacy.population_names()
         self.quotas = legacy.death_quotas()
         self.scroll_layouts = legacy.scroll_layouts()
         self.scroll_changes = legacy.scroll_changes()
@@ -366,6 +369,10 @@ class Generator:
         self.unplaced: dict[str, int] = {}
         with open(os.path.join(INSTALLED, 'room-level-streams', 'room-door-blocks.json'), encoding='utf-8') as source:
             self.door_blocks = json.load(source)['rooms']
+        # For each enemy population, the look each of its enemies is drawn in that the cartridge draws in colours of
+        # the room's own, as the asset extractor wrote it.
+        with open(os.path.join(GODOT, 'assets', 'enemies', 'looks_by_room.json'), encoding='utf-8') as source:
+            self.room_looks = json.load(source)
         self.by_name = {room.name: key for key, room in self.rooms.items()}
         # Each room's doors: the name of each, with the rectangle its blocks cover, in pixels.
         self.room_doors: dict[str, dict[str, tuple[int, int, int, int]]] = {}
@@ -517,6 +524,15 @@ class Generator:
             # What each thing names: for each such property, the thing or things it names.
             links: dict[int, dict[str, object]] = {}
             by_index = dict(enemies.places(self.populations[state.enemies], enemies.RULES, self.unplaced))
+            # An enemy the cartridge draws in colours of the room's own is drawn in the look this version's enemies are.
+            looks = self.room_looks.get(self.population_names[state.enemies], {})
+            for index, placed in by_index.items():
+                look = looks.get(self.populations[state.enemies][index].enemy)
+                if look is None:
+                    continue
+                if not placed.enemy:
+                    raise ValueError(f'{key}: the {placed.name} is drawn in a look of the room\'s own, and is placed as no enemy.')
+                placed.properties['Look'] = quoted(look)
             ctx = Context(self, scene, room, self.quotas[state.enemies])
             for placed in by_index.values():
                 # What the old game steps as an enemy and the Godot game places as a room object still takes its

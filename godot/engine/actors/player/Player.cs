@@ -479,12 +479,62 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveResult TryBodyDown(Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null) =>
         Noted(Room.Mover.TryDown(Body, distance, options, out rest, shapedAs));
 
-    /// <summary>Notes what a move of the body reached.</summary>
+    /// <summary>The tiles of terrain that stopped moves of the player's body on this update, made or only tried.</summary>
+    private readonly List<PixelRect> _stoppedBy = [];
+
+    /// <summary>Notes what a move of the body reached, and the tile that stopped it.</summary>
     private MoveResult Noted(MoveResult result)
     {
         if (result.Reached is { IsEmpty: false } reached)
             _reached.Add(reached);
+        if (result.StoppedByTile is { } tile)
+            _stoppedBy.Add(tile);
         return result;
+    }
+
+    /// <summary>
+    /// The blocks the player is in, for what a block does to whoever is in it: those at their feet, their middle and
+    /// their head, down the middle column of their body, each of the three where it lies in a row of tiles the ones
+    /// before it did not. A block beside that column, or one the body only lies against, is not one they are in.
+    /// </summary>
+    private List<Block> BlocksStoodIn()
+    {
+        PixelRect body = BodyRect;
+        int x = Position.X.Whole, size = Room.Terrain.TileSize;
+        var rows = new HashSet<int>();
+        var blocks = new List<Block>();
+        foreach (int y in (int[])[body.Bottom - 1, Position.Y.Whole, body.Top])
+        {
+            if (!rows.Add((int)Math.Floor((double)y / size)))
+                continue;
+            foreach (Block block in Room.Terrain.BlocksIn(new PixelRect(x, y, 1, 1)))
+            {
+                if (!blocks.Contains(block))
+                    blocks.Add(block);
+            }
+        }
+
+        return blocks;
+    }
+
+    /// <summary>
+    /// The blocks that stopped a move of the player's body on this update: of each move stopped by terrain, the first
+    /// tile its leading edge was stopped by. A solid block that acts on contact, as a spike does, acts on a player
+    /// whose move it stopped, and on no one who only lies against it.
+    /// </summary>
+    private List<Block> BlocksThatStoppedMoves()
+    {
+        var blocks = new List<Block>();
+        foreach (PixelRect tile in _stoppedBy)
+        {
+            foreach (Block block in Room.Terrain.BlocksIn(tile))
+            {
+                if (!blocks.Contains(block))
+                    blocks.Add(block);
+            }
+        }
+
+        return blocks;
     }
 
     /// <summary>
@@ -703,6 +753,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _input = input;
         _medium = null;
         _reached.Clear();
+        _stoppedBy.Clear();
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
 
@@ -1903,7 +1954,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     private void BeMovedByBlocks()
     {
         Pixels across = Pixels.Zero, down = Pixels.Zero;
-        foreach (Block block in Room.Terrain.BlocksIn(BodyRect))
+        foreach (Block block in BlocksStoodIn())
         {
             Pixels speed = block.Type.ContactSpeed;
             if (block.Type.Contact == BlockContact.Carries)
@@ -1965,7 +2016,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         hundredths += fromRoom;
 
         int blockHit = 0;
-        foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
+        foreach (Block block in BlocksStoodIn().Concat(BlocksThatStoppedMoves()).Distinct())
         {
             if (block.Type.Contact != BlockContact.Hurts || IsCancelled("blocks"))
                 continue;

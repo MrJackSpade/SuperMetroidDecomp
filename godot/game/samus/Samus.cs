@@ -534,12 +534,17 @@ public partial class Samus : Player
     /// <summary>What is left of a knockback she left a damage boost with, which still runs out.</summary>
     private Countdown _knockbackCarried = Countdown.Over;
 
+    /// <summary>Whether the boost she left has counted this update of the knockback she carries already.</summary>
+    private bool _knockbackCountedThisUpdate;
+
     /// <summary>
     /// Takes on what is left of the knockback a damage boost was counting as she leaves the boost. It goes on
-    /// counting at the end of each of her updates, this one too, and as it runs out her rise is over, whatever she
-    /// is doing by then.
+    /// counting at the end of each of her updates, and as it runs out her rise is over, whatever she is doing by
+    /// then. <paramref name="countedThisUpdate"/> says the boost has counted this update of it already, as one that
+    /// is let go has and one left by landing has not: it is then next counted on the update after.
     /// </summary>
-    public void CarryKnockbackOn(Countdown left) => _knockbackCarried = left;
+    public void CarryKnockbackOn(Countdown left, bool countedThisUpdate) =>
+        (_knockbackCarried, _knockbackCountedThisUpdate) = (left, countedThisUpdate);
 
     /// <summary>Ends what she carries of a knockback she left a damage boost with, as a shinespark's windup ends a knockback.</summary>
     public void EndCarriedKnockback() => _knockbackCarried = Countdown.Over;
@@ -2308,7 +2313,11 @@ public partial class Samus : Player
         Flare?.Step(this);
         ShowSelection();
         Assists.TesterAssists.Of(Room.Session).TakeAmmoBack(Room.Session);
-        if (_knockbackCarried.IsRunning)
+        if (_knockbackCountedThisUpdate)
+        {
+            _knockbackCountedThisUpdate = false;
+        }
+        else if (_knockbackCarried.IsRunning)
         {
             _knockbackCarried = _knockbackCarried.Stepped();
             if (_knockbackCarried.IsOver)

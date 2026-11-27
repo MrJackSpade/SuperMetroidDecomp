@@ -65,7 +65,9 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     {
         Facing before = _toward.Opposite();
         owner.Facing = before;
-        ((Samus)owner).CarryKnockbackOn(_knockbackLeft);
+
+        // Her move as the boost has counted this update of the knockback already.
+        ((Samus)owner).CarryKnockbackOn(_knockbackLeft, countedThisUpdate: true);
         return new JumpingState(new AirStance(Aim.Forward, FirstChord(owner) == before ? AirArm.Forward : AirArm.AtRest));
     }
 
@@ -91,7 +93,7 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
         // it with her: it ends the rise of a jump she takes before it has run out.
         if (landed)
         {
-            ((Samus)owner).CarryKnockbackOn(_knockbackLeft);
+            ((Samus)owner).CarryKnockbackOn(_knockbackLeft, countedThisUpdate: false);
         }
         else if (_knockbackLeft.IsRunning)
         {

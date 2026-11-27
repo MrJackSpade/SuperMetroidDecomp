@@ -26,6 +26,7 @@ public static class SamusLooks
         StandingState => "standing",
         WallStoppedState => "wall_stopped",
         RunningState => "running",
+        TurningState turn when samus.IsMoonwalkJumpTurn(turn) => "moonwalk_jump_turn",
         TurningState => "turning",
         CrouchingState => "crouching",
         JumpingState => "jumping",

@@ -378,11 +378,10 @@ public partial class Samus : Player
 
     /// <summary>
     /// The names in her shot heights of the heights she fires from while settling from a landing, while a jump
-    /// gathers, while she crouches down and stands up, and in the turn a moonwalk makes with the jump.
+    /// gathers, and while she crouches down and stands up.
     /// </summary>
     private const string LandingHeights = "landing", JumpStartHeights = "jump_start",
-        CrouchChangeHeights = "changing_to_crouch", StandChangeHeights = "changing_to_stand",
-        MoonwalkJumpTurnHeights = "moonwalk_jump_turn";
+        CrouchChangeHeights = "changing_to_crouch", StandChangeHeights = "changing_to_stand";
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -1013,15 +1012,14 @@ public partial class Samus : Player
     private PixelPosition Raised(Vector2I offset, Aim? handedAim = null)
     {
         // Settling from a landing, gathering a jump, crouching down and standing up hold her arm at heights of their
-        // own, as the cartridge's poses do, and so does the turn a moonwalk makes with the jump. Coming out of the
-        // ball is a change she cannot fire through, and has none.
+        // own, as the cartridge's poses do; the turn a moonwalk makes with the jump has its own look, and its heights
+        // with it. Coming out of the ball is a change she cannot fire through, and has none.
         string look = State switch
         {
             StandingState { IsSettling: true } => LandingHeights,
             JumpingState jump when ReferenceEquals(jump, _gatheringJump) => JumpStartHeights,
             ChangingPostureState { CanAttack: true, Then: CrouchingState } => CrouchChangeHeights,
             ChangingPostureState { CanAttack: true, Then: StandingState } => StandChangeHeights,
-            TurningState turn when ReferenceEquals(turn, _moonwalkJumpTurn) => MoonwalkJumpTurnHeights,
             _ => SamusLooks.Of(this),
         };
         string hold = handedAim is { } handed ? AimName(handed) : HoldName;
@@ -1563,6 +1561,11 @@ public partial class Samus : Player
                 return null;
 
             case TurningState { Crouched: false }:
+                // A turn holding a shot handed out of a moonwalk takes a fresh press of the attack, with the grapple
+                // beam selected, as a firing of it, which the turn's pose, aiming nowhere, gives up at once.
+                if (HandedWay is not null && Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } fromTurn)
+                    fromTurn.FireAimingNowhere(this);
+
                 // A turn becomes a spin jump while the jump and the way she now faces are held; a turn begun aiming
                 // needs the jump pressed afresh.
                 bool towardFacing = Intent != 0 && Intent > 0 == (Facing == Facing.Right);
@@ -2173,8 +2176,11 @@ public partial class Samus : Player
     /// </summary>
     private (Facing Facing, Aim Aim)? _wayHanded, _wayHandedNow;
 
-    /// <summary>The last turn a moonwalk made with the jump, whose shots leave from heights of their own.</summary>
+    /// <summary>The last turn a moonwalk made with the jump, which has a look of its own and its shots' heights with it.</summary>
     private TurningState? _moonwalkJumpTurn;
+
+    /// <summary>Whether <paramref name="state"/> is the turn a moonwalk made with the jump.</summary>
+    public bool IsMoonwalkJumpTurn(PlayerState state) => state is TurningState && ReferenceEquals(state, _moonwalkJumpTurn);
 
     /// <summary>The way the shot handed to the turn she is in leaves; none when she is in no such turn.</summary>
     private (Facing Facing, Aim Aim)? HandedWay => State is TurningState ? _wayHandedNow : null;

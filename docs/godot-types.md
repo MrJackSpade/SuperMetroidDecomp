@@ -1185,9 +1185,12 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   turn, which cannot otherwise attack, plays the attack (`Player.AttacksNow`) for the beam alone (not for the hyper
   beam, which takes no handed shot), and the shot leaves the way the moonwalk aimed and from that way's muzzle
   (`Player.AimDirection`), not the way she now faces, raised by the height of the turn's look for the moonwalk's
-  aim; the turn made with the jump has heights of its own (`moonwalk_jump_turn` in her shot heights). A beam that
+  aim; the turn made with the jump has a look of its own and heights with it (`moonwalk_jump_turn`). A beam that
   charges lets its charge go at once, as for the shot a jump's pose is handed on a fresh press of the attack.
-  Unfired, the handed shot is lost.
+  Unfired, the handed shot is lost. With the grapple beam selected, a fresh press of the attack on that update fires
+  the line from a pose that aims nowhere, which gives it up at once: it ends on the next update, heard as any line's
+  end (`SamusGrapple.FireAimingNowhere`). Every turn out of a moonwalk aims as the moonwalk did before that update's
+  input, as the cartridge's turn takes its pose from the moonwalk's.
 - **Her aim in the air.** An aim straight down stays, with nothing held or only the jump, until a direction,
   another aim or the attack is asked; her body is compact for as long (`aiming_down`). Coming down so she lands
   aiming level from the landing's own update (`Samus.OnLanded`), as the cartridge's plain landing does.
@@ -1347,7 +1350,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
   equipment; aiming level, a look may have pictures for how her arm is held (`Samus.HoldName`: `moving` in a
   jump steering the way she faces, `arm_out` with the attack held in the air or once held in a run); a turn in the
-  air is `air_turning_jump` or `air_turning_fall`; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
+  air is `air_turning_jump` or `air_turning_fall`; the turn a moonwalk makes with the jump is `moonwalk_jump_turn`; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
   `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.
 - **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
   `shot_heights` of her look (and of her look and aim where an aim has its own); while she settles from a landing

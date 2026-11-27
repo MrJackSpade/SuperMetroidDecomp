@@ -27,11 +27,14 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
+        // A turn keeps the aim she moonwalked in before this update's input, as the cartridge's turn takes its pose from
+        // the moonwalk's; everything else takes the aim the input asks.
+        Aim walked = owner.Aim;
         owner.Aim = AimOf(owner, angleDownFirst: owner.Facing == Facing.Left);
         if (owner.CanCrouch && owner.Input.WasPressed(GameAction.Down))
             return owner.Crouch();
         if (owner.JumpPressed)
-            return TurnWithJump();
+            return Turning(owner, walked, TurnWithJump());
         int backward = Backward(owner);
         if (owner.Input.IsHeld(GameAction.Attack) && owner.Intent == backward)
             return this;
@@ -39,8 +42,15 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
         // With the attack let go she turns to go the way she walked, with the jump if it is held; steering the way
         // she faces, she runs.
         if (owner.Intent == backward)
-            return owner.Input.IsHeld(GameAction.Jump) ? TurnWithJump() : new TurningState();
+            return Turning(owner, walked, owner.Input.IsHeld(GameAction.Jump) ? TurnWithJump() : new TurningState());
         return owner.Intent == 0 ? null : new RunningState();
+    }
+
+    /// <summary>The turn <paramref name="turn"/>, made in the aim she <paramref name="walked"/> in.</summary>
+    private static TurningState Turning(Player owner, Aim walked, TurningState turn)
+    {
+        owner.Aim = walked;
+        return turn;
     }
 
     /// <summary>

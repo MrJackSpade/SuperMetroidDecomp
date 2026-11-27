@@ -69,24 +69,13 @@ public sealed partial class EngineAssetWriter
         string sheet = SpriteSheetDefinitions.FileNames[ProjectileSheetFrames.For(beams)];
         if (_shotPictures.TryGetValue(sheet, out EngineSheetPictures? cut))
             return cut;
-        // The flare at the end of her arm cannon is cut from the same sheet, in the same colours, and so are the
-        // sparkles and smoke her shots leave behind them, whose names keep their "trail" so as not to meet a shot's.
+        // The flare at the end of her arm cannon is cut from the same sheet, in the same colours.
         const string shots = "Projectile.";
         IEnumerable<string> frames = _sheets.FramesOf(SpriteFamily, sheet)
-            .Where(frame => frame.StartsWith(shots, StringComparison.Ordinal) || frame.StartsWith(FlareFrames, StringComparison.Ordinal)
-                || frame.StartsWith(TrailFrames, StringComparison.Ordinal));
-        _shotFolders[sheet] = BeamsName(beams);
+            .Where(frame => frame.StartsWith(shots, StringComparison.Ordinal) || frame.StartsWith(FlareFrames, StringComparison.Ordinal));
         return _shotPictures[sheet] = _sheets.CutNamed(_tree, SpriteFamily, $"samus/shots/{BeamsName(beams)}/pictures", sheet, frames, null,
-            frame => frame.StartsWith(TrailFrames, StringComparison.Ordinal)
-                ? EngineSheets.FileName(frame)
-                : EngineSheets.FileName(frame[(frame.StartsWith(shots, StringComparison.Ordinal) ? shots : FlareFrames).Length..]));
+            frame => EngineSheets.FileName(frame[(frame.StartsWith(shots, StringComparison.Ordinal) ? shots : FlareFrames).Length..]));
     }
-
-    /// <summary>The name of the folder each sheet of her shots was cut into, by the sheet.</summary>
-    private readonly Dictionary<string, string> _shotFolders = new(StringComparer.Ordinal);
-
-    /// <summary>What the names of the trails' frames on a sheet of her shots begin with.</summary>
-    private const string TrailFrames = "Trail.";
 
     /// <summary>What the names of the flare's frames on a sheet of her shots begin with.</summary>
     private const string FlareFrames = "Flare.";
@@ -206,29 +195,17 @@ public sealed partial class EngineAssetWriter
         ShotFrames.Resolve(frame) is { } sprite ? pictures.Of(ProjectileSheetFrames.ProjectileFrame(sprite)) : "";
 
     /// <summary>
-    /// The steps of one of her shots' animations, from the segment it starts with, each step's picture the name of the
-    /// old frame it shows, marked as one (<see cref="ShotFrameNamed"/>): what the shot's timeline and its trail are both
-    /// written from, step for step.
-    /// </summary>
-    private static JsonObject NamedShotTimeline(Segment segment)
-    {
-        (List<IAnimationBeat<SamusProjectileFrameId, NoAnimationCue>> lead, List<IAnimationBeat<SamusProjectileFrameId, NoAnimationCue>>? cycle) =
-            EngineTimelines.Played(SamusProjectileAnimations.Segments, SamusProjectileAnimations.StartingWith(segment));
-        return EngineTimelines.Of<SamusProjectileFrameId, NoAnimationCue>(lead, cycle, static frame => "#" + frame, static _ => null);
-    }
-
-    /// <summary>The old frame a step of <see cref="NamedShotTimeline"/> shows, by the name it was given there.</summary>
-    private static SamusProjectileFrameId ShotFrameNamed(string named) =>
-        named.StartsWith('#') ? Enum.Parse<SamusProjectileFrameId>(named[1..]) : throw new InvalidDataException($"A step of one of Samus's shots shows {named}, which names no frame.");
-
-    /// <summary>
     /// The timeline of one of her shots' animations, from the segment it starts with. Where it is the timeline of
     /// something that hits, each step where the old frame's size changes gives the cue that makes the projectile that
     /// size.
     /// </summary>
     private JsonObject ShotTimeline(EngineSheetPictures pictures, Segment segment, bool sized, bool restsAtEnd = false)
     {
-        JsonObject timeline = NamedShotTimeline(segment);
+        (List<IAnimationBeat<SamusProjectileFrameId, NoAnimationCue>> lead, List<IAnimationBeat<SamusProjectileFrameId, NoAnimationCue>>? cycle) =
+            EngineTimelines.Played(SamusProjectileAnimations.Segments, SamusProjectileAnimations.StartingWith(segment));
+
+        // The frames are carried through as their names, and given their pictures and sizes afterwards.
+        JsonObject timeline = EngineTimelines.Of<SamusProjectileFrameId, NoAnimationCue>(lead, cycle, static frame => "#" + frame, static _ => null);
         JsonArray steps = timeline["steps"]!.AsArray();
         if (restsAtEnd && timeline["loops_to"] is null)
             timeline["loops_to"] = steps.Count - 1;
@@ -240,7 +217,7 @@ public sealed partial class EngineAssetWriter
             string named = step["picture"]!.GetValue<string>();
             if (named.Length == 0)
                 continue;
-            SamusProjectileFrameId frame = ShotFrameNamed(named);
+            SamusProjectileFrameId frame = Enum.Parse<SamusProjectileFrameId>(named[1..]);
             step["picture"] = ShotPicture(pictures, frame);
             if (!sized)
                 continue;
@@ -307,22 +284,14 @@ public sealed partial class EngineAssetWriter
     private static SignedEightEight Along(PixelVelocity<RoomPixels> acceleration) =>
         acceleration.X.IsZero ? throw new InvalidDataException("A shot fired across gains no speed across.") : acceleration.X;
 
-    /// <summary>
-    /// The projectile of a beam shot of one combination: how it flies, what it passes through, how it looks and what it
-    /// leaves, the trail behind it among that unless it is one, as the hyper beam's, that leaves none.
-    /// </summary>
-    private JsonObject BeamProjectile(SamusBeamCombination beams, SamusBeamCombination pictured, bool charged, string name, bool passesWalls,
-        bool leavesTrail = true)
+    /// <summary>The projectile of a beam shot of one combination: how it flies, what it passes through, how it looks and what it leaves.</summary>
+    private JsonObject BeamProjectile(SamusBeamCombination beams, SamusBeamCombination pictured, bool charged, string name, bool passesWalls)
     {
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(beams, charged);
         EngineSheetPictures pictures = ShotPictures(pictured);
         string folder = $"samus/shots/{BeamsName(pictured)}";
-        Segment AnimationOf(SamusProjectileDirection direction) => SamusProjectileKinds.Animation(kind, direction);
-        string timeline = WriteShotTimelines(folder, name, pictures, AnimationOf);
+        string timeline = WriteShotTimelines(folder, name, pictures, direction => SamusProjectileKinds.Animation(kind, direction));
         JsonObject projectile = FlyingShot(SamusProjectileKinds.Animation(kind, SamusProjectileDirection.Right), timeline);
-        if (leavesTrail && ShotTrail($"{BeamsName(pictured)}/{name}", SamusProjectileType.Beam(beams, charged), pictured,
-                BeamTrailInterval(beams, charged), FlyingWays(AnimationOf)) is { } trail)
-            projectile["trail"] = trail;
         SignedEightEight straight = Along(SamusProjectileAccelerations.For(SamusProjectileDirection.Right).Beam);
         SignedEightEight slanted = Along(SamusProjectileAccelerations.For(SamusProjectileDirection.DownRight).Beam);
         projectile["acceleration"] = EngineNames.Number(straight);
@@ -462,7 +431,7 @@ public sealed partial class EngineAssetWriter
             ["held_cooldown"] = SamusProjectileCooldownDefinitions.HyperBeamShot,
             ["charges"] = false,
             ["sound"] = SoundOf(hyper, charged: true),
-            ["shots"] = Shots(BeamProjectile(hyper, hyperPictured, charged: true, "hyper", passesWalls: true, leavesTrail: false)),
+            ["shots"] = Shots(BeamProjectile(hyper, hyperPictured, charged: true, "hyper", passesWalls: true)),
         });
         weapon["variants"] = variants;
         _tree.WriteData(SamusWeaponFiles[0], weapon);
@@ -484,15 +453,8 @@ public sealed partial class EngineAssetWriter
         SamusProjectileKind kind = SamusProjectileSelection.Missile(super);
         EngineSheetPictures pictures = ShotPictures(pictured);
         string name = super ? "super_missile" : "missile";
-        Segment AnimationOf(SamusProjectileDirection direction) => SamusProjectileKinds.Animation(kind, direction);
-        string timeline = WriteShotTimelines("samus/shots", name, pictures, AnimationOf);
+        string timeline = WriteShotTimelines("samus/shots", name, pictures, direction => SamusProjectileKinds.Animation(kind, direction));
         JsonObject projectile = FlyingShot(SamusProjectileKinds.Animation(kind, SamusProjectileDirection.Right), timeline);
-
-        // A missile leaves its smoke every so often, a super missile twice as often after its first. The old game
-        // draws the smoke from the sheet of the beams she carries, whose smoke is the same on every sheet.
-        projectile["trail"] = ShotTrail(name, SamusProjectileType.Of(super ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile),
-                pictured, super ? ProjectileTimingDefinitions.SuperMissileTrailInterval : ProjectileTimingDefinitions.TrailInterval, FlyingWays(AnimationOf))
-            ?? throw new InvalidDataException($"Samus's {name} leaves no trail, which the old game's does.");
         SamusDirectionAccelerations straight = SamusProjectileAccelerations.For(SamusProjectileDirection.Right);
         SamusDirectionAccelerations slanted = SamusProjectileAccelerations.For(SamusProjectileDirection.DownRight);
 
@@ -746,10 +708,9 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Writes the shot of the spazer special attack's trailing pair: from the start they are the spazer echo, an
-    /// uncharged spazer shot with its own damage and pictures, the lights' pictures facing down and left, in the
-    /// colours of <paramref name="pictured"/>, the beams of the attack.
+    /// uncharged spazer shot with its own damage and pictures, the lights' pictures facing down and left.
     /// </summary>
-    private void WriteSpazerAttackTrail(EngineSheetPictures pictures, SamusBeamCombination pictured)
+    private void WriteSpazerAttackTrail(EngineSheetPictures pictures)
     {
         SamusProjectileKind trail = SamusProjectileSelection.Echo(SamusBeamEcho.SpazerComboTrail);
         SamusBeamCombination beams = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail).BeamCombination;
@@ -764,13 +725,6 @@ public sealed partial class EngineAssetWriter
                 kinds.Add(named);
         }
 
-        // The pair leave ice sparkles by their own lists, as they are launched downward and as all four fall. Both
-        // sparkles run the left one's animation, whose falls move the left sparkle, so it falls twice and the right
-        // one not at all.
-        string trailFile = ShotTrail(Path.GetFileNameWithoutExtension(SpazerAttackTrailFile), SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail),
-                pictured, ProjectileTimingDefinitions.TrailInterval,
-                [new ShotWay(null, SamusProjectileDirection.DownFacingLeft, null, segment)])
-            ?? throw new InvalidDataException("The spazer special attack's trailing pair leaves no trail, which the old game's does.");
         _tree.WriteData(SpazerAttackTrailFile, new JsonObject
         {
             ["damage"] = SamusProjectileDamage.Read(trail),
@@ -786,7 +740,6 @@ public sealed partial class EngineAssetWriter
                 // A light of a special attack is a shot of hers, and lies where her shots do.
                 ["standing"] = "just_behind",
                 ["timeline"] = timeline,
-                ["trail"] = trailFile,
             },
         });
     }
@@ -817,37 +770,26 @@ public sealed partial class EngineAssetWriter
             }
 
             kinds.Add("charged");
-            var projectile = new JsonObject
-            {
-                ["width"] = width,
-                ["height"] = height,
-                ["meeting_terrain"] = "passes_through",
-                ["meeting_target"] = beams.HasPlasma ? "passes_through_and_rehits" : "ends",
-                ["view_margin"] = -1,
-                ["standing"] = "just_behind",
-                ["timeline"] = timeline,
-            };
-
-            // The ice and wave lights leave the trail of their charged beam, read as shots fired straight up. The
-            // plasma lights leave none, and the spazer lights only as the trailing pair's shot.
-            if (kind is SamusComboKind.Ice or SamusComboKind.Wave)
-            {
-                projectile["trail"] = ShotTrail(Path.GetFileNameWithoutExtension(file), SamusProjectileType.Beam(beams, charged: true), beams,
-                        ProjectileTimingDefinitions.TrailInterval, [new ShotWay(null, SamusProjectileDirection.UpFacingRight, null, segment)])
-                    ?? throw new InvalidDataException($"The {kind} special attack's lights leave no trail, which the old game's do.");
-            }
-
             _tree.WriteData(file, new JsonObject
             {
                 ["damage"] = SamusProjectileDamage.Read(shot),
                 ["kinds"] = kinds,
                 ["sound"] = EngineNames.Sound(BeamComboDefinitions.ActivationSounds[kind]),
                 ["scene"] = $"res://game/samus/special_attack_{EngineSheets.FileName(kind.ToString())}.tscn",
-                ["projectile"] = projectile,
+                ["projectile"] = new JsonObject
+                {
+                    ["width"] = width,
+                    ["height"] = height,
+                    ["meeting_terrain"] = "passes_through",
+                    ["meeting_target"] = beams.HasPlasma ? "passes_through_and_rehits" : "ends",
+                    ["view_margin"] = -1,
+                    ["standing"] = "just_behind",
+                    ["timeline"] = timeline,
+                },
             });
 
             if (kind == SamusComboKind.Spazer)
-                WriteSpazerAttackTrail(pictures, beams);
+                WriteSpazerAttackTrail(pictures);
         }
 
         // A shinespark's echoes hit as a plasma and wave beam's shot of their own great damage. The old game draws

@@ -773,6 +773,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
         // The form taken since the last update began gives the body its shape only now.
         PublishForm();
+
+        // What the blocks the player is in do to them is settled now, by the body just published and before they
+        // attack, the enemies act or they move: it is part of this update's movement. While their state holds the
+        // room still, the blocks do nothing to them.
+        _blockMove = default;
+        if (!State.Stops.HasFlag(World.Stopped.Room))
+            NoteBlocksStoodIn();
         TakeJumpBuffer();
         BeforeState();
 
@@ -885,7 +892,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         // carry or pull them, and whatever damage the update gathered for them is let go, not taken.
         bool roomHeldStill = State.Stops.HasFlag(World.Stopped.Room);
         if (!roomHeldStill)
-            BeMovedByBlocks();
+            MoveByWhatBlocksLeft();
         Splash();
         if (roomHeldStill)
             _addedOngoing = 0;
@@ -1708,15 +1715,34 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveResult MoveAcrossBy(Pixels reach)
     {
         _reachAcross = reach.Abs();
-        Pixels distance = OverSlopes(reach);
+
+        // What a block that carries gave the player this update is part of this move, and is taken once.
+        Pixels carried = _blockMove.X;
+        _blockMove = _blockMove with { X = Pixels.Zero };
+        Pixels distance = OverSlopes(reach) + carried;
         ClearWay(distance, Pixels.Zero);
 
         // The slopes take their share of how far the player goes, not of how far ahead the move is tried.
-        MoveResult result = MoveBodyAcross(distance, BodyMoves, triedAs: reach);
+        MoveResult result = MoveBodyAcross(distance, BodyMoves, triedAs: reach + carried);
         if (result.PutOnSlope)
             _putOnSlope = true;
         OnBodyMoved(across: true, distance, result.Moved);
         return result;
+    }
+
+    /// <summary>
+    /// What the blocks the player stood in as this update began give them to move by, over and above their own
+    /// movement: across by one that carries, down by one that pulls. Each part is made part of the player's own move
+    /// that way as it is made, once; what their state made no move of is moved by itself once they have moved.
+    /// </summary>
+    private PixelOffset _blockMove;
+
+    /// <summary>Takes what a block that pulls gave the player to go down by this update, to be part of the move being made.</summary>
+    private Pixels TakeBlockPull()
+    {
+        Pixels pull = _blockMove.Y;
+        _blockMove = _blockMove with { Y = Pixels.Zero };
+        return pull;
     }
 
     /// <summary>
@@ -1763,7 +1789,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Moves the player down by their speed, upward when it is negative.</summary>
     public MoveResult MoveDown()
     {
-        Pixels distance = InLiquid(Velocity.Y);
+        Pixels distance = InLiquid(Velocity.Y) + TakeBlockPull();
         MoveResult result = MoveDownBy(distance, clearsWay: true);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
@@ -1804,11 +1830,15 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>
     /// Presses a player on the ground down onto it once they have moved across: down by as far as they set out to move
     /// across this update and one pixel more, stopping at ground. Returns whether ground stopped them; when it did not
-    /// they have walked off it, and are already that far down. A player standing in something that holds them up
-    /// without being solid stays as they are.
+    /// they have walked off it, and are already that far down. A block that pulls takes the place of the press: the
+    /// player goes down by what it gave them this update as one standing still does (<see cref="StandingSink"/>),
+    /// and is on the ground if that was stopped or the block holds them up. A player standing in something that holds
+    /// them up without being solid otherwise stays as they are.
     /// </summary>
     public bool PressToGround()
     {
+        if (!_blockMove.Y.IsZero)
+            return MoveDownBy(StandingSink(TakeBlockPull())).Blocked | StandsInBlockThatHoldsUp();
         if (StandsInBlockThatHoldsUp())
             return true;
 
@@ -1852,7 +1882,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <param name="keepsSpeedWhenStopped">Whether a floor or ceiling that stops the move leaves the speed as gravity left it.</param>
     public MoveResult MoveDownUnderGravity(bool keepsSpeedWhenStopped = false)
     {
-        Pixels distance = InLiquid(Velocity.Y);
+        Pixels distance = InLiquid(Velocity.Y) + TakeBlockPull();
         Fall();
         MoveResult result = MoveDownBy(distance, clearsWay: true);
         if (result.Blocked && !keepsSpeedWhenStopped)
@@ -2110,10 +2140,33 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     }
 
     /// <summary>
-    /// Lets the blocks the player is in move them, over and above their own movement: one that carries takes them
-    /// across, and one that pulls takes them down. Of several, the one that moves them furthest does.
+    /// Moves the player by whatever the blocks gave them to move by this update that their state made no move of: a
+    /// state that moved them neither across nor down is carried and pulled all the same, by a move of its own, and one
+    /// with no speed up or down is pulled as one standing still is.
     /// </summary>
-    private void BeMovedByBlocks()
+    private void MoveByWhatBlocksLeft()
+    {
+        if (!_blockMove.X.IsZero)
+        {
+            Pixels across = _blockMove.X;
+            _blockMove = _blockMove with { X = Pixels.Zero };
+            OnBodyMoved(across: true, across, MoveBodyAcross(across, BodyMoves).Moved);
+        }
+
+        if (!_blockMove.Y.IsZero)
+        {
+            Pixels pull = TakeBlockPull();
+            Pixels down = Velocity.Y.IsZero ? StandingSink(pull) : pull;
+            OnBodyMoved(across: false, down, MoveBodyDown(down, BodyMoves).Moved);
+        }
+    }
+
+    /// <summary>
+    /// Notes what the blocks the player is in give them to move by on this update (<see cref="_blockMove"/>): one
+    /// that carries, across, and one that pulls, down; of several, the one that moves them furthest. What such a
+    /// block does to their speed and their momentum it does now.
+    /// </summary>
+    private void NoteBlocksStoodIn()
     {
         Pixels across = Pixels.Zero, down = Pixels.Zero;
         foreach (Block block in BlocksStoodIn())
@@ -2143,16 +2196,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
                     Velocity = Velocity.WithY(Pixels.Zero);
                 Pixels pull = moving
                     ? (eased ? sand.Eased.MovingContactSpeed : sand.MovingContactSpeed)
-                    : StandingSink(eased ? sand.Eased.ContactSpeed : speed);
+                    : (eased ? sand.Eased.ContactSpeed : speed);
                 if (pull > down)
                     down = pull;
             }
         }
 
-        if (across != Pixels.Zero)
-            MoveBodyAcross(across, BodyMoves);
-        if (down != Pixels.Zero)
-            MoveBodyDown(down, BodyMoves);
+        _blockMove = new PixelOffset(across, down);
     }
 
     /// <summary>

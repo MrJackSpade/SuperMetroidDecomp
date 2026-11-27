@@ -50,6 +50,17 @@ public sealed class GameClock
     }
 
     /// <summary>
+    /// Moves the clock on by updates that were not played: time that passed for the game with no update of it, as
+    /// while its host loaded something. Both counts move.
+    /// </summary>
+    public void Pass(int updates)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        Updates = _period > 0 ? (Updates + updates) % _period : Updates + updates;
+        ShortUpdates = _shortPeriod > 0 ? (ShortUpdates + updates) % _shortPeriod : ShortUpdates + updates;
+    }
+
+    /// <summary>
     /// Starts both counts over, for a game that starts over within a session: the update this is done on reads zero
     /// from here on, and the next reads one.
     /// </summary>

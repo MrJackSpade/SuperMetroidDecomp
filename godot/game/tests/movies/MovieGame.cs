@@ -7,13 +7,17 @@ namespace Game.Tests.Movies;
 /// <summary>
 /// The game as a movie's host begins it: the game's own definition, with the one thing a host of a recording
 /// supplies in place of the game's own, the timing of the hardware the recording was made on. Its sound program
-/// answers when the cartridge's answered (<see cref="CapturedSoundProgram"/>), and its doors load their rooms at
-/// the pace the console did (<see cref="CapturedRoomLoadPace"/>).
+/// answers when the cartridge's answered (<see cref="CapturedSoundProgram"/>), its doors load their rooms at the
+/// pace the console did (<see cref="CapturedRoomLoadPace"/>), and its sets of music take the frames the console's
+/// did (<see cref="CapturedMusicLoadTime"/>).
 /// </summary>
 public partial class MovieGame : SuperMetroid
 {
     /// <summary>The pace its doors load their rooms at.</summary>
     internal CapturedRoomLoadPace Loads { get; } = new();
+
+    /// <summary>How long its sets of music take to load.</summary>
+    internal CapturedMusicLoadTime MusicLoads { get; } = new();
 
     /// <inheritdoc/>
     protected override IRoomLoadPace RoomLoadPace => Loads;
@@ -42,6 +46,6 @@ public partial class MovieGame : SuperMetroid
     public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content)
     {
         Program = new CapturedSoundProgram(new SoundProgramClock(CartridgeSounds.Libraries));
-        return new CartridgeSounds(content, Program);
+        return new CartridgeSounds(content, Program, MusicLoads);
     }
 }

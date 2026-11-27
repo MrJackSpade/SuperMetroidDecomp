@@ -329,7 +329,9 @@ it is remembered.
   closes with the sounds' turns and the sound program's clock. The flow is the game's (`GameDefinition.CreateSoundFlow`); the engine has none of its own.
   The sound program the flow's libraries wait on is given to the flow (`ISoundProgram`): when it answers is the
   timing of the hardware it ran on. The game's own answers by the program's clock (`SoundProgramClock`); the host
-  of a recorded movie gives one that answers when the recording's did (`MovieGame`, with the movie check).
+  of a recorded movie gives one that answers when the recording's did (`MovieGame`, with the movie check). The
+  time a set of music takes to load is given to the flow the same way (`IMusicLoadTime`) and passes on the
+  session's clock with no update played (`GameClock.Pass`): none in the game, the console's in a recorded movie.
 
 ## Presentation
 

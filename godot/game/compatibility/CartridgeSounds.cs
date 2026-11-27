@@ -68,6 +68,9 @@ public sealed class CartridgeSounds : ISoundFlow
 
     /// <summary>The sound program the libraries' exchanges are with.</summary>
     private readonly ISoundProgram _program;
+
+    /// <summary>How long a set of music takes to load.</summary>
+    private readonly IMusicLoadTime _loads;
     private readonly DataNode _themes;
     private readonly string _setAtPowerOn;
     private readonly MusicQueue _music;
@@ -79,13 +82,15 @@ public sealed class CartridgeSounds : ISoundFlow
 
     /// <summary>
     /// The cartridge's flow at power-on, with the sets of music read from the game's data, its libraries' exchanges
-    /// made with <paramref name="program"/>.
+    /// made with <paramref name="program"/> and its sets of music loaded in the time <paramref name="loads"/> gives.
     /// </summary>
-    public CartridgeSounds(ContentLibrary content, ISoundProgram program)
+    public CartridgeSounds(ContentLibrary content, ISoundProgram program, IMusicLoadTime loads)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(program);
+        ArgumentNullException.ThrowIfNull(loads);
         _program = program;
+        _loads = loads;
         DataNode sets = content.ReadData(SetsFile);
         _themes = sets.Get("themes");
         _setAtPowerOn = sets.Text("loaded_at_start");
@@ -302,11 +307,24 @@ public sealed class CartridgeSounds : ISoundFlow
                 _downtime = MusicChangeDowntime;
                 break;
             case MusicQueue.Turn.SetLoaded:
-                // Loading a set stops the sound program: what it was asked for is dropped.
+                // Loading a set stops the sound program: what it was asked for is dropped. The time the load takes
+                // passes on the clock, with no update played.
                 _programDropsAsked = true;
                 _downtime = MusicChangeDowntime;
+                CountLoad(_loads.UpdatesToLoad(_music.LoadedSet));
                 break;
         }
+    }
+
+    /// <summary>Passes the time a set's load took on the clock of the session whose room is being played.</summary>
+    private void CountLoad(int updates)
+    {
+        if (updates == 0)
+            return;
+        Room room = _room is { } entered && Godot.GodotObject.IsInstanceValid(entered)
+            ? entered
+            : throw new InvalidOperationException($"The set of music \"{_music.LoadedSet}\" took {updates} updates to load before any room was entered: there is no clock to pass them on.");
+        room.Session.Clock.Pass(updates);
     }
 
     /// <inheritdoc/>

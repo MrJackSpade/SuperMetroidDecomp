@@ -26,9 +26,13 @@ namespace Game.Tests.Movies;
 /// How many of the next room's enemies a door's loader had set up by the update's end, where the recording says:
 /// from the update the main loop turns on, while the door's scroll lasts.
 /// </param>
+/// <param name="WaitedFramesAfter">
+/// How many frames the cartridge had spent, by the update's end and since the movie began, waiting on its sound
+/// program inside its updates: frames its own count kept and the list of updates leaves out.
+/// </param>
 public sealed record MovieUpdate(
     int Number, string Kind, int Buttons, int Pressed, int SourceFrame, int EndSourceFrame, int? ExpectedRecord,
-    int? MessageBoxStartFrame, int? MessageBoxEndFrame, bool ConsoleReset, int? EnemiesSetUp)
+    int? MessageBoxStartFrame, int? MessageBoxEndFrame, bool ConsoleReset, int? EnemiesSetUp, int WaitedFramesAfter)
 {
     /// <summary>The kind of an update that goes on inside something the cartridge's main loop had begun.</summary>
     public const string Continuation = "nmi-continuation";
@@ -50,6 +54,7 @@ public sealed record MovieUpdate(
             Whole(update, "messageBoxStartFrame"),
             Whole(update, "messageBoxEndFrame"),
             update.TryGetProperty("consoleReset", out JsonElement reset) && reset.ValueKind == JsonValueKind.True,
-            Whole(update.GetProperty("timingEvidence"), "doorLoaderCompletedEnemySlots"));
+            Whole(update.GetProperty("timingEvidence"), "doorLoaderCompletedEnemySlots"),
+            update.GetProperty("excludedNmiAfter").GetInt32());
     }
 }

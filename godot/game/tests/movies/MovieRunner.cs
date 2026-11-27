@@ -168,6 +168,7 @@ public partial class MovieRunner : Node
             bool boxContinues = Session.Mode is MessageBoxMode;
             ExpectSounds(trace, definition, update);
             ((MovieGame)definition).Loads.Expect(updates, index);
+            ((MovieGame)definition).MusicLoads.Expect(updates, index);
             Step(InputOf(update.Buttons, update.Pressed));
             string? box = PlayMessageBox(file, update, next, boxContinues);
 

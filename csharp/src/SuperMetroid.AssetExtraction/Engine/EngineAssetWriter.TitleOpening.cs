@@ -107,8 +107,8 @@ public sealed partial class EngineAssetWriter
             ["copyright_hold"] = TitleSequenceDefinitions.Timing.CopyrightHoldFrames,
             // The screen's brightness goes from full to black in fifteen steps: skipping the opening takes them some at
             // a time, an update each, the last step short; leaving the title takes them one every so many updates.
-            ["skip_fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
-            ["skip_fade_step"] = TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep,
+            ["skip_fade_updates"] = (SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull + TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep - 1)
+                / TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep,
             ["leave_fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
             ["leave_fade_updates"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull * TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep,
         };

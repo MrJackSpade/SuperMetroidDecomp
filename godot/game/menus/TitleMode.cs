@@ -32,10 +32,9 @@ namespace Game.Menus;
 /// start, and how much more of the floor there is to a pixel, "grows_by", on every so many updates, "every", until
 /// the floor is its own size); the "logo" and the "copyright" as they fade in (each a place, a "picture" and a "fade", steps of colours whose
 /// first look shows on the update each first shows) and
-/// how long each is given ("logo_hold", "copyright_hold"); the levels of brightness the fades go through when the
-/// opening is cut short ("skip_fade_levels") and how many of them each of its updates takes ("skip_fade_step"); and
-/// how long the fade takes when the title is left ("leave_fade_updates") and the levels it goes through
-/// ("leave_fade_levels").
+/// how long each is given ("logo_hold", "copyright_hold"); and how long the fades take when the opening is cut
+/// short ("skip_fade_updates") and when the title is left ("leave_fade_updates"), and the levels of brightness the
+/// latter goes through ("leave_fade_levels").
 /// </remarks>
 public partial class TitleMode : GameMode
 {
@@ -111,9 +110,6 @@ public partial class TitleMode : GameMode
     private ColourSteps? _logoFade;
     private ColourSteps? _copyrightFade;
     private ScreenFade? _fade;
-
-    /// <summary>How many levels of brightness the skip's fade, or its fade back in, has the screen darkened by.</summary>
-    private int _skipDark;
     private Doing _doing;
     private bool _skipping;
     private int _step;
@@ -161,7 +157,7 @@ public partial class TitleMode : GameMode
         if (_beginning == Beginning.AtRest)
         {
             Rest(rebuilt: true);
-            DarkenSkip(opening, opening.Int("skip_fade_levels"));
+            _fade.FadeIn(opening.Int("skip_fade_updates"));
             return;
         }
 
@@ -240,13 +236,12 @@ public partial class TitleMode : GameMode
                 Rest(rebuilt: true);
                 foreach (ColourSteps light in _lights)
                     light.Stop();
-                DarkenSkip(opening, opening.Int("skip_fade_levels"));
+                fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
             case Doing.Resting:
-                // Come back from a skip, the screen brightens by so many levels an update, the last step short.
-                if (_skipDark > 0)
+                if (!fade.IsDone)
                 {
-                    DarkenSkip(opening, Math.Max(0, _skipDark - opening.Int("skip_fade_step")));
+                    fade.Step();
                     return this;
                 }
 
@@ -279,16 +274,17 @@ public partial class TitleMode : GameMode
         // A press while the cards, the moves or the drawing back are going on cuts the opening short, unless it is
         // already cut short; the step this update ends in decides.
         if (pressed && !_skipping && _doing is Doing.Card or Doing.Pan or Doing.Zoom)
+        {
             _skipping = true;
+            fade.FadeOut(opening.Int("skip_fade_updates"));
+        }
 
         if (!_skipping)
             return this;
 
-        // The opening goes on beneath the skip's fade, which darkens the screen by so many levels an update after it,
-        // the first time on the update of the press and the last step short.
-        int levels = opening.Int("skip_fade_levels");
-        DarkenSkip(opening, Math.Min(levels, _skipDark + opening.Int("skip_fade_step")));
-        if (_skipDark < levels)
+        // The opening goes on beneath the skip's fade, which steps after it, the first time on the update of the press.
+        fade.Step();
+        if (!fade.IsDone)
             return this;
 
         // Only a skip asks for the music at rest; the opening's own music runs on into it otherwise.
@@ -296,13 +292,6 @@ public partial class TitleMode : GameMode
         _skipping = false;
         _doing = Doing.Rebuilding;
         return this;
-    }
-
-    /// <summary>Shows the screen darkened by <paramref name="dark"/> of the skip's levels of brightness.</summary>
-    private void DarkenSkip(DataNode opening, int dark)
-    {
-        _skipDark = dark;
-        (_fade ?? throw NotShown()).Cover(dark, opening.Int("skip_fade_levels"));
     }
 
     /// <summary>Asks for the opening's music, with the set it is in.</summary>

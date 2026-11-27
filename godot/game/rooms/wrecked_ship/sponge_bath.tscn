@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,9 +8,10 @@
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
-[ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="10"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="11"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -88,14 +89,18 @@ AtEntry = "ToSpikyDeath"
 What = "open_to_top"
 Target = NodePath("../Screen1x0")
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="Ground" type="Node" parent="."]
 script = ExtResource("9")
+Kind = 1
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/wrecked_ship_panels_vents.png"
 ScrollShare = Vector2(0.75, 0.75)
 LiesAt = Vector2i(0, -1)
 
-[node name="Bull" parent="." instance=ExtResource("10")]
+[node name="Bull" parent="." instance=ExtResource("11")]
 position = Vector2(240, 136)
 AccelerationInterval = 6
 DecelerationInterval = 2
@@ -104,7 +109,7 @@ AlwaysActive = true
 PresentWhen = SubResource("r1")
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
 TypeFile = "liquids/water.json"
 Drifts = true

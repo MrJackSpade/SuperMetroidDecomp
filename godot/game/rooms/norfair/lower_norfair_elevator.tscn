@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -10,8 +10,9 @@
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
-[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/EntryPoint.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -127,15 +128,19 @@ position = Vector2(0, 0)
 EffectName = "norfair_dark_foreground_heat_glow"
 StepsFile = "colours/{graphics}/norfair_dark_foreground_heat_glow.json"
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="Ground" type="Node" parent="."]
 script = ExtResource("11")
+Kind = 1
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_cavern_stalactites.png"
 ScrollShare = Vector2(0.75, 0.75)
 LiesAt = Vector2i(0, -1)
 
 [node name="AtLowerNorfairElevator" type="Marker2D" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 position = Vector2(128, 136)
 PlacesView = true
 ViewAt = Vector2i(0, 0)

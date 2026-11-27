@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,8 +9,9 @@
 [ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
-[ext_resource type="Script" path="res://game/rooms/maridia/TubeRide.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/maridia/TubeRide.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -122,21 +123,25 @@ TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 PresentWhen = SubResource("r4")
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="Ground" type="Node" parent="."]
 script = ExtResource("10")
+Kind = 0
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_toilet.png"
 ScrollShare = Vector2(1, 1)
 LiesAt = Vector2i(0, -1)
 
 [node name="RideUp" type="Node" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 StartsAtEntry = "ToOasis"
 StartSpeed = -1.0
 Gain = -0.125
 
 [node name="RideDown" type="Node" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 StartsAtEntry = "ToPlasmaSpark"
 StartSpeed = 1.0
 Gain = 0.125

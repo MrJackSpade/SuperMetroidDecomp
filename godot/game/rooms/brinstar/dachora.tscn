@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -13,9 +13,10 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="13"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
-[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="15"]
-[ext_resource type="Script" path="res://game/rooms/brinstar/DachoraShaftCamera.cs" id="16"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="15"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="16"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/DachoraShaftCamera.cs" id="17"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -401,19 +402,23 @@ position = Vector2(0, 0)
 EffectName = "spores"
 LookFile = "effects/spores.json"
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="Ground" type="Node" parent="."]
 script = ExtResource("14")
+Kind = 1
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("15")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_dachora.png"
 ScrollShare = Vector2(0.75, 1)
 LiesAt = Vector2i(0, -1)
 
 [node name="Plants" type="Node" parent="."]
-script = ExtResource("15")
+script = ExtResource("16")
 StartsWhen = SubResource("r2")
 DataFile = "objects/samus_eater.json"
 
 [node name="ShaftCamera" type="Node" parent="."]
-script = ExtResource("16")
+script = ExtResource("17")
 StartsWhen = SubResource("r2")
 ShaftTop = NodePath("../Screen4x1")

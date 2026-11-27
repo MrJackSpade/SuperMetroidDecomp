@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,10 +6,11 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
-[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="10"]
+[ext_resource type="Script" path="res://game/rooms/Ground.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="10"]
+[ext_resource type="Script" path="res://engine/world/ColourEffect.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -60,51 +61,55 @@ SamusStep = 0.78125
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="Backdrop" type="Node2D" parent="."]
+[node name="Ground" type="Node" parent="."]
 script = ExtResource("7")
+Kind = 1
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("8")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/wrecked_ship_panels_vents.png"
 ScrollShare = Vector2(0.75, 0.75)
 LiesAt = Vector2i(0, -1)
 
-[node name="Spark" parent="." instance=ExtResource("8")]
+[node name="Spark" parent="." instance=ExtResource("9")]
 position = Vector2(154, 58)
 Does = 1
 SpellUpdates = 48
 PresentWhen = SubResource("r1")
 
-[node name="Spark2" parent="." instance=ExtResource("8")]
+[node name="Spark2" parent="." instance=ExtResource("9")]
 position = Vector2(52, 59)
 Does = 1
 SpellUpdates = 32
 PresentWhen = SubResource("r1")
 
-[node name="Spark3" parent="." instance=ExtResource("8")]
+[node name="Spark3" parent="." instance=ExtResource("9")]
 position = Vector2(151, 184)
 Does = 1
 SpellUpdates = 40
 PresentWhen = SubResource("r1")
 
-[node name="Spark4" parent="." instance=ExtResource("8")]
+[node name="Spark4" parent="." instance=ExtResource("9")]
 position = Vector2(103, 200)
 Does = 1
 SpellUpdates = 48
 PresentWhen = SubResource("r1")
 
-[node name="Spark5" parent="." instance=ExtResource("8")]
+[node name="Spark5" parent="." instance=ExtResource("9")]
 position = Vector2(178, 200)
 Does = 1
 SpellUpdates = 24
 PresentWhen = SubResource("r1")
 
-[node name="SuperMissileTank" parent="." instance=ExtResource("9")]
+[node name="SuperMissileTank" parent="." instance=ExtResource("10")]
 position = Vector2(40, 120)
 TypeFile = "items/super_missile_tank.json"
 RememberedAs = "wrecked_ship_west_super_exposed_super_missile_tank"
 PresentWhen = SubResource("r1")
 
 [node name="WreckedShipGreenLights" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "wrecked_ship_green_lights"
 StepsFile = "colours/{graphics}/wrecked_ship_green_lights.json"

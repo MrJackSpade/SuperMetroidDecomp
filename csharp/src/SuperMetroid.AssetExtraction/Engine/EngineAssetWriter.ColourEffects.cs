@@ -23,8 +23,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// Writes the steps of every colour effect a room's effect starts on the room's own pictures, for each set of
     /// graphics that shows it. A step's colours are those the effect's frame shows changed on the set's blocks and on
-    /// the pictures behind the rooms that run it, and on what is placed in a room and drawn with the set's blocks
-    /// (<see cref="EngineRoomObjects.FoldersShownRoomColours"/>).
+    /// the pictures behind the rooms that run it, and on what is drawn into a room with the set's blocks: door caps,
+    /// gates, item shells, stations (<see cref="EngineRoomObjects.Folders"/>), whose pictures are of the set's own
+    /// sheet and so change as its blocks do.
     /// </summary>
     /// <exception cref="InvalidDataException">An effect cannot be shown by swapping colours on one of its sheets, or two of its sheets disagree about a colour.</exception>
     private void WriteRoomColourEffects()
@@ -43,6 +44,8 @@ public sealed partial class EngineAssetWriter
                 if (!shownOn.TryGetValue((set, effect), out SortedDictionary<string, string>? places))
                     shownOn[(set, effect)] = places = new SortedDictionary<string, string>(StringComparer.Ordinal);
                 AddRoomPlaces(places, state);
+                foreach (string folder in RoomObjects.Folders)
+                    places[$"{folder}/{set}"] = state.GraphicsSet.ToString();
             }
         }
 
@@ -52,17 +55,13 @@ public sealed partial class EngineAssetWriter
 
     /// <summary>
     /// Adds the places one state of a room shows pictures of its own from, each with the sheet its pictures were cut
-    /// from: the folder of its set's blocks, the folders of what is placed in a room and drawn with those blocks (a
-    /// door's cap, an item, its shell, a station: <see cref="EngineRoomObjects.FoldersShownRoomColours"/>), which are
-    /// of the blocks' sheet and change as the blocks do, and the picture behind it, whether a picture of its own or
-    /// one put together from the set's blocks.
+    /// from: the folder of its set's blocks, and the picture behind it, whether a picture of its own or one put
+    /// together from the set's blocks.
     /// </summary>
     private static void AddRoomPlaces(IDictionary<string, string> places, RoomStateSettings state)
     {
         string set = GraphicsFolder(state), blocks = state.GraphicsSet.ToString();
         places[$"tiles/{set}"] = blocks;
-        foreach (string folder in EngineRoomObjects.FoldersShownRoomColours)
-            places[$"{folder}/{set}"] = blocks;
         if (BackdropSheet(state) is { } backdrop)
             places[BackdropPath(state, state.Background!)] = backdrop;
         else if (state.Background is null)

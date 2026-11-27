@@ -22,12 +22,4 @@ public static class EnemyView
         return x >= camera.Left - margin && x <= camera.Left + Extent + margin &&
             y >= camera.Top - margin && y <= camera.Top + Extent + margin;
     }
-
-    /// <summary>Whether the point lies in the view, its right and bottom edges not included.</summary>
-    public static bool ContainsBeforeFarEdges(Room room, int x, int y)
-    {
-        Camera camera = room.Session.Camera;
-        int across = x - camera.Left, down = y - camera.Top;
-        return across >= 0 && across < Extent && down >= 0 && down < Extent;
-    }
 }

@@ -193,7 +193,7 @@ something that leaves the room.
   extractor's fades written ahead of time do. The Torizos' colourings, fades and belly's glow are worked out so.
   `EnemyView` is the cartridge's view for its enemies, which is not the screen: a square of 256 pixels each way from
   the camera's corner, so reaching further below than the screen shows, its right and bottom edges counted in
-  (`Contains`, widened on every side by a margin where an enemy asks for one) or not (`ContainsBeforeFarEdges`). An
+  (`Contains`, widened on every side by a margin where an enemy asks for one). An
   enemy that counts as on screen by it, or is heard only inside it, asks it (the pipe bugs, the Zoa, the shutters,
   the Evir's spine ball, the small Kraid, the Magdollite's hand, the Yapping Maw); one whose cartridge code has a
   window of its own (the Rinka, Ridley in Norfair, Mother Brain's turrets and rings, the work robot) keeps that in
@@ -1323,6 +1323,9 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   `EnemyTurnMarginBelow`), and to either side by the enemy's own half-width besides (its body collider's, which
   no pose reshapes; of one with no body, its first hurtbox's); the edges count as within.
   This game's are nothing across, eight pixels above and twenty-four below, which is the cartridge's window.
+  An enemy may ask whether its place is inside that window now, whatever else has it take turns
+  (`Enemy.IsWithinTurnReach`): one that is always active and yet is heard, or seen, only from inside the window
+  asks so, as this game's Rio's dive is heard and its pipe bugs wait to be seen.
   On an update the enemies are held still, each that would have taken a turn still counts on the time it cannot
   be hit for, and does nothing else: the cartridge's pass goes through its enemies in frozen time and counts that alone.
 - **An enemy's turn.** The room steps each such enemy once an update. Its timers move on; then, unless it could

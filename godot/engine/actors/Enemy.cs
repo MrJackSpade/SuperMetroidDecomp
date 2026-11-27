@@ -193,6 +193,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Where the player is: what most enemies aim at and move toward.</summary>
     protected PixelPosition Target => Room.Player.Position;
 
+    /// <summary>
+    /// Whether its place is inside the room's turn window now: the view widened as the game's definition says, and to
+    /// either side by its own half-width, whatever else has it take turns (being always active, being frozen).
+    /// </summary>
+    protected bool IsWithinTurnReach => Room.IsWithinTurnReach(this);
+
     /// <summary>The side of it the player is on.</summary>
     protected Facing TowardPlayer => Room.Player.Position.X < Position.X ? Facing.Left : Facing.Right;
 
@@ -843,14 +849,6 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>Whether the enemy stands on terrain, or on a solid that stands as part of the room.</summary>
     protected bool IsOnGround => Room.Mover.IsOnGround(RequireBody(), MoveOptions.AmongBlocks);
-
-    /// <summary>Whether the enemy's place is in the camera's view, or within <paramref name="margin"/> pixels of it.</summary>
-    protected bool IsInView(int margin)
-    {
-        PixelRect view = Room.Session.Camera.View;
-        int x = Position.X.Whole, y = Position.Y.Whole;
-        return x >= view.Left - margin && x < view.Left + view.Width + margin && y >= view.Top - margin && y < view.Top + view.Height + margin;
-    }
 
     /// <summary>Whether the player's body is within the given distances of the enemy, across and down.</summary>
     protected bool PlayerIsWithin(int across, int down)

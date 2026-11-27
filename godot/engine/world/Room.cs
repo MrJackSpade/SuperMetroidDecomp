@@ -1110,10 +1110,14 @@ public partial class Room : Node2D
     /// middle lies within the view widened as the game's definition says, and to either side by the enemy's own
     /// half-width besides. The edges count as within.
     /// </summary>
-    private bool IsActive(Enemy enemy)
+    private bool IsActive(Enemy enemy) => enemy.AlwaysActive || enemy.IsFrozen || IsWithinTurnReach(enemy);
+
+    /// <summary>
+    /// Whether an enemy's middle lies within the window in which enemies take their turns: the view widened as the
+    /// game's definition says, and to either side by the enemy's own half-width besides. The edges count as within.
+    /// </summary>
+    internal bool IsWithinTurnReach(Enemy enemy)
     {
-        if (enemy.AlwaysActive || enemy.IsFrozen)
-            return true;
         PixelRect view = Session.Camera.View;
         GameDefinition game = Session.Definition;
         int across = enemy.BodyHalfWidth + game.EnemyTurnMarginAcross;

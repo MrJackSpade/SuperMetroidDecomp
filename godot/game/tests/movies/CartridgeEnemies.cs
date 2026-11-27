@@ -29,5 +29,8 @@ public static class CartridgeEnemies
     /// <summary>The kinds decided so far, by the address of the kind's header.</summary>
     public static IReadOnlyDictionary<int, Kind> Kinds { get; } = new Dictionary<int, Kind>
     {
+        // Ceres's doors and walls: room objects, each door a Barrier (game/objects/ceres_door), the blocked way to the
+        // elevator a CeresElevatorDoor (game/objects/ceres_elevator_door).
+        [0xE23F] = new(null, "the room objects of Ceres's doors and walls"),
     };
 }

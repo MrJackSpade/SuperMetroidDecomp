@@ -117,63 +117,6 @@ public partial class Phantoon : Enemy
     private const int WaverUpdates = 120, WaverSettlingUpdates = 12 * 4 + 1;
 
     /// <summary>
-    /// Its body's wave, as the cartridge moves the lines of the layer its body is drawn on: a sine down the screen
-    /// whose angle turns so many 256ths of a turn an update, one whole wave every so many lines as it appears and
-    /// every so many as it dies, as wide at its widest as it appears (in quarters of a pixel) and growing by so many
-    /// quarters an update to so many as it dies; a line moved off one side of the layer comes round at the other.
-    /// </summary>
-    private const int WaveTurn = 8, AppearingWaveLines = 64, DyingWaveLines = 128, AppearingWaveQuarters = 12 * 4,
-        DyingWaveGrowth = 4, DyingWaveQuarters = 240 * 4, WaveLayerWidth = 256;
-
-    /// <summary>The wave asked for, which the next update only sets up: the lines one whole wave takes. Null when none waits.</summary>
-    private int? _waveAsked;
-
-    /// <summary>Whether a wave has been set up and not ended, the lines one whole wave of it takes, and its angle.</summary>
-    private bool _waving;
-    private int _waveLines = AppearingWaveLines, _waveAngle;
-
-    /// <summary>How wide the wave is to be, in quarters of a pixel: what the next update's wave is made with.</summary>
-    private int _waveQuarters;
-
-    /// <summary>The wave as it was last made: its angle at the screen's first line and its width in quarters of a pixel.</summary>
-    private (int Angle, int Quarters) _waveShown;
-
-    /// <summary>
-    /// One update of the wave, before anything else of his update, as the cartridge runs it with the room's effects:
-    /// a wave asked for is only set up, its angle a step short of nought; one set up turns its angle and is made
-    /// anew with the width his last update left it. His body is then shown by it.
-    /// </summary>
-    private void StepWave()
-    {
-        if (_waveAsked is { } lines)
-        {
-            (_waveAsked, _waving, _waveLines, _waveAngle) = (null, true, lines, -1);
-        }
-        else if (_waving)
-        {
-            _waveAngle += WaveTurn;
-            _waveShown = (_waveAngle, _waveQuarters);
-        }
-
-        // A wave of no width is his body as it lies.
-        if (_waving && _waveShown.Quarters > 0)
-            Visual?.ShiftRows(WaveShiftAt, WaveLayerWidth);
-        else
-            Visual?.ShiftRows(null);
-    }
-
-    /// <summary>
-    /// How far the wave moves the row of his body on a line of the screen: the cartridge's sine at the wave's angle
-    /// turned on by the line's share of a whole wave, times the wave's width, what is less than a pixel dropped. The
-    /// cartridge moves the layer's view, so the row moves the other way.
-    /// </summary>
-    private int WaveShiftAt(int line)
-    {
-        int angle = _waveShown.Angle + (int)Math.Floor(line * (double)Turns.PerTurn / _waveLines);
-        return -(Game.Compatibility.CartridgeAngles.SignedSine(angle) * _waveShown.Quarters / (256 * 4));
-    }
-
-    /// <summary>
     /// Dead, its body breaks up into ever larger blocks before it fades: so many sizes of block, the next on every so
     /// manieth update of the clock.
     /// </summary>
@@ -452,7 +395,6 @@ public partial class Phantoon : Enemy
     protected override void Behave()
     {
         long clock = Room.Session.Clock.Updates;
-        StepWave();
         if (_turningSolid)
         {
             // Its eye opens to harm one update after it began to track Samus: until then only its middle is there.
@@ -491,9 +433,6 @@ public partial class Phantoon : Enemy
                     break;
                 _phase = Phase.FadeInAtStart;
                 _wait = WaverUpdates + WaverSettlingUpdates;
-
-                // Its body wavers as it comes: a wave at its widest from the first, set up on the next update.
-                (_waveQuarters, _waveAsked) = (AppearingWaveQuarters, AppearingWaveLines);
                 ResumeFade();
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
@@ -501,10 +440,6 @@ public partial class Phantoon : Enemy
 
             case Phase.FadeInAtStart:
                 FadeIn(clock, FadeSteps);
-
-                // The wave keeps its width while it wavers, and then loses a quarter of a pixel an update: the update
-                // that ends the wavering leaves it whole, and the last but one of the settling leaves none.
-                _waveQuarters = Math.Clamp(_wait - 2, 0, AppearingWaveQuarters);
                 if (Ends())
                 {
                     _phase = Phase.PickFirstPattern;
@@ -787,17 +722,12 @@ public partial class Phantoon : Enemy
                 // An update of its own, as on the cartridge: its parts go, it cries out, and its body begins to break up.
                 _dissolve = 1;
                 _phase = Phase.Dissolving;
-
-                // Its body wavers as it goes: a longer wave that starts flat and grows a pixel an update.
-                (_waveQuarters, _waveAsked) = (0, DyingWaveLines);
                 foreach (string part in new[] { "Eye", "Mouth", "Tentacles" })
                     GetNodeOrNull<ActorVisual>(part)?.SetShown(false);
                 Sound(DyingCry);
                 break;
 
             case Phase.Dissolving:
-                _waveQuarters = Math.Min(_waveQuarters + DyingWaveGrowth, DyingWaveQuarters);
-
                 // The blocks grow a size on each update the clock gives them, and on the one that finds them at their
                 // largest its body begins to fade.
                 if (clock % DissolveEvery != 0)
@@ -813,15 +743,12 @@ public partial class Phantoon : Enemy
                 break;
 
             case Phase.DyingFadeOut:
-                _waveQuarters = Math.Min(_waveQuarters + DyingWaveGrowth, DyingWaveQuarters);
                 if (FadeOut(clock))
                     _phase = Phase.AlmostDead;
                 break;
 
             case Phase.AlmostDead:
                 // An update of its own, on which what is left of it is cleared away and the wait for the power begins.
-                (_waving, _waveAsked) = (false, null);
-                Visual?.ShiftRows(null);
                 _phase = Phase.Dead;
                 _wait = PowerWaitUpdates;
                 _powerStep = 0;

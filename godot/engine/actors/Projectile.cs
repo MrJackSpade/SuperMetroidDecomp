@@ -890,9 +890,17 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // an eye door's eye lies within its cap, and the shot would be gone before that enemy's turn came.
         if (!HarmsNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
-        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false } && !StandsAsPartOfRoom(target)))
+        // What belongs to the room is blocks on the cartridge, a thing that stands as part of it and an enemy that
+        // takes its turn with its objects alike: one that meets such things as it moves reaches them by what of it
+        // meets terrain, and one that meets them where its move ends reaches the enemy by its body as it moves.
+        bool byTerrainArea = !MeetsStandingThingsAtEnd;
+        if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false } && !StandsAsPartOfRoom(target)
+            && !(byTerrainArea && target is Enemy)))
+        {
             return false;
-        if (!MeetsStandingThingsAtEnd && !MeetTargets(room, meetsStanding, StandsAsPartOfRoom))
+        }
+
+        if (byTerrainArea && !MeetTargets(room, meetsStanding, target => StandsAsPartOfRoom(target) || target is Enemy { ActsWithObjects: true }))
             return false;
 
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
@@ -966,12 +974,15 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
     /// <summary>
     /// Tries the player's shot against one enemy, where the shot stands. The enemy asks, through the room, in its
-    /// own turn.
+    /// own turn. An enemy that takes its turn with the room's objects is reached there as it is reached while the
+    /// shot moves: by what of the shot meets terrain, for one that meets the room's things as it moves.
     /// </summary>
     internal void MeetEnemy(Enemy enemy)
     {
-        if (!HasEnded && HarmsNow && Side == HitSide.Player)
-            MeetTargets(Room, Area, target => ReferenceEquals(target, enemy), spends: true);
+        if (HasEnded || !HarmsNow || Side != HitSide.Player)
+            return;
+        PixelRect area = enemy.ActsWithObjects && !MeetsStandingThingsAtEnd ? TerrainArea : Area;
+        MeetTargets(Room, area, target => ReferenceEquals(target, enemy), spends: true);
     }
 
     /// <summary>

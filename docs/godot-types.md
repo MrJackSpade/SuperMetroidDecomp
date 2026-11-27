@@ -1721,7 +1721,9 @@ leave none, as the cartridge's death explosion in its first place never becomes 
 **A shot meets what is solid and hittable.** A projectile that reaches a solid that stands as part of the room, such
 as a door's cap, delivers its hit to what is there before the solid stops it. Terrain stops it first. It reaches
 such a thing by what of it meets terrain: its body, or its middle point alone for one tried by its middle, so that
-a missile flying a pixel clear of a cap's column passes it though its body overlaps. One that meets
+a missile flying a pixel clear of a cap's column passes it though its body overlaps; and so it reaches an enemy
+that takes its turn with the room's objects (`Enemy.ActsWithObjects`), as this game's eye of an eye door is the
+two blocks it lies in. One that meets
 terrain where each move ends by the edge it leads with meets such things the same way and at the same moment, as
 the blocks they are on the cartridge (one tried by its middle gathers speed enough to step over a whole square in a
 move, and still meets them as it moves): the square of the room one lies in stops the edge as a way out does, the shot's hit lands on whatever of them lies in the squares reached (once on each), and what the

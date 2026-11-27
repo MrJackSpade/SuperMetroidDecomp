@@ -478,12 +478,17 @@ public partial class MotherBrain
                 break;
 
             case Ascent.ColoursReturn:
+                // Each step of her colours' return shows for its updates, the last as well: the fight goes on only
+                // on the update after the last has had them.
                 if (--_greyWait > 0)
                     break;
-                _greyWait = FromGreyStepUpdates;
-                _tint = GreyTint(--_greyStep);
                 if (_greyStep > 0)
+                {
+                    _greyWait = FromGreyStepUpdates;
+                    _tint = GreyTint(--_greyStep);
                     break;
+                }
+
                 _form = Form.SecondPhase;
                 _drools = true;
                 (_lowerMove, _upperMove, _neckTurn) = (NeckMove.Lower, NeckMove.Lower, NeckFast);

@@ -452,8 +452,9 @@ public partial class Torizo : Enemy
         ShowColours();
         Player samus = Room.Player;
         // Only a spin that shows itself the space jump's counts: the screw attack's, with the space jump on too, does not.
+        // The count rolls over from 65,535 to nothing, as the cartridge's does.
         if (Golden)
-            _spaceJumping = samus.State is SpinJumpingState { ShownSound: Sounds.SpaceJump } ? _spaceJumping + 1 : 0;
+            _spaceJumping = samus.State is SpinJumpingState { ShownSound: Sounds.SpaceJump } ? (_spaceJumping + 1) & 0xFFFF : 0;
 
         switch (_stage)
         {

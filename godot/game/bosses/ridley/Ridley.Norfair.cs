@@ -822,6 +822,9 @@ public partial class Ridley
         _holdsSamus = true;
         // In its claws she is held as she is: her pose and speed kept, neither moving, animating nor acting.
         samus.HoldAsTheyAre();
+        // As on the cartridge, from the grab it passes through her shots until it next acts, so through those of its
+        // next turn, which are tried before it acts.
+        IsIntangible = true;
         if (Health.IsEmpty)
         {
             BeginDying();

@@ -829,17 +829,23 @@ public partial class MotherBrain
             case Drain.WaitBeforeGreying:
                 if (--_timer > 0)
                     return false;
-                (_greyStep, _greyWait) = (0, 1);
+                // Her first step toward grey shows a step's length from now, counting this update.
+                (_greyStep, _greyWait) = (0, DrainedGreyStepUpdates);
                 _drain = Drain.TransitionToGrey;
                 return true;
 
             case Drain.TransitionToGrey:
+                // Each step shows for its updates, the last as well: she lies grey only on the update after the last
+                // has had them.
                 if (--_greyWait > 0)
                     return false;
-                _greyWait = DrainedGreyStepUpdates;
-                _tint = DrainedTint.Lerp(GreyTint(GreySteps), (float)_greyStep / GreySteps);
-                if (++_greyStep <= GreySteps)
+                if (_greyStep < GreySteps)
+                {
+                    _greyWait = DrainedGreyStepUpdates;
+                    _tint = DrainedTint.Lerp(GreyTint(GreySteps), (float)++_greyStep / GreySteps);
                     return false;
+                }
+
                 _headHealth = ThirdPhaseHealth;
                 _isCorpse = true;
                 _breathes = false;
@@ -894,12 +900,17 @@ public partial class MotherBrain
                 return true;
 
             case Revival.TransitionFromGrey:
+                // Each step shows for its updates, the last as well: she wakes only on the update after the last has
+                // had them.
                 if (--_greyWait > 0)
                     return false;
-                _greyWait = DrainedGreyStepUpdates;
-                _tint = GreyTint(--_greyStep);
                 if (_greyStep > 0)
+                {
+                    _greyWait = DrainedGreyStepUpdates;
+                    _tint = GreyTint(--_greyStep);
                     return false;
+                }
+
                 _revival = Revival.WakeUp;
                 return true;
 

@@ -60,8 +60,11 @@ public sealed class Throw
         owner.Steer(owner.Moves(_moves));
         owner.Velocity = owner.Velocity.WithX(_toward.Toward(owner.Velocity.X.Abs()));
         owner.MoveAcross();
-        MoveResult down = _low ? PressDown(owner) : owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
-        if (down.Blocked)
+
+        // A low throw presses the player down as one on the ground is pressed after moving across: by as far as they
+        // set out to move across, whatever a wall then left of their speed, and a pixel more.
+        bool stopped = _low ? owner.PressToGround() : owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true).Blocked;
+        if (stopped)
         {
             // Stopped up or down, the player is left with no way up or down at all, not falling: adrift, for as long
             // as the throw goes on.

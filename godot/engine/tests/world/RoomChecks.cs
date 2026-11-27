@@ -3,6 +3,7 @@ using Engine.Collision;
 using Engine.Input;
 using Engine.Shared;
 using Engine.Tests.Actors;
+using Engine.Tests.Content;
 using Engine.World;
 using Godot;
 
@@ -196,17 +197,17 @@ public sealed class RoomChecks
     public void OngoingDamageIsTakenALittleEachUpdateAndCancelledByEquipment()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80);
-        world.Assets.With("player.json", """
-            { "half_width": 5, "standing_height": 40, "crouching_height": 28, "crawling_height": 14,
-              "run_acceleration": 0.25, "run_speed": 2, "friction": 0.5, "air_acceleration": 0.25, "crawl_speed": 1.5,
-              "jump_speed": 4.5, "jump_cut_speed": 1, "crawl_jump_speed": 3.5, "gravity": 0.125, "fall_speed_limit": 5,
-              "wall_jump_up_speed": 4,
-              "knockback_across_speed": 1.5, "knockback_up_speed": 2, "knockback_updates": 12, "invincible_updates": 60,
-              "turn_pictures": [], "climb_per_pixel": 2, "follow_ground_down": 3, "starting_energy": 99,
-              "can_crouch": true, "can_crawl": false, "can_jump_while_crawling": false,
-              "crawl_needs": "", "jump_while_crawling_needs": "",
-              "ongoing_damage_cancelled_by": { "heat": ["heat suit"] } }
-            """);
+        // A player's data file gives every value: the check's own is the values the player has, with what cancels
+        // heat's damage said over them.
+        System.Text.Json.Nodes.JsonObject data = StandInData.ValuesOf(world.Player);
+        data["forms"] = new System.Text.Json.Nodes.JsonObject(
+            world.Player.Forms.Select(form => KeyValuePair.Create(form.Key, (System.Text.Json.Nodes.JsonNode?)form.Value)));
+        data["mediums"] = new System.Text.Json.Nodes.JsonObject();
+        data["ongoing_damage_cancelled_by"] = new System.Text.Json.Nodes.JsonObject
+        {
+            ["heat"] = new System.Text.Json.Nodes.JsonArray("heat suit"),
+        };
+        world.Assets.With("player.json", data.ToJsonString());
         world.Player.DataFile = "player.json";
         world.Place(new StandInHeat { Name = "Heat", EffectName = "heat", DamageHundredths = 25 }, 0, 0);
         world.Setup();

@@ -347,8 +347,11 @@ public partial class DoorTransitionMode : GameMode
                 break;
 
             case Stage.Loading:
-                // The cartridge's main loop does not turn on this update: it is the first the door's scroll carries on
-                // by itself while the next room loads, and no random number is drawn on it.
+                // The cartridge's main loop turns once as the next room's load ends, and a random number is drawn
+                // then. Its load lasts some of the scroll's updates, the scroll carrying on by itself meanwhile: how
+                // many is the time its hardware takes over that room. The game's load is this one update, and the
+                // number is drawn on it.
+                Session.OpenUpdate();
                 Load(samus);
                 _stage = Stage.Scrolling;
                 break;

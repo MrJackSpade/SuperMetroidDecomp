@@ -182,7 +182,7 @@ public partial class MovieRunner : Node
             else if (update.ExpectedRecord is { } record)
             {
                 trace.ReadTo(record);
-                differences.AddRange(check.Differences(Session));
+                differences.AddRange(check.Differences(Session, update));
             }
 
             if (differences.Count > 0)

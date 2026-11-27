@@ -892,7 +892,10 @@ class Generator:
         if room.area in FROZEN_UPDATES:
             room_settings['StatusUpdates'] = 'Dictionary[String, int]({"frozen": %d})' % FROZEN_UPDATES[room.area]
         scene.node(room.name, None, room_settings, script='res://engine/world/Room.cs')
-        scene.node('Terrain', '.', {'LayoutFile': quoted(layout_of(room, base))}, script='res://engine/world/Terrain.cs')
+        # The room's tiles are shown a row above its own rows, as its backdrops lie (sequences.PLANES_AT); where they
+        # are in play does not move.
+        scene.node('Terrain', '.', {'position': 'Vector2({}, {})'.format(*sequences.PLANES_AT), 'LayoutFile': quoted(layout_of(room, base))},
+                   script='res://engine/world/Terrain.cs')
 
         entries: list[tuple[str, int, int]] = []
         for name, (x, y, width, height) in self.room_doors[key].items():

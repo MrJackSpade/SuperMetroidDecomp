@@ -699,7 +699,8 @@ public sealed partial class EngineAssetWriter
         const int block = EngineRoomObjects.Block;
         new EngineObjectFile(_tree, file, "BombTorizoHand")
             .Value("debris_look", TorizoLookName(TorizoArtworkLookKeys.Installed.Of(TorizoArtworkLook.ChozoCrumbled)))
-            .Group("picture_offset", new JsonObject { ["x"] = left * block, ["y"] = top * block })
+            // It is of the room's blocks, and lies a row up with the room's tiles.
+            .Group("picture_offset", EngineRoomObjects.PictureCorner(left * block, top * block))
             .Group("crumble", EngineNames.List(BombTorizoHandCrumbleDefinitions.Crumble.Select(step => (JsonNode)new JsonObject
             {
                 ["picture"] = Picture(step.Image),

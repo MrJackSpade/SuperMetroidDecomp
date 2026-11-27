@@ -282,7 +282,8 @@ public sealed partial class EngineAssetWriter
             .Value("spit_sound", EngineNames.Sound(EyeDoorDefinitions.ProjectileSound))
             .Value("smoke_effect", DustFile(EyeDoorEffectDefinitions.ScatteredSmokeAnimation))
             .Value("puff_effect", DustFile(EyeDoorEffectDefinitions.CenteredSmokeAnimation))
-            .Group("picture_offset", At(left * EngineRoomObjects.Block, top * EngineRoomObjects.Block))
+            // The eye and the growth round its door are of the room's blocks, and lie a row up with the room's tiles.
+            .Group("picture_offset", EngineRoomObjects.PictureCorner(left * EngineRoomObjects.Block, top * EngineRoomObjects.Block))
             .Group("wake_reach", At(EyeDoorSequenceDefinitions.WakeReach.X, EyeDoorSequenceDefinitions.WakeReach.Y))
             .Group("in_front_reach", At(EyeDoorSequenceDefinitions.InFrontReach.X, EyeDoorSequenceDefinitions.InFrontReach.Y))
             .Group("pulse_reach", At(EyeDoorSequenceDefinitions.PulseReach.X, EyeDoorSequenceDefinitions.PulseReach.Y))

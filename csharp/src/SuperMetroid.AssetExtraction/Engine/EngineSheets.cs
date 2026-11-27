@@ -126,6 +126,14 @@ internal sealed partial class EngineSheets
     internal const string SharedSpawner = "Shared";
 
     /// <summary>
+    /// How many pixels above its place the cartridge shows what it draws on a room's own layers, against its sprites:
+    /// one. It shows a room's tiles and background from the row below the view's and draws a sprite where its place
+    /// says, so the Godot game lays a room's terrain and backdrops a row up, and a picture made of the room's blocks,
+    /// or a boss's body, lies a row above its place with them. Its place, where it is in play, does not move.
+    /// </summary>
+    internal const int LayersRowAbove = 1;
+
+    /// <summary>
     /// Where a look keeps the picture named <paramref name="frame"/>: its sheet, or an empty name for a picture that
     /// shows nothing; null when the look has no such picture.
     /// </summary>

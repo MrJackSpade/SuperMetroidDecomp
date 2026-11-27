@@ -92,6 +92,8 @@ public sealed partial class EngineAssetWriter
             .Value("open_sound", EngineNames.Sound(DoorCapSequenceDefinitions.OpenSound))
             .Value("close_sound", EngineNames.Sound(DoorCapSequenceDefinitions.CloseSound))
             .Group("damaged_by", damagedBy)
+            // Its pictures are of the room's blocks, and lie a row up with the room's tiles.
+            .Group("picture_offset", EngineRoomObjects.PictureCorner(0, 0))
             .Collider("Solid", 0, 0, width, height)
             .Collider("Hurtbox", 0, 0, width, height);
     }

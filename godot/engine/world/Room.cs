@@ -1008,15 +1008,17 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Tries the player's shots against one enemy, each where it stands. An enemy asks this in its own turn, before
-    /// it acts: the player's shots do not hit enemies as they move.
+    /// Tries the player's shots against one enemy, each where it stands, in the order they are in the room, until
+    /// one is answered: an enemy answers one shot on a turn, by ignoring it too, and the shots after it are not tried
+    /// against it then, as the cartridge's test of an enemy leaves at the first shot that meets it. An enemy asks
+    /// this in its own turn, before it acts: the player's shots do not hit enemies as they move.
     /// </summary>
     internal void TryPlayerShotsAgainst(Enemy enemy)
     {
         foreach (Projectile projectile in _projectiles.ToList())
         {
-            if (projectile.Side == HitSide.Player && !_leaving.Contains(projectile))
-                projectile.MeetEnemy(enemy);
+            if (projectile.Side == HitSide.Player && !_leaving.Contains(projectile) && projectile.MeetEnemy(enemy))
+                return;
         }
     }
 

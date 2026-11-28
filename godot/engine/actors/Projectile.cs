@@ -904,12 +904,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // meets terrain, and one that meets them where its move ends reaches the enemy by its body as it moves.
         bool byTerrainArea = !MeetsStandingThingsAtEnd;
         if (!MeetTargets(room, area, target => target is not Projectile and not Enemy { ActsWithObjects: false } && !StandsAsPartOfRoom(target)
-            && !(byTerrainArea && target is Enemy)))
+            && !(byTerrainArea && target is Enemy), out _))
         {
             return false;
         }
 
-        if (byTerrainArea && !MeetTargets(room, meetsStanding, target => StandsAsPartOfRoom(target) || target is Enemy { ActsWithObjects: true }))
+        if (byTerrainArea && !MeetTargets(room, meetsStanding, target => StandsAsPartOfRoom(target) || target is Enemy { ActsWithObjects: true }, out _))
             return false;
 
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
@@ -984,14 +984,16 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// <summary>
     /// Tries the player's shot against one enemy, where the shot stands. The enemy asks, through the room, in its
     /// own turn. An enemy that takes its turn with the room's objects is reached there as it is reached while the
-    /// shot moves: by what of the shot meets terrain, for one that meets the room's things as it moves.
+    /// shot moves: by what of the shot meets terrain, for one that meets the room's things as it moves. Returns
+    /// whether the enemy answered the shot at all, by ignoring it too.
     /// </summary>
-    internal void MeetEnemy(Enemy enemy)
+    internal bool MeetEnemy(Enemy enemy)
     {
         if (HasEnded || !HarmsNow || Side != HitSide.Player)
-            return;
+            return false;
         PixelRect area = enemy.ActsWithObjects && !MeetsStandingThingsAtEnd ? TerrainArea : Area;
-        MeetTargets(Room, area, target => ReferenceEquals(target, enemy), spends: true);
+        MeetTargets(Room, area, target => ReferenceEquals(target, enemy), out bool answered, spends: true);
+        return answered;
     }
 
     /// <summary>
@@ -1001,7 +1003,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     internal void MeetTargetsWhereItStands()
     {
         if (!HasEnded && HarmsNow)
-            MeetTargets(Room, Area, landsOn: null);
+            MeetTargets(Room, Area, landsOn: null, out _);
     }
 
     /// <summary>
@@ -1009,14 +1011,17 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// lets it be tried against, and does what each answer calls for. Returns whether it carries on travelling this
     /// update. Where <paramref name="spends"/> is asked, as it is of the player's shot tried against one enemy in
     /// that enemy's turn, an answer that would end it only spends it (<see cref="_spent"/>).
+    /// <paramref name="answered"/> says whether anything answered the hit at all.
     /// </summary>
-    private bool MeetTargets(Room room, PixelRect area, Func<IHittable, bool>? landsOn, bool spends = false)
+    private bool MeetTargets(Room room, PixelRect area, Func<IHittable, bool>? landsOn, out bool answered, bool spends = false)
     {
+        answered = false;
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
         _alreadyHurt.Add(this);
         foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit with { At = Position }, area, from: _launcher, skipping: _alreadyHurt, landsOn: landsOn).ToList())
         {
+            answered = true;
             OnMetTarget(room, target, result);
             // A thing of the room its hit lands on, a door's cap or a gate, is part of the room as its blocks are, and
             // shakes it as terrain does; anything else, an enemy, as a target does.

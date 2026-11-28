@@ -64,6 +64,13 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// </summary>
     private bool _leftStanding;
 
+    /// <summary>
+    /// Whether she flies as one falling: the knockback that ended as the windup began left her falling from rest
+    /// (<see cref="_leftStanding"/>), and the flight, which moves her by speeds of its own, does not make a rise of
+    /// it. The view follows such a flight as it follows a fall.
+    /// </summary>
+    private bool _fliesFalling;
+
     /// <inheritdoc/>
     public bool NoHitLands => !_leftStanding;
 
@@ -139,9 +146,14 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // out. No bomb's throw is left waiting into it: one is refused in every state the windup is begun from, and
         // one given in any other is taken, ahead of what her input asks, before a windup can be begun.
         _leftStanding = samus.CarriedKnockbackEndsNow || owner.ThrowRanOut;
+        _fliesFalling = _leftStanding;
         owner.EndThrow();
         samus.EndCarriedKnockback();
         owner.Velocity = PixelVelocity.Zero;
+
+        // The knockback ending then leaves her falling from rest, after the windup is set up.
+        if (_leftStanding)
+            owner.FallFromRest();
         samus.SpendChargeOnShinespark();
 
         // The lift moves her as she is, whatever is above her, as the cartridge's does, and the view takes her to
@@ -296,8 +308,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             _riseSpeed += _riseGain;
             Pixels rise = _riseSpeed.Whole > samus.ShinesparkMostRise ? _riseSpeed.WithWhole(samus.ShinesparkMostRise) : _riseSpeed;
 
-            // The speed it has gathered is her speed upward, which a move across reads on the next update.
-            samus.Velocity = samus.Velocity.WithY(_riseSpeed * _down);
+            // The speed it has gathered is her speed up or down, which a move across reads on the next update: a
+            // rise's, or a fall's of that size where she flies as one falling.
+            samus.Velocity = samus.Velocity.WithY(_fliesFalling ? _riseSpeed : _riseSpeed * _down);
 
             // Something solid in her way, that is no part of the room, is felt for first, and stops her where she is:
             // she is not brought up against it as an ordinary rise is, and nothing of the room is broken or met.

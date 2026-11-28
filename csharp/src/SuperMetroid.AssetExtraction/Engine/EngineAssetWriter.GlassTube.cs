@@ -115,13 +115,14 @@ public sealed partial class EngineAssetWriter
             _tree.WriteData(crack, Placed(steps));
         }
 
-        // The shards and the bubbles are the tube's own, which it moves and shows by their timelines' cues: how a
-        // shard flickers, when a piece sets off, when it begins to sway, and when it is gone. Each frame is a step,
-        // with the cues raised before it; cues raised after the last frame come on a step of their own.
-        static string PieceCue(NoobTubeProjectileCue cue) => cue.Kind switch
+        // The shards and the bubbles are the tube's own, which it moves and shows by their timelines' cues: a shard
+        // shown at its mirror image too, when a piece sets off, when it begins to sway, and when it is gone. Each frame
+        // is a step, with the cues raised before it; cues raised after the last frame come on a step of their own. A
+        // shard the old game hides on alternate updates is shown on every one, the owner's ruling (#3743, #2639).
+        static string? PieceCue(NoobTubeProjectileCue cue) => cue.Kind switch
         {
             NoobTubeProjectileCueKind.FlickerReflected => "reflected",
-            NoobTubeProjectileCueKind.FlickerHidden => "hidden",
+            NoobTubeProjectileCueKind.FlickerHidden => null,
             NoobTubeProjectileCueKind.StartBubbleRise => "rise",
             NoobTubeProjectileCueKind.AssignShardFallingAngle or NoobTubeProjectileCueKind.AssignBubbleFallingAngle => "sway",
             NoobTubeProjectileCueKind.StartShardFall or NoobTubeProjectileCueKind.StartBubbleFall => "fall",
@@ -156,7 +157,8 @@ public sealed partial class EngineAssetWriter
                         Add(Picture(frame.Shown.Shown), frame.Duration);
                         break;
                     case AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Event raised:
-                        cues.Add(PieceCue(raised.Raised));
+                        if (PieceCue(raised.Raised) is { } cue)
+                            cues.Add(cue);
                         break;
                     default:
                         throw new InvalidDataException($"A piece of the glass tube has a beat this does not know: {beat}.");
@@ -169,7 +171,8 @@ public sealed partial class EngineAssetWriter
         }
 
         // Each shard flies out from the crack and then sinks. The old game draws one, by turns, at its own column and
-        // as its mirror image across the tube, whose pictures are given beside its own.
+        // as its mirror image across the tube; the Godot game draws both at once (#3743). The mirror images' pictures
+        // are given beside its own.
         var shards = new JsonArray();
         for (int index = 0; index < NoobTubeDebrisDefinitions.Shards.Length; index++)
         {

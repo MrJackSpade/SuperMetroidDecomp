@@ -224,7 +224,7 @@ public sealed class Mover
         }
 
         // A way out of the room stops the edge as a tile of terrain would, for a move that says it does.
-        if (!stop.Stopped && options.StoppedByWaysOut && _world.WayOutOver(edge) is { } wayOut)
+        if (!stop.Stopped && options.StoppedByWaysOut && _world.OpenToPlayerAloneOver(edge) is { } wayOut)
         {
             int into = across
                 ? (step > 0 ? edge.Left - wayOut.Left + 1 : wayOut.Right - edge.Left)
@@ -435,7 +435,7 @@ public sealed class Mover
             return new Obstacle(true, null);
 
         // A way out of the room is a wall, as terrain is, to a move that says so.
-        if (options.StoppedByTerrain && options.StoppedByWaysOut && _world.WayOutOver(rect) is not null)
+        if (options.StoppedByTerrain && options.StoppedByWaysOut && _world.OpenToPlayerAloneOver(rect) is not null)
             return new Obstacle(true, null);
         if (!options.StoppedByTerrain && !options.StoppedBySolids)
             return new Obstacle(false, null);

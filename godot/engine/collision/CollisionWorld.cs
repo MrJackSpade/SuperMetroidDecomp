@@ -28,13 +28,39 @@ public sealed class CollisionWorld
     /// </summary>
     public IReadOnlyList<PixelRect> WaysOut { get; set; } = [];
 
-    /// <summary>The first of the room's ways out that lies over any of <paramref name="area"/>; null when none does.</summary>
-    public PixelRect? WayOutOver(PixelRect area)
+    /// <summary>
+    /// The blocks things of the room hold while they lie in them, as an item holds the block it lies in: open to the
+    /// player, who takes what is there, and a wall, as a way out is, to a move a way out stops.
+    /// </summary>
+    private readonly List<PixelRect> _heldBlocks = [];
+
+    /// <summary>Holds <paramref name="block"/> for something that lies in it (<see cref="OpenToPlayerAloneOver"/>).</summary>
+    public void HoldBlock(PixelRect block) => _heldBlocks.Add(block);
+
+    /// <summary>Gives up a block held, as what lay in it goes.</summary>
+    /// <exception cref="InvalidOperationException">The block is not held.</exception>
+    public void LetBlockGo(PixelRect block)
+    {
+        if (!_heldBlocks.Remove(block))
+            throw new InvalidOperationException($"The block at {block.Left},{block.Top} is given up, and nothing holds it.");
+    }
+
+    /// <summary>
+    /// The first of the room's ways out, or failing one of the blocks held by what lies in them, that lies over any
+    /// of <paramref name="area"/>: what is open to the player alone there. Null when nothing of the kind is.
+    /// </summary>
+    public PixelRect? OpenToPlayerAloneOver(PixelRect area)
     {
         foreach (PixelRect wayOut in WaysOut)
         {
             if (wayOut.Overlaps(area))
                 return wayOut;
+        }
+
+        foreach (PixelRect block in _heldBlocks)
+        {
+            if (block.Overlaps(area))
+                return block;
         }
 
         return null;

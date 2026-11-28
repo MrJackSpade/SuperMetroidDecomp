@@ -11,6 +11,9 @@ namespace Engine.World.Objects;
 /// (<see cref="Player.Reaches"/>: by their body, or by a move of it tried into the item that something beside the item
 /// stopped short), records that in progress, and asks for its message. An item is just an item: one held in a shell has a barrier around it, and one
 /// hidden in the wall is behind a block, and in both cases it cannot be seen or touched until what covers it is gone.
+/// While it lies there the block it lies in is a wall to what a way out of the room is a wall to
+/// (<see cref="CollisionWorld.HoldBlock"/>): on the cartridge an item's block is solid to every enemy, and only the
+/// player passes into it. It is so until the player takes the item.
 /// <para>
 /// Its pickup ends as its message closes, on the update it was touched: until then it is shown where it lies. Then
 /// it tells what it has to tell, shows nothing for one update, and leaves the room on the next, keeping its place
@@ -48,6 +51,9 @@ public partial class Item : RoomObject, IFinishesAfterMessages
     private ItemType? _type;
     private TimelinePlayer? _timeline;
     private bool _wasCovered;
+
+    /// <summary>The block it holds while it lies in the room; none once it is taken.</summary>
+    private PixelRect? _held;
 
     /// <summary>The item's type.</summary>
     public ItemType Type => _type ?? throw new InvalidOperationException($"The item \"{Name}\" is not in a room.");
@@ -88,6 +94,8 @@ public partial class Item : RoomObject, IFinishesAfterMessages
         }
 
         _timeline = _type.Timeline.Length > 0 ? new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(_type.Timeline))) : null;
+        _held = Area;
+        Room.Collision.HoldBlock(Area);
     }
 
     /// <inheritdoc/>
@@ -140,6 +148,12 @@ public partial class Item : RoomObject, IFinishesAfterMessages
 
         Remember();
         Room.MarkGone(Name);
+        if (_held is { } block)
+        {
+            Room.Collision.LetBlockGo(block);
+            _held = null;
+        }
+
         if (Type.Sound.Length > 0)
             Room.Session.Sounds.Request(Type.Sound, channel: "objects");
         if (Type.Message.Length > 0)

@@ -62,7 +62,9 @@ public sealed record MoveOptions
 
     /// <summary>
     /// Whether the room's ways out (<see cref="CollisionWorld.WaysOut"/>) stop the move as terrain does, for a move
-    /// terrain stops. They do not, unless the move says so: a way out is open to whoever leaves by it.
+    /// terrain stops, and with them the blocks held by what lies in them, as an item's is
+    /// (<see cref="CollisionWorld.HoldBlock"/>). They do not, unless the move says so: a way out is open to whoever
+    /// leaves by it, and an item's block to whoever takes the item.
     /// </summary>
     public bool StoppedByWaysOut { get; init; }
 }

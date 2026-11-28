@@ -32,5 +32,8 @@ public static class CartridgeEnemies
         // Ceres's doors and walls: room objects, each door a Barrier (game/objects/ceres_door), the blocked way to the
         // elevator a CeresElevatorDoor (game/objects/ceres_elevator_door).
         [0xE23F] = new(null, "the room objects of Ceres's doors and walls"),
+
+        // The Waver.
+        [0xD63F] = new(nameof(Game.Enemies.Waver)),
     };
 }

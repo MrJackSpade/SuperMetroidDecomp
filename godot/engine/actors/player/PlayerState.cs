@@ -269,6 +269,11 @@ public abstract class PlayerState : State<Player>
         if (ended is not null && !givesWay)
             return ended;
 
+        // Something of the game's that keeps the player as they are on this update outranks what their movement met
+        // and what their input asked: they stay in the state they are in, and an interruption waiting is left waiting.
+        if (owner.StaysInStateThisUpdate)
+            return this;
+
         if ((owner.TakeInterruption(this, asked) ?? met) is { } forced)
             return forced;
         if (ReferenceEquals(asked, this))

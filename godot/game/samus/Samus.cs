@@ -553,6 +553,13 @@ public partial class Samus : Player
     /// <summary>Whether the knockback she carries runs out as this update ends: its last update is this one, not yet counted.</summary>
     public bool CarriedKnockbackEndsNow => _knockbackCarried.Remaining == 1 && !_knockbackCountedThisUpdate;
 
+    /// <summary>
+    /// On the update the knockback she carries runs out she stays in the state she is in: the cartridge's end of a
+    /// hit outranks the pose her movement would have her take, a landing among them, and the pose her input chose;
+    /// only a pose her own pictures end in is still taken. She has moved all the same, and is left falling from rest.
+    /// </summary>
+    protected internal override bool StaysInStateThisUpdate => CarriedKnockbackEndsNow;
+
     /// <summary>Whether the enemies' shots are being tried against her, all of which land once the trying has begun.</summary>
     private bool _shotsLand;
 

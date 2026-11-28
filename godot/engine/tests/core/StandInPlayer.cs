@@ -41,6 +41,9 @@ public partial class StandInPlayer : Player
     protected internal override PlayerState StoppedByWall() => new StandingState();
 
     /// <inheritdoc/>
+    protected internal override bool StaysInStateThisUpdate => false;
+
+    /// <inheritdoc/>
     protected internal override void DropIntoLowForm(int drop) =>
         MoveBodyDown(Pixels.FromWhole(drop), BodyMoves with { StoppedBySolids = false });
 

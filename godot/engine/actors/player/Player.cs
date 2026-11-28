@@ -505,6 +505,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     public MoveResult MoveBodyDown(Pixels distance, MoveOptions options) => Noted(Room.Mover.MoveDown(Body, distance, options));
 
     /// <summary>
+    /// Whether something of the game's keeps the player in the state they are in on this update, whatever their
+    /// movement met or their input asked: only the state's own end still takes them out of it. Asked once they have
+    /// moved.
+    /// </summary>
+    protected internal abstract bool StaysInStateThisUpdate { get; }
+
+    /// <summary>
     /// Moves the player's middle down by <paramref name="drop"/> whole pixels as they take the low form, or as far as
     /// the room leaves room for: the low body's own drop, which only the room itself stops. A game says how the room
     /// is felt for.

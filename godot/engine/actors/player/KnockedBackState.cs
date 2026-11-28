@@ -61,10 +61,15 @@ public sealed class KnockedBackState : PlayerState
 
     /// <summary>
     /// The throw this knockback gives a player in the low form, who is thrown as they are: by the low form's own move
-    /// values, on the ground or in the air as they are when it begins, and always upward.
+    /// values, on the ground or in the air as they are when it begins, and always upward. Which of the two they are
+    /// is the low form's own account of itself (<see cref="CrawlingState.IsAirborne"/>), not a look at what lies
+    /// under them: one rolling along sloped ground is on the ground.
     /// </summary>
-    internal Throw ThrowOfLowForm(Player owner) =>
-        new(_toward, Length(owner), low: false, owner.IsOnGround ? CrawlingMoves : CrawlingInAirMoves);
+    internal Throw ThrowOfLowForm(Player owner)
+    {
+        bool onGround = owner.State is CrawlingState crawling ? !crawling.IsAirborne : owner.IsOnGround;
+        return new(_toward, Length(owner), low: false, onGround ? CrawlingMoves : CrawlingInAirMoves);
+    }
 
     /// <summary>Renews <paramref name="under"/>, the throw already carrying the player, with this knockback's way and time.</summary>
     internal void Renew(Player owner, Throw under) => under.Renew(_toward, Length(owner));

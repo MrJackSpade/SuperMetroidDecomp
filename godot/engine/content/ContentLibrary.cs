@@ -27,6 +27,9 @@ public sealed class ContentLibrary
     /// <summary>The textures loaded so far, by path. A library and those made from it for a set of graphics share them.</summary>
     private readonly Dictionary<string, Texture2D> _textures;
 
+    /// <summary>The scenes loaded so far, by path. A library and those made from it for a set of graphics share them.</summary>
+    private readonly Dictionary<string, PackedScene> _scenes;
+
     /// <summary>What a picture's path has put for <see cref="GraphicsPlaceholder"/>; empty for a library that puts nothing.</summary>
     private readonly string _graphics = "";
 
@@ -43,12 +46,14 @@ public sealed class ContentLibrary
         ArgumentException.ThrowIfNullOrWhiteSpace(rootFolder);
         _root = Path.GetFullPath(rootFolder);
         _textures = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
+        _scenes = new Dictionary<string, PackedScene>(StringComparer.Ordinal);
     }
 
     private ContentLibrary(ContentLibrary whole, string graphics)
     {
         _root = whole._root;
         _textures = whole._textures;
+        _scenes = whole._scenes;
         _graphics = graphics;
     }
 
@@ -84,6 +89,26 @@ public sealed class ContentLibrary
 
     /// <summary>What a picture's map of regions is named: the picture's own name with this in place of its ending.</summary>
     public const string RegionMapEnding = ".regions.png";
+
+    /// <summary>
+    /// The scene at <paramref name="path"/>, a path of the project's. A scene is loaded once and kept for as long as
+    /// the library is, and everything made from a scene named by its path is made from this one: a room, a shot's
+    /// projectile, a weapon's. A scene loaded for one use and let go is found again by Godot's loader for as long as
+    /// it exists, and one found after the collector has taken its managed half and before its finalizer has run has
+    /// none: for a scene that is an error in the log, and for the scripted resources a scene carries (a room's
+    /// versions and their conditions) it ends the process. Kept here, a scene and what it carries live as long as it
+    /// can be asked for.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">There is no scene at the path.</exception>
+    public PackedScene LoadScene(string path)
+    {
+        if (_scenes.TryGetValue(path, out PackedScene? loaded))
+            return loaded;
+        PackedScene scene = ResourceLoader.Load<PackedScene>(path)
+            ?? throw new InvalidOperationException($"There is no scene at \"{path}\".");
+        _scenes[path] = scene;
+        return scene;
+    }
 
     /// <summary>
     /// The picture at <paramref name="path"/>, as a texture. A picture is loaded once and shared. A picture with a map

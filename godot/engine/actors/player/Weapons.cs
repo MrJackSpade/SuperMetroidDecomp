@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
@@ -379,7 +380,7 @@ public sealed class Weapons
             PixelOffset side = across != 0 && down == 0
                 ? PixelOffset.FromWhole(0, shot.Side)
                 : down != 0 && across == 0 ? PixelOffset.FromWhole(shot.Side, 0) : PixelOffset.FromWhole(shot.Side * -across * down, shot.Side);
-            Projectile projectile = Make(weapon);
+            Projectile projectile = Make(weapon, player.Room.Content);
             projectile.Launch(hit, player.MuzzlePoint + side, velocity, shot.Projectile, player);
             player.Room.Spawn(projectile);
             live.Add(projectile);
@@ -447,7 +448,7 @@ public sealed class Weapons
         Hit hit = weapon.HitFor(on.Contains, charged) with { Direction = velocity.OverOneUpdate, Source = player };
         IReadOnlyList<WeaponShot> shots = weapon.ShotsFor(on.Contains, charged);
         WeaponShot shot = shots.FirstOrDefault(one => one.Side == 0) ?? shots[0];
-        Projectile projectile = Make(weapon);
+        Projectile projectile = Make(weapon, player.Room.Content);
         projectile.Launch(hit, from.Position, velocity, shot.Projectile, player);
         player.Room.Spawn(projectile);
         live.Add(projectile);
@@ -474,7 +475,7 @@ public sealed class Weapons
         if (!_live.TryGetValue(weapon.Name, out List<Projectile>? live))
             _live[weapon.Name] = live = [];
         Hit hit = weapon.HitFor(player.Inventory, charged: false) with { Direction = velocity.OverOneUpdate, Source = player };
-        Projectile projectile = Make(weapon);
+        Projectile projectile = Make(weapon, player.Room.Content);
         projectile.Launch(hit, at, velocity, settings, player);
         player.Room.Spawn(projectile);
         live.Add(projectile);
@@ -482,13 +483,12 @@ public sealed class Weapons
         return projectile;
     }
 
-    private static Projectile Make(WeaponStats weapon)
+    /// <summary>Makes a weapon's projectile: one of its scene, which <paramref name="content"/> loads once and keeps, or a plain one.</summary>
+    private static Projectile Make(WeaponStats weapon, ContentLibrary content)
     {
         if (weapon.Scene.Length == 0)
             return new Projectile { Name = "Projectile" };
-        PackedScene scene = ResourceLoader.Load<PackedScene>(weapon.Scene)
-            ?? throw new InvalidOperationException($"The weapon \"{weapon.Name}\" names a projectile scene that does not exist: \"{weapon.Scene}\".");
-        Node root = scene.Instantiate();
+        Node root = content.LoadScene(weapon.Scene).Instantiate();
         return root as Projectile
             ?? throw new InvalidOperationException($"The weapon \"{weapon.Name}\"'s projectile scene has a {root.GetType().Name} at its root, not a Projectile.");
     }

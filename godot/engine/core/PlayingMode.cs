@@ -78,7 +78,7 @@ public partial class PlayingMode : GameMode, IRoomPlay
             _room.Free();
         }
 
-        _room = Session.Definition.CreateRoom(scene);
+        _room = Session.Definition.CreateRoom(scene, Session.Content);
         _roomScene = scene;
         AddChild(_room);
         _room.Setup(Session, Session.Player, entry, asksForMusic: true);

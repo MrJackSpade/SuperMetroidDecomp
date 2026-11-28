@@ -18,8 +18,12 @@ namespace Engine.Actors;
 /// </remarks>
 public sealed class ShotType
 {
-    private ShotType(int damage, IReadOnlyList<HitKind> kinds, Pixels speed, string sound, string scene, ProjectileSettings settings)
+    /// <summary>The library the shot's scene is loaded from, which keeps it.</summary>
+    private readonly ContentLibrary _content;
+
+    private ShotType(int damage, IReadOnlyList<HitKind> kinds, Pixels speed, string sound, string scene, ProjectileSettings settings, ContentLibrary content)
     {
+        _content = content;
         Damage = damage;
         Kinds = kinds;
         Speed = speed;
@@ -46,9 +50,13 @@ public sealed class ShotType
     /// <summary>How the shot's projectile behaves.</summary>
     public ProjectileSettings Settings { get; }
 
-    /// <summary>Reads a shot type from its data file, or from a group of one.</summary>
-    public static ShotType Read(DataNode data)
+    /// <summary>
+    /// Reads a shot type from its data file, or from a group of one. Its projectile's scene, where it names one, is
+    /// loaded from <paramref name="content"/> as the first of its shots is launched.
+    /// </summary>
+    public static ShotType Read(DataNode data, ContentLibrary content)
     {
+        ArgumentNullException.ThrowIfNull(content);
         var kinds = data.Has("kinds") ? data.List("kinds").Select(kind => new HitKind(kind.AsText())).ToList() : [HitKind.Contact];
         int damage = data.Int("damage");
         if (damage < 0 || kinds.Count == 0)
@@ -59,7 +67,8 @@ public sealed class ShotType
             data.Has("speed") ? data.Distance("speed") : Pixels.Zero,
             data.Has("sound") ? data.Text("sound") : "",
             data.Has("scene") ? data.Text("scene") : "",
-            data.Has("projectile") ? ProjectileSettings.Read(data.Get("projectile")) : new ProjectileSettings());
+            data.Has("projectile") ? ProjectileSettings.Read(data.Get("projectile")) : new ProjectileSettings(),
+            content);
     }
 
     /// <summary>
@@ -88,9 +97,7 @@ public sealed class ShotType
     {
         if (Scene.Length == 0)
             return new Projectile { Name = "Projectile" };
-        PackedScene scene = ResourceLoader.Load<PackedScene>(Scene)
-            ?? throw new InvalidOperationException($"A shot names a projectile scene that does not exist: \"{Scene}\".");
-        Node root = scene.Instantiate();
+        Node root = _content.LoadScene(Scene).Instantiate();
         return root as Projectile
             ?? throw new InvalidOperationException($"The projectile scene \"{Scene}\" has a {root.GetType().Name} at its root, not a Projectile.");
     }

@@ -139,7 +139,7 @@ public partial class MotherBrainBomb : Projectile, IHasValues
         Leave(room);
         if (Flare.Length > 0)
         {
-            var fire = (RidleyFireball)ShotType.Read(room.Content.ReadData(Flare)).Launch(Position, PixelVelocity.Zero, Side, Launcher, Hit.Source);
+            var fire = (RidleyFireball)ShotType.Read(room.Content.ReadData(Flare), room.Content).Launch(Position, PixelVelocity.Zero, Side, Launcher, Hit.Source);
             (fire.Afterburns, fire.RunsAcross) = (Flames, true);
             room.Spawn(fire);
         }

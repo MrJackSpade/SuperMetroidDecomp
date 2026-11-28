@@ -1287,7 +1287,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
 
         if (_settings.EndingBurst.Length > 0)
         {
-            Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(at, PixelVelocity.Zero, Side, _launcher, Hit.Source);
+            Projectile burst = ShotType.Read(room.Content.ReadData(_settings.EndingBurst), room.Content).Launch(at, PixelVelocity.Zero, Side, _launcher, Hit.Source);
             if (room.Spawn(burst))
             {
                 LeftOnEnding?.Invoke(burst);

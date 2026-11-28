@@ -1954,8 +1954,8 @@ public partial class Samus : Player
     private void LetLooseSpecialAttack(string beam)
     {
         Inventory.Spend(Amounts.PowerBombs, 1);
-        ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]));
-        ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail)) : shot;
+        ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]), Room.Content);
+        ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail), Room.Content) : shot;
         var lights = new SpecialAttack[4];
         for (int part = 0; part < lights.Length; part++)
         {

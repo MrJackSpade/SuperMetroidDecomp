@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Core;
 using Engine.World;
 using Godot;
@@ -20,7 +21,7 @@ public partial class TwoRoomDefinition : StandInDefinition
     public override GameMode CreatePauseMode(PlayingMode playing, PauseAsker askedBy) => new StandInPause(playing, this);
 
     /// <inheritdoc/>
-    public override Room CreateRoom(string scenePath)
+    public override Room CreateRoom(string scenePath, ContentLibrary content)
     {
         var room = new Room { Name = scenePath };
         room.AddChild(new Terrain { Name = "Terrain", LayoutFile = "room.json" });

@@ -130,7 +130,7 @@ public partial class BombTorizoHand : RoomObject
     {
         if (!_fragments.TryGetValue(name, out Fragment? fragment))
             throw new InvalidOperationException($"The Torizo's hand has no fragment named \"{name}\".");
-        ShotType shot = ShotType.Read(Room.Content.ReadData(fragment.Shot));
+        ShotType shot = ShotType.Read(Room.Content.ReadData(fragment.Shot), Room.Content);
         PixelPosition at = Position + PixelOffset.FromWhole(fragment.X, fragment.Y);
         Room.Spawn(shot.Launch(at, new PixelVelocity(Pixels.Zero, Pixels.FromWhole(1)), HitSide.Enemies, this, this));
     }

@@ -71,12 +71,12 @@ public abstract partial class GameDefinition : Resource
     /// that must be remembered is without one.
     /// </summary>
     /// <exception cref="InvalidOperationException">A name is shared, or something that must be remembered has none.</exception>
-    public void CheckRememberedNames()
+    public void CheckRememberedNames(ContentLibrary content)
     {
         var names = new RememberedNames();
         foreach (string scene in Rooms)
         {
-            Room room = CreateRoom(scene);
+            Room room = CreateRoom(scene, content);
             names.Add(scene, room);
             room.Free();
         }
@@ -293,27 +293,14 @@ public abstract partial class GameDefinition : Resource
     }
 
     /// <summary>
-    /// The room scenes loaded so far, by path, kept for as long as the game runs. A room's scene carries resources of
-    /// the engine's own scripted kinds (its versions and their conditions), and the loader finds those again by the
-    /// scene's path for as long as they exist. A scene let go after its room was made leaves them alive only through
-    /// their managed halves: once the room is gone the collector takes those, and a load of the same scene that
-    /// comes after they are collected and before they are finalized finds resources with no managed half, which ends
-    /// the process. Held here, a scene's resources live as long as the scene can be asked for.
+    /// Makes the room at <paramref name="scenePath"/>, from its scene, which <paramref name="content"/> loads once and
+    /// keeps (<see cref="ContentLibrary.LoadScene"/>).
     /// </summary>
-    private readonly Dictionary<string, PackedScene> _roomScenes = [];
-
-    /// <summary>Makes the room at <paramref name="scenePath"/>, from its scene, which is loaded once and kept.</summary>
     /// <exception cref="InvalidOperationException">The scene does not exist, or its root is not a room.</exception>
-    public virtual Room CreateRoom(string scenePath)
+    public virtual Room CreateRoom(string scenePath, ContentLibrary content)
     {
-        if (!_roomScenes.TryGetValue(scenePath, out PackedScene? scene))
-        {
-            scene = ResourceLoader.Load<PackedScene>(scenePath)
-                ?? throw new InvalidOperationException($"There is no room scene at \"{scenePath}\".");
-            _roomScenes.Add(scenePath, scene);
-        }
-
-        Node root = scene.Instantiate();
+        ArgumentNullException.ThrowIfNull(content);
+        Node root = content.LoadScene(scenePath).Instantiate();
         return root as Room
             ?? throw new InvalidOperationException($"The scene \"{scenePath}\" has a {root.GetType().Name} at its root, not a Room.");
     }

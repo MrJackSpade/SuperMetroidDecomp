@@ -329,7 +329,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (data.Has("shots"))
         {
             foreach ((string name, DataNode shot) in data.Get("shots").Entries())
-                _shots[name] = ShotType.Read(shot);
+                _shots[name] = ShotType.Read(shot, Room.Content);
         }
 
         if (data.Has("picture_offset"))

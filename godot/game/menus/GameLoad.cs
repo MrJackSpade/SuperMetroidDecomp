@@ -63,7 +63,7 @@ public partial class GameLoad : GameMode
     /// <summary>The area of the room whose scene is <paramref name="room"/>.</summary>
     private static string AreaOf(GameSession session, string room)
     {
-        Engine.World.Room made = session.Definition.CreateRoom(room);
+        Engine.World.Room made = session.Definition.CreateRoom(room, session.Content);
         string area = made.Area;
         made.Free();
         return area;

@@ -362,7 +362,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         samus.Room.Session.Sounds.Request(Sounds.ShinesparkEnd, channel: "samus");
         if (samus.ShinesparkEchoShot.Length == 0)
             return;
-        ShotType shot = ShotType.Read(samus.Room.Content.ReadData(samus.ShinesparkEchoShot));
+        ShotType shot = ShotType.Read(samus.Room.Content.ReadData(samus.ShinesparkEchoShot), samus.Room.Content);
         _firstEcho = Echo(samus, shot, _firstAngle);
         _secondEcho = Echo(samus, shot, _secondAngle);
     }

@@ -163,7 +163,7 @@ public partial class RidleyFireball : Projectile, IHasValues
     /// <summary>Makes another piece of fire where it is, not yet in the room.</summary>
     private RidleyFireball Fire(Room room, string shotFile, PixelVelocity speed, int afterburns, bool runsAcross, int? damage)
     {
-        ShotType shot = ShotType.Read(room.Content.ReadData(shotFile));
+        ShotType shot = ShotType.Read(room.Content.ReadData(shotFile), room.Content);
         var fire = (RidleyFireball)shot.LaunchDoing(damage ?? shot.Damage, Position, speed, Side, Launcher, Hit.Source);
         (fire.Afterburns, fire.RunsAcross, fire._flameDamage) = (afterburns, runsAcross, _flameDamage);
         return fire;

@@ -184,7 +184,7 @@ public partial class Intro
     {
         DataNode data = Session.Content.ReadData(file);
         DemoRecording recording = DemoRecording.Read(data);
-        Room room = Session.Definition.CreateRoom(recording.Room);
+        Room room = Session.Definition.CreateRoom(recording.Room, Session.Content);
         (_sceneRoot ?? throw NotEntered()).Stage.AddChild(room);
         Player samus = Session.Player;
         var entry = new RoomEntry(recording.EntryPoint, PixelVelocity.Zero, Facing.Left);

@@ -479,8 +479,10 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
     /// <summary>
     /// The shares, in 256ths, that the sloped tiles in the pixel column <paramref name="x"/> between the rows
     /// <paramref name="top"/> and <paramref name="bottom"/> (not included) let through of a move across them on the
-    /// ground: one for each such tile that is a floor's and lets less than all of it through, from the top down. A
-    /// ceiling's slope takes nothing from a move on the ground.
+    /// ground: one for each such tile that is a floor's and holds things up by its middle, from the top down. One
+    /// that lets all of the move through is listed with the rest, by the whole share: the move is counted anew at each
+    /// slope, and the counting itself drops what is finer than the slopes count. A ceiling's slope, and one that is a
+    /// step or a wall, takes nothing from a move on the ground.
     /// </summary>
     public IReadOnlyList<int> GroundSharesIn(int x, int top, int bottom)
     {
@@ -491,7 +493,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
         int firstRow = Math.Max(0, top / size), lastRow = Math.Min(Layout.Rows - 1, (bottom - 1) / size);
         for (int row = firstRow; row <= lastRow; row++)
         {
-            if (_blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { Share: < SlopeShape.WholeShare, FromTop: false } slope })
+            if (_blockAt[row][column] is null && _tiles[row][column] is { Kind: TileKind.Slope, Slope: { HoldsMiddle: true, FromTop: false } slope })
                 shares.Add(slope.Share);
         }
 

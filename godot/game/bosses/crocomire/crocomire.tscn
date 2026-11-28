@@ -8,10 +8,10 @@
 script = ExtResource("1")
 DataFile = "bosses/crocomire.json"
 
-[node name="Visual" type="Node2D" parent="."]
+[node name="Tongue" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Tongue" type="Node2D" parent="."]
+[node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 
 [node name="Body" type="Node2D" parent="."]

@@ -736,6 +736,13 @@ public partial class Crocomire : Enemy, ILatchable
             // Its tongue shows while it fights, and again in the acid once it has begun to melt.
             tongue.SetShown(_dying == Dying.Fighting || (_dying == Dying.InAcid && _acidBody != "whole"));
             tongue.Show(_tongue.Shown);
+
+            // Its tongue lies behind its body, as the cartridge draws it behind the tiles' front part and its body in
+            // front of them; the arm it shows alone as it melts lies in front of its body, as the cartridge draws it in
+            // front of every tile (#3749).
+            Node body = GetNode("Visual");
+            if (_dying == Dying.Fighting ? tongue.GetIndex() > body.GetIndex() : tongue.GetIndex() < body.GetIndex())
+                MoveChild(tongue, body.GetIndex());
         }
     }
 

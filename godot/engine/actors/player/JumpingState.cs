@@ -11,7 +11,8 @@ namespace Engine.Actors;
 /// <remarks>
 /// A jump holds a stance from its start. A jump from the ground starts in the stance of the aim the player has as it
 /// begins, their arm at rest, and holds it for as long as it gathers itself, the input asked nothing; as the gathering
-/// ends the game's player is told (<see cref="Player.JumpGathered"/>). A jump that carries on from something else
+/// ends the game's player is told (<see cref="Player.JumpGathered"/>). A throw that carries the player meanwhile moves
+/// them in the jump's place, and the gathering goes on counting and ends as it would. A jump that carries on from something else
 /// starts in the stance it is given, or failing that the one the input asks for as it begins. A change of stance takes
 /// effect when the body can take the form of the new one, and the jump then says so for that update
 /// (<see cref="TookUpStance"/>).
@@ -158,19 +159,30 @@ public sealed class JumpingState : PlayerState
             // Gathering, the player moves nothing of their own: a dash still carries them, and nothing else.
             owner.Steering = Steering.Steered;
             owner.MoveAcross(byDashAlone: true);
-            _gathering = _gathering.Stepped(owner);
-            if (_gathering.IsOver)
-            {
-                owner.SteerAfresh();
-                _gathered = true;
-            }
-
+            CountGathering(owner);
             return null;
         }
 
         CutShort(owner);
         owner.SteerAndMoveInAir(owner.Moves(JumpingMoves));
         return AirStance.FallAndLand(owner, this);
+    }
+
+    /// <summary>A throw carries the player in place of the jump's own movement, and its gathering goes on counting.</summary>
+    public override void WhileThrown(Player owner)
+    {
+        if (_gathering.IsRunning)
+            CountGathering(owner);
+    }
+
+    /// <summary>Counts one update of the gathering, and has it over once its pictures have been held.</summary>
+    private void CountGathering(Player owner)
+    {
+        _gathering = _gathering.Stepped(owner);
+        if (!_gathering.IsOver)
+            return;
+        owner.SteerAfresh();
+        _gathered = true;
     }
 
     /// <summary>As the gathering ends the game's player is told, and may be in another state instead of rising.</summary>

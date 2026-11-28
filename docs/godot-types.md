@@ -1102,7 +1102,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
     it goes on being asked its input, so it turns, rolls on, jumps where it can and may leave the low form, and
     the throw goes on carrying whatever it becomes. A state told it is thrown lets go of what a throw ends
     (`PlayerState.OnThrown`: the low form's count of bounces), and one that lasts a time of its own goes on
-    counting it (`PlayerState.WhileThrown`: a change of posture).
+    counting it (`PlayerState.WhileThrown`: a change of posture, and a jump's gathering, at whose end the game's
+    player is told as at any other).
   - A game's player is told as a throw begins (`Player.OnThrown`). Being put into a state from outside
     (`ChangeState`) ends a throw.
 

@@ -76,6 +76,10 @@ public sealed partial class EngineAssetWriter
         return timeline;
     }
 
+    /// <summary>A timeline that shows nothing for so many updates, and then is over.</summary>
+    private static JsonObject NothingShownFor(int updates) =>
+        new() { ["steps"] = new JsonArray(new JsonObject { ["picture"] = "", ["updates"] = updates }) };
+
     /// <summary>A timeline that shows nothing.</summary>
     private static JsonObject NothingShown() =>
         new() { ["steps"] = new JsonArray(new JsonObject { ["picture"] = "", ["updates"] = 1 }), ["loops_to"] = 0 };
@@ -244,6 +248,13 @@ public sealed partial class EngineAssetWriter
             List<(EnemyFrameId Frame, int Updates)> shut = FramesOf(segments.Beats(CeresDoorSegment.ClosedWait));
             if (closing.Count == 0 || shut.Count == 0)
                 throw new InvalidDataException("A Ceres door has no pictures of itself shutting, or of itself shut.");
+
+            // Open, and as its room is set up, it waits unseen the same while before it looks how near she is.
+            int[] waits = [.. new[] { CeresDoorSegment.Open, CeresDoorSegment.Door }.Select(segment =>
+                segments.Beats(segment).OfType<AnimationBeat<EnemyFrameId, CeresDoorCue>.Pause>().Single().Duration)];
+            if (waits[0] != waits[1])
+                throw new InvalidDataException("A Ceres door waits one while open and another as its room is set up, and the Godot door rests in one look for both.");
+            int open = waits[0];
             return new EngineObjectFile(_tree, file, "Barrier")
                 .PictureOffset(pictures)
                 // Nothing wears it down: it opens only by itself.
@@ -255,9 +266,11 @@ public sealed partial class EngineAssetWriter
                 // and a plasma beam flies on, by the reactions its old definition comes to.
                 .Collider("Hurtbox", -halfWidth, -halfHeight, 2 * halfWidth, 2 * halfHeight)
                 .Group("reactions", EngineReactions.Of(RoomEnemyDefinitionCatalog.CeresDoorAndWall))
-                .Timeline("closed", FramesTimeline(pictures, [(shut[0].Frame, 1)], loops: true))
+                // Shut or open it rests the cartridge's wait between two looks at how near Samus is, and looks again
+                // each time that has played through.
+                .Timeline("closed", FramesTimeline(pictures, [shut[0]], loops: false))
                 .Timeline("opening", FramesTimeline(pictures, Enumerable.Reverse(closing), loops: false))
-                .Timeline("open", NothingShown())
+                .Timeline("open", NothingShownFor(open))
                 .Timeline("closing", FramesTimeline(pictures, closing, loops: false));
         }
 
@@ -273,7 +286,9 @@ public sealed partial class EngineAssetWriter
             throw new InvalidDataException("The door of Ridley's room has no pictures of itself shutting.");
         Door("objects/ceres_ridley_room_door.json", ridleys, HorizontalDirection.Right)
             .Timeline("sealing", FramesTimeline(ridleys, sealing, loops: false))
-            .Timeline("sealed", FramesTimeline(ridleys, [(sealing[^1].Frame, 1)], loops: true))
+            // Held shut, it looks whether Ridley has gone each time the cartridge's wait has played through.
+            .Timeline("sealed", FramesTimeline(ridleys, [(sealing[^1].Frame, CeresDoorAnimations.Segments(HorizontalDirection.Right)
+                .Beats(CeresDoorSegment.RidleyRoomDoorWait).OfType<AnimationBeat<EnemyFrameId, CeresDoorCue>.Pause>().Single().Duration)], loops: false))
             .Write();
 
         // The blocked way to the elevator, which the station's self-destruct blows apart.

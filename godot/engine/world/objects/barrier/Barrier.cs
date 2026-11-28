@@ -25,7 +25,9 @@ namespace Engine.World.Objects;
 /// as it did while held. One the player has just come in through (<see cref="ClosesBehindEntry"/>) stands open as
 /// the room is set up and plays "closing_behind", a step of which says where it is shut with no sound
 /// ("shut_unheard") and another where its closing is heard ("close_sound"). Its data may also name its "open_sound", "close_sound", "hurt_sound" and
-/// "sealed_sound", and its "refused_sound" for a hit of no kind that wears it down. One that is plain, having once been opened and remembered so, shows the timeline named with
+/// "sealed_sound", and its "refused_sound" for a hit of no kind that wears it down. One that opens when the player is
+/// near (<see cref="OpensWhenNear"/>) rests in its "closed", "open" and "sealed" looks, none of which loops: it looks
+/// how near the player is, and whether it is held shut, each time one of them has played through. One that is plain, having once been opened and remembered so, shows the timeline named with
 /// "plain_" before each of those names where its data has one, and is opened by the kinds its data lists under
 /// "plain_opened_by", or by any hit where it lists none: a red door's cap comes back as a blue one.
 /// </remarks>
@@ -108,8 +110,12 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     public string ClosesBehindEntry { get; set; } = "";
 
     /// <summary>
-    /// How near the player must come, in pixels both across and down from where it stands, for it to open by itself;
-    /// it closes again once they are farther. Zero for one that does not. One held shut stays shut however near they are.
+    /// How near the player must come, in whole pixels both across and down from where it stands, for it to open by
+    /// itself; it closes again once they are farther. Zero for one that does not. One held shut stays shut however
+    /// near they are. It does not look on every update: it looks each time the look it rests in, shut, held shut or
+    /// open, has played through, and the look that follows is played from that very update. As its room is set up it
+    /// stands open and unseen; looking for the first time it stays so, or is shut at once with no closing shown, or,
+    /// held shut, shows itself shutting.
     /// </summary>
     [Export]
     public int OpensWhenNear { get; set; }
@@ -149,6 +155,12 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     private string _showingName = "";
     private bool _opening;
 
+    /// <summary>Whether one that opens when the player is near has yet to look how near they are since its room was set up.</summary>
+    private bool _appearing;
+
+    /// <summary>Whether its solid part, done blocking, stands out the update it let go on (<see cref="LetThrough"/>).</summary>
+    private bool _solidStandsOut;
+
     /// <summary>The kinds of hit that open it once it is plain; none listed when any hit does.</summary>
     private readonly HashSet<HitKind> _plainOpenedBy = [];
 
@@ -162,7 +174,10 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     public bool Covers(PixelRect area) => EntityNode.ColliderOf(this, ColliderRole.Solid) is { } solid && solid.RoomRect.Overlaps(area);
 
     /// <summary>Whether the barrier is held shut by its condition right now.</summary>
-    public bool IsSealed => !IsOpen && HeldShutBy is not null && !HeldShutBy.IsTrue(Room);
+    public bool IsSealed => !IsOpen && ConditionHoldsShut;
+
+    /// <summary>Whether its condition would hold it shut right now, open or not.</summary>
+    private bool ConditionHoldsShut => HeldShutBy is not null && !HeldShutBy.IsTrue(Room);
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
@@ -186,7 +201,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         _health = MaxHealth;
         IsOpen = false;
         _plain = false;
-        (_showing, _showingName, _opening) = (null, "", false);
+        (_showing, _showingName, _opening, _appearing) = (null, "", false, false);
         _solidWhole = EntityNode.ColliderOf(this, ColliderRole.Solid)?.Rect;
         SetSolid(true);
         if (IsRemembered)
@@ -224,6 +239,26 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             SetSolid(false);
             Show("closing_behind");
             return;
+        }
+
+        if (OpensWhenNear > 0)
+        {
+            foreach (string resting in (string[])["closed", "open", "sealed"])
+            {
+                if (resting == "sealed" && !_timelines.Has(resting))
+                    continue;
+                if (!_timelines.Has(resting) || _timelines.Get(resting).LoopsTo is not null)
+                    throw new InvalidOperationException($"The barrier \"{Name}\" opens when the player is near, and looks about it each time its \"{resting}\" look has played through: its data must give that look, and it must not loop.");
+            }
+
+            // It stands open and unseen until it first looks about it.
+            if (!IsOpen)
+            {
+                (IsOpen, _appearing) = (true, true);
+                SetSolid(false);
+                Show("open");
+                return;
+            }
         }
 
         // One that is held shut as the room is entered may show itself shutting first.
@@ -342,6 +377,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <inheritdoc/>
     protected override void OnStep()
     {
+        // A solid part left standing out the update it let go on is taken away as the next turn begins.
+        if (_solidStandsOut)
+            SetSolid(false);
         StepLook();
 
         if (OpensAroundPlayer && !IsOpen && _showingName == "closed" && EntityNode.ColliderOf(this, ColliderRole.Solid) is { } around
@@ -350,11 +388,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             Open();
         }
 
+        // One that opens when the player is near closes by looking how near they are, as its looks play through.
         if (OpensWhenNear > 0)
-        {
-            StepNearness();
             return;
-        }
 
         if (!IsOpen || ComesBack != ComesBackWhen.AfterPassing)
             return;
@@ -367,30 +403,88 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         _playerWasInside = inside;
     }
 
-    /// <summary>Opens it while the player is near and closes it when they are not.</summary>
-    private void StepNearness()
+    /// <summary>Whether the player is nearer than <see cref="OpensWhenNear"/> both across and down, by the whole pixels each stands on.</summary>
+    private bool PlayerIsNear =>
+        Math.Abs(Room.Player.Position.X.Whole - Position.X.Whole) < OpensWhenNear &&
+        Math.Abs(Room.Player.Position.Y.Whole - Position.Y.Whole) < OpensWhenNear;
+
+    /// <summary>
+    /// For one that opens when the player is near: goes on from a look that has played out, the look that follows
+    /// played from this very update. Coming out of a look it rests in, it looks about it: shut, it opens if the
+    /// player is near and nothing holds it shut; open, it closes if they are not near, or if it is held shut.
+    /// </summary>
+    private void FollowNearLook()
     {
-        PixelOffset apart = Room.Player.Position - Position;
-        bool near = apart.X.Abs().Whole < OpensWhenNear && apart.Y.Abs().Whole < OpensWhenNear;
-        if (IsOpen)
+        switch (_showingName)
         {
-            if (!near && !_opening)
-                Close();
+            case "closed" when PlayerIsNear && !IsSealed:
+                // It opens for now, not for good: nothing is remembered and nothing is told.
+                IsOpen = true;
+                Sound(OpenSound);
+                _opening = _timelines.Has("opening");
+                if (_opening)
+                    Take("opening");
+                else
+                {
+                    LetThrough();
+                    Take("open");
+                }
+
+                break;
+
+            case "opening":
+                _opening = false;
+                LetThrough();
+                Take("open");
+                break;
+
+            case "open":
+                // Looking for the first time since its room was set up, it is shut at once; after that it shows
+                // itself closing. Held shut, it shuts however near the player is, showing that where it can.
+                bool first = _appearing;
+                _appearing = false;
+                if (ConditionHoldsShut)
+                {
+                    Shut();
+                    Take(_timelines.Has("sealing") ? "sealing" : "sealed");
+                }
+                else if (PlayerIsNear)
+                    Take("open");
+                else
+                {
+                    Shut();
+                    Take(!first && _timelines.Has("closing") ? "closing" : "closed");
+                }
+
+                break;
+
+            default:
+                Take(IsSealed ? "sealed" : "closed");
+                break;
         }
-        else if (near && !IsSealed && _showingName is "closed" or "sealed")
+    }
+
+    /// <summary>
+    /// Stops standing in the way, having opened. One that takes its turns with the enemies was counted, as the update
+    /// opened, among what the player can run into, as the cartridge lists its enemies once a frame before any of them
+    /// takes its turn: its solid part stands out the update, stopping the player once more, and is taken away as its
+    /// next turn begins. Nothing else of it is met from now on.
+    /// </summary>
+    private void LetThrough()
+    {
+        if (!ActsWithEnemies)
         {
-            // It opens for now, not for good: nothing is remembered and nothing is told.
-            IsOpen = true;
-            Sound(OpenSound);
-            _opening = _timelines.Has("opening");
-            if (_opening)
-                Show("opening");
-            else
-            {
-                SetSolid(false);
-                Show("open");
-            }
+            SetSolid(false);
+            return;
         }
+
+        foreach (Collider collider in EntityNode.CollidersOf(this))
+        {
+            if (collider.Role != ColliderRole.Solid)
+                collider.Enabled = false;
+        }
+
+        _solidStandsOut = true;
     }
 
     /// <inheritdoc/>
@@ -444,7 +538,11 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         if (_showing is null)
             return;
 
-        if (_showing.IsOver)
+        if (_showing.IsOver && OpensWhenNear > 0 && _showingName is "closed" or "opening" or "open" or "closing" or "sealing" or "sealed")
+        {
+            FollowNearLook();
+        }
+        else if (_showing.IsOver)
         {
             switch (_showingName)
             {
@@ -463,8 +561,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                 case "held_open":
                     // Its hold is looked at each time the look has played through. Held still, the look plays again;
                     // let go, it plays the look that ends in its being shut. Either is played from this very update.
-                    Show(HeldOpenBy is { } hold && hold.IsTrue(Room) ? "held_open" : "let_go");
-                    StandAs(_showing.Step());
+                    Take(HeldOpenBy is { } hold && hold.IsTrue(Room) ? "held_open" : "let_go");
                     break;
             }
         }
@@ -473,9 +570,10 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             // A look may say, step by step, how the barrier stands in the way meanwhile.
             StandAs(_showing.Step());
 
-            if (_showingName is "closed" or "sealed")
+            if (OpensWhenNear == 0 && _showingName is "closed" or "sealed")
             {
-                // Shut and held shut may look different, and it changes between them as its condition does.
+                // Shut and held shut may look different, and it changes between them as its condition does. One
+                // that opens when the player is near looks at its condition as its looks play through.
                 string wanted = IsSealed && _timelines.Has("sealed") ? "sealed" : "closed";
                 if (wanted != _showingName)
                     Show(wanted);
@@ -489,12 +587,20 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         }
     }
 
+    /// <summary>Takes up the look of that name and plays its first update on this one.</summary>
+    private void Take(string name)
+    {
+        Show(name);
+        if (_showing is not null)
+            StandAs(_showing.Step());
+    }
+
     /// <summary>Shows the timeline of that name, if its data has one; a look it has none for falls back to "closed" or shows nothing.</summary>
     private void Show(string name)
     {
         // A plain one has its own timeline for a look, where its data gives one.
         string Named(string look) => _plain && _timelines.Has("plain_" + look) ? "plain_" + look : look;
-        string shown = _timelines.Has(Named(name)) ? name : name is "sealed" or "hurt" && _timelines.Has(Named("closed")) ? "closed" : "";
+        string shown =_timelines.Has(Named(name)) ? name : name is "sealed" or "hurt" && _timelines.Has(Named("closed")) ? "closed" : "";
         if (name == "open" && shown.Length == 0)
         {
             // With no look for being open it simply is not there.
@@ -598,6 +704,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <summary>Turns the barrier's solid and its hurtboxes on or off together.</summary>
     private void SetSolid(bool solid)
     {
+        _solidStandsOut = false;
         foreach (Collider collider in EntityNode.CollidersOf(this))
             collider.Enabled = solid;
 

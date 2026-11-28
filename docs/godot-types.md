@@ -1296,7 +1296,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
   aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
   direction the way she faces does not start a run. Crouched, up does not aim: a press of it stands her up with her
-  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up. Settling from
+  arm level, and she aims up once she has stood; only both angle actions aim a crouching Samus up, and while both are held the way she faces does not stand her up. Settling from
   a landing she came down aiming up or diagonally in, she keeps that aim while nothing is held that the landing
   answers (no direction, no aim, no fresh jump or press of down; the attack alone is nothing to it), and stands
   aiming so as the settling ends: the standing state is then not asked at all (`Samus.KeepsLandingAim`), as asking

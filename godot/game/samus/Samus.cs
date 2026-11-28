@@ -1602,6 +1602,19 @@ public partial class Samus : Player
                     AimFromInput();
                     return current;
                 }
+
+                // Crouched with both angle actions held she goes on aiming straight up, and the way she faces held does
+                // not stand her up: the cartridge's list for the crouch tries the two angle actions together before
+                // it tries a direction with either. What is pressed afresh is tried first, as the crouch tries it: up,
+                // the way behind her, and down.
+                if (current is CrouchingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                    Intent != 0 && Intent > 0 == (Facing == Facing.Right) && !input.WasPressed(GameAction.Up) && !input.WasPressed(GameAction.Down) &&
+                    !input.WasPressed(Facing == Facing.Right ? GameAction.Left : GameAction.Right))
+                {
+                    AimFromInput();
+                    return current;
+                }
+
                 if (ScopeStarts(input))
                     return new XrayState();
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)

@@ -993,7 +993,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         // While the player's state holds the room still, the room does nothing to them either: its blocks do not
         // carry or pull them, and whatever damage the update gathered for them is let go, not taken.
         bool roomHeldStill = State.Stops.HasFlag(World.Stopped.Room);
-        if (!roomHeldStill)
+        if (!roomHeldStill && State.MovedFromOutside)
             MoveByWhatBlocksLeft();
         Splash();
         if (roomHeldStill)

@@ -120,6 +120,13 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     /// <inheritdoc/>
     public override bool InControl => false;
 
+    /// <summary>
+    /// Winding up and crashed she has no movement of her own, and nothing moves her: what a block she stands in or
+    /// something that carries her would give her to move by is not taken, as the cartridge's poses for them move
+    /// her by nothing at all. Flying, she takes it as part of her flight.
+    /// </summary>
+    public override bool MovedFromOutside => _stage == Stage.Flying;
+
     /// <summary>A knockback waits while she is in this state, as the cartridge refuses it here and tries again each update of its time.</summary>
     public override bool HoldsOffInterruptions => true;
 

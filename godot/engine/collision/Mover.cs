@@ -390,11 +390,9 @@ public sealed class Mover
 
     /// <summary>
     /// Moves a solid's owner by <paramref name="offset"/> and carries with it every body standing on the solid. Bodies
-    /// the solid moves into are pushed ahead of it, unless <paramref name="pushesAhead"/> says not: the solid then
-    /// passes over them, and they lie in it until a move of their own feels it. The solid itself is not stopped by
-    /// anything.
+    /// the solid moves into are pushed ahead of it. The solid itself is not stopped by anything.
     /// </summary>
-    public void MoveSolid(Collider solid, PixelOffset offset, bool pushesAhead = true)
+    public void MoveSolid(Collider solid, PixelOffset offset)
     {
         if (solid.Role != ColliderRole.Solid)
             throw new ArgumentException($"The collider \"{solid.Name}\" is not a solid.", nameof(solid));
@@ -419,8 +417,6 @@ public sealed class Mover
                 MoveDown(rider, Pixels.FromWhole(downPixels), carried);
         }
 
-        if (!pushesAhead)
-            return;
         foreach (Collider pushed in _world.Overlapping(after, ColliderRole.Body, except: owner))
         {
             if (riders.Contains(pushed))

@@ -98,6 +98,13 @@ public abstract class PlayerState : State<Player>
     public virtual bool InAnothersHands => false;
 
     /// <summary>
+    /// Whether what the room's blocks and what carries the player gave them to move by on this update moves them in
+    /// this state where its own move took none of it. It does unless the state says not: one whose player has no
+    /// movement of their own at all, and stays exactly where they are whatever is under or around them.
+    /// </summary>
+    public virtual bool MovedFromOutside => true;
+
+    /// <summary>
     /// Whether the liquid the player's feet are in harms them in this state. It does unless the state says not: one
     /// that holds them as they are, with nothing of theirs playing, as the cartridge's liquid acts on Samus as part
     /// of her own pictures' turn.

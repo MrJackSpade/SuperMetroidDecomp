@@ -70,6 +70,24 @@ public partial class Kzan : Enemy
         _wait = FallWait;
     }
 
+    /// <summary>How much lower Samus's middle is taken to be when it is asked whether she stands on a Kzan.</summary>
+    private const int StandingBias = 5;
+
+    /// <summary>
+    /// Moves it to a height, and gives Samus the whole pixels it went to move by, if she rides it where it then is
+    /// (<see cref="Enemy.IsRiddenByPlayer"/>, by its own closeness): her feet need not be at its top, and risen into
+    /// it from below with her middle above its own she is carried too. That is all it does to her as it moves: one
+    /// it comes down on is not pushed ahead of it, and what it gives her is part of her own move of that update, so
+    /// a Samus whose state makes no such move is left where she is.
+    /// </summary>
+    private void MoveTo(Pixels height)
+    {
+        int before = Position.Y.Whole;
+        Position = Position with { Y = height };
+        if (IsRiddenByPlayer(StandingBias))
+            ShiftPlayer(PixelOffset.FromWhole(0, Position.Y.Whole - before));
+    }
+
     /// <inheritdoc/>
     protected override void Behave()
     {
@@ -95,9 +113,7 @@ public partial class Kzan : Enemy
                     Sound(LandingSound);
                 }
 
-                // It carries Samus when she stands on it, and that is all it does to her as it moves: one it comes down
-                // on is not pushed ahead of it, as the cartridge's moves her only when she stands on it.
-                MoveCarrying(new PixelOffset(Pixels.Zero, fallen - Position.Y), pushesAhead: false);
+                MoveTo(fallen);
                 Pixels faster = _speed + Pixels.FromNumber(FallQuickening), fastest = Pixels.FromNumber(FastestFall);
                 _speed = faster < fastest ? faster : fastest;
                 return;
@@ -118,7 +134,7 @@ public partial class Kzan : Enemy
                     _doing = Doing.WaitingToFall;
                 }
 
-                MoveCarrying(new PixelOffset(Pixels.Zero, risen - Position.Y), pushesAhead: false);
+                MoveTo(risen);
                 return;
 
             default:

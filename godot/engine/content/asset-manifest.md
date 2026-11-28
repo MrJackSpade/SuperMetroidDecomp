@@ -101,7 +101,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/holtz.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, idles_whenever_perched, lift, reach, return_sound, return_speed, slow_dive_speed |
 | `enemies/jet_ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/kago.json` | `Kago` | contact_damage, health, shake_reach, shake_strength, shake_updates, shake_way |
-| `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, first_sound_after, gravity, health, homing_distance, jump_speed, shortest_wait, sound |
+| `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, fall_start_speed, falling_timeline, first_sound_after, gravity, homing_distance, jump_speed, jump_start_timeline, landed_timeline, shortest_wait, sound |
 | `enemies/kamer.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/ki_hunter_acid.json` | `KiHunterAcid` | fastest_fall, gravity, launch_shift, splash |
 | `enemies/ki_hunter_green.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_sound, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
@@ -171,7 +171,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/zero.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
 | `enemies/zoa.json` | `Zoa` | contact_damage, health, reach, rise_speed |
 | `enemies/zoomer.json` | `Crawler` | contact_damage, health, landing_speed, pursues |
-| `hud/hud.json` | `Hud` | area_folder, select_sound |
+| `hud/hud.json` | `Hud` | area_folder |
 | `objects/ceres_door_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, opens_around_player, refused_sound, sealed_sound |
 | `objects/ceres_elevator_door.json` | `CeresElevatorDoor` | blocked, explosion, explosion_sound, smoke |
@@ -735,10 +735,10 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `items/varia_suit.json` | `game/rooms/brinstar/varia_suit.tscn` |
 | `items/wave_beam.json` | `game/rooms/norfair/wave_beam.tscn` |
 | `items/xray_scope.json` | `game/rooms/brinstar/xray_scope.tscn` |
-| `liquids/acid.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/gauntlet_energy_tank.tscn` and 18 more |
+| `liquids/acid.json` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/gauntlet_energy_tank.tscn` and 24 more |
 | `liquids/acid_lava.json` | `game/rooms/norfair/crocomire.tscn`, `game/rooms/tourian/metroids1.tscn`, `game/rooms/tourian/metroids3.tscn` and 2 more |
 | `liquids/acid_water.json` | `game/rooms/crateria/crateria_power_bombs.tscn`, `game/rooms/crateria/crateria_super.tscn` |
-| `liquids/lava.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/bat_cave.tscn` and 18 more |
+| `liquids/lava.json` | `game/rooms/crateria/climb.tscn`, `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/bat_cave.tscn` and 37 more |
 | `liquids/water.json` | `game/rooms/brinstar/below_spazer.tscn`, `game/rooms/brinstar/blue_brinstar_boulders.tscn`, `game/rooms/brinstar/skree_boost.tscn` and 13 more |
 | `liquids/water_green.json` | `game/rooms/maridia/east_pants.tscn`, `game/rooms/maridia/east_sand_hall.tscn`, `game/rooms/maridia/oasis.tscn` and 5 more |
 | `liquids/water_indigo.json` | `game/rooms/maridia/aqueduct_save.tscn`, `game/rooms/maridia/bug_sand_hole.tscn`, `game/rooms/maridia/butterfly.tscn` and 7 more |

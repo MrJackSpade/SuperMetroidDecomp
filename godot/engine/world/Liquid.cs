@@ -105,7 +105,11 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     /// <summary>The liquid's type, once set up.</summary>
     private LiquidType? _type;
 
-    /// <summary>Where the surface lies with the tide left out of it.</summary>
+    /// <summary>
+    /// Where the surface lies with the tide left out of it. It begins half a pixel down its line, so that a tide or a
+    /// slow rise or fall crosses onto the next line half a pixel sooner one way and later the other; a rise or fall
+    /// that arrives leaves it on its line exactly.
+    /// </summary>
     private Pixels _level;
 
     /// <summary>Where a rise or fall has got to.</summary>
@@ -161,8 +165,9 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         if (TypeFile.Length == 0)
             throw new InvalidOperationException($"The liquid \"{Name}\" names no liquid type.");
         _type = LiquidType.Read(content.ReadData(TypeFile));
-        _level = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
-        _target = SetsOffAtOnce ? Pixels.FromWhole(StartsRaised ? LowSurface : HighSurface) : _level;
+        int begins = StartsRaised ? HighSurface : LowSurface;
+        _level = Pixels.FromParts(begins, Pixels.FractionsPerPixel / 2);
+        _target = Pixels.FromWhole(SetsOffAtOnce ? (StartsRaised ? LowSurface : HighSurface) : begins);
         (_motion, _speedSpent, _waiting, _tidePhase, _tide) = (Motion.Dormant, false, MoveDelay, 0, Pixels.Zero);
         _begun = false;
         IsAstir = false;
@@ -175,10 +180,13 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         ZIndex = RoomDepth.Liquid;
     }
 
-    /// <summary>Puts where the surface lies at a height at once, in pixels down from the room's top; it goes on from there to where it was heading.</summary>
+    /// <summary>
+    /// Puts where the surface lies at a height at once, in pixels down from the room's top, keeping the part of a
+    /// pixel it had; it goes on from there to where it was heading.
+    /// </summary>
     public void PutAt(int height)
     {
-        _level = Pixels.FromWhole(height);
+        _level = _level.WithWhole(height);
         Surface = _level + _tide;
         QueueRedraw();
     }

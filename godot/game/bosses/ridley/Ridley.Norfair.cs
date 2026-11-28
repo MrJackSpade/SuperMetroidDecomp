@@ -809,19 +809,29 @@ public partial class Ridley
     private static bool CanSeize(Player samus) =>
         samus.State is not (SpinJumpingState or GrapplingState or GrappleLockedState or GrappleWallGrabState or DamageBoostState or GrabbedState);
 
+    /// <summary>
+    /// How far Samus is from its claws, by the whole pixels each is on: the cartridge measures between the two whole
+    /// places, and what part of a pixel either is at takes no part.
+    /// </summary>
+    private (int Across, int Down) FromClaws(Player samus)
+    {
+        PixelPosition claws = ClawPosition;
+        return (samus.Position.X.Whole - claws.X.Whole, samus.Position.Y.Whole - claws.Y.Whole);
+    }
+
     /// <summary>Whether its claws are within a reach of Samus's body.</summary>
     private bool ClawsReach(Player samus, int across, int down)
     {
-        PixelOffset fromClaw = samus.Position - ClawPosition;
+        (int x, int y) = FromClaws(samus);
         PixelRect body = samus.BodyRect;
-        return Math.Abs(fromClaw.X.Whole) < body.Width / 2 + across && Math.Abs(fromClaw.Y.Whole) < body.Height / 2 + down;
+        return Math.Abs(x) < body.Width / 2 + across && Math.Abs(y) < body.Height / 2 + down;
     }
 
     /// <summary>Takes hold of Samus. With its health gone that is the end of it; otherwise it carries her off.</summary>
     private void Seize(Player samus)
     {
-        PixelOffset fromClaw = samus.Position - ClawPosition;
-        _grabOffset = PixelOffset.FromWhole(fromClaw.X.Whole, fromClaw.Y.Whole);
+        (int x, int y) = FromClaws(samus);
+        _grabOffset = PixelOffset.FromWhole(x, y);
         _holdsSamus = true;
         // In its claws she is held as she is: her pose and speed kept, neither moving, animating nor acting.
         samus.HoldAsTheyAre();

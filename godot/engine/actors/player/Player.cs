@@ -1146,10 +1146,11 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
     /// <summary>
     /// Takes the state waiting to interrupt the player, who has just moved as <paramref name="from"/>, leaving none
-    /// waiting. Null when none was, when <paramref name="from"/> holds it off for another update, or when it has
-    /// waited too long to interrupt at all.
+    /// waiting. Null when none was, when <paramref name="from"/> holds it off for another update, or when it
+    /// interrupts no longer (<see cref="PlayerState.StillInterrupts"/>): it has waited too long, or gives way to
+    /// what this update's input asked of <paramref name="from"/>, <paramref name="asked"/>.
     /// </summary>
-    internal PlayerState? TakeInterruption(PlayerState from)
+    internal PlayerState? TakeInterruption(PlayerState from, PlayerState? asked)
     {
         if (_interruption is not { } waiting)
             return null;
@@ -1157,7 +1158,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             return null;
 
         _interruption = null;
-        return waiting.StillInterrupts(this, _interruptionWaited) ? waiting : null;
+        return waiting.StillInterrupts(this, _interruptionWaited, asked) ? waiting : null;
     }
 
     /// <summary>

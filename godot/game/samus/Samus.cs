@@ -841,6 +841,14 @@ public partial class Samus : Player
         or MoonwalkingState or WallJumpingState or GrapplingState;
 
     /// <summary>
+    /// Whether this update's input, which asked <paramref name="asked"/> of the state she is in, asks her for a
+    /// pose other than the one she is in: another state, the same one aiming another way, or a taller form her
+    /// crouch had no room for, which is asked for all the same. Input that asks for nothing asks for none.
+    /// </summary>
+    public bool AsksAnotherPose(PlayerState? asked) =>
+        asked is not null && (!ReferenceEquals(asked, State) || Aim != _aimAtUpdateStart || asked is CrouchingState { RefusedTaller: true });
+
+    /// <summary>
     /// Where a shot starts: from her middle, raised by how high the pose she is in holds her arm, at the place her
     /// arm points for the way she faces and aims.
     /// </summary>

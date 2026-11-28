@@ -140,9 +140,15 @@ public abstract class PlayerState : State<Player>
     /// <summary>
     /// Asked of a state about to interrupt the player after it has waited <paramref name="waited"/> updates for
     /// states that held it off: whether it still does. A state whose time was running while it waited shortens
-    /// itself here.
+    /// itself here, and one that gives way to the player's input turns itself down by what that input asked.
     /// </summary>
-    public virtual bool StillInterrupts(Player owner, int waited) => true;
+    /// <param name="owner">The player it would interrupt, still in the state they have just moved as.</param>
+    /// <param name="waited">How many updates it has waited.</param>
+    /// <param name="asked">
+    /// What this update's input asked of the state the player moved as: another state, that state itself to carry
+    /// on in it, or null when it asked for nothing.
+    /// </param>
+    public virtual bool StillInterrupts(Player owner, int waited, PlayerState? asked) => true;
 
     /// <summary>
     /// Whether the state's movement goes on moving the player once they have begun to die, for as long as the game
@@ -256,7 +262,7 @@ public abstract class PlayerState : State<Player>
         if (ended is not null && !givesWay)
             return ended;
 
-        if ((owner.TakeInterruption(this) ?? met) is { } forced)
+        if ((owner.TakeInterruption(this, asked) ?? met) is { } forced)
             return forced;
         if (ReferenceEquals(asked, this))
             CarriedOn(owner);

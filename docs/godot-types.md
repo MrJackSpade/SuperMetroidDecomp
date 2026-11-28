@@ -1136,6 +1136,11 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   (`PlayerState.WaitsWhenItDoesNotFit`), tried again each update until it is entered or says it interrupts no longer:
   this game's upright bomb jump does, as the cartridge keeps a bomb's request until her pose handling takes it or
   turns it down.
+  A state about to interrupt is told what that update's input asked of the state the player moved as
+  (`PlayerState.StillInterrupts`), and may give way to it: this game's upright bomb jump is given up for good on
+  an update whose input asks her for another pose (`Samus.AsksAnotherPose`: another state, another aim, or a
+  taller form a crouch had no room for, `CrouchingState.RefusedTaller`), and what the input asked is done, as the
+  cartridge drops a bomb's request when her input names a pose she is not in.
   A form may also be taken outright in the midst of a state, or just before a state whose form it is
   (`Player.TakeFormOutright`), the middle kept or the feet: this game's Draygon lets Samus go standing where she is,
   and her shinespark's crash ends with her stood by her feet, each with no room felt for, as the cartridge sets those

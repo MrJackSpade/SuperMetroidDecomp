@@ -41,7 +41,7 @@ public sealed class KnockedBackState : PlayerState
     private int Length(Player owner) => (_updates ?? owner.KnockbackUpdates) - _waited;
 
     /// <summary>A knockback that had to wait is shorter by as long as it waited, and one that waited out its whole length does not happen.</summary>
-    public override bool StillInterrupts(Player owner, int waited)
+    public override bool StillInterrupts(Player owner, int waited, PlayerState? asked)
     {
         _waited = waited;
         return Length(owner) > 0;

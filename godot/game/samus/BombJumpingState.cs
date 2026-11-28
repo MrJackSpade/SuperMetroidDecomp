@@ -64,9 +64,12 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
 
     /// <summary>
     /// Each time it is tried, an upright throw is turned down for good if what she is doing by then refuses a bomb's
-    /// throw, as a jump or a turn does (<see cref="Samus.TakesUprightBombJump"/>). The ball's is never turned down.
+    /// throw, as a jump or a turn does (<see cref="Samus.TakesUprightBombJump"/>), or if that update's input asks
+    /// her for another pose (<see cref="Samus.AsksAnotherPose"/>): the cartridge drops the bomb's request as her
+    /// input names a pose that is not the one she is in, and that pose is hers. The ball's is never turned down.
     /// </summary>
-    public override bool StillInterrupts(Player owner, int waited) => !Upright || ((Samus)owner).TakesUprightBombJump;
+    public override bool StillInterrupts(Player owner, int waited, PlayerState? asked) =>
+        !Upright || (owner is Samus { TakesUprightBombJump: true } samus && !samus.AsksAnotherPose(asked));
 
     /// <summary>
     /// Upright she is thrown in the jump's body, fitted as the cartridge fits a larger pose: with no room for it she

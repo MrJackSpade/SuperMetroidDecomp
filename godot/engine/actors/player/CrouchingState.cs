@@ -19,6 +19,7 @@ public sealed class CrouchingState : PlayerState
     {
         GameInput input = owner.Input;
         bool up = input.WasPressed(GameAction.Up);
+        RefusedTaller = false;
 
         // A turn is made aiming as the player aimed before it: what is held with the way behind aims nothing.
         if (!up && input.WasPressed(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right))
@@ -43,8 +44,18 @@ public sealed class CrouchingState : PlayerState
     private PlayerState PlainCrouch(Player owner)
     {
         owner.Aim = Aim.Forward;
+        RefusedTaller = true;
         return this;
     }
+
+    /// <summary>
+    /// Whether the input last asked of the crouch asked for a taller form, a stand or a jump, that had no room: the
+    /// player stayed crouched, and was asked for another posture all the same.
+    /// </summary>
+    public bool RefusedTaller { get; private set; }
+
+    /// <inheritdoc/>
+    public override void Enter(Player owner) => RefusedTaller = false;
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)

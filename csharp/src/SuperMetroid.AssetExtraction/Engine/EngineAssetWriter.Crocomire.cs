@@ -212,8 +212,9 @@ public sealed partial class EngineAssetWriter
             {
                 shot["speed"] = CrocomireProjectileDefinitions.VolleySpeed;
                 shot["scene"] = "res://game/bosses/crocomire/crocomire_fire.tscn";
+                // It shows the colours his fight loads into the projectiles' row (#3750).
                 projectile["timeline"] = croc.SpawnedTimeline("fire", CrocomireAnimations.ProjectileSegments,
-                    CrocomireAnimations.ProjectileStartingWith(CrocomireProjectileSegment.Mouth), ShotCue);
+                    CrocomireAnimations.ProjectileStartingWith(CrocomireProjectileSegment.Mouth), ShotCue, CrocomireShades.Projectiles.Key);
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
                 // It moves itself and meets terrain its own way, carrying on past a block on its first move.
                 projectile["meeting_terrain"] = "passes_through";

@@ -217,24 +217,33 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         }
 
         Age++;
-        if (_timeline is not null)
+        // A cue that turns it to another timeline leaves the rest of its step's cues behind, and the first update of
+        // the timeline it turns to is this one: the cartridge's list goes on from where it was sent at once.
+        TimelinePlayer? played = null;
+        while (_timeline is { } playing && !ReferenceEquals(playing, played))
         {
-            foreach (string cue in _timeline.Step())
+            played = playing;
+            foreach (string cue in playing.Step())
             {
                 if (!Resize(cue))
                     OnCue(room, cue);
                 if (HasEnded)
                     return;
+                if (!ReferenceEquals(_timeline, playing))
+                    break;
             }
+        }
 
-            if (_timeline.IsOver && !_shotDown && _settings.LastsUpdates == 0)
+        if (_timeline is { } shown)
+        {
+            if (shown.IsOver && !_shotDown && _settings.LastsUpdates == 0)
             {
                 End(room);
                 return;
             }
 
             // The picture is that of the step this update fell in: it changes on the update the step's cues come.
-            _visual?.Show(_timeline.Shown);
+            _visual?.Show(shown.Shown);
         }
 
         // Shot down, it holds still and only meets what is where it lies.

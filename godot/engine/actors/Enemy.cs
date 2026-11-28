@@ -928,12 +928,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>
     /// Moves the enemy by <paramref name="offset"/> through everything, carrying along whoever stands on its solid
-    /// collider and pushing ahead whoever is in its way. An enemy with no solid collider on just moves.
+    /// collider and pushing ahead whoever is in its way, unless <paramref name="pushesAhead"/> says it passes over
+    /// them. An enemy with no solid collider on just moves.
     /// </summary>
-    protected void MoveCarrying(PixelOffset offset)
+    protected void MoveCarrying(PixelOffset offset, bool pushesAhead = true)
     {
         if (Solid is { Enabled: true } solid)
-            Room.Mover.MoveSolid(solid, offset);
+            Room.Mover.MoveSolid(solid, offset, pushesAhead);
         else
             Position += offset;
     }

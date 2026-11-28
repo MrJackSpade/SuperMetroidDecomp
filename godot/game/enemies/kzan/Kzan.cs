@@ -95,7 +95,9 @@ public partial class Kzan : Enemy
                     Sound(LandingSound);
                 }
 
-                MoveCarrying(new PixelOffset(Pixels.Zero, fallen - Position.Y));
+                // It carries Samus when she stands on it, and that is all it does to her as it moves: one it comes down
+                // on is not pushed ahead of it, as the cartridge's moves her only when she stands on it.
+                MoveCarrying(new PixelOffset(Pixels.Zero, fallen - Position.Y), pushesAhead: false);
                 Pixels faster = _speed + Pixels.FromNumber(FallQuickening), fastest = Pixels.FromNumber(FastestFall);
                 _speed = faster < fastest ? faster : fastest;
                 return;
@@ -116,7 +118,7 @@ public partial class Kzan : Enemy
                     _doing = Doing.WaitingToFall;
                 }
 
-                MoveCarrying(new PixelOffset(Pixels.Zero, risen - Position.Y));
+                MoveCarrying(new PixelOffset(Pixels.Zero, risen - Position.Y), pushesAhead: false);
                 return;
 
             default:

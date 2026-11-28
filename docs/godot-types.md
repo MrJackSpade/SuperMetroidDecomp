@@ -1027,7 +1027,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   are: it was asked, so nothing else is that update, and their momentum is not ended. A
   change into or out of the low form made in the air goes on rising and falling. The low form is taken as from a
   crouch wherever the player is: the body shrinks about its middle and the middle drops by as much as a crouch is
-  taller, or as far as there is room. Leaving it leads to a crouch even in the air, which then walks off into a fall
+  taller, or as far as there is room; how the room is felt for is the game's player's (`Player.DropIntoLowForm`),
+  and this game's Samus feels for it in two goes, as for any change of her body of half a block or more. Leaving it leads to a crouch even in the air, which then walks off into a fall
   from rest. **Crouching** keeps no speed across: a dash still carries the player for the update and is then spent,
   while their momentum lasts until an update whose input asks nothing of the crouch. A press of the direction
   behind turns them round crouched (`TurningState`, crouched, which ends in a crouch and listens only for whether

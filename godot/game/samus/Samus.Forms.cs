@@ -29,6 +29,32 @@ public partial class Samus
     /// stopped by a block, or lying against something solid, left. A form no taller than her body is placed as any
     /// player's is.
     /// </summary>
+    /// <summary>The middle of the block step a change of <paramref name="distance"/> whole pixels ends in: where its first go is tried to.</summary>
+    private static int MiddleOfBlockStep(int distance) =>
+        distance - (((distance % BlockSize) + BlockSize) % BlockSize) + (BlockSize / 2);
+
+    /// <summary>
+    /// Her drop into the ball is felt for as the cartridge feels for any change of her body of half a block or more,
+    /// in two goes: first to the middle of the block step it ends in, where it stops if the room is in the way there,
+    /// and only then the whole way. So a ball taken up with her body part of the way into a floor one block thick
+    /// stays in it, where a single try the whole way would find the room clear beneath and drop her through.
+    /// </summary>
+    protected internal override void DropIntoLowForm(int drop)
+    {
+        MoveOptions blocks = BodyMoves with { StoppedBySolids = false };
+        if (drop >= TwoGoGrowth)
+        {
+            Pixels middle = Pixels.FromWhole(MiddleOfBlockStep(drop));
+            if (TryBodyDown(middle, blocks, out _).Blocked)
+            {
+                MoveBodyDown(middle, blocks);
+                return;
+            }
+        }
+
+        MoveBodyDown(Pixels.FromWhole(drop), blocks);
+    }
+
     protected override FormFit FitForm(string form, bool aroundMiddle)
     {
         int now = Body.Rect.Height / 2;
@@ -112,7 +138,7 @@ public partial class Samus
         {
             if (Math.Abs(distance) >= TwoGoGrowth)
             {
-                int middle = distance - (((distance % BlockSize) + BlockSize) % BlockSize) + (BlockSize / 2);
+                int middle = MiddleOfBlockStep(distance);
                 MoveResult first = Feel(middle, blocks, shapedAs: null, marksAlways: false);
                 if (first.Blocked)
                     return first;

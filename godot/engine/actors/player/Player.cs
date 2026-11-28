@@ -504,6 +504,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// <summary>Moves the player's body down through the room's mover, upward when the distance is negative (<see cref="MoveBodyAcross"/>).</summary>
     public MoveResult MoveBodyDown(Pixels distance, MoveOptions options) => Noted(Room.Mover.MoveDown(Body, distance, options));
 
+    /// <summary>
+    /// Moves the player's middle down by <paramref name="drop"/> whole pixels as they take the low form, or as far as
+    /// the room leaves room for: the low body's own drop, which only the room itself stops. A game says how the room
+    /// is felt for.
+    /// </summary>
+    protected internal abstract void DropIntoLowForm(int drop);
+
     /// <summary>Tries a move of the player's body across without making it; what it reached counts as a made move's does.</summary>
     public MoveResult TryBodyAcross(Pixels distance, MoveOptions options, out PixelPosition rest) =>
         Noted(Room.Mover.TryAcross(Body, distance, options, out rest));

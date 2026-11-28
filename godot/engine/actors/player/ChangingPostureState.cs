@@ -78,10 +78,11 @@ public sealed class ChangingPostureState : PlayerState
         // The low form is taken as from a crouch, wherever the player is: the body shrinks about its middle, and the
         // middle then drops by as much as a crouch stands taller than the low form, or as far as there is room. The
         // drop is the low body's own: tried with the body they had it would be stopped by the floor they stand on.
-        // Only the room itself stops it: something solid under them that is no part of the room does not.
+        // Only the room itself stops it: something solid under them that is no part of the room does not. How the
+        // room is felt for is the game's player's (Player.DropIntoLowForm).
         int drop = owner.HalfHeightOf(Player.Crouching) - owner.HalfHeightOf(Player.Crawling);
         owner.TrySetForm(Player.Crawling, aroundMiddle: true, atOnce: true);
-        owner.MoveBodyDown(Pixels.FromWhole(drop), owner.BodyMoves with { StoppedBySolids = false });
+        owner.DropIntoLowForm(drop);
 
         // The view takes them to have stood where the drop leaves them.
         owner.Room.Session.Camera.TakePlayerToHaveStoodAtY(owner.Position.Y.Whole);

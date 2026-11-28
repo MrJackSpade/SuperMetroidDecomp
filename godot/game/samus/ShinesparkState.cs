@@ -56,7 +56,8 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     public static ShinesparkState Launched(int across, int down) => new((across, down));
 
     /// <summary>
-    /// Whether its windup is left standing: begun on the very update a knockback she carried ran out, it is never
+    /// Whether its windup is left standing: begun on the very update a knockback ran out, the throw that carried her
+    /// (<see cref="Player.ThrowRanOut"/>) or what she carried of one out of a damage boost, it is never
     /// counted down, and she stands wound up until a direction launches her. The cartridge's knockback, ending,
     /// gives her movement back to her pose, and takes it from the windup that had just been set up. Her body is no
     /// attack while her pose moves her, so hits land on her until she has flown an update of the spark.
@@ -137,7 +138,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         // was left of the one she let a damage boost go with, which would otherwise end her speed up or down as it ran
         // out. No bomb's throw is left waiting into it: one is refused in every state the windup is begun from, and
         // one given in any other is taken, ahead of what her input asks, before a windup can be begun.
-        _leftStanding = samus.CarriedKnockbackEndsNow;
+        _leftStanding = samus.CarriedKnockbackEndsNow || owner.ThrowRanOut;
         owner.EndThrow();
         samus.EndCarriedKnockback();
         owner.Velocity = PixelVelocity.Zero;

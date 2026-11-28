@@ -1088,7 +1088,8 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   gravity with no turn at its top, unless it is kept low: they are pressed down by as far as they move across and
   a pixel more each update instead. A floor or ceiling stops the speed across and the rise, not the throw, and
   leaves the player adrift for what is left of it (`Player.Drift`), drawn down with no fastest fall. When
-  its time is up they fall from rest, and whatever the input asked that update is dropped. A knockback that arrives
+  its time is up they fall from rest, and whatever the input asked that update is dropped; for the rest of that
+  update the player says so (`Player.ThrowRanOut`). A knockback that arrives
   while a throw is under way does not begin again (`Player.Admit`, `Throw.Renew`): the throw takes the new one's way
   and its time from the start and goes on as it was, with no new rise, the player in the state they are in.
   - *An upright player* is put in `KnockedBackState` for it, out of their control. The state is entered in the
@@ -1461,7 +1462,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
   by gravity and it rises no more than `shinespark_most_rise` whole pixels an update. Its windup ends a knockback she
   carries as it begins (a throw, and what she carries of one she let a damage boost go with,
-  `Samus.EndCarriedKnockback`), and each update of it that launches nothing lets her run's momentum go, as the
+  `Samus.EndCarriedKnockback`); begun on the very update a knockback's time runs out, the throw's
+  (`Player.ThrowRanOut`) or the carried one's, it is left standing, never counted down and open to hits, until a
+  direction launches her, as the cartridge's knockback ending takes her movement back from the windup just set up.
+  Each update of it that launches nothing lets her run's momentum go, as the
   cartridge's does: her boost ends then if she had momentum as the windup began, and her speed echoes are sent
   closing on her (`ShinesparkState.SendsEchoesOff`).
 - **Hurts.** A hit from the room itself (a spike) has its own invincibility and knockback lengths. The low-energy

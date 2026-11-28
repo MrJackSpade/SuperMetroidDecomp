@@ -551,7 +551,28 @@ public partial class Samus : Player
     public void EndCarriedKnockback() => _knockbackCarried = Countdown.Over;
 
     /// <summary>Whether the knockback she carries runs out as this update ends: its last update is this one, not yet counted.</summary>
-    public bool CarriedKnockbackEndsNow => _knockbackCarried.Remaining == 1 && !_knockbackCountedThisUpdate;
+    public bool CarriedKnockbackEndsNow => _knockbackCarried.Remaining == 1 && !_knockbackCountedThisUpdate && LooksForKnockbackEnd;
+
+    /// <summary>
+    /// Whether a knockback she left for a damage boost is still the one she is in. Its movement went back to her
+    /// pose, but, as the cartridge has it, only its time running out finishes it (or a shinespark's windup, which
+    /// ends any knockback). Until then no hit knocks her back: a hit's time becomes the time it has left.
+    /// </summary>
+    private bool KnockbackIsHandedBack => State is DamageBoostState { KnockbackRuns: true } || _knockbackCarried.IsRunning;
+
+    /// <summary>Whether a refill from her reserves ended as this update began.</summary>
+    private bool _refillEndedThisUpdate;
+
+    /// <summary>A refill from her reserves has ended as this update begins: she is her own again on it.</summary>
+    public void NoteRefillEnded() => _refillEndedThisUpdate = true;
+
+    /// <summary>
+    /// Whether the end of a knockback she carries is looked for on this update: on an update of her own, and not
+    /// while she is refilled from her reserves nor on the update that refill ends on. The cartridge's refill does not
+    /// run the part of her update that finishes a knockback, though the knockback's time is counted through it; so
+    /// its last update waits, and a hit taken before she is next her own gives it a hit's time to run again.
+    /// </summary>
+    private bool LooksForKnockbackEnd => State is not RefillingFromReservesState && !_refillEndedThisUpdate;
 
     /// <summary>
     /// On the update the knockback she carries runs out she stays in the state she is in: the cartridge's end of a
@@ -2168,10 +2189,24 @@ public partial class Samus : Player
         // A hurt keeps her charge, as the cartridge's does: a knockback neither counts it on nor lets it go. Her hurt
         // is heard from the hurt's flash, on its second count.
 
-        // A new hurt's knockback takes the place of whatever was left of the last.
-        _knockbackCarried = Countdown.Over;
         if (State is RefillingFromReservesState)
             return;
+
+        // A knockback handed back to her pose and not yet finished is still the one she is in: the hit starts no
+        // other, and its time is what the handed-back one now has left to run, counted from her next update.
+        if (KnockbackIsHandedBack)
+        {
+            bool spiked = hit.Carries(HitKind.Hazard);
+            if (spiked)
+                BeInvincibleFor(HazardInvincibleUpdates);
+            int updates = spiked ? HazardKnockbackUpdates : KnockbackUpdates;
+            if (State is DamageBoostState boost)
+                boost.RenewKnockbackTime(updates);
+            else
+                (_knockbackCarried, _knockbackCountedThisUpdate) = (Countdown.Of(updates), true);
+            return;
+        }
+
         // A state that holds a knockback off still has it waiting: it begins once she is out of that state, if its
         // time has not run out by then.
         // A ball already being thrown is not thrown afresh, as an upright Samus already knocked back is not.
@@ -2382,11 +2417,15 @@ public partial class Samus : Player
         Flare?.Step(this);
         ShowSelection();
         Assists.TesterAssists.Of(Room.Session).TakeAmmoBack(Room.Session);
+        // The time of a knockback she carries is counted on every update, but its last update waits for one on which
+        // its end is looked for.
+        bool looksForEnd = LooksForKnockbackEnd;
+        _refillEndedThisUpdate = false;
         if (_knockbackCountedThisUpdate)
         {
             _knockbackCountedThisUpdate = false;
         }
-        else if (_knockbackCarried.IsRunning)
+        else if (_knockbackCarried.IsRunning && (looksForEnd || _knockbackCarried.Remaining > 1))
         {
             _knockbackCarried = _knockbackCarried.Stepped();
             if (_knockbackCarried.IsOver)

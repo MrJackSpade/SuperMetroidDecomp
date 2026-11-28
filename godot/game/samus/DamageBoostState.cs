@@ -54,6 +54,12 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     /// <inheritdoc/>
     public override void Enter(Player owner) => owner.Facing = _toward;
 
+    /// <summary>
+    /// Gives the knockback she left for the boost a hit's time to run out in: a hit taken in the boost starts no
+    /// knockback while that one is unfinished, and its time is counted from her next update.
+    /// </summary>
+    public void RenewKnockbackTime(int updates) => _knockbackLeft = Countdown.Of(updates);
+
     /// <summary>The boost lasts while the jump and the way it carries her are the first of its chords held.</summary>
     public override PlayerState? Asked(Player owner) => FirstChord(owner) == _toward ? this : null;
 

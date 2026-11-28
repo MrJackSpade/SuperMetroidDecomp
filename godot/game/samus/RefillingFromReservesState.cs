@@ -49,7 +49,11 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
         int wanted = Math.Min(samus.ReserveRefillPerUpdate, inventory.Capacity(Amounts.Energy) - inventory.Amount(Amounts.Energy));
         int given = Math.Min(wanted, inventory.Amount(Amounts.ReserveEnergy));
         if (given <= 0)
+        {
+            samus.NoteRefillEnded();
             return owner.StateAtRest();
+        }
+
         inventory.Spend(Amounts.ReserveEnergy, given);
         inventory.Add(Amounts.Energy, given);
         // Once she is full, whatever is left in the tanks is lost.
@@ -60,6 +64,9 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
 
         // The refill is over on the update that leaves the tanks empty: she is her own again, and the room goes on,
         // on this same update.
-        return inventory.Amount(Amounts.ReserveEnergy) == 0 ? owner.StateAtRest() : null;
+        if (inventory.Amount(Amounts.ReserveEnergy) != 0)
+            return null;
+        samus.NoteRefillEnded();
+        return owner.StateAtRest();
     }
 }

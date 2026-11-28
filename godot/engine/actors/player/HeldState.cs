@@ -4,11 +4,13 @@ namespace Engine.Actors;
 
 /// <summary>Held in place by something: the player does not move or act until whatever holds them lets go.</summary>
 /// <param name="was">What the player was doing as they were taken hold of.</param>
-/// <param name="keepsSpeed">Whether the speed the player had is theirs again as the hold ends: a hold that keeps what they were doing.</param>
+/// <param name="keepsSpeed">
+/// Whether the speed the player had stays theirs through the hold: a hold that keeps what they were doing. Nothing
+/// moves them by it while they are held, and whether they were on the way up stays as it was, so the view goes on
+/// following where they are carried as it follows a rise or a fall.
+/// </param>
 public sealed class HeldState(PlayerState was, bool keepsSpeed = false) : PlayerState
 {
-    private PixelVelocity _speed;
-
     /// <summary>
     /// What the player was doing as they were taken hold of, for a game that goes on showing them so while they are
     /// held. It is not stepped.
@@ -27,15 +29,8 @@ public sealed class HeldState(PlayerState was, bool keepsSpeed = false) : Player
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        _speed = owner.Velocity;
-        owner.Velocity = PixelVelocity.Zero;
-    }
-
-    /// <inheritdoc/>
-    public override void Exit(Player owner)
-    {
-        if (keepsSpeed)
-            owner.Velocity = _speed;
+        if (!keepsSpeed)
+            owner.Velocity = PixelVelocity.Zero;
     }
 
     /// <inheritdoc/>

@@ -764,14 +764,17 @@ public partial class Ridley
             restsFalling = !Velocity.Y.IsNegative;
             if (restsFalling && doing == RidleyTail.Doing.ReadyingStab)
             {
+                // The readied stab is drawn out straight down, and only then is the tail set swinging again, from its
+                // base: at rest otherwise it stays at rest, which is what lets it be found resting while he falls.
                 foreach (RidleyTail.Link link in Tail.Links)
                 {
                     link.TargetDistance = Pixels.FromWhole(10);
                     link.Angle = 0;
                 }
+
+                Tail.Base.Activate();
             }
 
-            Tail.Base.Activate();
             (Tail.LeftwardTarget, Tail.RightwardTarget) = (null, null);
             Tail.SwingStep = 0;
         }

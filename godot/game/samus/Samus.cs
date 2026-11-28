@@ -731,9 +731,25 @@ public partial class Samus : Player
         Room.Session.Sounds.Request(hard ? Sounds.HardLand : Sounds.Land, channel: "samus");
     }
 
-    /// <summary>A landing out of a spin or a wall jump takes a spin's landing to settle.</summary>
-    public override IReadOnlyList<int> SettlingPicturesAfter(PlayerState from) =>
-        from is SpinJumpingState or WallJumpingState ? SpinLandingPictures : base.SettlingPicturesAfter(from);
+    /// <summary>
+    /// A landing out of a spin or a wall jump takes a spin's landing to settle. One come down in a stance that aims
+    /// straight up settles without a landing's first picture: the cartridge starts a standing pose that aims up,
+    /// taken up out of another pose that aims up, on its second picture. The stance is the one she held as she came
+    /// down, whatever the update's input then asks.
+    /// </summary>
+    public override IReadOnlyList<int> SettlingPicturesAfter(PlayerState from)
+    {
+        if (from is SpinJumpingState or WallJumpingState)
+            return SpinLandingPictures;
+        IReadOnlyList<int> landing = base.SettlingPicturesAfter(from);
+        Aim held = from switch
+        {
+            JumpingState jump => jump.Stance.Aim,
+            FallingState { Stance: { } fall } => fall.Aim,
+            _ => Aim,
+        };
+        return held == Aim.Up ? [.. landing.Skip(1)] : landing;
+    }
 
     /// <summary>
     /// With her feet under a liquid that does not hinder her, as with the gravity suit, a picture that follows another

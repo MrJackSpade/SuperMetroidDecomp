@@ -217,12 +217,17 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         return null;
     }
 
-    /// <summary>Turns the spin: the dash is added into her speed, her momentum ends, and she reverses.</summary>
+    /// <summary>
+    /// Turns the spin: the dash is added into her speed, her momentum ends, and she reverses. The spin's pictures
+    /// start over, as the cartridge's do with the change of pose, so a spin that was ready to jump off a wall no
+    /// longer is until it finds one again.
+    /// </summary>
     private void Turn(Player owner)
     {
         owner.TurnAround();
         owner.EndMomentum();
         _looksForWalls = true;
+        _ready = PictureCount.Over;
         if (_spin == "space_jumping")
             owner.Room.Session.Sounds.Request(Sounds.SpaceJump, channel: "samus");
     }

@@ -81,13 +81,19 @@ public sealed class Hop
     private MoveReport StepAlongCurve(IMoves mover, Mover room, Collider body, SpeedCurve curve)
     {
         // Each move is tried where it ends, by the edge it leads with: a hopper the room sets a little way into
-        // the surface it hangs from or stands on moves away from it freely, and lands flush against it.
-        MoveOptions air = MoveOptions.AmongBlocks with { Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.Wall };
+        // the surface it hangs from or stands on moves away from it freely, and lands flush against it. Sloped
+        // ground that holds things up by their middle is met going up or down under the hopper's middle alone, where
+        // it comes to rest against it, and is no part of a move across.
+        MoveOptions upOrDown = MoveOptions.AmongBlocks with
+        {
+            Tries = WayTried.WhereItEnds, Slopes = SlopeTreatment.ClimbUnderMiddle, RestsAgainstSlopes = true,
+        };
+        MoveOptions across = upOrDown with { Slopes = SlopeTreatment.IgnoreMiddleHeld };
         int away = FromCeiling ? 1 : -1;
         Pixels speed = curve.SpeedAt(_place);
         if (!_returning)
         {
-            if (room.MoveDown(body, speed * away, air).Blocked)
+            if (room.MoveDown(body, speed * away, upOrDown).Blocked)
             {
                 // Meeting something on the way out turns the hop back, and it does not move across in that update.
                 mover.Facing = mover.Facing.Opposite();
@@ -95,7 +101,7 @@ public sealed class Hop
                 return new MoveReport(false, FromCeiling, !FromCeiling, false, false);
             }
 
-            if (room.MoveAcross(body, mover.Facing.Toward(AcrossSpeed), air).Blocked)
+            if (room.MoveAcross(body, mover.Facing.Toward(AcrossSpeed), across).Blocked)
             {
                 mover.Facing = mover.Facing.Opposite();
                 _returning = true;
@@ -112,14 +118,14 @@ public sealed class Hop
             return MoveReport.Nothing;
         }
 
-        if (room.MoveDown(body, speed * -away, air).Blocked)
+        if (room.MoveDown(body, speed * -away, upOrDown).Blocked)
         {
             IsInAir = false;
             _wait = Countdown.Of(WaitUpdates);
             return new MoveReport(false, !FromCeiling, FromCeiling, false, true);
         }
 
-        bool hitWall = room.MoveAcross(body, mover.Facing.Toward(AcrossSpeed), air).Blocked;
+        bool hitWall = room.MoveAcross(body, mover.Facing.Toward(AcrossSpeed), across).Blocked;
         if (hitWall)
             mover.Facing = mover.Facing.Opposite();
         _place = Math.Min(_place + CurveStep, FastestPlace);

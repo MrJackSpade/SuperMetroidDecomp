@@ -1614,7 +1614,7 @@ decides what to do about it.
 | Component | Moves its owner by |
 | --- | --- |
 | Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. It can feel for its surface some way ahead of itself, so that it meets a corner early; its owner can ask which way it presses. |
-| Hop | Jumping in arcs, with settings for height, distance and the wait between. |
+| Hop | Jumping in arcs, with settings for height, distance and the wait between. A hop whose speeds come from a curve meets sloped ground that holds things up by their middle under its middle alone going up or down, resting against it, and not at all going across. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
 player to enter the held state, moves with them, and, where it is one that hurts by its hold, adds ongoing damage

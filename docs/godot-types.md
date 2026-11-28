@@ -1747,7 +1747,9 @@ what takes a destroyed enemy's place arrives as that pause ends. This game keeps
 leave none, as the cartridge's death explosion in its first place never becomes a pickup.
 
 **A shot meets what is solid and hittable.** A projectile that reaches a solid that stands as part of the room, such
-as a door's cap, delivers its hit to what is there before the solid stops it. Terrain stops it first. It reaches
+as a door's cap, delivers its hit to what is there before the solid stops it. Terrain stops it first. A shot of a
+class of its own that moves itself and meets terrain its own way (`Projectile.MoveAcrossMeetingTerrain`,
+`MoveDownMeetingTerrain`) is stopped by such a solid as by the room's blocks. A shot reaches
 such a thing by what of it meets terrain: its body, or its middle point alone for one tried by its middle, so that
 a missile flying a pixel clear of a cap's column passes it though its body overlaps; and so it reaches an enemy
 that takes its turn with the room's objects (`Enemy.ActsWithObjects`), as this game's eye of an eye door is the

@@ -888,8 +888,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         // One that meets such things where its move ends, as it meets terrain, neither hits nor is stopped by them here.
         // Any other meets them by what of it meets terrain: its middle point alone, for one tried by its middle.
         PixelRect meetsStanding = TerrainArea;
-        bool meetsSolid = !passes && !MeetsStandingThingsAtEnd &&
-            room.Collision.Overlapping(meetsStanding, ColliderRole.Solid, except: _launcher).Any(solid => solid.StandsAsTerrain);
+        bool meetsSolid = !passes && !MeetsStandingThingsAtEnd && StandingSolidIn(room, meetsStanding);
 
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
         // all have moved. The player's shot meets what it comes upon as it moves, but for enemies and their shots:
@@ -1143,14 +1142,26 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     /// </summary>
     protected bool MoveDownMeetingTerrain(Room room, Pixels distance) => MoveMeetingTerrain(room, new PixelOffset(Pixels.Zero, distance));
 
-    /// <summary>Moves the projectile along one axis until terrain is in the way.</summary>
+    /// <summary>
+    /// Whether a solid that stands as part of the room, as a door's cap does, lies in <paramref name="area"/>. Such a
+    /// thing is blocks on the cartridge, and is a wall to a shot as the room's blocks are; the launcher's own is none
+    /// to its shot.
+    /// </summary>
+    private bool StandingSolidIn(Room room, PixelRect area) =>
+        room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.StandsAsTerrain);
+
+    /// <summary>
+    /// Moves the projectile along one axis until terrain is in the way, or a solid that stands as part of the room
+    /// (<see cref="StandingSolidIn"/>).
+    /// </summary>
     private bool MoveMeetingTerrain(Room room, PixelOffset offset)
     {
         PixelPosition target = Position + offset;
         int across = target.X.Whole - Position.X.Whole, down = target.Y.Whole - Position.Y.Whole;
         for (int moved = 0; moved < Math.Abs(across) + Math.Abs(down); moved++)
         {
-            if (room.Terrain.IsSolidIn(Area.MovedBy(Math.Sign(across), Math.Sign(down)), SlopeTreatment.Wall))
+            PixelRect ahead = Area.MovedBy(Math.Sign(across), Math.Sign(down));
+            if (room.Terrain.IsSolidIn(ahead, SlopeTreatment.Wall) || StandingSolidIn(room, ahead))
             {
                 // It rests against what stopped it, with nothing left over.
                 Position = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);

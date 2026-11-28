@@ -2356,7 +2356,20 @@ public partial class Samus : Player
         {
             _knockbackCarried = _knockbackCarried.Stepped();
             if (_knockbackCarried.IsOver)
+            {
+                // The knockback's end keeps her feet where the body she began this update with had them, when the
+                // form she has taken since is of another height: the cartridge aligns her by the pose she was in
+                // an update before, whatever is there, so a turn in the air that ends in the short body of an aim
+                // down moves her down by what the body lost. The view takes her to have stood that much lower too.
+                int kept = Body.Rect.Height / 2 - HalfHeight;
+                if (kept != 0)
+                {
+                    Position += PixelOffset.FromWhole(0, kept);
+                    Room.Session.Camera.ShiftWherePlayerStoodDown(kept);
+                }
+
                 FallFromRest();
+            }
         }
 
         // A wall jump begun on this update kicks up its dust, once its body has been taken.

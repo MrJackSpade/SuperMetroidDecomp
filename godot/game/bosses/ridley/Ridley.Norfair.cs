@@ -684,7 +684,14 @@ public partial class Ridley
         return true;
     }
 
-    /// <summary>Turns about, if it has its back to the middle of the room.</summary>
+    /// <summary>How many updates the picture he shows is held before his turn's own pictures begin.</summary>
+    private const int TurnHeldUpdates = 1;
+
+    /// <summary>
+    /// Turns about, if it has its back to the middle of the room. The turn's pictures, and his facing out of the
+    /// screen with them, begin an update later than any other of his timelines would: the cartridge starts the turn
+    /// after two updates where it starts the rest after one, the picture he shows held meanwhile.
+    /// </summary>
     private void TurnToFaceRoom()
     {
         if (IsTurning)
@@ -692,7 +699,7 @@ public partial class Ridley
         bool rightHalf = Position.X.Whole >= 128;
         if (Facing == Facing.Left ? rightHalf : !rightHalf)
             return;
-        Play(Facing == Facing.Left ? "turn_left_to_right" : "turn_right_to_left", restart: true);
+        PlayAfterHolding(Facing == Facing.Left ? "turn_left_to_right" : "turn_right_to_left", TurnHeldUpdates);
     }
 
     /// <summary>Begins its bouncing on its tail.</summary>

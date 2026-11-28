@@ -98,6 +98,19 @@ public sealed class TimelinePlayer
     }
 
     /// <summary>
+    /// Has <paramref name="timeline"/> begin from its first step once what is showing has been held
+    /// <paramref name="updates"/> more updates, whatever time its step had left: none of the cues left of the
+    /// timeline it leaves come, and the timeline's first cues come on the update after the last held.
+    /// </summary>
+    public void FollowAfterHolding(FrameTimeline timeline, int updates)
+    {
+        ArgumentNullException.ThrowIfNull(timeline);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updates);
+        (_followedBy, _updatesLeft, _pendingCues) = (timeline, updates, []);
+        (IsOver, IsAtStepStart) = (false, false);
+    }
+
+    /// <summary>
     /// Plays one update and returns the cues reached in it: those of the step the update falls in, the first time an
     /// update falls in it.
     /// </summary>

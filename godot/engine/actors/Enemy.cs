@@ -499,6 +499,19 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
+    /// Shows the timeline named <paramref name="name"/> from its start once the picture showing has been held
+    /// <paramref name="updates"/> more updates, whatever time its step had left: none of the cues left of the
+    /// timeline it leaves come. It is the timeline playing from now.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">It shows no timeline for another to follow.</exception>
+    protected void PlayAfterHolding(string name, int updates)
+    {
+        TimelinePlayer playing = _animation ?? throw new InvalidOperationException($"The enemy \"{Name}\" shows no timeline for \"{name}\" to follow.");
+        Playing = name;
+        playing.FollowAfterHolding(Timelines.Get(name), updates);
+    }
+
+    /// <summary>
     /// The place its timeline has reached, to pick it up from again later. Asked while a cue is being acted on, that is
     /// just past that cue, with the rest of the step still to come; asked at any other time, it is the start of the
     /// step that follows the one showing.

@@ -1582,7 +1582,9 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
   that starts another timeline taking effect in the same update; having a timeline begin where the step showing
   ends (`PlayAfterStep`), so that the picture showing stays out its time, as this game's Yard turns round when it
-  is touched; marking its place in a timeline and resuming there;
+  is touched, or once the picture showing has been held a given number of updates more (`PlayAfterHolding`), as
+  this game's Ridley begins his turn an update later than his other timelines; marking its place in a timeline and
+  resuming there;
   judging a hit itself (`TakeHit` can be overridden, part by part); keeping health part by part (`HealthOf` says
   which health a hit on a part is taken from); firing its data's shots; leaving effects and
   drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time, and, for one that

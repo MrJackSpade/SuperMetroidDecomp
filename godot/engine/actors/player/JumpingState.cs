@@ -132,6 +132,15 @@ public sealed class JumpingState : PlayerState
         // A turn is made aiming as the player aimed before it: what is held with the way behind aims nothing.
         if (AirTurningState.IsAskedFor(owner))
             return new AirTurningState(fromJump: true);
+
+        // A jump aimed straight down keeps that aim with the jump alone held, where every other stance takes the jump
+        // held as asking for the arm at rest: the jump goes on as it is.
+        if (Stance.Aim == Aim.Down && owner.Input.IsHeld(GameAction.Jump) && AirStance.AsksNothing(owner, jumpCounts: false))
+        {
+            _stanceAsked = Stance;
+            return this;
+        }
+
         owner.AimFromInput();
         _stanceAsked = Stance.Kept(AirStance.Of(owner, forwardCounts: true));
 

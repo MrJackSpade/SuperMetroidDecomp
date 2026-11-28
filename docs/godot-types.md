@@ -998,7 +998,7 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   start: one from the ground starts in the stance of the aim the player has as it begins, their arm at rest, and
   holds it while it gathers, the input asked nothing but on the updates of a gathering before its last
   (`GatheringListens`; only where it lasts more than one, as in a liquid), when the jump held with the way behind
-  turns the player and the jump with an aim or the way ahead, or the attack, ends it; as the gathering ends the game's player is told
+  turns the player and the jump with an aim or the way ahead, or the attack, ends it; a jump aimed straight down keeps that aim with the jump alone held; as the gathering ends the game's player is told
   (`JumpGathered`) and may name another state, which takes effect as a state's own end does. A jump that carries on
   from something else starts in the stance it is given (`JumpingState(AirStance)`), or failing that the one the
   input asks for as it begins. A change of stance within a jump takes effect only when the body can take the form

@@ -40,8 +40,12 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
     /// the ball was moving as one in the air when it was thrown, which it goes on counting as: the cartridge throws
     /// the ball in the pose it had.
     /// </summary>
-    public BombJumpingState(int across, bool upright = false, bool ballWasAirborne = false) =>
-        (_across, Upright, MovesAsAirborne) = (Math.Sign(across), upright, upright || ballWasAirborne);
+    /// <param name="ball">The low form the ball was in as it was thrown, which it goes back into where a ceiling ends the throw of a ball thrown from the ground.</param>
+    public BombJumpingState(int across, bool upright = false, bool ballWasAirborne = false, CrawlingState? ball = null) =>
+        (_across, Upright, MovesAsAirborne, Ball) = (Math.Sign(across), upright, upright || ballWasAirborne, ball);
+
+    /// <summary>The low form the ball was in as it was thrown; none for an upright throw.</summary>
+    public CrawlingState? Ball { get; }
 
     /// <summary>Whether she is thrown upright, in a jump's pose, and not as the ball.</summary>
     public bool Upright { get; }
@@ -153,6 +157,18 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
         // A ceiling ends the throw and not the rise: she is her own again still rising at the speed it had, and
         // meets the ceiling once more on her next update, which is what sets her falling from rest.
         MoveResult up = owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
-        return up.Blocked ? Thrown() : null;
+        if (!up.Blocked)
+            return null;
+
+        // The ball thrown from the ground has kept the ground's pose it was thrown in, rolling if it rolled. Where a
+        // ceiling ends its throw its next update is the ground's: it rolls on by the ground's values, is not pressed
+        // down, and only then falls from rest in the air. So it goes back into the low form it was in, off the ground.
+        if (!MovesAsAirborne && Ball is { } ball)
+        {
+            ball.ComeBackOffGround();
+            return ball;
+        }
+
+        return Thrown();
     }
 }

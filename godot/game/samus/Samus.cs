@@ -834,7 +834,8 @@ public partial class Samus : Player
         int away = Position.X.Whole - bomb.X.Whole;
         if (State is CrawlingState or BombJumpingState { Upright: false })
         {
-            Interrupt(new BombJumpingState(away, ballWasAirborne: MovesAsAirborne));
+            Interrupt(new BombJumpingState(away, ballWasAirborne: MovesAsAirborne,
+                ball: State as CrawlingState ?? (State as BombJumpingState)?.Ball));
             return;
         }
 

@@ -65,9 +65,26 @@ public sealed class CrawlingState : PlayerState
     /// <inheritdoc/>
     public override FormAsked? EntersIn(Player owner) => new FormAsked(Player.Crawling);
 
+    /// <summary>Whether it is about to be entered again by a player thrown off the ground in it (<see cref="ComeBackOffGround"/>).</summary>
+    private bool _comesBackOffGround;
+
+    /// <summary>
+    /// Says the low form is about to be entered again, as it was left, by a player something of the game's threw off
+    /// the ground in it and kept in the ground's pose meanwhile. Entered so, it counts as on the ground whatever speed
+    /// it has, rolling if it rolled, and its first move is the one a throw off the ground leaves it: across by the
+    /// ground's rule, not pressed down, and falling from rest in the air from there.
+    /// </summary>
+    public void ComeBackOffGround() => _comesBackOffGround = true;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
+        if (_comesBackOffGround)
+        {
+            (_comesBackOffGround, _airborne, _asOnGround, _thrown) = (false, false, false, true);
+            return;
+        }
+
         // One with any speed up or down takes the low form in the air, whatever lies under it: something solid it
         // has sunk into as it curled does not make ground of itself. One adrift takes the form as on the ground: its
         // first move finds no floor and it falls from rest.

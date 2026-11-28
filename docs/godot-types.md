@@ -1045,7 +1045,10 @@ another (`Entering`). The engine's checks play a stand-in player that gives the 
   with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
   in it. A game may take a low form that is in the air to be on the ground (`CrawlingState.TakeAsOnGround`): until
   it lands or jumps it rolls across by the ground's rule, may jump as from the ground, and goes on rising or falling
-  as it was, as this game's ball does when the spring ball is switched on or off in a pause.
+  as it was, as this game's ball does when the spring ball is switched on or off in a pause. A game that threw the
+  player off the ground in the low form and kept them in its ground's pose can have them enter it again as they
+  left it (`CrawlingState.ComeBackOffGround`): on the ground whatever speed they have, with the one move a throw
+  off the ground leaves, as this game's ball does where a ceiling ends a bomb's throw.
 - **On the ground.** The player's body meets terrain in one way everywhere (`Player.BodyMoves`): sloped ground
   that holds things up by their middle holds only its middle column, and is no wall to it. A move across climbs
   such ground by up to `climb_per_pixel` for each pixel. A player with no

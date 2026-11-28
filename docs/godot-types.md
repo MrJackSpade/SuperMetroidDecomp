@@ -1463,7 +1463,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   by gravity and it rises no more than `shinespark_most_rise` whole pixels an update. Its windup stops her and sets
   her rising, at rest, so that the view follows what she moved on that update as it follows a rise. It ends a knockback she
   carries as it begins (a throw, and what she carries of one she let a damage boost go with,
-  `Samus.EndCarriedKnockback`); begun on the very update a knockback's time runs out, the throw's
+  `Samus.EndCarriedKnockback`; left to run out, the carried one ends with her falling from rest, her feet kept where
+  the body she began that update with had them when the form taken since is of another height); begun on the very update a knockback's time runs out, the throw's
   (`Player.ThrowRanOut`) or the carried one's, it is left standing, never counted down and open to hits, until a
   direction launches her, as the cartridge's knockback ending takes her movement back from the windup just set up.
   That ending leaves her falling from rest, and the flight out of such a windup is no rise of hers: her speed is

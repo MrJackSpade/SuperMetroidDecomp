@@ -9,7 +9,9 @@ namespace Game.Rooms.Brinstar;
 /// <summary>
 /// The plants of Brinstar that seize Samus: each is a block of the room's terrain, in a floor or a ceiling. When she
 /// comes into one, level with it, it holds her where she is and chews, hurting her at each bite, and then lets her go
-/// and stays shut a while before it can seize her again.
+/// and stays shut a while before it can seize her again. It holds her by the whole pixel: she moves as she would on
+/// each update and is put back at the pixel she is held at, keeping whatever part of a pixel her own move left her,
+/// as the cartridge's plant writes her position and leaves her subposition alone.
 /// </summary>
 /// <remarks>
 /// Its data names, under "floor" and "ceiling", the kind of plant: the data file of its "block"; how many blocks to
@@ -53,7 +55,8 @@ public partial class SamusEaters : RoomSequence
 
         public string Shown { get; set; } = "";
 
-        public PixelPosition Held { get; set; }
+        /// <summary>The whole pixel she is held at.</summary>
+        public (int X, int Y) Held { get; set; }
 
         public int Look { get; set; }
 
@@ -102,14 +105,15 @@ public partial class SamusEaters : RoomSequence
             case Stage.Waiting:
                 if (!Seizes(room, plant))
                     return;
-                plant.Held = new PixelPosition(samus.Position.X, samus.Position.Y + Pixels.FromWhole(plant.Kind.Int("held_offset")));
+                plant.Held = (samus.Position.X.Whole, samus.Position.Y.Whole + plant.Kind.Int("held_offset"));
                 (plant.Doing, plant.Look, plant.ChewsLeft) = (Stage.Chewing, 0, plant.Kind.Int("chews"));
                 Take(room, plant, chew[0]);
                 return;
 
             case Stage.Chewing:
-                // She moves as she would and is then put back where she is held, and nothing else hurts her meanwhile.
-                samus.Position = plant.Held;
+                // She moves as she would and is then put back at the pixel she is held at, with the part of a pixel
+                // her move left her, and nothing else hurts her meanwhile.
+                samus.Position = new PixelPosition(samus.Position.X.WithWhole(plant.Held.X), samus.Position.Y.WithWhole(plant.Held.Y));
                 samus.BeInvincibleFor(Data().Int("held_invincible_updates"));
                 if (--plant.UpdatesLeft > 0)
                     return;

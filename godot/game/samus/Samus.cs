@@ -678,10 +678,12 @@ public partial class Samus : Player
     {
         GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
 
-        // Her shots do not come with her into a room, and the count her crash's echoes left goes with them, as does
-        // the hold a shot put on her bombs.
+        // Her shots do not come with her into a room, and the count her crash's echoes left goes with them, as do
+        // the hold a shot put on her bombs and the wait the last shot left before the next: the cartridge ends that
+        // wait with the rest of her shots' record as the room is loaded.
         OrbitTravel.Clear();
         _bombsHeldOff = Countdown.Over;
+        Weapons.SetWait(0);
         (_blastEnded, _flashBomb) = (null, null);
 
         // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.

@@ -15,7 +15,8 @@ namespace Engine.Actors;
 ///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "view_margin_below": 96, "picture": "shots/beam.png",
 ///   "terrain_shake": { "strength": 1, "updates": 30, "way": "both" } }
 /// </code>
-/// A step of its timeline may give the cue "size:&lt;width&gt;:&lt;height&gt;", which makes it that size from then on.
+/// A step of its timeline may give the cue "size:&lt;width&gt;:&lt;height&gt;", which makes it that size: at once on its first
+/// update, and on any later one once that update's move is made.
 /// </remarks>
 public sealed record ProjectileSettings
 {

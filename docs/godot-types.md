@@ -1676,7 +1676,7 @@ How a projectile behaves is settings, not code:
 | Motion | Straight; accelerating; homing; does not travel (a bomb); with gravity. |
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit), which plays its first update in the turn that leaves it, being the projectile gone on to its end. Either is left at its middle, or at its front: half its size on along each way it was launched, as a beam's burst is. |
-| Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. |
+| Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. The size a step gives on the projectile's first update is its own at once; one given later is its own once that update's move is made, so the move, and the terrain and the room's fittings met on it, go by the size it had, as the cartridge moves a shot and then plays its pictures. |
 | Where it stands | In front of the player with whatever else is launched, or a `Standing` of its own against the player: Samus's beams and missiles stand just behind her, as the cartridge draws them. |
 | Gaining speed | One gain along each axis; one launched diagonally may have its own. |
 | Shaking the room | A `RoomShake` (strength, length, way, and reach: what of the room it throws, `ShakeReach`) started as terrain or a solid ends it, and one started the first time its hit lands. |

@@ -183,8 +183,27 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     {
     }
 
-    /// <summary>Plays one update: the projectile changes speed as its motion says, moves, and meets what is in its way.</summary>
+    /// <summary>
+    /// Plays one update: the projectile changes speed as its motion says, moves, and meets what is in its way. A size
+    /// a step of its timeline gave it on this update is its own once it has moved.
+    /// </summary>
     internal void Step()
+    {
+        _sizeToCome = null;
+        PlayUpdate();
+        if (_sizeToCome is { } size && !HasEnded)
+            TakeSize(size.Width, size.Height);
+        _sizeToCome = null;
+    }
+
+    /// <summary>
+    /// The size a step of its timeline gave it on this update, which it has yet to take: the update's move is made,
+    /// and the terrain met, by the size it had as the update began.
+    /// </summary>
+    private (int Width, int Height)? _sizeToCome;
+
+    /// <summary>Plays the update itself: its timeline's step, its move and what it meets.</summary>
+    private void PlayUpdate()
     {
         Room room = Room;
         if (HasEnded)
@@ -309,8 +328,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
     }
 
     /// <summary>
-    /// Takes the size a cue gives: "size:&lt;width&gt;:&lt;height&gt;" makes the projectile that many pixels wide and tall from
-    /// then on, as a shot that swells or spreads as its timeline plays is. Returns whether the cue was one.
+    /// Takes the size a cue gives: "size:&lt;width&gt;:&lt;height&gt;" makes the projectile that many pixels wide and tall, as
+    /// a shot that swells or spreads as its timeline plays is. On its first update the size is its own at once, as
+    /// the size it is launched with; on any later one it is its own once that update's move is made
+    /// (<see cref="_sizeToCome"/>), as the cartridge moves a shot and then plays its pictures, whose sizes are the
+    /// next move's. Returns whether the cue was one.
     /// </summary>
     private bool Resize(string cue)
     {
@@ -320,10 +342,19 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable, Ui.IRecoloured
         string[] parts = cue[size.Length..].Split(':');
         if (parts.Length != 2 || !int.TryParse(parts[0], out int width) || !int.TryParse(parts[1], out int height) || width <= 0 || height <= 0)
             throw new InvalidOperationException($"A projectile's timeline gives the size cue \"{cue}\", which is not two whole numbers above nothing.");
+        if (Age == 1)
+            TakeSize(width, height);
+        else
+            _sizeToCome = (width, height);
+        return true;
+    }
+
+    /// <summary>Makes the projectile so many pixels wide and tall from now on.</summary>
+    private void TakeSize(int width, int height)
+    {
         (_width, _height) = (width, height);
         if (_hurtbox is not null)
             _hurtbox.Rect = new PixelRect(-width / 2, -height / 2, width, height);
-        return true;
     }
 
     /// <summary>

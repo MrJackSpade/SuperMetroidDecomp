@@ -1465,6 +1465,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   `Samus.EndCarriedKnockback`); begun on the very update a knockback's time runs out, the throw's
   (`Player.ThrowRanOut`) or the carried one's, it is left standing, never counted down and open to hits, until a
   direction launches her, as the cartridge's knockback ending takes her movement back from the windup just set up.
+  That ending leaves her falling from rest, and the flight out of such a windup is no rise of hers: her speed is
+  held as a fall's, and the view follows the flight as it follows a fall.
   Each update of it that launches nothing lets her run's momentum go, as the
   cartridge's does: her boost ends then if she had momentum as the windup began, and her speed echoes are sent
   closing on her (`ShinesparkState.SendsEchoesOff`).

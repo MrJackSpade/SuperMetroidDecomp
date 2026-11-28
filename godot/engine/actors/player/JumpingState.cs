@@ -227,19 +227,13 @@ public sealed class JumpingState : PlayerState
     /// <summary>
     /// With nothing at all held, or with the jump alone held by a jumper whose arm is held out, a jumper who has
     /// speed across becomes unsteered: the dash is added into that speed
-    /// and lost, and the momentum ends. One with no speed is steered. A jump aiming up, or diagonally either way,
-    /// lets its aim go for the stance of steering the way the player faces, so that the same aim asked again is a
-    /// stance taken up anew; one aiming straight down, or with the arm held out, stays as it is.
+    /// and lost, and the momentum ends, and the jump stays in the stance it has, whatever its aim. One with no speed
+    /// is steered, and if it aims up, or diagonally either way, lets its aim go for the stance of steering the way
+    /// the player faces, so that the same aim asked again is a stance taken up anew; one aiming straight down, or with
+    /// the arm held out, stays as it is.
     /// </summary>
     public override PlayerState? Unasked(Player owner)
     {
-        if (_stance is { Aim: Aim.Up or Aim.DiagonalUp or Aim.DiagonalDown })
-        {
-            owner.Aim = Aim.Forward;
-            _stance = new AirStance(Aim.Forward, AirArm.Forward);
-            owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
-        }
-
         if (_hadSpeed && !owner.Velocity.X.IsZero)
         {
             owner.FoldDash();
@@ -247,6 +241,13 @@ public sealed class JumpingState : PlayerState
         }
         else
         {
+            if (_stance is { Aim: Aim.Up or Aim.DiagonalUp or Aim.DiagonalDown })
+            {
+                owner.Aim = Aim.Forward;
+                _stance = new AirStance(Aim.Forward, AirArm.Forward);
+                owner.TrySetForm(AirStance.FormFor(owner, Player.Jumping), aroundMiddle: true);
+            }
+
             owner.Steering = Steering.Steered;
         }
 

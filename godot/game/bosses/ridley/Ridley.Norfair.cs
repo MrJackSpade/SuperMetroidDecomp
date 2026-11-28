@@ -872,11 +872,18 @@ public partial class Ridley
         _timer--;
     }
 
-    /// <summary>Keeps Samus in its claws, drawing her in to them a little each update.</summary>
+    /// <summary>
+    /// Keeps Samus in its claws, drawing her in to them a little each update. She is put on the whole pixel the claws'
+    /// whole place and her hold give, and keeps what part of a pixel she was at, as the cartridge sets only the whole
+    /// of her place.
+    /// </summary>
     private void CarrySamus(Player samus)
     {
         _grabOffset = PixelOffset.FromWhole(TowardNothing(_grabOffset.X.Whole), TowardNothing(_grabOffset.Y.Whole));
-        samus.Position = ClawPosition + _grabOffset;
+        PixelPosition claws = ClawPosition;
+        samus.Position = new PixelPosition(
+            samus.Position.X.WithWhole(claws.X.Whole + _grabOffset.X.Whole),
+            samus.Position.Y.WithWhole(claws.Y.Whole + _grabOffset.Y.Whole));
 
         static int TowardNothing(int offset) => offset > 0 ? Math.Max(0, offset - 4) : Math.Min(0, offset + 4);
     }

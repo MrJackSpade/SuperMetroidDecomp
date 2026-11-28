@@ -79,7 +79,7 @@ public sealed class Throw
 
         // The throw is over: the player falls from rest, in the state they are in.
         owner.FallFromRest();
-        owner.EndThrow();
+        owner.EndThrowRunOut();
         return state;
     }
 }

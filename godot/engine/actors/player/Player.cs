@@ -823,6 +823,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _medium = null;
         _reached.Clear();
         _met.Clear();
+        ThrowRanOut = false;
         _invincible = _invincible.Stepped();
         (_asked, _askedOf) = (null, null);
 
@@ -1197,6 +1198,15 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
     /// <summary>Ends the throw carrying the player, if one is.</summary>
     public void EndThrow() => Thrown = null;
+
+    /// <summary>
+    /// Whether the throw that carried the player ran out of time on this update: it moved them, and is over. A game
+    /// whose player takes up something on that very update that a knockback's end bears on asks it here.
+    /// </summary>
+    public bool ThrowRanOut { get; private set; }
+
+    /// <summary>Ends the throw carrying the player because its time is up.</summary>
+    internal void EndThrowRunOut() => (Thrown, ThrowRanOut) = (null, true);
 
     /// <summary>Lets a throw that was carrying the player go on carrying them, as it stands, into the state they have just been put in.</summary>
     internal void GoOnThrown(Throw thrown) => Thrown = thrown;

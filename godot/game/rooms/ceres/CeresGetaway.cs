@@ -16,7 +16,7 @@ namespace Game.Rooms.Ceres;
 /// The floor it turns is hidden until the getaway and after it; its parts "Capsule" and "Wings" are the visuals that
 /// change as he flies.
 /// </remarks>
-public partial class CeresGetaway : RoomSequence
+public partial class CeresGetaway : RoomSequence, IOpeningStep
 {
     /// <summary>The floor he flies off over.</summary>
     [Export]
@@ -185,23 +185,6 @@ public partial class CeresGetaway : RoomSequence
                     _stage = Stage.Finishing;
                 break;
 
-            case Stage.Finishing:
-                StepAlarm(elapsed);
-
-                // The station is now going to blow up, and the way out is open.
-                room.Session.Progress.Record(StoryEvents.CeresSelfDestructStarted);
-                room.Session.Progress.Record(Bosses.Defeated(Bosses.CeresRidley));
-                room.Session.Service<Escape>().Begin(Escape.CeresTime);
-                foreach (NodePath path in ToldWhenCountdownBegins)
-                {
-                    (GetNode(path) as ITriggerTarget
-                        ?? throw new InvalidOperationException($"Ridley's getaway is to tell \"{path}\" that the countdown has begun, but that is nothing that can be told."))
-                        .Triggered("start");
-                }
-
-                _stage = Stage.Alarm;
-                break;
-
             case Stage.Alarm:
                 StepAlarm(elapsed);
                 break;
@@ -211,6 +194,28 @@ public partial class CeresGetaway : RoomSequence
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// The warning typed out, the countdown begins as the next update opens, before anything of the room takes its
+    /// turn: the station is going to blow up, and the way out is open. On the cartridge it is Ridley, the first of
+    /// the room's enemies, that says so, and the room's door, whose turn comes after his, sees it on that update.
+    /// </summary>
+    public void StepOpening(Room room)
+    {
+        if (_stage != Stage.Finishing)
+            return;
+        room.Session.Progress.Record(StoryEvents.CeresSelfDestructStarted);
+        room.Session.Progress.Record(Bosses.Defeated(Bosses.CeresRidley));
+        room.Session.Service<Escape>().Begin(Escape.CeresTime);
+        foreach (NodePath path in ToldWhenCountdownBegins)
+        {
+            (GetNode(path) as ITriggerTarget
+                ?? throw new InvalidOperationException($"Ridley's getaway is to tell \"{path}\" that the countdown has begun, but that is nothing that can be told."))
+                .Triggered("start");
+        }
+
+        _stage = Stage.Alarm;
     }
 
     private void Begin(Room room)

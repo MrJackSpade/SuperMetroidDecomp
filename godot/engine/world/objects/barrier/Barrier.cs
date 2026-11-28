@@ -600,7 +600,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         // A plain one has its own timeline for a look, where its data gives one.
         string Named(string look) => _plain && _timelines.Has("plain_" + look) ? "plain_" + look : look;
-        string shown =_timelines.Has(Named(name)) ? name : name is "sealed" or "hurt" && _timelines.Has(Named("closed")) ? "closed" : "";
+        string shown = _timelines.Has(Named(name)) ? name : name is "sealed" or "hurt" && _timelines.Has(Named("closed")) ? "closed" : "";
         if (name == "open" && shown.Length == 0)
         {
             // With no look for being open it simply is not there.

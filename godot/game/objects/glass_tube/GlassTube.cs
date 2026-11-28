@@ -170,13 +170,17 @@ public partial class GlassTube : RoomObject, IHittable
             _mirrors[picture] = mirrored.AsText();
     }
 
+    /// <summary>The water the tube holds back.</summary>
+    /// <exception cref="InvalidOperationException">The tube's room has no liquid.</exception>
+    private Liquid Water => Room.Liquid ?? throw new InvalidOperationException($"The glass tube \"{Name}\" stands in a room with no liquid to hold back.");
+
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         if (Room.Session.Progress.Has(StoryEvents.MaridiaTubeBroken))
         {
             // It was broken before: it is open, and the water is in.
-            Room.Liquid?.LetIn();
+            Water.LetIn();
             Room.Terrain.ApplyPatch(OpenPatch);
             Room.Remove(this);
             return;
@@ -250,7 +254,7 @@ public partial class GlassTube : RoomObject, IHittable
                 if (--_timer > 0)
                     break;
                 Room.Session.Progress.Record(StoryEvents.MaridiaTubeBroken);
-                Room.Liquid?.LetIn();
+                Water.LetIn();
                 if (samus.State is HeldState)
                     samus.Release();
                 _phase = Phase.Settling;

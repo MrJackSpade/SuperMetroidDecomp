@@ -287,12 +287,21 @@ public partial class Room : Node2D
             _backdrops.Add(backdrop);
         }
 
+        // The room's liquid is there before anything enters, so that what enters may ask it or act on it, wherever
+        // the liquid comes among the room's things.
+        foreach (Liquid liquid in GetChildren().OfType<Liquid>())
+        {
+            liquid.Setup(Content);
+            Liquid = liquid;
+        }
+
         foreach (Node child in GetChildren())
         {
             switch (child)
             {
                 case global::Engine.Actors.Player:
                 case global::Engine.World.Terrain:
+                case global::Engine.World.Liquid:
                     break;
                 case IRoomEntity entity:
                     if (HoldsPlace(entity) && !_places.TryTake(entity))
@@ -315,10 +324,6 @@ public partial class Room : Node2D
                 case Trigger trigger:
                     trigger.Setup();
                     _triggers.Add(trigger);
-                    break;
-                case Liquid liquid:
-                    liquid.Setup(Content);
-                    Liquid = liquid;
                     break;
                 case RoomEffect effect:
                     effect.Setup(this);

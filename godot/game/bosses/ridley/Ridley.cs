@@ -845,10 +845,11 @@ public partial class Ridley : Enemy
         if (CarriesSamus || samus.IsInvincible || IsIntangible || !IsInMotion)
             return;
         PixelRect body = samus.BodyRect;
-        PixelOffset fromTip = samus.Position - Tail.Tip.Position;
-        if (Math.Abs(fromTip.X.Whole) >= body.Width / 2 + 14 || Math.Abs(fromTip.Y.Whole) >= body.Height / 2 + 14)
+        // The cartridge measures from the whole pixel the tip is on to the whole pixel she is on.
+        PixelPosition tip = Tail.Tip.Position;
+        if (Math.Abs(samus.Position.X.Whole - tip.X.Whole) >= body.Width / 2 + 14 || Math.Abs(samus.Position.Y.Whole - tip.Y.Whole) >= body.Height / 2 + 14)
             return;
-        var away = PixelOffset.FromWhole(samus.Position.X.Whole >= Tail.Tip.Position.X.Whole ? 1 : -1, 0);
+        var away = PixelOffset.FromWhole(samus.Position.X.Whole >= tip.X.Whole ? 1 : -1, 0);
         samus.TakeHit(new Hit(TailDamage, HitSide.Enemies, HitKind.Contact) { Direction = away, Source = this }, samus.Hurtbox);
     }
 

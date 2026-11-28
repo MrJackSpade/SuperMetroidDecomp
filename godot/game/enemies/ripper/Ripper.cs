@@ -10,7 +10,7 @@ namespace Game.Enemies;
 /// <summary>
 /// A Ripper: it flies straight across at a steady speed and turns back at walls. The plain Ripper, the Jet Ripper and
 /// the Grapple Ripper are all this scene with their own data files. One placed with patrol bounds turns back at them
-/// too, and one whose data says so can be latched onto by the grapple beam.
+/// too, and one whose data says so can be latched onto by the grapple beam, which holds it still and flashing.
 /// </summary>
 /// <remarks>Its timelines are "left" and "right", and "frozen_left" and "frozen_right" where it has them.</remarks>
 public partial class Ripper : Enemy, ILatchable
@@ -37,15 +37,14 @@ public partial class Ripper : Enemy, ILatchable
     /// <inheritdoc/>
     public PixelPosition LatchPoint => Position;
 
-    /// <inheritdoc/>
-    public void Latched(PixelPosition at)
-    {
-    }
+    /// <summary>Whether the grapple's line holds it.</summary>
+    private bool _latched;
 
     /// <inheritdoc/>
-    public void Unlatched()
-    {
-    }
+    public void Latched(PixelPosition at) => _latched = true;
+
+    /// <inheritdoc/>
+    public void Unlatched() => _latched = false;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom() => ShowHeading();
@@ -53,6 +52,15 @@ public partial class Ripper : Enemy, ILatchable
     /// <inheritdoc/>
     protected override void Behave()
     {
+        // Held by the grapple's line it neither flies nor turns, and flashes for as long as it is held: the cartridge's
+        // held enemy runs only its grapple reaction in place of its own, and that starts its hurt flash again on every
+        // update (#3754).
+        if (_latched)
+        {
+            FlashFor(HurtFlashUpdates);
+            return;
+        }
+
         bool turns = Room.Mover.MoveAcross(MovingBody(), Facing.Toward(Pixels.FromNumber(Speed)), MovesAcross).Blocked;
         // A patrol bound, unlike a wall, does not put it back flush: it keeps what it overshot by.
         if (!turns && (PatrolLeft != 0 || PatrolRight != 0))

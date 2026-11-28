@@ -12,7 +12,8 @@ namespace Game;
 /// facing as she did. Its first update only sets the rise. Then she rises out of her control: thrown to a side she
 /// takes up whatever speed across she had and gains by the throw's own move values; a wall stops that speed and not
 /// the rise. The throw is over at the top of the rise, the update after gravity has slowed it past rest, or at a
-/// ceiling, and she is her own again: the ball, or in the jump she was thrown in.
+/// ceiling, and she is her own again: the ball, or in the jump she was thrown in. Ended by a ceiling she is still
+/// rising, at the speed the throw had.
 /// </summary>
 public sealed class BombJumpingState : PlayerState, ISamusLook
 {
@@ -148,7 +149,10 @@ public sealed class BombJumpingState : PlayerState, ISamusLook
             _inputBack = true;
         if (!owner.IsRising)
             return Thrown();
-        MoveResult up = owner.MoveDownUnderGravity();
+
+        // A ceiling ends the throw and not the rise: she is her own again still rising at the speed it had, and
+        // meets the ceiling once more on her next update, which is what sets her falling from rest.
+        MoveResult up = owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
         return up.Blocked ? Thrown() : null;
     }
 }

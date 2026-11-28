@@ -27,10 +27,15 @@ public sealed class Mover
     /// For a move tried only where it ends: the distance it is tried as, where that is more than it goes, as for a
     /// move the ground under it lets only a share of through. The same distance, when null.
     /// </param>
-    public MoveResult MoveAcross(Collider body, Pixels distance, MoveOptions options, Pixels? triedAs = null)
+    /// <param name="stillToward">
+    /// For a move tried only where it ends that is tried as no distance: the way it is tried all the same, for the
+    /// solids that could lie in it. The cartridge feels for a solid enemy ahead of Samus on every move of hers
+    /// across, a move of nothing among them. A move of no distance that names no way asks after no solid.
+    /// </param>
+    public MoveResult MoveAcross(Collider body, Pixels distance, MoveOptions options, Pixels? triedAs = null, Facing? stillToward = null)
     {
         if (options.Tries == WayTried.WhereItEnds)
-            return MoveWhereItEnds(body, distance, triedAs ?? distance, options, across: true);
+            return MoveWhereItEnds(body, distance, triedAs ?? distance, options, across: true, stillToward);
         ICollisionOwner owner = body.CollisionOwner;
         bool startedOnGround = options.FollowGroundDown > 0 && IsOnGround(body, options);
         Pixels start = owner.Position.X;
@@ -128,19 +133,23 @@ public sealed class Mover
     /// <param name="tried">The distance the move is tried as.</param>
     /// <param name="options">The ways this move differs from the plain one.</param>
     /// <param name="across">Whether the move is across; otherwise it is down.</param>
-    private MoveResult MoveWhereItEnds(Collider body, Pixels distance, Pixels tried, MoveOptions options, bool across)
+    /// <param name="stillToward">The way a move across tried as no distance is tried; none for one that asks after no solid.</param>
+    private MoveResult MoveWhereItEnds(Collider body, Pixels distance, Pixels tried, MoveOptions options, bool across, Facing? stillToward = null)
     {
         ICollisionOwner owner = body.CollisionOwner;
         Pixels start = across ? owner.Position.X : owner.Position.Y;
-        int step = tried.IsNegative ? -1 : 1;
+        int step = tried.IsNegative || (tried.IsZero && stillToward == Facing.Left) ? -1 : 1;
         MoveResult result;
 
         // The stretch of the body's leading edge the terrain was asked about before anything stopped it, when it is asked.
         PixelRect? reached = null;
 
         // Solids come first, and one in the way settles the move by itself. A move up or down asks after them even
-        // when it goes nowhere; a move across only when it goes somewhere.
-        (Collider Solid, int Gap)? inTheWay = options.StoppedBySolids && (!across || !tried.IsZero) ? SolidInTheWay(body, tried, across) : null;
+        // when it goes nowhere; a move across that goes nowhere asks after them the way it says it is tried, and not
+        // at all when it says none.
+        (Collider Solid, int Gap)? inTheWay = options.StoppedBySolids && (!across || !tried.IsZero || stillToward is not null)
+            ? SolidInTheWay(body, tried, across, back: step < 0)
+            : null;
         if (inTheWay is { } met)
         {
             // Lying exactly against the solid, the body loses its part of a pixel up and down, whichever way it moved.
@@ -257,12 +266,13 @@ public sealed class Mover
     /// registered that the body would overlap where the move is tried and does not overlap already. The move is tried
     /// one pixel beyond the one it reaches, unless it ends exactly on a pixel without the part of a pixel it began
     /// with having carried it over an edge; and carried so onto the room's first row or column, it is tried there.
+    /// A move of no distance is tried so too, the way <paramref name="back"/> says: a pixel on from a body with part
+    /// of a pixel to its place, and where it lies from one with none.
     /// </summary>
-    private (Collider Solid, int Gap)? SolidInTheWay(Collider body, Pixels tried, bool across)
+    private (Collider Solid, int Gap)? SolidInTheWay(Collider body, Pixels tried, bool across, bool back)
     {
         ICollisionOwner owner = body.CollisionOwner;
         Pixels centre = across ? owner.Position.X : owner.Position.Y;
-        bool back = tried.IsNegative;
         Pixels reached = centre + tried;
         bool crossed = back
             ? centre.Fraction < tried.Abs().Fraction

@@ -1811,7 +1811,10 @@ and the room asks it of each of its exits. The rest of the way:
   overlap already, stops it: the body goes the whole pixels between them and keeps its part of a pixel, losing its
   part of a pixel up and down when it lies exactly against the solid. The move is tried one pixel beyond the one it
   reaches, unless it ends exactly on a pixel. Terrain is then not tried. A move up or down asks after solids even
-  when it goes nowhere.
+  when it goes nowhere. A move across that goes nowhere asks after them the way its mover says it is tried
+  (`stillToward`), and not at all when it says none: the player's own moves say the way their speed would carry
+  them, as the cartridge feels for a solid enemy ahead of Samus on every move of hers across, so one standing
+  against something solid, part of a pixel into their own, is stopped by it and loses their part of a pixel down.
 - Otherwise only the terrain the body's leading edge would end in stops the move (`ITerrainShape.StopsEdge`): what
   lies on the way, short of the end, is passed, and a move that ends beside something, part of a pixel short of it,
   is not stopped. The tiles the edge would lie in are tried in turn from its top or left end, or for a move up or

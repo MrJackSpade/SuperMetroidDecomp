@@ -42,14 +42,14 @@ public partial class Samus
         var grown = new PixelRect(Body.Rect.Left, -HalfHeightOf(form), Body.Rect.Width, HalfHeightOf(form) * 2);
 
         // Something solid first, with the body she has; one found on one side only is then felt for on the other with
-        // the body she would have, by what is left of the growth.
+        // the body she would have, by what is left of the growth: that way even when nothing of the growth is left.
         MoveResult solidAbove = Feel(-growth, solids, shapedAs: null, marksAlways: true);
         MoveResult solidBelow = Feel(growth, solids, shapedAs: null, marksAlways: true);
         int clearOfSolids = 0;
         if (solidAbove.Blocked != solidBelow.Blocked)
         {
             int left = growth - Math.Abs((solidAbove.Blocked ? solidAbove : solidBelow).Moved.Whole);
-            MoveResult other = Feel(solidAbove.Blocked ? left : -left, solids, grown, marksAlways: true);
+            MoveResult other = Feel(solidAbove.Blocked ? left : -left, solids, grown, marksAlways: true, stillUp: solidBelow.Blocked);
             if (other.Blocked)
                 return Leaves(null, lift: 0, stoodThere: false);
             clearOfSolids = other.Moved.Whole;
@@ -123,9 +123,9 @@ public partial class Samus
 
         // One try of a move up or down that is not made. It leaves her the part of a pixel the move would have left:
         // after a try against something solid always, after one against the blocks when they stopped it.
-        MoveResult Feel(int distance, MoveOptions options, PixelRect? shapedAs, bool marksAlways)
+        MoveResult Feel(int distance, MoveOptions options, PixelRect? shapedAs, bool marksAlways, bool stillUp = false)
         {
-            MoveResult tried = TryBodyDown(Pixels.FromWhole(distance), options, out PixelPosition rest, shapedAs);
+            MoveResult tried = TryBodyDown(Pixels.FromWhole(distance), options, out PixelPosition rest, shapedAs, stillUp);
             if (marksAlways || tried.Blocked)
                 Position = Position with { Y = Pixels.FromParts(Position.Y.Whole, rest.Y.Fraction) };
             return tried;

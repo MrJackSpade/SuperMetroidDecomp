@@ -509,8 +509,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         Noted(Room.Mover.TryAcross(Body, distance, options, out rest));
 
     /// <summary>Tries a move of the player's body down without making it; what it reached counts as a made move's does.</summary>
-    public MoveResult TryBodyDown(Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null) =>
-        Noted(Room.Mover.TryDown(Body, distance, options, out rest, shapedAs));
+    public MoveResult TryBodyDown(Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null, bool stillUp = false) =>
+        Noted(Room.Mover.TryDown(Body, distance, options, out rest, shapedAs, stillUp));
 
     /// <summary>
     /// Where the player's body met blocks on this update: the tile of terrain that stopped each move of the body, made

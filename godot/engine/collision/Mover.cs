@@ -35,7 +35,7 @@ public sealed class Mover
     public MoveResult MoveAcross(Collider body, Pixels distance, MoveOptions options, Pixels? triedAs = null, Facing? stillToward = null)
     {
         if (options.Tries == WayTried.WhereItEnds)
-            return MoveWhereItEnds(body, distance, triedAs ?? distance, options, across: true, stillToward);
+            return MoveWhereItEnds(body, distance, triedAs ?? distance, options, across: true, stillToward is { } way ? way == Facing.Left : null);
         ICollisionOwner owner = body.CollisionOwner;
         bool startedOnGround = options.FollowGroundDown > 0 && IsOnGround(body, options);
         Pixels start = owner.Position.X;
@@ -88,10 +88,14 @@ public sealed class Mover
     }
 
     /// <summary>Moves <paramref name="body"/>'s owner down by <paramref name="distance"/>, upward when negative.</summary>
-    public MoveResult MoveDown(Collider body, Pixels distance, MoveOptions options)
+    /// <param name="stillUp">
+    /// For a move tried only where it ends that is of no distance: whether it is tried upward. Such a move asks
+    /// after solids whichever way it is tried, and is tried downward unless this says otherwise.
+    /// </param>
+    public MoveResult MoveDown(Collider body, Pixels distance, MoveOptions options, bool stillUp = false)
     {
         if (options.Tries == WayTried.WhereItEnds)
-            return MoveWhereItEnds(body, distance, distance, options, across: false);
+            return MoveWhereItEnds(body, distance, distance, options, across: false, stillUp ? true : null);
         ICollisionOwner owner = body.CollisionOwner;
         Pixels start = owner.Position.Y;
         Pixels target = start + distance;
@@ -133,12 +137,15 @@ public sealed class Mover
     /// <param name="tried">The distance the move is tried as.</param>
     /// <param name="options">The ways this move differs from the plain one.</param>
     /// <param name="across">Whether the move is across; otherwise it is down.</param>
-    /// <param name="stillToward">The way a move across tried as no distance is tried; none for one that asks after no solid.</param>
-    private MoveResult MoveWhereItEnds(Collider body, Pixels distance, Pixels tried, MoveOptions options, bool across, Facing? stillToward = null)
+    /// <param name="stillBack">
+    /// The way a move tried as no distance is tried: back, left or up, when true, and on when false. None for a move
+    /// across that asks after no solid, and for a move up or down tried downward.
+    /// </param>
+    private MoveResult MoveWhereItEnds(Collider body, Pixels distance, Pixels tried, MoveOptions options, bool across, bool? stillBack = null)
     {
         ICollisionOwner owner = body.CollisionOwner;
         Pixels start = across ? owner.Position.X : owner.Position.Y;
-        int step = tried.IsNegative || (tried.IsZero && stillToward == Facing.Left) ? -1 : 1;
+        int step = tried.IsNegative || (tried.IsZero && stillBack == true) ? -1 : 1;
         MoveResult result;
 
         // The stretch of the body's leading edge the terrain was asked about before anything stopped it, when it is asked.
@@ -147,7 +154,7 @@ public sealed class Mover
         // Solids come first, and one in the way settles the move by itself. A move up or down asks after them even
         // when it goes nowhere; a move across that goes nowhere asks after them the way it says it is tried, and not
         // at all when it says none.
-        (Collider Solid, int Gap)? inTheWay = options.StoppedBySolids && (!across || !tried.IsZero || stillToward is not null)
+        (Collider Solid, int Gap)? inTheWay = options.StoppedBySolids && (!across || !tried.IsZero || stillBack is not null)
             ? SolidInTheWay(body, tried, across, back: step < 0)
             : null;
         if (inTheWay is { } met)
@@ -359,14 +366,15 @@ public sealed class Mover
     /// <param name="options">The ways the move differs from the plain one.</param>
     /// <param name="rest">Where the move would have left the owner.</param>
     /// <param name="shapedAs">The rectangle the body is taken to have for the try, about its owner's place; its own when null.</param>
-    public MoveResult TryDown(Collider body, Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null)
+    /// <param name="stillUp">Whether a try of no distance is tried upward (<see cref="MoveDown"/>).</param>
+    public MoveResult TryDown(Collider body, Pixels distance, MoveOptions options, out PixelPosition rest, PixelRect? shapedAs = null, bool stillUp = false)
     {
         ICollisionOwner owner = body.CollisionOwner;
         PixelPosition before = owner.Position;
         PixelRect shape = body.Rect;
         if (shapedAs is { } other)
             body.Rect = other;
-        MoveResult result = MoveDown(body, distance, options);
+        MoveResult result = MoveDown(body, distance, options, stillUp);
         rest = owner.Position;
         owner.Position = before;
         body.Rect = shape;

@@ -1819,7 +1819,8 @@ and the room asks it of each of its exits. The rest of the way:
   overlap already, stops it: the body goes the whole pixels between them and keeps its part of a pixel, losing its
   part of a pixel up and down when it lies exactly against the solid. The move is tried one pixel beyond the one it
   reaches, unless it ends exactly on a pixel. Terrain is then not tried. A move up or down asks after solids even
-  when it goes nowhere. A move across that goes nowhere asks after them the way its mover says it is tried
+  when it goes nowhere, downward unless its mover says upward (`stillUp`: the last try of a taller form's fitting,
+  made away from the solid that stopped the first, whatever is left of the growth). A move across that goes nowhere asks after them the way its mover says it is tried
   (`stillToward`), and not at all when it says none: the player's own moves say the way their speed would carry
   them, as the cartridge feels for a solid enemy ahead of Samus on every move of hers across, so one standing
   against something solid, part of a pixel into their own, is stopped by it and loses their part of a pixel down.

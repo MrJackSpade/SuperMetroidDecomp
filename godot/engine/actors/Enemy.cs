@@ -553,11 +553,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     protected ShotType Shot(string name) =>
         _shots.TryGetValue(name, out ShotType? shot) ? shot : throw new InvalidOperationException($"The enemy \"{Name}\" has no shot named \"{name}\".");
 
-    /// <summary>Launches one of its shots from <paramref name="at"/> at <paramref name="velocity"/>, and returns the projectile.</summary>
+    /// <summary>
+    /// Launches one of its shots from <paramref name="at"/> at <paramref name="velocity"/>, and returns the
+    /// projectile. The shot begins on the whole pixels of the place given, whatever part of a pixel the enemy's own
+    /// place lends it: the cartridge starts everything its enemies launch with no part of a pixel.
+    /// </summary>
     protected Projectile Fire(string shot, PixelPosition at, PixelVelocity velocity)
     {
         ShotType type = Shot(shot);
-        Projectile projectile = type.Launch(at, velocity, HitSide.Enemies, this, this);
+        Projectile projectile = type.Launch(PixelPosition.FromWhole(at.X.Whole, at.Y.Whole), velocity, HitSide.Enemies, this, this);
 
         // With no place free in the room the shot is not fired: what is returned is in no room, and is done with.
         if (Room.Spawn(projectile) && type.Sound.Length > 0)

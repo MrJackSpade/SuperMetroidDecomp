@@ -6,12 +6,14 @@ namespace Engine.Actors;
 /// <summary>
 /// Jumping off a wall: the player leaves it with no speed of their own across, facing as they did, gains speed by the
 /// wall jump's own move values without having to steer, and carries on so for as long as the jump is held. The game's
-/// player says when a wall has been found to jump from, and enters it.
+/// player says when a wall has been found to jump from, and enters it. The jump's taller body is taken where the
+/// player is, with no feeling for room: whoever enters it has asked whether there is room, and what the body then
+/// lies in sets it right as it next moves, as sloped ground under its middle does.
 /// </summary>
 public sealed class WallJumpingState : PlayerState
 {
     /// <inheritdoc/>
-    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true);
+    public override FormAsked? EntersIn(Player owner) => new FormAsked(owner.FormOr(Player.Jumping), AroundMiddle: true, Unfitted: true);
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

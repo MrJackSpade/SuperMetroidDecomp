@@ -2057,7 +2057,8 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
 
     /// <summary>
     /// Lets a jump already held count as pressed afresh on the next update, if it has not been held too long. Called
-    /// as the player lands on their feet and as a turn on the ground ends.
+    /// as the player lands on their feet and as a turn ends, on the ground or in the air. A chance taken starts the
+    /// count of how long the jump has been held again, whether or not the press then does anything.
     /// </summary>
     public void ArmJumpBuffer() => _jumpBufferArmed = true;
 

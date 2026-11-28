@@ -76,6 +76,9 @@ public sealed class AirTurningState : PlayerState
         if (_left.IsRunning)
             return null;
 
+        // As a turn on the ground does, it gives a jump already held its chance to count as pressed afresh.
+        owner.ArmJumpBuffer();
+
         // A turn made aiming down, straight or diagonally, comes out aiming straight down.
         if (owner.Aim == Aim.DiagonalDown)
             owner.Aim = Aim.Down;

@@ -228,8 +228,11 @@ public sealed partial class EngineAssetWriter
         static string? RockCue(KraidRockCue cue) => cue == KraidRockCue.StopFlyingFromNextPass
             ? null
             : throw new InvalidDataException($"A rock of Kraid's raises {cue}, which this does not know.");
-        string largeRock = kraid.SpawnedTimeline("rock", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.SharedPose), RockCue);
-        string smallRock = kraid.SpawnedTimeline("rock_small", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.RisingRightPose), RockCue);
+        // The rocks show the colours his setup loads into their row, as his rocks' own setup draws them there (#3705).
+        string largeRock = kraid.SpawnedTimeline("rock", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.SharedPose), RockCue,
+            KraidShades.Rocks.Key);
+        string smallRock = kraid.SpawnedTimeline("rock_small", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.RisingRightPose), RockCue,
+            KraidShades.Rocks.Key);
         // A shot one stops where it is and breaks up, harming to the touch while it does; on a wall or on Samus it is
         // only taken away.
         string rockBurst = kraid.SpawnedTimeline("rock_burst", KraidRockAnimations.Segments, KraidRockAnimations.StartingWith(KraidRockSegment.SpitRockShot), RockCue);

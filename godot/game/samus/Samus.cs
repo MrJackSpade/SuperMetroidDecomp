@@ -1287,10 +1287,10 @@ public partial class Samus : Player
 
         // Stopped by a wall or by something solid, the run does not begin: she is left in the wall-stop pose, aiming
         // as she was. The step is a move of her own across, made after the update's move by the body that move left
-        // her: sloped ground ahead of it takes its share of the pixel, as of any move. It is not put on a slope's
-        // surface afterwards, as the cartridge's is not.
+        // her: sloped ground ahead of it takes its share of the pixel, as of any move, and her body being a weapon
+        // breaks what it can ahead of it. It is not put on a slope's surface afterwards, as the cartridge's is not.
         PixelPosition stood = Position;
-        MoveResult step = MoveBodyAcross(OverSlopes(headed.Toward(Pixels.FromWhole(1))), BodyMoves with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
+        MoveResult step = MoveBodyAcross(OverSlopes(headed.Toward(Pixels.FromWhole(1))), BodyMoves with { Slopes = SlopeTreatment.IgnoreMiddleHeld }, clearsWay: true);
         if (!step.Blocked)
             return to;
 

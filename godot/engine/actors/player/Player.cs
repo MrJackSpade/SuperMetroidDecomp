@@ -498,8 +498,13 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
     /// by <see cref="MoveBodyDown"/>, or tried by <see cref="TryBodyAcross"/> or <see cref="TryBodyDown"/>, whoever
     /// moves it, so that what the move reached is known (<see cref="Reaches"/>).
     /// </summary>
-    public MoveResult MoveBodyAcross(Pixels distance, MoveOptions options, Pixels? triedAs = null, Facing? stillToward = null) =>
-        Noted(Room.Mover.MoveAcross(Body, distance, options, triedAs, stillToward));
+    /// <param name="clearsWay">Whether an active body power first clears the way, as every move of the player's own across does.</param>
+    public MoveResult MoveBodyAcross(Pixels distance, MoveOptions options, Pixels? triedAs = null, Facing? stillToward = null, bool clearsWay = false)
+    {
+        if (clearsWay)
+            ClearWay(distance, Pixels.Zero);
+        return Noted(Room.Mover.MoveAcross(Body, distance, options, triedAs, stillToward));
+    }
 
     /// <summary>Moves the player's body down through the room's mover, upward when the distance is negative (<see cref="MoveBodyAcross"/>).</summary>
     public MoveResult MoveBodyDown(Pixels distance, MoveOptions options) => Noted(Room.Mover.MoveDown(Body, distance, options));
@@ -1841,11 +1846,10 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         _blockMove = _blockMove with { X = Pixels.Zero };
         Pixels distance = OverSlopes(reach) + carried;
         distance = distance.WithWhole(Math.Clamp(distance.Whole, -MostWholeAcross, MostWholeAcross));
-        ClearWay(distance, Pixels.Zero);
 
         // The slopes take their share of how far the player goes, not of how far ahead the move is tried. A move of
         // nothing is tried the way their speed would carry them.
-        MoveResult result = MoveBodyAcross(distance, BodyMoves, triedAs: reach + carried, stillToward: Travel);
+        MoveResult result = MoveBodyAcross(distance, BodyMoves, triedAs: reach + carried, stillToward: Travel, clearsWay: true);
         if (result.PutOnSlope)
             _putOnSlope = true;
         OnBodyMoved(across: true, distance, result.Moved);

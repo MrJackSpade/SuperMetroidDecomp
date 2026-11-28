@@ -8,10 +8,11 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A Polyp: a vent in the floor of a lava cave that lobs glowing rocks up into the air while Samus is near, each a
-/// random height and drift, with a random wait between.
+/// random height and drift, with a random wait between. The vent is the room's own; nothing of the Polyp is drawn, as
+/// the cartridge places it hidden (#3709).
 /// </summary>
 /// <remarks>
-/// Its timeline is "stationary". Its shot is "rock". Its data lists the sixteen speeds across a rock may leave with
+/// Its shot is "rock". Its data lists the sixteen speeds across a rock may leave with
 /// under "rock_drifts", and the eight waits between rocks under "cooldowns".
 /// </remarks>
 public partial class Polyp : Enemy
@@ -51,7 +52,6 @@ public partial class Polyp : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        Play("stationary");
         Random.Restart(17);
     }
 

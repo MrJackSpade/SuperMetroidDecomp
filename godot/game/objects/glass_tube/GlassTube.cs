@@ -17,14 +17,15 @@ namespace Game.Objects;
 /// bubbles, shaking the room. From then on it is broken for good and the water is in. The shards and bubbles are
 /// its own, and it stays until the last of them is gone: a shard flies out and then sinks, swaying along an arc; a
 /// bubble rises, and sways as it goes. Each draws a random number for where its sway starts as it begins to sway.
-/// A shard is shown by turns of the short count at its own column and mirrored across the tube, or hidden, and is
-/// taken away once it is far enough below the view.
+/// A shard is shown on every update, and one the cartridge shows by turns at its own column and mirrored across the
+/// tube is shown at both at once: the owner's ruling, as Classic draws them after #2639 (#3743). A shard is taken
+/// away once it is far enough below the view.
 /// </summary>
 /// <remarks>
 /// Its data names its pictures "intact", "cracking" and "shattered"; its effect "crack"; the timelines of a "bubble"
 /// and of the ten "shards", and, under "mirrors", each shard's picture with its mirror image; the terrain patch that
 /// opens it, "open_patch"; and its sounds. Its hurtbox is what a power bomb's blast reaches. A piece's timeline gives
-/// the cues "reflected" and "hidden", how a shard flickers; "rise" and "fall", which set it moving or sinking;
+/// the cue "reflected", for a shard shown at its mirror image too; "rise" and "fall", which set it moving or sinking;
 /// "sway", on which it draws the number its sway starts at; and "end", which takes it away.
 /// </remarks>
 public partial class GlassTube : RoomObject, IHittable
@@ -78,14 +79,6 @@ public partial class GlassTube : RoomObject, IHittable
         Swaying,
     }
 
-    /// <summary>How a shard is shown on the turns of the short count: as it is, by turns mirrored across the tube, or by turns hidden.</summary>
-    private enum Flicker
-    {
-        None,
-        Reflected,
-        Hidden,
-    }
-
     /// <summary>Where the crack starts, from where the tube stands, in pixels.</summary>
     private static readonly PixelOffset CrackAt = PixelOffset.FromWhole(96, 48);
 
@@ -125,13 +118,16 @@ public partial class GlassTube : RoomObject, IHittable
     private const int MirrorSpan = 256;
 
     /// <summary>One of its shards or bubbles: where it is, how it moves and is shown, and the visual that shows it.</summary>
-    private sealed class Piece(bool isShard, FrameTimeline timeline, ActorVisual visual, PixelPosition at, PixelVelocity speed)
+    private sealed class Piece(bool isShard, FrameTimeline timeline, ActorVisual visual, ActorVisual mirror, PixelPosition at, PixelVelocity speed)
     {
         public bool IsShard { get; } = isShard;
 
         public TimelinePlayer Timeline { get; } = new(timeline);
 
         public ActorVisual Visual { get; } = visual;
+
+        /// <summary>The visual that shows its mirror image across the tube, while it is <see cref="Reflected"/>.</summary>
+        public ActorVisual Mirror { get; } = mirror;
 
         /// <summary>Its own column, which it is shown at or mirrored across the tube from.</summary>
         public Pixels X { get; set; } = at.X;
@@ -142,10 +138,8 @@ public partial class GlassTube : RoomObject, IHittable
 
         public Motion Moving { get; set; } = isShard ? Motion.Flying : Motion.Still;
 
-        public Flicker Flickers { get; set; }
-
-        /// <summary>Whether its flicker shows it at its mirror image, or hides it, on this turn of the short count.</summary>
-        public bool AwayFromOwnColumn { get; set; }
+        /// <summary>Whether it is shown at its mirror image across the tube as well as at its own column.</summary>
+        public bool Reflected { get; set; }
 
         /// <summary>Where its sway is round the turn, in the cartridge's 256 steps of it.</summary>
         public int Sway { get; set; }
@@ -284,15 +278,20 @@ public partial class GlassTube : RoomObject, IHittable
     {
         FrameTimeline timeline = FrameTimeline.Read(Room.Content.ReadData(timelineFile));
         TimelineStep first = timeline.Steps[0];
-        var visual = new ActorVisual
+        ActorVisual Visual(string name)
         {
-            Name = isShard ? "Shard" : "Bubble", PictureOffset = new Vector2I(first.Offset.X, first.Offset.Y),
-            ZAsRelative = false, ZIndex = RoomDepth.Launched,
-        };
-        AddChild(visual);
-        visual.Bind(Room.Content);
-        visual.SetShown(false);
-        _pieces.Add(new Piece(isShard, timeline, visual, Position + from, speed));
+            var visual = new ActorVisual
+            {
+                Name = name, PictureOffset = new Vector2I(first.Offset.X, first.Offset.Y), ZAsRelative = false, ZIndex = RoomDepth.Launched,
+            };
+            AddChild(visual);
+            visual.Bind(Room.Content);
+            visual.SetShown(false);
+            return visual;
+        }
+
+        string name = isShard ? "Shard" : "Bubble";
+        _pieces.Add(new Piece(isShard, timeline, Visual(name), Visual(name + "Mirror"), Position + from, speed));
     }
 
     /// <summary>Plays an update of each of its pieces in turn, and takes away those that are gone.</summary>
@@ -303,8 +302,12 @@ public partial class GlassTube : RoomObject, IHittable
             Piece piece = _pieces[index];
             if (StepPiece(piece))
                 continue;
-            piece.Visual.SetShown(false);
-            piece.Visual.QueueFree();
+            foreach (ActorVisual visual in new[] { piece.Visual, piece.Mirror })
+            {
+                visual.SetShown(false);
+                visual.QueueFree();
+            }
+
             _pieces.RemoveAt(index--);
         }
     }
@@ -320,17 +323,12 @@ public partial class GlassTube : RoomObject, IHittable
         if (piece.IsShard && piece.Y.Whole - Room.Session.Camera.Top >= ShardGoneBelowView)
             return false;
 
-        // A flickering shard is at its own column on the odd turns of the short count.
-        bool atOwnColumn = Room.Session.Clock.ShortUpdates % 2 == 1;
         foreach (string cue in piece.Timeline.Step())
         {
             switch (cue)
             {
                 case "reflected":
-                    (piece.Flickers, piece.AwayFromOwnColumn) = (Flicker.Reflected, !atOwnColumn);
-                    break;
-                case "hidden":
-                    (piece.Flickers, piece.AwayFromOwnColumn) = (Flicker.Hidden, !atOwnColumn);
+                    piece.Reflected = true;
                     break;
                 case "rise":
                     piece.Moving = Motion.Flying;
@@ -387,23 +385,23 @@ public partial class GlassTube : RoomObject, IHittable
         return Pixels.FromParts(twoFiftySixths >> 8, (twoFiftySixths & 255) * 256);
     }
 
-    /// <summary>Shows a piece where it is, at its own column or mirrored across the tube, or hidden, as its flicker has it.</summary>
+    /// <summary>Shows a piece where it is, at its own column, and at its mirror image across the tube while it is reflected.</summary>
     private void ShowPiece(Piece piece)
     {
         string picture = piece.Timeline.Shown.Picture;
-        bool mirrored = piece.Flickers == Flicker.Reflected && piece.AwayFromOwnColumn && picture.Length > 0;
-        int column = piece.X.Whole;
-        if (mirrored)
-        {
-            picture = _mirrors.TryGetValue(picture, out string? image)
-                ? image
-                : throw new InvalidOperationException($"The glass tube's shard picture \"{picture}\" has no mirror image in its data.");
-            column = MirrorSpan - column;
-        }
-
+        int column = piece.X.Whole, down = piece.Y.Whole - Position.Y.Whole;
         piece.Visual.Show(picture);
-        piece.Visual.SetShown(!(piece.Flickers == Flicker.Hidden && piece.AwayFromOwnColumn));
-        piece.Visual.Position = new Vector2(column - Position.X.Whole, piece.Y.Whole - Position.Y.Whole);
+        piece.Visual.SetShown(true);
+        piece.Visual.Position = new Vector2(column - Position.X.Whole, down);
+
+        bool mirrored = piece.Reflected && picture.Length > 0;
+        piece.Mirror.SetShown(mirrored);
+        if (!mirrored)
+            return;
+        piece.Mirror.Show(_mirrors.TryGetValue(picture, out string? image)
+            ? image
+            : throw new InvalidOperationException($"The glass tube's shard picture \"{picture}\" has no mirror image in its data."));
+        piece.Mirror.Position = new Vector2(MirrorSpan - column - Position.X.Whole, down);
     }
 
     private void Leave(string effect, PixelOffset from, PixelVelocity speed)
@@ -420,7 +418,7 @@ public partial class GlassTube : RoomObject, IHittable
     {
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
-            if (!_pieces.Any(piece => piece.Visual == visual))
+            if (!_pieces.Any(piece => piece.Visual == visual || piece.Mirror == visual))
                 visual.Show(picture);
         }
     }

@@ -37,18 +37,24 @@ internal sealed partial class EngineSheets
     }
 
     /// <summary>
-    /// Cuts the frames of an enemy's sheets with the frame of a big boss's body of the same name laid over each: a
-    /// boss the old game drew as sprites over a body, each frame of the two named alike, cut as the one picture a frame
-    /// of it is. They are cut on one canvas, with the boss's place at the same point of each, as <see cref="Cut"/> does.
+    /// Cuts the frames of an enemy's sheets with the frame of a big boss's body of the same name: a boss the old game
+    /// drew as sprites with a body, each frame of the two named alike, cut as the one picture a frame of it is. The body
+    /// lies over a frame's sprites, but under those the old game draws in front of every tile, which lie in front of
+    /// it as they lie in front of the room (#3748). The sprites are shown as <paramref name="spriteShade"/> of their
+    /// sheets shows them: what the old game draws in a row whose colours it loads for that boss alone, as Crocomire's
+    /// skeleton's arm (#3752); a shade changes only the colours of the regions it names, so parts drawn in another row
+    /// keep their own. They are cut on one canvas, with the boss's place at the same point of each, as <see cref="Cut"/> does.
     /// </summary>
     /// <param name="tree">The tree the pictures are written to.</param>
     /// <param name="content">The installation's content directory, which holds the list of the bosses' bodies.</param>
     /// <param name="folder">The folder the pictures are written under.</param>
     /// <param name="owner">The boss, as the installation names its body.</param>
+    /// <param name="spriteShade">The shade of the enemy's sheets its sprites are shown in.</param>
     /// <param name="sheets">The enemy's sheets.</param>
-    /// <exception cref="InvalidDataException">The installation has no such body or sheet.</exception>
-    internal EngineSheetPictures CutWithBossBody(EngineAssetTree tree, string content, string folder, string owner, params ReadOnlySpan<string> sheets) =>
-        CutBossBodyLayers(tree, content, folder, owner, null, sheets.ToArray());
+    /// <exception cref="InvalidDataException">The installation has no such body or sheet, or a sheet lacks the shade.</exception>
+    internal EngineSheetPictures CutWithBossBody(
+        EngineAssetTree tree, string content, string folder, string owner, string spriteShade, params ReadOnlySpan<string> sheets) =>
+        CutBossBodyLayers(tree, content, folder, owner, null, spriteShade, sheets.ToArray());
 
     /// <summary>
     /// As <see cref="CutWithBossBody"/>, for an enemy whose sheets keep a part of each frame apart, to be drawn behind
@@ -57,10 +63,11 @@ internal sealed partial class EngineSheets
     /// </summary>
     internal EngineSheetPictures CutWithBossBodyAndBehind(
         EngineAssetTree tree, string content, string folder, string owner, string behind, params ReadOnlySpan<string> sheets) =>
-        CutBossBodyLayers(tree, content, folder, owner, behind, sheets.ToArray());
+        CutBossBodyLayers(tree, content, folder, owner, behind, null, sheets.ToArray());
 
-    /// <summary>Cuts the frames of an enemy's sheets with what lies behind and over each.</summary>
-    private EngineSheetPictures CutBossBodyLayers(EngineAssetTree tree, string content, string folder, string owner, string? behind, string[] sheets)
+    /// <summary>Cuts the frames of an enemy's sheets with what lies behind and over each, the sprites in <paramref name="spriteShade"/> where one is given.</summary>
+    private EngineSheetPictures CutBossBodyLayers(
+        EngineAssetTree tree, string content, string folder, string owner, string? behind, string? spriteShade, string[] sheets)
     {
         const string bodyFamily = GameInstallationLayout.BossBodySheetDirectoryName;
         string list = Path.Combine(content, bodyFamily, BossBodySheetFiles.ManifestFileName);
@@ -111,6 +118,7 @@ internal sealed partial class EngineSheets
         foreach ((string sheet, InstalledSheetDocument document) in documents)
         {
             SpriteImagePixels image = _store.Assemble(sheet, document);
+            Dictionary<(int Colour, int Region), RgbaPixel>? shaded = spriteShade is null ? null : ShadeOf(sheet, document, spriteShade);
             foreach ((string name, InstalledSheetFrameDocument frame) in document.Frames)
             {
                 if (paths.ContainsKey(name))
@@ -140,19 +148,23 @@ internal sealed partial class EngineSheets
                         int from = (laid.Corner.Y + y) * document.Size.X + laid.Corner.X, to = (down + y) * width + across;
                         for (int x = 0; x < laid.Size.X; x++)
                         {
-                            if (image.Pixels[from + x].A != 0)
-                                canvas[to + x] = image.Pixels[from + x];
+                            RgbaPixel pixel = image.Pixels[from + x];
+                            if (pixel.A == 0)
+                                continue;
+                            // A shade shows some of the sprites' colours as others, some of them only in one region of them.
+                            int region = image.RecolourRegions is { } regions ? regions[from + x] : 0;
+                            canvas[to + x] = shaded is not null && shaded.TryGetValue(((pixel.R << 16) | (pixel.G << 8) | pixel.B, region), out RgbaPixel recoloured)
+                                ? recoloured with { A = pixel.A }
+                                : pixel;
                         }
                     }
                 }
 
-                if (under is not null)
-                    Lay(under);
-                Lay(frame);
-
-                if (over is { Frame.Picture: not null } body)
+                // Lays the body: only where it shows something does it cover what is there.
+                void LayBody()
                 {
-                    // The body lies over the sprites: only where it shows something does it cover them.
+                    if (over is not { Frame.Picture: not null } body)
+                        return;
                     for (int y = 0; y < body.Frame.Size.Y; y++)
                     {
                         int from = (body.Frame.Corner.Y + y) * bodyDocument.Size.X + body.Frame.Corner.X, to = (body.Y - top + y) * width + body.X - left;
@@ -162,6 +174,21 @@ internal sealed partial class EngineSheets
                                 canvas[to + x] = bodyImage.Pixels[from + x];
                         }
                     }
+                }
+
+                if (under is not null)
+                    Lay(under);
+
+                // Sprites the old game draws in front of every tile lie in front of the body too; any others lie under it.
+                if (frame.Depth == ActorDepth.InFront)
+                {
+                    LayBody();
+                    Lay(frame);
+                }
+                else
+                {
+                    Lay(frame);
+                    LayBody();
                 }
 
                 string path = $"{folder}/{FileName(name)}.png";

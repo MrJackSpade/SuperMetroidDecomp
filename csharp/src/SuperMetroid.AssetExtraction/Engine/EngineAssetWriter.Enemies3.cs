@@ -216,7 +216,7 @@ public sealed partial class EngineAssetWriter
             .ProjectileData("enemies/polyp_rock.json", "PolypRock",
                 ("curve_marks", EngineNames.Marks(PolypLaunchDefinitions.RockFallStep)),
                 ("fastest_fall_mark", EngineNames.Marks(PolypLaunchDefinitions.RockFastestFallPlace)))
-            .Looks(PolypAnimations.Segments, PolypAnimations.StartingWith, ("stationary", PolypSegment.Stationary))
+            // It has no look: the cartridge places every Polyp hidden, and only its rocks are seen (#3709).
             .Write();
     }
 }

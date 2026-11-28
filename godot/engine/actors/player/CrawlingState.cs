@@ -75,8 +75,11 @@ public sealed class CrawlingState : PlayerState
         _asOnGround = false;
     }
 
+    /// <summary>Whether a throw has carried it since it last moved by itself.</summary>
+    private bool _thrown;
+
     /// <summary>Thrown, it has bounced no times: it comes down from the throw as from any fall.</summary>
-    public override void OnThrown(Player owner) => _bounces = 0;
+    public override void OnThrown(Player owner) => (_bounces, _thrown) = (0, true);
 
     /// <summary>
     /// Left while it is bouncing, as a change of posture leaves it, the bounce is over: the player is left with no
@@ -169,8 +172,19 @@ public sealed class CrawlingState : PlayerState
     /// </summary>
     public override PlayerState? Move(Player owner)
     {
+        bool afterThrow = _thrown;
+        _thrown = false;
         bool settled;
-        if (!_airborne)
+        if (!_airborne && afterThrow)
+        {
+            // Thrown off the ground, its first move of its own is not pressed down to find the ground: the throw has
+            // left it falling from rest, so it goes on as it is, which is nowhere, and is in the air from here.
+            RollAcross(owner);
+            owner.FallFromRest();
+            (_airborne, _jumping, _bounces) = (true, false, 0);
+            settled = true;
+        }
+        else if (!_airborne)
         {
             settled = MoveOnGround(owner);
         }

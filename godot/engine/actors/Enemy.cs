@@ -730,6 +730,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (IsDead)
             return;
         IsDead = true;
+
+        // Dead, it stands in nobody's way from this moment: what moves later on the update it died on, as the
+        // player does who stood on it frozen, does not meet it.
+        DropFrozenSolid();
+        if (Solid is not null)
+            Solid.Enabled = false;
         Room.CountKilled();
         if (!RespawnsWhenKilled)
             Room.MarkGone(Name);

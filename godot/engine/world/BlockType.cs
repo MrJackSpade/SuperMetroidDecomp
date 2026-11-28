@@ -62,7 +62,7 @@ public sealed class BlockType
     /// <summary>Whether being stood on breaks it.</summary>
     public bool BreaksWhenStoodOn { get; private init; }
 
-    /// <summary>How many updates it lasts once stood on, before it breaks.</summary>
+    /// <summary>How many updates it lasts once stood on, the update it is first stood on being the first, before it breaks.</summary>
     public int StoodOnUpdates { get; private init; }
 
     /// <summary>

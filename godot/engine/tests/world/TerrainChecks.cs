@@ -84,7 +84,7 @@ public sealed class TerrainChecks
         var feet = new PixelRect(4, 0, 8, 16);
         room.Terrain.StandOn(feet);
 
-        room.Terrain.Step(_ => false);
+        // It lasts two updates, the one it is stood on and the next.
         room.Terrain.Step(_ => false);
         Expect.False(room.Terrain.Blocks[0].Broken);
         room.Terrain.Step(_ => false);

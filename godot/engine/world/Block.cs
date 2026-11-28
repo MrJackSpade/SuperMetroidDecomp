@@ -149,14 +149,13 @@ public sealed class Block
     {
         if (_stoodOn)
         {
-            if (_giveWay.IsOver)
-            {
-                Break();
-                return true;
-            }
-
+            // The update it is first stood on, or latched onto, is the first of those it lasts: it breaks as the
+            // last of them ends, and is gone from the next.
             _giveWay = _giveWay.Stepped();
-            return false;
+            if (!_giveWay.IsOver)
+                return false;
+            Break();
+            return true;
         }
 
         if (!Broken)

@@ -92,11 +92,12 @@ public sealed class KnockedBackState : PlayerState
 
     /// <summary>
     /// The throw moves the player for as long as it lasts, so this is the update after it: they are pressed down
-    /// once more, and stand if that met ground, or fall.
+    /// once more as one on the ground is, by as far as the throw last set out to carry them across, whatever a wall
+    /// then left of their speed, and a pixel more; and stand if that met ground, or fall.
     /// </summary>
     public override PlayerState? Move(Player owner)
     {
-        if (!Throw.PressDown(owner).Blocked)
+        if (!owner.PressToGround())
             return new FallingState(offFloor: true);
         owner.Land(Pixels.Zero);
         return new StandingState();

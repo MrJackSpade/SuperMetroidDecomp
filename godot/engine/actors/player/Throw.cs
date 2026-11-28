@@ -82,7 +82,4 @@ public sealed class Throw
         owner.EndThrow();
         return state;
     }
-
-    /// <summary>Moves the player down by as far as they move across this update and one pixel more, with no speed of their own.</summary>
-    internal static MoveResult PressDown(Player owner) => owner.MoveDownBy(owner.SpeedAcross.Abs() + Pixels.FromWhole(1));
 }

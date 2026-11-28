@@ -343,9 +343,11 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _stage = Stage.Crashed;
         FlownFrom = null;
 
-        // Her boost and her speed end as she crashes. How far the echoes have circled is not started over.
+        // Her boost and her speed end as she crashes, and with them the rise the windup set her on, which a flight
+        // across never turned into anything else. How far the echoes have circled is not started over.
         samus.EndBoost();
         samus.Velocity = PixelVelocity.Zero;
+        samus.FallFromRest();
         samus.EndHurt();
         (_crash, _crashRadius) = (Crash.Expanding, 0);
         (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);

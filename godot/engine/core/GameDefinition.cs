@@ -292,12 +292,27 @@ public abstract partial class GameDefinition : Resource
             ?? throw new InvalidOperationException($"The player scene's root is a {root.GetType().Name}, not a Player.");
     }
 
-    /// <summary>Makes the room at <paramref name="scenePath"/>.</summary>
+    /// <summary>
+    /// The room scenes loaded so far, by path, kept for as long as the game runs. A room's scene carries resources of
+    /// the engine's own scripted kinds (its versions and their conditions), and the loader finds those again by the
+    /// scene's path for as long as they exist. A scene let go after its room was made leaves them alive only through
+    /// their managed halves: once the room is gone the collector takes those, and a load of the same scene that
+    /// comes after they are collected and before they are finalized finds resources with no managed half, which ends
+    /// the process. Held here, a scene's resources live as long as the scene can be asked for.
+    /// </summary>
+    private readonly Dictionary<string, PackedScene> _roomScenes = [];
+
+    /// <summary>Makes the room at <paramref name="scenePath"/>, from its scene, which is loaded once and kept.</summary>
     /// <exception cref="InvalidOperationException">The scene does not exist, or its root is not a room.</exception>
     public virtual Room CreateRoom(string scenePath)
     {
-        PackedScene scene = ResourceLoader.Load<PackedScene>(scenePath)
-            ?? throw new InvalidOperationException($"There is no room scene at \"{scenePath}\".");
+        if (!_roomScenes.TryGetValue(scenePath, out PackedScene? scene))
+        {
+            scene = ResourceLoader.Load<PackedScene>(scenePath)
+                ?? throw new InvalidOperationException($"There is no room scene at \"{scenePath}\".");
+            _roomScenes.Add(scenePath, scene);
+        }
+
         Node root = scene.Instantiate();
         return root as Room
             ?? throw new InvalidOperationException($"The scene \"{scenePath}\" has a {root.GetType().Name} at its root, not a Room.");

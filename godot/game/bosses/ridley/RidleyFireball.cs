@@ -131,9 +131,20 @@ public partial class RidleyFireball : Projectile, IHasValues
                 bool struckFloor = !struckWall && MoveDownMeetingTerrain(room, _speed.Y);
                 if (!struckWall && !struckFloor)
                     break;
-                // Where it strikes a wall its flames run up and down; on a floor or ceiling, across.
+                // Where it strikes a wall its flames run up and down; on a floor or ceiling, across. It goes on as
+                // the flare: the flare holds the place the fireball held among what the enemies have launched, and
+                // has its first turn here, within the fireball's, as the cartridge's fireball carries on where it is
+                // with the flare's part to play. The flames it sends off then take places after its own, and each
+                // has its first turn on the update it appears.
                 if (Afterburns > 0)
-                    LeaveFire(room, struckWall ? FlareDown : FlareAcross, PixelVelocity.Zero, Afterburns, !struckWall, null);
+                {
+                    RidleyFireball flare = Fire(room, struckWall ? FlareDown : FlareAcross, PixelVelocity.Zero, Afterburns, !struckWall, null);
+                    room.SpawnInPlaceOf(this, flare);
+                    Leave(room);
+                    flare.Step();
+                    break;
+                }
+
                 Leave(room);
                 break;
 
@@ -146,11 +157,15 @@ public partial class RidleyFireball : Projectile, IHasValues
     }
 
     /// <summary>Leaves another piece of fire where it is, doing the harm given, or its own shot's when none is.</summary>
-    private void LeaveFire(Room room, string shotFile, PixelVelocity speed, int afterburns, bool runsAcross, int? damage)
+    private void LeaveFire(Room room, string shotFile, PixelVelocity speed, int afterburns, bool runsAcross, int? damage) =>
+        room.Spawn(Fire(room, shotFile, speed, afterburns, runsAcross, damage));
+
+    /// <summary>Makes another piece of fire where it is, not yet in the room.</summary>
+    private RidleyFireball Fire(Room room, string shotFile, PixelVelocity speed, int afterburns, bool runsAcross, int? damage)
     {
         ShotType shot = ShotType.Read(room.Content.ReadData(shotFile));
         var fire = (RidleyFireball)shot.LaunchDoing(damage ?? shot.Damage, Position, speed, Side, Launcher, Hit.Source);
         (fire.Afterburns, fire.RunsAcross, fire._flameDamage) = (afterburns, runsAcross, _flameDamage);
-        room.Spawn(fire);
+        return fire;
     }
 }

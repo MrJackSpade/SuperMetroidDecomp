@@ -1460,7 +1460,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.
 - **A special attack** is let loose while the attack is still held, once it has been held `special_attack_updates`.
 - **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
-  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update. Its windup ends a knockback she
+  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update. Its windup stops her and sets
+  her rising, at rest, so that the view follows what she moved on that update as it follows a rise. It ends a knockback she
   carries as it begins (a throw, and what she carries of one she let a damage boost go with,
   `Samus.EndCarriedKnockback`); begun on the very update a knockback's time runs out, the throw's
   (`Player.ThrowRanOut`) or the carried one's, it is left standing, never counted down and open to hits, until a

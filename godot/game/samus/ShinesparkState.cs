@@ -151,6 +151,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         samus.EndCarriedKnockback();
         owner.Velocity = PixelVelocity.Zero;
 
+        // The windup sets her rising, at rest, whichever way she was going: the view follows what she moved on this
+        // update, a fall the windup was begun out of among it, as it follows a rise.
+        owner.Rise(Pixels.Zero);
+
         // The knockback ending then leaves her falling from rest, after the windup is set up.
         if (_leftStanding)
             owner.FallFromRest();

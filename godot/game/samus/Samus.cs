@@ -1278,7 +1278,10 @@ public partial class Samus : Player
         // A run taken up afresh starts its stride again.
         if (!alreadyRunning && RunStrideUpdates.Length > 0)
             (_strideAt, _strideLeft) = (0, RunStrideUpdates[0] + PictureHold(asChangeBegins: true));
-        RunPose pose = NextRunPose(alreadyRunning);
+
+        // A run that goes on with nothing asked of it stays in the pose it has: fire held with no way held brings no
+        // arm out, so that fire held with a way afterwards still does, and steps her on for it.
+        RunPose pose = alreadyRunning && unasked ? _runPose : NextRunPose(alreadyRunning);
         bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
         _runPose = pose;
         if (!stepsOn)

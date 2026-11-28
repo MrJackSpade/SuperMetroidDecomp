@@ -36,8 +36,14 @@ public sealed class Block
     /// <summary>How many updates it has been broken for.</summary>
     private int _brokenFor;
 
+    /// <summary>
+    /// Whether, broken by a hit that did not open it at once, it still stands in the way: from the hit until its
+    /// timers are next moved on.
+    /// </summary>
+    private bool _standsYet;
+
     /// <summary>Whether the block is solid right now.</summary>
-    public bool IsSolid => Type.Solid && (!Broken || Type.StaysSolid || (Type.BlocksWhileCrumbling && ShowsChange()));
+    public bool IsSolid => Type.Solid && (!Broken || _standsYet || Type.StaysSolid || (Type.BlocksWhileCrumbling && ShowsChange()));
 
     /// <summary>
     /// Whether the last picture of its breaking showed on the update before this one: the update a type that has a
@@ -48,12 +54,16 @@ public sealed class Block
     /// <summary>Shows the block for what it is.</summary>
     internal void Reveal() => Hidden = false;
 
-    /// <summary>Breaks the block and starts its regrowth, if it regrows.</summary>
-    internal void Break()
+    /// <summary>
+    /// Breaks the block and starts its regrowth, if it regrows. One that <paramref name="standsYet"/> goes on
+    /// standing in the way until its timers are next moved on, broken as it is.
+    /// </summary>
+    internal void Break(bool standsYet = false)
     {
         Broken = true;
         Hidden = false;
         _stoodOn = false;
+        _standsYet = standsYet;
         _brokenFor = 0;
         _regrow = Countdown.Of(Type.RegrowsAfter);
     }
@@ -142,6 +152,9 @@ public sealed class Block
         bool wasSeen = _seenFor > 0;
         if (wasSeen)
             _seenFor--;
+
+        // One a hit broke and left standing is out of the way from here.
+        _standsYet = false;
         return StepTimers(spaceIsClear) | wasSeen;
     }
 

@@ -2125,7 +2125,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         foreach (BodyPower power in _bodyPowers)
         {
             if (power.IsActive)
-                Room.Terrain.TakeHit(power.Hit with { Source = this }, way);
+                Room.Terrain.TakeHit(power.Hit with { Source = this }, way, atOnce: true);
         }
     }
 
@@ -2278,7 +2278,7 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
             foreach ((IHittable target, HitResult result) in Room.DeliverHit(hit, reach, from: this, landsOn: target => target is not Enemy))
                 OnBodyPowerLanded(power, target, result);
 
-            Room.Terrain.TakeHit(hit, reach);
+            Room.Terrain.TakeHit(hit, reach, atOnce: true);
         }
     }
 

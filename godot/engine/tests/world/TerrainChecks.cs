@@ -44,8 +44,22 @@ public sealed class TerrainChecks
         Expect.True(room.Terrain.IsSolidIn(area, SlopeTreatment.Climb));
 
         Expect.Equal(1, room.Terrain.TakeHit(Shot, area).Count);
-        Expect.False(room.Terrain.IsSolidIn(area, SlopeTreatment.Climb));
         Expect.True(room.Terrain.Blocks[0].Broken);
+
+        // Broken, it stands in the way until the terrain's own step.
+        Expect.True(room.Terrain.IsSolidIn(area, SlopeTreatment.Climb));
+        room.Terrain.Step(_ => false);
+        Expect.False(room.Terrain.IsSolidIn(area, SlopeTreatment.Climb));
+    }
+
+    [Check]
+    public void AHitThatOpensTheWayAtOnceLeavesNothingStanding()
+    {
+        using var room = new StandInRoom("S.", "##");
+        var area = new PixelRect(0, 0, 16, 16);
+
+        Expect.Equal(1, room.Terrain.TakeHit(Shot, area, atOnce: true).Count);
+        Expect.False(room.Terrain.IsSolidIn(area, SlopeTreatment.Climb));
     }
 
     [Check]

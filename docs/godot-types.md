@@ -679,7 +679,7 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Rule | Choices |
 | --- | --- |
 | Solid or passable | Solid; passable. |
-| Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). |
+| Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). One a hit breaks stands in the way until the terrain's own step, after the player has moved: a shot or a burst that struck it earlier in the update has not opened it to that update's moves, as the cartridge's struck block is solid until its block handler's turn. What the player's body breaks by moving into it opens at once (`Terrain.TakeHit`, `atOnce`). |
 | After breaking | Gone until the room is next set up; regrows after a set time. |
 | Remembered | Nothing; or a fact recorded as it breaks (`records`), for a wall whose breaking the game goes on by: the wall the animals leave by in the escape records that they have. |
 | Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability, which shows it for what it is only for as long as it sees it. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back, unless its type says it hides again. |

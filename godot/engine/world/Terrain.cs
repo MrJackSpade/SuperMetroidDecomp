@@ -519,9 +519,13 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
     /// <summary>
     /// Lands a hit on the terrain within <paramref name="area"/>. Each intact block there is revealed if the hit carries
-    /// a kind that reveals it, and broken if it carries a kind that breaks it. Returns the blocks broken.
+    /// a kind that reveals it, and broken if it carries a kind that breaks it. A block broken goes on standing in the
+    /// way until the terrain's own step (<see cref="Step"/>), which comes after the player has moved: what struck it
+    /// earlier in the update, a shot or a burst, has not opened it to that update's moves. A hit that opens the way
+    /// <paramref name="atOnce"/> leaves nothing standing, as what a body breaks by moving into it does. Returns the
+    /// blocks broken.
     /// </summary>
-    public IReadOnlyList<Block> TakeHit(Hit hit, PixelRect area)
+    public IReadOnlyList<Block> TakeHit(Hit hit, PixelRect area, bool atOnce = false)
     {
         var broken = new List<Block>();
         bool revealed = false;
@@ -535,7 +539,7 @@ public partial class Terrain : Node2D, ITerrainShape, Ui.IRecoloured
 
             if (hit.CarriesAny(block.Type.BrokenBy))
             {
-                block.Break();
+                block.Break(standsYet: !atOnce);
                 NoteBroken(block, hit);
                 broken.Add(block);
             }

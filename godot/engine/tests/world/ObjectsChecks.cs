@@ -154,7 +154,7 @@ public sealed class ObjectsChecks
         world.Setup();
         Expect.True(item.IsCovered);
 
-        world.Room.Terrain.TakeHit(new Hit(1, HitSide.Player, new HitKind("shot")), new PixelRect(48, 64, 16, 16));
+        world.Room.Terrain.TakeHit(new Hit(1, HitSide.Player, new HitKind("shot")), new PixelRect(48, 64, 16, 16), atOnce: true);
         Expect.False(item.IsCovered);
         world.Step(30, GameAction.Right);
         Expect.True(world.Player.Inventory.Owns("boots"));

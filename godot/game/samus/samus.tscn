@@ -46,7 +46,6 @@ script = ExtResource("4")
 script = ExtResource("7")
 
 [node name="Grapple" type="Node2D" parent="."]
-show_behind_parent = true
 script = ExtResource("5")
 
 [node name="Xray" type="Node2D" parent="."]

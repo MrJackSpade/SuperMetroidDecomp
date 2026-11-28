@@ -28,7 +28,7 @@ namespace Game;
 /// does not stop it. A line given up while reaching out ends on the update after, when its end is heard. While it is
 /// out her beams' colours are those of the beams its data names, and her own again as it ends.
 /// <para>
-/// It is shown by the cartridge's own pictures, in her colours: a chain of the line's pictures from where it leaves
+/// It is shown by the cartridge's own pictures, in her colours, in front of every tile of the room: a chain of the line's pictures from where it leaves
 /// her toward its end, one for every so many pixels of its counted length and at least one, each showing the
 /// picture before its neighbour's in a pattern that steps on as one; and its end's picture at its end, stepping
 /// through its own. Which set of the line's pictures shows is by the line's angle. Nothing of it shows on the
@@ -539,7 +539,8 @@ public partial class SamusGrapple : Node2D
 
     private ActorVisual NewPicture(Samus samus, string name, LinePictures line)
     {
-        var picture = new ActorVisual { Name = name, PictureOffset = line.Offset };
+        // The cartridge draws the line and its end in front of every tile of the room, the block it holds too (#3753).
+        var picture = new ActorVisual { Name = name, PictureOffset = line.Offset, ZAsRelative = false, ZIndex = RoomDepth.InFrontOfRoom };
         AddChild(picture);
         picture.Bind(samus.Room.Content);
         return picture;

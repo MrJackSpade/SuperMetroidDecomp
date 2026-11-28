@@ -27,8 +27,10 @@ public sealed partial class EngineAssetWriter
         const string pieceScene = "res://game/bosses/crocomire/crocomire_spike_piece.tscn";
         const string bridgeWall = "bridge_wall", skeletonWall = "skeleton_wall", wallBreaking = "spike_wall_breaking", breakThrough = "break_through_bridge";
 
-        // A frame of it is the old game's sprites with the frame of its body of the same name over them.
-        EngineSheetPictures pictures = _sheets.CutWithBossBody(_tree, _installation.ContentDirectory, folder, "Crocomire",
+        // A frame of it is the old game's sprites with the frame of its body of the same name, the body over the sprites
+        // but under those drawn in front of every tile, as its arm is. Its skeleton draws its arm in the arm's own row,
+        // whose colours are its bones' (#3752); the rest of its sprites lie in no region that shade changes.
+        EngineSheetPictures pictures = _sheets.CutWithBossBody(_tree, _installation.ContentDirectory, folder, "Crocomire", CrocomireShades.SkeletonArm.Key,
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.Crocomire)),
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.CrocomireTongue)));
         var crocomire = new EngineEnemy(_tree, _sheets, file, "Crocomire", EnemyDefinitionId.Crocomire, pictures, EngineEnemy.NoPlaces);

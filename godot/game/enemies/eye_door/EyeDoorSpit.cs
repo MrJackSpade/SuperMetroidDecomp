@@ -10,7 +10,8 @@ namespace Game.Enemies;
 /// <summary>
 /// What the eye of an eye door spits. It forms in front of the eye, then flies at where Samus was, gathering speed
 /// all the way, and bursts on terrain. A shot stops it where it is in a cloud of fire, which its settings play as its
-/// end.
+/// end. It harms her at a touch from the update it is spat, forming, flying and bursting alike, as the cartridge's
+/// does, which is never told to pass her by.
 /// </summary>
 /// <remarks>
 /// Its timeline gives the cue "aim" to take aim, "fly" to set off, "stop" to come to rest, and "end" to take it
@@ -29,9 +30,6 @@ public partial class EyeDoorSpit : Projectile, IHasValues
     private PixelVelocity _speed;
     private PixelVelocity _gain;
     private bool _flying;
-
-    /// <inheritdoc/>
-    protected override bool DeliversHitNow => _flying && base.DeliversHitNow;
 
     /// <inheritdoc/>
     public void ReadValues(DataNode data)

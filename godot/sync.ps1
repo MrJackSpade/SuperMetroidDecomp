@@ -6,22 +6,15 @@
 # This merges main and every movie/* branch, but for the branch checked out here, into that branch. Nothing is pushed
 # and nothing is fetched: the worktrees share one repository, so a commit made in one is there for the others.
 #
-# Edits not yet committed here are set aside for the merge and put back after it (git's --autostash). Where a merge
-# brings a change to the extractor or to the old code it reads, this checkout's assets are marked as needing to be
-# made again; godot/assets.ps1 makes them and takes the mark away.
+# Edits not yet committed here are set aside for the merge and put back after it (git's --autostash). A merge that
+# brings a change to the extractor or to the old code it reads leaves this checkout's assets older than its
+# extractor; godot/assets.ps1 -IfStale, which godot/movie.ps1 runs next, sees that for itself and makes them again.
 #
 # It ends with 0 when there was nothing to merge or all of it merged, with 1 when a merge needs somebody's hand (the
 # two sides changed the same lines, or the edits put back met what was merged): the files are listed, and are left as
 # git leaves them for that to be done. It ends with 2 on an error.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-
-# The mark a checkout carries, in its own git folder, while its assets are older than its extractor.
-function Get-StaleAssetsMark([string] $Root) {
-    $gitFolder = (& git -C $Root rev-parse --absolute-git-dir)
-    if ($LASTEXITCODE -ne 0) { throw "No git folder for $Root." }
-    return Join-Path $gitFolder 'movie-assets-stale'
-}
 
 # The paths git holds as not merged yet.
 function Get-UnmergedPaths([string] $Root) {
@@ -50,7 +43,6 @@ try {
         if ($LASTEXITCODE -eq 0) { continue }
         if ($LASTEXITCODE -ne 1) { throw "git could not tell whether $branch is already in $here." }
 
-        $before = (& git -C $root rev-parse HEAD)
         $arriving = @(& git -C $root log '--format=  %h %s' "HEAD..$branch")
         $said = (& git -C $root merge --no-edit --autostash $branch 2>&1 | Out-String)
         $merged = $LASTEXITCODE -eq 0
@@ -71,13 +63,6 @@ try {
 
         Write-Output "Merged $branch into ${here}:"
         $arriving | ForEach-Object { Write-Output $_ }
-
-        $extractor = @(& git -C $root diff --name-only $before HEAD -- csharp/src)
-        if ($LASTEXITCODE -ne 0) { throw "git could not list what the merge of $branch changed." }
-        if ($extractor.Count -gt 0) {
-            Set-Content -Path (Get-StaleAssetsMark $root) -Value "Merged $branch at $(& git -C $root rev-parse --short HEAD)."
-            Write-Output "  It changed the extractor's sources: this checkout's assets are to be made again."
-        }
     }
 
     exit 0

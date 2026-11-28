@@ -1,5 +1,5 @@
-# Merges the other movie checkouts' committed work into this one (godot/sync.ps1), makes the assets again where that
-# or a new checkout calls for it (godot/assets.ps1), builds the Godot project, then plays one recorded movie through
+# Merges the other movie checkouts' committed work into this one (godot/sync.ps1), makes the assets again where the
+# extractor's sources are no longer what they were made from (godot/assets.ps1 -IfStale), builds the Godot project, then plays one recorded movie through
 # the game headless and checks the game against the cartridge on every update. The one way a movie is played.
 # Usage: pwsh -File godot/movie.ps1 <movie> [-Until N] [-NoBuild]
 #   <movie> is a folder under csharp/test-fixtures/replay-traces (low-13-percent, lowc, full-100-percent, ...), or a path.
@@ -23,12 +23,8 @@ try {
         if ($LASTEXITCODE -eq 1) { exit 4 }
         if ($LASTEXITCODE -ne 0) { exit 2 }
 
-        $gitFolder = (& git -C $PSScriptRoot rev-parse --absolute-git-dir)
-        if ($LASTEXITCODE -ne 0) { throw "No git folder for $PSScriptRoot." }
-        if ((Test-Path (Join-Path $gitFolder 'movie-assets-stale')) -or -not (Test-Path (Join-Path $PSScriptRoot 'assets'))) {
-            & pwsh -NoProfile -NonInteractive -File (Join-Path $PSScriptRoot 'assets.ps1')
-            if ($LASTEXITCODE -ne 0) { exit 2 }
-        }
+        & pwsh -NoProfile -NonInteractive -File (Join-Path $PSScriptRoot 'assets.ps1') -IfStale
+        if ($LASTEXITCODE -ne 0) { exit 2 }
 
         & pwsh -NoProfile -NonInteractive -File (Join-Path $PSScriptRoot 'build.ps1')
         if ($LASTEXITCODE -ne 0) { exit 2 }

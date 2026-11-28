@@ -98,6 +98,13 @@ public abstract class PlayerState : State<Player>
     public virtual bool InAnothersHands => false;
 
     /// <summary>
+    /// Whether the liquid the player's feet are in harms them in this state. It does unless the state says not: one
+    /// that holds them as they are, with nothing of theirs playing, as the cartridge's liquid acts on Samus as part
+    /// of her own pictures' turn.
+    /// </summary>
+    public virtual bool HarmedByLiquid => true;
+
+    /// <summary>
     /// What of the player the room's triggers are tried against after this state has moved: their body, unless the
     /// state says otherwise; nothing for a state in which the player meets no trigger.
     /// </summary>

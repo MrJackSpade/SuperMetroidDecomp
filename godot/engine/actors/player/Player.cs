@@ -2412,8 +2412,12 @@ public abstract partial class Player : Node2D, IRoomEntity, IHittable, IHasValue
         int fromRoom = 0;
         foreach ((string source, int amount) in Room.OngoingDamageAt(Feet))
         {
-            if (Room.Liquid is { } liquid && source == liquid.Type.Name && Inventory.IsAnyOn(liquid.Type.DamageCancelledBy))
+            if (Room.Liquid is { } liquid && source == liquid.Type.Name &&
+                (!State.HarmedByLiquid || Inventory.IsAnyOn(liquid.Type.DamageCancelledBy)))
+            {
                 continue;
+            }
+
             if (IsCancelled(source))
                 continue;
             fromRoom += amount;

@@ -26,6 +26,9 @@ public sealed class HeldState(PlayerState was, bool keepsSpeed = false) : Player
     /// <inheritdoc/>
     public override bool InAnothersHands => true;
 
+    /// <summary>Held as they are, nothing of the player's plays, and the liquid they are carried into does them no harm.</summary>
+    public override bool HarmedByLiquid => !keepsSpeed;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {

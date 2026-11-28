@@ -10,7 +10,9 @@ namespace Engine.World.Objects;
 /// <remarks>
 /// Its data may name the timeline that shows it, "rest". A hazard whose reach changes as it is shown says so in that
 /// timeline: the cue "area:left:top:width:height" makes that region, measured from where it stands, the one it
-/// covers, and "safe" makes it cover nothing, until the next of either.
+/// covers, and "safe" makes it cover nothing, until the next of either. Its touch is tried, each update, before its
+/// look moves on: a region holds for the updates of its step, each an update after the step shows, as the cartridge
+/// tries an enemy's touch before the enemy takes its turn.
 /// </remarks>
 public partial class Hazard : RoomObject
 {
@@ -31,7 +33,8 @@ public partial class Hazard : RoomObject
 
     /// <summary>
     /// The most updates it stays out of sight, covering nothing, once the room is entered: it draws a number from 1
-    /// to this for the wait. Zero for one that is there at once.
+    /// to this for the wait, stays out for that many of its turns, and is there on the next. Zero for one that is
+    /// there at once.
     /// </summary>
     [Export]
     public int StartsWithinUpdates { get; set; }
@@ -40,6 +43,9 @@ public partial class Hazard : RoomObject
     private TimelinePlayer? _showing;
     private PixelRect? _reach;
     private bool _safe;
+
+    /// <summary>Whether it has yet to come into sight, and how many more of its turns it stays out for.</summary>
+    private bool _waiting;
     private int _startsIn;
 
     /// <summary>The region of the room the hazard covers; empty while it covers nothing.</summary>
@@ -59,12 +65,12 @@ public partial class Hazard : RoomObject
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_reach, _safe, _startsIn) = (null, false, 0);
+        (_reach, _safe, _waiting, _startsIn) = (null, false, false, 0);
         if (StartsWithinUpdates > 0)
         {
             // Until its wait is over it shows nothing and covers nothing.
             _startsIn = Room.Session.Random.Draw().Below(StartsWithinUpdates) + 1;
-            _safe = true;
+            (_safe, _waiting) = (true, true);
             _showing = null;
             foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
                 visual.Show("");
@@ -77,16 +83,23 @@ public partial class Hazard : RoomObject
     /// <inheritdoc/>
     protected override void OnStep()
     {
-        Player player = Room.Player;
-        if (_startsIn > 0)
+        // Its touch is tried first, with the region the update before left it.
+        Touch();
+        if (_waiting)
         {
-            if (--_startsIn > 0)
+            if (_startsIn-- > 0)
                 return;
-            _safe = false;
+            (_waiting, _safe) = (false, false);
             ShowAtRest();
         }
 
         StepLook();
+    }
+
+    /// <summary>Hits the player if they are in the region it covers.</summary>
+    private void Touch()
+    {
+        Player player = Room.Player;
         if (!Area.Overlaps(player.BodyRect))
             return;
         // Its hit is a touch, as an enemy's is: the hurt it gives lasts as a touch's does, not as the terrain's, and
